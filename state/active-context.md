@@ -67,3 +67,12 @@ Later: implement session closeout automation.
 - Added/updated `projects/wsl-home-project-candidates.md`.
 - Added/updated `systems/wsl-home-safe-discovery.md`.
 - Secrets, tokens, credentials, env files, auth files, and raw transcripts were not ingested.
+
+## 2026-06-10 23:51 — AIRO Sync operating cadence clarified
+- owner-confirmed: AIRO Sync means this consumer acts as an AIRO ecosystem operator, not a separate assistant.
+- owner-confirmed: meaningful decisions, progress, blockers, discussion outcomes, project state, and next actions should be distilled and pushed to AIRO Second Brain after meaningful segments.
+- verified: this does not mean raw chat transcript dumping.
+- verified: this does not mean secret/token/OAuth/email-body capture.
+- verified: this does not mean unavailable sessions or other AI chats can be claimed as scanned.
+- verified: other AI sessions must either push their own closeout or provide safe distilled output for ingestion.
+- current-state: AIRO Finance Task 8 remains closed; Task 9 not started; mandatory remaining count 4.

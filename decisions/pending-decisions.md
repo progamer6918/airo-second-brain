@@ -63,3 +63,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: Dashboard migration away from Finance Events toward Account Ledger/domain tabs.
 - pending: Task 9 final regression, cleanup, documentation, and owner acceptance checklist.
 - unknown: whether Task 10 Alert Engine will be activated.
+
+## 2026-06-10 23:51 — AIRO Sync cross-consumer automation pending
+- owner-confirmed: owner wants AIRO Sync to keep Second Brain updated from meaningful decisions/progress across ChatGPT, other chat sessions, and other AI tools.
+- pending: define exact automation mechanism for cross-consumer closeout ingestion.
+- pending: decide whether Hermes/Earesmes, Antigravity, Claude, and future agents should auto-write to inbox/state/changelog after meaningful work.
+- constraint: no raw transcript dump, no secrets, no unavailable-session claims.

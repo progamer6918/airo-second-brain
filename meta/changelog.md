@@ -61,3 +61,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - Added broad WSL home discovery report: `inbox/wsl-home-broad-safe-discovery-2026-06-10-2322.md`.
 - Added/updated project candidates index: `projects/wsl-home-project-candidates.md`.
 - Added/updated discovery policy/map: `systems/wsl-home-safe-discovery.md`.
+
+## 2026-06-10 23:51
+- docs: captured owner-confirmed AIRO Sync operating cadence.
+- state: clarified meaningful deltas should be pushed to AIRO Second Brain after task segments.
+- decisions: added pending cross-consumer automation mechanism for AIRO Sync.
