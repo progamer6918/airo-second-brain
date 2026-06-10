@@ -104,3 +104,8 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: deploy Credit Card source patch to production Apps Script.
 - pending: run guarded Credit Card regression/readback.
 - pending: only after live/readback evidence, decide whether Credit Card ledger-first can be marked PASS.
+
+## 2026-06-11 00:14 — Credit Card live regression pending
+- pending: guarded Credit Card regression/readback after production deploy version 288.
+- pending: verify no duplicate Account Ledger outflow on retry.
+- pending: verify matched CC payment only marks CC row paid after Account Ledger write/readback.

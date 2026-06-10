@@ -137,3 +137,11 @@ Later: implement session closeout automation.
 - verified: no deploy/workbook write/Gmail mutation occurred.
 - current-state: Credit Card is patched in source only; production/live regression still pending.
 - next: deploy patched source and run guarded Credit Card regression/readback.
+
+## 2026-06-11 00:14 — AIRO Finance Credit Card source patch deployed
+- verified: Credit Card source patch commit 9297b1d deployed to production Apps Script version 288.
+- verified: production deployment description: AIRO Task 9 CC ledger-first guard.
+- verified: no workbook write or Gmail mutation occurred during deploy.
+- current-state: CC_PRODUCTION_DEPLOYED=true.
+- current-state: CC_LEDGER_FIRST_PASS=false until guarded live/readback regression passes.
+- next: run guarded Credit Card regression/readback.
