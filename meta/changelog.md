@@ -93,3 +93,7 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured Dashboard dependency audit result.
 - decision: split patch scope into Credit Card, Asset/Aset, then Dashboard migration.
 - pending: queued Credit Card patch preflight as next step.
+
+## 2026-06-11 00:13
+- code: AIRO Finance Credit Card ledger-first source patch committed as 9297b1d.
+- state: production deployment and live regression remain pending.

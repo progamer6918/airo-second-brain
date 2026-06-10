@@ -130,3 +130,10 @@ Later: implement session closeout automation.
 - decision: split implementation into Credit Card first, Asset second, Dashboard third.
 - rationale: avoid one large patch mixing live write-path risk with workbook/formula migration risk.
 - next: run Credit Card patch preflight and bounded source patch planning.
+
+## 2026-06-11 00:13 — AIRO Finance Credit Card source patch committed
+- verified: Finance commit 9297b1d / 9297b1d7d166484b82d6ff9770fd6e78fa55e8ec.
+- verified: added CC payment idempotency guard and ledger-first guard.
+- verified: no deploy/workbook write/Gmail mutation occurred.
+- current-state: Credit Card is patched in source only; production/live regression still pending.
+- next: deploy patched source and run guarded Credit Card regression/readback.

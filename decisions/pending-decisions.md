@@ -99,3 +99,8 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: Asset/Aset ledger-first patch.
 - pending: Dashboard migration away from Finance Events source-of-truth.
 - pending: after all three patch segments, run Task 9 final regression / cleanup / docs / owner acceptance.
+
+## 2026-06-11 00:13 — Credit Card post-patch pending
+- pending: deploy Credit Card source patch to production Apps Script.
+- pending: run guarded Credit Card regression/readback.
+- pending: only after live/readback evidence, decide whether Credit Card ledger-first can be marked PASS.
