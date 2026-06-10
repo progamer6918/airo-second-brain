@@ -87,3 +87,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: consider promoting this operating rule into AGENTS.md/CURRENT.md later with explicit owner-approved canonical edit, if needed.
 - pending: Credit Card patch plan for ledger-success-before-status-update and duplicate/idempotency guard.
 - pending: after CC, continue Asset/Aset narrow audit and Dashboard dependency audit.
+
+## 2026-06-11 00:07 — Task 9 preparation pending after CC/Asset audits
+- pending: Credit Card focused patch plan for ledger-success-before-status-update and idempotency guard.
+- pending: Asset focused patch plan for Account Ledger-first then Aset projection and idempotency guard.
+- pending: Dashboard dependency audit to migrate away from Finance Events and verify Transactions/Cash Ledger absence.
+- pending: after Dashboard audit, decide patch order and whether CC+Asset can be patched together or should be split.

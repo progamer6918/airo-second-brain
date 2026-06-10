@@ -114,3 +114,11 @@ Later: implement session closeout automation.
 - verified: CC payment idempotency signal is missing.
 - verified: CC ledger-first PASS cannot be claimed yet.
 - next: prepare focused CC patch plan before live regression.
+
+## 2026-06-11 00:07 — AIRO Sync batch mode + CC/Asset audit findings
+- owner-confirmed: AIRO Sync batch mode should be inherited by future chats/AI consumers through Second Brain.
+- verified: batch mode means efficient batched closeout, not skipping Second Brain.
+- verified: immediate push still required for operating rules, decisions, blockers, patch/deploy/workbook writes, project commits, and final PASS/FAIL/BLOCKED states.
+- verified: CC narrow audit completed read-only; CC purchase structurally okay, CC payment not yet PASS due missing idempotency/strong ledger-success-before-status proof.
+- verified: Asset/Aset audit completed read-only; current Asset flow writes domain first then Account Ledger mirror, so Asset is not ledger-first PASS.
+- next: run Dashboard dependency audit before deciding patch scope.
