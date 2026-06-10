@@ -71,3 +71,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured AIRO Finance Task 9 read-only regression map.
 - state: recorded Task 9 preparation status and stale-doc finding.
 - decisions: queued Credit Card, Asset, and Dashboard targeted audits before patching.
+
+## 2026-06-10 23:57
+- docs: captured AIRO Finance Credit Card route read-only audit.
+- state: recorded that Credit Card ledger-first is not yet PASS; deeper function audit required.
+- decisions: queued markCreditCardPocketBluTransfer_ and appendCreditCardPurchase_ read-only audit.

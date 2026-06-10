@@ -76,3 +76,8 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: Dashboard dependency audit to remove/replace Finance Events dependency and confirm Transactions/Cash Ledger absence.
 - pending: update stale AIRO Finance current-state docs only after evidence and owner-approved scope.
 - constraint: no Task 9 ready-to-use declaration until the three pre-final technical items are verified or explicitly owner-deferred.
+
+## 2026-06-10 23:57 — Credit Card ledger-first pending audit
+- pending: inspect markCreditCardPocketBluTransfer_ exact order: match pending purchase, write Account Ledger, readback, update Credit Card status, duplicate guard.
+- pending: inspect appendCreditCardPurchase_ exact behavior: domain write only, no Account Ledger wallet outflow, duplicate guard.
+- pending: decide whether Credit Card requires source patch or only guarded live regression/readback.

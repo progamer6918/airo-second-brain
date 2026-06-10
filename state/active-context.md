@@ -87,3 +87,13 @@ Later: implement session closeout automation.
 - verified: current-state docs are stale relative to actual Task 8 closeout.
 - verified: remaining pre-Task-9-final technical work: Credit Card ledger-first, Asset ledger-first, Dashboard migration.
 - next: run targeted read-only exact route audits for Credit Card, Asset/Aset, and Dashboard dependencies before patching.
+
+## 2026-06-10 23:57 — AIRO Finance Credit Card route audit captured
+- verified: Credit Card exact route audit completed read-only.
+- verified: audit returned PASS_CREDIT_CARD_ROUTE_AUDIT_READONLY_COMPLETE.
+- verified: writeRouted_ routes Credit Card to writeCreditCardSafely_.
+- verified: Credit Card payment appears routed through markCreditCardPocketBluTransfer_, not a standalone writeCreditCardPaymentSafely_ function.
+- verified: Credit Card purchase appears routed through appendCreditCardPurchase_.
+- verified: wrapper-level audit found Account Ledger and Finance Events signals but did not prove idempotency/readback/order.
+- current-state: do not claim Credit Card ledger-first PASS yet.
+- next: run narrow read-only function audit for markCreditCardPocketBluTransfer_ and appendCreditCardPurchase_.
