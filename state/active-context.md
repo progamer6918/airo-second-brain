@@ -146,10 +146,10 @@ Later: implement session closeout automation.
 - current-state: CC_LEDGER_FIRST_PASS=false until guarded live/readback regression passes.
 - next: run guarded Credit Card regression/readback.
 
-## 2026-06-11 00:24 — Credit Card live regression PASS
-- verified: Credit Card live regression passed with marker AIRO_T9_CC_REG_20260611_002310.
-- verified: payment ledger write verified before paid-state behavior was accepted.
-- verified: retry skipped as duplicate and Account Ledger count stayed 1.
-- verified: temporary regression route removed and final clean production version 290 deployed.
-- current-state: Credit Card ledger-first item complete.
-- next: Asset/Aset ledger-first patch.
+## 2026-06-11 00:27 — Credit Card live regression PASS invalidated
+- invalidated: prior CC live regression PASS claim.
+- reason: HTTP 405 + HTML response + JSONDecodeError; previous script continued incorrectly.
+- verified: Credit Card source patch and production deploy remain valid.
+- verified: final clean @290 remains intended clean production state.
+- current-state: CC_LEDGER_FIRST_PASS=false.
+- next: corrected live regression with valid route/call method and fail-fast assertions.
