@@ -88,3 +88,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured Credit Card narrow audit finding.
 - docs: captured Asset/Aset route audit finding.
 - pending: queued Dashboard dependency audit before patch scope decision.
+
+## 2026-06-11 00:10
+- docs: captured Dashboard dependency audit result.
+- decision: split patch scope into Credit Card, Asset/Aset, then Dashboard migration.
+- pending: queued Credit Card patch preflight as next step.

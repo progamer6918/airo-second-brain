@@ -122,3 +122,11 @@ Later: implement session closeout automation.
 - verified: CC narrow audit completed read-only; CC purchase structurally okay, CC payment not yet PASS due missing idempotency/strong ledger-success-before-status proof.
 - verified: Asset/Aset audit completed read-only; current Asset flow writes domain first then Account Ledger mirror, so Asset is not ledger-first PASS.
 - next: run Dashboard dependency audit before deciding patch scope.
+
+## 2026-06-11 00:10 — Dashboard audit and patch split decision
+- verified: Dashboard dependency audit completed read-only and returned PASS.
+- verified: Dashboard still has Finance Events, Transactions, and Cash Ledger dependency signals.
+- verified: Dashboard migration is not PASS yet.
+- decision: split implementation into Credit Card first, Asset second, Dashboard third.
+- rationale: avoid one large patch mixing live write-path risk with workbook/formula migration risk.
+- next: run Credit Card patch preflight and bounded source patch planning.

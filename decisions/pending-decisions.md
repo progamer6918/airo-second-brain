@@ -93,3 +93,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: Asset focused patch plan for Account Ledger-first then Aset projection and idempotency guard.
 - pending: Dashboard dependency audit to migrate away from Finance Events and verify Transactions/Cash Ledger absence.
 - pending: after Dashboard audit, decide patch order and whether CC+Asset can be patched together or should be split.
+
+## 2026-06-11 00:10 — Patch queue after Task 9 preparation audits
+- pending: Credit Card ledger-first patch.
+- pending: Asset/Aset ledger-first patch.
+- pending: Dashboard migration away from Finance Events source-of-truth.
+- pending: after all three patch segments, run Task 9 final regression / cleanup / docs / owner acceptance.
