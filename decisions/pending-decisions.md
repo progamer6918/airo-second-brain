@@ -114,3 +114,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: corrected Credit Card live/readback regression.
 - pending: verify executable endpoint/call method before any workbook write.
 - pending: only mark CC done after valid JSON response and evaluated assertions.
+
+## 2026-06-11 00:36 +0700 — Pending after WSL handoff localization
+- pending: paste /home/egitaristorandas/AI_WORKSPACES/antigravity-handoffs/AIRO_CHATGPT_NEW_CHAT_PROMPT_20260611_003609.md into new ChatGPT chat.
+- pending: new ChatGPT should provide/use /home/egitaristorandas/AI_WORKSPACES/antigravity-handoffs/AIRO_ANTIGRAVITY_NEXT_PROMPT_20260611_003609.md for Antigravity new account.
+- pending: corrected CC endpoint/call-method preflight.
+- pending: corrected bounded CC regression only after endpoint preflight passes.

@@ -105,3 +105,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 ## 2026-06-11 00:27
 - correction: invalidated false Credit Card live regression PASS.
 - state: Credit Card source patch/deploy valid, but live PASS pending.
+
+## 2026-06-11 00:36 +0700
+- handoff: localized seamless ChatGPT + Antigravity migration handoff via WSL.
+- state: preserved corrected CC false-PASS invalidation.
+- pending: corrected endpoint/call-method preflight.
