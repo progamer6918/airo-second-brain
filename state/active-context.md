@@ -57,3 +57,13 @@ Later: implement session closeout automation.
 - Updated `systems/wsl-local-workspace-map.md`.
 - Repository count detected: 2.
 - Raw workspace files, secrets, tokens, credentials, and full transcripts were not ingested.
+
+## 2026-06-10 23:22 +0700 — WSL home broad safe discovery
+
+- Broadened Second Brain discovery from fixed roots to WSL home.
+- Git repositories detected: 14.
+- Project-like directories detected: 151.
+- Added `inbox/wsl-home-broad-safe-discovery-2026-06-10-2322.md`.
+- Added/updated `projects/wsl-home-project-candidates.md`.
+- Added/updated `systems/wsl-home-safe-discovery.md`.
+- Secrets, tokens, credentials, env files, auth files, and raw transcripts were not ingested.

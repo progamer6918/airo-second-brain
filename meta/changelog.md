@@ -55,3 +55,9 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - Added/updated WSL workspace index: `projects/wsl-workspace-index.md`.
 - Added/updated local workspace map: `systems/wsl-local-workspace-map.md`.
 - Captured repository metadata and safe documentation excerpts without secrets.
+
+## 2026-06-10 — WSL Home Broad Safe Discovery
+
+- Added broad WSL home discovery report: `inbox/wsl-home-broad-safe-discovery-2026-06-10-2322.md`.
+- Added/updated project candidates index: `projects/wsl-home-project-candidates.md`.
+- Added/updated discovery policy/map: `systems/wsl-home-safe-discovery.md`.
