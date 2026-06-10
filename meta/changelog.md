@@ -43,3 +43,8 @@ Added projects/earesmes-hermes.md.
 Patched CONTEXT.md with routing rules.
 Patched projects/airo-finance.md to point to canonical repo instead of stale live status.
 Removed literal malformed folder {identity,systems,agents,projects,meta}/ if present.
+
+## 2026-06-10 23:06
+- docs: captured ChatGPT Project AIRO closeout for AIRO Finance Task 8 completion.
+- state: recorded Task 8 done, Task 9 not started, Task 10 optional, mandatory remaining count 4.
+- decisions: recorded Account Ledger-first architecture and Finance Events deprecation state.

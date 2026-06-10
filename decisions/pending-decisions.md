@@ -53,3 +53,13 @@ How should Hermes/Earesmes automatically load BOOT.md at session start?
 Default safe answer:
 
 Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.md, and SECURITY.md.
+
+## 2026-06-10 23:06 — AIRO Finance remaining mandatory work
+- verified: Remaining mandatory count after Task 8 is 4.
+- verified: Count includes Task 9.
+- verified: Count excludes optional Task 10.
+- pending: Credit Card ledger-first implementation path and acceptance guards.
+- pending: Asset ledger-first implementation path and acceptance guards.
+- pending: Dashboard migration away from Finance Events toward Account Ledger/domain tabs.
+- pending: Task 9 final regression, cleanup, documentation, and owner acceptance checklist.
+- unknown: whether Task 10 Alert Engine will be activated.

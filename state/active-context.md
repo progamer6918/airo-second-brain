@@ -35,3 +35,16 @@ Push airo-second-brain v0.2 to private GitHub.
 Integrate Hermes/Earesmes session start with BOOT.md.
 
 Later: implement session closeout automation.
+
+## 2026-06-10 23:06 — AIRO Finance Task 8 closeout captured
+- verified: Task 7 done.
+- verified: Task 8 done.
+- verified: Task 9 not started.
+- verified: Task 10 optional.
+- verified: mandatory remaining count is 4; this includes Task 9 and excludes optional Task 10.
+- verified: AIRO Finance production final clean deployment is @287.
+- verified: repo commit captured: d9a3e46 fix(airo-finance): route debt approval to hutang projection.
+- verified: Account Ledger remains source of truth; Hutang/Cicilan/Credit Card/Asset are projections.
+- verified: Finance Events remains deprecated/no-op.
+- verified: Transactions must not be recreated.
+- next: continue with Credit Card ledger-first, Asset ledger-first, Dashboard migration, then Task 9 final regression/closeout.
