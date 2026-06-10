@@ -110,3 +110,7 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - handoff: localized seamless ChatGPT + Antigravity migration handoff via WSL.
 - state: preserved corrected CC false-PASS invalidation.
 - pending: corrected endpoint/call-method preflight.
+
+## 2026-06-11 00:50
+- preflight: CC Task 9 endpoint/call-method preflight completed (POST HTTP 200 JSON, GET HTML non-JSON).
+- state: CC source patch/deploy valid, CC live regression pending.

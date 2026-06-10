@@ -120,3 +120,8 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: new ChatGPT should provide/use /home/egitaristorandas/AI_WORKSPACES/antigravity-handoffs/AIRO_ANTIGRAVITY_NEXT_PROMPT_20260611_003609.md for Antigravity new account.
 - pending: corrected CC endpoint/call-method preflight.
 - pending: corrected bounded CC regression only after endpoint preflight passes.
+
+## 2026-06-11 00:50 — Credit Card endpoint preflight completed
+- resolved: corrected CC endpoint/call-method preflight completed successfully.
+- pending: run bounded corrected Credit Card regression/readback on production @290.
+- constraint: no workbook write, no Gmail mutation, no deploy, no clasp run, no Task 8 repeat.

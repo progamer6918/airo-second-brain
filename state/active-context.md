@@ -160,3 +160,11 @@ Later: implement session closeout automation.
 - verified: new Antigravity prompt created at /home/egitaristorandas/AI_WORKSPACES/antigravity-handoffs/AIRO_ANTIGRAVITY_NEXT_PROMPT_20260611_003609.md.
 - current-state: CC source patch/deploy valid, but CC live regression invalidated and pending.
 - next: new ChatGPT should prepare Antigravity prompt for corrected endpoint/call-method preflight only.
+
+## 2026-06-11 00:50 — AIRO Finance CC endpoint preflight PASS
+- verified: Preflight endpoint/call-method CC Task 9 selesai PASS terbatas.
+- verified: POST ke Apps Script endpoint menghasilkan HTTP 200 JSON (JSON_PARSE PASS, FALSE_PASS_GUARD PASS).
+- verified: SAFE_TO_PROCEED_TO_BOUNDED_CC_REGRESSION: yes.
+- correction: GET/old path mengembalikan HTTP 200 dengan HTML error page ("Salah"), bukan HTTP 405. Old path terbukti tetap invalid dan tidak boleh digunakan.
+- state: CC source patch valid = true, CC production deploy valid = true, CC live regression valid = false, CC ledger-first PASS = false.
+- next: bounded corrected Credit Card regression/readback only.
