@@ -101,3 +101,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 ## 2026-06-11 00:14
 - deploy: AIRO Finance Credit Card ledger-first source patch deployed to production Apps Script version 288.
 - state: Credit Card live regression still pending.
+
+## 2026-06-11 00:24
+- test: Credit Card live ledger-first regression passed.
+- deploy: removed temporary regression route and redeployed final clean version 290.
+- docs: finance regression record committed as 8ce34ee.

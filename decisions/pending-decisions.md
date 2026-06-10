@@ -109,3 +109,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: guarded Credit Card regression/readback after production deploy version 288.
 - pending: verify no duplicate Account Ledger outflow on retry.
 - pending: verify matched CC payment only marks CC row paid after Account Ledger write/readback.
+
+## 2026-06-11 00:24 — Remaining Task 9 preparation after Credit Card PASS
+- done: Credit Card ledger-first source patch, production deploy, and live regression.
+- pending: Asset/Aset ledger-first patch and live/readback regression.
+- pending: Dashboard migration away from Finance Events.
+- pending: final Task 9 aggregate regression/cleanup/docs/owner acceptance.
