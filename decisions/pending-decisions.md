@@ -81,3 +81,9 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: inspect markCreditCardPocketBluTransfer_ exact order: match pending purchase, write Account Ledger, readback, update Credit Card status, duplicate guard.
 - pending: inspect appendCreditCardPurchase_ exact behavior: domain write only, no Account Ledger wallet outflow, duplicate guard.
 - pending: decide whether Credit Card requires source patch or only guarded live regression/readback.
+
+## 2026-06-11 00:03 — AIRO Sync batch mode and Credit Card pending work
+- owner-confirmed: AIRO Sync batch mode should be inherited by future chats/AI consumers through Second Brain.
+- pending: consider promoting this operating rule into AGENTS.md/CURRENT.md later with explicit owner-approved canonical edit, if needed.
+- pending: Credit Card patch plan for ledger-success-before-status-update and duplicate/idempotency guard.
+- pending: after CC, continue Asset/Aset narrow audit and Dashboard dependency audit.

@@ -76,3 +76,9 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured AIRO Finance Credit Card route read-only audit.
 - state: recorded that Credit Card ledger-first is not yet PASS; deeper function audit required.
 - decisions: queued markCreditCardPocketBluTransfer_ and appendCreditCardPurchase_ read-only audit.
+
+## 2026-06-11 00:03
+- docs: captured owner-confirmed AIRO Sync batch mode.
+- state: recorded batch-mode closeout cadence for future AIRO consumers.
+- docs: captured Credit Card narrow function audit finding.
+- pending: queued Credit Card patch planning before live regression.

@@ -97,3 +97,20 @@ Later: implement session closeout automation.
 - verified: wrapper-level audit found Account Ledger and Finance Events signals but did not prove idempotency/readback/order.
 - current-state: do not claim Credit Card ledger-first PASS yet.
 - next: run narrow read-only function audit for markCreditCardPocketBluTransfer_ and appendCreditCardPurchase_.
+
+## 2026-06-11 00:03 — AIRO Sync batch mode owner-confirmed
+- owner-confirmed: AIRO Sync should make all AI consumers behave like one AIRO ecosystem operator/persona.
+- owner-confirmed: use AIRO Sync batch mode for efficiency.
+- owner-confirmed: do not interrupt every small audit with a separate push; collect meaningful deltas and push at the end of a meaningful batch.
+- owner-confirmed: immediate push is still required for new operating rules, important decisions, blockers, patch/deploy/workbook writes, project commits, and final PASS/FAIL/BLOCKED states.
+- verified: batch mode still forbids raw transcript dumps, secrets, unavailable-session claims, and PASS/DONE without evidence.
+
+## 2026-06-11 00:03 — AIRO Finance Credit Card narrow audit captured
+- verified: CC narrow function audit returned PASS_CC_NARROW_FUNCTION_AUDIT_READONLY_COMPLETE.
+- verified: no workbook write, Gmail mutation, source patch, deploy, commit, or push occurred during the audit.
+- verified: production remained @287 and source parity passed.
+- verified: CC purchase appears structurally aligned: domain write only, no Account Ledger wallet outflow.
+- verified: CC payment has Account Ledger write signal and CC status update signal.
+- verified: CC payment idempotency signal is missing.
+- verified: CC ledger-first PASS cannot be claimed yet.
+- next: prepare focused CC patch plan before live regression.
