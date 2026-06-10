@@ -48,3 +48,10 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured ChatGPT Project AIRO closeout for AIRO Finance Task 8 completion.
 - state: recorded Task 8 done, Task 9 not started, Task 10 optional, mandatory remaining count 4.
 - decisions: recorded Account Ledger-first architecture and Finance Events deprecation state.
+
+## 2026-06-10 — Full Safe WSL Workspace Ingest
+
+- Added safe WSL workspace ingest report: `inbox/wsl-full-safe-ingest-2026-06-10-2319.md`.
+- Added/updated WSL workspace index: `projects/wsl-workspace-index.md`.
+- Added/updated local workspace map: `systems/wsl-local-workspace-map.md`.
+- Captured repository metadata and safe documentation excerpts without secrets.

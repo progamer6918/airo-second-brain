@@ -48,3 +48,12 @@ Later: implement session closeout automation.
 - verified: Finance Events remains deprecated/no-op.
 - verified: Transactions must not be recreated.
 - next: continue with Credit Card ledger-first, Asset ledger-first, Dashboard migration, then Task 9 final regression/closeout.
+
+## 2026-06-10 23:19 +0700 — WSL full safe workspace ingest
+
+- Captured safe WSL workspace knowledge beyond AIRO Finance.
+- Generated `inbox/wsl-full-safe-ingest-2026-06-10-2319.md`.
+- Updated `projects/wsl-workspace-index.md`.
+- Updated `systems/wsl-local-workspace-map.md`.
+- Repository count detected: 2.
+- Raw workspace files, secrets, tokens, credentials, and full transcripts were not ingested.
