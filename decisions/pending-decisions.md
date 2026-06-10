@@ -69,3 +69,10 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - pending: define exact automation mechanism for cross-consumer closeout ingestion.
 - pending: decide whether Hermes/Earesmes, Antigravity, Claude, and future agents should auto-write to inbox/state/changelog after meaningful work.
 - constraint: no raw transcript dump, no secrets, no unavailable-session claims.
+
+## 2026-06-10 23:55 — AIRO Finance Task 9 preparation pending items
+- pending: Credit Card exact route audit for purchase/payment ledger-first behavior.
+- pending: Asset/Aset exact route audit for purchase/valuation ledger-first behavior.
+- pending: Dashboard dependency audit to remove/replace Finance Events dependency and confirm Transactions/Cash Ledger absence.
+- pending: update stale AIRO Finance current-state docs only after evidence and owner-approved scope.
+- constraint: no Task 9 ready-to-use declaration until the three pre-final technical items are verified or explicitly owner-deferred.

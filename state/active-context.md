@@ -76,3 +76,14 @@ Later: implement session closeout automation.
 - verified: this does not mean unavailable sessions or other AI chats can be claimed as scanned.
 - verified: other AI sessions must either push their own closeout or provide safe distilled output for ingestion.
 - current-state: AIRO Finance Task 8 remains closed; Task 9 not started; mandatory remaining count 4.
+
+## 2026-06-10 23:55 — AIRO Finance Task 9 read-only regression map captured
+- verified: Task 8 remains closed and must not be repeated.
+- verified: Task 9 is not started as execution; preparation/read-only mapping completed.
+- verified: Task 9 regression map audit returned PASS.
+- verified: AIRO Finance actual HEAD is d9a3e46/d9a3e46333546e05c759575f4229dc0aa5abc508.
+- verified: production remains @287 final clean.
+- verified: source parity passed; Task 8 Hutang patch present; one-shot repair route absent.
+- verified: current-state docs are stale relative to actual Task 8 closeout.
+- verified: remaining pre-Task-9-final technical work: Credit Card ledger-first, Asset ledger-first, Dashboard migration.
+- next: run targeted read-only exact route audits for Credit Card, Asset/Aset, and Dashboard dependencies before patching.

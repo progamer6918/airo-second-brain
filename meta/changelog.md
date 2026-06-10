@@ -66,3 +66,8 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 - docs: captured owner-confirmed AIRO Sync operating cadence.
 - state: clarified meaningful deltas should be pushed to AIRO Second Brain after task segments.
 - decisions: added pending cross-consumer automation mechanism for AIRO Sync.
+
+## 2026-06-10 23:55
+- docs: captured AIRO Finance Task 9 read-only regression map.
+- state: recorded Task 9 preparation status and stale-doc finding.
+- decisions: queued Credit Card, Asset, and Dashboard targeted audits before patching.
