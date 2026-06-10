@@ -1,0 +1,14 @@
+.env
+.env.*
+*.pem
+*.key
+*.token
+*.secret
+credentials*.json
+token*.json
+.clasp.json
+.clasprc.json
+node_modules/
+__pycache__/
+*.zip
+.DS_Store

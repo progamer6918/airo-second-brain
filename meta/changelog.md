@@ -1,0 +1,45 @@
+# Changelog
+
+## v1.0.0 — 2026-06-10
+
+**Initial population**
+
+Repo dibuat berdasarkan accumulated knowledge dari sesi Claude. Semua file di-draft dalam satu session.
+
+Files created:
+- `README.md`
+- `CONTEXT.md` (router utama)
+- `identity/who-i-am.md`
+- `identity/working-principles.md`
+- `identity/goals.md`
+- `systems/infrastructure.md`
+- `systems/interfaces.md`
+- `systems/tools.md`
+- `agents/earesmes.md`
+- `agents/agent-family.md`
+- `agents/design-principles.md`
+- `projects/_index.md`
+- `projects/airo-finance.md`
+- `meta/how-to-use-this-brain.md`
+- `meta/changelog.md`
+
+---
+
+*Format entry berikutnya:*
+*## vX.X.X — YYYY-MM-DD*
+*Deskripsi singkat apa yang berubah dan kenapa.*
+
+2026-06-10 — v0.2 Kernel Patch
+Added BOOT.md as universal session entry point.
+Added CURRENT.md for compact current state.
+Added AGENTS.md for cross-consumer operating rules.
+Added SECURITY.md for secret-handling policy.
+Added state/active-context.md.
+Added decisions/decision-log.md.
+Added decisions/pending-decisions.md.
+Added meta/update-protocol.md.
+Added meta/staleness-policy.md.
+Added projects/earesmes-hermes.md.
+Patched CONTEXT.md with routing rules.
+Patched projects/airo-finance.md to point to canonical repo instead of stale live status.
+Removed literal malformed folder {identity,systems,agents,projects,meta}/ if present.
