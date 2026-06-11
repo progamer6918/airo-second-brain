@@ -168,3 +168,8 @@ Later: implement session closeout automation.
 - correction: GET/old path mengembalikan HTTP 200 dengan HTML error page ("Salah"), bukan HTTP 405. Old path terbukti tetap invalid dan tidak boleh digunakan.
 - state: CC source patch valid = true, CC production deploy valid = true, CC live regression valid = false, CC ledger-first PASS = false.
 - next: bounded corrected Credit Card regression/readback only.
+
+## 2026-06-11 20:38 — AIRO Sync Persona Unification
+- verified: AIRO Sync Persona Unification selesai. Kontrak persona lintas agent disatukan di personas/airo-sync.md.
+- verified: AIRO Finance Task 9 gate status saat ini direkam di projects/airo-finance/current-state.md dengan status \started_regression_gate\ (CC preflight PASS, regression pending, sisa wajib 4).
+- next: bounded corrected CC regression/readback.
