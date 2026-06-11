@@ -1,0 +1,67 @@
+- id: airo-finance
+  name: AIRO Finance
+  local_path: /home/egitaristorandas/vortex-ai-skill-lab
+  remote: git@github.com:progamer6918/vortex-ai-skill-lab.git
+  tier: GOVERNED-GUARDED
+  brain_file: projects/airo-finance.md
+  source_of_truth:
+  - docs/AIRO_FINANCE_CURRENT_STATE.md
+  - docs/AIRO_FINANCE_PRD_LIVING.md
+  truth_status: unknown
+  last_known_commit: null
+  last_checked_at: null
+  last_synced_at: null
+  safe_to_execute: false
+  notes: 'Scanned repository tier: GOVERNED-GUARDED'
+- id: earnsai-telegram-gateway
+  name: EarnsAI Telegram Gateway
+  local_path: /home/egitaristorandas/earnsai-telegram-gateway
+  remote: null
+  tier: OBSERVE-ONLY
+  brain_file: null
+  source_of_truth: []
+  truth_status: unknown
+  last_known_commit: null
+  last_checked_at: null
+  last_synced_at: null
+  safe_to_execute: false
+  notes: 'Scanned repository tier: OBSERVE-ONLY'
+- id: earnsai-pulse-trading
+  name: EarnsAI Pulse Trading
+  local_path: /home/egitaristorandas/earnsai-pulse-trading
+  remote: https://github.com/progamer6918/earnsai-pulse-trading.git
+  tier: OBSERVE-ONLY
+  brain_file: null
+  source_of_truth: []
+  truth_status: unknown
+  last_known_commit: null
+  last_checked_at: null
+  last_synced_at: null
+  safe_to_execute: false
+  notes: 'Scanned repository tier: OBSERVE-ONLY'
+- id: katoolin3
+  name: Katoolin3
+  local_path: /home/egitaristorandas/katoolin3
+  remote: null
+  tier: OBSERVE-ONLY
+  brain_file: null
+  source_of_truth: []
+  truth_status: unknown
+  last_known_commit: null
+  last_checked_at: null
+  last_synced_at: null
+  safe_to_execute: false
+  notes: 'Scanned repository tier: OBSERVE-ONLY'
+- id: airo-second-brain
+  name: AIRO Second Brain
+  local_path: /home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+  remote: https://github.com/progamer6918/airo-second-brain.git
+  tier: GOVERNED-BRAIN
+  brain_file: null
+  source_of_truth: []
+  truth_status: unknown
+  last_known_commit: null
+  last_checked_at: null
+  last_synced_at: null
+  safe_to_execute: false
+  notes: 'Scanned repository tier: GOVERNED-BRAIN'

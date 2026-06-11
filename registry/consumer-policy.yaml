@@ -1,0 +1,51 @@
+# consumer-policy.yaml
+consumers:
+  chatgpt:
+    allowed_reads:
+      - BOOT.md
+      - CURRENT.md
+      - CONTEXT.md
+      - AGENTS.md
+      - SECURITY.md
+      - state/system-health.md
+      - projects/
+      - decisions/pending-decisions.md
+    allowed_writes:
+      - inbox/session-closeouts/
+      - distill/proposals/
+    promote_allowed: false
+  claude:
+    allowed_reads:
+      - BOOT.md
+      - CURRENT.md
+      - CONTEXT.md
+      - AGENTS.md
+      - SECURITY.md
+      - state/system-health.md
+      - projects/
+      - decisions/pending-decisions.md
+    allowed_writes:
+      - inbox/session-closeouts/
+      - distill/proposals/
+    promote_allowed: false
+  antigravity:
+    allowed_reads:
+      - "*"
+    allowed_writes:
+      - scripts/
+      - registry/
+      - events/
+      - logs/
+      - distill/proposals/
+      - docs/
+    promote_allowed: true
+    require_owner_review_for_semantic: true
+  earesmes:
+    allowed_reads:
+      - "*"
+    allowed_writes:
+      - logs/
+      - events/raw/
+      - state/active-sessions.md
+      - state/system-health.md
+    promote_allowed: false

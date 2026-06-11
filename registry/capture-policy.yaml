@@ -1,0 +1,12 @@
+# capture-policy.yaml
+allowed_event_types:
+  - repo_change
+  - command
+  - validation
+  - error
+  - checkpoint
+  - decision_candidate
+output_format: ndjson
+raw_event_dir: events/raw
+synced_event_dir: events/synced
+failed_event_dir: events/failed

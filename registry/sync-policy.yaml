@@ -1,0 +1,14 @@
+# sync-policy.yaml
+brain_safe_paths:
+  - events/
+  - inbox/
+  - logs/
+  - registry/
+  - state/
+  - meta/
+  - docs/
+  - distill/proposals/
+auto_sync_interval_minutes: 5
+retry_attempts: 3
+lock_file: locks/airo-sync.lock
+lock_expiry_minutes: 10
