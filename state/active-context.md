@@ -173,3 +173,14 @@ Later: implement session closeout automation.
 - verified: AIRO Sync Persona Unification selesai. Kontrak persona lintas agent disatukan di personas/airo-sync.md.
 - verified: AIRO Finance Task 9 gate status saat ini direkam di projects/airo-finance/current-state.md dengan status \started_regression_gate\ (CC preflight PASS, regression pending, sisa wajib 4).
 - next: bounded corrected CC regression/readback.
+
+AIRO Finance Task 9 checkpoint — CC parser fix deployed @291
+Task 7 done, Task 8 done, Task 9 still started_regression_gate, Task 10 optional.
+CC live write regression initially failed: command amount 9021 was polluted by smoke tag suffix and observed as 205927.
+Known synthetic contamination from failed test: 📒 Account Ledger:54, 🧾 Review Queue:13; cleanup deferred until owner approval.
+Minimal parseAmount_ smoke/test tag sanitizer patch completed and static test PASS.
+Triple source parity confirmed across apps-script-live, apps-script-prod-v2, and local mirror source with SHA d6ff215aa0c9592336f7030c8228070488a8963e1dce69bb9cded6e07374aaa5.
+Production deployment updated in-place to @291 - AIRO Task 9 amount parser smoke-tag guard.
+Important correction: actual production deploy source is apps-script-live, not apps-script-prod-v2.
+
+Current blockers remain: Credit Card pending live regression, Asset pending, Dashboard migration pending, Task 9 final closeout pending.

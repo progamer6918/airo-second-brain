@@ -22,3 +22,58 @@
 2. **Asset Ledger-First Patch**: Implementasi penulisan ledger-first untuk Aset masih pending.
 3. **Dashboard Migration**: Migrasi dashboard formula menjauh dari `Finance Events` masih pending.
 4. **Task 9 Final Closeout**: Penyelesaian dokumentasi dan persetujuan akhir Owner masih pending.
+
+2026-06-11 — Task 9 CC amount parser patch deployed, regression still pending
+
+Status:
+
+Task 7: done
+Task 8: done
+Task 9: started_regression_gate
+Task 10: optional
+Sisa wajib: 4
+TASK9_CAN_CLOSEOUT_NOW=false
+
+Latest Task 9 checkpoint:
+
+Production deployment=@291 - AIRO Task 9 amount parser smoke-tag guard
+Deployment ID=AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA
+Deployment mode=in-place
+New deployment ID created=false
+
+Source checkpoint:
+
+Patched source SHA=d6ff215aa0c9592336f7030c8228070488a8963e1dce69bb9cded6e07374aaa5
+Triple source parity=true
+apps-script-live source contains patch=true
+apps-script-prod-v2 source contains patch=true
+local mirror source contains patch=true
+static parser test=PASS
+
+Important correction:
+
+Actual production deploy source=apps-script-live
+Do not assume apps-script-prod-v2 alone is active deploy source.
+
+Known issue and contamination:
+
+Failed pre-patch CC synthetic test wrote known synthetic contamination:
+- Account Ledger:54
+- Review Queue:13
+
+Expected amount=9021
+Observed polluted amount=205927
+Cleanup policy=defer until owner approval
+
+Current blockers:
+
+CREDIT_CARD_STATUS=pending
+ASSET_STATUS=pending
+DASHBOARD_MIGRATION_STATUS=pending
+TASK9_FINAL_CLOSEOUT=pending
+
+Next safe action:
+
+Run bounded CC live regression against @291 parser fix.
+Do not proceed to Asset/Dashboard until CC live regression/readback is resolved.
+

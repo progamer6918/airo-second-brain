@@ -118,3 +118,10 @@ Removed literal malformed folder {identity,systems,agents,projects,meta}/ if pre
 ## 2026-06-11 20:38
 - persona: AIRO Sync Persona Unification. Created personas/airo-sync.md and projects/airo-finance/current-state.md.
 - state: Active context updated with unified sync status.
+
+2026-06-11 — AIRO Finance Task 9 CC parser deploy checkpoint
+Captured Task 9 checkpoint: CC amount parser smoke-tag sanitizer patch static PASS and production deployed in-place to @291.
+Recorded correction that active production deploy source is apps-script-live.
+Recorded known failed pre-patch synthetic contamination: Account Ledger:54, Review Queue:13.
+
+Task 9 remains open: CC live regression pending, Asset pending, Dashboard migration pending, final closeout pending.
