@@ -125,3 +125,8 @@ Recorded correction that active production deploy source is apps-script-live.
 Recorded known failed pre-patch synthetic contamination: Account Ledger:54, Review Queue:13.
 
 Task 9 remains open: CC live regression pending, Asset pending, Dashboard migration pending, final closeout pending.
+
+## 2026-06-11 22:45
+- docs: canonicalize AIRO Second Brain PRD v0.4.1 (Phase 0).
+- docs: created PRD v0.4.1 Markdown, Implementation Plan, Script Contracts, Master Validation Checklist, and Antigravity Execution Handoff Prompt.
+
