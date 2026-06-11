@@ -36,3 +36,27 @@ For safety rules: SECURITY.md
 For AIRO Finance: projects/airo-finance.md, then canonical repo docs
 
 For Earesmes/Hermes: projects/earesmes-hermes.md
+<!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT -->
+
+## Active Workstream: Report Automation VBA
+
+Primary active workstream: Report Automation VBA.
+
+Relevant project file:
+
+- `projects/report-automation-vba.md`
+
+Related registry:
+
+- `systems/repository-registry.md`
+
+Current focus:
+
+- Stabilize Excel/VBA Command Center report automation.
+- Preserve the confirmed R4/R5 Monitoring Dealer baseline.
+- Extend the same `SALES_5PIVOT` engine to Report Per Type with formula-safe handling.
+- Keep Result VE as `MAPPING_REQUIRED` until its Data Model, connection, external Master Data, and formula staging mapping are completed.
+
+Current rule:
+
+AIRO Second Brain is the canonical knowledge hub. Repository-specific work may live in other repos, but durable operator context should be summarized or linked from this repo.
