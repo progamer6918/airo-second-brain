@@ -62,5 +62,5 @@ Current rule:
 AIRO Second Brain is the canonical knowledge hub. Repository-specific work may live in other repos, but durable operator context should be summarized or linked from this repo.
 
 ## AIRO Second Brain v0.4.1 status
-- **Status:** Phase 1 (Registry & Inventory) PASS.
-- **Next Step:** Phase 2 Capture & Health.
+- **Status:** Phase 2 (Capture & Health) PASS.
+- **Next Step:** Phase 3 Sync & Preflight.

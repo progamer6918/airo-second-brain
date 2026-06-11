@@ -135,4 +135,10 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: created scripts/airo-inventory, registry/repos.yaml, and sync/capture/consumer policies.
 - feat: registered vortex-ai-skill-lab as GOVERNED-GUARDED with AIRO_MANIFEST.md in project repository.
 
+## 2026-06-11 23:00
+- feat: implement workspace Capture & Health (Phase 2).
+- feat: created scripts/airo-capture and scripts/airo-health.
+- feat: created state/system-health.md with honest dirty check of project repository.
+
+
 

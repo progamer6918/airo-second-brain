@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import uuid
+from datetime import datetime
+
+def log_error(msg):
+    timestamp = datetime.now().isoformat()
+    os.makedirs("logs", exist_ok=True)
+    with open("logs/capture.log", "a") as f:
+        f.write(f"[{timestamp}] [ERROR] {msg}\n")
+    print(f"ERROR: {msg}", file=sys.stderr)
+
+def main():
+    parser = argparse.ArgumentParser(description="Append safe operational events to local disk.")
+    parser.add_argument("--event", "-e", default="checkpoint", 
+                        choices=["repo_change", "command", "validation", "error", "checkpoint", "decision_candidate"],
+                        help="Event type.")
+    parser.add_argument("--summary", "-s", required=True, help="Safe short summary of the event.")
+    parser.add_argument("--project", "-p", default="airo-second-brain", help="Project ID.")
+    parser.add_argument("--consumer", "-c", default="antigravity", help="Consumer ID.")
+    parser.add_argument("--session-id", default=None, help="Session ID (UUID).")
+    parser.add_argument("--source", default="consumer", choices=["system", "manual", "consumer"], help="Event source.")
+    parser.add_argument("--sensitive", action="store_true", help="Mark event as sensitive.")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate write without appending to file.")
+    parser.add_argument("--json", action="store_true", help="Output generated event in JSON format to stdout.")
+    
+    args = parser.parse_args()
+
+    session_id = args.session_id or os.environ.get("AIRO_SESSION_ID") or str(uuid.uuid4())
+    
+    event = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "consumer": args.consumer,
+        "session_id": session_id,
+        "project_id": args.project,
+        "event_type": args.event,
+        "summary": args.summary,
+        "source": args.source,
+        "sensitive": args.sensitive
+    }
+
+    if args.json:
+        print(json.dumps(event))
+
+    if args.dry_run:
+        os.makedirs("logs", exist_ok=True)
+        with open("logs/capture.log", "a") as f:
+            f.write(f"[{datetime.now().isoformat()}] [DRY-RUN] Simulated event: {args.summary}\n")
+        sys.exit(0)
+
+    try:
+        os.makedirs("events/raw", exist_ok=True)
+        os.makedirs("logs", exist_ok=True)
+        
+        ndjson_file = "events/raw/events.ndjson"
+        with open(ndjson_file, "a") as f:
+            f.write(json.dumps(event) + "\n")
+            
+        with open("logs/capture.log", "a") as f:
+            f.write(f"[{datetime.now().isoformat()}] [INFO] Appended event to {ndjson_file}: {args.summary}\n")
+            
+    except Exception as e:
+        log_error(f"Failed to append event: {e}")
+        sys.exit(2)
+
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()

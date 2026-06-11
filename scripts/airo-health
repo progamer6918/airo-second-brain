@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import subprocess
+from datetime import datetime
+import yaml
+
+def check_repo_status(path, repo_id, last_known_commit):
+    if not os.path.exists(path) or not os.path.exists(os.path.join(path, ".git")):
+        return "unknown", None, None
+        
+    try:
+        # Get head commit
+        res_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        head = res_head.stdout.strip()
+        
+        # Check dirty
+        res_status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        is_dirty = len(res_status.stdout.strip()) > 0
+        
+        # Check conflict
+        res_unmerged = subprocess.run(
+            ["git", "diff", "--name-only", "--diff-filter=U"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        is_conflict = len(res_unmerged.stdout.strip()) > 0
+        
+        if is_conflict:
+            truth_status = "conflict"
+        elif is_dirty:
+            truth_status = "dirty"
+        elif last_known_commit and head != last_known_commit:
+            truth_status = "stale"
+        else:
+            truth_status = "current"
+            
+        return truth_status, head, is_dirty
+    except Exception:
+        return "unknown", None, False
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate system health report.")
+    parser.add_argument("--json", action="store_true", help="Output health report in JSON to stdout.")
+    args = parser.parse_args()
+
+    # Base paths
+    sb_path = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+    fin_path = "/home/egitaristorandas/vortex-ai-skill-lab"
+
+    # Read registry/repos.yaml to get last_known_commits
+    sb_last_commit = None
+    fin_last_commit = None
+    registry_file = "registry/repos.yaml"
+    if os.path.exists(registry_file):
+        try:
+            with open(registry_file, "r") as f:
+                data = yaml.safe_load(f)
+                if isinstance(data, list):
+                    for r in data:
+                        if r.get("id") == "airo-second-brain":
+                            sb_last_commit = r.get("last_known_commit")
+                        elif r.get("id") == "airo-finance":
+                            fin_last_commit = r.get("last_known_commit")
+        except Exception:
+            pass
+
+    # Check statuses
+    sb_status, sb_head, sb_dirty = check_repo_status(sb_path, "airo-second-brain", sb_last_commit)
+    fin_status, fin_head, fin_dirty = check_repo_status(fin_path, "airo-finance", fin_last_commit)
+
+    # Count pending proposals
+    proposal_count = 0
+    if os.path.exists("distill/proposals"):
+        proposal_count = len([f for f in os.listdir("distill/proposals") if not f.startswith('.')])
+
+    # Count pending decisions
+    decision_count = 0
+    decision_file = "decisions/pending-decisions.md"
+    if os.path.exists(decision_file):
+        try:
+            with open(decision_file, "r") as f:
+                for line in f:
+                    if "- pending:" in line or "- unknown:" in line:
+                        decision_count += 1
+        except Exception:
+            pass
+
+    # Count inbox unprocessed
+    inbox_count = 0
+    if os.path.exists("inbox"):
+        for root, dirs, files in os.walk("inbox"):
+            inbox_count += len([f for f in files if not f.startswith('.')])
+
+    # Count errors
+    error_count = 0
+    latest_error = None
+    error_log_dir = "logs/errors"
+    if os.path.exists(error_log_dir):
+        error_files = sorted([f for f in os.listdir(error_log_dir) if not f.startswith('.')])
+        error_count = len(error_files)
+        if error_files:
+            latest_error = error_files[-1]
+
+    # Decide safe_to_work and system_status
+    if sb_status == "conflict" or fin_status == "conflict":
+        system_status = "blocked"
+        safe_to_work = False
+    elif sb_dirty:
+        system_status = "degraded"
+        safe_to_work = False
+    elif fin_dirty:
+        system_status = "degraded"
+        safe_to_work = True
+    else:
+        system_status = "healthy"
+        safe_to_work = True
+
+    health_data = {
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "safe_to_work": safe_to_work,
+        "system_status": system_status,
+        "repos": {
+            "airo-second-brain": {
+                "truth_status": sb_status,
+                "last_sync": datetime.utcnow().isoformat() + "Z"
+            },
+            "airo-finance": {
+                "truth_status": fin_status,
+                "last_known_commit": fin_last_commit,
+                "repo_head": fin_head
+            }
+        },
+        "pending": {
+            "proposals": proposal_count,
+            "decisions": decision_count,
+            "inbox_unprocessed": inbox_count
+        },
+        "errors": {
+            "count": error_count,
+            "latest": latest_error
+        }
+    }
+
+    if args.json:
+        print(json.dumps(health_data, indent=2))
+        sys.exit(0)
+
+    # Ensure directories
+    os.makedirs("state", exist_ok=True)
+    health_file = "state/system-health.md"
+    try:
+        with open(health_file, "w") as f:
+            yaml.safe_dump(health_data, f, default_flow_style=False, sort_keys=False)
+        # Log health check
+        os.makedirs("logs", exist_ok=True)
+        with open("logs/health.log", "a") as f:
+            f.write(f"[{datetime.now().isoformat()}] Health check complete. Status: {system_status}. Safe to work: {safe_to_work}.\n")
+    except Exception as e:
+        print(f"ERROR: Failed to write health file: {e}", file=sys.stderr)
+        sys.exit(2)
+
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()
