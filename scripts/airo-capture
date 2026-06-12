@@ -4,7 +4,7 @@ import sys
 import json
 import argparse
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 def log_error(msg):
     timestamp = datetime.now().isoformat()
@@ -32,7 +32,7 @@ def main():
     session_id = args.session_id or os.environ.get("AIRO_SESSION_ID") or str(uuid.uuid4())
     
     event = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "consumer": args.consumer,
         "session_id": session_id,
         "project_id": args.project,

@@ -4,7 +4,7 @@ import sys
 import json
 import argparse
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 import yaml
 
 def check_repo_status(path, repo_id, last_known_commit):
@@ -133,13 +133,13 @@ def main():
         safe_to_work = True
 
     health_data = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "safe_to_work": safe_to_work,
         "system_status": system_status,
         "repos": {
             "airo-second-brain": {
                 "truth_status": sb_status,
-                "last_sync": datetime.utcnow().isoformat() + "Z"
+                "last_sync": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             },
             "airo-finance": {
                 "truth_status": fin_status,

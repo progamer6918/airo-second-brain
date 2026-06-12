@@ -154,3 +154,10 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: implement workspace Distill & Promote (Phase 5).
 - feat: created scripts/airo-distill and scripts/airo-promote.
 - feat: created proposal and lifecycle directories (distill/proposals, distill/accepted, distill/rejected, distill/superseded).
+
+## 2026-06-12 17:40
+- test: implement workspace Stabilization & Abuse Testing (Phase 6).
+- test: ran all 15 abuse tests including lock tests, secret guards, observe-only boundaries, and promotion gates.
+- fix: patched Python 3.12 datetime deprecation warnings in scripts/airo-capture and scripts/airo-health.
+- fix: corrected diff parser index offset in scripts/airo-sync.
+- docs: created docs/validation/AIRO_SECOND_BRAIN_v0.4.1_STABILIZATION_REPORT.md.

@@ -62,5 +62,5 @@ Current rule:
 AIRO Second Brain is the canonical knowledge hub. Repository-specific work may live in other repos, but durable operator context should be summarized or linked from this repo.
 
 ## AIRO Second Brain v0.4.1 status
-- **Status:** Phase 5 (Distill & Promote) PASS.
-- **Next Step:** Phase 6 Stabilization & Abuse Testing.
+- **Status:** Phase 6 (Stabilization & Abuse Testing) PASS.
+- **Next Step:** Normal Operation / Final Acceptance.
