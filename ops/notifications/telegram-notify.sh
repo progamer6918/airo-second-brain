@@ -52,10 +52,9 @@ if os.path.exists(ENV_FILE):
     except Exception as e:
         sys.stderr.write(f"Error reading env file: {e}\n")
 
-# Check if actually configured (not empty, placeholder, or token/chat_id literal placeholder)
+# Check if actually configured
 is_configured = False
 if token and chat_id:
-    # check for placeholder values
     if not (token.startswith("YOUR_BOT_TOKEN") or chat_id.startswith("YOUR_CHAT_ID") or token.startswith("<secret>")):
         is_configured = True
 
@@ -82,7 +81,6 @@ if os.path.exists(STATE_FILE):
     except Exception:
         pass
 
-# Update state status dynamically
 state["telegram_status"] = telegram_status
 
 def save_state():
@@ -120,7 +118,7 @@ def send_telegram(text):
             res_json = json.loads(res_data)
             return res_json.get("ok", False)
     except Exception as e:
-        sys.stderr.write("Telegram API Request failed (connection or credential error).\n")
+        sys.stderr.write("Telegram API Request failed.\n")
         return False
 
 # 5. Handle --test
@@ -145,24 +143,23 @@ if not event_type:
     sys.stderr.write("Error: --type <type> is required when not running --test\n")
     sys.exit(1)
 
-if not message:
-    message = f"Event: {event_type}"
-
 current_time = time.time()
 should_send = False
+custom_msg = ""
 
 if event_type == "runtime_online":
-    # Startup online cooldown: 30 minutes (1800 seconds)
+    # Startup online cooldown: 6 hours (21600 seconds)
     time_elapsed = current_time - state.get("last_startup_time", 0)
-    if time_elapsed >= 1800:
+    if time_elapsed >= 21600:
         should_send = True
+        custom_msg = "🌙 **Earesmes nyala.**\n\nSecond Brain hidup, sync aman.\nAku bakal diam kalau gak ada yang penting."
         state["last_startup_time"] = current_time
     else:
-        log_event(f"Suppressed duplicate runtime_online event (cooldown active: {int(1800 - time_elapsed)}s left)")
+        log_event(f"Suppressed duplicate runtime_online event (cooldown active: {int(21600 - time_elapsed)}s left)")
 
 elif event_type == "sync_pushed":
-    # Always notify when changes are pushed
-    should_send = True
+    # Normal sync/state synced must NOT notify Telegram (silent). Log locally only.
+    log_event(f"Log-only sync_pushed (normal sync silent): {message}")
 
 elif event_type == "runtime_degraded":
     # Same warning cooldown: 60 minutes (3600 seconds)
@@ -173,17 +170,22 @@ elif event_type == "runtime_degraded":
         state["last_error_time"] = current_time
         state["last_error_msg"] = message
         state["last_status"] = "degraded"
+        
+        # Check if secret guard block or standard sync failed
+        if "secret" in (message or "").lower():
+            custom_msg = "🚫 **Aku blokir sync.**\n\nAda yang kelihatan seperti secret. Token gak akan kupush."
+        else:
+            custom_msg = "⚠️ **Sync gagal.**\n\nTenang, data lokal masih aman. Aku gak maksa push.\nBesok cek internet/GitHub/auth."
     else:
         log_event(f"Suppressed duplicate runtime_degraded event (cooldown active: {int(3600 - time_elapsed)}s left)")
 
 elif event_type == "runtime_recovered":
-    # Notify on recovery immediately if we were degraded or blocked before
     should_send = True
+    custom_msg = "✅ **Sudah pulih.**\n\nRuntime jalan lagi, sync aman."
     state["last_status"] = "healthy"
 
 elif event_type == "owner_review_needed":
-    # Cooldown: 360 minutes (21600 seconds)
-    # Check queue count from file
+    # Cooldown: 12 hours (43200 seconds) or if count changes
     review_count = 0
     review_file = "reviews/owner-review-queue-20260612.md"
     if os.path.exists(review_file):
@@ -195,36 +197,45 @@ elif event_type == "owner_review_needed":
             
     if review_count > 0:
         time_elapsed = current_time - state.get("last_review_time", 0)
-        if review_count != state.get("last_review_count", 0) or time_elapsed >= 21600:
+        if review_count != state.get("last_review_count", 0) or time_elapsed >= 43200:
             should_send = True
+            custom_msg = f"🟡 **Ada {review_count} hal yang butuh keputusanmu.**\n\nGak urgent malam ini. Sudah kusimpan rapi di owner review queue."
             state["last_review_time"] = current_time
             state["last_review_count"] = review_count
         else:
-            log_event(f"Suppressed owner_review_needed event (count unchanged or cooldown active: {int(21600 - time_elapsed)}s left)")
+            log_event(f"Suppressed owner_review_needed event (count unchanged or cooldown active: {int(43200 - time_elapsed)}s left)")
     else:
         log_event("Suppressed owner_review_needed (no review items pending)")
 
 elif event_type == "remote_queue_processed":
-    # Send immediately
+    # Friendly remote queue notification
+    # Find count from message or default to 1
+    count = 1
+    if message and "processed" in message.lower():
+        try:
+            count = int([s for s in message.split() if s.isdigit()][0])
+        except Exception:
+            pass
     should_send = True
+    custom_msg = f"📥 **Remote queue selesai diproses.**\nAda {count} proposal baru siap ditinjau."
 
 else:
     sys.stderr.write(f"Unknown event type: {event_type}\n")
     sys.exit(1)
 
-if should_send:
+if should_send and custom_msg:
     if is_configured:
         log_event(f"Sending Telegram notification for type '{event_type}'")
-        success = send_telegram(message)
+        success = send_telegram(custom_msg)
         if success:
             log_event(f"Notification sent successfully: {event_type}")
             state["last_notification_time"] = current_time
         else:
             log_event(f"Failed to send Telegram notification: {event_type}")
     else:
-        log_event(f"Log-only notification (Telegram unconfigured) for type '{event_type}': {message}")
+        log_event(f"Log-only notification (Telegram unconfigured) for type '{event_type}': {custom_msg}")
 else:
-    log_event(f"Notification suppressed for type '{event_type}'")
+    log_event(f"Notification suppressed/logged for type '{event_type}'")
 
 save_state()
 sys.exit(0)
