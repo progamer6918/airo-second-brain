@@ -652,3 +652,609 @@ Required evidence
 Do not reduce the final project objective to the current R8.4 milestone.
 
 Do not ask the owner to repeat this project definition after it has been processed into canonical files.
+## 2026-06-12 — Report Automation VBA R8.11 Stable Baseline Candidate
+
+Status: pending
+Source: owner-confirmed runtime logs and generated outputs
+Confidence: high, with one persistence verification still pending
+Related workstream: Report Automation VBA
+Target canonical files:
+
+* `projects/report-automation-vba.md`
+* `CURRENT.md`
+* optionally `decisions/decision-log.md`
+* optionally `meta/changelog.md`
+
+### Context
+
+The Honda Report Automation Command Center progressed from R8.4 through R8.11.
+
+The active milestone focused on:
+
+* dynamic source and report registries;
+* preserving the original `MULAI DI SINI` user interface;
+* button-first operator workflow;
+* safe import of HTML-disguised `.xls` files;
+* formula-safe handling for RPT002;
+* correct runtime Process Summary;
+* persistence of runtime status and output paths.
+
+The project’s final vision remains broader than this milestone.
+
+The long-term objective is a reusable and scalable Excel/VBA Command Center platform for recurring report automation across multiple report templates, source files, and departments.
+
+### Final product criteria reaffirmed
+
+The platform must remain:
+
+* registry-driven;
+* button-first for normal operators;
+* safe for original templates;
+* non-destructive to workbook UI and formulas;
+* auditable through process and error logs;
+* extensible through controlled source/report onboarding;
+* evidence-driven before any version is declared stable.
+
+Normal operators must work from `MULAI DI SINI`.
+
+Normal daily use must not require Alt+F8.
+
+Original templates must never be modified.
+
+All report processing must occur on working copies under:
+
+```text
+04_Working_Output
+```
+
+### Dynamic registry milestone
+
+R8.4 Live Registry Sync corrected the Check Input workflow.
+
+Confirmed behavior:
+
+```text
+Click Check Input
+→ synchronize Langkah 3 from CC_SOURCE_REGISTRY
+→ synchronize Langkah 4 from CC_REPORT_REGISTRY
+→ verify/reinstall operator buttons
+→ scan files
+→ update LastStatus
+→ update LastMatchedPath
+→ update visible status
+```
+
+A new source row was added:
+
+```text
+SourceKey: BBN
+FriendlyName: Monitor Kekurangan BBN
+Required: FALSE
+Folder: Today
+FilePrefix: File Monitor Kekurangan BBN
+HeaderProfile: NONE
+DateRule: NONE
+UsedByReports: blank
+```
+
+Confirmed result:
+
+* BBN appeared automatically in Langkah 3.
+* Status displayed:
+  `TIDAK DIPAKAI REPORT ON`
+* BBN did not block report generation.
+* No separate refresh macro was required.
+* Existing Check Input button remained the operator action.
+
+Confirmed UI evidence:
+
+```text
+BUTTONS_OK | 6 tombol utama dan 3 tombol ON/OFF aktif di MULAI DI SINI.
+HOME_SYNC | Langkah 3 dan Langkah 4 disinkronkan dari registry sebelum pemeriksaan input.
+```
+
+### Import failure investigation
+
+RPT001 and RPT002 initially failed during import of Data Penjualan Hari Ini.
+
+Observed runtime sequence:
+
+```text
+Error 7: Out of memory
+→ fallback write
+→ Error 1004 / Type mismatch
+```
+
+R8.5 and R8.6 improved diagnostics but did not initially solve the source anomaly.
+
+R8.6 identified the exact failing location:
+
+```text
+source Monitoring Penjualan Dealer Dai!K3421
+→ target Raw Data SSU M!K3419
+```
+
+### Confirmed raw-source root cause
+
+The raw file:
+
+```text
+Monitoring Penjualan Dealer Daily - 2026-06-12T081400.553.xls
+```
+
+was actually HTML content using an `.xls` extension.
+
+The first failing value was:
+
+```text
+K3421 = =32.600.000
+```
+
+instead of a normal numeric representation such as:
+
+```text
+32.600.000
+```
+
+Audit found:
+
+* 44 formula-like numeric artifacts in the current Sales file.
+* 302 similar artifacts in `SSU.2026.xlsx`.
+
+The leading `=` caused Excel to treat numeric export artifacts as formulas or invalid values during import.
+
+### R8.7 countermeasure
+
+R8.7 introduced an HTML-XLS numeric sanitizer.
+
+Behavior:
+
+```text
+detect formula-like numeric artifact
+→ normalize to numeric value
+→ preserve original raw file unchanged
+→ log SOURCE_SANITIZE
+→ continue adaptive import
+```
+
+Confirmed runtime evidence:
+
+```text
+SOURCE_SANITIZE | Data Penjualan Hari Ini |
+formula-like numeric export artifacts normalized=44
+
+SOURCE_SANITIZE | Data Penjualan Bulan Lalu |
+formula-like numeric export artifacts normalized=302
+```
+
+All required imports then succeeded:
+
+```text
+Sales: 3,461 rows
+SSU: 51,751 rows
+Stock Dealer: 5,153 rows
+Stock MD: 4,057 rows
+Inden: 350 rows
+```
+
+### RPT001 Monitoring Dealer result
+
+RPT001 completed successfully.
+
+Confirmed runtime:
+
+* all required sources imported;
+* five PivotTables refreshed;
+* all helper blocks updated;
+* intentional absence of `Ach. Outlook` preserved;
+* original template not modified;
+* final output created.
+
+Output:
+
+```text
+04_Working_Output\MONITORING_DEALER_20260611.xlsx
+```
+
+Final log:
+
+```text
+OK | RPT001 |
+...\MONITORING_DEALER_20260611.xlsx
+```
+
+RPT001 status:
+
+```text
+PASS
+```
+
+### RPT002 output audit and correction
+
+RPT002 initially completed technically but was not business-safe.
+
+Two output problems were identified:
+
+1. Visible report title still showed an old date:
+   `19 August 2024`
+
+2. The entire Stock MD helper block was skipped because formulas existed in:
+   `Comparison by Type!II5:IJ124`
+
+This preserved formulas but also preserved stale constant values from the template.
+
+Example discrepancy:
+
+```text
+CB150 VERZA SW
+current Pivot Stock MD = 28
+old displayed/helper value = 32
+```
+
+### R8.8 countermeasure
+
+R8.8 introduced business-safe RPT002 helper handling.
+
+Behavior:
+
+```text
+preserve formula cells
+→ clear only non-formula cells
+→ write current pivot values into writable cells
+→ validate helper values against Pivot Stock MD
+```
+
+R8.8 also updated RPT002 visible report date through the correct cells:
+
+```text
+Comparison by Type!D2
+Comparison by Type!E2
+```
+
+Confirmed runtime evidence:
+
+```text
+DATE | Comparison by Type |
+Report date=11/06/2026 |
+visible title date updated.
+```
+
+Confirmed helper evidence:
+
+```text
+FORMULA_SAFE_HELPER | RPT002 |
+PivotTable5 -> Comparison by Type!II5 |
+current pivot values refreshed |
+formulas preserved=1 |
+rows=38 |
+cols=2
+```
+
+RPT002 completed successfully.
+
+Output:
+
+```text
+04_Working_Output\REPORT_PER_TYPE_20260611.xlsx
+```
+
+Final log:
+
+```text
+OK | RPT002 |
+...\REPORT_PER_TYPE_20260611.xlsx
+```
+
+### RPT002 legacy formula warning
+
+The RPT002 template contains:
+
+```text
+3,382 legacy #REF! formulas
+```
+
+These formulas are located in technical areas outside the active visible report range:
+
+```text
+A1:Q73
+```
+
+Current behavior:
+
+* visible active report area is clean;
+* active Stock MD helper is validated against the current pivot;
+* report is not failed solely because of legacy technical-area formulas;
+* warning remains logged as technical debt.
+
+This technical debt must not be silently removed from project history.
+
+### Final batch regression
+
+Final batch was executed with:
+
+```text
+RPT001 = ON
+RPT002 = ON
+RPT003 = OFF / MAPPING_REQUIRED
+```
+
+Confirmed final result:
+
+```text
+RPT001 = OK
+RPT002 = OK
+RPT003 = SKIP / MAPPING_REQUIRED
+```
+
+Confirmed outputs:
+
+```text
+MONITORING_DEALER_20260611.xlsx
+REPORT_PER_TYPE_20260611.xlsx
+```
+
+RPT003 remained correctly blocked.
+
+### Process Summary defects and corrections
+
+The legacy Process Summary initially returned only hardcoded registry values:
+
+```text
+ACTIVE
+Registry only
+Output Path blank
+```
+
+R8.9 changed the summary to read runtime registry fields.
+
+R8.9 then failed during workbook `SaveAs`.
+
+R8.10 introduced reliable summary saving through:
+
+```text
+create summary workbook
+→ save to Windows TEMP
+→ close workbook
+→ copy to unique final output path
+→ verify final file
+```
+
+R8.10 successfully saved the summary but revealed stale registry runtime values.
+
+The stale summary displayed old FAILED statuses even though the latest batch had succeeded.
+
+### R8.11 countermeasure
+
+R8.11 introduced runtime evidence recovery and persistence.
+
+Behavior:
+
+```text
+read latest report evidence from CC_PROCESS_LOG
+→ recover latest OK / FAILED / SKIPPED status
+→ recover latest output path
+→ synchronize CC_REPORT_REGISTRY
+→ validate registry readback
+→ save Command_Center.xlsm
+→ create summary from recovered runtime truth
+```
+
+Confirmed runtime evidence:
+
+```text
+REGISTRY_RECOVERY |
+5 report runtime record(s) synchronized from latest log/output evidence.
+```
+
+Confirmed summary creation:
+
+```text
+SUMMARY |
+Process summary dibuat dari latest runtime evidence.
+Report date=11/06/2026
+```
+
+Generated summary:
+
+```text
+04_Working_Output\PROCESS_SUMMARY_20260611_01.xlsx
+```
+
+Confirmed summary rows:
+
+```text
+RPT001
+Status: OK
+Output:
+...\MONITORING_DEALER_20260611.xlsx
+LastRunAt: 12/06/2026 14:34:44
+
+RPT002
+Status: OK
+Output:
+...\REPORT_PER_TYPE_20260611.xlsx
+LastRunAt: 12/06/2026 14:35:27
+
+RPT003
+Status: MAPPING_REQUIRED
+Output: blank
+```
+
+### Current baseline status
+
+Current module:
+
+```text
+modHondaCommandCenter_R8_11_RUNTIME_EVIDENCE_PERSISTENCE.bas
+```
+
+Current status:
+
+```text
+R8.11 = stable baseline candidate
+```
+
+Confirmed capabilities:
+
+```text
+Dynamic source registry        PASS
+Dynamic report registry        PASS
+BBN live registry sync         PASS
+Original UI preservation       PASS
+Button-first workflow          PASS
+Raw HTML-XLS sanitizer         PASS
+Adaptive import recovery       PASS
+RPT001 Monitoring Dealer       PASS
+RPT002 Report Per Type         PASS
+RPT002 formula-safe helper     PASS
+RPT002 visible report date     PASS
+RPT003 safety block            PASS
+Process Summary generation     PASS
+Runtime evidence recovery      PASS
+Runtime output path recovery   PASS
+```
+
+### Pending persistence verification
+
+One final verification remains pending unless separately confirmed by the owner:
+
+```text
+save and close Command_Center.xlsm
+→ reopen workbook
+→ click Create Process Summary without rerunning reports
+→ confirm RPT001 and RPT002 remain OK
+→ confirm both output paths remain populated
+```
+
+Do not mark full persistence verification PASS without this reopen evidence.
+
+### Stable baseline artifacts
+
+The following artifacts should be preserved on the main device:
+
+```text
+Command_Center.xlsm with R8.11 installed
+modHondaCommandCenter_R8_11_RUNTIME_EVIDENCE_PERSISTENCE.bas
+MONITORING_DEALER_20260611.xlsx
+REPORT_PER_TYPE_20260611.xlsx
+PROCESS_SUMMARY_20260611_01.xlsx
+```
+
+Recommended frozen workbook copy:
+
+```text
+Command_Center_R8_11_STABLE.xlsm
+```
+
+Create the frozen copy only after the reopen persistence verification passes.
+
+### Technical debt and known risks
+
+The following items are known but do not currently block RPT001/RPT002 baseline:
+
+1. Excel may raise temporary `Out of memory` during large source writes.
+   Adaptive split currently recovers successfully.
+
+2. Raw `.xls` exports may actually be HTML and may contain formula-like numeric artifacts.
+   R8.7+ sanitizer currently normalizes them without changing the original raw files.
+
+3. RPT002 contains 3,382 legacy `#REF!` formulas in technical areas outside the active visible report.
+   They remain technical debt and must not be treated as resolved.
+
+4. RPT003 Result VE remains unmapped.
+
+### RPT003 rule
+
+RPT003 status remains:
+
+```text
+MAPPING_REQUIRED
+```
+
+Do not process or activate RPT003 yet.
+
+Reason:
+
+* Data Model;
+* workbook connections;
+* external Master Data;
+* large formula staging;
+* separate mapping analysis required.
+
+Do not create dummy mappings such as:
+
+```text
+SalesData_
+VEData_
+Raw_VEData
+```
+
+### Next project milestone
+
+After R8.11 persistence verification and baseline freeze, the next milestone is:
+
+```text
+RPT003 Result VE read-only mapping audit
+```
+
+This is an audit milestone, not an activation milestone.
+
+Required mapping audit:
+
+* workbook sheets and visibility;
+* Data Model;
+* workbook connections;
+* Power Query or query tables;
+* external Master Data dependencies;
+* source files;
+* staging sheets;
+* pivot or formula dependencies;
+* final output sheet and output range;
+* report date logic;
+* validation rules;
+* whether RPT003 fits an existing family or requires a new family engine.
+
+Expected audit outcome must be one of:
+
+```text
+AUTO_READY
+MAPPING_REQUIRED with complete gap list
+BLOCKED with explicit technical reason
+```
+
+RPT003 must remain blocked until mapping is explicitly completed and approved.
+
+### Canonical update requested
+
+When this capture is processed on the main device:
+
+1. Update `projects/report-automation-vba.md`.
+2. Update the active Report Automation VBA section in `CURRENT.md`.
+3. Preserve the final vision and permanent product criteria.
+4. Record R8.11 as the latest stable baseline candidate.
+5. Record RPT001 and RPT002 as runtime PASS.
+6. Record RPT003 as `MAPPING_REQUIRED`.
+7. Record the sanitizer root cause and countermeasure.
+8. Record RPT002 legacy formula technical debt.
+9. Record Process Summary runtime recovery behavior.
+10. Preserve the pending reopen persistence verification.
+11. Move or mark this capture as processed only after canonical readback is verified.
+
+### AIRO operator instruction
+
+Do not reduce this project to the current VBA version.
+
+Future operators must always distinguish:
+
+```text
+Final platform vision
+Permanent product criteria
+Current Honda pilot
+Stable baseline
+Current milestone
+Known technical debt
+Pending evidence
+Next audited expansion
+```
+
+Do not ask the owner to repeat context that has already been processed into canonical project files.
