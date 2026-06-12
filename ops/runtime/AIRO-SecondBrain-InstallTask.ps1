@@ -1,6 +1,14 @@
 # AIRO-SecondBrain-InstallTask.ps1
 # Installs the AIRO Second Brain Runtime Sync in Windows Task Scheduler
 
+$IsAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $IsAdmin) {
+    Write-Host "SCHEDULER_INSTALL=BLOCKED_PERMISSION"
+    Write-Host "Reason: PowerShell is not elevated / Administrator permission required"
+    exit 1
+}
+
 $TaskName = "AIRO Second Brain Runtime Sync"
 $Action = New-ScheduledTaskAction -Execute "wsl.exe" -Argument "-d Ubuntu bash -c `"cd /home/egitaristorandas/AI_WORKSPACES/airo-second-brain && ./ops/runtime/airo-runtime-runner.sh`""
 
@@ -11,9 +19,21 @@ $Principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interac
 $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -DontStopOnIdleEnd -Hidden
 
 try {
-    Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger @($Trigger1, $Trigger2) -Principal $Principal -Settings $Settings -Force
-    Write-Host "Successfully registered Task: $TaskName"
+    Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger @($Trigger1, $Trigger2) -Principal $Principal -Settings $Settings -Force | Out-Null
 } catch {
-    Write-Host "Failed to register Task. Permission denied or policy blocked."
-    Write-Host $_.Exception.Message
+    Write-Host "SCHEDULER_INSTALL=FAIL"
+    Write-Host "Reason: $($_.Exception.Message)"
+    exit 1
+}
+
+$Task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+
+if ($Task) {
+    Write-Host "SCHEDULER_INSTALL=PASS"
+    Write-Host "TaskName=$TaskName"
+    Write-Host "State=$($Task.State)"
+    exit 0
+} else {
+    Write-Host "SCHEDULER_INSTALL=FAIL_VERIFY_NOT_FOUND"
+    exit 1
 }

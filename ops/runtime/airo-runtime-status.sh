@@ -33,9 +33,11 @@ fi
 
 SCHEDULER_STATUS="unknown"
 if command -v powershell.exe >/dev/null 2>&1; then
-  # Simple check if task exists via powershell - requires windows environment access
-  # To avoid hanging or errors in pure WSL, we assume active if the powershell command works or 'unknown'
-  SCHEDULER_STATUS="active_or_unverified"
+  if powershell.exe -NoProfile -Command "Get-ScheduledTask -TaskName 'AIRO Second Brain Runtime Sync' -ErrorAction SilentlyContinue" | grep -q "AIRO Second Brain Runtime Sync"; then
+    SCHEDULER_STATUS="active"
+  else
+    SCHEDULER_STATUS="not_installed"
+  fi
 fi
 
 LAST_RUN="never"
