@@ -169,3 +169,9 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 
 ## 2026-06-12 22:04:34 +0700
 - Captured AIRO Finance Task 9 @292 checkpoint: shared amount sanitizer deployed, post-deploy guard PASS, live amount runtime PASS, Credit Card still pending due Review Queue fallback.
+
+## 2026-06-12 23:25
+- ops: scheduled task sync updated to run hidden.
+- feat: implemented Telegram notify connection, policy rules, and throttled notifications.
+- feat: resolved sync/push loop by git-ignoring `notification-state.json` and running `airo-health --no-write` by default.
+

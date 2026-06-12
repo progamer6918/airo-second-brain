@@ -250,3 +250,14 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - Amount runtime status: verified_done.
 - Credit Card status remains pending because route wrote Review Queue:16, not verified Account Ledger/Credit Card matched flow.
 - Known synthetic contamination now: Account Ledger:54, Review Queue:13, Review Queue:15, Review Queue:16. Cleanup deferred until owner approval.
+
+## 2026-06-12 23:25 — AIRO Second Brain Telegram Notify + Hidden Scheduler Finalized
+- verified: Scheduler task action updated to run windowlessly using `powershell.exe -NoProfile -WindowStyle Hidden`.
+- verified: Task "AIRO Second Brain Runtime Sync" active and liveness PASS (exit code 0).
+- verified: Telegram notify credentials configured locally in `/home/egitaristorandas/.airo/telegram.env` with chmod 600.
+- verified: Telegram notify test completed successfully (TELEGRAM_TEST=PASS).
+- verified: Notification state file `ops/notifications/notification-state.json` untracked and git-ignored to prevent sync loops.
+- verified: Runner health check runs with `--no-write` to avoid sync loops; only persists status when it transitions.
+- verified: No-op runs do not send duplicate notifications or trigger sync loops.
+- verified: AIRO Finance repository untouched.
+- next: Operational monitoring.
