@@ -145,6 +145,7 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: created scripts/airo-preflight and scripts/airo-sync.
 - feat: implemented lock file support, filename and content secret guards, and push retry logic.
 
-
-
-
+## 2026-06-12 17:10
+- feat: implement workspace Bootstrap & Organize (Phase 4).
+- feat: created scripts/airo-bootstrap and scripts/airo-organize.
+- feat: created lifecycle directories (events/synced, events/failed, distill/proposals, archive, inbox/session-closeouts, inbox/workspace-scans, inbox/remote) and active session tracker (state/active-sessions.md).

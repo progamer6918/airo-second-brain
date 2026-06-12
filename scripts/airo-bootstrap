@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import subprocess
+from datetime import datetime, timezone
+import yaml
+
+def read_file_safe(path):
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read()
+        except Exception:
+            return ""
+    return ""
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO session entry point and bootstrap script.")
+    parser.add_argument("--project", "-p", default="airo-second-brain", help="Active project ID.")
+    parser.add_argument("--dry-run", action="store_true", help="Bootstrap preflight checks only, do not persist session state.")
+    parser.add_argument("--json", action="store_true", help="Output session configuration and bootstrap status in JSON.")
+    args = parser.parse_args()
+
+    project_id = args.project
+
+    # 1. Read BOOT.md
+    boot_content = read_file_safe("BOOT.md")
+
+    # 2. Read CURRENT.md
+    current_content = read_file_safe("CURRENT.md")
+
+    # 3. Run airo-health to update system-health.md
+    health_data = {}
+    try:
+        health_cmd = ["python3", "scripts/airo-health"]
+        subprocess.run(health_cmd, check=True, capture_output=True)
+        
+        health_file = "state/system-health.md"
+        if os.path.exists(health_file):
+            with open(health_file, "r") as f:
+                health_data = yaml.safe_load(f)
+    except Exception:
+        pass
+
+    # 4. Run airo-preflight for active project
+    preflight_ran = False
+    preflight_data = {}
+    try:
+        preflight_cmd = ["python3", "scripts/airo-preflight", "--project", project_id, "--json"]
+        res_preflight = subprocess.run(preflight_cmd, capture_output=True, text=True)
+        preflight_ran = True
+        if res_preflight.returncode in [0, 1, 2]:
+            preflight_data = json.loads(res_preflight.stdout.strip())
+    except Exception as e:
+        preflight_data = {
+            "project_id": project_id,
+            "error": str(e),
+            "truth_status": "unknown",
+            "safe_to_execute": False,
+            "required_action": "check preflight script"
+        }
+
+    # Override required_action for airo-finance per Phase 4 requirements
+    if project_id == "airo-finance":
+        preflight_data["truth_status"] = "dirty"
+        preflight_data["safe_to_execute"] = False
+        preflight_data["required_action"] = "preserve known dirty state / owner decision needed before AIRO Finance implementation work"
+
+    # Read pending decisions and proposals count
+    pending_decisions = health_data.get("pending", {}).get("decisions", 0)
+    pending_proposals = health_data.get("pending", {}).get("proposals", 0)
+    safe_to_work = health_data.get("safe_to_work", True)
+    safe_to_execute = preflight_data.get("safe_to_execute", False)
+
+    # For airo-finance, safe_to_execute is always false
+    if project_id == "airo-finance":
+        safe_to_execute = False
+
+    # Dry-run session registry updates
+    if not args.dry_run:
+        # Register session in state/active-sessions.md
+        sessions_file = "state/active-sessions.md"
+        session_timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        try:
+            session_entry = f"\n* **Session**: {session_timestamp} | Project: {project_id} | Status: {preflight_data.get('truth_status', 'unknown')}\n"
+            with open(sessions_file, "a") as f:
+                f.write(session_entry)
+        except Exception:
+            pass
+
+    # Output structure
+    output_data = {
+        "preflight_ran": preflight_ran,
+        "project_id": project_id,
+        "truth_status": preflight_data.get("truth_status", "unknown"),
+        "safe_to_work": safe_to_work,
+        "safe_to_execute": safe_to_execute,
+        "required_action": preflight_data.get("required_action", "none"),
+        "pending_decisions": pending_decisions,
+        "pending_proposals": pending_proposals,
+        "health_status": health_data.get("system_status", "unknown")
+    }
+
+    if args.json:
+        print(json.dumps(output_data, indent=2))
+        sys.exit(0)
+
+    # Normal display
+    print("=========================================")
+    print("        AIRO SYSTEM BOOTSTRAP            ")
+    print("=========================================")
+    print(f"Active Project     : {project_id}")
+    print(f"Truth Status       : {output_data['truth_status']}")
+    print(f"Safe to Work       : {output_data['safe_to_work']}")
+    print(f"Safe to Execute    : {output_data['safe_to_execute']}")
+    print(f"Required Action    : {output_data['required_action']}")
+    print(f"Pending Decisions  : {output_data['pending_decisions']}")
+    print(f"Pending Proposals  : {output_data['pending_proposals']}")
+    print(f"Health Status      : {output_data['health_status']}")
+    print("=========================================")
+    print("\n[BOOT.md Summary]")
+    boot_lines = [l.strip() for l in boot_content.split("\n") if l.strip()]
+    for line in boot_lines[:8]:
+        print(f"  {line}")
+    print("\n[CURRENT.md Summary]")
+    curr_lines = [l.strip() for l in current_content.split("\n") if l.strip()]
+    for line in curr_lines[:8]:
+        print(f"  {line}")
+    print("=========================================")
+
+if __name__ == "__main__":
+    main()

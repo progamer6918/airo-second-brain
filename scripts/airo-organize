@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import shutil
+
+def count_files_in_dir(path, recursive=False):
+    if not os.path.exists(path):
+        return 0
+    count = 0
+    for root, dirs, files in os.walk(path):
+        count += len([f for f in files if not f.startswith('.')])
+        if not recursive:
+            break
+    return count
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO inbox organization and lifecycle tool.")
+    parser.add_argument("--dry-run", action="store_true", help="Show planned organization actions without executing them.")
+    parser.add_argument("--json", action="store_true", help="Output organization statistics and actions in JSON.")
+    args = parser.parse_args()
+
+    lifecycle_dirs = [
+        "events/raw/",
+        "events/synced/",
+        "events/failed/",
+        "distill/proposals/",
+        "archive/",
+        "inbox/session-closeouts/",
+        "inbox/workspace-scans/",
+        "inbox/remote/",
+    ]
+
+    for d in lifecycle_dirs:
+        os.makedirs(d, exist_ok=True)
+
+    raw_events_count = count_files_in_dir("events/raw")
+    raw_ndjson = "events/raw/events.ndjson"
+    if os.path.exists(raw_ndjson):
+        try:
+            with open(raw_ndjson, "r", encoding="utf-8") as f:
+                raw_events_count = sum(1 for _ in f)
+        except Exception:
+            pass
+
+    synced_events_count = count_files_in_dir("events/synced")
+    failed_events_count = count_files_in_dir("events/failed")
+    
+    inbox_files_count = 0
+    inbox_files = []
+    if os.path.exists("inbox"):
+        for f in os.listdir("inbox"):
+            full_path = os.path.join("inbox", f)
+            if os.path.isfile(full_path) and not f.startswith('.'):
+                inbox_files_count += 1
+                inbox_files.append(f)
+
+    proposals_count = count_files_in_dir("distill/proposals")
+    archive_count = count_files_in_dir("archive")
+    session_closeouts_count = count_files_in_dir("inbox/session-closeouts")
+    workspace_scans_count = count_files_in_dir("inbox/workspace-scans")
+    remote_inbox_count = count_files_in_dir("inbox/remote")
+
+    planned_actions = []
+    for f in inbox_files:
+        src = os.path.join("inbox", f)
+        dest_dir = "inbox/session-closeouts/"
+        if "scan" in f or "workspace" in f or f.endswith(".json"):
+            dest_dir = "inbox/workspace-scans/"
+        elif "remote" in f:
+            dest_dir = "inbox/remote/"
+        elif "closeout" in f or "session" in f or f.startswith("antigravity") or f.startswith("airo") or f.startswith("chatgpt") or f.startswith("earesmes") or f.startswith("handy") or f.startswith("seamless") or f.endswith(".md"):
+            dest_dir = "inbox/session-closeouts/"
+            
+        dest = os.path.join(dest_dir, f)
+        planned_actions.append({
+            "source": src,
+            "destination": dest,
+            "action": "move"
+        })
+
+    if not args.dry_run:
+        for action in planned_actions:
+            try:
+                shutil.move(action["source"], action["destination"])
+            except Exception as e:
+                pass
+
+    stats = {
+        "success": True,
+        "dry_run": args.dry_run,
+        "counts": {
+            "raw_events": raw_events_count,
+            "synced_events": synced_events_count,
+            "failed_events": failed_events_count,
+            "inbox": inbox_files_count,
+            "proposals": proposals_count,
+            "archive": archive_count,
+            "session_closeouts": session_closeouts_count,
+            "workspace_scans": workspace_scans_count,
+            "remote_inbox": remote_inbox_count
+        },
+        "planned_actions": planned_actions if args.dry_run else []
+    }
+
+    if args.json:
+        print(json.dumps(stats, indent=2))
+        sys.exit(0)
+
+    print("=========================================")
+    print("        AIRO INBOX LIFE-CYCLE            ")
+    print("=========================================")
+    print(f"Raw Events         : {stats['counts']['raw_events']}")
+    print(f"Synced Events      : {stats['counts']['synced_events']}")
+    print(f"Failed Events      : {stats['counts']['failed_events']}")
+    print(f"Inbox (Root Files) : {stats['counts']['inbox']}")
+    print(f"Proposals          : {stats['counts']['proposals']}")
+    print(f"Archive            : {stats['counts']['archive']}")
+    print(f"Session Closeouts  : {stats['counts']['session_closeouts']}")
+    print(f"Workspace Scans    : {stats['counts']['workspace_scans']}")
+    print(f"Remote Inbox       : {stats['counts']['remote_inbox']}")
+    print("=========================================")
+    if args.dry_run:
+        print("\nPlanned moves (Dry-run):")
+        if not planned_actions:
+            print("  No files to classify.")
+        for action in planned_actions:
+            print(f"  Move: {action['source']} -> {action['destination']}")
+    else:
+        print("\nOrganization complete.")
+    print("=========================================")
+
+if __name__ == "__main__":
+    main()
