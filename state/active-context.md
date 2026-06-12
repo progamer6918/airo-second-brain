@@ -241,3 +241,12 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 
 
 
+
+## 2026-06-12 22:04:34 +0700 — AIRO Finance Task 9 @292 amount runtime checkpoint
+- Task 9 remains active: started_regression_gate.
+- @292 deployed and post-deploy guard passed with source SHA e77438f86cd075614f4393defc420ccf34932375cfa5fb57814bea52a650f911.
+- Live @292 synthetic CC command parsed amount correctly: expected 9021, observed 9021.
+- Smoke/date/tag numbers were not captured as amount.
+- Amount runtime status: verified_done.
+- Credit Card status remains pending because route wrote Review Queue:16, not verified Account Ledger/Credit Card matched flow.
+- Known synthetic contamination now: Account Ledger:54, Review Queue:13, Review Queue:15, Review Queue:16. Cleanup deferred until owner approval.

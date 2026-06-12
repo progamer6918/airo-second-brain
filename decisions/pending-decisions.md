@@ -125,3 +125,10 @@ Add a local startup routine that reads BOOT.md, CURRENT.md, CONTEXT.md, AGENTS.m
 - resolved: corrected CC endpoint/call-method preflight completed successfully.
 - pending: run bounded corrected Credit Card regression/readback on production @290.
 - constraint: no workbook write, no Gmail mutation, no deploy, no clasp run, no Task 8 repeat.
+
+## 2026-06-12 22:04:34 +0700 — AIRO Finance Task 9 Credit Card validation path
+- Decision needed: how to verify Credit Card ledger-first route after @292 amount runtime PASS.
+- Option A: create/use controlled matched CC fixture and perform one bounded live regression/readback.
+- Option B: accept no-match CC payment behavior as Review Queue fallback, but keep Credit Card status pending until separate matched-route evidence exists.
+- Do not proceed to Asset/Dashboard until this is resolved.
+- Cleanup decision still pending for synthetic contamination: Account Ledger:54, Review Queue:13, Review Queue:15, Review Queue:16.
