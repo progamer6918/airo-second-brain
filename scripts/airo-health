@@ -58,6 +58,7 @@ def check_repo_status(path, repo_id, last_known_commit):
 def main():
     parser = argparse.ArgumentParser(description="Generate system health report.")
     parser.add_argument("--json", action="store_true", help="Output health report in JSON to stdout.")
+    parser.add_argument("--no-write", action="store_true", help="Do not write to canonical tracked files.")
     args = parser.parse_args()
 
     # Base paths
@@ -164,6 +165,19 @@ def main():
 
     # Ensure directories
     os.makedirs("state", exist_ok=True)
+    os.makedirs("logs", exist_ok=True)
+
+    if args.no_write:
+        # Write to local ignored files instead of canonical files
+        try:
+            with open("state/runtime-health.local.json", "w") as f:
+                json.dump(health_data, f, indent=2)
+            with open("logs/health.local.log", "a") as f:
+                f.write(f"[{datetime.now().isoformat()}] Health check complete (no-write). Status: {system_status}. Safe to work: {safe_to_work}.\n")
+        except Exception as e:
+            pass
+        sys.exit(0)
+
     health_file = "state/system-health.md"
     
     state_changed = True
@@ -195,7 +209,6 @@ def main():
             with open(health_file, "w") as f:
                 yaml.safe_dump(health_data, f, default_flow_style=False, sort_keys=False)
             # Log health check to tracked file on transition
-            os.makedirs("logs", exist_ok=True)
             with open("logs/health.log", "a") as f:
                 f.write(f"[{datetime.now().isoformat()}] Health check complete. Status: {system_status}. Safe to work: {safe_to_work}. (State Transition)\n")
         except Exception as e:
@@ -204,7 +217,6 @@ def main():
     else:
         # If no state change, log to volatile/ignored log
         try:
-            os.makedirs("logs", exist_ok=True)
             with open("logs/health_dry.log", "a") as f:
                 f.write(f"[{datetime.now().isoformat()}] Health check (no change). Status: {system_status}.\n")
         except Exception:

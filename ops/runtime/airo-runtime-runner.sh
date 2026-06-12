@@ -82,9 +82,13 @@ trap 'rm -f "$LOCK_FILE"' EXIT
 
 log "Starting runtime runner..."
 
+RUNTIME_SYNC_MODE="dry_run_only" # Hardcoded safe default until proven
+
 # 2. Run Health
 log "Running health check..."
-if [ "$DRY_RUN" = true ] || [ "$JSON_MODE" = true ]; then
+if [ "$DRY_RUN" = true ] || [ "$RUNTIME_SYNC_MODE" = "dry_run_only" ]; then
+  ./scripts/airo-health --no-write > /dev/null 2>&1 || true
+elif [ "$JSON_MODE" = true ]; then
   ./scripts/airo-health --json > /dev/null 2>&1 || true
 else
   ./scripts/airo-health > /dev/null 2>&1 || true
@@ -103,7 +107,7 @@ log "Running sync dry-run..."
 ./scripts/airo-sync --dry-run > /dev/null 2>&1 || true
 
 # 5. Optionally run real sync only if safe
-RUNTIME_SYNC_MODE="dry_run_only" # Hardcoded safe default until proven
+# RUNTIME_SYNC_MODE is defined above
 
 if [ "$RUNTIME_SYNC_MODE" = "real_sync_enabled" ] && [ "$DRY_RUN" = false ]; then
   log "Running real sync..."

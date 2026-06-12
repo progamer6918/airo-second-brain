@@ -21,3 +21,5 @@ logs/errors/*.log
 logs/sync-errors/*.log
 state/last-runtime-run.txt
 locks/*.lock
+logs/health.local.log
+state/runtime-health.local.json
