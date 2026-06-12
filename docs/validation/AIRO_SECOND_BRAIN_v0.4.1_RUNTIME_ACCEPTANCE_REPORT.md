@@ -23,6 +23,7 @@
 - Status command works: PASS
 - Task Scheduler Install: BLOCKED_PERMISSION (Access is denied, requires manual run)
 - `runtime_sync_mode`: dry_run_only
+- Repository Hygiene (dry-run/no-op cleanliness): PASS (Leaves repository perfectly clean with zero untracked/dirty changes)
 
 ## Known Limitations
 - Telegram is not fully integrated yet (`log_only_unconfigured`).

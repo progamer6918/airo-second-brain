@@ -84,7 +84,7 @@ log "Starting runtime runner..."
 
 # 2. Run Health
 log "Running health check..."
-if [ "$JSON_MODE" = true ]; then
+if [ "$DRY_RUN" = true ] || [ "$JSON_MODE" = true ]; then
   ./scripts/airo-health --json > /dev/null 2>&1 || true
 else
   ./scripts/airo-health > /dev/null 2>&1 || true

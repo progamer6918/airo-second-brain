@@ -199,7 +199,7 @@ def main():
     os.makedirs("logs/sync", exist_ok=True)
     os.makedirs("logs/sync-errors", exist_ok=True)
     
-    log_file = "logs/sync/sync.log"
+    log_file = "logs/sync/sync_dry_run.log" if args.dry_run else "logs/sync/sync.log"
     
     def log(msg):
         timestamp = datetime.now().isoformat()

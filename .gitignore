@@ -12,3 +12,12 @@ node_modules/
 __pycache__/
 *.zip
 .DS_Store
+
+# Volatile local runtime files
+logs/runtime.log
+logs/*.log
+logs/sync/*.log
+logs/errors/*.log
+logs/sync-errors/*.log
+state/last-runtime-run.txt
+locks/*.lock
