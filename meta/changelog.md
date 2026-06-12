@@ -140,5 +140,11 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: created scripts/airo-capture and scripts/airo-health.
 - feat: created state/system-health.md with honest dirty check of project repository.
 
+## 2026-06-11 23:02
+- feat: implement workspace Sync & Preflight (Phase 3).
+- feat: created scripts/airo-preflight and scripts/airo-sync.
+- feat: implemented lock file support, filename and content secret guards, and push retry logic.
+
+
 
 

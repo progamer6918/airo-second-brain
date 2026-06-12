@@ -1,0 +1,353 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import json
+import time
+import argparse
+import subprocess
+from datetime import datetime, timezone
+import yaml
+
+LOCK_FILE = "locks/airo-sync.lock"
+BRAIN_SAFE_PREFIXES = [
+    "events/",
+    "inbox/",
+    "logs/",
+    "registry/",
+    "state/",
+    "meta/",
+    "docs/",
+    "distill/proposals/"
+]
+
+BLOCKED_FILENAMES = [
+    r"\.env$",
+    r"\.env\..*$",
+    r"\.pem$",
+    r"\.key$",
+    r"\.token$",
+    r"\.secret$",
+    r"credentials.*\.json$",
+    r"token.*\.json$",
+    r"client_secret.*\.json$",
+    r"google_token.*\.json$",
+    r"\.clasp\.json$",
+    r"\.clasprc\.json$",
+    r".*oauth.*",
+    r".*credential.*",
+    r"\.htpasswd$"
+]
+
+def check_line_for_secrets(line):
+    # check for ghp_
+    if re.search(r"ghp_[a-zA-Z0-9]{20,}", line):
+        return True
+    if re.search(r"github_pat_[a-zA-Z0-9]{20,}", line):
+        return True
+    if re.search(r"AIza[0-9A-Za-z-_]{30,}", line):
+        return True
+    if re.search(r"AKIA[0-9A-Z]{12,}", line):
+        return True
+    if "-----BEGIN" in line and "PRIVATE KEY" in line:
+        return True
+    if re.search(r"(api_key|api_secret|client_secret|bot_token|refresh_token)\s*[:=]\s*['\"]?[a-zA-Z0-9-_]{10,}['\"]?", line, re.IGNORECASE):
+        return True
+    return False
+
+def acquire_lock(log):
+    os.makedirs("locks", exist_ok=True)
+    if os.path.exists(LOCK_FILE):
+        try:
+            mtime = os.path.getmtime(LOCK_FILE)
+            age_seconds = time.time() - mtime
+            if age_seconds < 600: # 10 minutes
+                log(f"Lock active (age: {age_seconds:.1f}s). Skipping sync.")
+                return False
+            else:
+                log(f"Stale lock found (age: {age_seconds:.1f}s). Removing lock.")
+                os.remove(LOCK_FILE)
+        except Exception as e:
+            log(f"Warning: Failed to inspect lock file: {e}")
+            
+    try:
+        with open(LOCK_FILE, "w") as f:
+            f.write(f"PID:{os.getpid()}\nTime:{datetime.now().isoformat()}\n")
+        return True
+    except Exception as e:
+        log(f"Fatal: Failed to create lock file: {e}")
+        return False
+
+def release_lock():
+    if os.path.exists(LOCK_FILE):
+        try:
+            os.remove(LOCK_FILE)
+        except Exception:
+            pass
+
+def run_secret_guard(log, write_error_report):
+    # Check git status for staged/unstaged changes
+    try:
+        res = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        status_lines = res.stdout.strip().split("\n")
+    except Exception as e:
+        log(f"Error checking git status: {e}")
+        return False
+
+    dirty_files = []
+    for line in status_lines:
+        if not line:
+            continue
+        parts = line.split(None, 1)
+        if len(parts) == 2:
+            status, filepath = parts
+            dirty_files.append((status, filepath.strip()))
+
+    # 1. Check filename guard
+    for status, filepath in dirty_files:
+        basename = os.path.basename(filepath)
+        for pattern in BLOCKED_FILENAMES:
+            if re.search(pattern, basename, re.IGNORECASE):
+                log(f"SECRET GUARD BLOCK: Blocked filename pattern matched: {basename}")
+                write_error_report("filename_guard", filepath)
+                return False
+
+    # 2. Check content guard in dirty files to be staged
+    for status, filepath in dirty_files:
+        is_safe_path = False
+        for prefix in BRAIN_SAFE_PREFIXES:
+            if filepath.startswith(prefix):
+                is_safe_path = True
+                break
+        
+        if is_safe_path and os.path.isfile(filepath):
+            try:
+                with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                    for line_num, line in enumerate(f, 1):
+                        if check_line_for_secrets(line):
+                            log(f"SECRET GUARD BLOCK: Blocked content pattern matched in {filepath}:{line_num}")
+                            write_error_report("content_guard", f"Matched content pattern in file: {filepath}:{line_num}")
+                            return False
+            except Exception as e:
+                log(f"Warning: Failed to scan {filepath} for secrets: {e}")
+
+    # Also check git diff --cached (staged changes)
+    try:
+        res_diff = subprocess.run(
+            ["git", "diff", "--cached"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        diff_lines = res_diff.stdout.split("\n")
+    except Exception as e:
+        log(f"Error checking git diff: {e}")
+        return False
+
+    current_file = None
+    for line in diff_lines:
+        if line.startswith("diff --git a/"):
+            parts = line.split(" ")
+            if len(parts) >= 4:
+                b_path = parts[3]
+                if b_path.startswith("b/"):
+                    current_file = b_path[2:]
+                else:
+                    current_file = None
+            else:
+                current_file = None
+        
+        # Skip checking the files scripts/airo-sync and scripts/airo-preflight themselves
+        if current_file in ["scripts/airo-sync", "scripts/airo-preflight"]:
+            continue
+            
+        if line.startswith("+") and not line.startswith("+++"):
+            if check_line_for_secrets(line):
+                log(f"SECRET GUARD BLOCK: Blocked content pattern matched in diff of {current_file}")
+                write_error_report("content_guard", f"Matched content pattern in diff line of {current_file}")
+                return False
+
+    return True
+
+def update_system_health(system_status, safe_to_work):
+    health_file = "state/system-health.md"
+    if os.path.exists(health_file):
+        try:
+            with open(health_file, "r") as f:
+                data = yaml.safe_load(f)
+            if isinstance(data, dict):
+                data["system_status"] = system_status
+                data["safe_to_work"] = safe_to_work
+                data["generated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                with open(health_file, "w") as f:
+                    yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
+        except Exception:
+            pass
+
+def main():
+    parser = argparse.ArgumentParser(description="Commit/push safe changes to GitHub.")
+    parser.add_argument("--dry-run", action="store_true", help="Perform dry-run checks without git commit or push.")
+    parser.add_argument("--json", action="store_true", help="Output execution results in JSON format.")
+    args = parser.parse_args()
+
+    os.makedirs("logs/sync", exist_ok=True)
+    os.makedirs("logs/sync-errors", exist_ok=True)
+    
+    log_file = "logs/sync/sync.log"
+    
+    def log(msg):
+        timestamp = datetime.now().isoformat()
+        log_line = f"[{timestamp}] {msg}\n"
+        with open(log_file, "a") as f:
+            f.write(log_line)
+        if not args.json:
+            print(msg)
+
+    # Output dictionary for JSON mode
+    json_output = {
+        "success": False,
+        "lock_acquired": False,
+        "secret_guard_passed": False,
+        "dry_run": args.dry_run,
+        "committed_files": [],
+        "push_successful": False,
+        "message": ""
+    }
+
+    if not acquire_lock(log):
+        json_output["message"] = "Lock file active. Process skipped."
+        if args.json:
+            print(json.dumps(json_output, indent=2))
+        sys.exit(1)
+
+    json_output["lock_acquired"] = True
+
+    def write_error_report(guard_type, detail):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        report_file = f"logs/sync-errors/{timestamp}-secret-guard.md"
+        content = f"# Secret Guard Blocked Sync — {datetime.now().isoformat()}\n\n"
+        content += f"Type: {guard_type}\n"
+        content += f"Detail: {detail}\n"
+        content += "\nAction blocked to prevent exposing credentials.\n"
+        try:
+            with open(report_file, "w") as f:
+                f.write(content)
+        except Exception:
+            pass
+        update_system_health("blocked", False)
+
+    try:
+        # Run secret guard check
+        if not run_secret_guard(log, write_error_report):
+            json_output["message"] = "Secret guard check failed. Action blocked."
+            if args.json:
+                print(json.dumps(json_output, indent=2))
+            release_lock()
+            sys.exit(2)
+
+        json_output["secret_guard_passed"] = True
+
+        # Identify files to stage (brain-safe paths only)
+        try:
+            res_status = subprocess.run(
+                ["git", "status", "--porcelain"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            lines = res_status.stdout.strip().split("\n")
+        except Exception as e:
+            log(f"Error checking git status: {e}")
+            release_lock()
+            sys.exit(2)
+
+        files_to_stage = []
+        for line in lines:
+            if not line:
+                continue
+            parts = line.split(None, 1)
+            if len(parts) == 2:
+                status, filepath = parts
+                filepath = filepath.strip()
+                # Check if it starts with any brain-safe prefix
+                is_safe = False
+                for prefix in BRAIN_SAFE_PREFIXES:
+                    if filepath.startswith(prefix):
+                        is_safe = True
+                        break
+                if is_safe:
+                    files_to_stage.append(filepath)
+
+        if not files_to_stage:
+            log("No brain-safe files modified. Nothing to sync.")
+            json_output["success"] = True
+            json_output["message"] = "No modified brain-safe files."
+            if args.json:
+                print(json.dumps(json_output, indent=2))
+            release_lock()
+            sys.exit(0)
+
+        log(f"Planned files for sync: {files_to_stage}")
+        json_output["committed_files"] = files_to_stage
+
+        if args.dry_run:
+            log("Dry-run mode active. Git commit and push skipped.")
+            json_output["success"] = True
+            json_output["message"] = "Dry-run check succeeded."
+            if args.json:
+                print(json.dumps(json_output, indent=2))
+            release_lock()
+            sys.exit(0)
+
+        # Real sync: git add, commit, push
+        # 1. Git add
+        for filepath in files_to_stage:
+            subprocess.run(["git", "add", filepath], check=True)
+            
+        # 2. Git commit
+        commit_msg = "sync: auto-sync brain events and state"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+        log("Changes committed successfully.")
+
+        # 3. Git push with 3 retries
+        pushed = False
+        for attempt in range(1, 4):
+            log(f"Attempting git push (Attempt {attempt}/3)...")
+            res_push = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+            if res_push.returncode == 0:
+                log("Git push completed successfully.")
+                pushed = True
+                break
+            else:
+                log(f"Push failed: {res_push.stderr.strip()}")
+                time.sleep(2)
+
+        if pushed:
+            json_output["push_successful"] = True
+            json_output["success"] = True
+            json_output["message"] = "Sync completed successfully."
+            update_system_health("healthy", True)
+        else:
+            json_output["message"] = "Git push failed after 3 attempts."
+            # Write sync error report
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_file = f"logs/sync-errors/{timestamp}-push-failed.md"
+            with open(report_file, "w") as f:
+                f.write(f"# Push Failed — {datetime.now().isoformat()}\n\nFailed to push commits after 3 attempts.\n")
+            update_system_health("degraded", True)
+
+    finally:
+        release_lock()
+
+    if args.json:
+        print(json.dumps(json_output, indent=2))
+
+    sys.exit(0 if json_output["success"] else 2)
+
+if __name__ == "__main__":
+    main()

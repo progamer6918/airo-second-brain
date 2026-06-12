@@ -7,9 +7,9 @@
   source_of_truth:
   - docs/AIRO_FINANCE_CURRENT_STATE.md
   - docs/AIRO_FINANCE_PRD_LIVING.md
-  truth_status: unknown
+  truth_status: dirty
   last_known_commit: null
-  last_checked_at: null
+  last_checked_at: '2026-06-12T10:06:25.878166Z'
   last_synced_at: null
   safe_to_execute: false
   notes: 'Scanned repository tier: GOVERNED-GUARDED'

@@ -1,0 +1,12 @@
+[2026-06-11T23:03:34.177752] Planned files for sync: ['registry/repos.yaml', 'logs/preflight.log', 'logs/sync-errors/', 'logs/sync/']
+[2026-06-11T23:03:34.177855] Dry-run mode active. Git commit and push skipped.
+[2026-06-12T17:03:57.340320] Planned files for sync: ['meta/changelog.md', 'registry/repos.yaml', 'state/active-context.md', 'logs/preflight.log', 'logs/sync-errors/', 'logs/sync/']
+[2026-06-12T17:03:57.341078] Dry-run mode active. Git commit and push skipped.
+[2026-06-12T17:04:54.836151] Planned files for sync: ['meta/changelog.md', 'registry/repos.yaml', 'state/active-context.md', 'logs/preflight.log', 'logs/sync-errors/', 'logs/sync/']
+[2026-06-12T17:04:54.836262] Dry-run mode active. Git commit and push skipped.
+[2026-06-12T17:05:44.109543] Planned files for sync: ['meta/changelog.md', 'registry/repos.yaml', 'state/active-context.md', 'logs/preflight.log', 'logs/sync-errors/', 'logs/sync/']
+[2026-06-12T17:05:44.109688] Dry-run mode active. Git commit and push skipped.
+[2026-06-12T17:06:43.569021] SECRET GUARD BLOCK: Blocked content pattern matched in diff
+[2026-06-12T17:06:59.859142] SECRET GUARD BLOCK: Blocked content pattern matched in diff of None
+[2026-06-12T17:07:23.245401] Planned files for sync: ['logs/preflight.log', 'logs/sync-errors/.gitkeep', 'logs/sync/.gitkeep', 'logs/sync/sync.log', 'meta/changelog.md', 'registry/repos.yaml', 'state/active-context.md', 'state/system-health.md', 'logs/sync-errors/20260612_170643-secret-guard.md', 'logs/sync-errors/20260612_170659-secret-guard.md']
+[2026-06-12T17:07:23.245508] Dry-run mode active. Git commit and push skipped.

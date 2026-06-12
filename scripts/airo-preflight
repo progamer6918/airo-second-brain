@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import subprocess
+from datetime import datetime, timezone
+import yaml
+
+def get_repo_meta(path):
+    if not os.path.exists(path):
+        return None, False, False
+    git_dir = os.path.join(path, ".git")
+    if not os.path.exists(git_dir):
+        return None, False, False
+        
+    try:
+        # HEAD commit
+        res_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        head = res_head.stdout.strip()
+        
+        # Check dirty
+        res_status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        is_dirty = len(res_status.stdout.strip()) > 0
+        
+        # Check unmerged (conflict)
+        res_unmerged = subprocess.run(
+            ["git", "diff", "--name-only", "--diff-filter=U"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        is_conflict = len(res_unmerged.stdout.strip()) > 0
+        
+        return head, is_dirty, is_conflict
+    except Exception:
+        return None, False, False
+
+def main():
+    parser = argparse.ArgumentParser(description="Compare registry memory with actual repo state.")
+    parser.add_argument("--project", "-p", required=True, help="Project ID.")
+    parser.add_argument("--dry-run", action="store_true", help="Perform check without updating registry last_checked_at.")
+    parser.add_argument("--json", action="store_true", help="Output JSON format to stdout.")
+    
+    args = parser.parse_args()
+
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "preflight.log")
+
+    def log(msg):
+        timestamp = datetime.now().isoformat()
+        log_line = f"[{timestamp}] {msg}\n"
+        with open(log_file, "a") as f:
+            f.write(log_line)
+        if not args.json:
+            print(msg)
+
+    # Load registry
+    registry_file = "registry/repos.yaml"
+    repo_info = None
+    all_repos = []
+    if os.path.exists(registry_file):
+        try:
+            with open(registry_file, "r") as f:
+                all_repos = yaml.safe_load(f)
+                if isinstance(all_repos, list):
+                    for r in all_repos:
+                        if r.get("id") == args.project:
+                            repo_info = r
+                            break
+        except Exception as e:
+            log(f"Error reading registry: {e}")
+            sys.exit(2)
+
+    if not repo_info:
+        # Unknown repo
+        result = {
+            "project_id": args.project,
+            "repo_path": None,
+            "repo_head": None,
+            "last_known_commit": None,
+            "git_dirty": True,
+            "truth_status": "unknown",
+            "safe_to_execute": False,
+            "required_action": "inventory"
+        }
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(f"Project {args.project} not found in registry. Run inventory.")
+        sys.exit(1)
+
+    path = repo_info.get("local_path")
+    last_known = repo_info.get("last_known_commit")
+    tier = repo_info.get("tier", "UNKNOWN")
+
+    if not path or not os.path.exists(path):
+        result = {
+            "project_id": args.project,
+            "repo_path": path,
+            "repo_head": None,
+            "last_known_commit": last_known,
+            "git_dirty": True,
+            "truth_status": "unknown",
+            "safe_to_execute": False,
+            "required_action": "check path"
+        }
+    else:
+        head, is_dirty, is_conflict = get_repo_meta(path)
+        if head is None:
+            result = {
+                "project_id": args.project,
+                "repo_path": path,
+                "repo_head": None,
+                "last_known_commit": last_known,
+                "git_dirty": True,
+                "truth_status": "unknown",
+                "safe_to_execute": False,
+                "required_action": "init git"
+            }
+        else:
+            # Determine truth_status
+            if is_conflict:
+                status = "conflict"
+                safe = False
+                action = "resolve git conflict"
+            elif is_dirty:
+                status = "dirty"
+                # For governed-guarded repo, dirty = safe_to_execute=false
+                # except we preserve it and don't touch
+                safe = False
+                action = "commit, stash, or revert changes"
+            elif last_known and head != last_known:
+                status = "stale"
+                safe = False
+                action = "pull or sync registry commit"
+            else:
+                status = "current"
+                safe = True
+                action = "none"
+
+            result = {
+                "project_id": args.project,
+                "repo_path": path,
+                "repo_head": head,
+                "last_known_commit": last_known,
+                "git_dirty": is_dirty,
+                "truth_status": status,
+                "safe_to_execute": safe,
+                "required_action": action
+            }
+
+    if args.json:
+        print(json.dumps(result, indent=2))
+
+    if not args.dry_run and repo_info and all_repos:
+        # Update last_checked_at and truth_status in repos.yaml
+        repo_info["truth_status"] = result["truth_status"]
+        repo_info["last_checked_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        if result["repo_head"]:
+            # If registry has no last_known_commit yet and repo is clean, we can record it
+            if not repo_info.get("last_known_commit") and not result["git_dirty"]:
+                repo_info["last_known_commit"] = result["repo_head"]
+        try:
+            with open(registry_file, "w") as f:
+                yaml.safe_dump(all_repos, f, default_flow_style=False, sort_keys=False)
+        except Exception as e:
+            log(f"Warning: Failed to write registry: {e}")
+
+    log(f"Preflight complete for {args.project}. Status: {result['truth_status']}. Safe: {result['safe_to_execute']}.")
+    
+    # Return exit code based on state
+    if result["truth_status"] == "current":
+        sys.exit(0)
+    elif result["truth_status"] in ["dirty", "stale"]:
+        sys.exit(1)
+    else:
+        sys.exit(2)
+
+if __name__ == "__main__":
+    main()
