@@ -1,6 +1,6 @@
-generated_at: '2026-06-12T16:06:49.926760Z'
-safe_to_work: false
-system_status: degraded
+generated_at: '2026-06-12T16:06:51.879447Z'
+safe_to_work: true
+system_status: healthy
 repos:
   airo-second-brain:
     truth_status: dirty
