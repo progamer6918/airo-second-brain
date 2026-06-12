@@ -1,10 +1,10 @@
-generated_at: '2026-06-12T10:28:44.429156Z'
+generated_at: '2026-06-12T16:06:49.926760Z'
 safe_to_work: false
-system_status: blocked
+system_status: degraded
 repos:
   airo-second-brain:
     truth_status: dirty
-    last_sync: '2026-06-12T10:28:23.267743Z'
+    last_sync: '2026-06-12T16:06:49.926772Z'
   airo-finance:
     truth_status: dirty
     last_known_commit: null
@@ -12,7 +12,7 @@ repos:
 pending:
   proposals: 1
   decisions: 39
-  inbox_unprocessed: 20
+  inbox_unprocessed: 8
 errors:
   count: 0
   latest: null
