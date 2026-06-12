@@ -1,0 +1,6 @@
+{
+  "last_notification_time": null,
+  "last_status": "healthy",
+  "has_notified_startup": false,
+  "telegram_status": "log_only_unconfigured"
+}

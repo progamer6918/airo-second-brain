@@ -8,6 +8,7 @@ brain_safe_paths:
   - meta/
   - docs/
   - distill/proposals/
+  - ops/
 auto_sync_interval_minutes: 5
 retry_attempts: 3
 lock_file: locks/airo-sync.lock

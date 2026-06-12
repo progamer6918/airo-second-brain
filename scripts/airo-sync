@@ -18,7 +18,8 @@ BRAIN_SAFE_PREFIXES = [
     "state/",
     "meta/",
     "docs/",
-    "distill/proposals/"
+    "distill/proposals/",
+    "ops/"
 ]
 
 BLOCKED_FILENAMES = [
