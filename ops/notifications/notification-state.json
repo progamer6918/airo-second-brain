@@ -1,11 +1,11 @@
 {
-  "last_notification_time": 1781281271.8869078,
+  "last_notification_time": 1781281280.1300902,
   "last_status": "healthy",
   "last_error_time": 0,
   "last_error_msg": "",
   "last_startup_time": 1781281271.8869078,
-  "last_review_time": 0,
-  "last_review_count": 0,
+  "last_review_time": 1781281280.1300902,
+  "last_review_count": 6,
   "telegram_status": "active",
   "has_notified_startup": false
 }
