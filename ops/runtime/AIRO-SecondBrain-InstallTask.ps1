@@ -10,8 +10,8 @@ if (-not $IsAdmin) {
 }
 
 $TaskName = "AIRO Second Brain Runtime Sync"
-$SyncScriptPath = Join-Path $PSScriptRoot "AIRO-SecondBrain-Sync.ps1"
-$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$SyncScriptPath`""
+$VbsPath = Join-Path $PSScriptRoot "AIRO-SecondBrain-Sync.vbs"
+$Action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$VbsPath`""
 
 $Trigger1 = New-ScheduledTaskTrigger -AtLogon
 $Trigger2 = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
