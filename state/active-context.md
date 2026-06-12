@@ -259,5 +259,7 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: Notification state file `ops/notifications/notification-state.json` untracked and git-ignored to prevent sync loops.
 - verified: Runner health check runs with `--no-write` to avoid sync loops; only persists status when it transitions.
 - verified: No-op runs do not send duplicate notifications or trigger sync loops.
+- verified: Quiet Earesmes notification policy applied. Normal sync pushes are silent; Telegram messages use friendly Indonesian style for startup, errors, and reviews.
 - verified: AIRO Finance repository untouched.
 - next: Operational monitoring.
+

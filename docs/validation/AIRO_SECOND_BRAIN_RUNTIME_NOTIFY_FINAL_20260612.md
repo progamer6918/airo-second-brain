@@ -11,10 +11,13 @@ Verification Status: PASS
 - telegram_status: active
 - telegram_test: PASS
 - no_op_spam: PASS
+- earesmes_telegram_quiet: PASS
+- friendly_indonesian_messages: PASS
 - owner_review_batch: pending
 - pending_decisions: 39
 - AIRO Finance untouched: PASS
 - repo_clean_after_scheduled_run: PASS
+
 
 ## Verification Evidence
 
