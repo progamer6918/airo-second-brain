@@ -93,13 +93,11 @@ fi
 RUNTIME_SYNC_MODE="real_sync_enabled" # Proven safe
 
 # 2. Run Health
-log "Running health check..."
-if [ "$DRY_RUN" = true ] || [ "$RUNTIME_SYNC_MODE" = "dry_run_only" ]; then
-  ./scripts/airo-health --no-write > /dev/null 2>&1 || true
-elif [ "$JSON_MODE" = true ]; then
-  ./scripts/airo-health --json > /dev/null 2>&1 || true
+log "Running health check (read-only)..."
+if [ "$JSON_MODE" = true ]; then
+  ./scripts/airo-health --no-write --json > /dev/null 2>&1 || true
 else
-  ./scripts/airo-health > /dev/null 2>&1 || true
+  ./scripts/airo-health --no-write > /dev/null 2>&1 || true
 fi
 
 # 3. Run Remote Queue Processor
@@ -161,6 +159,12 @@ STATUS_AFTER=$(./ops/runtime/airo-runtime-status.sh --json)
 READY_AFTER=$(echo "$STATUS_AFTER" | grep -o '"ready": "[^"]*"' | cut -d'"' -f4)
 SB_STATUS_AFTER=$(echo "$STATUS_AFTER" | grep -o '"second_brain_status": "[^"]*"' | cut -d'"' -f4)
 REVIEW_COUNT=$(echo "$STATUS_AFTER" | grep -o '"owner_review_required": [0-9]*' | cut -d' ' -f2)
+
+# Persist health changes only on transition to minimize commit noise
+if [ "$SB_STATUS_BEFORE" != "$SB_STATUS_AFTER" ]; then
+  log "Health status changed from $SB_STATUS_BEFORE to $SB_STATUS_AFTER. Persisting updated health file..."
+  ./scripts/airo-health > /dev/null 2>&1 || true
+fi
 
 # Telegram policy enforcement
 if [ "$NO_NOTIFY" = false ]; then

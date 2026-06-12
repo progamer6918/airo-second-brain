@@ -24,3 +24,4 @@ locks/*.lock
 logs/health.local.log
 state/runtime-health.local.json
 logs/preflight.local.log
+ops/notifications/notification-state.json
