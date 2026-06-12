@@ -252,7 +252,7 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - Known synthetic contamination now: Account Ledger:54, Review Queue:13, Review Queue:15, Review Queue:16. Cleanup deferred until owner approval.
 
 ## 2026-06-12 23:25 — AIRO Second Brain Telegram Notify + Hidden Scheduler Finalized
-- verified: Scheduler task action updated to run windowlessly using `powershell.exe -NoProfile -WindowStyle Hidden`.
+- verified: Scheduler task action updated to run completely windowlessly using `wscript.exe` executing `AIRO-SecondBrain-Sync.vbs` to eliminate flashing.
 - verified: Task "AIRO Second Brain Runtime Sync" active and liveness PASS (exit code 0).
 - verified: Telegram notify credentials configured locally in `/home/egitaristorandas/.airo/telegram.env` with chmod 600.
 - verified: Telegram notify test completed successfully (TELEGRAM_TEST=PASS).

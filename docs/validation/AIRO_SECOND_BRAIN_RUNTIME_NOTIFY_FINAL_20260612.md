@@ -25,8 +25,9 @@ TaskName                       State TaskPath
 --------                       ----- --------
 AIRO Second Brain Runtime Sync Ready \
 ```
-The scheduled task runs windowlessly using:
-`powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File ...`
+The scheduled task runs completely windowlessly using:
+`wscript.exe "C:\...\ops\runtime\AIRO-SecondBrain-Sync.vbs"`
+which spawns `wsl.exe` silently without conhost conhost console flashing.
 
 ### 2. Scheduled Liveness Check
 Task executed manually and returned exit code 0:
