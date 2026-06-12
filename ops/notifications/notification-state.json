@@ -1,6 +1,11 @@
 {
-  "last_notification_time": null,
+  "last_notification_time": 1781281271.8869078,
   "last_status": "healthy",
-  "has_notified_startup": false,
-  "telegram_status": "log_only_unconfigured"
+  "last_error_time": 0,
+  "last_error_msg": "",
+  "last_startup_time": 1781281271.8869078,
+  "last_review_time": 0,
+  "last_review_count": 0,
+  "telegram_status": "active",
+  "has_notified_startup": false
 }

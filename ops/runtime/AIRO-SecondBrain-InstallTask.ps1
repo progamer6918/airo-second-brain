@@ -10,7 +10,8 @@ if (-not $IsAdmin) {
 }
 
 $TaskName = "AIRO Second Brain Runtime Sync"
-$Action = New-ScheduledTaskAction -Execute "wsl.exe" -Argument "-d Ubuntu bash -c `"cd /home/egitaristorandas/AI_WORKSPACES/airo-second-brain && ./ops/runtime/airo-runtime-runner.sh`""
+$SyncScriptPath = Join-Path $PSScriptRoot "AIRO-SecondBrain-Sync.ps1"
+$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$SyncScriptPath`""
 
 $Trigger1 = New-ScheduledTaskTrigger -AtLogon
 $Trigger2 = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)

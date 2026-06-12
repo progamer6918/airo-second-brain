@@ -80,7 +80,15 @@ fi
 touch "$LOCK_FILE"
 trap 'rm -f "$LOCK_FILE"' EXIT
 
+STATUS_BEFORE=$(./ops/runtime/airo-runtime-status.sh --json)
+READY_BEFORE=$(echo "$STATUS_BEFORE" | grep -o '"ready": "[^"]*"' | cut -d'"' -f4)
+SB_STATUS_BEFORE=$(echo "$STATUS_BEFORE" | grep -o '"second_brain_status": "[^"]*"' | cut -d'"' -f4)
+
 log "Starting runtime runner..."
+
+if [ "$NO_NOTIFY" = false ]; then
+  ./ops/notifications/telegram-notify.sh --type runtime_online --message "🚀 **AIRO Second Brain Runtime Started**"$'\n'"Status: Checking system health..."$'\n'"Time: $(date -Iseconds)"
+fi
 
 RUNTIME_SYNC_MODE="real_sync_enabled" # Proven safe
 
@@ -100,18 +108,47 @@ Q_ARGS=""
 if [ "$DRY_RUN" = true ]; then
   Q_ARGS="--dry-run"
 fi
-./ops/remote-queue/process-remote-queue.sh $Q_ARGS > /dev/null 2>&1 || true
+Q_OUT=$(./ops/remote-queue/process-remote-queue.sh $Q_ARGS --json 2>&1)
+Q_RES=$?
+if [ $Q_RES -eq 0 ]; then
+  Q_COUNT=$(echo "$Q_OUT" | grep -o '"processed_count": [0-9]*' | cut -d' ' -f2)
+  if [ -n "$Q_COUNT" ] && [ "$Q_COUNT" -gt 0 ]; then
+    log "Processed $Q_COUNT remote queue items."
+    if [ "$NO_NOTIFY" = false ]; then
+      ./ops/notifications/telegram-notify.sh --type remote_queue_processed --message "📥 **Remote Queue Processed**"$'\n'"Items processed: $Q_COUNT"$'\n'"Time: $(date -Iseconds)"
+    fi
+  fi
+fi
 
 # 4. Run Sync Dry-Run (Always safe)
 log "Running sync dry-run..."
 ./scripts/airo-sync --dry-run > /dev/null 2>&1 || true
 
 # 5. Optionally run real sync only if safe
-# RUNTIME_SYNC_MODE is defined above
-
+SYNC_PUSHED_NOTIFIED=false
 if [ "$RUNTIME_SYNC_MODE" = "real_sync_enabled" ] && [ "$DRY_RUN" = false ]; then
   log "Running real sync..."
-  ./scripts/airo-sync > /dev/null 2>&1 || log "Real sync encountered an error."
+  SYNC_OUT=$(./scripts/airo-sync --json 2>&1)
+  SYNC_RES=$?
+  if [ $SYNC_RES -eq 0 ]; then
+    PUSHED=$(echo "$SYNC_OUT" | grep -o '"push_successful": [a-z]*' | cut -d' ' -f2)
+    if [ "$PUSHED" = "true" ]; then
+      log "Real sync pushed changes successfully."
+      if [ "$NO_NOTIFY" = false ]; then
+        COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+        COMMIT_MSG=$(git log -1 --pretty=%B 2>/dev/null | head -n 1 || echo "auto-sync")
+        ./ops/notifications/telegram-notify.sh --type sync_pushed --message "🔄 **State Synced**"$'\n'"Commit: $COMMIT_HASH"$'\n'"Message: $COMMIT_MSG"$'\n'"Time: $(date -Iseconds)"
+        SYNC_PUSHED_NOTIFIED=true
+      fi
+    else
+      log "Real sync completed (no changes to push)."
+    fi
+  else
+    log "Real sync failed or blocked (exit code $SYNC_RES)."
+    if [ "$NO_NOTIFY" = false ]; then
+      ./ops/notifications/telegram-notify.sh --type runtime_degraded --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Current State: degraded"$'\n'"Reason: Real sync failed or blocked (exit code $SYNC_RES)."$'\n'"Time: $(date -Iseconds)"
+    fi
+  fi
 else
   log "Skipping real sync (mode: $RUNTIME_SYNC_MODE)"
 fi
@@ -120,12 +157,26 @@ fi
 timestamp=$(date -Iseconds)
 echo "$timestamp" > state/last-runtime-run.txt
 
-# Telegram policy enforcement mock
+STATUS_AFTER=$(./ops/runtime/airo-runtime-status.sh --json)
+READY_AFTER=$(echo "$STATUS_AFTER" | grep -o '"ready": "[^"]*"' | cut -d'"' -f4)
+SB_STATUS_AFTER=$(echo "$STATUS_AFTER" | grep -o '"second_brain_status": "[^"]*"' | cut -d'"' -f4)
+REVIEW_COUNT=$(echo "$STATUS_AFTER" | grep -o '"owner_review_required": [0-9]*' | cut -d' ' -f2)
+
+# Telegram policy enforcement
 if [ "$NO_NOTIFY" = false ]; then
-  log "Evaluating Telegram notification policy..."
-  # "No news = no Telegram", "No-op = silent"
-  # Since this is a dry-run or routine check, we don't spam.
-  log "No-op sync = silent. Notification suppressed."
+  # Handle transitions between states
+  if [ "$SB_STATUS_AFTER" = "degraded" ] || [ "$SB_STATUS_AFTER" = "blocked" ]; then
+    ./ops/notifications/telegram-notify.sh --type runtime_degraded --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
+  elif [ "$SB_STATUS_BEFORE" = "degraded" ] || [ "$SB_STATUS_BEFORE" = "blocked" ]; then
+    if [ "$SB_STATUS_AFTER" = "healthy" ]; then
+      ./ops/notifications/telegram-notify.sh --type runtime_recovered --message "✅ **AIRO Second Brain Recovered**"$'\n'"State restored to Healthy."$'\n'"Time: $(date -Iseconds)"
+    fi
+  fi
+
+  # Handle owner review needed
+  if [ -n "$REVIEW_COUNT" ] && [ "$REVIEW_COUNT" -gt 0 ]; then
+    ./ops/notifications/telegram-notify.sh --type owner_review_needed --message "⚠️ **AIRO Second Brain Owner Review Needed**"$'\n'"Pending items: $REVIEW_COUNT"$'\n'"Time: $(date -Iseconds)"
+  fi
 fi
 
 if [ "$JSON_MODE" = true ]; then

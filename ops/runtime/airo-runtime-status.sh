@@ -56,6 +56,12 @@ if grep -q "Processed " logs/runtime.log 2>/dev/null; then
 fi
 
 TELEGRAM_STATUS="log_only_unconfigured"
+if [ -f ops/notifications/notification-state.json ]; then
+  TELEGRAM_STATUS=$(grep -o '"telegram_status": "[^"]*"' ops/notifications/notification-state.json | cut -d'"' -f4)
+  if [ -z "$TELEGRAM_STATUS" ]; then
+    TELEGRAM_STATUS="log_only_unconfigured"
+  fi
+fi
 
 AIRO_FINANCE="dirty_from_known_pre_existing_work"
 
