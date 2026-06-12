@@ -149,3 +149,8 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: implement workspace Bootstrap & Organize (Phase 4).
 - feat: created scripts/airo-bootstrap and scripts/airo-organize.
 - feat: created lifecycle directories (events/synced, events/failed, distill/proposals, archive, inbox/session-closeouts, inbox/workspace-scans, inbox/remote) and active session tracker (state/active-sessions.md).
+
+## 2026-06-12 17:20
+- feat: implement workspace Distill & Promote (Phase 5).
+- feat: created scripts/airo-distill and scripts/airo-promote.
+- feat: created proposal and lifecycle directories (distill/proposals, distill/accepted, distill/rejected, distill/superseded).

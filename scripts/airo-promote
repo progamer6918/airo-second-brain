@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import yaml
+
+def is_in_allowlist(target):
+    target = target.replace("\\", "/").strip("/")
+    
+    exact_list = [
+        "CURRENT.md",
+        "CONTEXT.md",
+        "AGENTS.md",
+        "SECURITY.md",
+        "state/active-context.md",
+        "state/system-health.md",
+        "decisions/decision-log.md",
+        "decisions/pending-decisions.md"
+    ]
+    if target in exact_list:
+        return True
+        
+    if target.startswith("projects/") and target.endswith(".md"):
+        return True
+        
+    if target.startswith("registry/") and target.endswith(".yaml"):
+        return True
+        
+    return False
+
+def parse_proposal(path):
+    if not os.path.exists(path):
+        return None, "Proposal file not found."
+    
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+    except Exception as e:
+        return None, f"Failed to read proposal: {e}"
+
+    if not content.startswith("---"):
+        return None, "Invalid proposal format: missing front-matter."
+        
+    parts = content.split("---", 2)
+    if len(parts) < 3:
+        return None, "Invalid proposal format: malformed front-matter."
+        
+    yaml_part = parts[1]
+    body_part = parts[2]
+    
+    try:
+        meta = yaml.safe_load(yaml_part)
+        if not isinstance(meta, dict):
+            return None, "Invalid proposal metadata."
+        return {"meta": meta, "body": body_part}, None
+    except Exception as e:
+        return None, f"Failed to parse metadata YAML: {e}"
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Promote: promote safe distilled updates to canonical files.")
+    parser.add_argument("--proposal", required=True, help="Path to the proposal Markdown file.")
+    parser.add_argument("--target", required=True, help="Target canonical file path.")
+    parser.add_argument("--actor", required=True, help="Actor executing the promotion.")
+    parser.add_argument("--promotion-type", required=True, choices=["semantic", "factual"], help="Promotion type.")
+    parser.add_argument("--dry-run", action="store_true", help="Display planned diff without writing to target.")
+    parser.add_argument("--json", action="store_true", help="Output promotion status and results in JSON format.")
+    args = parser.parse_args()
+
+    proposal_path = args.proposal
+    target_path = args.target
+    actor = args.actor
+    promo_type = args.promotion_type
+
+    result = {
+        "success": False,
+        "blocked": True,
+        "dry_run": args.dry_run,
+        "actor": actor,
+        "promotion_type": promo_type,
+        "proposal": proposal_path,
+        "target": target_path,
+        "message": ""
+    }
+
+    # 1. Block anonymous/no actor (handled by argparse being required)
+    if not actor or actor.lower() == "anonymous":
+        result["message"] = "Blocked: anonymous/no actor promotion is blocked."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # 2. Block missing proposal
+    proposal_data, err = parse_proposal(proposal_path)
+    if err:
+        result["message"] = f"Blocked: missing or invalid proposal: {err}"
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    meta = proposal_data["meta"]
+    body = proposal_data["body"].strip()
+
+    # 3. Block missing source evidence
+    source = meta.get("source")
+    if not source:
+        result["message"] = "Blocked: missing source evidence in proposal metadata."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # 4. Block target outside canonical allowlist
+    if not is_in_allowlist(target_path):
+        result["message"] = f"Blocked: target '{target_path}' is outside the canonical allowlist."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # 5. Check authorization rules
+    # Earesmes cannot promote semantic canonical knowledge
+    if promo_type == "semantic" and actor == "earesmes":
+        result["message"] = "Blocked: actor 'earesmes' is blocked from promoting semantic canonical knowledge."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # Antigravity can promote factual updates only
+    if promo_type == "semantic" and actor == "antigravity":
+        result["message"] = "Blocked: actor 'antigravity' can promote factual repo-derived updates only."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # Limit semantic promotion to owner only
+    if promo_type == "semantic" and actor not in ["owner"]:
+        result["message"] = f"Blocked: actor '{actor}' is not authorized for semantic promotion."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # Rationale validation for factual updates by antigravity
+    if promo_type == "factual" and actor == "antigravity":
+        # must have awaiting_owner_review: true in metadata
+        if not meta.get("awaiting_owner_review"):
+            result["message"] = "Blocked: antigravity factual promotion requires 'awaiting_owner_review: true'."
+            if args.json:
+                print(json.dumps(result, indent=2))
+            else:
+                print(result["message"])
+            sys.exit(1)
+
+    # Safeguard: never modify AIRO Finance repo
+    # Normalize paths to check if they escape to vortex-ai-skill-lab
+    abs_target = os.path.abspath(target_path)
+    if "vortex-ai-skill-lab" in abs_target or abs_target.startswith("/home/egitaristorandas/vortex-ai-skill-lab"):
+        result["message"] = "Blocked: promotion is forbidden from modifying files in the AIRO Finance repository."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(1)
+
+    # 6. Perform promotion
+    result["success"] = True
+    result["blocked"] = False
+
+    if args.dry_run:
+        result["message"] = "Promotion allowed (dry-run preview only)."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print("=========================================")
+            print(f"PROMOTION DRY-RUN PREVIEW ({promo_type})")
+            print(f"Actor  : {actor}")
+            print(f"Target : {target_path}")
+            print("-----------------------------------------")
+            print("Proposed Content to Write:")
+            print(body)
+            print("=========================================")
+        sys.exit(0)
+
+    # Real Promotion: overwrite target file (never silently overwrite in production without backup, but here we write it)
+    try:
+        # Check target existence to print log
+        existed = os.path.exists(target_path)
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write(body)
+        
+        result["message"] = f"Promotion succeeded. Target '{target_path}' {'updated' if existed else 'created'}."
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(0)
+    except Exception as e:
+        result["success"] = False
+        result["message"] = f"Failed to write target file: {e}"
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(result["message"])
+        sys.exit(2)
+
+if __name__ == "__main__":
+    main()

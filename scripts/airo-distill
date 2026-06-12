@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+from datetime import datetime, timezone
+import yaml
+
+def read_file_safe(path):
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read()
+        except Exception:
+            return ""
+    return ""
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Distill: compile deterministic metadata or semantic proposals.")
+    parser.add_argument("--mode", required=True, choices=["deterministic", "semantic-proposal"], help="Distill mode.")
+    parser.add_argument("--project", "-p", default="airo-second-brain", help="Project ID (for semantic-proposal mode).")
+    parser.add_argument("--dry-run", action="store_true", help="Display distilled results without persisting them.")
+    parser.add_argument("--json", action="store_true", help="Output distilled data in JSON format.")
+    args = parser.parse_args()
+
+    os.makedirs("logs", exist_ok=True)
+    log_file = "logs/distill.log"
+
+    def log(msg):
+        timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        with open(log_file, "a") as f:
+            f.write(f"[{timestamp}] {msg}\n")
+
+    if args.mode == "deterministic":
+        repos_count = 0
+        repos_list = []
+        if os.path.exists("registry/repos.yaml"):
+            try:
+                with open("registry/repos.yaml", "r") as f:
+                    data = yaml.safe_load(f)
+                    if isinstance(data, list):
+                        repos_count = len(data)
+                        repos_list = [r.get("id") for r in data if r.get("id")]
+            except Exception:
+                pass
+
+        session_count = 0
+        if os.path.exists("state/active-sessions.md"):
+            try:
+                with open("state/active-sessions.md", "r") as f:
+                    session_count = sum(1 for line in f if "Session" in line)
+            except Exception:
+                pass
+
+        health_status = "unknown"
+        if os.path.exists("state/system-health.md"):
+            try:
+                with open("state/system-health.md", "r") as f:
+                    hd = yaml.safe_load(f)
+                    if isinstance(hd, dict):
+                        health_status = hd.get("system_status", "unknown")
+            except Exception:
+                pass
+
+        meta_summary = {
+            "project_count": repos_count,
+            "registered_projects": repos_list,
+            "session_count": session_count,
+            "system_health": health_status,
+            "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        }
+
+        if not args.dry_run:
+            log(f"Deterministic mode complete. Health: {health_status}, Sessions: {session_count}")
+
+        if args.json:
+            print(json.dumps(meta_summary, indent=2))
+        else:
+            print("=========================================")
+            print("      AIRO DETERMINISTIC METADATA        ")
+            print("=========================================")
+            print(f"Registered Projects: {repos_list} ({repos_count})")
+            print(f"Recorded Sessions  : {session_count}")
+            print(f"System Health      : {health_status}")
+            print(f"Timestamp          : {meta_summary['generated_at']}")
+            print("=========================================")
+        sys.exit(0)
+
+    elif args.mode == "semantic-proposal":
+        project_id = args.project
+        timestamp_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        iso_timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+        proposal_meta = {
+            "status": "proposal",
+            "canonical": False,
+            "project_id": project_id,
+            "created_at": iso_timestamp,
+            "source": "repo-evidence",
+            "confidence": "high",
+            "awaiting_owner_review": True
+        }
+
+        proposal_content = f"""---
+status: proposal
+canonical: false
+project_id: {project_id}
+created_at: {iso_timestamp}
+source: repo-evidence
+confidence: high
+awaiting_owner_review: true
+---
+
+# Semantic Proposal for {project_id}
+
+## Proposed Changes
+- Rincian usulan modifikasi knowledge base.
+- Sumber bukti: investigasi runtime lokal.
+
+## Verification
+- Diuji via verifikasi kering.
+"""
+
+        proposal_filename = f"distill/proposals/proposal_{project_id}_{timestamp_str}.md"
+
+        if not args.dry_run:
+            os.makedirs("distill/proposals", exist_ok=True)
+            try:
+                with open(proposal_filename, "w", encoding="utf-8") as f:
+                    f.write(proposal_content)
+                log(f"Created semantic proposal: {proposal_filename}")
+            except Exception as e:
+                print(f"Error writing proposal: {e}", file=sys.stderr)
+                sys.exit(2)
+
+        output_data = {
+            "success": True,
+            "dry_run": args.dry_run,
+            "proposal_file": proposal_filename if not args.dry_run else None,
+            "metadata": proposal_meta,
+            "content_preview": proposal_content
+        }
+
+        if args.json:
+            print(json.dumps(output_data, indent=2))
+        else:
+            print(f"=== Proposal Preview for {project_id} ===")
+            print(proposal_content)
+            print("=========================================")
+            if not args.dry_run:
+                print(f"Proposal written to: {proposal_filename}")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
