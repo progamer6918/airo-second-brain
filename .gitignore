@@ -23,3 +23,4 @@ state/last-runtime-run.txt
 locks/*.lock
 logs/health.local.log
 state/runtime-health.local.json
+logs/preflight.local.log
