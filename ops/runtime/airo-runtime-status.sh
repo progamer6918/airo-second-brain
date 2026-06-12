@@ -59,9 +59,32 @@ TELEGRAM_STATUS="log_only_unconfigured"
 
 AIRO_FINANCE="dirty_from_known_pre_existing_work"
 
+PENDING_DECISIONS=0
+if [ -f state/system-health.md ]; then
+  PENDING_DECISIONS=$(grep "decisions:" state/system-health.md | awk '{print $2}' | tr -d ' ')
+  if [ -z "$PENDING_DECISIONS" ]; then PENDING_DECISIONS=0; fi
+fi
+
+PENDING_PROPOSALS=0
+if [ -d distill/proposals ]; then
+  PENDING_PROPOSALS=$(ls -1q distill/proposals/*.md 2>/dev/null | wc -l)
+fi
+
+OWNER_REVIEW_REQUIRED=0
+if [ -f reviews/owner-review-queue-20260612.md ]; then
+  OWNER_REVIEW_REQUIRED=$(grep -c "## Review Item" reviews/owner-review-queue-20260612.md || echo 0)
+fi
+
 READY="yes"
 if [ "$SB_STATUS" = "degraded" ]; then READY="degraded"; fi
 if [ "$SB_STATUS" = "blocked" ]; then READY="blocked"; fi
+
+# New rule: Knowledge backlog must not make runtime readiness "blocked" if runtime infra is healthy.
+if [ "$READY" = "yes" ] || [ "$READY" = "degraded" ]; then
+  if [ "$PENDING_DECISIONS" -gt 0 ] || [ "$PENDING_PROPOSALS" -gt 0 ] || [ "$OWNER_REVIEW_REQUIRED" -gt 0 ]; then
+    READY="degraded_review_pending"
+  fi
+fi
 
 if [ "$JSON_MODE" = true ]; then
   cat <<EOF
@@ -73,7 +96,10 @@ if [ "$JSON_MODE" = true ]; then
   "last_queue_process": "$LAST_Q",
   "telegram_status": "$TELEGRAM_STATUS",
   "airo_finance_known_dirty_exception": true,
-  "ready": "$READY"
+  "ready": "$READY",
+  "pending_decisions": $PENDING_DECISIONS,
+  "pending_proposals": $PENDING_PROPOSALS,
+  "owner_review_required": $OWNER_REVIEW_REQUIRED
 }
 EOF
 else

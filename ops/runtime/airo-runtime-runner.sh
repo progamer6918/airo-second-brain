@@ -82,7 +82,7 @@ trap 'rm -f "$LOCK_FILE"' EXIT
 
 log "Starting runtime runner..."
 
-RUNTIME_SYNC_MODE="dry_run_only" # Hardcoded safe default until proven
+RUNTIME_SYNC_MODE="real_sync_enabled" # Proven safe
 
 # 2. Run Health
 log "Running health check..."
