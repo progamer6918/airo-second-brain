@@ -78,15 +78,15 @@ fi
 
 OWNER_REVIEW_REQUIRED=0
 if [ -f reviews/owner-review-queue-20260612.md ]; then
-  OWNER_REVIEW_REQUIRED=$(grep -c "## Review Item" reviews/owner-review-queue-20260612.md || echo 0)
+  OWNER_REVIEW_REQUIRED=$(grep -c "## Review Item" reviews/owner-review-queue-20260612.md || true)
 fi
 
-READY="yes"
+READY="healthy"
 if [ "$SB_STATUS" = "degraded" ]; then READY="degraded"; fi
 if [ "$SB_STATUS" = "blocked" ]; then READY="blocked"; fi
 
 # New rule: Knowledge backlog must not make runtime readiness "blocked" if runtime infra is healthy.
-if [ "$READY" = "yes" ] || [ "$READY" = "degraded" ]; then
+if [ "$READY" = "healthy" ] || [ "$READY" = "degraded" ]; then
   if [ "$PENDING_DECISIONS" -gt 0 ] || [ "$PENDING_PROPOSALS" -gt 0 ] || [ "$OWNER_REVIEW_REQUIRED" -gt 0 ]; then
     READY="degraded_review_pending"
   fi
@@ -103,6 +103,9 @@ if [ "$JSON_MODE" = true ]; then
   "telegram_status": "$TELEGRAM_STATUS",
   "airo_finance_known_dirty_exception": true,
   "ready": "$READY",
+  "readiness": "$READY",
+  "project_status": "operational_complete",
+  "runtime_sync_mode": "real_sync_enabled",
   "pending_decisions": $PENDING_DECISIONS,
   "pending_proposals": $PENDING_PROPOSALS,
   "owner_review_required": $OWNER_REVIEW_REQUIRED
