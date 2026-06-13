@@ -90,18 +90,77 @@ if [ "$NO_NOTIFY" = false ]; then
   ./ops/notifications/telegram-notify.sh --type runtime_online --message "🚀 **AIRO Second Brain Runtime Started**"$'\n'"Status: Checking system health..."$'\n'"Time: $(date -Iseconds)"
 fi
 
-RUNTIME_SYNC_MODE="real_sync_enabled" # Proven safe
-
-# 2. Run Health
-log "Running health check (read-only)..."
-if [ "$JSON_MODE" = true ]; then
-  ./scripts/airo-health --no-write --json > /dev/null 2>&1 || true
-else
-  ./scripts/airo-health --no-write > /dev/null 2>&1 || true
+# 2. git fetch/pull/rebase safe
+log "Step 2: Performing git fetch and safe rebase..."
+if [ "$DRY_RUN" = false ]; then
+  git fetch origin main >/dev/null 2>&1 || log "Warning: Git fetch failed."
+  git rebase origin/main >/dev/null 2>&1 || (git rebase --abort >/dev/null 2>&1 && log "Warning: Git rebase failed, continuing with local state.")
 fi
 
-# 3. Run Remote Queue Processor
-log "Running remote queue processor..."
+# 3. poll Telegram actions
+log "Step 3: Polling Telegram actions..."
+if [ "$DRY_RUN" = false ]; then
+  ./ops/telegram/telegram-action-poller.sh >/dev/null 2>&1 || log "Warning: Telegram action poller failed."
+fi
+
+# 4. process Telegram actions
+log "Step 4: Processing Telegram actions..."
+if [ "$DRY_RUN" = false ]; then
+  ./ops/telegram/telegram-action-processor.sh >/dev/null 2>&1 || log "Warning: Telegram action processor failed."
+fi
+
+# 5. detect manual queue pending
+log "Step 5: Detecting manual queue pending..."
+MQ_STATUS=$(./scripts/airo-manual-queue-status)
+MQ_PENDING_COUNT=$(echo "$MQ_STATUS" | grep "^pending_count:" | cut -d' ' -f2)
+MQ_LATEST_ID=$(echo "$MQ_STATUS" | grep "^latest_capture_id:" | cut -d' ' -f2)
+MQ_LATEST_TITLE=$(echo "$MQ_STATUS" | grep "^latest_capture_title:" | cut -d' ' -f2-)
+
+# 6. send Earesmes manual queue action card only if new/changed and cooldown allows
+if [ -n "$MQ_PENDING_COUNT" ] && [ "$MQ_PENDING_COUNT" -gt 0 ] && [ "$NO_NOTIFY" = false ]; then
+  log "Step 6: Sending Earesmes manual queue action card..."
+  MQ_SUMMARY=$(./scripts/airo-manual-queue-summarize "$MQ_LATEST_ID")
+  ./ops/notifications/telegram-notify.sh --type manual_queue_card --capture-id "$MQ_LATEST_ID" --message "$MQ_LATEST_TITLE" --extra "$MQ_SUMMARY"
+else
+  log "Step 6: No pending manual queue items."
+fi
+
+# 7. detect owner review pending
+log "Step 7: Detecting owner review pending..."
+STATUS_NOW=$(./ops/runtime/airo-runtime-status.sh --json)
+REVIEW_COUNT=$(echo "$STATUS_NOW" | grep -o '"owner_review_required": [0-9]*' | cut -d' ' -f2)
+
+# 8. send Earesmes owner review card only if new/changed and cooldown allows
+if [ -n "$REVIEW_COUNT" ] && [ "$REVIEW_COUNT" -gt 0 ] && [ "$NO_NOTIFY" = false ]; then
+  log "Step 8: Sending Earesmes owner review card..."
+  REVIEW_ITEMS=$(python3 -c "
+import re, os
+r_file = 'reviews/owner-review-queue-20260612.md'
+if os.path.exists(r_file):
+    with open(r_file, 'r') as f:
+        content = f.read()
+    sections = re.split(r'\n(## Review Item \d+:.*)', content)
+    summary_text = ''
+    item_num = 1
+    for i in range(1, len(sections), 2):
+        title = sections[i].replace('## Review Item', '').strip()
+        title = re.sub(r'^\d+:\s*', '', title)
+        body = sections[i+1]
+        rec_match = re.search(r'Recommended owner action:\s*\n-\s*(\w+)', body)
+        rec_action = rec_match.group(1) if rec_match else 'unknown'
+        summary_text += f'{item_num}. {title} — {rec_action.lower()}\n'
+        item_num += 1
+    print(summary_text.strip())
+")
+  if [ -n "$REVIEW_ITEMS" ]; then
+    ./ops/notifications/telegram-notify.sh --type owner_review_card --message "$REVIEW_ITEMS"
+  fi
+else
+  log "Step 8: No pending owner review items."
+fi
+
+# 9. process remote queue
+log "Step 9: Running remote queue processor..."
 Q_ARGS=""
 if [ "$DRY_RUN" = true ]; then
   Q_ARGS="--dry-run"
@@ -118,14 +177,19 @@ if [ $Q_RES -eq 0 ]; then
   fi
 fi
 
-# 4. Run Sync Dry-Run (Always safe)
-log "Running sync dry-run..."
-./scripts/airo-sync --dry-run > /dev/null 2>&1 || true
+# 10. run health
+log "Step 10: Running health check..."
+if [ "$JSON_MODE" = true ]; then
+  ./scripts/airo-health --no-write --json > /dev/null 2>&1 || true
+else
+  ./scripts/airo-health --no-write > /dev/null 2>&1 || true
+fi
 
-# 5. Optionally run real sync only if safe
+# 11. sync safe changes
+log "Step 11: Running real sync..."
+RUNTIME_SYNC_MODE="real_sync_enabled"
 SYNC_PUSHED_NOTIFIED=false
 if [ "$RUNTIME_SYNC_MODE" = "real_sync_enabled" ] && [ "$DRY_RUN" = false ]; then
-  log "Running real sync..."
   SYNC_OUT=$(./scripts/airo-sync --json 2>&1)
   SYNC_RES=$?
   if [ $SYNC_RES -eq 0 ]; then
@@ -133,8 +197,8 @@ if [ "$RUNTIME_SYNC_MODE" = "real_sync_enabled" ] && [ "$DRY_RUN" = false ]; the
     if [ "$PUSHED" = "true" ]; then
       log "Real sync pushed changes successfully."
       if [ "$NO_NOTIFY" = false ]; then
-        COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-        COMMIT_MSG=$(git log -1 --pretty=%B 2>/dev/null | head -n 1 || echo "auto-sync")
+        COMMIT_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')
+        COMMIT_MSG=$(git log -1 --pretty=%B 2>/dev/null | head -n 1 || echo 'auto-sync')
         ./ops/notifications/telegram-notify.sh --type sync_pushed --message "🔄 **State Synced**"$'\n'"Commit: $COMMIT_HASH"$'\n'"Message: $COMMIT_MSG"$'\n'"Time: $(date -Iseconds)"
         SYNC_PUSHED_NOTIFIED=true
       fi
@@ -151,14 +215,15 @@ else
   log "Skipping real sync (mode: $RUNTIME_SYNC_MODE)"
 fi
 
+# 12. release lock
+log "Step 12: Releasing lock."
+
 # Update state
 timestamp=$(date -Iseconds)
 echo "$timestamp" > state/last-runtime-run.txt
 
 STATUS_AFTER=$(./ops/runtime/airo-runtime-status.sh --json)
-READY_AFTER=$(echo "$STATUS_AFTER" | grep -o '"ready": "[^"]*"' | cut -d'"' -f4)
 SB_STATUS_AFTER=$(echo "$STATUS_AFTER" | grep -o '"second_brain_status": "[^"]*"' | cut -d'"' -f4)
-REVIEW_COUNT=$(echo "$STATUS_AFTER" | grep -o '"owner_review_required": [0-9]*' | cut -d' ' -f2)
 
 # Persist health changes only on transition to minimize commit noise
 if [ "$SB_STATUS_BEFORE" != "$SB_STATUS_AFTER" ]; then
@@ -169,19 +234,14 @@ fi
 # Telegram policy enforcement
 if [ "$NO_NOTIFY" = false ]; then
   # Handle transitions between states
-  if [ "$SB_STATUS_AFTER" = "degraded" ]; then
+  if [ "$SB_STATUS_AFTER" = "degraded" ] && [ "$SB_STATUS_BEFORE" != "degraded" ]; then
     ./ops/notifications/telegram-notify.sh --type sync_failed --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
-  elif [ "$SB_STATUS_AFTER" = "blocked" ]; then
+  elif [ "$SB_STATUS_AFTER" = "blocked" ] && [ "$SB_STATUS_BEFORE" != "blocked" ]; then
     ./ops/notifications/telegram-notify.sh --type runtime_blocked --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
   elif [ "$SB_STATUS_BEFORE" = "degraded" ] || [ "$SB_STATUS_BEFORE" = "blocked" ]; then
     if [ "$SB_STATUS_AFTER" = "healthy" ]; then
       ./ops/notifications/telegram-notify.sh --type runtime_recovered --message "✅ **AIRO Second Brain Recovered**"$'\n'"State restored to Healthy."$'\n'"Time: $(date -Iseconds)"
     fi
-  fi
-
-  # Handle owner review needed
-  if [ -n "$REVIEW_COUNT" ] && [ "$REVIEW_COUNT" -gt 0 ]; then
-    ./ops/notifications/telegram-notify.sh --type owner_review_needed --message "⚠️ **AIRO Second Brain Owner Review Needed**"$'\n'"Pending items: $REVIEW_COUNT"$'\n'"Time: $(date -Iseconds)"
   fi
 fi
 

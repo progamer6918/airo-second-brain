@@ -261,7 +261,7 @@ Build a reusable, scalable, safe, auditable, and operator-friendly Excel/VBA Com
 - Runtime status/output persistence and Process Summary truth: complete.
 
 ### Track 3 — Audit and Onboarding
-- RPT003 Result VE read-only mapping audit: active next milestone.
+- Active milestone: Automated Template Onboarding and Mapping Engine (Result VE is only the first proof case, not the product goal).
 - Guided onboarding, template health center, and automated family-fit assessment: not started.
 
 ### Track 4 — Governance and Scale
@@ -277,7 +277,78 @@ Build a reusable, scalable, safe, auditable, and operator-friendly Excel/VBA Com
 - Close/reopen persistence: PASS.
 - Confirmed outputs: `MONITORING_DEALER_20260611.xlsx`, `REPORT_PER_TYPE_20260611.xlsx`, `PROCESS_SUMMARY_20260611_01.xlsx`.
 
+Do not modify frozen R8.11 directly. New development must use a copied candidate.
+
 Confirmed PASS includes dynamic registries, BBN sync, original UI preservation, six main buttons and three toggles, button-first workflow, HTML-XLS sanitizer, adaptive import recovery, RPT001, RPT002, formula-safe Stock MD helper, visible report date, RPT003 safety block, Process Summary, runtime recovery, output-path recovery, and persistence after reopen.
+
+## Automated Template Onboarding Spec
+
+### Product Status
+
+Current truthful status of the platform:
+```text
+Existing report operation = PASS
+Admin readiness checker = PASS
+Automated template discovery = NOT COMPLETE
+Automated mapping draft = NOT COMPLETE
+Generic new-report onboarding = NOT PROVEN
+Reusable product platform = NOT COMPLETE
+```
+The platform is not production-complete until a previously unsupported template is onboarded successfully through the automated workflow.
+
+### Proof-of-Product Requirement
+The platform must demonstrate this flow:
+```text
+new unsupported template
+→ automatic read-only discovery
+→ draft mapping generated
+→ minimal business confirmation
+→ validated mapping stored
+→ report classified READY
+→ report executed through Command Center
+→ output validated
+→ status and evidence persisted
+```
+
+### Owner Input Boundary
+- **Owner Role**: Supplies business intent and resolves choices that cannot be inferred safely.
+- **Product Role**: Discovers technical workbook structure and generates mapping evidence.
+
+#### Valid Owner Questions
+- Which candidate sheet is the intended final report?
+- Which visible date should appear on the report?
+- Which business source is authoritative when two candidates exist?
+- Should this report be active for daily production?
+
+#### Invalid Owner Requests (Must be automated by scanner)
+- List all hidden sheets.
+- Screenshot all workbook connections.
+- Map formula dependencies manually.
+- Identify staging ranges manually.
+- Inspect Power Pivot tables manually.
+- Explain the internal workbook structure.
+
+### Config Structures
+The onboarding layer maintains these config structures:
+- `CC_TEMPLATE_DISCOVERY`
+- `CC_MAPPING_DRAFT`
+- `CC_REPORT_SOURCE_MAP`
+- `CC_REPORT_TARGET_MAP`
+- `CC_REPORT_EXEC_RULES`
+- `CC_REPORT_VALIDATION`
+- `CC_REPORT_FAMILY`
+
+### Status Lifecycle
+A newly registered report moves through this lifecycle:
+```text
+DISCOVERED
+→ NEEDS REVIEW
+→ MAPPING REQUIRED
+→ MAPPING VALIDATED
+→ READY
+→ ACTIVE
+```
+Unsafe templates become `BLOCKED`.
 
 ## Import Root Cause and Countermeasure
 
@@ -291,5 +362,5 @@ Some `.xls` source exports are HTML disguised as Excel and contain formula-like 
 
 ## Current Next Step
 
-Perform the RPT003 Result VE read-only mapping audit. This is an audit milestone, not activation or execution. Do not activate, run, modify, or save `Result VE.xlsm` during the audit. Final classification must be `AUTO_READY`, `MAPPING_REQUIRED` with complete gaps, or `BLOCKED` with explicit reasons.
+Implement the Automated Template Onboarding and Mapping Engine. This is an onboarding milestone. Do not modify the frozen R8.11 baseline directly. Final classification must be `AUTO_READY`, `MAPPING_REQUIRED` with complete gaps, or `BLOCKED` with explicit reasons.
 <!-- AIRO:RAVBA_R811:END -->

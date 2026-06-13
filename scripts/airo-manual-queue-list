@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import re
+
+def title_to_id(title):
+    title = title.strip()
+    # Remove dash from YYYY-MM-DD
+    title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+    title = title.lower()
+    title = title.replace("—", " ")
+    title = title.replace(":", " ")
+    title = re.sub(r"[^a-z0-9\s-]", "", title)
+    title = re.sub(r"[\s-]+", "-", title)
+    return title.strip("-")
+
+def parse_queue():
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return {
+            "pending_count": 0,
+            "processed_count": 0,
+            "deferred_count": 0,
+            "latest_capture_id": None,
+            "captures": []
+        }
+        
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+        
+    captures = []
+    current_capture = None
+    
+    for idx, line in enumerate(lines, 1):
+        if line.startswith("## ") and re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+            if current_capture:
+                captures.append(current_capture)
+            
+            title = line[3:].strip()
+            capture_id = title_to_id(title)
+            current_capture = {
+                "id": capture_id,
+                "title": title,
+                "line_start": idx,
+                "status": "pending",
+                "source": "unknown",
+                "confidence": "unknown",
+                "related_workstream": "unknown",
+                "canonical": False,
+                "raw_lines": [line]
+            }
+        elif current_capture:
+            current_capture["raw_lines"].append(line)
+            lower_line = line.lower().strip()
+            if lower_line.startswith("status:"):
+                current_capture["status"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("source:"):
+                current_capture["source"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("confidence:"):
+                current_capture["confidence"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("related workstream:"):
+                current_capture["related_workstream"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("canonical:"):
+                val = line.split(":", 1)[1].strip().lower()
+                current_capture["canonical"] = (val == "true")
+                
+    if current_capture:
+        captures.append(current_capture)
+        
+    pending_count = 0
+    processed_count = 0
+    deferred_count = 0
+    latest_capture_id = None
+    
+    cleaned_captures = []
+    for c in captures:
+        status = c["status"].lower()
+        if "pending" in status:
+            pending_count += 1
+        elif "processed" in status:
+            processed_count += 1
+        elif "defer" in status:
+            deferred_count += 1
+            
+        cleaned_captures.append({
+            "id": c["id"],
+            "title": c["title"],
+            "line_start": c["line_start"],
+            "status": c["status"],
+            "source": c["source"],
+            "confidence": c["confidence"],
+            "related_workstream": c["related_workstream"],
+            "canonical": c["canonical"]
+        })
+        
+    pending_captures = [c for c in cleaned_captures if "pending" in c["status"].lower()]
+    if pending_captures:
+        latest_capture_id = pending_captures[-1]["id"]
+    elif cleaned_captures:
+        latest_capture_id = cleaned_captures[-1]["id"]
+        
+    return {
+        "pending_count": pending_count,
+        "processed_count": processed_count,
+        "deferred_count": deferred_count,
+        "latest_capture_id": latest_capture_id,
+        "captures": cleaned_captures
+    }
+
+def main():
+    data = parse_queue()
+    print(json.dumps(data, indent=2))
+
+if __name__ == "__main__":
+    main()

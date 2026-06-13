@@ -55,7 +55,7 @@ Current focus:
 - Stabilize Excel/VBA Command Center report automation.
 - Preserve the confirmed R4/R5 Monitoring Dealer baseline.
 - Extend the same `SALES_5PIVOT` engine to Report Per Type with formula-safe handling.
-- Keep Result VE as `MAPPING_REQUIRED` until its Data Model, connection, external Master Data, and formula staging mapping are completed.
+- Focus on Automated Template Onboarding and Mapping Engine (Result VE is only the first proof case).
 
 Current rule:
 
@@ -72,6 +72,6 @@ AIRO Second Brain is the canonical knowledge hub. Repository-specific work may l
 - RPT001 Monitoring Dealer: PASS.
 - RPT002 Report Per Type: runtime and business-output PASS.
 - RPT003 Result VE: `MAPPING_REQUIRED`, disabled, not processed.
-- Active next milestone: RPT003 Result VE read-only mapping audit.
+- Active next milestone: Automated Template Onboarding and Mapping Engine (Result VE is only proof case).
 - Protect R8.11; future work uses copied candidate workbook/module.
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:END -->

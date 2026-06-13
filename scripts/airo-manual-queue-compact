@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+
+def title_to_id(title):
+    title = title.strip()
+    title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+    title = title.lower()
+    title = title.replace("—", " ")
+    title = title.replace(":", " ")
+    title = re.sub(r"[^a-z0-9\s-]", "", title)
+    title = re.sub(r"[\s-]+", "-", title)
+    return title.strip("-")
+
+def get_captures():
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return [], ""
+        
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+        
+    # Find header before the first capture block
+    # Capture blocks start with ## YYYY-MM-DD
+    match = re.search(r"\n## \d{4}-\d{2}-\d{2}", content)
+    header_content = ""
+    if match:
+        header_content = content[:match.start() + 1]
+    else:
+        header_content = content
+        
+    lines = content.splitlines(keepends=True)
+    captures = []
+    current_capture = None
+    
+    for idx, line in enumerate(lines, 1):
+        if line.startswith("## ") and re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+            if current_capture:
+                captures.append(current_capture)
+            
+            title = line[3:].strip()
+            capture_id = title_to_id(title)
+            # Extract date
+            date_match = re.match(r"^(\d{4}-\d{2}-\d{2})", title)
+            capture_date = date_match.group(1) if date_match else "unknown-date"
+            
+            current_capture = {
+                "id": capture_id,
+                "title": title,
+                "date": capture_date,
+                "line_start": idx,
+                "status": "pending",
+                "raw_content": [line]
+            }
+        elif current_capture:
+            current_capture["raw_content"].append(line)
+            lower_line = line.lower().strip()
+            if lower_line.startswith("status:"):
+                current_capture["status"] = line.split(":", 1)[1].strip()
+                
+    if current_capture:
+        captures.append(current_capture)
+        
+    return captures, header_content
+
+def main():
+    captures, header_content = get_captures()
+    if not captures:
+        print("No capture blocks found to compact.")
+        sys.exit(0)
+        
+    pending_blocks = []
+    archived_links = []
+    
+    for c in captures:
+        status = c["status"].lower()
+        block_text = "".join(c["raw_content"])
+        
+        if "processed" in status:
+            # Archive processed block
+            archive_dir = f"archive/manual-sync-queue/{c['date']}"
+            os.makedirs(archive_dir, exist_ok=True)
+            archive_file = f"{archive_dir}/{c['id']}.md"
+            
+            with open(archive_file, "w", encoding="utf-8") as f:
+                f.write(block_text)
+                
+            print(f"Archived processed capture: {archive_file}")
+            archived_links.append(f"- [{c['title']}](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/{archive_file})")
+            
+        elif "defer" in status:
+            # Move to deferred path
+            deferred_dir = "inbox/deferred"
+            os.makedirs(deferred_dir, exist_ok=True)
+            deferred_file = f"{deferred_dir}/{c['id']}.md"
+            
+            with open(deferred_file, "w", encoding="utf-8") as f:
+                f.write(block_text)
+                
+            print(f"Moved deferred capture: {deferred_file}")
+            archived_links.append(f"- [DEFERRED: {c['title']}](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/{deferred_file})")
+            
+        else:
+            # Keep pending blocks
+            pending_blocks.append(block_text)
+            
+    # Now rebuild inbox/manual-sync-queue.md
+    new_queue_content = header_content
+    
+    if pending_blocks:
+        new_queue_content += "\n" + "\n".join(pending_blocks)
+    else:
+        new_queue_content += "\n\n## Pending Captures\n\n(No pending captures. Queue is clean!)\n"
+        
+    # Append archived index pointer
+    new_queue_content += "\n\n## Archived Captures Index\n\n"
+    if os.path.exists("inbox/manual-sync-queue.md"):
+        # We can read existing archived index if any to merge
+        with open("inbox/manual-sync-queue.md", "r", encoding="utf-8") as f:
+            old_content = f.read()
+        idx_match = re.search(r"## Archived Captures Index.*", old_content, re.DOTALL)
+        if idx_match:
+            old_index = idx_match.group(0)
+            # Extract links from old index
+            old_links = [line.strip() for line in old_index.splitlines() if line.strip().startswith("- ")]
+            # Merge and preserve order/uniqueness
+            for link in old_links:
+                if link not in archived_links:
+                    archived_links.append(link)
+                    
+    new_queue_content += "\n".join(archived_links) + "\n"
+    
+    with open("inbox/manual-sync-queue.md", "w", encoding="utf-8") as f:
+        f.write(new_queue_content)
+        
+    print("Compaction complete. manual-sync-queue.md updated.")
+
+if __name__ == "__main__":
+    main()

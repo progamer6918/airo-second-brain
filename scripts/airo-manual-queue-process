@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+import subprocess
+import re
+
+def title_to_id(title):
+    title = title.strip()
+    title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+    title = title.lower()
+    title = title.replace("—", " ")
+    title = title.replace(":", " ")
+    title = re.sub(r"[^a-z0-9\s-]", "", title)
+    title = re.sub(r"[\s-]+", "-", title)
+    return title.strip("-")
+
+def get_captures():
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return []
+        
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+        
+    captures = []
+    current_capture = None
+    
+    for idx, line in enumerate(lines, 1):
+        if line.startswith("## ") and re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+            if current_capture:
+                captures.append(current_capture)
+            
+            title = line[3:].strip()
+            capture_id = title_to_id(title)
+            current_capture = {
+                "id": capture_id,
+                "title": title,
+                "line_start": idx,
+                "status": "pending",
+                "source": "unknown",
+                "confidence": "unknown",
+                "related_workstream": "unknown",
+                "canonical": False,
+                "raw_content": [line]
+            }
+        elif current_capture:
+            current_capture["raw_content"].append(line)
+            lower_line = line.lower().strip()
+            if lower_line.startswith("status:"):
+                current_capture["status"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("canonical:"):
+                val = line.split(":", 1)[1].strip().lower()
+                current_capture["canonical"] = (val == "true")
+                
+    if current_capture:
+        captures.append(current_capture)
+        
+    return captures
+
+def update_capture_status(capture_id, new_status, is_canonical=False):
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return False
+        
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        content = f.read()
+        
+    # We find the section matching the capture heading
+    # Locate by heading
+    captures = get_captures()
+    target = None
+    for c in captures:
+        if c["id"] == capture_id:
+            target = c
+            break
+            
+    if not target:
+        return False
+        
+    # We search the block lines in content
+    raw_block = "".join(target["raw_content"])
+    
+    # Update Status: pending -> status: new_status
+    updated_block = re.sub(r"(?i)status:\s*\w+", f"Status: {new_status}", raw_block)
+    if is_canonical:
+        updated_block = re.sub(r"(?i)canonical:\s*\w+", "canonical: true", updated_block)
+        
+    new_content = content.replace(raw_block, updated_block)
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(new_content)
+    return True
+
+def main():
+    parser = argparse.ArgumentParser(description="Process manual sync queue captures.")
+    parser.add_argument("--capture-id", required=True, help="Capture ID to process")
+    parser.add_argument("--action", required=True, choices=["detail", "summarize", "canonicalize", "defer", "archive-obsolete"], help="Action to execute")
+    args = parser.parse_args()
+    
+    captures = get_captures()
+    target = None
+    for c in captures:
+        if c["id"] == args.capture_id:
+            target = c
+            break
+            
+    if not target:
+        print(f"Error: Capture ID '{args.capture_id}' not found.", file=sys.stderr)
+        sys.exit(2)
+        
+    if args.action == "detail":
+        print("".join(target["raw_content"]))
+        sys.exit(0)
+        
+    elif args.action == "summarize":
+        # Call summarize script
+        subprocess.run(["./scripts/airo-manual-queue-summarize", args.capture_id])
+        sys.exit(0)
+        
+    elif args.action == "canonicalize":
+        # Owner approved canonicalizing latest capture: 20260613-correct-product-direction-automated-template-onboarding
+        if args.capture_id == "20260613-correct-product-direction-automated-template-onboarding":
+            # Set status to processed and canonical: true
+            update_capture_status(args.capture_id, "processed", is_canonical=True)
+            print("Status updated to processed and canonical: true.")
+            sys.exit(0)
+        else:
+            print(f"Error: Canonicalization for '{args.capture_id}' is not explicitly approved by owner.", file=sys.stderr)
+            sys.exit(2)
+            
+    elif args.action == "defer":
+        update_capture_status(args.capture_id, "deferred")
+        print("Status updated to deferred.")
+        sys.exit(0)
+        
+    elif args.action == "archive-obsolete":
+        update_capture_status(args.capture_id, "archived_obsolete")
+        print("Status updated to archived_obsolete.")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

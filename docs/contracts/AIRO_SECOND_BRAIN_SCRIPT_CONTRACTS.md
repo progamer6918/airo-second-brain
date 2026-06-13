@@ -204,15 +204,60 @@ Setiap script di bawah folder `scripts/` wajib memenuhi ketentuan berikut:
 ---
 
 ## 11. `scripts/airo-manual-queue-status`
-* **Purpose:** Memeriksa status inbox/manual-sync-queue.md secara lokal dan membandingkannya dengan origin/main.
-* **Allowed writes:**
-  * Hanya mencetak laporan status ke stdout (read-only).
-* **Forbidden writes:**
-  * Mengubah file markdown atau repositori.
+* **Purpose:** Memeriksa status `inbox/manual-sync-queue.md` secara lokal dan membandingkannya dengan `origin/main`.
+* **Allowed writes:** Hanya mencetak laporan status ke stdout (read-only).
+* **Forbidden writes:** Mengubah file markdown atau repositori.
 * **Required flags:** `--help`
-* **Expected output:** Output YAML/JSON status dari manual queue (keberadaan file, pending captures, parity dengan remote branch, dll).
+* **Expected output:** Laporan status lengkap manual queue.
 * **Exit codes:** `0` (Success), `2` (Fatal error)
 * **Validation:**
   ```bash
   scripts/airo-manual-queue-status
   ```
+
+---
+
+## 12. `scripts/airo-manual-queue-list`
+* **Purpose:** Mengurai seluruh blok capture di `inbox/manual-sync-queue.md` dan mencetak daftar metadata capture dalam format JSON.
+* **Allowed writes:** Hanya membaca file antrean (read-only).
+* **Exit codes:** `0` (Success), `2` (Fatal error)
+
+---
+
+## 13. `scripts/airo-manual-queue-summarize`
+* **Purpose:** Menghasilkan ringkasan singkat yang ramah bagi owner untuk capture ID tertentu.
+* **Allowed writes:** Read-only.
+* **Exit codes:** `0` (Success)
+
+---
+
+## 14. `scripts/airo-manual-queue-process`
+* **Purpose:** Memproses capture dalam antrean manual (detail, ringkas, canonicalize, defer, archive).
+* **Allowed writes:** `inbox/manual-sync-queue.md` (pembaruan status/canonical flag).
+* **Exit codes:** `0` (Success), `2` (Error/Not approved)
+
+---
+
+## 15. `scripts/airo-manual-queue-compact`
+* **Purpose:** Melakukan pemadatan (compaction) pada antrean aktif, mengarsipkan item yang sukses diproses, memindahkan item yang ditunda, dan menulis ulang indeks arsip.
+* **Allowed writes:**
+  * `inbox/manual-sync-queue.md`
+  * `archive/manual-sync-queue/`
+  * `inbox/deferred/`
+* **Exit codes:** `0` (Success)
+
+---
+
+## 16. `ops/telegram/telegram-action-poller.sh`
+* **Purpose:** Menarik callback query Telegram terbaru dari API Telegram (getUpdates) dan menyimpan aksi milik owner yang terverifikasi ke `inbox/telegram-actions/`.
+* **Allowed writes:** `inbox/telegram-actions/`
+* **Exit codes:** `0` (Success/Skipped), `1` (API Error)
+
+---
+
+## 17. `ops/telegram/telegram-action-processor.sh`
+* **Purpose:** Membaca file aksi JSON pending di `inbox/telegram-actions/`, menjalankan perintah/script yang sesuai, memperbarui status aksi, dan mengirim pesan konfirmasi ke Telegram.
+* **Allowed writes:**
+  * `inbox/telegram-actions/`
+  * File-file yang diubah oleh script pemroses terkait.
+* **Exit codes:** `0` (Success)

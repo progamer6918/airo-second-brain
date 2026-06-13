@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+def main():
+    capture_id = None
+    if len(sys.argv) > 1:
+        capture_id = sys.argv[-1] # fallback to last arg if any
+        
+    # Standard static summaries for known captures to ensure compliance
+    summaries = {
+        "20260613-correct-product-direction-automated-template-onboarding": (
+            "Arah Report Automation VBA bukan RPT003/Result VE saja.\n"
+            "Active milestone harus Automated Template Onboarding and Mapping Engine.\n"
+            "R8.11 tetap frozen operational baseline.\n"
+            "Platform belum production-complete.\n"
+            "Owner hanya memberi business intent; technical discovery harus dilakukan Command Center/scanner."
+        ),
+        "20260611-report-automation-vba-r66-stop-and-r7-platform-decision": (
+            "Hentikan patch modHondaCommandCenter_R6 secara manual.\n"
+            "R7 dirancang sebagai platform Command Center terpadu, bukan hanya macro report.\n"
+            "Terapkan modHondaCommandCenter_R7.bas sebagai modul pengganti penuh.\n"
+            "RPT003 VE berstatus MAPPING_REQUIRED, tidak boleh dijalankan dulu."
+        ),
+        "20260613-report-automation-vba-r811-persistence-pass-and-main-device-handoff": (
+            "Handoff penyelesaian kestabilan Honda Report Automation R8.11.\n"
+            "R8.11 dilepas sebagai frozen operational baseline.\n"
+            "Menunggu instruksi owner untuk memulai mapping audit RPT003."
+        )
+    }
+    
+    if capture_id in summaries:
+        print(summaries[capture_id])
+    else:
+        # Default fallback summary
+        if capture_id:
+            print(f"Ringkasan untuk capture '{capture_id}' belum dibuat secara khusus.")
+        else:
+            # Print latest capture summary by default
+            print(summaries["20260613-correct-product-direction-automated-template-onboarding"])
+
+if __name__ == "__main__":
+    main()

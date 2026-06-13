@@ -1,8 +1,99 @@
 #!/usr/bin/env python3
 import os
 import sys
+import json
 import subprocess
 import hashlib
+import re
+
+def title_to_id(title):
+    title = title.strip()
+    title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+    title = title.lower()
+    title = title.replace("—", " ")
+    title = title.replace(":", " ")
+    title = re.sub(r"[^a-z0-9\s-]", "", title)
+    title = re.sub(r"[\s-]+", "-", title)
+    return title.strip("-")
+
+def parse_queue():
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return {
+            "pending_count": 0,
+            "processed_count": 0,
+            "deferred_count": 0,
+            "latest_capture": None,
+            "captures": []
+        }
+        
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+        
+    captures = []
+    current_capture = None
+    
+    for idx, line in enumerate(lines, 1):
+        if line.startswith("## ") and re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+            if current_capture:
+                captures.append(current_capture)
+            
+            title = line[3:].strip()
+            capture_id = title_to_id(title)
+            current_capture = {
+                "id": capture_id,
+                "title": title,
+                "line_start": idx,
+                "status": "pending",
+                "source": "unknown",
+                "confidence": "unknown",
+                "related_workstream": "unknown",
+                "canonical": False
+            }
+        elif current_capture:
+            lower_line = line.lower().strip()
+            if lower_line.startswith("status:"):
+                current_capture["status"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("source:"):
+                current_capture["source"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("confidence:"):
+                current_capture["confidence"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("related workstream:"):
+                current_capture["related_workstream"] = line.split(":", 1)[1].strip()
+            elif lower_line.startswith("canonical:"):
+                val = line.split(":", 1)[1].strip().lower()
+                current_capture["canonical"] = (val == "true")
+                
+    if current_capture:
+        captures.append(current_capture)
+        
+    pending_count = 0
+    processed_count = 0
+    deferred_count = 0
+    
+    for c in captures:
+        status = c["status"].lower()
+        if "pending" in status:
+            pending_count += 1
+        elif "processed" in status:
+            processed_count += 1
+        elif "defer" in status:
+            deferred_count += 1
+            
+    latest_capture = None
+    pending_captures = [c for c in captures if "pending" in c["status"].lower()]
+    if pending_captures:
+        latest_capture = pending_captures[-1]
+    elif captures:
+        latest_capture = captures[-1]
+        
+    return {
+        "pending_count": pending_count,
+        "processed_count": processed_count,
+        "deferred_count": deferred_count,
+        "latest_capture": latest_capture,
+        "captures": captures
+    }
 
 def get_git_file_content(ref, filepath):
     try:
@@ -37,14 +128,9 @@ def main():
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
             local_content = f.read()
             
-    has_pending = False
-    if local_exists:
-        blocks = local_content.split("\n## ")
-        for block in blocks:
-            if "status: pending" in block.lower() and "capture block template" not in block.lower():
-                has_pending = True
-                break
-                
+    data = parse_queue()
+    latest = data["latest_capture"]
+    
     remote_content = get_git_file_content("origin/main", filepath)
     remote_exists = remote_content is not None
     
@@ -56,28 +142,27 @@ def main():
         
     latest_commit = get_latest_commit_touching(filepath)
     
-    queue_status = "unknown"
-    if local_exists:
-        queue_status = "pending" if has_pending else "processed"
+    # Processed canonical status
+    processed_canonical = "no"
+    if latest and latest["canonical"]:
+        processed_canonical = "yes"
         
-    canonical_status = "false"
-    if "canonical: true" in local_content:
-         canonical_status = "true"
-         
-    processed_outputs = "no"
-    
     next_action = "owner can request process into projects/report-automation-vba.md + CURRENT.md"
-    if not has_pending:
+    if data["pending_count"] == 0:
         next_action = "none (all manual queue items are processed)"
         
     print(f"manual_queue_file_exists: {'yes' if local_exists else 'no'}")
-    print(f"local_has_pending_captures: {'yes' if has_pending else 'no'}")
-    print(f"remote_has_file: {'yes' if remote_exists else 'no'}")
-    print(f"remote_has_same_content: {'yes' if same_content else 'no'}")
-    print(f"latest_commit_touching_manual_queue: {latest_commit}")
-    print(f"manual_queue_status: {queue_status}")
-    print(f"canonical_status: {canonical_status}")
-    print(f"processed_outputs_found: {processed_outputs}")
+    print(f"found_in_local: {'yes' if local_exists else 'no'}")
+    print(f"found_in_origin_main: {'yes' if remote_exists else 'no'}")
+    print(f"remote_same_content: {'yes' if same_content else 'no'}")
+    print(f"latest_capture_id: {latest['id'] if latest else 'none'}")
+    print(f"latest_capture_title: {latest['title'] if latest else 'none'}")
+    print(f"latest_capture_line: {latest['line_start'] if latest else 'none'}")
+    print(f"latest_capture_status: {latest['status'] if latest else 'none'}")
+    print(f"pending_count: {data['pending_count']}")
+    print(f"processed_count: {data['processed_count']}")
+    print(f"deferred_count: {data['deferred_count']}")
+    print(f"processed/canonical: {processed_canonical}")
     print(f"recommended_next_action: {next_action}")
 
 if __name__ == "__main__":
