@@ -180,3 +180,9 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 
 Promoted R8.11 to frozen stable baseline, synchronized verified runtime and persistence evidence, retained RPT003 as `MAPPING_REQUIRED`, prepared its read-only audit, and documented daytime/main-PC operating modes.
 <!-- AIRO:CHANGELOG_RAVBA_20260613:END -->
+
+## 2026-06-13 — AIRO Second Brain v0.4.1 Final Completion
+- docs: finalized project v0.4.1 operational baseline.
+- docs: triaged all 6 owner review queue items (VERIFY_FIRST/DEFER defaults applied).
+- docs: cleared all 39 pending decisions by triaging into resolved, deferred, and archived files.
+- feat: updated readiness semantics to healthy (operational_complete).

@@ -61,9 +61,8 @@ Current rule:
 
 AIRO Second Brain is the canonical knowledge hub. Repository-specific work may live in other repos, but durable operator context should be summarized or linked from this repo.
 
-## AIRO Second Brain v0.4.1 status
-- **Status:** ACCEPTED / COMPLETE.
-- **Next Step:** Normal Operation.
+- **Status:** OPERATIONAL_COMPLETE.
+- **Next Step:** Normal Operation (Scheduler hidden via VBS, Telegram active/quiet).
 
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:BEGIN -->
 ## Active Workstream: Report Automation VBA

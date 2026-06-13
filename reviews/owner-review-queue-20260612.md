@@ -1,10 +1,11 @@
-# AIRO Owner Review Queue — 2026-06-12
+# AIRO Owner Review Queue — 2026-06-12 (PROCESSED)
 
-status: awaiting_owner_review
-canonical_changed: false
+status: processed
+processed_at: 2026-06-13
+see: reviews/processed/owner-review-processed-20260612.md
 source_count: 6
 
-## Review Item 1: CC Ledger-first Production Deploy
+## Processed Review Item 1: CC Ledger-first Production Deploy
 
 Source:
 - inbox/airo-finance-cc-ledger-first-production-deploy-2026-06-11-0014.md
@@ -38,7 +39,7 @@ Decision options:
 Notes:
 - 
 
-## Review Item 2: CC Ledger-first Source Patch
+## Processed Review Item 2: CC Ledger-first Source Patch
 
 Source:
 - inbox/airo-finance-cc-ledger-first-source-patch-2026-06-11-0013.md
@@ -72,7 +73,7 @@ Decision options:
 Notes:
 - 
 
-## Review Item 3: Dashboard Audit + Patch Split Decision
+## Processed Review Item 3: Dashboard Audit + Patch Split Decision
 
 Source:
 - inbox/airo-finance-dashboard-audit-patch-split-decision-2026-06-11-0010.md
@@ -106,7 +107,7 @@ Decision options:
 Notes:
 - 
 
-## Review Item 4: Task 9 CC Parser Deploy
+## Processed Review Item 4: Task 9 CC Parser Deploy
 
 Source:
 - inbox/airo-finance-task9-cc-parser-deploy-20260611-223551.md
@@ -140,7 +141,7 @@ Decision options:
 Notes:
 - 
 
-## Review Item 5: AIRO Sync Operating Rule
+## Processed Review Item 5: AIRO Sync Operating Rule
 
 Source:
 - inbox/airo-sync-operating-rule-2026-06-10-2351.md
@@ -174,7 +175,7 @@ Decision options:
 Notes:
 - 
 
-## Review Item 6: Semantic Proposal for airo-finance
+## Processed Review Item 6: Semantic Proposal for airo-finance
 
 Source:
 - distill/proposals/proposal_airo-finance_20260612_101942.md

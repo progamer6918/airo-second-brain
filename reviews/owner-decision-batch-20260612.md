@@ -1,7 +1,8 @@
-# AIRO Owner Decision Batch — 2026-06-12
+# AIRO Owner Decision Batch — 2026-06-12 (PROCESSED)
 
-status: awaiting_owner_input
-canonical_changed: false
+status: processed
+processed_at: 2026-06-13
+see: reviews/processed/owner-review-processed-20260612.md
 source: reviews/owner-review-queue-20260612.md
 
 1. CC Ledger-first Production Deploy | default VERIFY_FIRST
