@@ -20,6 +20,7 @@ except Exception as e:
 
 # 1. Parse arguments manually
 is_test = False
+is_test_card = False
 event_type = None
 message = None
 capture_id = None
@@ -31,6 +32,8 @@ while i < len(args):
     arg = args[i]
     if arg == "--test":
         is_test = True
+    elif arg == "--test-card":
+        is_test_card = True
     elif arg == "--type":
         if i + 1 < len(args):
             event_type = args[i+1]
@@ -166,7 +169,7 @@ if is_test:
         sys.exit(1)
 
 # 6. Handle standard events
-if not event_type:
+if not event_type and not is_test_card:
     sys.stderr.write("Error: --type <type> is required when not running --test\n")
     sys.exit(1)
 
@@ -180,7 +183,24 @@ state.setdefault("last_event_times", {})
 for k in ["sync_failed", "runtime_blocked", "secret_guard_hit", "owner_review_needed", "runtime_online", "manual_queue_card", "owner_review_card"]:
     state["last_event_times"].setdefault(k, 0.0)
 
-if event_type == "runtime_online":
+# Check for test card mode
+if is_test_card or event_type == "manual_queue_pending":
+    should_send = True
+    custom_msg = (
+        "🧪 **Earesmes action card smoke test.**\n\n"
+        "Kalau tombol ini muncul, UI Telegram hidup.\n"
+        "Klik “Lihat detail” atau “Tunda” untuk test aman."
+    )
+    reply_markup = {
+        "inline_keyboard": [
+            [
+                {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{capture_id or 'test-earesmes-action-card'}"},
+                {"text": "Tunda", "callback_data": f"manualqueue:defer:{capture_id or 'test-earesmes-action-card'}"}
+            ]
+        ]
+    }
+
+elif event_type == "runtime_online":
     # Startup online cooldown: 6 hours (21600 seconds)
     time_elapsed = current_time - state["last_event_times"].get("runtime_online", 0.0)
     if time_elapsed >= 21600:
@@ -247,7 +267,6 @@ elif event_type == "runtime_recovered":
         log_event("Suppressed runtime_recovered (already healthy)")
 
 elif event_type == "owner_review_needed":
-    # Legacy event mapping, let's keep it but suppress if review_card is used
     log_event("Suppressing legacy owner_review_needed in favor of owner_review_card")
 
 elif event_type == "remote_queue_processed":
@@ -319,17 +338,18 @@ else:
 
 if should_send and custom_msg:
     if is_configured:
-        log_event(f"Sending Telegram notification for type '{event_type}'")
+        log_event(f"Sending Telegram notification for type '{event_type or 'test_card'}'")
         success = send_telegram(custom_msg, reply_markup)
         if success:
-            log_event(f"Notification sent successfully: {event_type}")
+            log_event(f"Notification sent successfully: {event_type or 'test_card'}")
             state["last_notification_time"] = current_time
         else:
-            log_event(f"Failed to send Telegram notification: {event_type}")
+            log_event(f"Failed to send Telegram notification: {event_type or 'test_card'}")
+            sys.exit(2)
     else:
-        log_event(f"Log-only notification (Telegram unconfigured) for type '{event_type}': {custom_msg}")
+        log_event(f"Log-only notification (Telegram unconfigured) for type '{event_type or 'test_card'}': {custom_msg}")
 else:
-    log_event(f"Notification suppressed/logged for type '{event_type}'")
+    log_event(f"Notification suppressed/logged for type '{event_type or 'test_card'}'")
 
 save_state()
 sys.exit(0)
