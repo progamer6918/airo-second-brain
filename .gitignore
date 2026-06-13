@@ -30,3 +30,6 @@ ops/notifications/notification-state.json
 state/runtime/telegram-listener.lock
 state/runtime/telegram-update-offset
 state/runtime/telegram-listener-last-update
+
+# Telegram action JSON files (runtime state, processed per session)
+inbox/telegram-actions/
