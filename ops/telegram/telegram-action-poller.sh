@@ -94,21 +94,35 @@ for update in updates:
                 json.dump(action_data, f, indent=2)
             print(f"Staged Telegram action: {action_file}")
             
-            # Determine acknowledgement text based on action
-            ack_text = "🫡 Kliknya masuk. Aku masukin ke antrean Second Brain."
-            if action in ["manualqueue:canonicalize", "manualqueue:detail", "manualqueue:defer", "manualqueue:archive",
-                          "ownerreview:summary", "ownerreview:defer_verify_first", "ownerreview:process_safe", "ownerreview:snooze12h"]:
-                ack_text = "🫡 Diterima. Aku proses sebentar."
-                
-            # Answer callback query to stop loading spinner
+            # Answer callback query to stop button spinner
             answer_url = f"https://api.telegram.org/bot{token}/answerCallbackQuery"
             answer_data = urllib.parse.urlencode({
                 "callback_query_id": callback_id,
-                "text": ack_text
+                "text": "🫡 Diterima."
             }).encode("utf-8")
             urllib.request.urlopen(urllib.request.Request(answer_url, data=answer_data, method="POST"), timeout=10)
+
+            # Send visible acknowledgement message (poller fallback mode)
+            ack_msg = (
+                f"🫡 *Diterima. Aku proses sebentar.*\n\n"
+                f"Aksi: `{action}`\n"
+                f"Target: `{target_id}`\n"
+                f"_(fallback poller — listener mungkin tidak aktif)_"
+            )
+            msg_url = f"https://api.telegram.org/bot{token}/sendMessage"
+            msg_data = urllib.parse.urlencode({
+                "chat_id": chat_id,
+                "text": ack_msg,
+                "parse_mode": "Markdown"
+            }).encode("utf-8")
+            try:
+                urllib.request.urlopen(urllib.request.Request(msg_url, data=msg_data, method="POST"), timeout=10)
+            except Exception as e:
+                sys.stderr.write(f"Failed to send visible ack: {e}\n")
+
         except Exception as e:
             sys.stderr.write(f"Failed to stage action: {e}\n")
+
 
 # Offset updates so we don't get them again
 if updates:

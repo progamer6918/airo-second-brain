@@ -61,3 +61,15 @@ Ketentuan tambahan:
 - Jika output sangat besar, ringkas dan salin ringkasan serta info lokasi path output-nya.
 - Jika `clip.exe` tidak tersedia, cetak `CLIPBOARD_COPY=SKIPPED`.
 - Anda juga bisa menggunakan helper `/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/scripts/airo-run-and-copy <task-name> -- <commands>` untuk mengotomatiskan aturan ini.
+
+## Earesmes Live Telegram Button Listener
+
+Sejak v0.4.2, Earesmes memiliki persistent long-poll listener yang berjalan di background WSL.
+
+- **Live listener**: `ops/telegram/telegram-action-listener.py` — harus selalu running untuk respons instan.
+- **Windows Task**: `AIRO Earesmes Telegram Listener` — auto-start at logon via `wsl.exe`.
+- **Status check**: `bash ops/telegram/telegram-listener-status.sh`
+- **Fallback**: `telegram-action-poller.sh` dipanggil saat runtime scheduler — backup jika listener mati.
+- **Jangan matikan listener** tanpa alasan jelas. Restart via Windows Task atau jalankan manual.
+- Tombol Telegram harus responsif dalam < 5 detik selama listener aktif.
+
