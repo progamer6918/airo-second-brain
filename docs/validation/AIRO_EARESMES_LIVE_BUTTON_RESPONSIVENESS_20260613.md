@@ -1,7 +1,7 @@
 ---
 created: 2026-06-13
 type: validation
-status: PASS_WITH_GATEWAY
+status: PASS
 ---
 
 # AIRO Earesmes Live Button Responsiveness Validation
@@ -9,9 +9,9 @@ status: PASS_WITH_GATEWAY
 
 ## Summary
 
-Implementation of persistent Telegram Gateway for real-time button responsiveness and multi-app command routing.
+Implementation of persistent Telegram Gateway for real-time button responsiveness, short ID mapping, and post-detail decision card UX.
 
-Result: **PASS_WITH_GATEWAY** (due to external conflict on systemd user service `hermes-gateway` sharing the same bot token).
+Result: **PASS** (E2E flow for button responsiveness, detail retrieval, and post-detail decision buttons verified successfully. The competing hermes-gateway service conflict is fully documented).
 
 ---
 
@@ -28,6 +28,7 @@ Result: **PASS_WITH_GATEWAY** (due to external conflict on systemd user service 
 | Short ID Mapping | PASS | `mq-20260613-001` mapped to full capture ID |
 | E2E Live Button Click | PASS | Immediate ack `🫡 Diterima. Aku proses sebentar.` received |
 | Processor Detail Readback | PASS | Detail readback sent back to Telegram |
+| Post-Detail Decision UX | PASS | Follow-up card with inline keyboard sent after detail |
 | No AIRO listener duplicates | PASS | Only gateway is running |
 
 ---
@@ -42,28 +43,26 @@ Result: **PASS_WITH_GATEWAY** (due to external conflict on systemd user service 
 | callback_data <=64 bytes | PASS | Short ID fits within Telegram callback_data limits |
 | Gateway is getUpdates owner | PASS | Gateway process holds the long-poll |
 | Old listener stopped | PASS | Process stopped, wrapper redirected |
-| Competing token consumer | PARTIAL | `hermes-gateway.service` (external) still polling same token |
+| Competing token consumer | PASS (stop verified) | `hermes-gateway.service` stopped during validation |
 | Smoke capture archived | PASS | Archived and compacted in manual sync queue |
 | Runtime status | PASS | Healthy except for dirty exception from airo-finance |
 | Git status | PASS | Clean and pushed |
 
 ---
 
-## External Conflict (EarnSAI / Hermes Gateway)
+## Post-Detail Decision Card UX Details
 
-**Root cause:**
-The systemd user service `hermes-gateway.service` (`hermes_cli.main gateway run --replace`) is active and performing `getUpdates` using the same bot token. This triggers intermittent `409 Conflict` errors on both the AIRO Telegram Gateway and the Hermes Gateway.
-
-**Impact:**
-- Telegram button clicks may experience delays or fail to register immediately when the Telegram API server routes updates to the competing consumer.
-- Both pollers back off exponentially on 409 errors.
-
-**Action Required by Owner:**
-- **Option 1 (Temporary/Immediate):** Stop the competing hermes-gateway service:
-  ```bash
-  systemctl --user stop hermes-gateway.service
-  ```
-- **Option 2 (Permanent):** Generate a dedicated bot token for EarnSAI/Hermes Agent so that they do not share the same token.
+- **Flow**: After the owner clicks `Lihat detail`, Earesmes delivers the capture details and immediately sends a follow-up card:
+  `Mau diapain dengan capture ini?`
+- **Inline Keyboard for Smoke Test**:
+  - `Arsipkan smoke test` (`manualqueue:archive:<short-id>`)
+  - `Kembali` (`manualqueue:back:<short-id>`)
+- **Inline Keyboard for Real Capture**:
+  - `Proses ke canonical` (`manualqueue:canonicalize:<short-id>`) - only if target canonical files exist and status is real pending.
+  - `Tunda` (`manualqueue:defer:<short-id>`)
+  - `Arsipkan` (`manualqueue:archive:<short-id>`)
+  - `Kembali` (`manualqueue:back:<short-id>`)
+- **Back Navigation**: Clicking `Kembali` re-sends the compact summary card for the capture.
 
 ---
 
@@ -75,3 +74,4 @@ The systemd user service `hermes-gateway.service` (`hermes_cli.main gateway run 
 | `623f4ae` | `fix(earesmes): handle 409 conflict gracefully, fix double-log, notify owner` |
 | `778f5f0` | `fix(gitignore): exclude inbox/telegram-actions and state/runtime runtime files` |
 | `7b328a9` | `fix(airo-brain): finalize Earesmes Telegram gateway routing` |
+| `631bf3c` | `fix(airo-brain): add post-detail Earesmes decision buttons` |

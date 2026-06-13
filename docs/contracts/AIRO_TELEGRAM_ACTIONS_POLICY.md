@@ -56,6 +56,20 @@ Because Telegram limits `callback_data` to 64 bytes, long manual queue capture I
 - **Storage**: The mapping is saved to `state/runtime/manual-queue-short-id-map.json`.
 - **Resolution**: The Gateway resolves the short ID back to the full capture ID before staging and running the processor.
 
+### Post-Detail Decision Card UX
+
+After Earesmes retrieves the capture details for `manualqueue:detail`, it must send the detail markdown message followed by a decision follow-up card:
+- **Pesan**: `Mau diapain dengan capture ini?`
+- **Inline Keyboard (Real Capture)**:
+  - `Proses ke canonical` (`manualqueue:canonicalize:<short-id>`) - only if target canonical files exist and status is real pending.
+  - `Tunda` (`manualqueue:defer:<short-id>`)
+  - `Arsipkan` (`manualqueue:archive:<short-id>`)
+  - `Kembali` (`manualqueue:back:<short-id>`)
+- **Inline Keyboard (Smoke/Test Capture)**:
+  - `Arsipkan smoke test` (`manualqueue:archive:<short-id>`)
+  - `Kembali` (`manualqueue:back:<short-id>`)
+- **Back Navigation**: Clicking `Kembali` (`manualqueue:back`) re-sends the compact summary card for the same capture.
+
 ### Fallback
 
-If the gateway is not running, the periodic runtime scheduler calls `telegram-action-poller.sh` as fallback. The poller also handles short ID resolution and sends visible acknowledgement messages.
+If the gateway is not running, the periodic runtime scheduler calls `telegram-action-poller.sh` as fallback. The poller also handles short ID resolution, sends visible acknowledgement messages, and supports navigation.

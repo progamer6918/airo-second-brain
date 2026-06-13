@@ -36,13 +36,17 @@ if not token or not chat_id:
     sys.stderr.write("Telegram credentials not configured. Skipping processor.\n")
     sys.exit(0)
 
-def send_telegram(text):
+def send_telegram(text, reply_markup=None):
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = urllib.parse.urlencode({
+    payload = {
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "Markdown"
-    }).encode("utf-8")
+    }
+    if reply_markup:
+        payload["reply_markup"] = json.dumps(reply_markup)
+        
+    data = urllib.parse.urlencode(payload).encode("utf-8")
     
     req = urllib.request.Request(url, data=data, method="POST")
     try:
@@ -53,6 +57,7 @@ def send_telegram(text):
     except Exception as e:
         sys.stderr.write(f"Telegram API sendMessage failed: {e}\n")
         return False
+
 
 def defer_verify_first_items():
     review_file = "reviews/owner-review-queue-20260612.md"
@@ -193,8 +198,109 @@ def snooze_review_notifications():
     except Exception as e:
         return f"Gagal menyimpan status snooze: {e}"
 
+def get_capture_details(full_id):
+    filepath = "inbox/manual-sync-queue.md"
+    if not os.path.exists(filepath):
+        return None
+        
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+    except Exception:
+        return None
+        
+    import re
+    def title_to_id(title):
+        title = title.strip()
+        title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+        title = title.lower()
+        title = title.replace("—", " ").replace(":", " ")
+        title = re.sub(r"[^a-z0-9\s-]", "", title)
+        title = re.sub(r"[\s-]+", "-", title)
+        return title.strip("-")
+
+    sections = re.split(r"\n(## \d{4}-\d{2}-\d{2}.*)", content)
+    if len(sections) < 2:
+        return None
+        
+    for i in range(1, len(sections), 2):
+        title_line = sections[i]
+        body = sections[i+1]
+        title = title_line[3:].strip()
+        cap_id = title_to_id(title)
+        
+        if cap_id == full_id:
+            status = "pending"
+            for line in body.splitlines():
+                if line.lower().strip().startswith("status:"):
+                    status = line.split(":", 1)[1].strip().lower()
+                    break
+            
+            canonical_files = []
+            in_target_files = False
+            for line in body.splitlines():
+                line_strip = line.strip()
+                if "target canonical files:" in line_strip.lower():
+                    in_target_files = True
+                    continue
+                if in_target_files:
+                    if line_strip.startswith("*") or line_strip.startswith("-"):
+                        match = re.search(r"`([^`]+)`", line_strip)
+                        if match:
+                            canonical_files.append(match.group(1))
+                    elif line_strip == "" or line_strip.startswith("##"):
+                        if not (line_strip.startswith("*") or line_strip.startswith("-")):
+                            in_target_files = False
+                            
+            return {
+                "id": cap_id,
+                "status": status,
+                "canonical_files": canonical_files
+            }
+    return None
+
+def get_capture_summary_and_title(full_id):
+    filepath = "inbox/manual-sync-queue.md"
+    title = None
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            import re
+            def title_to_id(title):
+                title = title.strip()
+                title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+                title = title.lower()
+                title = title.replace("—", " ").replace(":", " ")
+                title = re.sub(r"[^a-z0-9\s-]", "", title)
+                title = re.sub(r"[\s-]+", "-", title)
+                return title.strip("-")
+            sections = re.split(r"\n(## \d{4}-\d{2}-\d{2}.*)", content)
+            for i in range(1, len(sections), 2):
+                title_line = sections[i]
+                t = title_line[3:].strip()
+                if title_to_id(t) == full_id:
+                    title = t
+                    break
+        except Exception:
+            pass
+            
+    summary = ""
+    try:
+        res = subprocess.run(
+            ["python3", "./scripts/airo-manual-queue-summarize", full_id],
+            capture_output=True, text=True, timeout=5
+        )
+        summary = res.stdout.strip()
+    except Exception:
+        pass
+    if not summary:
+        summary = f"Capture ID: {full_id}"
+    return title, summary
+
 # 2. Process all pending action files
 if not os.path.exists(ACTIONS_DIR):
+
     sys.exit(0)
 
 action_files = [f for f in os.listdir(ACTIONS_DIR) if f.endswith(".json")]
@@ -220,7 +326,8 @@ for fname in action_files:
         json.dump(action_data, f, indent=2)
         
     action = action_data.get("action", "")
-    target_id = action_data.get("target_id", "none")
+    original_target_id = action_data.get("target_id", "none")
+    target_id = original_target_id
     callback_id = action_data.get("callback_id", "none")
 
     # Resolve short ID → full capture ID if needed
@@ -241,6 +348,8 @@ for fname in action_files:
     print(f"Processing action '{action}' for target '{target_id}'...")
     success = False
     msg_to_send = ""
+    reply_markup_to_send = None
+
 
     # manualqueue actions
 
@@ -269,9 +378,67 @@ for fname in action_files:
             detail_content = res.stdout.strip()
             if len(detail_content) > 3000:
                 detail_content = detail_content[:3000] + "\n...(truncated)..."
-            msg_to_send = f"📄 *Detail untuk Capture `{target_id}`:*\n\n```markdown\n{detail_content}\n```"
+            
+            # 1. Send the detail message first
+            detail_msg = f"📄 *Detail untuk Capture `{target_id}`:*\n\n```markdown\n{detail_content}\n```"
+            send_telegram(detail_msg)
+            
+            # 2. Prepare follow-up keyboard
+            short_id = original_target_id
+            if not short_id.startswith("mq-") and os.path.exists(SHORTID_SCRIPT):
+                try:
+                    res_gen = subprocess.run(
+                        ["python3", SHORTID_SCRIPT, "--generate", target_id],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    for line in res_gen.stdout.strip().splitlines():
+                        if line.startswith("short_id:"):
+                            short_id = line.split(":", 1)[1].strip()
+                            break
+                except Exception as e:
+                    sys.stderr.write(f"Short ID generation failed: {e}\n")
+            
+            is_smoke_test = ("smoke" in target_id.lower()) or ("test" in target_id.lower())
+            
+            if is_smoke_test:
+                reply_markup = {
+                    "inline_keyboard": [
+                        [
+                            {"text": "Arsipkan smoke test", "callback_data": f"manualqueue:archive:{short_id}"},
+                            {"text": "Kembali", "callback_data": f"manualqueue:back:{short_id}"}
+                        ]
+                    ]
+                }
+            else:
+                info = get_capture_details(target_id)
+                show_canonicalize = False
+                if info:
+                    status_pending = (info.get("status") == "pending")
+                    files_exist = False
+                    if info.get("canonical_files"):
+                        files_exist = all(os.path.exists(f) for f in info["canonical_files"])
+                    show_canonicalize = (status_pending and files_exist)
+                
+                buttons = []
+                row1 = []
+                if show_canonicalize:
+                    row1.append({"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{short_id}"})
+                row1.append({"text": "Tunda", "callback_data": f"manualqueue:defer:{short_id}"})
+                buttons.append(row1)
+                
+                row2 = [
+                    {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{short_id}"},
+                    {"text": "Kembali", "callback_data": f"manualqueue:back:{short_id}"}
+                ]
+                buttons.append(row2)
+                reply_markup = {"inline_keyboard": buttons}
+                
+            # Send follow-up decision card
+            send_telegram("Mau diapain dengan capture ini?", reply_markup=reply_markup)
+            msg_to_send = "" # Bypass bottom send_telegram
         else:
             msg_to_send = f"❌ *Gagal mengambil detail Capture:* `{target_id}`.\nDetail: {res.stderr.strip()}"
+
             
     elif action == "manualqueue:defer":
         res = subprocess.run(
@@ -298,6 +465,41 @@ for fname in action_files:
             msg_to_send = f"📥 *Capture `{target_id}` diarsipkan sebagai obsolete.*"
         else:
             msg_to_send = f"❌ *Gagal mengarsipkan Capture:* `{target_id}`.\nDetail: {res.stderr.strip()}"
+            
+    elif action == "manualqueue:back":
+        title, summary = get_capture_summary_and_title(target_id)
+        if title:
+            success = True
+            msg_to_send = f"🟡 **Ada capture baru di Manual Sync Queue.**\n\n**Judul:**\n{title}\n\n**Intinya:**\n{summary}\n\nMau diapain?"
+            
+            short_id = original_target_id
+            if not short_id.startswith("mq-") and os.path.exists(SHORTID_SCRIPT):
+                try:
+                    res_gen = subprocess.run(
+                        ["python3", SHORTID_SCRIPT, "--generate", target_id],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    for line in res_gen.stdout.strip().splitlines():
+                        if line.startswith("short_id:"):
+                            short_id = line.split(":", 1)[1].strip()
+                            break
+                except Exception as e:
+                    sys.stderr.write(f"Short ID generation failed: {e}\n")
+            
+            reply_markup_to_send = {
+                "inline_keyboard": [
+                    [
+                        {"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{short_id}"},
+                        {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{short_id}"}
+                    ],
+                    [
+                        {"text": "Tunda", "callback_data": f"manualqueue:defer:{short_id}"},
+                        {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{short_id}"}
+                    ]
+                ]
+            }
+        else:
+            msg_to_send = f"❌ *Gagal mengambil ringkasan untuk Capture:* `{target_id}`."
             
     # ownerreview actions
     elif action == "ownerreview:summary":
@@ -332,7 +534,9 @@ for fname in action_files:
         json.dump(action_data, f, indent=2)
         
     # Send feedback telegram
-    send_telegram(msg_to_send)
+    if msg_to_send:
+        send_telegram(msg_to_send, reply_markup=reply_markup_to_send)
+
 
 sys.exit(0)
 EOF

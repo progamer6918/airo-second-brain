@@ -212,3 +212,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: implemented short callback ID helper (`scripts/airo-manual-queue-shortid`) and mapping to bypass Telegram's 64-byte callback limit.
 - docs: documented gateway ownership, 409 conflict, and short ID policies in contracts and startup docs.
 - test: E2E button click and detail readback validated successfully.
+
+## 2026-06-13 — Post-Detail Earesmes Decision UX
+- feat: implemented follow-up decision card after `manualqueue:detail` callback.
+- feat: added inline keyboard buttons (Proses ke canonical, Tunda, Arsipkan, Kembali) with short ID mapping.
+- feat: restricted "Proses ke canonical" visibility based on target canonical file existence and pending status.
+- feat: restricted smoke/test captures to only display "Arsipkan smoke test" and "Kembali".
+- feat: implemented back navigation (`manualqueue:back`) to re-deliver the compact sync queue summary card.
+- docs: updated contracts/AIRO_TELEGRAM_ACTIONS_POLICY.md and validation reports.
+

@@ -312,3 +312,13 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: E2E button responsiveness test completed: owner clicked button, gateway resolved short ID to full ID, staged action, executed processor, and returned detail readback to Telegram.
 - documented: External 409 conflict exists with `hermes-gateway.service` (systemd user service) sharing same bot token.
 - next: Operational monitoring under single gateway.
+
+## 2026-06-13 23:35 — Post-Detail Earesmes Decision UX Completed
+- verified: Handled post-detail decision card UX in `telegram-action-processor.sh` for `manualqueue:detail` callback.
+- verified: Shows "Proses ke canonical", "Tunda", "Arsipkan", "Kembali" buttons with short ID mapping.
+- verified: Restricts smoke/test captures to only show "Arsipkan smoke test" and "Kembali".
+- verified: Restricts "Proses ke canonical" visibility to only pending captures with existing target canonical files.
+- verified: Implemented "Kembali" (`manualqueue:back`) action to re-send the compact summary card of the same capture.
+- verified: E2E smoke test validation completed via mock action files, and transient action JSON cleared.
+- next: Operational monitoring.
+

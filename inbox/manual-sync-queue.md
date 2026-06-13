@@ -1277,6 +1277,7 @@ Do not ask the owner to repeat context that has already been processed into cano
 
 ## Archived Captures Index
 
+
 - [2026-06-13 — Live Button Responsiveness Smoke Test](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-live-button-responsiveness-smoke-test.md)
 - [OBSOLETE: 2026-06-13 — Smoke Test](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-smoke-test.md)
 - [2026-06-13 — Report Automation VBA R8.11 Persistence PASS and Main-Device Handoff](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-report-automation-vba-r811-persistence-pass-and-main-device-handoff.md)
