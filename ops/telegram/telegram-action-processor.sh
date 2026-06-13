@@ -222,12 +222,28 @@ for fname in action_files:
     action = action_data.get("action", "")
     target_id = action_data.get("target_id", "none")
     callback_id = action_data.get("callback_id", "none")
-    
+
+    # Resolve short ID → full capture ID if needed
+    SHORTID_SCRIPT = "./scripts/airo-manual-queue-shortid"
+    if target_id and target_id.startswith("mq-") and os.path.exists(SHORTID_SCRIPT):
+        try:
+            res_resolve = subprocess.run(
+                ["python3", SHORTID_SCRIPT, "--resolve", target_id],
+                capture_output=True, text=True, timeout=5
+            )
+            resolved = res_resolve.stdout.strip()
+            if resolved and resolved != target_id:
+                print(f"Short ID resolved: {target_id} → {resolved}")
+                target_id = resolved
+        except Exception as e:
+            sys.stderr.write(f"Short ID resolution failed: {e}\n")
+
     print(f"Processing action '{action}' for target '{target_id}'...")
     success = False
     msg_to_send = ""
-    
+
     # manualqueue actions
+
     if action == "manualqueue:canonicalize":
         res = subprocess.run(
             ["python3", "./scripts/airo-manual-queue-process", "--capture-id", target_id, "--action", "canonicalize"],

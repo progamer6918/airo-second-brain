@@ -5,10 +5,36 @@ import os
 import json
 import time
 import hashlib
+import subprocess
 from datetime import datetime
 import urllib.request
 import urllib.parse
 import fcntl
+
+# ─── Short ID helper ──────────────────────────────────────────────────────────
+SHORTID_SCRIPT = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/scripts/airo-manual-queue-shortid"
+MAX_CB_BYTES = 64
+
+def get_callback_id(full_capture_id: str, action: str = "manualqueue:detail:") -> str:
+    """Return short ID if callback_data would exceed 64 bytes, else full ID."""
+    if not full_capture_id:
+        return full_capture_id or ""
+    candidate = action + full_capture_id
+    if len(candidate.encode("utf-8")) <= MAX_CB_BYTES:
+        return full_capture_id
+    # Need short ID
+    try:
+        result = subprocess.run(
+            ["python3", SHORTID_SCRIPT, "--generate", full_capture_id],
+            capture_output=True, text=True, timeout=5
+        )
+        for line in result.stdout.strip().splitlines():
+            if line.startswith("short_id:"):
+                return line.split(":", 1)[1].strip()
+    except Exception as e:
+        sys.stderr.write(f"Short ID generation failed: {e}\n")
+    # Fallback: truncate to safe length
+    return full_capture_id[:MAX_CB_BYTES - len(action)]
 
 # Process locking to prevent concurrent notification spam
 lock_file_path = "/tmp/airo-second-brain-telegram-notify.lock"
@@ -191,11 +217,12 @@ if is_test_card or event_type == "manual_queue_pending":
         "Kalau tombol ini muncul, UI Telegram hidup.\n"
         "Klik “Lihat detail” atau “Tunda” untuk test aman."
     )
+    cb_id = get_callback_id(capture_id or "test-card", "manualqueue:detail:")
     reply_markup = {
         "inline_keyboard": [
             [
-                {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{capture_id or 'test-earesmes-action-card'}"},
-                {"text": "Tunda", "callback_data": f"manualqueue:defer:{capture_id or 'test-earesmes-action-card'}"}
+                {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{cb_id}"},
+                {"text": "Tunda", "callback_data": f"manualqueue:defer:{cb_id}"}
             ]
         ]
     }
@@ -290,15 +317,16 @@ elif event_type == "manual_queue_card":
         
         custom_msg = f"🟡 **Ada capture baru di Manual Sync Queue.**\n\n**Judul:**\n{message}\n\n**Intinya:**\n{extra}\n\nMau diapain?"
         
+        cb_id = get_callback_id(capture_id, "manualqueue:detail:")
         reply_markup = {
             "inline_keyboard": [
                 [
-                    {"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{capture_id}"},
-                    {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{capture_id}"}
+                    {"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{cb_id}"},
+                    {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{cb_id}"}
                 ],
                 [
-                    {"text": "Tunda", "callback_data": f"manualqueue:defer:{capture_id}"},
-                    {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{capture_id}"}
+                    {"text": "Tunda", "callback_data": f"manualqueue:defer:{cb_id}"},
+                    {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{cb_id}"}
                 ]
             ]
         }

@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""
+AIRO Manual Queue Short ID Manager
+Generates and resolves short IDs for Telegram callback_data (<=64 bytes limit).
+
+Short IDs format: mq-YYYYMMDD-NNN  (max 15 chars)
+callback_data:   manualqueue:detail:mq-20260613-001  = 39 bytes ✓
+
+Usage:
+  python3 scripts/airo-manual-queue-shortid --generate <full-capture-id>
+  python3 scripts/airo-manual-queue-shortid --resolve <short-id>
+  python3 scripts/airo-manual-queue-shortid --list
+  python3 scripts/airo-manual-queue-shortid --cleanup   # remove stale entries
+
+Map stored at: state/runtime/manual-queue-short-id-map.json
+"""
+
+import sys
+import os
+import json
+import re
+from datetime import datetime
+
+REPO_DIR = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+MAP_FILE = os.path.join(REPO_DIR, "state/runtime/manual-queue-short-id-map.json")
+MAX_CALLBACK_BYTES = 64
+MAX_FULL_ID_SAFE = 44  # prefix "manualqueue:detail:" = 20 chars; 64-20=44
+
+os.makedirs(os.path.join(REPO_DIR, "state/runtime"), exist_ok=True)
+
+
+def load_map() -> dict:
+    if os.path.exists(MAP_FILE):
+        try:
+            with open(MAP_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+
+def save_map(m: dict):
+    with open(MAP_FILE, "w") as f:
+        json.dump(m, f, indent=2)
+
+
+def find_short_for_full(m: dict, full_id: str) -> str | None:
+    for short, full in m.items():
+        if full == full_id:
+            return short
+    return None
+
+
+def generate_short_id(m: dict, full_id: str) -> str:
+    """Generate or return existing short ID for full_id."""
+    # Check if already mapped
+    existing = find_short_for_full(m, full_id)
+    if existing:
+        return existing
+
+    # Extract date from full ID (YYYYMMDD)
+    date_match = re.search(r"(\d{8})", full_id)
+    if date_match:
+        date_str = date_match.group(1)
+    else:
+        date_str = datetime.now().strftime("%Y%m%d")
+
+    # Find next sequence number for this date
+    prefix = f"mq-{date_str}-"
+    existing_nums = [
+        int(k[len(prefix):]) for k in m.keys()
+        if k.startswith(prefix) and k[len(prefix):].isdigit()
+    ]
+    next_num = max(existing_nums, default=0) + 1
+    short_id = f"{prefix}{next_num:03d}"
+
+    m[short_id] = full_id
+    save_map(m)
+    return short_id
+
+
+def resolve_id(short_or_full: str) -> str:
+    """Resolve a short ID to full ID. If already full, return as-is."""
+    m = load_map()
+    if short_or_full in m:
+        return m[short_or_full]
+    # Check reverse (it's already a full ID)
+    # Also check by prefix match for robustness
+    return short_or_full
+
+
+def effective_capture_id(full_id: str, action_prefix: str = "manualqueue:detail:") -> str:
+    """Return the ID to use in callback_data, generating short if needed."""
+    candidate = action_prefix + full_id
+    if len(candidate.encode("utf-8")) <= MAX_CALLBACK_BYTES:
+        return full_id  # fits as-is
+    # Need short ID
+    m = load_map()
+    return generate_short_id(m, full_id)
+
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        sys.exit(0)
+
+    if args[0] == "--generate" and len(args) >= 2:
+        full_id = args[1]
+        m = load_map()
+        short = generate_short_id(m, full_id)
+        if short == full_id:
+            # Full ID fit as-is, no short needed
+            print(f"full_id_ok: {full_id}")
+        else:
+            print(f"short_id: {short}")
+            print(f"full_id: {full_id}")
+
+    elif args[0] == "--resolve" and len(args) >= 2:
+        result = resolve_id(args[1])
+        print(result)
+
+    elif args[0] == "--effective" and len(args) >= 3:
+        # --effective <full_id> <action_prefix>
+        full_id = args[1]
+        prefix = args[2]
+        eid = effective_capture_id(full_id, prefix)
+        print(eid)
+
+    elif args[0] == "--list":
+        m = load_map()
+        if not m:
+            print("{}")
+        else:
+            print(json.dumps(m, indent=2))
+
+    elif args[0] == "--cleanup":
+        # Remove entries whose full IDs no longer exist in queue
+        # (basic: just report stale, don't auto-delete to be safe)
+        m = load_map()
+        queue_file = os.path.join(REPO_DIR, "inbox/manual-sync-queue.md")
+        if os.path.exists(queue_file):
+            content = open(queue_file).read()
+            stale = [s for s, f in m.items() if f not in content]
+            if stale:
+                print(f"Stale short IDs: {stale}")
+            else:
+                print("No stale entries.")
+        print(json.dumps(m, indent=2))
+
+    else:
+        print(f"Unknown args: {args}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

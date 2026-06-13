@@ -33,3 +33,8 @@ state/runtime/telegram-listener-last-update
 
 # Telegram action JSON files (runtime state, processed per session)
 inbox/telegram-actions/
+
+# Gateway runtime state
+state/runtime/telegram-gateway.lock
+state/runtime/telegram-gateway-offset
+state/runtime/telegram-gateway-last-update
