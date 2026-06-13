@@ -295,3 +295,11 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: Status checker `scripts/airo-manual-queue-status` created to report status of `inbox/manual-sync-queue.md` and remote branch parity.
 - verified: Policy doc `docs/contracts/AIRO_MANUAL_SYNC_QUEUE_POLICY.md` and status note `inbox/manual-sync-queue-status-20260613.md` created.
 - next: Execute validation checks.
+
+## 2026-06-13 21:00 — Correct Product Direction: Automated Template Onboarding Canonicalized
+- verified: Canonicalized latest capture into `projects/report-automation-vba.md` and `CURRENT.md`.
+- verified: Active milestone updated to Automated Template Onboarding and Mapping Engine.
+- verified: Result VE is only the first proof case, not the product goal. Reusable product platform = NOT COMPLETE.
+- verified: The owner supplies business intent; technical discovery is automated.
+- verified: R8.11 is the frozen stable operational baseline.
+- next: Run compaction on manual sync queue.

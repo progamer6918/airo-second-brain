@@ -198,3 +198,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: created `scripts/airo-run-and-copy` command runner helper to auto-copy output to Windows clipboard.
 - feat: created `scripts/airo-manual-queue-status` to report local and remote manual sync queue status.
 - feat: created `docs/contracts/AIRO_MANUAL_SYNC_QUEUE_POLICY.md` and `inbox/manual-sync-queue-status-20260613.md`.
+
+## 2026-06-13 — Correct Product Direction Canonicalized
+- docs: canonicalized latest sync queue capture into projects/report-automation-vba.md and CURRENT.md.
+- docs: updated active milestone to Automated Template Onboarding and Mapping Engine.
+- docs: Result VE is only the first proof case, not the product goal. Reusable product platform = NOT COMPLETE.
+- docs: The owner supplies business intent; technical discovery is automated.
+- docs: R8.11 is the frozen stable operational baseline.

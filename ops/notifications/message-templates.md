@@ -1,43 +1,53 @@
-# Message Templates
+# Earesmes Telegram Message Templates
 
-These are the standard message templates used for logging or Telegram notifications.
+This document outlines the templates, buttons, and formats used for sending messages through `ops/notifications/telegram-notify.sh`.
 
-### 1. Startup Notification
+## 1. Manual Queue Action Card
+Sent when pending captures exist in `inbox/manual-sync-queue.md`.
+
+**Message:**
 ```text
-🚀 **AIRO Second Brain Runtime Started**
-Status: {{ status }}
-Sync Mode: {{ sync_mode }}
-Time: {{ timestamp }}
+🟡 Ada capture baru di Manual Sync Queue.
+
+Judul:
+Correct Product Direction: Automated Template Onboarding
+
+Intinya:
+Arah Report Automation bukan RPT003 doang.
+Target aktif harus Automated Template Onboarding and Mapping Engine.
+R8.11 tetap frozen baseline.
+Platform belum boleh disebut complete.
+
+Mau diapain?
 ```
 
-### 2. State Change / Degraded Warning
+**Inline Buttons:**
+- `[Proses ke canonical]` -> `manualqueue:canonicalize:<capture-id>`
+- `[Lihat detail]` -> `manualqueue:detail:<capture-id>`
+- `[Tunda]` -> `manualqueue:defer:<capture-id>`
+- `[Arsipkan]` -> `manualqueue:archive:<capture-id>`
+
+---
+
+## 2. Owner Review Card
+Sent when pending review items exist in `reviews/owner-review-queue-20260612.md`.
+
+**Message:**
 ```text
-⚠️ **AIRO Second Brain State Change**
-Previous State: {{ previous_state }}
-Current State: {{ current_state }}
-Reason: {{ reason }}
-Time: {{ timestamp }}
+🟡 Ada review pending.
+
+1. CC Ledger-first Production Deploy — verify first
+2. CC Ledger-first Source Patch — verify first
+3. Dashboard Audit + Patch Split Decision — defer
+4. Task 9 CC Parser Deploy — verify first
+5. AIRO Sync Operating Rule — verify first
+6. Semantic Proposal airo-finance — defer
+
+Pilih mode aman:
 ```
 
-### 3. Recovery Notification
-```text
-✅ **AIRO Second Brain Recovered**
-State restored to Healthy.
-Time: {{ timestamp }}
-```
-
-### 4. Queue Processed Notification
-```text
-📥 **Remote Queue Processed**
-Items processed: {{ item_count }}
-Results: {{ results_summary }}
-Time: {{ timestamp }}
-```
-
-### 5. Sync Pushed (Only if Real Sync Enabled)
-```text
-🔄 **State Synced**
-Commit: {{ commit_hash }}
-Message: {{ commit_message }}
-Time: {{ timestamp }}
-```
+**Inline Buttons:**
+- `[Lihat detail]` -> `ownerreview:summary`
+- `[Defer verify-first]` -> `ownerreview:defer_verify_first`
+- `[Proses aman]` -> `ownerreview:process_safe`
+- `[Tunda 12 jam]` -> `ownerreview:snooze12h`
