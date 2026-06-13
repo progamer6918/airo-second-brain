@@ -101,6 +101,18 @@ def main():
             print(f"Moved deferred capture: {deferred_file}")
             archived_links.append(f"- [DEFERRED: {c['title']}](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/{deferred_file})")
             
+        elif "obsolete" in status or "archived" in status:
+            # Archive obsolete/archived block
+            archive_dir = f"archive/manual-sync-queue/{c['date']}"
+            os.makedirs(archive_dir, exist_ok=True)
+            archive_file = f"{archive_dir}/{c['id']}.md"
+            
+            with open(archive_file, "w", encoding="utf-8") as f:
+                f.write(block_text)
+                
+            print(f"Archived obsolete/archived capture: {archive_file}")
+            archived_links.append(f"- [OBSOLETE: {c['title']}](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/{archive_file})")
+            
         else:
             # Keep pending blocks
             pending_blocks.append(block_text)

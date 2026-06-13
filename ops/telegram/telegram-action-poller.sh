@@ -94,11 +94,17 @@ for update in updates:
                 json.dump(action_data, f, indent=2)
             print(f"Staged Telegram action: {action_file}")
             
+            # Determine acknowledgement text based on action
+            ack_text = "🫡 Kliknya masuk. Aku masukin ke antrean Second Brain."
+            if action in ["manualqueue:canonicalize", "manualqueue:detail", "manualqueue:defer", "manualqueue:archive",
+                          "ownerreview:summary", "ownerreview:defer_verify_first", "ownerreview:process_safe", "ownerreview:snooze12h"]:
+                ack_text = "🫡 Diterima. Aku proses sebentar."
+                
             # Answer callback query to stop loading spinner
             answer_url = f"https://api.telegram.org/bot{token}/answerCallbackQuery"
             answer_data = urllib.parse.urlencode({
                 "callback_query_id": callback_id,
-                "text": "Aksi disimpan di antrean Second Brain."
+                "text": ack_text
             }).encode("utf-8")
             urllib.request.urlopen(urllib.request.Request(answer_url, data=answer_data, method="POST"), timeout=10)
         except Exception as e:

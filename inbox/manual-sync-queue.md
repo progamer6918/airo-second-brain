@@ -129,6 +129,7 @@ Target canonical files:
 
 ...
 
+
 ## 2026-06-11 — Report Automation VBA R6.6 Stop and R7 Platform Decision
 
 Status: pending
@@ -269,6 +270,7 @@ In the next work session, generate one complete R7 replacement module and test b
 4. Run `CC_RunReportPerType`.
 5. Check `CC_PROCESS_LOG`, `CC_ERROR_LOG`, and `PROCESS_SUMMARY_yyyymmdd.xlsx`.
 6. Only after RPT002 works, run batch.
+
 
 ## 2026-06-12 — Report Automation VBA Final Vision and R8.4 Live Registry Sync
 
@@ -654,6 +656,7 @@ Required evidence
 Do not reduce the final project objective to the current R8.4 milestone.
 
 Do not ask the owner to repeat this project definition after it has been processed into canonical files.
+
 
 ## 2026-06-12 — Report Automation VBA R8.11 Stable Baseline Candidate
 
@@ -1270,7 +1273,10 @@ Next audited expansion
 Do not ask the owner to repeat context that has already been processed into canonical project files.
 
 
+
+
 ## Archived Captures Index
 
+- [OBSOLETE: 2026-06-13 — Smoke Test](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-smoke-test.md)
 - [2026-06-13 — Report Automation VBA R8.11 Persistence PASS and Main-Device Handoff](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-report-automation-vba-r811-persistence-pass-and-main-device-handoff.md)
 - [2026-06-13 — Correct Product Direction: Automated Template Onboarding](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-correct-product-direction-automated-template-onboarding.md)

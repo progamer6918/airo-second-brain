@@ -1,64 +1,65 @@
 # AIRO Earesmes Action System End-to-End Proof — 2026-06-13
 
-Dokumen ini membuktikan bahwa sistem aksi callback Telegram Earesmes berfungsi secara *end-to-end* (E2E) dan aman digunakan untuk operasional.
+Dokumen ini membuktikan bahwa sistem aksi callback Telegram Earesmes berfungsi secara *end-to-end* (E2E) menggunakan capture riil dan aman digunakan untuk operasional.
 
 ## Status Hasil Uji
 
+* **Result:** PASS
 * **test_card_sent:** PASS
 * **owner_button_seen:** PASS
 * **owner_click_received:** PASS
 * **callback_action_stored:** PASS
 * **action_processed:** PASS
 * **readback_sent:** PASS
+* **smoke_capture_cleaned:** PASS
 * **token_not_printed:** PASS
 * **token_not_committed:** PASS
 * **AIRO Finance untouched:** PASS
 
 ---
 
-## Kronologi Pembuktian (E2E Flow Evidence)
+## Kronologi Pembuktian (Real Capture E2E Flow Evidence)
 
-1. **Pengiriman Action Card (Smoke Test):**
-   Aksi pemicuan kartu uji coba manual dilakukan secara mandiri menggunakan perintah:
+1. **Pembuatan Capture Riil Sementara:**
+   Untuk mencegah penolakan aksi oleh processor akibat target ID yang tidak terdaftar, dibuat capture sementara bernama `## 2026-06-13 — Smoke Test` di dalam berkas `inbox/manual-sync-queue.md` dengan status `pending`. capture ID yang dihasilkan secara otomatis adalah `20260613-smoke-test`.
+
+2. **Pengiriman Action Card Telegram:**
+   Aksi pemicuan kartu aksi dilakukan menggunakan perintah:
    ```bash
-   ./ops/notifications/telegram-notify.sh --type manual_queue_pending --test-card --capture-id test-earesmes-action-card
+   ./ops/notifications/telegram-notify.sh --type manual_queue_card --capture-id "20260613-smoke-test" --message "2026-06-13 — Smoke Test" --extra "Smoke test aman. Klik Lihat detail untuk membuktikan callback processor hidup."
    ```
-   Telegram API merespons sukses dan kartu muncul pada perangkat Owner dengan isi:
-   > 🧪 **Earesmes action card smoke test.**
-   > Kalau tombol ini muncul, UI Telegram hidup.
-   > Klik “Lihat detail” atau “Tunda” untuk test aman.
+   Telegram API mengonfirmasi sukses. Pada perangkat Owner muncul kartu aksi dengan data callback keyboard inline yang dinamis dan valid di bawah batas 64 byte limit Telegram.
 
-2. **Pengeklikan Tombol:**
-   Owner mengklik tombol **`[Lihat detail]`** yang memiliki data callback `manualqueue:detail:test-earesmes-action-card`.
+3. **Pengeklikan Tombol:**
+   Owner mengklik tombol **`[Lihat detail]`** pada kartu aksi Telegram.
 
-3. **Polling Callback:**
-   Script `ops/telegram/telegram-action-poller.sh` dijalankan dan menangkap callback dengan aman, lalu menyimpannya di file status:
-   `inbox/telegram-actions/2753238680193437145.json`
+4. **Polling Callback:**
+   Poller `ops/telegram/telegram-action-poller.sh` mengambil data callback dan menyimpannya di file status:
+   `inbox/telegram-actions/2753238680617965416.json`
    
-   Isi berkas callback terverifikasi:
+   Rincian JSON callback:
    ```json
    {
      "source": "telegram_callback",
      "chat_id_verified": true,
-     "callback_id": "2753238680193437145",
+     "callback_id": "2753238680617965416",
      "action": "manualqueue:detail",
-     "target_id": "test-earesmes-action-card",
-     "received_at": "2026-06-13T21:17:34.992200",
+     "target_id": "20260613-smoke-test",
+     "received_at": "2026-06-13T21:26:33.275066",
      "status": "pending"
    }
    ```
+   
+   *Catatan UX:* Poller segera mengembalikan balasan query `answerCallbackQuery` dengan teks konfirmasi instan:
+   > 🫡 Diterima. Aku proses sebentar.
 
-4. **Pemrosesan Aksi:**
-   Script `ops/telegram/telegram-action-processor.sh` dieksekusi secara asinkron. Processor membaca berkas JSON di atas, memvalidasi chat_id, dan menjalankan perintah pemroses lokal:
-   ```bash
-   python3 ./scripts/airo-manual-queue-process --capture-id test-earesmes-action-card --action detail
-   ```
-   Karena ID capture uji coba (`test-earesmes-action-card`) tidak ada di antrean nyata, sistem menolaknya secara aman dengan output log:
-   `Error: Capture ID 'test-earesmes-action-card' not found.`
+5. **Pemrosesan Aksi:**
+   Script `ops/telegram/telegram-action-processor.sh` dijalankan. Processor membaca berkas JSON di atas, memanggil utility `scripts/airo-manual-queue-process` untuk mengambil detail capture ID `20260613-smoke-test`, dan sukses merender isi detail tersebut.
+   Status JSON aksi diubah menjadi `"processed"` dan konfirmasi detail berhasil dikirimkan kembali ke Telegram Owner sebagai *readback*:
+   > 📄 **Detail untuk Capture `20260613-smoke-test`:** ... (Isi detail capture)
 
-5. **Readback Konfirmasi:**
-   Status JSON aksi diubah menjadi `"failed"` dan dikunci secara aman. Earesmes mengirim pesan konfirmasi ke Telegram Owner sebagai bukti *readback*:
-   > ❌ **Gagal mengambil detail Capture:** `test-earesmes-action-card`.
+6. **Pemadatan & Pembersihan:**
+   Setelah validasi selesai, capture sementara diubah statusnya menjadi `archived_obsolete` dan dipindahkan secara permanen ke `archive/manual-sync-queue/2026-06-13/20260613-smoke-test.md` melalui compaction script. Berkas antrean aktif `inbox/manual-sync-queue.md` kembali bersih dan rapi.
 
 ---
 
@@ -66,4 +67,4 @@ Dokumen ini membuktikan bahwa sistem aksi callback Telegram Earesmes berfungsi s
 
 - **Secrets Guard:** Kunci otentikasi (bot token & chat_id) dibaca langsung dari folder aman lokal `/home/egitaristorandas/.airo/telegram.env` dan tidak pernah dicetak di log atau di-commit ke Git.
 - **Isolasi Proyek:** Proyek AIRO Finance (`vortex-ai-skill-lab`) sama sekali tidak disentuh atau diubah.
-- **Git Hygiene:** Berkas log uji coba sementara tidak di-commit untuk menjaga kebersihan repositori. Hanya laporan pembuktian resmi ini yang disimpan secara kanonikal.
+- **Git Hygiene:** Berkas log JSON aksi uji coba dihapus dari folder kerja agar tidak menjadi sampah repositori. Hanya berkas laporan pembuktian dan arsip capture yang di-commit.
