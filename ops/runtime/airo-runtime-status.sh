@@ -70,18 +70,18 @@ AIRO_FINANCE="dirty_from_known_pre_existing_work"
 
 PENDING_DECISIONS=0
 if [ -f state/system-health.md ]; then
-  PENDING_DECISIONS=$(grep "decisions:" state/system-health.md | awk '{print $2}' | tr -d ' ')
+  PENDING_DECISIONS=$(grep "decisions:" state/system-health.md | awk '{print $2}' | tr -d '\r ')
   if [ -z "$PENDING_DECISIONS" ]; then PENDING_DECISIONS=0; fi
 fi
 
 PENDING_PROPOSALS=0
 if [ -d distill/proposals ]; then
-  PENDING_PROPOSALS=$(ls -1q distill/proposals/*.md 2>/dev/null | wc -l)
+  PENDING_PROPOSALS=$(ls -1q distill/proposals/*.md 2>/dev/null | wc -l | tr -d '\r ')
 fi
 
 OWNER_REVIEW_REQUIRED=0
 if [ -f reviews/owner-review-queue-20260612.md ]; then
-  OWNER_REVIEW_REQUIRED=$(grep -c "## Review Item" reviews/owner-review-queue-20260612.md || true)
+  OWNER_REVIEW_REQUIRED=$(grep -c "## Review Item" reviews/owner-review-queue-20260612.md | tr -d '\r ' || true)
 fi
 
 READY="healthy"
