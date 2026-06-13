@@ -24,11 +24,14 @@ if [ "$SHOW_HELP" = true ]; then
 fi
 
 # Fetch states
-SB_STATUS="unknown"
-if [ -f state/system-health.md ]; then
-  if grep -q "system_status: healthy" state/system-health.md; then SB_STATUS="healthy"; fi
-  if grep -q "system_status: degraded" state/system-health.md; then SB_STATUS="degraded"; fi
-  if grep -q "system_status: blocked" state/system-health.md; then SB_STATUS="blocked"; fi
+SB_STATUS="healthy"
+if [ -d .git ]; then
+  if [ -n "$(git status --porcelain)" ]; then
+    SB_STATUS="degraded"
+  fi
+  if git diff --name-only --diff-filter=U | grep -q .; then
+    SB_STATUS="blocked"
+  fi
 fi
 
 SCHEDULER_STATUS="unknown"

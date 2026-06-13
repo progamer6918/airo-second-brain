@@ -163,7 +163,7 @@ elif event_type == "sync_pushed":
 
 elif event_type == "runtime_degraded":
     # Same warning cooldown: 60 minutes (3600 seconds)
-    is_same = (message == state.get("last_error_msg", "") and state.get("last_status", "") in ("degraded", "blocked"))
+    is_same = (state.get("last_status", "") in ("degraded", "blocked"))
     time_elapsed = current_time - state.get("last_error_time", 0)
     if not is_same or time_elapsed >= 3600:
         should_send = True
