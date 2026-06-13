@@ -64,3 +64,21 @@ Antigravity adalah AI executor yang menerima PRD sebagai kontrak eksekusi. Stand
 - Tidak ada back-and-forth selama eksekusi
 - Kalau ada ambiguitas, PRD harus diperbaiki dulu sebelum Antigravity mulai
 - Antigravity tidak boleh membuat keputusan arsitektur yang tidak ada di PRD
+
+<!-- AIRO:DEVICE_MODES:BEGIN -->
+## Device Operating Modes
+
+### Daytime mode
+- Owner may lack main-PC terminal and local workspace access.
+- GitHub web, github.dev, or Codespaces may be used.
+- Documentation, governance, planning, review, and queue processing may proceed.
+- Do not request uploads of files already in the main workspace.
+- Do not provide local terminal commands unless explicitly requested or a cloud workspace is active.
+
+### Main-PC/night mode
+- Local workspace, workbook inspection, VBA compile/runtime tests, and local file operations are available.
+- Process relevant daytime captures before execution.
+
+### Fast-track rule
+Fast track means fewer controlled cycles, not skipped evidence: one complete audit, one mapping decision, one approved implementation package, one regression cycle, one release update. Never modify the frozen baseline directly.
+<!-- AIRO:DEVICE_MODES:END -->

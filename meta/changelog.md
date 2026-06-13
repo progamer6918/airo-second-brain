@@ -175,3 +175,8 @@ Task 9 remains open: CC live regression pending, Asset pending, Dashboard migrat
 - feat: implemented Telegram notify connection, policy rules, and throttled notifications.
 - feat: resolved sync/push loop by git-ignoring `notification-state.json` and running `airo-health --no-write` by default.
 
+<!-- AIRO:CHANGELOG_RAVBA_20260613:BEGIN -->
+## 2026-06-13 — Report Automation VBA R8.11
+
+Promoted R8.11 to frozen stable baseline, synchronized verified runtime and persistence evidence, retained RPT003 as `MAPPING_REQUIRED`, prepared its read-only audit, and documented daytime/main-PC operating modes.
+<!-- AIRO:CHANGELOG_RAVBA_20260613:END -->

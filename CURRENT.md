@@ -64,3 +64,15 @@ AIRO Second Brain is the canonical knowledge hub. Repository-specific work may l
 ## AIRO Second Brain v0.4.1 status
 - **Status:** ACCEPTED / COMPLETE.
 - **Next Step:** Normal Operation.
+
+<!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:BEGIN -->
+## Active Workstream: Report Automation VBA
+
+- Canonical project: `projects/report-automation-vba.md`.
+- Current baseline: R8.11 `FROZEN STABLE BASELINE`; reopen persistence PASS.
+- RPT001 Monitoring Dealer: PASS.
+- RPT002 Report Per Type: runtime and business-output PASS.
+- RPT003 Result VE: `MAPPING_REQUIRED`, disabled, not processed.
+- Active next milestone: RPT003 Result VE read-only mapping audit.
+- Protect R8.11; future work uses copied candidate workbook/module.
+<!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:END -->

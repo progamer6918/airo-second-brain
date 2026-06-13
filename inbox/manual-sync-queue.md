@@ -654,7 +654,14 @@ Do not reduce the final project objective to the current R8.4 milestone.
 Do not ask the owner to repeat this project definition after it has been processed into canonical files.
 ## 2026-06-12 — Report Automation VBA R8.11 Stable Baseline Candidate
 
-Status: pending
+Status: processed
+processed_on: 2026-06-13
+promoted_to:
+  - projects/report-automation-vba.md
+  - CURRENT.md
+  - state/active-context.md
+  - identity/working-principles.md
+  - docs/validation/report-automation-vba-rpt003-readonly-audit.md
 Source: owner-confirmed runtime logs and generated outputs
 Confidence: high, with one persistence verification still pending
 Related workstream: Report Automation VBA
@@ -1260,7 +1267,14 @@ Next audited expansion
 Do not ask the owner to repeat context that has already been processed into canonical project files.
 ## 2026-06-13 — Report Automation VBA R8.11 Persistence PASS and Main-Device Handoff
 
-Status: pending
+Status: processed
+processed_on: 2026-06-13
+promoted_to:
+  - projects/report-automation-vba.md
+  - CURRENT.md
+  - state/active-context.md
+  - identity/working-principles.md
+  - docs/validation/report-automation-vba-rpt003-readonly-audit.md
 Source: owner-confirmed runtime evidence
 Confidence: high
 Related workstream: Report Automation VBA

@@ -263,3 +263,13 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: AIRO Finance repository untouched.
 - next: Operational monitoring.
 
+<!-- AIRO:RAVBA_ACTIVE_20260613:BEGIN -->
+## 2026-06-13 — Report Automation VBA R8.11 Baseline Freeze
+
+- Close/reopen persistence verification passed.
+- R8.11 is the protected frozen stable baseline.
+- RPT001 and RPT002 are confirmed PASS.
+- Process Summary retains correct statuses and output paths after reopen.
+- RPT003 remains `MAPPING_REQUIRED`; read-only mapping audit is next.
+- Do not modify the frozen baseline; use a copied candidate for future development.
+<!-- AIRO:RAVBA_ACTIVE_20260613:END -->
