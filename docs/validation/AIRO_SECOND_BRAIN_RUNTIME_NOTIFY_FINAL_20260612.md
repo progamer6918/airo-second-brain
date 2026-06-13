@@ -44,3 +44,10 @@ LastRunTime         LastTaskResult NextRunTime
 - Credential file `/home/egitaristorandas/.airo/telegram.env` is configured with chmod `600`.
 - Connection test output: `TELEGRAM_TEST=PASS`
 - No-op runs run clean and do not send duplicate Telegram messages or cause git push loops.
+
+### 4. Dedupe Alert & Process Locking
+- Telegram notification has process-level file lock `/tmp/airo-second-brain-telegram-notify.lock` to prevent parallel alert races.
+- Runtime runner has lock `/tmp/airo-second-brain-runtime.lock` and exits quietly with status `already_running` if a parallel instance exists.
+- Deduplication cooldown logic uses stable event keys (`sync_failed`, `runtime_blocked`, `secret_guard_hit`, `runtime_online`, `owner_review_needed`) and strips dynamic variables like timestamp/JSON to ensure stable hashing.
+- Cooldown periods: `sync_failed` (60m), `runtime_blocked` (60m), `secret_guard_hit` (60m), `runtime_online` (360m), `owner_review_needed` (720m).
+- `runtime_recovered` clears failure cooldown states to allow immediate notifications on new future failures.

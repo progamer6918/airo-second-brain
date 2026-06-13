@@ -186,3 +186,9 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - docs: triaged all 6 owner review queue items (VERIFY_FIRST/DEFER defaults applied).
 - docs: cleared all 39 pending decisions by triaging into resolved, deferred, and archived files.
 - feat: updated readiness semantics to healthy (operational_complete).
+
+## 2026-06-13 — Telegram Deduplication & Process Lock Patch
+- bugfix: resolved duplicate sync failed alert spam by introducing stable event keys (`sync_failed`, `runtime_blocked`, `secret_guard_hit`, `runtime_online`, `owner_review_needed`) and cooldown tracking.
+- feat: implemented process-level notification file locking using `fcntl` in `telegram-notify.sh` to prevent race conditions.
+- feat: implemented runner-level lock `/tmp/airo-second-brain-runtime.lock` with quiet `already_running` status exit.
+- feat: updated sync failed and sync recovery messages to be friendly and non-technical.

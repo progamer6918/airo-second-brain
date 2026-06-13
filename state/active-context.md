@@ -280,3 +280,11 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: Triaged pending semantic proposal to proposal deferred/no-promote.
 - verified: Updated readiness semantics to healthy (ready: healthy).
 - next: Normal operation.
+
+## 2026-06-13 20:30 — Telegram Dedupe & Lock Patch Completed
+- verified: Sync failure triaged to push_rejected_remote_ahead (resolved by fast-track completion push).
+- verified: Cooldown suppression patched in `telegram-notify.sh` using stable event keys (`sync_failed`, `runtime_blocked`, `secret_guard_hit`, `runtime_online`, `owner_review_needed`) to eliminate dynamic timestamp mismatches.
+- verified: Atomic notification state locking implemented via `fcntl` lock `/tmp/airo-second-brain-telegram-notify.lock`.
+- verified: Parallel runner race condition resolved via lock file `/tmp/airo-second-brain-runtime.lock` with quiet `already_running` status exit.
+- verified: Indonesian friendly messages for failed sync and recovery successfully deployed.
+- next: Operational check.

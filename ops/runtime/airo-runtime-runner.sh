@@ -44,7 +44,7 @@ if [ "$SHOW_HELP" = true ]; then
   exit 0
 fi
 
-LOCK_FILE="locks/airo-runtime.lock"
+LOCK_FILE="/tmp/airo-second-brain-runtime.lock"
 RUNTIME_LOG="logs/runtime.log"
 
 mkdir -p locks logs
@@ -69,9 +69,9 @@ if [ -f "$LOCK_FILE" ]; then
     rm -f "$LOCK_FILE"
   else
     if [ "$JSON_MODE" = true ]; then
-      echo '{"success": false, "message": "Fresh active lock exists. Skipping run."}'
+      echo '{"status": "already_running", "success": false, "message": "Another runtime is already running."}'
     else
-      log "Fresh active lock exists. Skipping run."
+      log "Another runtime is already running. status=already_running"
     fi
     exit 0
   fi
@@ -144,7 +144,7 @@ if [ "$RUNTIME_SYNC_MODE" = "real_sync_enabled" ] && [ "$DRY_RUN" = false ]; the
   else
     log "Real sync failed or blocked (exit code $SYNC_RES)."
     if [ "$NO_NOTIFY" = false ]; then
-      ./ops/notifications/telegram-notify.sh --type runtime_degraded --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Current State: degraded"$'\n'"Reason: Real sync failed or blocked (exit code $SYNC_RES)."$'\n'"Time: $(date -Iseconds)"
+      ./ops/notifications/telegram-notify.sh --type sync_failed --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Current State: degraded"$'\n'"Reason: Real sync failed or blocked (exit code $SYNC_RES)."$'\n'"Time: $(date -Iseconds)"
     fi
   fi
 else
@@ -169,8 +169,10 @@ fi
 # Telegram policy enforcement
 if [ "$NO_NOTIFY" = false ]; then
   # Handle transitions between states
-  if [ "$SB_STATUS_AFTER" = "degraded" ] || [ "$SB_STATUS_AFTER" = "blocked" ]; then
-    ./ops/notifications/telegram-notify.sh --type runtime_degraded --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
+  if [ "$SB_STATUS_AFTER" = "degraded" ]; then
+    ./ops/notifications/telegram-notify.sh --type sync_failed --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
+  elif [ "$SB_STATUS_AFTER" = "blocked" ]; then
+    ./ops/notifications/telegram-notify.sh --type runtime_blocked --message "⚠️ **AIRO Second Brain State Change**"$'\n'"Previous State: $SB_STATUS_BEFORE"$'\n'"Current State: $SB_STATUS_AFTER"$'\n'"Time: $(date -Iseconds)"
   elif [ "$SB_STATUS_BEFORE" = "degraded" ] || [ "$SB_STATUS_BEFORE" = "blocked" ]; then
     if [ "$SB_STATUS_AFTER" = "healthy" ]; then
       ./ops/notifications/telegram-notify.sh --type runtime_recovered --message "✅ **AIRO Second Brain Recovered**"$'\n'"State restored to Healthy."$'\n'"Time: $(date -Iseconds)"

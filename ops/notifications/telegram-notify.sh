@@ -7,6 +7,15 @@ import time
 from datetime import datetime
 import urllib.request
 import urllib.parse
+import fcntl
+
+# Process locking to prevent concurrent notification spam
+lock_file_path = "/tmp/airo-second-brain-telegram-notify.lock"
+try:
+    lock_file = open(lock_file_path, "w")
+    fcntl.flock(lock_file, fcntl.LOCK_EX)
+except Exception as e:
+    sys.stderr.write(f"Warning: Notification lock failed: {e}\n")
 
 # 1. Parse arguments manually
 is_test = False
@@ -69,7 +78,8 @@ state = {
     "last_startup_time": 0,
     "last_review_time": 0,
     "last_review_count": 0,
-    "telegram_status": "log_only_unconfigured"
+    "telegram_status": "log_only_unconfigured",
+    "last_event_times": {}
 }
 
 if os.path.exists(STATE_FILE):
@@ -147,45 +157,78 @@ current_time = time.time()
 should_send = False
 custom_msg = ""
 
+# Initialize last_event_times safely
+state.setdefault("last_event_times", {})
+for k in ["sync_failed", "runtime_blocked", "secret_guard_hit", "owner_review_needed", "runtime_online"]:
+    state["last_event_times"].setdefault(k, 0.0)
+
 if event_type == "runtime_online":
     # Startup online cooldown: 6 hours (21600 seconds)
-    time_elapsed = current_time - state.get("last_startup_time", 0)
+    time_elapsed = current_time - state["last_event_times"].get("runtime_online", 0.0)
     if time_elapsed >= 21600:
         should_send = True
-        custom_msg = "🌙 **Earesmes nyala.**\n\nSecond Brain hidup, sync aman.\nAku bakal diam kalau gak ada yang penting."
-        state["last_startup_time"] = current_time
+        custom_msg = "🚀 **Earesmes nyala.**\n\nSecond Brain hidup, sync aman.\nAku bakal diam kalau gak ada yang penting."
+        state["last_event_times"]["runtime_online"] = current_time
     else:
         log_event(f"Suppressed duplicate runtime_online event (cooldown active: {int(21600 - time_elapsed)}s left)")
 
 elif event_type == "sync_pushed":
-    # Normal sync/state synced must NOT notify Telegram (silent). Log locally only.
     log_event(f"Log-only sync_pushed (normal sync silent): {message}")
 
-elif event_type == "runtime_degraded":
-    # Same warning cooldown: 60 minutes (3600 seconds)
-    is_same = (state.get("last_status", "") in ("degraded", "blocked"))
-    time_elapsed = current_time - state.get("last_error_time", 0)
-    if not is_same or time_elapsed >= 3600:
+elif event_type == "sync_failed":
+    # Cooldown: 60 minutes (3600 seconds)
+    time_elapsed = current_time - state["last_event_times"].get("sync_failed", 0.0)
+    status_changed = (state.get("last_status", "healthy") != "degraded")
+    if status_changed or time_elapsed >= 3600:
         should_send = True
+        state["last_event_times"]["sync_failed"] = current_time
+        state["last_status"] = "degraded"
         state["last_error_time"] = current_time
         state["last_error_msg"] = message
-        state["last_status"] = "degraded"
-        
-        # Check if secret guard block or standard sync failed
-        if "secret" in (message or "").lower():
-            custom_msg = "🚫 **Aku blokir sync.**\n\nAda yang kelihatan seperti secret. Token gak akan kupush."
-        else:
-            custom_msg = "⚠️ **Sync gagal.**\n\nTenang, data lokal masih aman. Aku gak maksa push.\nBesok cek internet/GitHub/auth."
+        custom_msg = "⚠️ **Sync lagi nyangkut.**\n\nData lokal aman, aku gak maksa push.\nAku bakal diam dulu biar gak spam. Nanti kabarin kalau sudah pulih."
     else:
-        log_event(f"Suppressed duplicate runtime_degraded event (cooldown active: {int(3600 - time_elapsed)}s left)")
+        log_event(f"Suppressed duplicate sync_failed event (cooldown active: {int(3600 - time_elapsed)}s left)")
+
+elif event_type == "runtime_blocked":
+    # Cooldown: 60 minutes (3600 seconds)
+    time_elapsed = current_time - state["last_event_times"].get("runtime_blocked", 0.0)
+    status_changed = (state.get("last_status", "healthy") != "blocked")
+    if status_changed or time_elapsed >= 3600:
+        should_send = True
+        state["last_event_times"]["runtime_blocked"] = current_time
+        state["last_status"] = "blocked"
+        state["last_error_time"] = current_time
+        state["last_error_msg"] = message
+        custom_msg = "🚫 **Runtime terblokir.**\n\nAda conflict atau error sistem kritis."
+    else:
+        log_event(f"Suppressed duplicate runtime_blocked event (cooldown active: {int(3600 - time_elapsed)}s left)")
+
+elif event_type == "secret_guard_hit":
+    # Cooldown: 60 minutes (3600 seconds)
+    time_elapsed = current_time - state["last_event_times"].get("secret_guard_hit", 0.0)
+    status_changed = (state.get("last_status", "healthy") != "blocked")
+    if status_changed or time_elapsed >= 3600:
+        should_send = True
+        state["last_event_times"]["secret_guard_hit"] = current_time
+        state["last_status"] = "blocked"
+        state["last_error_time"] = current_time
+        state["last_error_msg"] = message
+        custom_msg = "🚫 **Aku blokir sync.**\n\nAda yang kelihatan seperti secret. Token gak akan kupush."
+    else:
+        log_event(f"Suppressed duplicate secret_guard_hit event (cooldown active: {int(3600 - time_elapsed)}s left)")
 
 elif event_type == "runtime_recovered":
-    should_send = True
-    custom_msg = "✅ **Sudah pulih.**\n\nRuntime jalan lagi, sync aman."
-    state["last_status"] = "healthy"
+    if state.get("last_status", "healthy") != "healthy":
+        should_send = True
+        custom_msg = "✅ **Sync pulih.**\n\nBrain sudah aman lagi di GitHub.\nAku balik mode diem."
+        state["last_status"] = "healthy"
+        state["last_event_times"]["sync_failed"] = 0.0
+        state["last_event_times"]["runtime_blocked"] = 0.0
+        state["last_event_times"]["secret_guard_hit"] = 0.0
+    else:
+        log_event("Suppressed runtime_recovered (already healthy)")
 
 elif event_type == "owner_review_needed":
-    # Cooldown: 12 hours (43200 seconds) or if count changes
     review_count = 0
     review_file = "reviews/owner-review-queue-20260612.md"
     if os.path.exists(review_file):
@@ -196,11 +239,11 @@ elif event_type == "owner_review_needed":
             pass
             
     if review_count > 0:
-        time_elapsed = current_time - state.get("last_review_time", 0)
+        time_elapsed = current_time - state["last_event_times"].get("owner_review_needed", 0.0)
         if review_count != state.get("last_review_count", 0) or time_elapsed >= 43200:
             should_send = True
             custom_msg = f"🟡 **Ada {review_count} hal yang butuh keputusanmu.**\n\nGak urgent malam ini. Sudah kusimpan rapi di owner review queue."
-            state["last_review_time"] = current_time
+            state["last_event_times"]["owner_review_needed"] = current_time
             state["last_review_count"] = review_count
         else:
             log_event(f"Suppressed owner_review_needed event (count unchanged or cooldown active: {int(43200 - time_elapsed)}s left)")
@@ -208,8 +251,6 @@ elif event_type == "owner_review_needed":
         log_event("Suppressed owner_review_needed (no review items pending)")
 
 elif event_type == "remote_queue_processed":
-    # Friendly remote queue notification
-    # Find count from message or default to 1
     count = 1
     if message and "processed" in message.lower():
         try:
@@ -220,8 +261,25 @@ elif event_type == "remote_queue_processed":
     custom_msg = f"📥 **Remote queue selesai diproses.**\nAda {count} proposal baru siap ditinjau."
 
 else:
-    sys.stderr.write(f"Unknown event type: {event_type}\n")
-    sys.exit(1)
+    # Mapped compatibility for legacy calls
+    if event_type == "runtime_degraded":
+        time_elapsed = current_time - state["last_event_times"].get("sync_failed", 0.0)
+        status_changed = (state.get("last_status", "healthy") != "degraded")
+        if status_changed or time_elapsed >= 3600:
+            should_send = True
+            state["last_event_times"]["sync_failed"] = current_time
+            state["last_status"] = "degraded"
+            state["last_error_time"] = current_time
+            state["last_error_msg"] = message
+            if "secret" in (message or "").lower():
+                custom_msg = "🚫 **Aku blokir sync.**\n\nAda yang kelihatan seperti secret. Token gak akan kupush."
+            else:
+                custom_msg = "⚠️ **Sync lagi nyangkut.**\n\nData lokal aman, aku gak maksa push.\nAku bakal diam dulu biar gak spam. Nanti kabarin kalau sudah pulih."
+        else:
+            log_event("Suppressed duplicate runtime_degraded (mapped to sync_failed cooldown)")
+    else:
+        sys.stderr.write(f"Unknown event type: {event_type}\n")
+        sys.exit(1)
 
 if should_send and custom_msg:
     if is_configured:
