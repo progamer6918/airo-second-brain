@@ -205,3 +205,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - docs: Result VE is only the first proof case, not the product goal. Reusable product platform = NOT COMPLETE.
 - docs: The owner supplies business intent; technical discovery is automated.
 - docs: R8.11 is the frozen stable operational baseline.
+
+## 2026-06-13 — Telegram Gateway E2E Closeout
+- feat: implemented central long-poll Telegram Gateway (`telegram-gateway.py`) to manage bot getUpdates session.
+- feat: configured Earesmes listener (`telegram-action-listener.py`) to transparently exec gateway.
+- feat: implemented short callback ID helper (`scripts/airo-manual-queue-shortid`) and mapping to bypass Telegram's 64-byte callback limit.
+- docs: documented gateway ownership, 409 conflict, and short ID policies in contracts and startup docs.
+- test: E2E button click and detail readback validated successfully.

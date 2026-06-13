@@ -108,6 +108,13 @@ Session Closeout Template
 
 ## Next Action
 -
+## Telegram Gateway & Callback Rules
+
+1. **getUpdates Ownership**: `telegram-gateway.py` adalah pemilik tunggal sesi `getUpdates` untuk bot token AIRO. Sistem lain (termasuk EarnSAI / Hermes Agent) dilarang melakukan `getUpdates` dengan token yang sama.
+2. **EarnSAI Integration**: EarnSAI wajib menggunakan bot token terpisah, atau meroute update-nya melalui gateway dengan membaca directory IPC (`~/.config/earnsai-pulse/gateway-inbox`).
+3. **Short Callback IDs**: Batas `callback_data` Telegram maksimal adalah 64 bytes. Penggunaan short callback IDs wajib untuk manual queue capture.
+4. **No Hardcoded IDs**: Callback IDs untuk manual queue harus digenerate lewat generator short ID/parser, dilarang keras di-hardcode.
+
 ## Default Command-Output Clipboard Copy Rule
 
 Setiap perintah yang dieksekusi atas permintaan Owner wajib menangkap output-nya ke berkas `/tmp/airo_<task>_<timestamp>.txt`, diarahkan lewat `tee`, dan disalin ke clipboard Windows menggunakan `clip.exe` di WSL.
@@ -132,3 +139,4 @@ Ketentuan:
 Never Store
 
 Never store or commit tokens, API keys, OAuth credentials, Telegram bot tokens, OTP/2FA/security codes, full email bodies, raw chat transcripts, local auth files, cookie files, .env, .clasp.json, .clasprc.json, credentials*.json, or token*.json.
+

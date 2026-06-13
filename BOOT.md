@@ -62,14 +62,15 @@ Ketentuan tambahan:
 - Jika `clip.exe` tidak tersedia, cetak `CLIPBOARD_COPY=SKIPPED`.
 - Anda juga bisa menggunakan helper `/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/scripts/airo-run-and-copy <task-name> -- <commands>` untuk mengotomatiskan aturan ini.
 
-## Earesmes Live Telegram Button Listener
+## Earesmes Live Telegram Gateway
 
-Sejak v0.4.2, Earesmes memiliki persistent long-poll listener yang berjalan di background WSL.
+Sejak v0.4.2, Earesmes menggunakan persistent long-poll Telegram Gateway untuk meroute callback dan text commands.
 
-- **Live listener**: `ops/telegram/telegram-action-listener.py` — harus selalu running untuk respons instan.
-- **Windows Task**: `AIRO Earesmes Telegram Listener` — auto-start at logon via `wsl.exe`.
-- **Status check**: `bash ops/telegram/telegram-listener-status.sh`
-- **Fallback**: `telegram-action-poller.sh` dipanggil saat runtime scheduler — backup jika listener mati.
-- **Jangan matikan listener** tanpa alasan jelas. Restart via Windows Task atau jalankan manual.
-- Tombol Telegram harus responsif dalam < 5 detik selama listener aktif.
+- **Telegram Gateway**: `ops/telegram/telegram-gateway.py` — single `getUpdates` consumer untuk bot token.
+- **Windows Task**: `AIRO Earesmes Telegram Listener` — memanggil redirector `telegram-action-listener.py` yang meng-exec `telegram-gateway.py` secara otomatis saat logon.
+- **Status check**: `bash ops/telegram/telegram-gateway-status.sh`
+- **Fallback**: `telegram-action-poller.sh` dipanggil oleh runtime scheduler secara periodik.
+- **Single getUpdates Owner**: Proses lain (termasuk EarnSAI / Hermes Agent) dilarang melakukan `getUpdates` dengan token yang sama untuk menghindari 409 conflict.
+- **Short callback IDs**: Wajib (max 64 bytes) untuk manual queue capture menggunakan generator short ID.
+
 

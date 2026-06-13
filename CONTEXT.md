@@ -167,6 +167,12 @@ SECURITY.md
 Relevant project file
 
 ---
+## Telegram Gateway & Callback Rules
+
+- **getUpdates Owner**: `telegram-gateway.py` adalah pemilik tunggal sesi `getUpdates` untuk bot token AIRO. Sistem lain dilarang memanggil `getUpdates` dengan token yang sama.
+- **EarnSAI / Hermes Agent**: Wajib menggunakan bot token terpisah, atau meroute update via gateway IPC (`~/.config/earnsai-pulse/gateway-inbox`).
+- **Short Callback IDs**: Batas `callback_data` Telegram maksimal adalah 64 bytes. Penggunaan short callback IDs wajib untuk manual queue capture.
+- **No Hardcoded IDs**: Callback IDs untuk manual queue harus digenerate lewat parser/generator short ID, dilarang di-hardcode.
 
 ## Default Command-Output Clipboard Copy Rule
 
@@ -188,3 +194,4 @@ Ketentuan:
 - Jika output sangat panjang, salin ringkasan beserta info path output lengkapnya.
 - Cetak `CLIPBOARD_COPY=SKIPPED` jika `clip.exe` absen.
 - Anda dapat memanfaatkan helper `scripts/airo-run-and-copy` untuk kenyamanan eksekusi.
+

@@ -1277,29 +1277,8 @@ Do not ask the owner to repeat context that has already been processed into cano
 
 ## Archived Captures Index
 
+- [2026-06-13 — Live Button Responsiveness Smoke Test](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-live-button-responsiveness-smoke-test.md)
 - [OBSOLETE: 2026-06-13 — Smoke Test](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-smoke-test.md)
 - [2026-06-13 — Report Automation VBA R8.11 Persistence PASS and Main-Device Handoff](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-report-automation-vba-r811-persistence-pass-and-main-device-handoff.md)
 - [2026-06-13 — Correct Product Direction: Automated Template Onboarding](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/archive/manual-sync-queue/2026-06-13/20260613-correct-product-direction-automated-template-onboarding.md)
 
----
-
-## 2026-06-13 — Live Button Responsiveness Smoke Test
-
-id: 20260613-live-button-test
-status: pending
-source: owner-confirmed test
-confidence: high
-related_workstream: airo-second-brain
-canonical_targets: none (smoke test only)
-
-### Context
-
-Temporary capture to prove live Telegram button responsiveness.
-
-### Owner-confirmed facts
-
-Earesmes must acknowledge button click visibly within a few seconds.
-
-### Raw notes
-
-Do not canonicalize.

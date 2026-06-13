@@ -4,12 +4,13 @@ Earesmes Telegram interface allows the owner to take quick governance decisions 
 
 ## Security Rules
 
-1. **Owner-Only Authentication**: The callback poller and processor must verify the incoming message sender `chat_id` against `/home/egitaristorandas/.airo/telegram.env`. Callbacks from unverified chats must be ignored and logged as errors.
+1. **Owner-Only Authentication**: The callback poller/gateway and processor must verify the incoming message sender `chat_id` against `/home/egitaristorandas/.airo/telegram.env`. Callbacks from unverified chats must be ignored and logged as errors.
 2. **Secrets Protection**: Never print, log, or commit tokens, bot credentials, or chat IDs.
 3. **No Auto-Promotion**: High-risk deploy/source claims and semantic proposals must not be auto-promoted. Any promotion or canonicalization must happen via explicit owner callback approval.
 4. **Action Queue Staging**: Callback actions are staged in `inbox/telegram-actions/` as pending action files before processing.
 5. **Idempotency**: Each callback_id is processed only once. Duplicates are rejected silently.
-6. **Callback Data Limit**: `callback_data` must stay ≤ 64 bytes. Use short capture IDs.
+6. **Callback Data Limit**: `callback_data` must stay ≤ 64 bytes. Short callback IDs are mandatory because Telegram's limit is strict.
+7. **No Hardcoded IDs**: Manual queue callback IDs must be dynamically generated from parser/short ID map. Never hardcode them.
 
 ## Live Button Responsiveness (v0.4.2+)
 
@@ -22,53 +23,39 @@ Earesmes Telegram interface allows the owner to take quick governance decisions 
        ↓
 [Telegram server → long-poll]
        ↓
-[telegram-action-listener.py] (persistent, always running)
-       ↓ immediate (< 5 seconds)
-  1. answerCallbackQuery  → stops button spinner
-  2. sendMessage          → "🫡 Diterima. Aku proses sebentar."
-  3. Stage action JSON    → inbox/telegram-actions/<callback_id>.json
-  4. Run processor inline → send readback result
+[telegram-gateway.py] (Centralized Gateway, owns getUpdates)
+       ↓
+   1. answerCallbackQuery  → stops button spinner immediately
+   2. sendMessage          → "🫡 Diterima. Aku proses sebentar."
+   3. Stage action JSON    → inbox/telegram-actions/<callback_id>.json (with resolved ID)
+   4. Run processor inline → readback result
 ```
 
 ### Components
 
 | Component | Path | Role |
 |---|---|---|
-| Live listener | `ops/telegram/telegram-action-listener.py` | Persistent long-poll loop |
-| Listener wrapper | `ops/telegram/telegram-action-listener.sh` | Bash entrypoint |
-| Status checker | `ops/telegram/telegram-listener-status.sh` | Health check |
-| Stop helper | `ops/telegram/telegram-listener-stop.sh` | Safe shutdown |
-| Windows Task | `AIRO Earesmes Telegram Listener` | Auto-start at logon |
-| VBS launcher | `ops/windows/AIRO-Earesmes-Telegram-Listener.vbs` | Popup-free WSL launch |
+| Telegram Gateway | `ops/telegram/telegram-gateway.py` | Single `getUpdates` consumer & router |
+| Gateway Wrapper | `ops/telegram/telegram-gateway.sh` | Bash entrypoint |
+| Status Checker | `ops/telegram/telegram-gateway-status.sh` | Status & health check |
+| Redirector | `ops/telegram/telegram-action-listener.py` | Overwritten with transparent exec redirector to gateway |
+| Windows Task | `AIRO Earesmes Telegram Listener` | Triggers redirector/gateway at logon |
 
-### Persistence
+### Gateway Ownership & getUpdates Policy
 
-- Listener lock: `state/runtime/telegram-listener.lock`
-- Update offset: `state/runtime/telegram-update-offset`
-- Log: `logs/telegram-listener.log`
-- Windows Task Scheduler triggers listener at logon, restarts on failure.
+- **Single getUpdates Owner**: `telegram-gateway.py` is the **only** authorized consumer of `getUpdates` for the primary AIRO bot token.
+- **No Competing Consumers**: Other bots, systems, or platforms (including EarnSAI/Hermes Agent) **must not** call `getUpdates` using the same bot token. Doing so results in `409 Conflict` errors and breaks live responsiveness.
+- **EarnSAI / Hermes Agent routing**: EarnSAI/Hermes Agent must either:
+  1. Use a separate, dedicated Telegram bot token.
+  2. Or consume updates routed by the Gateway via file-based IPC folder (`~/.config/earnsai-pulse/gateway-inbox`).
+
+### Short ID Mapping (64-byte Limit)
+
+Because Telegram limits `callback_data` to 64 bytes, long manual queue capture IDs (e.g., `20260613-live-button-responsiveness-smoke-test`) cannot be directly sent in callbacks.
+- **Rule**: If `callback_data` exceeds 64 bytes, the sender must generate a short ID mapping of format `mq-YYYYMMDD-NNN` (using `scripts/airo-manual-queue-shortid`).
+- **Storage**: The mapping is saved to `state/runtime/manual-queue-short-id-map.json`.
+- **Resolution**: The Gateway resolves the short ID back to the full capture ID before staging and running the processor.
 
 ### Fallback
 
-If the live listener is not running (e.g., system restart before logon), the periodic runtime scheduler calls `telegram-action-poller.sh` as fallback. The poller also sends visible acknowledgement messages.
-
-### Owner Expectation
-
-After clicking any button:
-1. Button spinner stops (answerCallbackQuery).
-2. A visible message `🫡 Diterima. Aku proses sebentar.` appears in chat.
-3. A result readback message appears within 30–60 seconds.
-
-If only the poller is active (no live listener), acknowledgement is delayed until next runtime cycle.
-
-## Supported Telegram Actions
-
-- `manualqueue:canonicalize:<capture-id>`: Process queue item into canonical docs.
-- `manualqueue:detail:<capture-id>`: Send detailed text of the capture.
-- `manualqueue:defer:<capture-id>`: Move capture to deferred backlog.
-- `manualqueue:archive:<capture-id>`: Move capture directly to archive.
-- `ownerreview:summary`: List pending review items.
-- `ownerreview:defer_verify_first`: Move high-risk items to deferred backlog.
-- `ownerreview:process_safe`: Archive processed queue items safely.
-- `ownerreview:snooze12h`: Snooze review notifications for 12 hours.
-
+If the gateway is not running, the periodic runtime scheduler calls `telegram-action-poller.sh` as fallback. The poller also handles short ID resolution and sends visible acknowledgement messages.

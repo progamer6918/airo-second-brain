@@ -303,3 +303,12 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: The owner supplies business intent; technical discovery is automated.
 - verified: R8.11 is the frozen stable operational baseline.
 - next: Run compaction on manual sync queue.
+
+## 2026-06-13 23:10 — Telegram Gateway E2E Closeout Completed
+- verified: Telegram Gateway `telegram-gateway.py` is operational and acting as single getUpdates owner.
+- verified: Transparent exec-redirection implemented in `telegram-action-listener.py` and `.sh` wrapper to gateway.
+- verified: Windows Scheduled Task `AIRO Earesmes Telegram Listener` runs the gateway via redirector.
+- verified: Short ID translation helper `scripts/airo-manual-queue-shortid` and mapping `state/runtime/manual-queue-short-id-map.json` implemented to respect 64-byte Telegram limit.
+- verified: E2E button responsiveness test completed: owner clicked button, gateway resolved short ID to full ID, staged action, executed processor, and returned detail readback to Telegram.
+- documented: External 409 conflict exists with `hermes-gateway.service` (systemd user service) sharing same bot token.
+- next: Operational monitoring under single gateway.
