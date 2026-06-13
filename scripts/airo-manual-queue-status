@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+import hashlib
+
+def get_git_file_content(ref, filepath):
+    try:
+        res = subprocess.run(
+            ["git", "show", f"{ref}:{filepath}"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return res.stdout
+    except Exception:
+        return None
+
+def get_latest_commit_touching(filepath):
+    try:
+        res = subprocess.run(
+            ["git", "log", "-n", "1", "--oneline", "--", filepath],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return res.stdout.strip()
+    except Exception:
+        return "none"
+
+def main():
+    filepath = "inbox/manual-sync-queue.md"
+    local_exists = os.path.exists(filepath)
+    
+    local_content = ""
+    if local_exists:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            local_content = f.read()
+            
+    has_pending = False
+    if local_exists:
+        blocks = local_content.split("\n## ")
+        for block in blocks:
+            if "status: pending" in block.lower() and "capture block template" not in block.lower():
+                has_pending = True
+                break
+                
+    remote_content = get_git_file_content("origin/main", filepath)
+    remote_exists = remote_content is not None
+    
+    same_content = False
+    if local_exists and remote_exists:
+        local_hash = hashlib.sha256(local_content.encode("utf-8")).hexdigest()
+        remote_hash = hashlib.sha256(remote_content.encode("utf-8")).hexdigest()
+        same_content = (local_hash == remote_hash)
+        
+    latest_commit = get_latest_commit_touching(filepath)
+    
+    queue_status = "unknown"
+    if local_exists:
+        queue_status = "pending" if has_pending else "processed"
+        
+    canonical_status = "false"
+    if "canonical: true" in local_content:
+         canonical_status = "true"
+         
+    processed_outputs = "no"
+    
+    next_action = "owner can request process into projects/report-automation-vba.md + CURRENT.md"
+    if not has_pending:
+        next_action = "none (all manual queue items are processed)"
+        
+    print(f"manual_queue_file_exists: {'yes' if local_exists else 'no'}")
+    print(f"local_has_pending_captures: {'yes' if has_pending else 'no'}")
+    print(f"remote_has_file: {'yes' if remote_exists else 'no'}")
+    print(f"remote_has_same_content: {'yes' if same_content else 'no'}")
+    print(f"latest_commit_touching_manual_queue: {latest_commit}")
+    print(f"manual_queue_status: {queue_status}")
+    print(f"canonical_status: {canonical_status}")
+    print(f"processed_outputs_found: {processed_outputs}")
+    print(f"recommended_next_action: {next_action}")
+
+if __name__ == "__main__":
+    main()

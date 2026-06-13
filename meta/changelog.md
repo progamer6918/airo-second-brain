@@ -192,3 +192,9 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: implemented process-level notification file locking using `fcntl` in `telegram-notify.sh` to prevent race conditions.
 - feat: implemented runner-level lock `/tmp/airo-second-brain-runtime.lock` with quiet `already_running` status exit.
 - feat: updated sync failed and sync recovery messages to be friendly and non-technical.
+
+## 2026-06-13 — AIRO Sync Operator UX Patch
+- feat: documented default command-output clipboard copy rules in BOOT.md, AGENTS.md, CONTEXT.md, and script contracts.
+- feat: created `scripts/airo-run-and-copy` command runner helper to auto-copy output to Windows clipboard.
+- feat: created `scripts/airo-manual-queue-status` to report local and remote manual sync queue status.
+- feat: created `docs/contracts/AIRO_MANUAL_SYNC_QUEUE_POLICY.md` and `inbox/manual-sync-queue-status-20260613.md`.

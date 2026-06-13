@@ -108,6 +108,27 @@ Session Closeout Template
 
 ## Next Action
 -
+## Default Command-Output Clipboard Copy Rule
+
+Setiap perintah yang dieksekusi atas permintaan Owner wajib menangkap output-nya ke berkas `/tmp/airo_<task>_<timestamp>.txt`, diarahkan lewat `tee`, dan disalin ke clipboard Windows menggunakan `clip.exe` di WSL.
+
+Default pattern:
+```bash
+OUT="/tmp/airo_<task>_$(date +%Y%m%d_%H%M%S).txt"
+{
+  cd /home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+  # <commands>
+} 2>&1 | tee "$OUT"
+cat "$OUT" | clip.exe
+echo "COPIED_TO_CLIPBOARD=$OUT"
+```
+
+Ketentuan:
+- Dilarang menyalin jika output mengandung kunci rahasia (secrets).
+- Jika output sangat panjang, salin ringkasan beserta info path output lengkapnya.
+- Cetak `CLIPBOARD_COPY=SKIPPED` jika `clip.exe` absen.
+- Anda dapat memanfaatkan helper `scripts/airo-run-and-copy` untuk kenyamanan eksekusi.
+
 Never Store
 
 Never store or commit tokens, API keys, OAuth credentials, Telegram bot tokens, OTP/2FA/security codes, full email bodies, raw chat transcripts, local auth files, cookie files, .env, .clasp.json, .clasprc.json, credentials*.json, or token*.json.

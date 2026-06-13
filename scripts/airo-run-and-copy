@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+import time
+import re
+from datetime import datetime
+
+def check_for_secrets(content):
+    # Check for obvious secrets
+    if re.search(r"ghp_[a-zA-Z0-9]{20,}", content):
+        return True
+    if re.search(r"github_pat_[a-zA-Z0-9]{20,}", content):
+        return True
+    if re.search(r"AIza[0-9A-Za-z-_]{30,}", content):
+        return True
+    if re.search(r"AKIA[0-9A-Z]{12,}", content):
+        return True
+    if "-----BEGIN" in content and "PRIVATE KEY" in content:
+        return True
+    if re.search(r"(api_key|api_secret|client_secret|bot_token|refresh_token)\s*[:=]\s*['\"]?[a-zA-Z0-9-_]{10,}['\"]?", content, re.IGNORECASE):
+        return True
+    return False
+
+def main():
+    if len(sys.argv) < 4 or "--" not in sys.argv:
+        print("Usage: airo-run-and-copy <task-name> -- <command...>", file=sys.stderr)
+        sys.exit(2)
+        
+    task_name = sys.argv[1]
+    double_dash_index = sys.argv.index("--")
+    command_args = sys.argv[double_dash_index + 1:]
+    
+    if not command_args:
+        print("Error: No command specified after '--'", file=sys.stderr)
+        sys.exit(2)
+        
+    # Reconstruct command
+    if len(command_args) == 1:
+        command_to_run = command_args[0]
+    else:
+        command_to_run = " ".join(command_args)
+        
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_file = f"/tmp/airo_{task_name}_{timestamp}.txt"
+    
+    print(f"Running task: {task_name}")
+    print(f"Command: {command_to_run}")
+    print(f"Output file: {out_file}\n")
+    
+    exit_code = 0
+    captured_lines = []
+    
+    try:
+        proc = subprocess.Popen(
+            ["/usr/bin/env", "bash", "-c", command_to_run],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+        
+        with open(out_file, "w", encoding="utf-8") as f:
+            for line in proc.stdout:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+                f.write(line)
+                captured_lines.append(line)
+                
+        proc.wait()
+        exit_code = proc.returncode
+    except Exception as e:
+        sys.stderr.write(f"Error executing command: {e}\n")
+        exit_code = 2
+        
+    full_output = "".join(captured_lines)
+    
+    copied = False
+    if check_for_secrets(full_output):
+        print("\n[CLIPBOARD] Secret detected in output. Clipboard copy blocked for safety.", file=sys.stderr)
+    else:
+        clip_exe = "clip.exe"
+        clip_in_path = False
+        try:
+            subprocess.run(["which", "clip.exe"], capture_output=True, check=True)
+            clip_in_path = True
+        except Exception:
+            pass
+            
+        if not clip_in_path:
+            potential_paths = [
+                "/mnt/c/Windows/System32/clip.exe",
+                "/mnt/c/Windows/clip.exe"
+            ]
+            for p in potential_paths:
+                if os.path.exists(p):
+                    clip_exe = p
+                    clip_in_path = True
+                    break
+                    
+        if clip_in_path:
+            try:
+                proc_clip = subprocess.Popen(
+                    [clip_exe],
+                    stdin=subprocess.PIPE,
+                    text=True
+                )
+                proc_clip.communicate(input=full_output)
+                if proc_clip.returncode == 0:
+                    print(f"\nCOPIED_TO_CLIPBOARD={out_file}")
+                    copied = True
+                else:
+                    print("\nCLIPBOARD_COPY=FAILED", file=sys.stderr)
+            except Exception as e:
+                sys.stderr.write(f"\nError copying to clipboard: {e}\n")
+                print("CLIPBOARD_COPY=FAILED", file=sys.stderr)
+        else:
+            print("\nCLIPBOARD_COPY=SKIPPED")
+            
+    sys.exit(exit_code)
+
+if __name__ == "__main__":
+    main()

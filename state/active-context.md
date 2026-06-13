@@ -288,3 +288,10 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: Parallel runner race condition resolved via lock file `/tmp/airo-second-brain-runtime.lock` with quiet `already_running` status exit.
 - verified: Indonesian friendly messages for failed sync and recovery successfully deployed.
 - next: Operational check.
+
+## 2026-06-13 20:45 — AIRO Sync Operator UX Patch Completed
+- verified: Default command-output clipboard copy rule documented across BOOT.md, AGENTS.md, CONTEXT.md, and script contracts.
+- verified: Helper script `scripts/airo-run-and-copy` successfully created, configured with executable permissions, and validated.
+- verified: Status checker `scripts/airo-manual-queue-status` created to report status of `inbox/manual-sync-queue.md` and remote branch parity.
+- verified: Policy doc `docs/contracts/AIRO_MANUAL_SYNC_QUEUE_POLICY.md` and status note `inbox/manual-sync-queue-status-20260613.md` created.
+- next: Execute validation checks.

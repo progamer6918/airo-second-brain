@@ -184,3 +184,35 @@ Setiap script di bawah folder `scripts/` wajib memenuhi ketentuan berikut:
   ```bash
   scripts/airo-health --json
   ```
+
+---
+
+## 10. `scripts/airo-run-and-copy`
+* **Purpose:** Menjalankan perintah (commands) di terminal, merekam output-nya ke folder `/tmp`, dan menyalin output yang aman secara otomatis ke Windows clipboard via `clip.exe` di WSL.
+* **Allowed writes:**
+  * `/tmp/airo_<task-name>_<timestamp>.txt`
+* **Forbidden writes:**
+  * Mengubah repository git secara langsung selain efek dari command yang di-run.
+* **Required arguments:** `scripts/airo-run-and-copy <task-name> -- <command...>`
+* **Expected output:** File output disimpan di `/tmp`, dicetak di console (tee), dan data disalin ke clipboard. Cetak `COPIED_TO_CLIPBOARD=<path>` atau `CLIPBOARD_COPY=SKIPPED`.
+* **Exit codes:** Mengikuti exit code asli dari command yang dijalankan, atau `2` jika kegagalan argumen.
+* **Validation:**
+  ```bash
+  scripts/airo-run-and-copy test_echo -- echo "hello"
+  ```
+
+---
+
+## 11. `scripts/airo-manual-queue-status`
+* **Purpose:** Memeriksa status inbox/manual-sync-queue.md secara lokal dan membandingkannya dengan origin/main.
+* **Allowed writes:**
+  * Hanya mencetak laporan status ke stdout (read-only).
+* **Forbidden writes:**
+  * Mengubah file markdown atau repositori.
+* **Required flags:** `--help`
+* **Expected output:** Output YAML/JSON status dari manual queue (keberadaan file, pending captures, parity dengan remote branch, dll).
+* **Exit codes:** `0` (Success), `2` (Fatal error)
+* **Validation:**
+  ```bash
+  scripts/airo-manual-queue-status
+  ```
