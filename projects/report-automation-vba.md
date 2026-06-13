@@ -218,3 +218,78 @@ At the end of meaningful work on this project, produce a session closeout contai
 - next safest step
 - files or modules touched
 - evidence from logs, compile results, generated outputs, or owner confirmation
+
+<!-- AIRO:RAVBA_R811:BEGIN -->
+## Final Platform Vision
+
+Build a reusable, scalable, safe, auditable, and operator-friendly Excel/VBA Command Center platform for recurring report automation across multiple raw-data sources, templates, report families, operators, and eventually departments. Honda Report Automation is the first pilot, not the final scope.
+
+## Permanent Product Criteria
+
+- Daily operation is button-first from `MULAI DI SINI`; normal operators do not use Alt+F8.
+- `CC_SOURCE_REGISTRY` and `CC_REPORT_REGISTRY` are the configuration sources of truth.
+- Langkah 3 and Langkah 4 remain dynamic.
+- Preserve the original UI, buttons, merged layout, and `MULAI DI SINI!B2`.
+- Never modify original templates; process copied working files under `04_Working_Output`.
+- Preserve formulas, pivots, helper areas, layout, connections, and report-specific date logic.
+- Unknown templates follow `scan -> audit -> classify -> map -> approve -> activate`.
+- Allowed classifications: `AUTO_READY`, `MAPPING_REQUIRED`, `BLOCKED`.
+- Do not create speculative mappings.
+- PASS, DONE, STABLE, compile success, and runtime success require evidence.
+- Prefer one complete implementation package and preserve frozen baselines.
+
+## Target Architecture
+
+1. Operator layer: `MULAI DI SINI` and its daily buttons.
+2. Configuration layer: source/report registries and dependency rules.
+3. Audit/onboarding layer: headers, formulas, connections, external dependencies, family fit, mapping, approval.
+4. Execution layer: resolver, sanitizer, staging import, adaptive writes, pivots, helpers, date logic, output generation.
+5. Evidence layer: process/error logs, matched paths, runtime status, output paths, timestamps, Process Summary.
+6. Governance layer: versioning, frozen baseline, rollback, approval gates, regression evidence, release notes.
+
+## Roadmap
+
+### Track 1 — Core Report Engine
+- RPT001 Monitoring Dealer: complete and PASS.
+- RPT002 Report Per Type: complete and business-output PASS.
+- `SALES_5PIVOT`: working reusable family baseline.
+- Additional report families: not started.
+
+### Track 2 — Dynamic Platform
+- Dynamic source/report registries: complete.
+- BBN live sync and button-first UI: complete.
+- Runtime status/output persistence and Process Summary truth: complete.
+
+### Track 3 — Audit and Onboarding
+- RPT003 Result VE read-only mapping audit: active next milestone.
+- Guided onboarding, template health center, and automated family-fit assessment: not started.
+
+### Track 4 — Governance and Scale
+- R8.11 frozen stable baseline and reopen persistence: complete.
+- Rollback/release package: partially complete.
+- Cross-department reuse: future milestone.
+
+## Frozen Stable Baseline
+
+- Version: R8.11.
+- Module: `modHondaCommandCenter_R8_11_RUNTIME_EVIDENCE_PERSISTENCE.bas`.
+- Status: `FROZEN STABLE BASELINE`.
+- Close/reopen persistence: PASS.
+- Confirmed outputs: `MONITORING_DEALER_20260611.xlsx`, `REPORT_PER_TYPE_20260611.xlsx`, `PROCESS_SUMMARY_20260611_01.xlsx`.
+
+Confirmed PASS includes dynamic registries, BBN sync, original UI preservation, six main buttons and three toggles, button-first workflow, HTML-XLS sanitizer, adaptive import recovery, RPT001, RPT002, formula-safe Stock MD helper, visible report date, RPT003 safety block, Process Summary, runtime recovery, output-path recovery, and persistence after reopen.
+
+## Import Root Cause and Countermeasure
+
+Some `.xls` source exports are HTML disguised as Excel and contain formula-like numeric artifacts such as `=32.600.000`. The sanitizer normalizes these values in working memory without changing the original source file. Verified normalization counts: Sales 44 cells; SSU 302 cells.
+
+## Known Technical Debt
+
+- Excel may temporarily raise `Out of memory`; adaptive splitting currently recovers.
+- RPT002 has 3,382 legacy `#REF!` formulas in technical areas outside active range `A1:Q73`; this is not resolved.
+- RPT003 remains `MAPPING_REQUIRED`.
+
+## Current Next Step
+
+Perform the RPT003 Result VE read-only mapping audit. This is an audit milestone, not activation or execution. Do not activate, run, modify, or save `Result VE.xlsm` during the audit. Final classification must be `AUTO_READY`, `MAPPING_REQUIRED` with complete gaps, or `BLOCKED` with explicit reasons.
+<!-- AIRO:RAVBA_R811:END -->
