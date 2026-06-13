@@ -27,23 +27,25 @@ def get_captures():
     current_capture = None
     
     for idx, line in enumerate(lines, 1):
-        if line.startswith("## ") and re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+        if line.startswith("## "):
             if current_capture:
                 captures.append(current_capture)
+                current_capture = None
             
-            title = line[3:].strip()
-            capture_id = title_to_id(title)
-            current_capture = {
-                "id": capture_id,
-                "title": title,
-                "line_start": idx,
-                "status": "pending",
-                "source": "unknown",
-                "confidence": "unknown",
-                "related_workstream": "unknown",
-                "canonical": False,
-                "raw_content": [line]
-            }
+            if re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+                title = line[3:].strip()
+                capture_id = title_to_id(title)
+                current_capture = {
+                    "id": capture_id,
+                    "title": title,
+                    "line_start": idx,
+                    "status": "pending",
+                    "source": "unknown",
+                    "confidence": "unknown",
+                    "related_workstream": "unknown",
+                    "canonical": False,
+                    "raw_content": [line]
+                }
         elif current_capture:
             current_capture["raw_content"].append(line)
             lower_line = line.lower().strip()
@@ -57,6 +59,7 @@ def get_captures():
         captures.append(current_capture)
         
     return captures
+
 
 def update_capture_status(capture_id, new_status, is_canonical=False):
     filepath = "inbox/manual-sync-queue.md"
@@ -91,6 +94,24 @@ def update_capture_status(capture_id, new_status, is_canonical=False):
         f.write(new_content)
     return True
 
+def find_archive_file(capture_id):
+    # Guess path based on ID: YYYYMMDD-xxxx -> YYYY-MM-DD
+    match = re.match(r"^(\d{4})(\d{2})(\d{2})-", capture_id)
+    if match:
+        date_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+        guess_path = f"archive/manual-sync-queue/{date_str}/{capture_id}.md"
+        if os.path.exists(guess_path):
+            return guess_path
+            
+    # Fallback: glob search in archive/manual-sync-queue/
+    import glob
+    search_pattern = f"archive/manual-sync-queue/*/{capture_id}.md"
+    matches = glob.glob(search_pattern)
+    if matches:
+        return matches[0]
+        
+    return None
+
 def main():
     parser = argparse.ArgumentParser(description="Process manual sync queue captures.")
     parser.add_argument("--capture-id", required=True, help="Capture ID to process")
@@ -105,8 +126,14 @@ def main():
             break
             
     if not target:
+        if args.action == "archive-obsolete":
+            archive_file = find_archive_file(args.capture_id)
+            if archive_file:
+                print(f"Capture ID '{args.capture_id}' already archived in '{archive_file}'.")
+                sys.exit(0)
         print(f"Error: Capture ID '{args.capture_id}' not found.", file=sys.stderr)
         sys.exit(2)
+
         
     if args.action == "detail":
         print("".join(target["raw_content"]))

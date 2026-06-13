@@ -462,7 +462,11 @@ for fname in action_files:
         if res.returncode == 0:
             subprocess.run(["python3", "./scripts/airo-manual-queue-compact"])
             success = True
-            msg_to_send = f"📥 *Capture `{target_id}` diarsipkan sebagai obsolete.*"
+            proc_stdout = res.stdout.strip()
+            if "already archived" in proc_stdout.lower():
+                msg_to_send = f"📥 *Capture `{target_id}` sudah diarsipkan sebelumnya (already archived).* "
+            else:
+                msg_to_send = f"📥 *Capture `{target_id}` diarsipkan sebagai obsolete.*"
         else:
             msg_to_send = f"❌ *Gagal mengarsipkan Capture:* `{target_id}`.\nDetail: {res.stderr.strip()}"
             
