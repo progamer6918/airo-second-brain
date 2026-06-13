@@ -25,3 +25,8 @@ logs/health.local.log
 state/runtime-health.local.json
 logs/preflight.local.log
 ops/notifications/notification-state.json
+
+# Earesmes listener runtime state (changes every run)
+state/runtime/telegram-listener.lock
+state/runtime/telegram-update-offset
+state/runtime/telegram-listener-last-update

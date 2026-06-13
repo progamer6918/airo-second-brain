@@ -14,8 +14,10 @@ import signal
 import fcntl
 import urllib.request
 import urllib.parse
+import urllib.error
 import subprocess
 from datetime import datetime
+
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 REPO_DIR        = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
@@ -28,22 +30,25 @@ LASTUPDATE_FILE = os.path.join(STATE_RUNTIME, "telegram-listener-last-update")
 LOG_FILE        = os.path.join(REPO_DIR, "logs/telegram-listener.log")
 
 LONG_POLL_TIMEOUT = 25    # seconds per getUpdates long-poll request
+CONFLICT_409_BACKOFF_BASE = 30   # seconds to wait on 409 before retry
+CONFLICT_409_MAX_BACKOFF = 300   # max backoff 5 minutes
 
 os.makedirs(STATE_RUNTIME, exist_ok=True)
 os.makedirs(ACTIONS_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 
-# ─── Logging ──────────────────────────────────────────────────────────────────
+# ─── Logging (file only — no stdout to prevent double-logging when nohup'd) ───
 def log(msg: str):
     ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     line = f"[{ts}] {msg}"
-    print(line, flush=True)
     try:
         with open(LOG_FILE, "a") as f:
             f.write(line + "\n")
     except Exception:
         pass
+    # Also print to stderr for real-time debugging when run interactively
+    print(line, file=sys.stderr, flush=True)
 
 
 # ─── Credentials — never printed ──────────────────────────────────────────────
@@ -84,6 +89,11 @@ def tg_post(token: str, method: str, params: dict, timeout: int = 10) -> dict:
         return {"ok": False}
 
 
+class ConflictError(Exception):
+    """Raised when Telegram returns 409 Conflict (another long-poll session active)"""
+    pass
+
+
 def tg_get_updates(token: str, offset: int, poll_timeout: int) -> list:
     url = (
         f"https://api.telegram.org/bot{token}/getUpdates"
@@ -95,6 +105,10 @@ def tg_get_updates(token: str, offset: int, poll_timeout: int) -> list:
             data = json.loads(resp.read().decode("utf-8"))
             if data.get("ok"):
                 return data.get("result", [])
+    except urllib.error.HTTPError as e:
+        if e.code == 409:
+            raise ConflictError("409 Conflict: another getUpdates session is active")
+        log(f"getUpdates HTTP error {e.code}: {e}")
     except Exception as e:
         log(f"getUpdates error: {e}")
     return []
@@ -245,9 +259,7 @@ def handle_callback(token: str, chat_id: str, update: dict):
     # 2. Send visible acknowledgement message to owner
     send_message(
         token, chat_id,
-        "🫡 *Diterima\\. Aku proses sebentar\\.*\n\n"
-        f"Aksi: `{action}`\n"
-        f"Target: `{target_id}`"
+        f"🫡 *Diterima. Aku proses sebentar.*\n\nAksi: {action}\nTarget: {target_id}"
     )
 
     # 3. Stage action JSON
@@ -289,6 +301,8 @@ def main():
     log(f"Starting from update offset={offset}")
 
     consecutive_errors = 0
+    conflict_backoff = CONFLICT_409_BACKOFF_BASE
+    conflict_notified = False
     max_errors = 10
 
     try:
@@ -296,6 +310,29 @@ def main():
             try:
                 updates = tg_get_updates(token, offset, LONG_POLL_TIMEOUT)
                 consecutive_errors = 0
+                # Reset conflict state on success
+                if conflict_backoff > CONFLICT_409_BACKOFF_BASE:
+                    conflict_backoff = CONFLICT_409_BACKOFF_BASE
+                    conflict_notified = False
+                    log("Conflict resolved. Listener active again.")
+                    send_message(token, chat_id, "✅ Earesmes listener aktif kembali. Tombol Telegram responsif.")
+
+            except ConflictError:
+                log(f"409 Conflict: another getUpdates active. Backing off {conflict_backoff}s.")
+                if not conflict_notified:
+                    send_message(
+                        token, chat_id,
+                        f"⚠️ *Earesmes listener conflict.*\n\n"
+                        f"Ada proses lain yang menggunakan bot token yang sama untuk getUpdates. "
+                        f"Tombol Telegram tidak akan responsif live selama konflik ini.\n\n"
+                        f"Kemungkinan penyebab: EarnSAI paper control bot (pid 657) aktif.\n"
+                        f"Retry dalam {conflict_backoff}s."
+                    )
+                    conflict_notified = True
+                time.sleep(conflict_backoff)
+                conflict_backoff = min(conflict_backoff * 2, CONFLICT_409_MAX_BACKOFF)
+                continue
+
             except Exception as e:
                 consecutive_errors += 1
                 log(f"getUpdates exception ({consecutive_errors}/{max_errors}): {e}")
