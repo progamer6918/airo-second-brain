@@ -93,3 +93,11 @@ Result VE is accepted. RC3R validation passed and RC3S accepted freeze was creat
 - Smoke: CC_CheckInputs OK, CC_RunSelectedReports OK, RPT001/RPT002/RPT003 OK.
 - Acceptance: report/source admin edits survive rebuild/check.
 - Next: RC4C self-service onboarding UX/form/workflow.
+
+## 2026-06-14 - RC4C Onboarding UX Product Ready
+- RC4C onboarding UX accepted and frozen.
+- ZIP: AIRO_RC4C_ONBOARDING_UX_PRODUCT_READY_20260614_172838.zip
+- ZIP SHA256: 11B18677804CC30410514EF61FA2A8FE62B818A62701F3DFED93C6DC1422636F
+- Clean smoke: PASS. CC_AdminPeriksaSemua OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
+- New UX: CC_ONBOARDING sheet, admin onboarding button, add/update report, add/update source, clear form.
+- Existing reports remain OK: RPT001, RPT002, RPT003.
