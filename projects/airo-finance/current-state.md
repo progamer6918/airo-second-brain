@@ -92,3 +92,11 @@ Do not proceed to Asset/Dashboard until CC live regression/readback is resolved.
 - Asset status: pending.
 - Dashboard migration status: pending.
 - Task 9 can close out now: false.
+
+
+## 2026-06-14 18:15:00 +0700 — Task 9 CC Numbered Settlement Workflow PRD Amendment
+- Status: PRD amended. CC purchase remains domain-only, payment ledger-first.
+- New specifications added for `cek tagihan pending cc` and `cc sudah <nomor>` list-index workflow.
+- Map TTL, ledger-first enforcement, cycle header auto-refresh, and manual override audit flag documented.
+- Source patch/deploy/workbook modifications: none.
+- WebApp 403 status: pending manual deploy by owner.

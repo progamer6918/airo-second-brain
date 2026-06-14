@@ -322,3 +322,11 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - verified: E2E smoke test validation completed via mock action files, and transient action JSON cleared.
 - next: Operational monitoring.
 
+
+
+## 2026-06-14 18:15:00 +0700 — CC Numbered Settlement Workflow PRD Amendment
+- verified: PRD amended for CC pending list and numbered settlement.
+- verified: CC purchase remains domain-only; CC payment is ledger-first.
+- verified: list index command `cc sudah <nomor>` mapping and TTL documented.
+- verified: manual spreadsheet edits to 'Sudah' without ledger link will be flagged as warning.
+- next: Owner to resolve WebApp 403 access before live testing.

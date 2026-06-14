@@ -221,3 +221,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: implemented back navigation (`manualqueue:back`) to re-deliver the compact sync queue summary card.
 - docs: updated contracts/AIRO_TELEGRAM_ACTIONS_POLICY.md and validation reports.
 
+
+
+## 2026-06-14 — CC Numbered Settlement Workflow PRD Amendment
+- docs: amended living PRD with specifications for list-index CC settlement (`cek tagihan pending cc` and `cc sudah <nomor>`).
+- docs: created record `task9_cc_sudah_number_workflow_prd_amendment_20260614.md`.
+- docs: updated Second Brain active context and current state files.
+- docs: preserved CC purchase domain-only and ledger-first payment alignment.
