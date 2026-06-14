@@ -342,3 +342,12 @@ Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup,
 - Clean smoke: PASS. CC_AdminPeriksaSemua OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
 - New UX: CC_ONBOARDING sheet, admin onboarding button, add/update report, add/update source, clear form.
 - Existing reports remain OK: RPT001, RPT002, RPT003.
+
+## 2026-06-14 - RC4D BBN Real Onboarding Accepted
+- RC4D accepted and frozen.
+- ZIP: AIRO_RC4D_BBN_REAL_ONBOARDING_ACCEPTED_20260614_181836.zip
+- ZIP SHA256: 4FDE8A17ECB07C451FF22AD34D321B6B25835AE361611E3061C7564D0204A08C
+- BBN updated via CC_ONBOARDING as optional source.
+- BBN Required=FALSE, UsedByReports=RPT001,RPT002, Status=TIDAK ADA - OPSIONAL.
+- CC_OnboardAddSource OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
+- Existing reports remain OK: RPT001, RPT002, RPT003.
