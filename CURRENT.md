@@ -127,3 +127,12 @@ Result VE is accepted. RC3R validation passed and RC3S accepted freeze was creat
 - Latest workbook SHA256: B13C581F1CA9B37EB6E5F92144028F818490026E07A89A85C88625FCE8B2058A
 - Product state: RC3S runtime ready, RC4B no-reseed, RC4C onboarding UX, RC4D BBN real onboarding, RC4E no-go guardrail.
 - Operating mode after handover: stop patching; use SOP and intake form for future new reports.
+
+## 2026-06-14 - Dummy Onboarding QA PASS
+
+Dummy onboarding QA passed. RPT099 inserted via CC_OnboardAddReport, SRC099 inserted via CC_OnboardAddSource, CC_CheckInputs preserved both rows.
+
+Location rule: QA workbook must be placed in 00_Command_Center or another CCP_ProjectRoot-compatible location. Nested 98_QA_SANDBOX workbook location fails root resolution and is not valid for root-dependent macro QA.
+
+Guardrail: RPT099/SRC099 are QA only. Do not treat dummy report as production report. Do not claim arbitrary new report engine product-readiness from dummy test.
+

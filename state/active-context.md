@@ -387,3 +387,12 @@ Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup,
 - verified: Direct WebApp test PASS (item_count=2, total_amount=81000, write_performed=false).
 - verified: Owner Telegram live test PASS for command `cek tagihan pending cc` (listed 2 pending items and total Rp81.000).
 - next: Implement `cc sudah <nomor>` ledger-first workflow.
+
+## 2026-06-14 - Dummy Onboarding QA PASS
+
+Dummy onboarding QA passed. RPT099 inserted via CC_OnboardAddReport, SRC099 inserted via CC_OnboardAddSource, CC_CheckInputs preserved both rows.
+
+Location rule: QA workbook must be placed in 00_Command_Center or another CCP_ProjectRoot-compatible location. Nested 98_QA_SANDBOX workbook location fails root resolution and is not valid for root-dependent macro QA.
+
+Guardrail: RPT099/SRC099 are QA only. Do not treat dummy report as production report. Do not claim arbitrary new report engine product-readiness from dummy test.
+
