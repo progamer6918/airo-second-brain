@@ -375,3 +375,15 @@ Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup,
 - verified: list index command `cc sudah <nomor>` mapping and TTL documented.
 - verified: manual spreadsheet edits to 'Sudah' without ledger link will be flagged as warning.
 - next: Owner to resolve WebApp 403 access before live testing.
+
+## 2026-06-14 20:00:00 +0700 — Task 9 CC Pending Pocket Command Milestone Done
+- verified: `cek tagihan pending cc` read-only command implemented, verified, deployed to version `@297`, and pushed (commit `c1adece`).
+- verified: Prior API access repair was deployed at `@296`.
+- verified: WebApp 403 access was resolved after owner OAuth allow.
+- verified: WebApp healthcheck PASS (HTTP_CODE=200, WEBAPP_RUNTIME_ROUTE_GUARD=PASS).
+- verified: Telegram architecture uses local long-poll gateway with webhook empty.
+- verified: Gateway restored and singleton running via tmux session `airo-telegram-gateway`.
+- verified: `hermes-gateway.service` was stopped to avoid duplicate getUpdates / 409 Conflict.
+- verified: Direct WebApp test PASS (item_count=2, total_amount=81000, write_performed=false).
+- verified: Owner Telegram live test PASS for command `cek tagihan pending cc` (listed 2 pending items and total Rp81.000).
+- next: Implement `cc sudah <nomor>` ledger-first workflow.

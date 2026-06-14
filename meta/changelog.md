@@ -228,3 +228,9 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - docs: created record `task9_cc_sudah_number_workflow_prd_amendment_20260614.md`.
 - docs: updated Second Brain active context and current state files.
 - docs: preserved CC purchase domain-only and ledger-first payment alignment.
+
+## 2026-06-14 — Task 9 CC Pending Pocket Command Milestone Done
+- feat: implemented `cek tagihan pending cc` read-only command in apps-script-prod-v2 and local mirror.
+- deploy: deployed the feature to production version `@297` (following prior API access repair at version `@296`).
+- ops: resolved WebApp 403 access issues, stopped duplicate `hermes-gateway.service`, and verified singleton gateway inside tmux session `airo-telegram-gateway`.
+- docs: recorded milestone progress in `current-state.md` and `active-context.md`.

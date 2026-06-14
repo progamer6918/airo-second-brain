@@ -8,14 +8,14 @@
 - **Sisa Wajib**: 4 (termasuk Task 9, tidak termasuk Task 10)
 
 ## Latest Technical State
-- **Production Deployment**: Versi `@290 - AIRO Task 9 CC ledger-first guard final clean` aktif pada deployment ID `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`.
+- **Production Deployment**: Versi `@297 - feat(airo-finance): add cc pending pocket read-only command` aktif pada deployment ID `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`. (Prior API access repair deployed at `@296`).
 - **Source Parity**: PASS. Kesesuaian kode lokal dan live diuji pada:
   - `apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js`
   - `scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs`
-- **Latest Source SHA**: `52c19dce417ca3cf90d0c3bd6cdbb7046f3ab65c1785ac62e9420c50386d80b4`
+- **Latest Source SHA**: `c1adece`
 - **Task 8 Hutang Patch**: Hadir dan aktif.
 - **Temporary Route / Cleanup Route**: Tidak ada (absent), menjaga kebersihan production.
-- **Task 9 Kickoff Result**: `FINAL_RESULT=PASS_TASK9_KICKOFF_STARTED_BUT_CLOSEOUT_BLOCKED_BY_REMAINING_SCOPE`
+- **CC Pending Command Milestone Result**: `FINAL_RESULT=PASS_SECOND_BRAIN_CLOSEOUT_CC_PENDING_COMMAND_PUSHED`
 
 ## Remaining Blocker Scope
 1. **Credit Card Ledger-First Verification**: Verifikasi live regression CC dari commit terbaru masih harus dibuktikan (live regression valid: false, CC ledger-first PASS: false).
@@ -36,7 +36,7 @@ TASK9_CAN_CLOSEOUT_NOW=false
 
 Latest Task 9 checkpoint:
 
-Production deployment=@291 - AIRO Task 9 amount parser smoke-tag guard
+Production deployment=@297 - feat(airo-finance): add cc pending pocket read-only command (prior repair at @296)
 Deployment ID=AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA
 Deployment mode=in-place
 New deployment ID created=false
@@ -67,15 +67,15 @@ Cleanup policy=defer until owner approval
 
 Current blockers:
 
-CREDIT_CARD_STATUS=pending
+CREDIT_CARD_STATUS=milestone_cc_pending_command_done
 ASSET_STATUS=pending
 DASHBOARD_MIGRATION_STATUS=pending
 TASK9_FINAL_CLOSEOUT=pending
 
 Next safe action:
 
-Run bounded CC live regression against @291 parser fix.
-Do not proceed to Asset/Dashboard until CC live regression/readback is resolved.
+Implement `cc sudah <nomor>` ledger-first workflow.
+Do not proceed to Asset/Dashboard until CC status settlement is resolved.
 
 
 ## 2026-06-12 22:04:34 +0700 — Task 9 @292 CC amount runtime PASS, CC still pending
@@ -100,3 +100,27 @@ Do not proceed to Asset/Dashboard until CC live regression/readback is resolved.
 - Map TTL, ledger-first enforcement, cycle header auto-refresh, and manual override audit flag documented.
 - Source patch/deploy/workbook modifications: none.
 - WebApp 403 status: pending manual deploy by owner.
+
+## 2026-06-14 20:00:00 +0700 — Task 9 CC Pending Pocket Command Milestone Done
+- Status: `cek tagihan pending cc` read-only command implemented, verified, deployed to version `@297`, and pushed (commit `c1adece`).
+- Prior API access repair was deployed at `@296`.
+- WebApp 403 access was resolved after owner OAuth allow.
+- WebApp healthcheck PASS (HTTP_CODE=200, WEBAPP_RUNTIME_ROUTE_GUARD=PASS).
+- Telegram architecture uses local long-poll gateway with webhook empty; pending update count was 0.
+- Gateway restored and singleton running via tmux session `airo-telegram-gateway`.
+- `hermes-gateway.service` was stopped to avoid duplicate getUpdates / 409 Conflict.
+- Direct WebApp test PASS (item_count=2, total_amount=81000, write_performed=false).
+- Owner Telegram live test PASS for command `cek tagihan pending cc` (listed 2 pending items and total Rp81.000).
+- Semantic state details:
+  - `cc_purchase` remains domain-only in Credit Card tab.
+  - `cek tagihan pending cc` is read-only.
+  - `cc sudah <nomor>` is NOT implemented yet.
+  - No Account Ledger write happened.
+  - No CC status update happened.
+  - No Finance Events write.
+  - Transactions not recreated.
+- Current Next Steps:
+  - Implement `cc sudah <nomor>` ledger-first.
+  - Asset purchase ledger-first gap.
+  - Dashboard migration away from Finance Events.
+  - Account Ledger style registry dynamic fix.
