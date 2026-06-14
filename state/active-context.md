@@ -359,3 +359,12 @@ Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup,
 - Finding: unregistered templates are Result VE RC3 preseed artifacts, not new business report templates.
 - Guardrail: do not onboard Result VE_RC3*_Preseed as RPT004; do not patch runtime engine without real business-owned template.
 - Latest usable product remains RC4D/RC4C workbook state.
+
+## 2026-06-14 - Final Operator Handover Accepted
+- Final operator handover package created and accepted.
+- ZIP: AIRO_FINAL_OPERATOR_HANDOVER_20260614_183009.zip
+- ZIP SHA256: 425602B4A71184CA4C49FB64C35FCAB50493AE4679549F06B0323E92862DB277
+- Latest workbook: Command_Center_LATEST_USE_THIS.xlsm
+- Latest workbook SHA256: B13C581F1CA9B37EB6E5F92144028F818490026E07A89A85C88625FCE8B2058A
+- Product state: RC3S runtime ready, RC4B no-reseed, RC4C onboarding UX, RC4D BBN real onboarding, RC4E no-go guardrail.
+- Operating mode after handover: stop patching; use SOP and intake form for future new reports.
