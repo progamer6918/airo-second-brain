@@ -85,3 +85,11 @@ Result VE is accepted. RC3R validation passed and RC3S accepted freeze was creat
 - RPT003 Result VE OK.
 - Freeze zip: $FreezeZip
 - Next: runner cleanup and product packaging.
+
+## 2026-06-14 - RC4B No-Reseed Product Ready Freeze
+- RC4B accepted and frozen as product-ready no-reseed build.
+- Package: AIRO_RC4B_NO_RESEED_PRODUCT_READY_20260614_145911.zip
+- ZIP_SHA256: 7FB03CC30B55EE91FAED9928A28027A11844061FE79060264BD8029D46423E12
+- Smoke: CC_CheckInputs OK, CC_RunSelectedReports OK, RPT001/RPT002/RPT003 OK.
+- Acceptance: report/source admin edits survive rebuild/check.
+- Next: RC4C self-service onboarding UX/form/workflow.

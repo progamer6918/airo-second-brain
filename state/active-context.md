@@ -326,3 +326,11 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 ## Active context - 2026-06-14
 
 Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup, not Result VE debugging.
+
+## 2026-06-14 - RC4B No-Reseed Product Ready Freeze
+- RC4B accepted and frozen as product-ready no-reseed build.
+- Package: AIRO_RC4B_NO_RESEED_PRODUCT_READY_20260614_145911.zip
+- ZIP_SHA256: 7FB03CC30B55EE91FAED9928A28027A11844061FE79060264BD8029D46423E12
+- Smoke: CC_CheckInputs OK, CC_RunSelectedReports OK, RPT001/RPT002/RPT003 OK.
+- Acceptance: report/source admin edits survive rebuild/check.
+- Next: RC4C self-service onboarding UX/form/workflow.
