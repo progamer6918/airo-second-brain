@@ -1,3 +1,6 @@
+# AIRO SYNC FIRST-READ RULE
+When asked to act as AIRO Sync or read GitHub/Second Brain, read this rule first: every PowerShell command given to the user must auto-capture stdout/stderr, write a timestamped log, copy the same final output to clipboard with Set-Clipboard, and print COPIED_TO_CLIPBOARD=<path>. Do not rely on Tee-Object alone because empty pipeline output can leave no log file.
+
 ---
 last_updated: 2026-06-10
 updated_by: owner-confirmed-design
