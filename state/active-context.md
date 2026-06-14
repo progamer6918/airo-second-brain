@@ -351,3 +351,11 @@ Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup,
 - BBN Required=FALSE, UsedByReports=RPT001,RPT002, Status=TIDAK ADA - OPSIONAL.
 - CC_OnboardAddSource OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
 - Existing reports remain OK: RPT001, RPT002, RPT003.
+
+## 2026-06-14 - RC4E No Valid New Report Target
+- RC4E accepted as no-go / guardrail decision.
+- ZIP: AIRO_RC4E_NO_VALID_NEW_REPORT_TARGET_20260614_182612.zip
+- ZIP SHA256: 7EABF8C2E851FE190F5FB3939B3854406A8BFFF3DEAC7BAA8828F696A14DEDB7
+- Finding: unregistered templates are Result VE RC3 preseed artifacts, not new business report templates.
+- Guardrail: do not onboard Result VE_RC3*_Preseed as RPT004; do not patch runtime engine without real business-owned template.
+- Latest usable product remains RC4D/RC4C workbook state.
