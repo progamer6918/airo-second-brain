@@ -323,6 +323,51 @@ Current blockers remain: Credit Card pending live regression, Asset pending, Das
 - next: Operational monitoring.
 
 
+## Active context - 2026-06-14
+
+Accepted state frozen: RC3S_ACCEPTED_STATE_FROZEN. Continue with runner cleanup, not Result VE debugging.
+
+## 2026-06-14 - RC4B No-Reseed Product Ready Freeze
+- RC4B accepted and frozen as product-ready no-reseed build.
+- Package: AIRO_RC4B_NO_RESEED_PRODUCT_READY_20260614_145911.zip
+- ZIP_SHA256: 7FB03CC30B55EE91FAED9928A28027A11844061FE79060264BD8029D46423E12
+- Smoke: CC_CheckInputs OK, CC_RunSelectedReports OK, RPT001/RPT002/RPT003 OK.
+- Acceptance: report/source admin edits survive rebuild/check.
+- Next: RC4C self-service onboarding UX/form/workflow.
+
+## 2026-06-14 - RC4C Onboarding UX Product Ready
+- RC4C onboarding UX accepted and frozen.
+- ZIP: AIRO_RC4C_ONBOARDING_UX_PRODUCT_READY_20260614_172838.zip
+- ZIP SHA256: 11B18677804CC30410514EF61FA2A8FE62B818A62701F3DFED93C6DC1422636F
+- Clean smoke: PASS. CC_AdminPeriksaSemua OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
+- New UX: CC_ONBOARDING sheet, admin onboarding button, add/update report, add/update source, clear form.
+- Existing reports remain OK: RPT001, RPT002, RPT003.
+
+## 2026-06-14 - RC4D BBN Real Onboarding Accepted
+- RC4D accepted and frozen.
+- ZIP: AIRO_RC4D_BBN_REAL_ONBOARDING_ACCEPTED_20260614_181836.zip
+- ZIP SHA256: 4FDE8A17ECB07C451FF22AD34D321B6B25835AE361611E3061C7564D0204A08C
+- BBN updated via CC_ONBOARDING as optional source.
+- BBN Required=FALSE, UsedByReports=RPT001,RPT002, Status=TIDAK ADA - OPSIONAL.
+- CC_OnboardAddSource OK, CC_CheckInputs OK, CC_RunSelectedReports OK.
+- Existing reports remain OK: RPT001, RPT002, RPT003.
+
+## 2026-06-14 - RC4E No Valid New Report Target
+- RC4E accepted as no-go / guardrail decision.
+- ZIP: AIRO_RC4E_NO_VALID_NEW_REPORT_TARGET_20260614_182612.zip
+- ZIP SHA256: 7EABF8C2E851FE190F5FB3939B3854406A8BFFF3DEAC7BAA8828F696A14DEDB7
+- Finding: unregistered templates are Result VE RC3 preseed artifacts, not new business report templates.
+- Guardrail: do not onboard Result VE_RC3*_Preseed as RPT004; do not patch runtime engine without real business-owned template.
+- Latest usable product remains RC4D/RC4C workbook state.
+
+## 2026-06-14 - Final Operator Handover Accepted
+- Final operator handover package created and accepted.
+- ZIP: AIRO_FINAL_OPERATOR_HANDOVER_20260614_183009.zip
+- ZIP SHA256: 425602B4A71184CA4C49FB64C35FCAB50493AE4679549F06B0323E92862DB277
+- Latest workbook: Command_Center_LATEST_USE_THIS.xlsm
+- Latest workbook SHA256: B13C581F1CA9B37EB6E5F92144028F818490026E07A89A85C88625FCE8B2058A
+- Product state: RC3S runtime ready, RC4B no-reseed, RC4C onboarding UX, RC4D BBN real onboarding, RC4E no-go guardrail.
+- Operating mode after handover: stop patching; use SOP and intake form for future new reports.
 
 ## 2026-06-14 18:15:00 +0700 — CC Numbered Settlement Workflow PRD Amendment
 - verified: PRD amended for CC pending list and numbered settlement.
