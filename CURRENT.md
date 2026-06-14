@@ -75,3 +75,13 @@ AIRO Second Brain is the canonical knowledge hub. Repository-specific work may l
 - Active next milestone: Automated Template Onboarding and Mapping Engine (Result VE is only proof case).
 - Protect R8.11; future work uses copied candidate workbook/module.
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:END -->
+
+## 2026-06-14 - Report Automation VBA RC3R/RC3S Accepted
+
+Result VE is accepted. RC3R validation passed and RC3S accepted freeze was created.
+
+- RPT001 OK.
+- RPT002 OK.
+- RPT003 Result VE OK.
+- Freeze zip: $FreezeZip
+- Next: runner cleanup and product packaging.

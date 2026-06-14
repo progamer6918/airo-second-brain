@@ -364,3 +364,9 @@ Some `.xls` source exports are HTML disguised as Excel and contain formula-like 
 
 Implement the Automated Template Onboarding and Mapping Engine. This is an onboarding milestone. Do not modify the frozen R8.11 baseline directly. Final classification must be `AUTO_READY`, `MAPPING_REQUIRED` with complete gaps, or `BLOCKED` with explicit reasons.
 <!-- AIRO:RAVBA_R811:END -->
+
+## 2026-06-14 RC3R accepted / RC3S frozen
+
+RPT003 Result VE blocker resolved. Original Result VE template now includes hidden CC_MASTER_DATA_MD, preventing runtime Worksheets.Add hang. Output RESULT_VE_20260611.xlsm validated with pivot count 1 and formula error count 0. Accepted freeze package created.
+
+Next phase: clean runner, package product, final all-report acceptance.
