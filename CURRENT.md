@@ -172,3 +172,29 @@ Sheet rename without owner approval.
 Workbook touch in Step 0.
 
 FINAL_CLASSIFICATION=RC4C2_PRD_APPROVED_FOR_CONTROLLED_EXECUTION
+
+---
+
+## 2026-06-16 — RC4C2 Fast Visual Accepted
+
+Final classification: `RC4C2_FAST_VISUAL_ACCEPTED`
+
+Latest official workbook:
+
+`D:\Randas\Others\Honda_Report_Automation_Pilot_Package\00_Command_Center\Command_Center_LATEST_USE_THIS.xlsm`
+
+SHA256:
+
+`3C07BBB8D86C0510178C18D3554F75B4B60C569E0EEB41B9442B86281C24B11F`
+
+Accepted freeze:
+
+`D:\Randas\Others\Honda_Report_Automation_Pilot_Package\99_ACCEPTED_FREEZE\AIRO_RC4C2_FAST_VISUAL_ACCEPTED_20260616_001624\`
+
+Notes:
+- Macro/VBA preserved.
+- Buttons safe per owner manual test.
+- Visual polish accepted only on `PANDUAN SINGKAT` and `TAMBAH REPORT DATA`.
+- Button sheets intentionally not touched.
+- Rejected Claude/XML/sandbox visual candidates because macro/buttons/workbook reliability broke.
+- New-report auto-run remains not proven; onboarding is intake/admin approval only.
