@@ -136,3 +136,39 @@ Location rule: QA workbook must be placed in 00_Command_Center or another CCP_Pr
 
 Guardrail: RPT099/SRC099 are QA only. Do not treat dummy report as production report. Do not claim arbitrary new report engine product-readiness from dummy test.
 
+
+2026-06-15 — RC4C2 PRD Addendum Approved
+
+Owner approved RC4C2 as a controlled reopening after Final Operator Handover.
+
+Treatment:
+
+PRD Addendum, not original PRD replacement.
+Canonical status correction, not RC3S rollback.
+RC4C technical onboarding entrypoint remains accepted.
+RC4C baby-friendly UX acceptance is revised to PARTIAL / NOT PASS.
+Stale roadmap label correction: historical RC4 roadmap is superseded for RC4B-RC4E executed naming.
+RC4C2 must prove generic standard template engine before claiming new-report automation readiness.
+One step equals one Antigravity session.
+Step 0 is documentation only and must not touch workbook.
+
+Allowed scope:
+
+Workbook UX reality audit.
+Generic standard template engine proof.
+Baby-friendly onboarding wrapper.
+Regression validation for RPT001/RPT002/RPT003.
+Evidence and Second Brain update.
+
+Forbidden:
+
+Fake RPT004.
+One-off report debugging.
+Runtime patching without proof.
+Registry-as-user-interface.
+Original PRD rewrite.
+Roadmap rewrite.
+Sheet rename without owner approval.
+Workbook touch in Step 0.
+
+FINAL_CLASSIFICATION=RC4C2_PRD_APPROVED_FOR_CONTROLLED_EXECUTION
