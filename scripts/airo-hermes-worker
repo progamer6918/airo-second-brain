@@ -1,0 +1,653 @@
+#!/home/egitaristorandas/.hermes/hermes-agent/venv/bin/python
+# -*- coding: utf-8 -*-
+"""
+airo-hermes-worker ? Persistent NL queue worker for AIRO Second Brain
+
+Polls ~/.local/state/airo-second-brain/hermes-bridge/queue/ every POLL_INTERVAL seconds for pending items.
+Processes each item via AIAgent.chat() using Hermes Direct Python API.
+Sends reply directly via Telegram sendMessage (NOT getUpdates).
+
+Contract proofs (static, verified 2026-06-18):
+  - AIAgent.chat(msg) -> str: run_agent.py L4588-4600
+    def chat(self, message: str, ...) -> str:
+        result = self.run_conversation(message, ...)
+        return result["final_response"]
+  - "safe" toolset: toolsets.py L334-338
+    "safe": {"description": "Safe toolkit without terminal access",
+             "tools": [], "includes": ["web", "vision", "image_gen"]}
+    Expanded: web_search, web_extract, vision_analyze, image_generate
+    EXCLUDED: terminal, process, write_file, patch, execute_code, search_files
+
+Architecture:
+  Worker polls ~/.local/state/airo-second-brain/hermes-bridge/queue/ (no Telegram getUpdates).
+  Token read from ~/.airo/telegram.env (same source as gateway, never logged).
+  Session ID per chat_id for conversation continuity.
+"""
+
+import sys
+import os
+import json
+import time
+import fcntl
+import logging
+import urllib.request
+import urllib.parse
+import urllib.error
+import uuid
+from datetime import datetime
+from pathlib import Path
+
+# ??? Paths ???????????????????????????????????????????????????????????????????
+REPO_DIR       = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+HERMES_ROOT    = "/home/egitaristorandas/.hermes/hermes-agent"
+ENV_FILE       = "/home/egitaristorandas/.airo/telegram.env"
+
+LOCAL_STATE_DIR = os.path.expanduser(
+    "~/.local/state/airo-second-brain/hermes-bridge"
+)
+NL_QUEUE_DIR   = os.path.join(LOCAL_STATE_DIR, "queue")
+DEAD_DIR       = os.path.join(LOCAL_STATE_DIR, "dead")
+LOG_FILE       = os.path.join(LOCAL_STATE_DIR, "hermes-worker.log")
+TICK_FILE      = os.path.join(LOCAL_STATE_DIR, "hermes-worker-last-tick.txt")
+WORKER_LOCK    = os.path.join(LOCAL_STATE_DIR, "hermes-worker.lock")
+SESSION_MAP    = os.path.join(LOCAL_STATE_DIR, "hermes-worker-sessions.json")
+
+# ??? Worker config ???????????????????????????????????????????????????????????
+POLL_INTERVAL  = 5          # seconds between queue scans
+MAX_ATTEMPTS   = 3          # dead-letter after this many failures
+HERMES_TIMEOUT = 120        # wall-clock seconds for one AIAgent.chat() call
+HERMES_MAX_TURNS = 8        # max model iterations per turn
+HERMES_TOOLSETS  = ["safe"] # toolsets.py L334: web_search, web_extract, vision_analyze, image_generate
+                             # EXCLUDED: terminal, process, write_file, patch, execute_code
+
+# ??? Logging ?????????????????????????????????????????????????????????????????
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+_logging_configured = False
+
+
+def configure_logging():
+    """Configure file and stderr logging only when main() starts."""
+    global _logging_configured
+
+    if _logging_configured:
+        return
+
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+
+    logger.handlers.clear()
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    formatter = logging.Formatter(
+        "[%(asctime)s] [HERMES-WORKER] %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S",
+    )
+
+    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+    file_handler.setFormatter(formatter)
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stderr_handler)
+    _logging_configured = True
+
+
+# ??? Credentials (read-only, token never logged) ?????????????????????????????
+def load_credentials():
+    """Read token and owner chat_id from ~/.airo/telegram.env.
+    Token is NEVER written to any log file or queue item.
+    """
+    token, owner_chat_id = "", ""
+    if not os.path.exists(ENV_FILE):
+        logger.error("ENV_FILE not found: %s", ENV_FILE)
+        return None, None
+    try:
+        with open(ENV_FILE) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    k, v = k.strip(), v.strip()
+                    if k == "AIRO_TELEGRAM_BOT_TOKEN":
+                        token = v
+                    elif k == "AIRO_TELEGRAM_CHAT_ID":
+                        owner_chat_id = v
+    except Exception as e:
+        logger.error("Error reading credentials: %s", e)
+        return None, None
+    if not token or not owner_chat_id:
+        logger.error("Missing token or chat_id in env file")
+        return None, None
+    if token.startswith("YOUR_BOT_TOKEN") or owner_chat_id.startswith("YOUR_CHAT_ID"):
+        logger.error("Placeholder credentials detected ? not configured")
+        return None, None
+    # Log only that credentials are present, never the values
+    logger.info("Credentials loaded: token=<present>, owner_chat_id=<present>")
+    return token, owner_chat_id
+
+
+# ??? Session map: stable session_id per Telegram chat_id ?????????????????????
+def load_session_map() -> dict:
+    try:
+        if os.path.exists(SESSION_MAP):
+            with open(SESSION_MAP) as f:
+                return json.load(f)
+    except Exception as e:
+        logger.warning("Could not load session map: %s", e)
+    return {}
+
+
+def save_session_map(smap: dict):
+    tmp = SESSION_MAP + "." + uuid.uuid4().hex + ".tmp"
+    try:
+        with open(tmp, "w") as f:
+            json.dump(smap, f, indent=2)
+        os.replace(tmp, SESSION_MAP)
+    except Exception as e:
+        logger.warning("Could not save session map: %s", e)
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+
+
+def get_or_create_session_id(chat_id: str, smap: dict) -> str:
+    """Return a stable session_id for this chat_id, creating if absent."""
+    if chat_id not in smap:
+        smap[chat_id] = str(uuid.uuid4())
+        save_session_map(smap)
+        logger.info("Created new session for chat_id=<redacted>: %s", smap[chat_id])
+    return smap[chat_id]
+
+
+# ??? Telegram sendMessage (bot token never logged) ???????????????????????????
+def tg_send_message(token: str, chat_id: str, text: str) -> bool:
+    """Send a reply via Telegram sendMessage. NOT getUpdates. No second poller."""
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    # Truncate to Telegram max 4096 chars
+    if len(text) > 4000:
+        text = text[:4000] + "\n\n_(truncated)_"
+    # Send plain text. Model replies may contain Markdown characters that
+    # Telegram rejects with HTTP 400 when parse_mode is enabled.
+    payload = urllib.parse.urlencode({
+        "chat_id": chat_id,
+        "text": text,
+    }).encode("utf-8")
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url, data=payload, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if data.get("ok"):
+                    return True
+                logger.warning("sendMessage not ok: %s", data.get("description", ""))
+        except urllib.error.HTTPError as e:
+            try:
+                detail = e.read().decode("utf-8", errors="replace")[:500]
+            except Exception:
+                detail = "<unavailable>"
+            logger.warning(
+                "sendMessage attempt %d failed: HTTP %s: %s",
+                attempt + 1,
+                e.code,
+                detail,
+            )
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+        except Exception as e:
+            logger.warning("sendMessage attempt %d failed: %s", attempt + 1, e)
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    return False
+
+
+# ??? Queue item I/O ??????????????????????????????????????????????????????????
+def load_item(path: str) -> dict | None:
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error("Failed to read queue item %s: %s", path, e)
+        return None
+
+
+def save_item(path: str, item: dict):
+    """Atomic save via tmp + os.replace."""
+    tmp = path + "." + uuid.uuid4().hex + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(item, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, path)
+    except Exception as e:
+        logger.error("Failed to save queue item %s: %s", path, e)
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+
+
+def move_to_dead(path: str, item: dict):
+    """Move failed item to dead-letter directory."""
+    os.makedirs(DEAD_DIR, exist_ok=True)
+    dead_path = os.path.join(DEAD_DIR, os.path.basename(path))
+    item["status"] = "dead"
+    item["dead_at"] = datetime.now().isoformat()
+    save_item(dead_path, item)
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+    logger.error("Dead-lettered: %s", item.get("request_id", "unknown"))
+
+
+# ??? Per-item fcntl lock ?????????????????????????????????????????????????????
+def try_lock_item(lock_path: str):
+    """Try to acquire exclusive non-blocking flock on item lock file.
+    Returns open file object on success, None if already locked."""
+    try:
+        fd = open(lock_path, "w")
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return fd
+    except (IOError, OSError):
+        return None
+
+
+def unlock_item(fd):
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        fd.close()
+    except Exception:
+        pass
+
+
+# ??? Hermes invocation via Direct Python API ?????????????????????????????????
+def init_hermes():
+    """Add Hermes root to sys.path so run_agent can be imported."""
+    if HERMES_ROOT not in sys.path:
+        sys.path.insert(0, HERMES_ROOT)
+
+
+_hermes_runtime_config = None
+
+
+def load_hermes_model_config() -> dict:
+    global _hermes_runtime_config
+
+    if _hermes_runtime_config is not None:
+        return dict(_hermes_runtime_config)
+
+    from pathlib import Path
+    import yaml
+
+    home = Path(
+        os.environ.get("HERMES_HOME", "~/.hermes")
+    ).expanduser()
+
+    candidates = (
+        home / "config.yaml",
+        home / "cli-config.yaml",
+    )
+
+    for config_path in candidates:
+        if not config_path.is_file():
+            continue
+
+        data = yaml.safe_load(
+            config_path.read_text(encoding="utf-8")
+        ) or {}
+
+        config = data.get("model")
+
+        if isinstance(config, str):
+            model = config.strip()
+            provider = "auto"
+            base_url = ""
+
+        elif isinstance(config, dict):
+            model = str(
+                config.get("default")
+                or config.get("model")
+                or ""
+            ).strip()
+
+            provider = str(
+                config.get("provider")
+                or "auto"
+            ).strip()
+
+            base_url = str(
+                config.get("base_url")
+                or ""
+            ).strip()
+
+        else:
+            continue
+
+        if not model:
+            continue
+
+        _hermes_runtime_config = {
+            "model": model,
+            "provider": provider or "auto",
+            "base_url": base_url,
+        }
+
+        return dict(_hermes_runtime_config)
+
+    raise RuntimeError(
+        "Hermes model missing from config.yaml"
+    )
+
+
+def call_hermes(text: str, session_id: str) -> str | None:
+    """
+    Call AIAgent.chat(text) via Hermes Direct Python API.
+
+    Contract (static proof, run_agent.py L4588-4600):
+      AIAgent.chat(message: str) -> str
+      Returns result["final_response"] ? plain string, the model reply.
+
+    Tool restriction (static proof, toolsets.py L334-338):
+      enabled_toolsets=["safe"]
+      Resolved tools: web_search, web_extract, vision_analyze, image_generate
+      EXCLUDED: terminal, process, write_file, patch, execute_code, search_files
+
+    The worker process runs inside the Hermes venv; imports are safe.
+    """
+    try:
+        from run_agent import AIAgent  # available after init_hermes()
+    except ImportError as e:
+        logger.error("Cannot import AIAgent: %s", e)
+        return None
+
+    try:
+        runtime = load_hermes_model_config()
+
+        agent_kwargs = {
+            "model": runtime["model"],
+            "provider": runtime["provider"],
+            "session_id": session_id,
+            "enabled_toolsets": HERMES_TOOLSETS,
+            "max_iterations": HERMES_MAX_TURNS,
+            "quiet_mode": True,
+            "skip_memory": False,
+        }
+
+        if runtime["base_url"]:
+            agent_kwargs["base_url"] = runtime["base_url"]
+
+        agent = AIAgent(**agent_kwargs)
+        # AIAgent.chat() -> str (run_agent.py L4600: return result["final_response"])
+        reply = agent.chat(text)
+        if reply is None:
+            logger.warning("AIAgent.chat() returned None for session %s", session_id)
+            return None
+        return str(reply)
+    except Exception as e:
+        logger.error("AIAgent.chat() raised: %s", e)
+        return None
+
+
+# ??? Single worker flock ??????????????????????????????????????????????????????
+_worker_lock_fd = None
+
+
+def acquire_worker_lock() -> bool:
+    global _worker_lock_fd
+    try:
+        _worker_lock_fd = open(WORKER_LOCK, "w")
+        fcntl.flock(_worker_lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _worker_lock_fd.write(str(os.getpid()))
+        _worker_lock_fd.flush()
+        return True
+    except (IOError, OSError):
+        return False
+
+
+def release_worker_lock():
+    global _worker_lock_fd
+    try:
+        if _worker_lock_fd:
+            fcntl.flock(_worker_lock_fd, fcntl.LOCK_UN)
+            _worker_lock_fd.close()
+    except Exception:
+        pass
+    try:
+        os.remove(WORKER_LOCK)
+    except Exception:
+        pass
+
+
+# ??? Process one queue item ???????????????????????????????????????????????????
+def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: dict):
+    request_id = item.get("request_id", "unknown")
+    chat_id = item.get("chat_id", "")
+    text = item.get("text", "")
+
+    # Security: chat_id must match owner allowlist
+    if chat_id != owner_chat_id:
+        logger.error("SECURITY: item %s has unauthorized chat_id ? dead-lettering", request_id)
+        move_to_dead(path, item)
+        return
+
+    # Duplicate reply guard
+    if item.get("reply_sent"):
+        logger.info("Item %s already replied ? skipping", request_id)
+        item["status"] = "done"
+        save_item(path, item)
+        return
+
+    # Check attempts
+    attempt_count = item.get("attempt_count", 0)
+    if attempt_count >= MAX_ATTEMPTS:
+        logger.error("Item %s exceeded max_attempts=%d ? dead-lettering", request_id, MAX_ATTEMPTS)
+        move_to_dead(path, item)
+        return
+
+    # Transition to processing
+    item["status"] = "processing"
+    item["last_attempt_at"] = datetime.now().isoformat()
+    item["attempt_count"] = attempt_count + 1
+    save_item(path, item)
+
+    logger.info("Processing item %s (attempt %d/%d)", request_id, attempt_count + 1, MAX_ATTEMPTS)
+
+    # Reuse an already-computed reply after a Telegram send failure.
+    # This prevents duplicate model calls on retry.
+    reply = item.get("reply_text")
+
+    if reply:
+        logger.info(
+            "Item %s: reusing cached reply; model call skipped",
+            request_id,
+        )
+    else:
+        session_id = get_or_create_session_id(chat_id, smap)
+
+        import signal as _signal
+
+        def _timeout_handler(signum, frame):
+            raise TimeoutError(
+                f"Hermes timeout after {HERMES_TIMEOUT}s"
+            )
+
+        old_handler = _signal.signal(
+            _signal.SIGALRM,
+            _timeout_handler,
+        )
+        _signal.alarm(HERMES_TIMEOUT)
+
+        try:
+            reply = call_hermes(text, session_id)
+        except TimeoutError as exc:
+            logger.error(
+                "Item %s timed out: %s",
+                request_id,
+                exc,
+            )
+            reply = None
+        except Exception as exc:
+            logger.error(
+                "Item %s Hermes error: %s",
+                request_id,
+                exc,
+            )
+            reply = None
+        finally:
+            _signal.alarm(0)
+            _signal.signal(_signal.SIGALRM, old_handler)
+
+        if reply:
+            item["reply_text"] = reply
+            save_item(path, item)
+
+    if not reply:
+        # Failure ? increment and mark failed (will retry up to MAX_ATTEMPTS)
+        item["status"] = "failed"
+        save_item(path, item)
+        logger.warning("Item %s: no reply (attempt %d)", request_id, attempt_count + 1)
+        return
+
+    # Send reply via Telegram (NOT getUpdates, NOT second poller)
+    sent = tg_send_message(token, chat_id, reply)
+    if sent:
+        item["status"] = "done"
+        item["reply_sent"] = True
+        item["done_at"] = datetime.now().isoformat()
+        save_item(path, item)
+        logger.info("Item %s: done (reply sent)", request_id)
+    else:
+        item["status"] = "failed"
+        save_item(path, item)
+        logger.warning("Item %s: reply computed but sendMessage failed (attempt %d)", request_id, attempt_count + 1)
+
+
+# ??? Main loop ????????????????????????????????????????????????????????????????
+def main():
+    os.makedirs(NL_QUEUE_DIR, exist_ok=True)
+    os.makedirs(DEAD_DIR, exist_ok=True)
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    os.makedirs(os.path.dirname(TICK_FILE), exist_ok=True)
+
+    configure_logging()
+    logger.info("airo-hermes-worker starting. PID=%d", os.getpid())
+
+    if not acquire_worker_lock():
+        logger.error("Another worker instance is running (lock held). Exiting.")
+        sys.exit(1)
+
+    token, owner_chat_id = load_credentials()
+    if not token or not owner_chat_id:
+        logger.error("Credentials not configured. Exiting.")
+        release_worker_lock()
+        sys.exit(1)
+
+    # Initialize Hermes Python path and validate model before queue processing.
+    init_hermes()
+
+    try:
+        runtime = load_hermes_model_config()
+    except Exception as exc:
+        logger.error(
+            "Hermes model configuration invalid: %s",
+            exc,
+        )
+        release_worker_lock()
+        sys.exit(1)
+
+    logger.info(
+        "Hermes runtime configured: model=%s provider=%s base_url=%s",
+        runtime["model"],
+        runtime["provider"],
+        "configured" if runtime["base_url"] else "default",
+    )
+
+    # Load session map
+    smap = load_session_map()
+
+    logger.info(
+        "Worker ready. Queue=%s Poll=%ds Timeout=%ds MaxTurns=%d Toolsets=%s",
+        NL_QUEUE_DIR, POLL_INTERVAL, HERMES_TIMEOUT, HERMES_MAX_TURNS, HERMES_TOOLSETS,
+    )
+
+    import signal as _signal
+
+    def shutdown(signum, frame):
+        logger.info("Signal %d received. Shutting down.", signum)
+        release_worker_lock()
+        sys.exit(0)
+
+    _signal.signal(_signal.SIGTERM, shutdown)
+    _signal.signal(_signal.SIGINT, shutdown)
+
+    try:
+        while True:
+            # Write health tick
+            try:
+                with open(TICK_FILE, "w") as f:
+                    f.write(datetime.now().isoformat())
+            except Exception:
+                pass
+
+            # Scan queue for pending and retryable-failed items
+            try:
+                entries = sorted(os.listdir(NL_QUEUE_DIR))
+            except Exception as e:
+                logger.error("Cannot list queue dir: %s", e)
+                time.sleep(POLL_INTERVAL)
+                continue
+
+            for fname in entries:
+                if not fname.endswith(".json"):
+                    continue
+
+                path = os.path.join(NL_QUEUE_DIR, fname)
+                lock_path = path + ".lock"
+
+                item = load_item(path)
+                if item is None:
+                    continue
+
+                status = item.get("status", "pending")
+                if status in ("done", "dead"):
+                    continue
+                if status == "failed" and item.get("attempt_count", 0) >= MAX_ATTEMPTS:
+                    move_to_dead(path, item)
+                    continue
+
+                # Try to acquire per-item lock (prevents concurrent processing)
+                item_lock = try_lock_item(lock_path)
+                if item_lock is None:
+                    continue  # another worker instance holds it
+
+                try:
+                    # Re-read after lock (state may have changed)
+                    item = load_item(path)
+                    if item is None:
+                        continue
+                    status = item.get("status", "pending")
+                    if status in ("done", "dead"):
+                        continue
+
+                    process_item(path, item, token, owner_chat_id, smap)
+                finally:
+                    unlock_item(item_lock)
+                    try:
+                        os.remove(lock_path)
+                    except Exception:
+                        pass
+
+            time.sleep(POLL_INTERVAL)
+
+    finally:
+        release_worker_lock()
+        logger.info("Worker stopped.")
+
+
+if __name__ == "__main__":
+    main()

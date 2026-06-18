@@ -1,0 +1,38 @@
+[Unit]
+Description=AIRO Hermes NL Worker ? processes inbox/nl-queue and replies via Telegram sendMessage
+Documentation=file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ops/runtime/airo-hermes-worker.service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+ExecStart=/home/egitaristorandas/.hermes/hermes-agent/venv/bin/python \
+    /home/egitaristorandas/AI_WORKSPACES/airo-second-brain/scripts/airo-hermes-worker
+WorkingDirectory=/home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+EnvironmentFile=-/home/egitaristorandas/.airo/telegram.env
+Environment=PYTHONUNBUFFERED=1
+Environment=HERMES_QUIET=1
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+# Logging (journald picks up stdout/stderr automatically)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=airo-hermes-worker
+
+# Safety limits
+# This service does NOT run Telegram getUpdates.
+# It only calls sendMessage to reply to queued items.
+# No second Telegram poller is created by this service.
+
+[Install]
+WantedBy=default.target
+# To activate (owner action only, not done by this script):
+#   mkdir -p ~/.config/systemd/user/
+#   cp ops/runtime/airo-hermes-worker.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable airo-hermes-worker
+#   systemctl --user start airo-hermes-worker
