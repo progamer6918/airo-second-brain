@@ -49,3 +49,24 @@ agents/design-principles.md
 AGENTS.md
 
 SECURITY.md
+
+## 2026-06-18 — Earesmes Gateway Durability Accepted
+
+- verified: Earesmes is the owner-facing personal AI, chief of staff, primary
+  AIRO orchestrator, and resident AIRO Sync persona.
+- verified: Hermes is the local runtime, not a competing persona.
+- verified: Telegram natural-language bridge is live at commit `cb7bbea`.
+- verified: canonical ASB context hydration is live at commit `8959193`.
+- verified: `telegram-gateway.py` remains the single `getUpdates` owner.
+- verified: Windows Scheduled Task
+  `AIRO Earesmes Telegram Listener` retains the logon trigger and now has one
+  PT5M recurring trigger with `MultipleInstances=IgnoreNew`.
+- verified: controlled gateway termination automatically recovered from PID
+  `18992` to PID `20505`.
+- verified: worker PID `18482` remained active and unchanged.
+- verified: no legacy poller or second Hermes Telegram poller was active.
+- accepted: gateway durability PASS.
+- open: end-to-end response latency has not yet been traced or optimized.
+- evidence:
+  `docs/validation/AIRO_EARESMES_GATEWAY_DURABILITY_20260618.md`.
+- next: PRD v0.5.1 Phase 0A READ_ONLY_AUDIT.
