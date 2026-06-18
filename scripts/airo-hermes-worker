@@ -30,6 +30,7 @@ import json
 import time
 import fcntl
 import logging
+import subprocess
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -272,6 +273,105 @@ def init_hermes():
         sys.path.insert(0, HERMES_ROOT)
 
 
+
+EARESMES_CONTEXT_FILES = (
+    ("BOOT.md", 6000, "head"),
+    ("CURRENT.md", 5000, "head"),
+    ("state/active-context.md", 7000, "tail"),
+    ("CONTEXT.md", 3000, "head"),
+    ("AGENTS.md", 3000, "head"),
+    ("SECURITY.md", 2000, "head"),
+    ("personas/airo-sync.md", 3500, "head"),
+    ("agents/earesmes.md", 3000, "head"),
+    ("projects/earesmes-hermes.md", 2500, "head"),
+)
+
+
+def _git_context(args: list[str]) -> str:
+    result = subprocess.run(
+        ["git", "-C", REPO_DIR, *args],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        return f"[unavailable rc={result.returncode}]"
+
+    return result.stdout.strip() or "[empty]"
+
+
+def build_earesmes_system_prompt() -> str:
+    identity = """
+You are Earesmes, Egit's single owner-facing personal AI,
+chief of staff, AIRO ecosystem operator, and resident AIRO Sync persona.
+
+AIRO Sync is your operating responsibility across agents and interfaces.
+It is not another persona and not another worker separate from Earesmes.
+
+Hermes is the local runtime infrastructure underneath Earesmes.
+AIRO Second Brain (ASB) is your canonical shared memory.
+
+Use the canonical context and live Git evidence below before relying on
+conversation history or model memory.
+
+When asked what was last synced or updated:
+- report the latest canonical ASB commit shown below;
+- include its short hash and subject;
+- distinguish a canonical Git update from a scheduler heartbeat;
+- do not invent activity not shown by evidence;
+- do not tell Egit to run terminal commands when evidence is already present.
+
+Never claim that Earesmes is unrelated to AIRO Sync.
+Never claim that Earesmes is only a Telegram chatbot.
+Use Bahasa Indonesia. Be direct, casual, factual, and concise.
+""".strip()
+
+    head = _git_context(["rev-parse", "--short=12", "HEAD"])
+
+    log = _git_context([
+        "log",
+        "-5",
+        "--pretty=format:%h | %ad | %s",
+        "--date=iso-strict",
+    ])
+
+    sections = [
+        identity,
+        "# LIVE ASB GIT EVIDENCE",
+        f"HEAD: {head}\n\nRecent commits:\n{log}",
+    ]
+
+    for relative, limit, mode in EARESMES_CONTEXT_FILES:
+        file_path = Path(REPO_DIR) / relative
+
+        if not file_path.is_file():
+            if relative == "state/active-context.md":
+                continue
+
+            raise RuntimeError(
+                f"Required canonical context missing: {relative}"
+            )
+
+        content = file_path.read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        if len(content) > limit:
+            if mode == "tail":
+                content = "[older content truncated]\n" + content[-limit:]
+            else:
+                content = content[:limit] + "\n[file truncated]"
+
+        sections.append(
+            f"# CANONICAL ASB FILE: {relative}\n{content}"
+        )
+
+    return "\n\n".join(sections)[:38000]
+
+
 _hermes_runtime_config = None
 
 
@@ -376,6 +476,7 @@ def call_hermes(text: str, session_id: str) -> str | None:
             "max_iterations": HERMES_MAX_TURNS,
             "quiet_mode": True,
             "skip_memory": False,
+            "ephemeral_system_prompt": build_earesmes_system_prompt(),
         }
 
         if runtime["base_url"]:
@@ -565,6 +666,18 @@ def main():
         runtime["model"],
         runtime["provider"],
         "configured" if runtime["base_url"] else "default",
+    )
+
+    try:
+        context_chars = len(build_earesmes_system_prompt())
+    except Exception as exc:
+        logger.error("Earesmes ASB context invalid: %s", exc)
+        release_worker_lock()
+        sys.exit(1)
+
+    logger.info(
+        "Earesmes ASB context ready: chars=%d",
+        context_chars,
     )
 
     # Load session map
