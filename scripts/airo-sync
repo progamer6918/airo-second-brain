@@ -41,6 +41,12 @@ BLOCKED_FILENAMES = [
     r"\.htpasswd$"
 ]
 
+BLOCKED_SYNC_PATHS = [
+    "ops/telegram/telegram-action-processor.sh",
+    "scripts/airo-manual-queue-process",
+    "scripts/airo-manual-queue-shortid"
+]
+
 def check_line_for_secrets(line):
     # check for ghp_
     if re.search(r"ghp_[a-zA-Z0-9]{20,}", line):
@@ -276,6 +282,12 @@ def main():
             if len(parts) == 2:
                 status, filepath = parts
                 filepath = filepath.strip()
+                
+                # Check explicit denylist of guarded paths
+                if filepath in BLOCKED_SYNC_PATHS:
+                    log(f"GUARDED_PATH_SKIPPED: {filepath}")
+                    continue
+                
                 # Check if it starts with any brain-safe prefix
                 is_safe = False
                 for prefix in BRAIN_SAFE_PREFIXES:
