@@ -198,6 +198,36 @@ def snooze_review_notifications():
     except Exception as e:
         return f"Gagal menyimpan status snooze: {e}"
 
+def get_safe_callback_target(full_id, action_prefix):
+    SHORTID_SCRIPT = "./scripts/airo-manual-queue-shortid"
+    if os.path.exists(SHORTID_SCRIPT):
+        try:
+            res = subprocess.run(
+                ["python3", SHORTID_SCRIPT, "--effective", full_id, action_prefix],
+                capture_output=True, text=True, timeout=5
+            )
+            val = res.stdout.strip()
+            if val:
+                return val
+        except Exception as e:
+            sys.stderr.write(f"Failed to get safe callback target: {e}\n")
+    return full_id
+
+def is_capture_archived(capture_id):
+    import glob
+    match = re.match(r"^(\d{4})(\d{2})(\d{2})-", capture_id)
+    if match:
+        date_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+        guess_path = f"archive/manual-sync-queue/{date_str}/{capture_id}.md"
+        if os.path.exists(guess_path):
+            return True
+            
+    search_pattern = f"archive/manual-sync-queue/*/{capture_id}.md"
+    matches = glob.glob(search_pattern)
+    if matches:
+        return True
+    return False
+
 def get_capture_details(full_id):
     filepath = "inbox/manual-sync-queue.md"
     if not os.path.exists(filepath):
@@ -285,6 +315,30 @@ def get_capture_summary_and_title(full_id):
         except Exception:
             pass
             
+    # Fallback to archive search if title not found
+    if not title:
+        import glob
+        match = re.match(r"^(\d{4})(\d{2})(\d{2})-", full_id)
+        archive_path = None
+        if match:
+            date_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+            guess_path = f"archive/manual-sync-queue/{date_str}/{full_id}.md"
+            if os.path.exists(guess_path):
+                archive_path = guess_path
+        if not archive_path:
+            matches = glob.glob(f"archive/manual-sync-queue/*/{full_id}.md")
+            if matches:
+                archive_path = matches[0]
+                
+        if archive_path:
+            try:
+                with open(archive_path, "r", encoding="utf-8", errors="ignore") as f:
+                    first_line = f.readline()
+                    if first_line.startswith("## "):
+                        title = first_line[3:].strip()
+            except Exception:
+                pass
+            
     summary = ""
     try:
         res = subprocess.run(
@@ -344,16 +398,19 @@ for fname in action_files:
                 target_id = resolved
         except Exception as e:
             sys.stderr.write(f"Short ID resolution failed: {e}\n")
-
     print(f"Processing action '{action}' for target '{target_id}'...")
     success = False
     msg_to_send = ""
     reply_markup_to_send = None
 
+    # Resolve target check
+    is_unresolved_mq = target_id and target_id.startswith("mq-")
 
     # manualqueue actions
-
-    if action == "manualqueue:canonicalize":
+    if is_unresolved_mq and action.startswith("manualqueue:"):
+        success = True
+        msg_to_send = "⚠️ Tombol ini sudah kedaluwarsa. Kirim/ambil card terbaru."
+    elif action == "manualqueue:canonicalize":
         res = subprocess.run(
             ["python3", "./scripts/airo-manual-queue-process", "--capture-id", target_id, "--action", "canonicalize"],
             capture_output=True,
@@ -376,40 +433,41 @@ for fname in action_files:
         if res.returncode == 0:
             success = True
             detail_content = res.stdout.strip()
-            if len(detail_content) > 3000:
-                detail_content = detail_content[:3000] + "\n...(truncated)..."
-            
-            # 1. Send the detail message first
-            detail_msg = f"📄 *Detail untuk Capture `{target_id}`:*\n\n```markdown\n{detail_content}\n```"
-            send_telegram(detail_msg)
+            if "kedaluwarsa" in detail_content.lower():
+                send_telegram(detail_content)
+                msg_to_send = ""
+            else:
+                if len(detail_content) > 3000:
+                    detail_content = detail_content[:3000] + "\n...(truncated)..."
+                
+                # 1. Send the detail message first
+                detail_msg = f"📄 *Detail untuk Capture `{target_id}`:*\n\n```markdown\n{detail_content}\n```"
+                send_telegram(detail_msg)
             
             # 2. Prepare follow-up keyboard
-            short_id = original_target_id
-            if not short_id.startswith("mq-") and os.path.exists(SHORTID_SCRIPT):
-                try:
-                    res_gen = subprocess.run(
-                        ["python3", SHORTID_SCRIPT, "--generate", target_id],
-                        capture_output=True, text=True, timeout=5
-                    )
-                    for line in res_gen.stdout.strip().splitlines():
-                        if line.startswith("short_id:"):
-                            short_id = line.split(":", 1)[1].strip()
-                            break
-                except Exception as e:
-                    sys.stderr.write(f"Short ID generation failed: {e}\n")
-            
+            is_archived = is_capture_archived(target_id)
             is_smoke_test = ("smoke" in target_id.lower()) or ("test" in target_id.lower())
             
-            if is_smoke_test:
-                reply_markup = {
-                    "inline_keyboard": [
-                        [
-                            {"text": "Arsipkan smoke test", "callback_data": f"manualqueue:archive:{short_id}"},
-                            {"text": "Kembali", "callback_data": f"manualqueue:back:{short_id}"}
-                        ]
-                    ]
-                }
+            buttons = []
+            if is_archived:
+                if is_smoke_test:
+                    target_archive = get_safe_callback_target(target_id, "manualqueue:archive:")
+                    target_back = get_safe_callback_target(target_id, "manualqueue:back:")
+                    buttons.append([
+                        {"text": "Arsipkan smoke test", "callback_data": f"manualqueue:archive:{target_archive}"},
+                        {"text": "Kembali", "callback_data": f"manualqueue:back:{target_back}"}
+                    ])
+                else:
+                    target_back = get_safe_callback_target(target_id, "manualqueue:back:")
+                    buttons.append([
+                        {"text": "Kembali", "callback_data": f"manualqueue:back:{target_back}"}
+                    ])
             else:
+                target_canonicalize = get_safe_callback_target(target_id, "manualqueue:canonicalize:")
+                target_defer = get_safe_callback_target(target_id, "manualqueue:defer:")
+                target_archive = get_safe_callback_target(target_id, "manualqueue:archive:")
+                target_back = get_safe_callback_target(target_id, "manualqueue:back:")
+                
                 info = get_capture_details(target_id)
                 show_canonicalize = False
                 if info:
@@ -419,26 +477,24 @@ for fname in action_files:
                         files_exist = all(os.path.exists(f) for f in info["canonical_files"])
                     show_canonicalize = (status_pending and files_exist)
                 
-                buttons = []
                 row1 = []
                 if show_canonicalize:
-                    row1.append({"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{short_id}"})
-                row1.append({"text": "Tunda", "callback_data": f"manualqueue:defer:{short_id}"})
+                    row1.append({"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{target_canonicalize}"})
+                row1.append({"text": "Tunda", "callback_data": f"manualqueue:defer:{target_defer}"})
                 buttons.append(row1)
                 
                 row2 = [
-                    {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{short_id}"},
-                    {"text": "Kembali", "callback_data": f"manualqueue:back:{short_id}"}
+                    {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{target_archive}"},
+                    {"text": "Kembali", "callback_data": f"manualqueue:back:{target_back}"}
                 ]
                 buttons.append(row2)
-                reply_markup = {"inline_keyboard": buttons}
                 
+            reply_markup = {"inline_keyboard": buttons}
             # Send follow-up decision card
             send_telegram("Mau diapain dengan capture ini?", reply_markup=reply_markup)
             msg_to_send = "" # Bypass bottom send_telegram
         else:
             msg_to_send = f"❌ *Gagal mengambil detail Capture:* `{target_id}`.\nDetail: {res.stderr.strip()}"
-
             
     elif action == "manualqueue:defer":
         res = subprocess.run(
@@ -464,7 +520,9 @@ for fname in action_files:
             success = True
             proc_stdout = res.stdout.strip()
             if "already archived" in proc_stdout.lower():
-                msg_to_send = f"📥 *Capture `{target_id}` sudah diarsipkan sebelumnya (already archived).* "
+                msg_to_send = f"📥 *Capture `{target_id}` sudah diarsipkan sebelumnya (already archived).*"
+            elif "kedaluwarsa" in proc_stdout.lower():
+                msg_to_send = proc_stdout
             else:
                 msg_to_send = f"📥 *Capture `{target_id}` diarsipkan sebagai obsolete.*"
         else:
@@ -474,34 +532,46 @@ for fname in action_files:
         title, summary = get_capture_summary_and_title(target_id)
         if title:
             success = True
-            msg_to_send = f"🟡 **Ada capture baru di Manual Sync Queue.**\n\n**Judul:**\n{title}\n\n**Intinya:**\n{summary}\n\nMau diapain?"
+            is_archived = is_capture_archived(target_id)
+            is_smoke_test = ("smoke" in target_id.lower()) or ("test" in target_id.lower())
             
-            short_id = original_target_id
-            if not short_id.startswith("mq-") and os.path.exists(SHORTID_SCRIPT):
-                try:
-                    res_gen = subprocess.run(
-                        ["python3", SHORTID_SCRIPT, "--generate", target_id],
-                        capture_output=True, text=True, timeout=5
-                    )
-                    for line in res_gen.stdout.strip().splitlines():
-                        if line.startswith("short_id:"):
-                            short_id = line.split(":", 1)[1].strip()
-                            break
-                except Exception as e:
-                    sys.stderr.write(f"Short ID generation failed: {e}\n")
-            
-            reply_markup_to_send = {
-                "inline_keyboard": [
-                    [
-                        {"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{short_id}"},
-                        {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{short_id}"}
-                    ],
-                    [
-                        {"text": "Tunda", "callback_data": f"manualqueue:defer:{short_id}"},
-                        {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{short_id}"}
+            if is_archived:
+                msg_to_send = f"📦 *Capture ini sudah diarsipkan.*\n\n**Judul:**\n{title}\n\n**Intinya:**\n{summary}"
+                
+                buttons = []
+                if is_smoke_test:
+                    target_archive = get_safe_callback_target(target_id, "manualqueue:archive:")
+                    target_back = get_safe_callback_target(target_id, "manualqueue:back:")
+                    buttons.append([
+                        {"text": "Arsipkan smoke test", "callback_data": f"manualqueue:archive:{target_archive}"},
+                        {"text": "Kembali", "callback_data": f"manualqueue:back:{target_back}"}
+                    ])
+                else:
+                    target_back = get_safe_callback_target(target_id, "manualqueue:back:")
+                    buttons.append([
+                        {"text": "Kembali", "callback_data": f"manualqueue:back:{target_back}"}
+                    ])
+                reply_markup_to_send = {"inline_keyboard": buttons}
+            else:
+                msg_to_send = f"🟡 **Ada capture baru di Manual Sync Queue.**\n\n**Judul:**\n{title}\n\n**Intinya:**\n{summary}\n\nMau diapain?"
+                
+                target_canonicalize = get_safe_callback_target(target_id, "manualqueue:canonicalize:")
+                target_detail = get_safe_callback_target(target_id, "manualqueue:detail:")
+                target_defer = get_safe_callback_target(target_id, "manualqueue:defer:")
+                target_archive = get_safe_callback_target(target_id, "manualqueue:archive:")
+                
+                reply_markup_to_send = {
+                    "inline_keyboard": [
+                        [
+                            {"text": "Proses ke canonical", "callback_data": f"manualqueue:canonicalize:{target_canonicalize}"},
+                            {"text": "Lihat detail", "callback_data": f"manualqueue:detail:{target_detail}"}
+                        ],
+                        [
+                            {"text": "Tunda", "callback_data": f"manualqueue:defer:{target_defer}"},
+                            {"text": "Arsipkan", "callback_data": f"manualqueue:archive:{target_archive}"}
+                        ]
                     ]
-                ]
-            }
+                }
         else:
             msg_to_send = f"❌ *Gagal mengambil ringkasan untuk Capture:* `{target_id}`."
             
