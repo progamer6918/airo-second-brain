@@ -38,3 +38,10 @@ inbox/telegram-actions/
 state/runtime/telegram-gateway.lock
 state/runtime/telegram-gateway-offset
 state/runtime/telegram-gateway-last-update
+
+# Obsidian volatile files
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.obsidian/plugins/
+.trash/
