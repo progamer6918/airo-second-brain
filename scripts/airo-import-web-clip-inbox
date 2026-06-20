@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import argparse
+import json
+import hashlib
+from datetime import datetime
+
+# Helper functions
+def parse_frontmatter(content):
+    if content.startswith("---"):
+        parts = content.split("---", 2)
+        if len(parts) >= 3:
+            yaml_str = parts[1]
+            body = parts[2]
+            metadata = {}
+            for line in yaml_str.split("\n"):
+                if ":" in line:
+                    k, v = line.split(":", 1)
+                    k = k.strip()
+                    v = v.strip().strip('"').strip("'")
+                    metadata[k] = v
+            return metadata, body
+    return {}, content
+
+def check_unsafe_content(content):
+    # Telegram bot token pattern
+    tg_token_pattern = r'\d+:[A-Za-z0-9_-]{35}'
+    if re.search(tg_token_pattern, content):
+        return True, "Potential Telegram bot token detected"
+
+    # Windows absolute paths
+    windows_path_pattern = r'([A-Za-z]:\\[^\s]+)|(\\\\[^\s]+)'
+    if re.search(windows_path_pattern, content):
+        return True, "Windows absolute path detected"
+
+    # Linux home absolute path
+    linux_path_pattern = r'/home/[a-zA-Z0-9_\-]+/[^\s]*'
+    if re.search(linux_path_pattern, content):
+        return True, "Linux home absolute path detected"
+
+    return False, ""
+
+def to_kebab_case(title):
+    s = title.lower()
+    s = re.sub(r'[^a-z0-9\s-]', '', s)
+    s = re.sub(r'[\s-]+', '-', s)
+    return s.strip('-')
+
+def get_existing_metadata_and_hashes(target_dir):
+    existing_urls = set()
+    existing_hashes = set()
+    if not os.path.exists(target_dir):
+        return existing_urls, existing_hashes
+    for root, dirs, files in os.walk(target_dir):
+        for f in files:
+            if f.endswith(".md"):
+                path = os.path.join(root, f)
+                try:
+                    with open(path, 'r', encoding='utf-8') as file:
+                        content = file.read()
+                    meta, body = parse_frontmatter(content)
+                    url = meta.get("source_url")
+                    if url:
+                        existing_urls.add(url)
+                    body_hash = hashlib.sha256(body.strip().encode('utf-8')).hexdigest()
+                    existing_hashes.add(body_hash)
+                except:
+                    pass
+    return existing_urls, existing_hashes
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Windows Web Clip Inbox Importer")
+    parser.add_argument("--dry-run", action="store_true", help="Simulate import without writing files")
+    parser.add_argument("--json", action="store_true", help="Output results in JSON format")
+    args = parser.parse_args()
+
+    inbox_dir = "/mnt/c/Users/Admin/AIRO_CLIP_INBOX"
+    target_dir = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/wiki/sources/web-clips"
+
+    results = {
+        "status": "success",
+        "processed": 0,
+        "imported": [],
+        "ignored": [],
+        "rejected": [],
+        "errors": []
+    }
+
+    if not os.path.exists(inbox_dir):
+        err_msg = f"Inbox directory {inbox_dir} does not exist."
+        if args.json:
+            print(json.dumps({"status": "error", "message": err_msg}))
+        else:
+            print(f"ERROR: {err_msg}")
+        sys.exit(1)
+
+    os.makedirs(target_dir, exist_ok=True)
+    existing_urls, existing_hashes = get_existing_metadata_and_hashes(target_dir)
+
+    for f in os.listdir(inbox_dir):
+        full_path = os.path.join(inbox_dir, f)
+        if not os.path.isfile(full_path):
+            continue
+
+        # Ignore non-markdown
+        if not (f.endswith(".md") or f.endswith(".txt")):
+            results["ignored"].append({"file": f, "reason": "Non-markdown file"})
+            continue
+
+        results["processed"] += 1
+
+        try:
+            with open(full_path, "r", encoding="utf-8") as file:
+                raw_content = file.read()
+        except Exception as e:
+            results["errors"].append({"file": f, "error": str(e)})
+            continue
+
+        # Content validation
+        is_unsafe, reason = check_unsafe_content(raw_content)
+        if is_unsafe:
+            results["rejected"].append({"file": f, "reason": reason})
+            continue
+
+        # Extract title and metadata
+        meta, body = parse_frontmatter(raw_content)
+
+        # Determine title
+        title = meta.get("title")
+        if not title:
+            # Look for H1 header in body
+            h1_match = re.search(r'^#\s+(.+)$', body, re.MULTILINE)
+            if h1_match:
+                title = h1_match.group(1).strip()
+            else:
+                title = os.path.splitext(f)[0]
+
+        source_url = meta.get("source", meta.get("source_url", ""))
+        captured_at = meta.get("captured_at", meta.get("created", ""))
+        if not captured_at:
+            # Fallback to file creation time
+            try:
+                captured_at = datetime.fromtimestamp(os.path.getctime(full_path)).isoformat()
+            except:
+                captured_at = datetime.now().isoformat()
+
+        # Deduplication check
+        body_hash = hashlib.sha256(body.strip().encode('utf-8')).hexdigest()
+        if (source_url and source_url in existing_urls) or (body_hash in existing_hashes):
+            results["ignored"].append({"file": f, "reason": "Duplicate content detected"})
+            continue
+
+        # Format output filename
+        kebab_title = to_kebab_case(title)
+        out_filename = f"{kebab_title}.md"
+        out_path = os.path.join(target_dir, out_filename)
+
+        # Standarize frontmatter
+        now_str = datetime.now().isoformat()
+        imported_content = f"""---
+type: wiki-source
+source_kind: web-clip
+status: draft
+canonical: false
+sensitivity: public
+source_url: "{source_url}"
+captured_at: "{captured_at}"
+imported_at: "{now_str}"
+tags: []
+---
+
+# {title}
+
+## Source
+- URL: {source_url}
+- Captured At: {captured_at}
+- Imported At: {now_str}
+
+## Content
+{body.strip()}
+"""
+
+        if not args.dry_run:
+            try:
+                with open(out_path, "w", encoding="utf-8") as out_file:
+                    out_file.write(imported_content)
+                # Keep tracking to prevent duplicate imports in same batch
+                if source_url:
+                    existing_urls.add(source_url)
+                existing_hashes.add(body_hash)
+            except Exception as e:
+                results["errors"].append({"file": f, "error": f"Failed to write: {e}"})
+                continue
+
+        results["imported"].append({
+            "file": f,
+            "imported_as": out_filename,
+            "title": title,
+            "url": source_url
+        })
+
+    # Output formatting
+    if args.json:
+        print(json.dumps(results, indent=2))
+    else:
+        print("=== AIRO WEB CLIP IMPORT SUMMARY ===")
+        print(f"Dry-run mode: {'ON' if args.dry_run else 'OFF'}")
+        print(f"Total processed: {results['processed']}")
+        print(f"Imported: {len(results['imported'])}")
+        for item in results["imported"]:
+            print(f"  + [{item['file']}] -> {item['imported_as']} ('{item['title']}')")
+        print(f"Ignored/Duplicates: {len(results['ignored'])}")
+        for item in results["ignored"]:
+            print(f"  - [{item['file']}]: {item['reason']}")
+        print(f"Rejected (Unsafe): {len(results['rejected'])}")
+        for item in results["rejected"]:
+            print(f"  ! [{item['file']}]: {item['reason']}")
+        if results["errors"]:
+            print(f"Errors: {len(results['errors'])}")
+            for item in results["errors"]:
+                print(f"  * [{item['file']}]: {item['error']}")
+
+if __name__ == "__main__":
+    main()
