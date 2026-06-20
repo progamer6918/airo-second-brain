@@ -36,8 +36,8 @@ AIRO Second Brain (ASB) adalah repositori pengetahuan bersama (shared-memory) te
   - Otomatisasi ujung-ke-ujung (end-to-end loop) dan integrasi promosi pengetahuan penuh masih berada dalam fase spesifikasi dan ditunda untuk pengembangan masa depan (Status: deferred).
 
 ## Relationships
-- `extends` [[concepts/canonical-knowledge]] — ASB menerapkan model pengetahuan kanonik untuk menjaga kebenaran.
-- `uses` [[concepts/runtime-sync]] — Bergantung pada sinkronisasi otomatis untuk mendistribusikan perubahan.
+- `extends` [Canonical Knowledge](canonical-knowledge.md) — ASB menerapkan model pengetahuan kanonik untuk menjaga kebenaran.
+- `uses` [Runtime Sync](runtime-sync.md) — Bergantung pada sinkronisasi otomatis untuk mendistribusikan perubahan.
 
 ## Evidence
 Desain logical struktur repositori didefinisikan secara eksplisit di Seksi 5 PRD v0.5.1, yang melarang keras pembuatan vault duplikat atau modifikasi struktur di luar namespace `wiki/`.

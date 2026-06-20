@@ -31,9 +31,9 @@ Bukti operasional dari perbaikan runtime ini mencakup:
 - **Status Kesehatan Terkini (Current Health)**: Berdasarkan berkas `state/system-health.md`, status sistem secara keseluruhan aman (`safe_to_work: true`), namun repositori `airo-second-brain` ditandai kotor (`truth_status: dirty`) akibat adanya perubahan lokal yang belum dilakukan commit, sehingga kesehatan runtime saat ini diklasifikasikan sebagai didegradasi (Status: degraded).
 
 ## Related concepts
-- [[concepts/runtime-sync]] — Arsitektur sinkronisasi dan penanganan kegagalan.
-- [[concepts/canonical-knowledge]] — Pelindungan file-file repositori.
-- [[concepts/telegram-gateway]] — Gateway Telegram yang terintegrasi dengan runner.
+- [Runtime Sync](../concepts/runtime-sync.md) — Arsitektur sinkronisasi dan penanganan kegagalan.
+- [Canonical Knowledge](../concepts/canonical-knowledge.md) — Pelindungan file-file repositori.
+- [Telegram Gateway](../concepts/telegram-gateway.md) — Gateway Telegram yang terintegrasi dengan runner.
 
 ## Contradictions or uncertainty
 Perbaikan ini bersifat reaktif terhadap worktree kotor tetapi tidak mengotomatiskan resolusi konflik merge yang kompleks (diverged). Jika repositori diverged, intervensi manual tetap diperlukan.

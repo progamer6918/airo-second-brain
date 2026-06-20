@@ -34,8 +34,8 @@ Runtime Sync adalah mekanisme sinkronisasi latar belakang yang berjalan secara p
 - **Bukti Kesiapan Runtime Terdegradasi (Current Degraded Health Evidence)**: Status Second Brain saat ini diklasifikasikan sebagai terdegradasi (`degraded`) karena adanya berkas modifikasi lokal yang belum dilakukan commit, meskipun infrastruktur runtime tetap berjalan aktif (Status: degraded).
 
 ## Relationships
-- `uses` [[concepts/canonical-knowledge]] — Melindungi integritas berkas kanonik selama sinkronisasi.
-- `uses` [[concepts/telegram-gateway]] — Berjalan beriringan dengan gateway Telegram di bawah pemicu scheduler yang sama.
+- `uses` [Canonical Knowledge](canonical-knowledge.md) — Melindungi integritas berkas kanonik selama sinkronisasi.
+- `uses` [Telegram Gateway](telegram-gateway.md) — Berjalan beriringan dengan gateway Telegram di bawah pemicu scheduler yang sama.
 
 ## Evidence
 Pengujian statis di skrip `airo-runtime-runner-static-test.py` memverifikasi bahwa enam berkas terlarang dilindungi dari pembersihan Git yang tidak aman, dan VBS mengembalikan kode keluar yang benar.

@@ -24,7 +24,7 @@ Laporan validasi ini membuktikan ketahanan runtime Telegram gateway yang digunak
 
 ## Key evidence
 Bukti-bukti kunci dari pengujian ini mencakup:
-- **Telegram Gateway**: Menggunakan skrip `telegram-gateway.py` sebagai penangan tunggal (`getUpdates`) untuk menerima pesan dari Telegram (Status: validated).
+- **Telegram Gateway**: Menggunakan skrip `telegram-gateway.py` as penangan tunggal (`getUpdates`) untuk menerima pesan dari Telegram (Status: validated).
 - **Hermes Worker**: Berjalan secara terisolasi sebagai service Linux systemd `airo-hermes-worker.service` tanpa dipengaruhi oleh hidup/matinya gateway (Status: validated).
 - **Single Poller**: Terbukti tidak ada poller ganda (second poller) yang berjalan secara bersamaan (Status: validated).
 - **Runtime Durability**: Menggunakan Windows Scheduled Task `AIRO Earesmes Telegram Listener` dengan pemicu logon dan pengulangan setiap 5 menit (PT5M) serta opsi `MultipleInstances=IgnoreNew` (Status: validated).
@@ -32,9 +32,9 @@ Bukti-bukti kunci dari pengujian ini mencakup:
 - **Startup/Context Hydration**: Proses hidrasi konteks dasar untuk ASB terbukti aktif dan berjalan pada commit `8959193` (Status: validated).
 
 ## Related concepts
-- [[concepts/earesmes]] — Peran Earesmes sebagai agen depan Telegram.
-- [[concepts/telegram-gateway]] — Detail teknis gateway ketahanan tinggi.
-- [[concepts/runtime-sync]] — Sinkronisasi runtime yang berjalan di belakang layar.
+- [Earesmes](../concepts/earesmes.md) — Peran Earesmes sebagai agen depan Telegram.
+- [Telegram Gateway](../concepts/telegram-gateway.md) — Detail teknis gateway ketahanan tinggi.
+- [Runtime Sync](../concepts/runtime-sync.md) — Sinkronisasi runtime yang berjalan di belakang layar.
 
 ## Contradictions or uncertainty
 Meskipun ketahanan gateway terbukti pulih dengan baik, pengujian mencatat adanya masalah latensi respons Earesmes yang mencapai sekitar 21 detik. Penyebab latensi ini belum dilacak secara menyeluruh (Status: degraded).

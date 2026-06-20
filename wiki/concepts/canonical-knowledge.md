@@ -33,8 +33,8 @@ Canonical Knowledge adalah informasi resmi, sahih, dan bersertifikat pemilik di 
 - **Promosi ke Status Kanonik (Promotion into Canonical State)**: Fakta mesin dan operasional dipromosikan otomatis dengan bukti, sedangkan pengetahuan semantik memerlukan persetujuan pemilik lewat rekaman persetujuan formal (Status: implemented).
 
 ## Relationships
-- `related_to` [[concepts/airo-second-brain]] — Mengatur standar kebenaran isi Second Brain.
-- `related_to` [[concepts/earesmes]] — Earesmes dilarang melakukan promosi pengetahuan semantik secara mandiri.
+- `related_to` [AIRO Second Brain](airo-second-brain.md) — Mengatur standar kebenaran isi Second Brain.
+- `related_to` [Earesmes](earesmes.md) — Earesmes dilarang melakukan promosi pengetahuan semantik secara mandiri.
 
 ## Evidence
 Aturan Hierarki Kebenaran didefinisikan pada Seksi 3 PRD v0.5.1, yang mengikat semua AI consumers untuk mendahulukan bukti runtime dibanding memori model.

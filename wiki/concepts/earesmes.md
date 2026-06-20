@@ -33,11 +33,11 @@ Earesmes adalah persona asisten AI utama dan Resident Orchestrator lokal dalam e
 - **Batasan Mutasi (Mutation Limitations)**: Earesmes dilarang keras memodifikasi berkas kanonik atau melakukan promosi pengetahuan semantik tanpa persetujuan eksplisit pemilik (Status: implemented). Integrasi otomatisasi penuh (seperti sinkronisasi penuh di Fase 6/10) belum diimplementasikan (Status: deferred).
 
 ## Relationships
-- `uses` [[concepts/telegram-gateway]] — Bergantung pada gateway untuk menerima pesan.
-- `uses` [[concepts/runtime-sync]] — Memonitor liveness sinkronisasi untuk pelaporan kesehatan.
+- `uses` [Telegram Gateway](telegram-gateway.md) — Bergantung pada gateway untuk menerima pesan.
+- `uses` [Runtime Sync](runtime-sync.md) — Memonitor liveness sinkronisasi untuk pelaporan kesehatan.
 
 ## Evidence
-Pemisahan peran antara Earesmes (persona) dan Hermes (runtime lokal) divalidasi pada pengujian ketahanan gateway di commit `50034df`, di mana kegagalan gateway tidak mematikan worker Hermes.
+Pemisahan peran antara Earesmes (persona) and Hermes (runtime lokal) divalidasi pada pengujian ketahanan gateway di commit `50034df`, di mana kegagalan gateway tidak mematikan worker Hermes.
 
 ## Contradictions or uncertainty
 Kapasitas penalaran lokal Earesmes dibatasi oleh model gratis yang terpasang di WSL. Pekerjaan penalaran yang rumit harus dieskalasi ke ChatGPT atau Claude melalui mekanisme pending jobs (Status: degraded).

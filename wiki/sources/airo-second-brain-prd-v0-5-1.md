@@ -33,10 +33,10 @@ Beberapa poin bukti kunci dari dokumen ini meliputi:
 - **North-Star Orchestration (Fase 10)**: Aliran orkestrasi ujung-ke-ujung (end-to-end loop) otomatis dari input Telegram ke aksi Antigravity dan kembali ke Obsidian (Status: specified).
 
 ## Related concepts
-- [[concepts/airo-second-brain]] — Menjelaskan peran repositori ini.
-- [[concepts/canonical-knowledge]] — Dasar tata kelola kebenaran (truth hierarchy).
-- [[concepts/earesmes]] — Peran dan batas asisten lokal Earesmes.
-- [[concepts/runtime-sync]] — Sinkronisasi otomatis dan penanganan repositori kotor.
+- [AIRO Second Brain](../concepts/airo-second-brain.md) — Menjelaskan peran repositori ini.
+- [Canonical Knowledge](../concepts/canonical-knowledge.md) — Dasar tata kelola kebenaran (truth hierarchy).
+- [Earesmes](../concepts/earesmes.md) — Peran dan batas asisten lokal Earesmes.
+- [Runtime Sync](../concepts/runtime-sync.md) — Sinkronisasi otomatis dan penanganan repositori kotor.
 
 ## Contradictions or uncertainty
 Fase 10 (North-star orchestration) masih berupa spesifikasi masa depan dan belum diimplementasikan sepenuhnya. Keterbatasan API gratis membatasi kapabilitas penalaran langsung Earesmes pada mesin lokal.

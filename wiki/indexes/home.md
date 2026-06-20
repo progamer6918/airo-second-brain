@@ -7,6 +7,8 @@
 - [Earesmes](../concepts/earesmes.md)
 - [Telegram Gateway](../concepts/telegram-gateway.md)
 - [Runtime Sync](../concepts/runtime-sync.md)
+- [Obsidian](../concepts/obsidian.md)
+- [LLM Wiki](../concepts/llm-wiki.md)
 
 ## Sources
 
@@ -16,7 +18,7 @@
 
 ## Syntheses
 
-_No syntheses created yet._
+- [AIRO Second Brain Operational Architecture](../syntheses/airo-second-brain-operational-architecture.md)
 
 ## Maintenance
 

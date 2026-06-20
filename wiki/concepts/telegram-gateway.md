@@ -26,12 +26,12 @@ Telegram Gateway adalah infrastruktur penghubung komunikasi antara aplikasi Tele
 - **Peran Gateway (Gateway Role)**: Bertindak sebagai front-door untuk menerima instruksi teks biasa dari pemilik sistem secara real-time (Status: implemented).
 - **Perilaku Poller Tunggal (Single-Poller Behavior)**: Proses `telegram-gateway.py` dikonfigurasi sebagai satu-satunya pemilik polling (`getUpdates`). Hal ini penting untuk mencegah perebutan token Telegram oleh poller ganda (Status: validated).
 - **Batasan Antrean/Pekerja (Queue/Worker Boundary)**: Gateway menulis pesan masuk ke antrean lokal, sementara Hermes worker memprosesnya secara asinkron. Kegagalan pada gateway tidak akan menghentikan worker yang sedang berjalan (Status: validated).
-- **Bukti Ketahanan (Durability Evidence)**: Gateway diawasi oleh Windows Scheduled Task `AIRO Earesmes Telegram Listener` dengan pemicu logon dan penjadwalan berulang setiap 5 menit (PT5M). Opsi `MultipleInstances=IgnoreNew` dan batas waktu tidak terbatas menjamin gateway segera dihidupkan ulang jika mati (Status: validated).
+- **Bukti Ketahanan (Durability Evidence)**: Gateway diawasi oleh Windows Scheduled Task `AIRO Earesmes Telegram Listener` dengan pemicu logon dan penjadwalan berulang setiap 5 menit (PT5M). Opsi `MultipleInstances=IgnoreNew` and batas waktu tidak terbatas menjamin gateway segera dihidupkan ulang jika mati (Status: validated).
 - **Perlindungan Duplikasi (Failure and Duplicate Protection)**: Mekanisme penanganan kegagalan terkendali membuktikan bahwa gateway yang dimatikan paksa dengan SIGTERM dapat pulih secara otomatis dalam 2 menit tanpa adanya pesan duplikat (Status: validated).
 
 ## Relationships
-- `uses` [[concepts/earesmes]] — Meneruskan pesan masuk ke instansi agen Earesmes.
-- `related_to` [[concepts/runtime-sync]] — Berjalan sebagai salah satu komponen latar belakang (background infra) di bawah pengawasan task scheduler.
+- `uses` [Earesmes](earesmes.md) — Meneruskan pesan masuk ke instansi agen Earesmes.
+- `related_to` [Runtime Sync](runtime-sync.md) — Berjalan sebagai salah satu komponen latar belakang (background infra) di bawah pengawasan task scheduler.
 
 ## Evidence
 Berdasarkan bukti pengujian kegagalan terkendali pada commit `50034df`, matinya PID gateway `18992` segera digantikan oleh PID `20505` tanpa menghentikan worker (PID `18482`).
