@@ -33,7 +33,7 @@ Dokumen ini merangkum status pencapaian milestone, bukti validasi integrasi, keb
 - **Milestone M5W-C (Web Clipper Fix)**: `8eefe18cc5d0e2e92c2069fa2f33cbe665c82976` (fix(airo): support clipped conversation inbox paths).
 - **Milestone M5W-C Policy Approved**: `8659a3854eb132549242d59ad0e0600d8b4e7ce2` (docs(airo): document approved conversation clip policy).
 - **Milestone M6 (Wiki Query Wrapper)**: `20f01c5cc586bfa332616f7347a5f6e80b2a8d11` (feat(airo): add read-only wiki query contract for Hermes).
-- **Milestone M7 (Final Closeout)**: *[Menunggu commit hash M7]*
+- **Milestone M7 (Final Closeout)**: `9c8de90974950049e1cb2265ec3094ead96d031d` (docs(airo): close out Obsidian LLM wiki adoption)
 
 ---
 
