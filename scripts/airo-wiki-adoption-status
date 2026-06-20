@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+import json
+import subprocess
+
+def check_cmd(cmd):
+    try:
+        res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return res.returncode == 0, res.stdout.strip(), res.stderr.strip()
+    except:
+        return False, "", ""
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Wiki M7 Adoption Status Verifier")
+    parser.add_argument("--json", action="store_true", help="Output results in JSON format")
+    args = parser.parse_args()
+
+    repo_path = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+    inbox_dir = "/mnt/c/Users/Admin/AIRO_CLIP_INBOX"
+    clippings_dir = "/mnt/c/Users/Admin/AIRO_CLIP_INBOX/Clippings"
+
+    _, git_head, _ = check_cmd(f"git -C {repo_path} rev-parse HEAD")
+
+    concepts_count = len([f for f in os.listdir(os.path.join(repo_path, "wiki/concepts")) if f.endswith(".md") and f != "README.md"]) if os.path.exists(os.path.join(repo_path, "wiki/concepts")) else 0
+    sources_count = len([f for f in os.listdir(os.path.join(repo_path, "wiki/sources")) if f.endswith(".md") and f != "README.md"]) if os.path.exists(os.path.join(repo_path, "wiki/sources")) else 0
+    syntheses_count = len([f for f in os.listdir(os.path.join(repo_path, "wiki/syntheses")) if f.endswith(".md") and f != "README.md"]) if os.path.exists(os.path.join(repo_path, "wiki/syntheses")) else 0
+
+    inbox_exists = os.path.exists(inbox_dir)
+    clippings_count = len([f for f in os.listdir(clippings_dir) if os.path.isfile(os.path.join(clippings_dir, f))]) if os.path.exists(clippings_dir) else 0
+
+    importer_exists = os.path.exists(os.path.join(repo_path, "scripts/airo-import-web-clip-inbox"))
+    query_script_exists = os.path.exists(os.path.join(repo_path, "scripts/airo-wiki-query-readonly"))
+    owner_workflow_doc_exists = os.path.exists(os.path.join(repo_path, "docs/integrations/obsidian-llm-wiki-owner-workflow.md"))
+    validation_doc_exists = os.path.exists(os.path.join(repo_path, "docs/validation/obsidian-llm-wiki-v0.6.0-final-validation.md"))
+
+    status = {
+        "status": "success",
+        "git_head": git_head,
+        "wiki_counts": {
+            "concepts": concepts_count,
+            "sources": sources_count,
+            "syntheses": syntheses_count
+        },
+        "web_clip_inbox": {
+            "inbox_exists": inbox_exists,
+            "clippings_count": clippings_count
+        },
+        "scripts": {
+            "importer_exists": importer_exists,
+            "readonly_query_script_exists": query_script_exists
+        },
+        "docs": {
+            "owner_workflow_doc_exists": owner_workflow_doc_exists,
+            "validation_doc_exists": validation_doc_exists
+        }
+    }
+
+    if args.json:
+        print(json.dumps(status, indent=2))
+    else:
+        print("=== AIRO WIKI ADOPTION STATUS ===")
+        print(f"Git HEAD: {status['git_head']}")
+        print(f"Wiki counts: Concepts={status['wiki_counts']['concepts']}, Sources={status['wiki_counts']['sources']}, Syntheses={status['wiki_counts']['syntheses']}")
+        print(f"Web Clip Inbox: Exists={status['web_clip_inbox']['inbox_exists']}, Clippings={status['web_clip_inbox']['clippings_count']}")
+        print(f"Scripts: Importer={status['scripts']['importer_exists']}, Query={status['scripts']['readonly_query_script_exists']}")
+        print(f"Docs: Owner Workflow={status['docs']['owner_workflow_doc_exists']}, Validation={status['docs']['validation_doc_exists']}")
+
+if __name__ == "__main__":
+    main()
