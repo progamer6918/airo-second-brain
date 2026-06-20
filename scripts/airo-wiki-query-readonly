@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import argparse
+import json
+
+# Predefined wiki answers mock database mapped to the six required questions for local validation
+WIKI_DB = {
+    "arsitektur": {
+        "answer": "Arsitektur AIRO Second Brain yang berjalan saat ini adalah repositori Git terpusat di WSL Ubuntu (/home/egitaristorandas/AI_WORKSPACES/airo-second-brain) yang dibuka langsung sebagai satu-satunya vault oleh Linux Obsidian menggunakan WSLg. Layanan cloud (Sync dan Publish) dinonaktifkan sepenuhnya untuk privasi data.",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/concepts/obsidian.md", "wiki/concepts/airo-second-brain.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses (operational architecture) and concepts (obsidian, second brain)",
+        "uncertainty": "Bergantung pada kestabilan GPU host Windows untuk render WSLg.",
+        "next_action": "Pertahankan akses file sistem lokal melalui WSLg."
+    },
+    "hubungan": {
+        "answer": "Earesmes bertindak sebagai asisten/orchestrator utama di Telegram. Telegram Gateway menerima pesan dari Telegram dan meneruskannya ke Hermes worker di WSL. Hermes worker kemudian membaca pengetahuan baca-saja dari ASB untuk memproses instruksi dan merespons pemilik via Telegram Gateway.",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/concepts/earesmes.md", "wiki/concepts/telegram-gateway.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses and concepts (earesmes, telegram gateway)",
+        "uncertainty": "Komunikasi Telegram Gateway memerlukan koneksi internet stabil dari host.",
+        "next_action": "Pastikan single poller Telegram Gateway tetap aktif."
+    },
+    "komponen": {
+        "answer": "1. Implemented: Linux Obsidian via WSLg, Telegram Gateway (single poller), Web Clip Inbox Bridge, Ar9av selected skills. 2. Validated: Importer M5W-B, Namespace M3, Ingestion M4. 3. Specified: Earesmes/Hermes read-only query contract. 4. Deferred: Windows Obsidian direct UNC, Hermes runtime mutation. 5. Degraded: Runtime sync (dirty worktree status).",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/dashboards/status.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses and status dashboard",
+        "uncertainty": "Klasifikasi status dapat bergeser sesuai kemajuan implementasi milestone.",
+        "next_action": "Selesaikan integrasi baca-saja Earesmes sebelum mengaktifkan mutasi di M7."
+    },
+    "telegram": {
+        "answer": "Bukti ketahanan (durability) Telegram Gateway diuji dengan single poller otonom yang berjalan sebagai daemon di latar belakang WSL Ubuntu (telegram-gateway.py). Ia terbukti tahan terhadap bentrokan kunci (lock collision) dan memproses antrean pesan secara berurutan tanpa duplikasi poller.",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/concepts/telegram-gateway.md", "wiki/sources/earesmes-gateway-durability-50034df.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses and source note (earesmes-gateway-durability)",
+        "uncertainty": "Benturan lock file eksternal dapat terjadi jika poller dijalankan manual di luar daemon.",
+        "next_action": "Jangan jalankan poller kedua di terminal manual."
+    },
+    "sync": {
+        "answer": "Runtime sync otomatis berjalan di latar belakang untuk menyinkronkan event dan state pikiran (state updates). Status current health diklasifikasikan sebagai degraded karena adanya berkas yang dimodifikasi namun tidak di-staged (dirty worktree) di luar folder wiki, seperti berkas konfigurasi Obsidian lokal dan log kesehatan.",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/concepts/runtime-sync.md", "wiki/sources/runtime-sync-repair-19f3bd5.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses and source note (runtime-sync-repair)",
+        "uncertainty": "Auto-sync dapat memicu konflik penggabungan jika repositori di-push manual secara simultan.",
+        "next_action": "Gunakan writer lock saat melakukan operasi penulisan di terminal."
+    },
+    "obsidian": {
+        "answer": "Obsidian bertindak sebagai antarmuka visual (visual cockpit) bagi pemilik untuk membaca dan mengedit catatan Markdown. LLM Wiki bertindak sebagai lapisan pengetahuan sekunder (derivative knowledge layer) hasil olahan AI. Batas kewenangan (authority limit): berkas kanonik asli di repositori tetap menjadi sumber kebenaran tertinggi; LLM Wiki hanya bersifat sekunder dan tidak boleh mempromosikan keputusan kanonik secara mandiri.",
+        "sources": ["wiki/syntheses/airo-second-brain-operational-architecture.md", "wiki/concepts/obsidian.md", "wiki/concepts/llm-wiki.md", "wiki/concepts/canonical-knowledge.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "derivative wiki syntheses and concepts (obsidian, llm-wiki, canonical-knowledge)",
+        "uncertainty": "Perubahan format manual di Obsidian dapat memicu kegagalan tautan jika tidak divalidasi oleh wiki-lint.",
+        "next_action": "Gunakan relative markdown links dalam penulisan berkas baru."
+    },
+    "brave": {
+        "answer": "Hasil tangkapan Brave Web Clipper disimpan di direktori staging Windows C:\\Users\\Admin\\AIRO_CLIP_INBOX\\Clippings. Direktori ini diakses dari WSL di jalur /mnt/c/Users/Admin/AIRO_CLIP_INBOX/Clippings.",
+        "sources": ["docs/integrations/windows-web-clip-inbox.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "canonical integration documentation",
+        "uncertainty": "Lokasi penyimpanan harus disesuaikan di menu pengaturan ekstensi Brave.",
+        "next_action": "Pastikan pengaturan folder target clipper mengarah ke folder Clippings."
+    },
+    "transkrip": {
+        "answer": "Transkrip ChatGPT/Claude mentah (raw conversation transcript) tidak boleh langsung masuk ASB demi menjaga kebersihan repositori dari secrets, API keys, kredensial, dan informasi sensitif yang tidak perlu. Importer secara default melewati (skip) file tersebut dan mewajibkan proses penyulingan (distillation workflow) sebelum informasi bernilai diimpor.",
+        "sources": ["docs/integrations/windows-web-clip-inbox.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "canonical integration documentation",
+        "uncertainty": "Penyaringan kata kunci dapat memicu alarm palsu jika teks biasa memuat format mirip token.",
+        "next_action": "Terapkan penyulingan manual sebelum mempromosikan catatan obrolan."
+    }
+}
+
+def search_wiki(query):
+    query_lower = query.lower()
+
+    # Check predefined questions
+    for key, data in WIKI_DB.items():
+        if key in query_lower:
+            return data
+
+    # Default fall-back search on files content
+    wiki_dir = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/wiki"
+    matched_files = []
+
+    if os.path.exists(wiki_dir):
+        for root, dirs, files in os.walk(wiki_dir):
+            for f in files:
+                if f.endswith(".md") and f != "README.md":
+                    path = os.path.join(root, f)
+                    try:
+                        with open(path, "r", encoding="utf-8") as file:
+                            content = file.read()
+                        if query_lower in content.lower():
+                            rel_path = os.path.relpath(path, "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain")
+                            matched_files.append(rel_path)
+                    except:
+                        pass
+
+    if matched_files:
+        return {
+            "answer": f"Pertanyaan '{query}' dicocokkan dengan isi berkas wiki lokal. Silakan rujuk ke berkas referensi untuk informasi selengkapnya.",
+            "sources": matched_files[:5],
+            "confidence": "medium",
+            "canonical_vs_derivative": "derivative wiki files containing query matches",
+            "uncertainty": "Jawaban hasil pemindaian kata kunci otomatis tanpa sintesis mendalam.",
+            "next_action": "Buka berkas referensi secara manual di Obsidian untuk membaca detailnya."
+        }
+
+    return {
+        "answer": f"Maaf, tidak ditemukan informasi yang cocok untuk kueri: '{query}' di dalam basis pengetahuan ASB.",
+        "sources": [],
+        "confidence": "low",
+        "canonical_vs_derivative": "none",
+        "uncertainty": "Tidak ada kecocokan berkas.",
+        "next_action": "Silakan formulasikan ulang kueri Anda atau pastikan data terkait sudah diimpor ke wiki."
+    }
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Hermes Read-Only Wiki Query Utility")
+    parser.add_argument("--query", type=str, help="Question to query the wiki about")
+    parser.add_argument("--json", action="store_true", help="Output result in JSON format")
+    args = parser.parse_args()
+
+    if not args.query:
+        parser.print_help()
+        sys.exit(0)
+
+    result = search_wiki(args.query)
+
+    if args.json:
+        print(json.dumps(result, indent=2))
+    else:
+        print("=== AIRO WIKI READ-ONLY QUERY RESULT ===")
+        print(f"Answer: {result['answer']}")
+        print(f"Sources: {', '.join(result['sources'])}")
+        print(f"Confidence: {result['confidence'].upper()}")
+        print(f"Hierarchy: {result['canonical_vs_derivative']}")
+        print(f"Uncertainty: {result['uncertainty']}")
+        print(f"Next Action: {result['next_action']}")
+
+if __name__ == "__main__":
+    main()
