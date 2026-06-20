@@ -77,3 +77,12 @@ git restore wiki/
 git revert <M7_COMMIT_HASH> --no-edit
 git push origin main
 ```
+
+---
+
+## 7. Lembar Penerimaan & Konfirmasi UI (Acceptance Checklist & UI Confirmation)
+
+- **OWNER_UI_CONFIRMATION**: `YES` (Dikonfirmasi oleh pemilik pada 2026-06-20)
+- **GRAPH_VIEW_OWNER_WORKFLOW**: `PASS`
+- **GRAPH_VIEW_FILTER**: `path:wiki`
+- **Keterangan**: Pemilik mengonfirmasi bahwa Linux Obsidian Graph View telah terbuka dan berfungsi secara penuh dengan penyaringan `path:wiki`, menampilkan seluruh simpul wiki ASB dengan relasi grafis yang benar.
