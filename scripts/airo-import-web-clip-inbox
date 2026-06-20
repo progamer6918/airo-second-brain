@@ -42,6 +42,31 @@ def check_unsafe_content(content):
 
     return False, ""
 
+def is_conversation_clip(content, metadata, file_path):
+    source_url = metadata.get("source", metadata.get("source_url", ""))
+    if "chatgpt.com" in source_url or "claude.ai" in source_url or "chat.openai.com" in source_url:
+        return True
+
+    lower_path = file_path.lower()
+    if "chatgpt" in lower_path or "claude" in lower_path:
+        return True
+
+    dialog_patterns = [
+        r'\*\*User\*\*:',
+        r'\*\*ChatGPT\*\*:',
+        r'\*\*Assistant\*\*:',
+        r'\*\*You\*\*:',
+        r'\*\*Claude\*\*:'
+    ]
+    for pattern in dialog_patterns:
+        if re.search(pattern, content, re.IGNORECASE):
+            return True
+
+    if "proyek obsidian phase" in lower_path or "phase full" in lower_path:
+        return True
+
+    return False
+
 def to_kebab_case(title):
     s = title.lower()
     s = re.sub(r'[^a-z0-9\s-]', '', s)
@@ -99,67 +124,80 @@ def main():
     os.makedirs(target_dir, exist_ok=True)
     existing_urls, existing_hashes = get_existing_metadata_and_hashes(target_dir)
 
-    for f in os.listdir(inbox_dir):
-        full_path = os.path.join(inbox_dir, f)
-        if not os.path.isfile(full_path):
-            continue
+    # Recursive scan ignoring .obsidian/
+    for root, dirs, files in os.walk(inbox_dir):
+        if ".obsidian" in dirs:
+            dirs.remove(".obsidian")
 
-        # Ignore non-markdown
-        if not (f.endswith(".md") or f.endswith(".txt")):
-            results["ignored"].append({"file": f, "reason": "Non-markdown file"})
-            continue
+        for f in files:
+            full_path = os.path.join(root, f)
+            rel_path = os.path.relpath(full_path, inbox_dir)
 
-        results["processed"] += 1
+            # Ignore non-markdown
+            if not (f.endswith(".md") or f.endswith(".txt")):
+                continue
 
-        try:
-            with open(full_path, "r", encoding="utf-8") as file:
-                raw_content = file.read()
-        except Exception as e:
-            results["errors"].append({"file": f, "error": str(e)})
-            continue
+            results["processed"] += 1
 
-        # Content validation
-        is_unsafe, reason = check_unsafe_content(raw_content)
-        if is_unsafe:
-            results["rejected"].append({"file": f, "reason": reason})
-            continue
-
-        # Extract title and metadata
-        meta, body = parse_frontmatter(raw_content)
-
-        # Determine title
-        title = meta.get("title")
-        if not title:
-            # Look for H1 header in body
-            h1_match = re.search(r'^#\s+(.+)$', body, re.MULTILINE)
-            if h1_match:
-                title = h1_match.group(1).strip()
-            else:
-                title = os.path.splitext(f)[0]
-
-        source_url = meta.get("source", meta.get("source_url", ""))
-        captured_at = meta.get("captured_at", meta.get("created", ""))
-        if not captured_at:
-            # Fallback to file creation time
             try:
-                captured_at = datetime.fromtimestamp(os.path.getctime(full_path)).isoformat()
-            except:
-                captured_at = datetime.now().isoformat()
+                with open(full_path, "r", encoding="utf-8") as file:
+                    raw_content = file.read()
+            except Exception as e:
+                results["errors"].append({"file": rel_path, "error": str(e)})
+                continue
 
-        # Deduplication check
-        body_hash = hashlib.sha256(body.strip().encode('utf-8')).hexdigest()
-        if (source_url and source_url in existing_urls) or (body_hash in existing_hashes):
-            results["ignored"].append({"file": f, "reason": "Duplicate content detected"})
-            continue
+            # Extract title and metadata
+            meta, body = parse_frontmatter(raw_content)
 
-        # Format output filename
-        kebab_title = to_kebab_case(title)
-        out_filename = f"{kebab_title}.md"
-        out_path = os.path.join(target_dir, out_filename)
+            # Check if conversation clip (takes priority)
+            if is_conversation_clip(raw_content, meta, full_path):
+                file_hash = hashlib.sha256(raw_content.encode('utf-8')).hexdigest()
+                results["rejected"].append({
+                    "file": rel_path,
+                    "action": "SKIP_RAW_CONVERSATION_CLIP",
+                    "reason": "raw transcript requires distillation before ASB import",
+                    "source_path": full_path,
+                    "sha256": file_hash
+                })
+                continue
 
-        # Standarize frontmatter
-        now_str = datetime.now().isoformat()
-        imported_content = f"""---
+            # Content validation
+            is_unsafe, reason = check_unsafe_content(raw_content)
+            if is_unsafe:
+                results["rejected"].append({"file": rel_path, "reason": reason})
+                continue
+
+            # Determine title
+            title = meta.get("title")
+            if not title:
+                h1_match = re.search(r'^#\s+(.+)$', body, re.MULTILINE)
+                if h1_match:
+                    title = h1_match.group(1).strip()
+                else:
+                    title = os.path.splitext(f)[0]
+
+            source_url = meta.get("source", meta.get("source_url", ""))
+            captured_at = meta.get("captured_at", meta.get("created", ""))
+            if not captured_at:
+                try:
+                    captured_at = datetime.fromtimestamp(os.path.getctime(full_path)).isoformat()
+                except:
+                    captured_at = datetime.now().isoformat()
+
+            # Deduplication check
+            body_hash = hashlib.sha256(body.strip().encode('utf-8')).hexdigest()
+            if (source_url and source_url in existing_urls) or (body_hash in existing_hashes):
+                results["ignored"].append({"file": rel_path, "reason": "Duplicate content detected"})
+                continue
+
+            # Format output filename
+            kebab_title = to_kebab_case(title)
+            out_filename = f"{kebab_title}.md"
+            out_path = os.path.join(target_dir, out_filename)
+
+            # Standarize frontmatter
+            now_str = datetime.now().isoformat()
+            imported_content = f"""---
 type: wiki-source
 source_kind: web-clip
 status: draft
@@ -182,24 +220,23 @@ tags: []
 {body.strip()}
 """
 
-        if not args.dry_run:
-            try:
-                with open(out_path, "w", encoding="utf-8") as out_file:
-                    out_file.write(imported_content)
-                # Keep tracking to prevent duplicate imports in same batch
-                if source_url:
-                    existing_urls.add(source_url)
-                existing_hashes.add(body_hash)
-            except Exception as e:
-                results["errors"].append({"file": f, "error": f"Failed to write: {e}"})
-                continue
+            if not args.dry_run:
+                try:
+                    with open(out_path, "w", encoding="utf-8") as out_file:
+                        out_file.write(imported_content)
+                    if source_url:
+                        existing_urls.add(source_url)
+                    existing_hashes.add(body_hash)
+                except Exception as e:
+                    results["errors"].append({"file": rel_path, "error": f"Failed to write: {e}"})
+                    continue
 
-        results["imported"].append({
-            "file": f,
-            "imported_as": out_filename,
-            "title": title,
-            "url": source_url
-        })
+            results["imported"].append({
+                "file": rel_path,
+                "imported_as": out_filename,
+                "title": title,
+                "url": source_url
+            })
 
     # Output formatting
     if args.json:
@@ -214,9 +251,10 @@ tags: []
         print(f"Ignored/Duplicates: {len(results['ignored'])}")
         for item in results["ignored"]:
             print(f"  - [{item['file']}]: {item['reason']}")
-        print(f"Rejected (Unsafe): {len(results['rejected'])}")
+        print(f"Rejected/Skipped (Unsafe or Conversation): {len(results['rejected'])}")
         for item in results["rejected"]:
-            print(f"  ! [{item['file']}]: {item['reason']}")
+            action_info = f" ({item['action']})" if "action" in item else ""
+            print(f"  ! [{item['file']}]: {item['reason']}{action_info}")
         if results["errors"]:
             print(f"Errors: {len(results['errors'])}")
             for item in results["errors"]:
