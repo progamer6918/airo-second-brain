@@ -30189,6 +30189,17 @@ function airoTask101RenderDashboardFromCurrentFilter_(ss) {
       if (visual === 'healthy') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#BBF7D0');
     }
 
+
+    // AIRO_TASK10_1_ACCOUNT_SPACER_CLEANUP_START
+    var accountSpacerStartRow = 18 + accountRows.length;
+    if (accountSpacerStartRow <= 26) {
+      var accountSpacer = dashboard.getRange(accountSpacerStartRow, 2, 27 - accountSpacerStartRow, 5);
+      try { accountSpacer.breakApart(); } catch (e) {}
+      accountSpacer.clear({contentsOnly:false});
+      accountSpacer.setBackground('#111827').setFontColor('#F9FAFB');
+    }
+    // AIRO_TASK10_1_ACCOUNT_SPACER_CLEANUP_END
+
     dashboard.getRange('B27:F27').setValues([['Kategori', 'Nominal', 'Share', 'Bar', 'vs Bulan Lalu']]);
     dashboard.getRange(28, 2, 6, 5).setValues(spending.rows);
 
