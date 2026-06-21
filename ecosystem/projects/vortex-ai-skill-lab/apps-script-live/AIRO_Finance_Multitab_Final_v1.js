@@ -29774,8 +29774,12 @@ function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
     var body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
     var msg = body.message || {};
     var rawText = String(msg.text || '').trim();
-    if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic") {
+    
+    var text = rawText.toLowerCase();if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic" && rawText !== "admin task10 visual audit") {
       return null;
+    }
+  if (rawText === "admin task10 visual audit") {
+      return json_(runTask101DashboardVisualSourceAuditFromEditor());
     }
 
     if (rawText === "admin task10 repair") {
@@ -30525,6 +30529,187 @@ function runTask101DashboardForensicReadbackFromEditor() {
   };
 }
 // AIRO_TASK10_1_FORENSIC_READBACK_END
+
+
+// AIRO_TASK10_1_VISUAL_SOURCE_AUDIT_START
+function airoTask101CountUnique_(matrix) {
+  var seen = {};
+  var count = 0;
+  for (var r = 0; r < matrix.length; r++) {
+    for (var c = 0; c < matrix[r].length; c++) {
+      var k = String(matrix[r][c] || '');
+      if (!seen[k]) {
+        seen[k] = true;
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+function airoTask101CountNeedleInMatrix_(matrix, needle) {
+  var n = String(needle || '');
+  var count = 0;
+  for (var r = 0; r < matrix.length; r++) {
+    for (var c = 0; c < matrix[r].length; c++) {
+      if (String(matrix[r][c] || '').indexOf(n) >= 0) count++;
+    }
+  }
+  return count;
+}
+
+function airoTask101SampleCells_(sheet) {
+  var cells = ['B1','B2','F2','G2','H2','I2','B5','G5','B17','G17','B24','B26','B27','G27','B28','G28','G35'];
+  var out = [];
+  cells.forEach(function(a1) {
+    try {
+      var rg = sheet.getRange(a1);
+      out.push({
+        a1: a1,
+        display: rg.getDisplayValue(),
+        formula_present: !!rg.getFormula(),
+        background: rg.getBackground(),
+        font_color: rg.getFontColor(),
+        font_weight: rg.getFontWeight(),
+        horizontal_alignment: rg.getHorizontalAlignment(),
+        vertical_alignment: rg.getVerticalAlignment()
+      });
+    } catch (e) {
+      out.push({ a1: a1, error: String(e && e.message ? e.message : e) });
+    }
+  });
+  return out;
+}
+
+function airoTask101SheetStyleFingerprint_(sheet, activeWidths) {
+  var name = sheet.getName();
+  var maxRows = sheet.getMaxRows();
+  var maxCols = sheet.getMaxColumns();
+  var inspectRows = Math.min(45, maxRows);
+  var inspectCols = Math.min(9, Math.max(0, maxCols - 1));
+  var inspectable = inspectRows >= 1 && inspectCols >= 1;
+
+  var score = 0;
+  var lower = String(name || '').toLowerCase();
+  if (lower.indexOf('dashboard') >= 0) score += 50;
+  if (lower.indexOf('v2') >= 0) score += 35;
+  if (lower.indexOf('backup') >= 0 || lower.indexOf('pre') >= 0 || lower.indexOf('repair') >= 0) score += 15;
+  if (sheet.isSheetHidden()) score += 5;
+
+  var widths = [];
+  for (var c = 1; c <= Math.min(10, maxCols); c++) {
+    try { widths.push(sheet.getColumnWidth(c)); } catch (e) { widths.push(null); }
+  }
+
+  var widthDiffFromActive = [];
+  if (activeWidths && activeWidths.length) {
+    for (var wi = 0; wi < Math.min(widths.length, activeWidths.length); wi++) {
+      widthDiffFromActive.push(widths[wi] === null || activeWidths[wi] === null ? null : widths[wi] - activeWidths[wi]);
+    }
+  }
+
+  var out = {
+    name: name,
+    index: sheet.getIndex(),
+    hidden: sheet.isSheetHidden(),
+    max_rows: maxRows,
+    max_cols: maxCols,
+    candidate_score: score,
+    widths_1_10: widths,
+    width_diff_from_active_1_10: widthDiffFromActive,
+    inspectable_b1_j45: inspectable,
+    samples: airoTask101SampleCells_(sheet)
+  };
+
+  if (!inspectable) return out;
+
+  try {
+    var range = sheet.getRange(1, 2, inspectRows, inspectCols);
+    var displays = range.getDisplayValues();
+    var formulas = range.getFormulas();
+    var backgrounds = range.getBackgrounds();
+    var fontColors = range.getFontColors();
+    var fontWeights = range.getFontWeights();
+    var hAligns = range.getHorizontalAlignments();
+
+    var merged = [];
+    try {
+      range.getMergedRanges().forEach(function(m) { merged.push(m.getA1Notation()); });
+    } catch (e) {}
+
+    out.unique_backgrounds = airoTask101CountUnique_(backgrounds);
+    out.unique_font_colors = airoTask101CountUnique_(fontColors);
+    out.unique_font_weights = airoTask101CountUnique_(fontWeights);
+    out.unique_horizontal_alignments = airoTask101CountUnique_(hAligns);
+    out.finance_events_text_hits = airoTask101CountNeedleInMatrix_(displays, 'Finance Events');
+    out.finance_events_formula_refs = airoTask101CountNeedleInMatrix_(formulas, 'Finance Events');
+    out.account_ledger_text_hits = airoTask101CountNeedleInMatrix_(displays, 'Account Ledger');
+    out.account_ledger_formula_refs = airoTask101CountNeedleInMatrix_(formulas, 'Account Ledger');
+    out.merged_ranges_sample = merged.slice(0, 30);
+    out.merged_ranges_count = merged.length;
+    out.nonblank_display_count = displays.reduce(function(acc, row) {
+      return acc + row.filter(function(v) { return String(v || '') !== ''; }).length;
+    }, 0);
+
+    if (out.nonblank_display_count > 20) score += 10;
+    if (out.unique_backgrounds > 2) score += 10;
+    if (out.unique_font_colors > 2) score += 10;
+    out.candidate_score = score;
+  } catch (e) {
+    out.inspect_error = String(e && e.message ? e.message : e);
+  }
+
+  return out;
+}
+
+function runTask101DashboardVisualSourceAuditFromEditor() {
+  var ss = airoTask101GetSs_();
+  var activeDashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
+  var activeWidths = [];
+  if (activeDashboard) {
+    for (var c = 1; c <= 10; c++) activeWidths.push(activeDashboard.getColumnWidth(c));
+  }
+
+  var all = ss.getSheets().map(function(sh) {
+    return airoTask101SheetStyleFingerprint_(sh, activeWidths);
+  });
+
+  var candidates = all.filter(function(x) {
+    var lower = String(x.name || '').toLowerCase();
+    return (
+      lower.indexOf('dashboard') >= 0 ||
+      lower.indexOf('v2') >= 0 ||
+      lower.indexOf('backup') >= 0 ||
+      lower.indexOf('repair') >= 0 ||
+      lower.indexOf('visual') >= 0
+    );
+  }).sort(function(a, b) {
+    return b.candidate_score - a.candidate_score;
+  });
+
+  return {
+    ok: true,
+    visual_audit: 'TASK10_1',
+    audit_mode: 'READ_ONLY_STYLE_SOURCE_CANDIDATE_AUDIT',
+    active_dashboard_name: activeDashboard ? activeDashboard.getName() : '',
+    active_dashboard_widths_1_10: activeWidths,
+    total_sheets: all.length,
+    candidate_count: candidates.length,
+    candidates: candidates,
+    all_sheet_names: all.map(function(x) {
+      return { name: x.name, index: x.index, hidden: x.hidden, score: x.candidate_score };
+    }),
+    write_performed: false,
+    dashboard_mutation_performed: false,
+    style_patch_performed: false,
+    gmail_read_performed: false,
+    telegram_send_performed: false,
+    financial_write_performed: false,
+    note: 'READ_ONLY_VISUAL_SOURCE_AUDIT_NO_DASHBOARD_MUTATION'
+  };
+}
+// AIRO_TASK10_1_VISUAL_SOURCE_AUDIT_END
+
 
 function runTask101DashboardFilterVisualRepairFromEditor() {
   var ss = airoTask101GetSs_();
