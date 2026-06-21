@@ -334,14 +334,18 @@ Conflict rule:
 
 If latest evidence cannot be read, the required status is:
 
-```text
+~~~text
 🟡 POSISI SEKARANG: belum pasti — latest evidence belum berhasil dibaca.
+~~~
+
 Status answers should expose the evidence basis compactly when relevant:
 
+~~~text
 LATEST_COMMIT=<hash or unknown>
 LATEST_COMMIT_MESSAGE=<message or unknown>
 LATEST_CLOSEOUT=<path or none>
 LATEST_VALIDATION=<path or none>
 OLD_PREFLIGHT_SUPERSEDED=YES/NO/UNKNOWN
 FINAL_VERDICT=done/progress/blocked/unknown
+~~~
 <!-- AIRO:LATEST-EVIDENCE-RESOLUTION:END -->
