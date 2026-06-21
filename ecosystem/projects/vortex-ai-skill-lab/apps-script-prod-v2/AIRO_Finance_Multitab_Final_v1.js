@@ -30532,180 +30532,134 @@ function runTask101DashboardForensicReadbackFromEditor() {
 
 
 // AIRO_TASK10_1_VISUAL_SOURCE_AUDIT_START
-function airoTask101CountUnique_(matrix) {
-  var seen = {};
-  var count = 0;
-  for (var r = 0; r < matrix.length; r++) {
-    for (var c = 0; c < matrix[r].length; c++) {
-      var k = String(matrix[r][c] || '');
-      if (!seen[k]) {
-        seen[k] = true;
-        count++;
-      }
-    }
-  }
-  return count;
-}
-
-function airoTask101CountNeedleInMatrix_(matrix, needle) {
-  var n = String(needle || '');
-  var count = 0;
-  for (var r = 0; r < matrix.length; r++) {
-    for (var c = 0; c < matrix[r].length; c++) {
-      if (String(matrix[r][c] || '').indexOf(n) >= 0) count++;
-    }
-  }
-  return count;
-}
-
-function airoTask101SampleCells_(sheet) {
-  var cells = ['B1','B2','F2','G2','H2','I2','B5','G5','B17','G17','B24','B26','B27','G27','B28','G28','G35'];
-  var out = [];
-  cells.forEach(function(a1) {
-    try {
-      var rg = sheet.getRange(a1);
-      out.push({
-        a1: a1,
-        display: rg.getDisplayValue(),
-        formula_present: !!rg.getFormula(),
-        background: rg.getBackground(),
-        font_color: rg.getFontColor(),
-        font_weight: rg.getFontWeight(),
-        horizontal_alignment: rg.getHorizontalAlignment(),
-        vertical_alignment: rg.getVerticalAlignment()
-      });
-    } catch (e) {
-      out.push({ a1: a1, error: String(e && e.message ? e.message : e) });
-    }
-  });
-  return out;
-}
-
-function airoTask101SheetStyleFingerprint_(sheet, activeWidths) {
+function airoTask101FastSheetScore_(sheet) {
   var name = sheet.getName();
-  var maxRows = sheet.getMaxRows();
-  var maxCols = sheet.getMaxColumns();
-  var inspectRows = Math.min(45, maxRows);
-  var inspectCols = Math.min(9, Math.max(0, maxCols - 1));
-  var inspectable = inspectRows >= 1 && inspectCols >= 1;
-
-  var score = 0;
   var lower = String(name || '').toLowerCase();
+  var score = 0;
+  if (lower === 'dashboard' || lower.indexOf('🏠 dashboard') >= 0 || lower.indexOf('≡ƒÅá dashboard') >= 0) score += 60;
   if (lower.indexOf('dashboard') >= 0) score += 50;
-  if (lower.indexOf('v2') >= 0) score += 35;
+  if (lower.indexOf('v2') >= 0) score += 40;
   if (lower.indexOf('backup') >= 0 || lower.indexOf('pre') >= 0 || lower.indexOf('repair') >= 0) score += 15;
+  if (lower.indexOf('visual') >= 0 || lower.indexOf('style') >= 0) score += 10;
   if (sheet.isSheetHidden()) score += 5;
+  return score;
+}
 
+function airoTask101FastReadCell_(sheet, a1) {
+  try {
+    var rg = sheet.getRange(a1);
+    return {
+      a1: a1,
+      display: rg.getDisplayValue(),
+      formula_present: !!rg.getFormula(),
+      background: rg.getBackground(),
+      font_color: rg.getFontColor(),
+      font_weight: rg.getFontWeight(),
+      horizontal_alignment: rg.getHorizontalAlignment(),
+      vertical_alignment: rg.getVerticalAlignment()
+    };
+  } catch (e) {
+    return { a1: a1, error: String(e && e.message ? e.message : e) };
+  }
+}
+
+function airoTask101FastSheetCandidate_(sheet, activeWidths) {
+  var name = sheet.getName();
   var widths = [];
-  for (var c = 1; c <= Math.min(10, maxCols); c++) {
+  for (var c = 1; c <= Math.min(10, sheet.getMaxColumns()); c++) {
     try { widths.push(sheet.getColumnWidth(c)); } catch (e) { widths.push(null); }
   }
 
-  var widthDiffFromActive = [];
+  var diff = [];
   if (activeWidths && activeWidths.length) {
-    for (var wi = 0; wi < Math.min(widths.length, activeWidths.length); wi++) {
-      widthDiffFromActive.push(widths[wi] === null || activeWidths[wi] === null ? null : widths[wi] - activeWidths[wi]);
+    for (var i = 0; i < Math.min(widths.length, activeWidths.length); i++) {
+      diff.push(widths[i] === null || activeWidths[i] === null ? null : widths[i] - activeWidths[i]);
     }
   }
 
-  var out = {
+  var sampleCells = ['B1','B2','F2','G2','H2','I2','B5','G5','B17','G17','B24','B26','B27','G27','B28','G28','G35'];
+  var samples = sampleCells.map(function(a1) {
+    return airoTask101FastReadCell_(sheet, a1);
+  });
+
+  var financeEventsTextHits = 0;
+  var accountLedgerTextHits = 0;
+  samples.forEach(function(s) {
+    var d = String(s.display || '');
+    if (d.indexOf('Finance Events') >= 0) financeEventsTextHits++;
+    if (d.indexOf('Account Ledger') >= 0) accountLedgerTextHits++;
+  });
+
+  return {
     name: name,
     index: sheet.getIndex(),
     hidden: sheet.isSheetHidden(),
-    max_rows: maxRows,
-    max_cols: maxCols,
-    candidate_score: score,
+    max_rows: sheet.getMaxRows(),
+    max_cols: sheet.getMaxColumns(),
+    candidate_score: airoTask101FastSheetScore_(sheet),
     widths_1_10: widths,
-    width_diff_from_active_1_10: widthDiffFromActive,
-    inspectable_b1_j45: inspectable,
-    samples: airoTask101SampleCells_(sheet)
+    width_diff_from_active_1_10: diff,
+    finance_events_text_hits_in_samples: financeEventsTextHits,
+    account_ledger_text_hits_in_samples: accountLedgerTextHits,
+    samples: samples
   };
-
-  if (!inspectable) return out;
-
-  try {
-    var range = sheet.getRange(1, 2, inspectRows, inspectCols);
-    var displays = range.getDisplayValues();
-    var formulas = range.getFormulas();
-    var backgrounds = range.getBackgrounds();
-    var fontColors = range.getFontColors();
-    var fontWeights = range.getFontWeights();
-    var hAligns = range.getHorizontalAlignments();
-
-    var merged = [];
-    try {
-      range.getMergedRanges().forEach(function(m) { merged.push(m.getA1Notation()); });
-    } catch (e) {}
-
-    out.unique_backgrounds = airoTask101CountUnique_(backgrounds);
-    out.unique_font_colors = airoTask101CountUnique_(fontColors);
-    out.unique_font_weights = airoTask101CountUnique_(fontWeights);
-    out.unique_horizontal_alignments = airoTask101CountUnique_(hAligns);
-    out.finance_events_text_hits = airoTask101CountNeedleInMatrix_(displays, 'Finance Events');
-    out.finance_events_formula_refs = airoTask101CountNeedleInMatrix_(formulas, 'Finance Events');
-    out.account_ledger_text_hits = airoTask101CountNeedleInMatrix_(displays, 'Account Ledger');
-    out.account_ledger_formula_refs = airoTask101CountNeedleInMatrix_(formulas, 'Account Ledger');
-    out.merged_ranges_sample = merged.slice(0, 30);
-    out.merged_ranges_count = merged.length;
-    out.nonblank_display_count = displays.reduce(function(acc, row) {
-      return acc + row.filter(function(v) { return String(v || '') !== ''; }).length;
-    }, 0);
-
-    if (out.nonblank_display_count > 20) score += 10;
-    if (out.unique_backgrounds > 2) score += 10;
-    if (out.unique_font_colors > 2) score += 10;
-    out.candidate_score = score;
-  } catch (e) {
-    out.inspect_error = String(e && e.message ? e.message : e);
-  }
-
-  return out;
 }
 
 function runTask101DashboardVisualSourceAuditFromEditor() {
   var ss = airoTask101GetSs_();
+  var sheets = ss.getSheets();
+
   var activeDashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
   var activeWidths = [];
   if (activeDashboard) {
     for (var c = 1; c <= 10; c++) activeWidths.push(activeDashboard.getColumnWidth(c));
   }
 
-  var all = ss.getSheets().map(function(sh) {
-    return airoTask101SheetStyleFingerprint_(sh, activeWidths);
+  var allSheetNames = sheets.map(function(sh) {
+    return {
+      name: sh.getName(),
+      index: sh.getIndex(),
+      hidden: sh.isSheetHidden(),
+      score: airoTask101FastSheetScore_(sh)
+    };
   });
 
-  var candidates = all.filter(function(x) {
-    var lower = String(x.name || '').toLowerCase();
+  var candidateSheets = sheets.filter(function(sh) {
+    var lower = String(sh.getName() || '').toLowerCase();
     return (
       lower.indexOf('dashboard') >= 0 ||
       lower.indexOf('v2') >= 0 ||
       lower.indexOf('backup') >= 0 ||
+      lower.indexOf('pre') >= 0 ||
       lower.indexOf('repair') >= 0 ||
-      lower.indexOf('visual') >= 0
+      lower.indexOf('visual') >= 0 ||
+      lower.indexOf('style') >= 0
     );
   }).sort(function(a, b) {
-    return b.candidate_score - a.candidate_score;
+    return airoTask101FastSheetScore_(b) - airoTask101FastSheetScore_(a);
+  }).slice(0, 12);
+
+  var candidates = candidateSheets.map(function(sh) {
+    return airoTask101FastSheetCandidate_(sh, activeWidths);
   });
 
   return {
     ok: true,
     visual_audit: 'TASK10_1',
-    audit_mode: 'READ_ONLY_STYLE_SOURCE_CANDIDATE_AUDIT',
+    audit_mode: 'FAST_READ_ONLY_STYLE_SOURCE_CANDIDATE_AUDIT',
     active_dashboard_name: activeDashboard ? activeDashboard.getName() : '',
     active_dashboard_widths_1_10: activeWidths,
-    total_sheets: all.length,
+    total_sheets: sheets.length,
     candidate_count: candidates.length,
     candidates: candidates,
-    all_sheet_names: all.map(function(x) {
-      return { name: x.name, index: x.index, hidden: x.hidden, score: x.candidate_score };
-    }),
+    all_sheet_names: allSheetNames,
     write_performed: false,
     dashboard_mutation_performed: false,
     style_patch_performed: false,
     gmail_read_performed: false,
     telegram_send_performed: false,
     financial_write_performed: false,
-    note: 'READ_ONLY_VISUAL_SOURCE_AUDIT_NO_DASHBOARD_MUTATION'
+    note: 'FAST_READ_ONLY_VISUAL_SOURCE_AUDIT_NO_DASHBOARD_MUTATION'
   };
 }
 // AIRO_TASK10_1_VISUAL_SOURCE_AUDIT_END
