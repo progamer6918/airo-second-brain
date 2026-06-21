@@ -517,3 +517,14 @@ abung BCA 1000 test_task9_asset_ledger_first_live_regression_20260621.
 - commit: ebf909f (doc record only).
 - push: PASS to origin/main.
 - next: Dashboard migration task or Task 9 final closeout (separate owner-approved task).
+
+## 2026-06-21 13:30:00 +0700 — Task 9 Asset Duplicate Impact Correction
+- verified: Read-only live probe PASS.
+- verified: Account Ledger rows 119 and 120 audited (duplicate Rp1,000 writes confirmed).
+- verified: Aset tab row 7 audited (single savings projection write verified).
+- status: DUPLICATE_CONFIRMED_NEEDS_OWNER_CLEANUP_DECISION.
+- recommendation: OWNER_MANUAL_DELETE_TEST_DUPLICATE_ROW (row 119).
+- restriction: DASHBOARD_MIGRATION_ALLOWED=NO (blocked until owner resolves duplicate ledger rows).
+- restriction: TASK9_FINAL_CLOSEOUT=NO.
+- next: Owner to manually delete duplicate row 119 from Account Ledger sheet.
+

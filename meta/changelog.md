@@ -266,6 +266,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - test: executed controlled live asset write, verified Account Ledger rows (119-120) and Aset domain update (row 7) via readback.
 - state: updated active-context.md with closeout details.
 
+## 2026-06-21 13:30
+- test: executed AIRO-FINANCE-TASK9-ASSET-DUPLICATE-IMPACT-AUDIT-CORRECTION.
+- test: confirmed duplicate writes to Account Ledger rows 119 and 120 and single write to Aset tab row 7.
+- state: classified status as DUPLICATE_CONFIRMED_NEEDS_OWNER_CLEANUP_DECISION, recommended OWNER_MANUAL_DELETE_TEST_DUPLICATE_ROW (row 119), and set DASHBOARD_MIGRATION_ALLOWED=NO.
+
+
 
 
 
