@@ -82,3 +82,40 @@ logs/
 *.log
 .private-local/
 # === END ASB LIVE WORKSPACE SAFETY IGNORE ===
+
+# === ASB LIVE WORKSPACE PROJECT LOCAL-ONLY IGNORE v2 ===
+# Full local workspace content may exist in ecosystem/projects,
+# but runtime/cache/backup/private subtrees must not be pushed.
+
+# nested project git metadata
+ecosystem/projects/**/.git/
+
+# common dependency/cache/runtime
+ecosystem/projects/**/node_modules/
+ecosystem/projects/**/.venv/
+ecosystem/projects/**/venv/
+ecosystem/projects/**/env/
+ecosystem/projects/**/vendor/
+ecosystem/projects/**/__pycache__/
+ecosystem/projects/**/.cache/
+ecosystem/projects/**/.pytest_cache/
+ecosystem/projects/**/.mypy_cache/
+ecosystem/projects/**/.ruff_cache/
+ecosystem/projects/**/.wrangler/
+ecosystem/projects/**/runtime/
+ecosystem/projects/**/logs/
+
+# local assistant/history/cache
+ecosystem/projects/**/.aider.chat.history.md
+ecosystem/projects/**/.aider.input.history
+ecosystem/projects/**/.aider.tags.cache.v4/
+
+# project-specific generated/local-only artifacts found during live migration
+ecosystem/projects/finance-bot-alternatives/n8n-finance/.n8n/
+ecosystem/projects/earnsai-telegram-gateway/trading-research-lab/.audit/
+ecosystem/projects/earnsai-telegram-gateway/trading-research-lab/.dev-archives/
+ecosystem/projects/earnsai-telegram-gateway/trading-research-lab/.dev-backups/
+ecosystem/projects/earnsai-telegram-gateway/trading-research-lab/memory/
+ecosystem/projects/earnsai-telegram-gateway/trading-research-lab/reports/
+ecosystem/projects/earnsai-pulse-trading-local-backups/jsonl_repair_backup_*/
+# === END ASB LIVE WORKSPACE PROJECT LOCAL-ONLY IGNORE v2 ===
