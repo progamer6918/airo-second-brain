@@ -29774,12 +29774,17 @@ function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
     var body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
     var msg = body.message || {};
     var rawText = String(msg.text || '').trim();
-    if (rawText !== "admin task10 repair" && rawText !== "admin task10 read") {
+    if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic") {
       return null;
     }
 
     if (rawText === "admin task10 repair") {
       var res = runTask10DashboardGovernanceRepairFromEditor();
+      return json_(res);
+    }
+
+    if (rawText === "admin task10 forensic") {
+      var res = runTask101DashboardForensicReadbackFromEditor();
       return json_(res);
     }
 
@@ -30344,6 +30349,124 @@ function airoTask101RunRegression_(ss) {
     restored_year: originalYear
   };
 }
+
+
+// AIRO_TASK10_1_FORENSIC_READBACK_START
+function runTask101DashboardForensicReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var dashboard = null;
+
+  ss.getSheets().forEach(function(sh) {
+    var norm = airoTask101Norm_(sh.getName());
+    if (!dashboard && norm.indexOf('dashboard') >= 0) {
+      dashboard = sh;
+    }
+  });
+
+  if (!dashboard) {
+    return {
+      ok: false,
+      forensic_readback: 'TASK10_1',
+      error: 'Dashboard sheet not found',
+      write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      financial_write_performed: false
+    };
+  }
+
+  function safeMerged_(range) {
+    try { return range.isPartOfMerge(); } catch (e) { return false; }
+  }
+
+  function readCell_(a1) {
+    var r = dashboard.getRange(a1);
+    return {
+      a1: a1,
+      display: r.getDisplayValue(),
+      formula: r.getFormula(),
+      background: r.getBackground(),
+      font_color: r.getFontColor(),
+      merged: safeMerged_(r),
+      blank: r.isBlank()
+    };
+  }
+
+  var exactA1 = [
+    'B24','C24','D24','E24','F24',
+    'B25','C25','D25','E25','F25',
+    'B26','C26','D26','E26','F26',
+    'B27','C27','D27','E27','F27',
+    'G24','H24','I24','J24',
+    'G25','H25','I25','J25',
+    'G26','H26','I26','J26',
+    'B28','C28','D28','E28','F28',
+    'G28','H28','I28','J28'
+  ];
+
+  var exactCells = exactA1.map(readCell_);
+
+  var scan = dashboard.getRange('B1:J45');
+  var displays = scan.getDisplayValues();
+  var formulas = scan.getFormulas();
+  var legacyTerms = ['Makanan', 'Bensin', 'Lainnya', 'source: Finance Events', 'Bar  (source: Finance Events'];
+  var legacyCells = [];
+  var errorCells = [];
+
+  for (var r = 0; r < displays.length; r++) {
+    for (var c = 0; c < displays[r].length; c++) {
+      var display = String(displays[r][c] || '');
+      var formula = String(formulas[r][c] || '');
+      var a1 = dashboard.getRange(r + 1, c + 2).getA1Notation();
+
+      if (
+        display.indexOf('#VALUE!') >= 0 ||
+        display.indexOf('#REF!') >= 0 ||
+        display.indexOf('#NAME?') >= 0 ||
+        display.indexOf('#N/A') >= 0
+      ) {
+        errorCells.push({
+          a1: a1,
+          display: display,
+          formula: formula
+        });
+      }
+
+      legacyTerms.forEach(function(term) {
+        if (display.indexOf(term) >= 0 || formula.indexOf(term) >= 0) {
+          legacyCells.push({
+            a1: a1,
+            term: term,
+            display: display,
+            formula: formula
+          });
+        }
+      });
+    }
+  }
+
+  return {
+    ok: true,
+    forensic_readback: 'TASK10_1',
+    selected_month: dashboard.getRange('G2').getDisplayValue(),
+    selected_year: dashboard.getRange('I2').getDisplayValue(),
+    dashboard_b2: dashboard.getRange('B2').getDisplayValue(),
+    dashboard_widths: [1,2,3,4,5,6,7,8,9,10].map(function(col) {
+      return dashboard.getColumnWidth(col);
+    }),
+    exact_cells: exactCells,
+    legacy_cells: legacyCells,
+    error_cells: errorCells,
+    scan_range: 'B1:J45',
+    exact_range_focus: 'B24:F28,G24:J28',
+    write_performed: false,
+    gmail_read_performed: false,
+    telegram_send_performed: false,
+    financial_write_performed: false,
+    note: 'READ_ONLY_FORENSIC_NO_DASHBOARD_MUTATION'
+  };
+}
+// AIRO_TASK10_1_FORENSIC_READBACK_END
 
 function runTask101DashboardFilterVisualRepairFromEditor() {
   var ss = airoTask101GetSs_();
