@@ -271,6 +271,11 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - test: confirmed duplicate writes to Account Ledger rows 119 and 120 and single write to Aset tab row 7.
 - state: classified status as DUPLICATE_CONFIRMED_NEEDS_OWNER_CLEANUP_DECISION, recommended OWNER_MANUAL_DELETE_TEST_DUPLICATE_ROW (row 119), and set DASHBOARD_MIGRATION_ALLOWED=NO.
 
+## 2026-06-21 13:51
+- test: completed verification for AIRO-FINANCE-TASK9-ASSET-DUPLICATE-CLEANUP-VERIFICATION (PASS).
+- state: verified owner manual cleanup (deleted duplicate row 119, preserved row 120 now at 119), set DASHBOARD_MIGRATION_ALLOWED=YES, and updated context docs.
+
+
 
 
 

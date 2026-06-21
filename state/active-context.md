@@ -528,3 +528,13 @@ abung BCA 1000 test_task9_asset_ledger_first_live_regression_20260621.
 - restriction: TASK9_FINAL_CLOSEOUT=NO.
 - next: Owner to manually delete duplicate row 119 from Account Ledger sheet.
 
+## 2026-06-21 13:51:00 +0700 — Task 9 Asset Duplicate Cleanup Verification
+- verified: Owner manual cleanup completed (deleted duplicate row 119).
+- verified: Account Ledger verified to retain exactly 1 row (row 119, previously row 120) with the regression marker.
+- verified: Aset tab row 7 verified preserved.
+- status: ASSET_DUPLICATE_CLEANUP_VERIFIED=OWNER_CONFIRMED.
+- status: DASHBOARD_MIGRATION_ALLOWED=YES.
+- status: TASK9_FINAL_CLOSEOUT=NO.
+- next: Dashboard migration task (separate owner-approved task).
+
+
