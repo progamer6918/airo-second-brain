@@ -283,7 +283,7 @@ EARESMES_CONTEXT_FILES = (
     ("SECURITY.md", 2000, "head"),
     ("personas/airo-sync.md", 3500, "head"),
     ("agents/earesmes.md", 3000, "head"),
-    ("projects/earesmes-hermes.md", 2500, "head"),
+    ("ecosystem/earesmes-hermes.md", 3500, "head"),
 )
 
 

@@ -35,7 +35,7 @@ For execution rules: AGENTS.md
 For safety rules: SECURITY.md
 For AIRO Finance: projects/airo-finance.md, then canonical repo docs
 
-For Earesmes/Hermes: projects/earesmes-hermes.md
+For Earesmes/Hermes: ecosystem/earesmes-hermes.md
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT -->
 
 ## Active Workstream: Report Automation VBA
