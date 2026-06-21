@@ -261,5 +261,11 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - test: confirmed read-only doGet probe returns valid JSON from the live web application.
 - docs: recorded technical details in `docs/airo-finance/records/task9_asset_ledger_first_source_patch_20260621.md`.
 
+## 2026-06-21 13:12
+- test: completed AIRO-FINANCE-TASK9-ASSET-LEDGER-FIRST-LIVE-READBACK-REGRESSION (PASS_WITH_LIMITATIONS).
+- test: executed controlled live asset write, verified Account Ledger rows (119-120) and Aset domain update (row 7) via readback.
+- state: updated active-context.md with closeout details.
+
+
 
 
