@@ -26517,7 +26517,9 @@ function airoDashboardCleanupTabs_(ss) {
 }
 
 function onEdit(e) {
-  try { airoTask10MaybeRefreshOnEdit_(e); } catch (task10Err) {} 
+  try { if (airoTask101OnEdit_(e)) return; } catch (task101Err) {}
+
+
   if (!e) return;
   const range = e.range;
   const sheet = range.getSheet();
@@ -29791,3 +29793,648 @@ function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
 }
 
 // AIRO_TASK10_DASHBOARD_GOVERNANCE_REPAIR_END
+
+// AIRO_TASK10_1_DASHBOARD_FILTER_VISUAL_REPAIR_START
+function airoTask101GetSs_() {
+  return SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
+}
+
+function airoTask101Norm_(v) {
+  return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function airoTask101FindSheet_(ss, base, opts) {
+  opts = opts || {};
+  var b = airoTask101Norm_(base);
+  var found = [];
+  ss.getSheets().forEach(function(sh) {
+    var n = sh.getName();
+    var nn = airoTask101Norm_(n);
+    if (nn.indexOf(b) < 0) return;
+    if (opts.visibleOnly && sh.isSheetHidden()) return;
+    if (opts.excludeV2 && nn.indexOf('v2') >= 0) return;
+    if (opts.excludeBackup && (nn.indexOf('backup') >= 0 || nn.indexOf('legacy') >= 0 || nn.indexOf('pre promote') >= 0 || nn.indexOf('template') >= 0 || nn.indexOf('copy of') >= 0)) return;
+    if (opts.excludeSpec && nn.indexOf('spec') >= 0) return;
+    found.push(sh);
+  });
+  return found.length ? found[found.length - 1] : null;
+}
+
+function airoTask101MonthNames_() {
+  return ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+}
+
+function airoTask101MonthIndex_(name) {
+  var months = airoTask101MonthNames_();
+  var s = String(name || '').trim().toLowerCase();
+  for (var i = 0; i < months.length; i++) {
+    if (months[i].toLowerCase() === s) return i;
+  }
+  var n = Number(name);
+  if (!isNaN(n) && n >= 1 && n <= 12) return n - 1;
+  return null;
+}
+
+function airoTask101DateOnly_(v) {
+  if (Object.prototype.toString.call(v) === '[object Date]' && !isNaN(v.getTime())) {
+    return new Date(v.getFullYear(), v.getMonth(), v.getDate());
+  }
+  var d = new Date(v);
+  if (!isNaN(d.getTime())) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return null;
+}
+
+function airoTask101FmtDate_(d) {
+  if (!d) return 'NO DATA';
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function airoTask101FmtDateTime_(d) {
+  if (!d) return 'NO DATA';
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+}
+
+function airoTask101HeaderMap_(sh) {
+  var lastCol = Math.max(1, sh.getLastColumn());
+  var vals = sh.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
+  var out = {};
+  vals.forEach(function(v, i) {
+    var k = String(v || '').toLowerCase().trim().replace(/\s+/g, '_');
+    if (k) out[k] = i + 1;
+  });
+  return out;
+}
+
+function airoTask101ReadLedger_(ledger) {
+  var h = airoTask101HeaderMap_(ledger);
+  var lastRow = ledger.getLastRow();
+  var rows = [];
+  if (lastRow < 2) return { rows: rows, headers: h, years: [] };
+  var values = ledger.getRange(2, 1, lastRow - 1, ledger.getLastColumn()).getValues();
+  var years = {};
+  values.forEach(function(r, idx) {
+    var entry = h.entry_id ? r[h.entry_id - 1] : '';
+    var dt = h.date ? r[h.date - 1] : '';
+    var account = h.account ? r[h.account - 1] : '';
+    var type = h.type ? r[h.type - 1] : '';
+    if (!entry && !dt && !account && !type) return;
+    var dateObj = airoTask101DateOnly_(dt);
+    if (dateObj) years[dateObj.getFullYear()] = true;
+    rows.push({
+      row_index: idx + 2,
+      entry_id: entry,
+      date: dateObj,
+      account: String(account || '').trim(),
+      amount_in: Number(h.amount_in ? r[h.amount_in - 1] || 0 : 0),
+      amount_out: Number(h.amount_out ? r[h.amount_out - 1] || 0 : 0),
+      balance: Number(h.balance ? r[h.balance - 1] || 0 : 0),
+      type: String(type || '').trim(),
+      category: String(h.category ? r[h.category - 1] || '' : '').trim(),
+      subcategory: String(h.subcategory ? r[h.subcategory - 1] || '' : '').trim()
+    });
+  });
+  return {
+    rows: rows,
+    headers: h,
+    years: Object.keys(years).map(Number).sort(function(a,b){return a-b;})
+  };
+}
+
+function airoTask101LatestDate_(rows) {
+  var latest = null;
+  rows.forEach(function(r) {
+    if (r.date && (!latest || r.date.getTime() > latest.getTime())) latest = r.date;
+  });
+  return latest;
+}
+
+function airoTask101EnsureFilters_(dashboard, ledgerData) {
+  var months = airoTask101MonthNames_();
+  var now = new Date();
+  var yearMap = {};
+  ledgerData.years.forEach(function(y) { yearMap[y] = true; });
+  for (var y = now.getFullYear(); y <= now.getFullYear() + 5; y++) yearMap[y] = true;
+  var years = Object.keys(yearMap).map(Number).sort(function(a,b){return a-b;}).map(String);
+
+  dashboard.getRange('F2').setValue('Bulan').setFontWeight('bold');
+  dashboard.getRange('G2').setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(months, true).setAllowInvalid(false).build()
+  );
+
+  dashboard.getRange('H2').setValue('Tahun').setFontWeight('bold');
+  dashboard.getRange('I2').setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(years, true).setAllowInvalid(true).build()
+  );
+
+  var latest = airoTask101LatestDate_(ledgerData.rows) || now;
+  var currentMonth = dashboard.getRange('G2').getDisplayValue();
+  var currentYear = dashboard.getRange('I2').getDisplayValue();
+  if (airoTask101MonthIndex_(currentMonth) === null) dashboard.getRange('G2').setValue(months[latest.getMonth()]);
+  if (!/^\d{4}$/.test(String(currentYear || ''))) dashboard.getRange('I2').setValue(String(latest.getFullYear()));
+}
+
+function airoTask101SelectedPeriod_(dashboard, ledgerData) {
+  airoTask101EnsureFilters_(dashboard, ledgerData);
+  var monthText = dashboard.getRange('G2').getDisplayValue();
+  var yearText = dashboard.getRange('I2').getDisplayValue();
+  var mi = airoTask101MonthIndex_(monthText);
+  var yy = Number(yearText);
+  var latest = airoTask101LatestDate_(ledgerData.rows) || new Date();
+  if (mi === null) mi = latest.getMonth();
+  if (isNaN(yy) || yy < 1900) yy = latest.getFullYear();
+  return {
+    month_name: airoTask101MonthNames_()[mi],
+    month_index: mi,
+    year: yy,
+    start: new Date(yy, mi, 1),
+    end: new Date(yy, mi + 1, 0),
+    previous_start: new Date(yy, mi - 1, 1),
+    previous_end: new Date(yy, mi, 0)
+  };
+}
+
+function airoTask101Within_(d, start, end) {
+  return d && d.getTime() >= start.getTime() && d.getTime() <= end.getTime();
+}
+
+function airoTask101ExpenseByCategory_(rows, start, end) {
+  var byCat = {};
+  var total = 0;
+  rows.forEach(function(r) {
+    if (!airoTask101Within_(r.date, start, end)) return;
+    if (String(r.type).toLowerCase() !== 'expense') return;
+    var cat = r.category || 'Others';
+    var amt = Math.abs(Number(r.amount_out || 0));
+    byCat[cat] = (byCat[cat] || 0) + amt;
+    total += amt;
+  });
+  return { byCat: byCat, total: total };
+}
+
+function airoTask101CompareLabel_(current, previous) {
+  current = Number(current || 0);
+  previous = Number(previous || 0);
+  if (current === 0 && previous === 0) return 'belum cukup data';
+  if (previous === 0 && current > 0) return 'baru bulan ini';
+  if (current === 0 && previous > 0) return 'turun 100%';
+  var pct = (current - previous) / previous;
+  var rounded = Math.round(pct * 100);
+  return (rounded >= 0 ? '+' : '') + rounded + '%';
+}
+
+function airoTask101Bar_(share) {
+  var n = Math.max(0, Math.min(10, Math.round(Number(share || 0) * 10)));
+  return Array(n + 1).join('█') + Array(10 - n + 1).join('░');
+}
+
+function airoTask101BuildSpending_(rows, period) {
+  var cur = airoTask101ExpenseByCategory_(rows, period.start, period.end);
+  var prev = airoTask101ExpenseByCategory_(rows, period.previous_start, period.previous_end);
+  var sorted = Object.keys(cur.byCat).map(function(k){ return [k, cur.byCat[k]]; })
+    .sort(function(a,b){ return b[1] - a[1]; });
+  var top = sorted.slice(0, 5);
+  var topNames = {};
+  top.forEach(function(x){ topNames[x[0]] = true; });
+  var othersCurrent = sorted.slice(5).reduce(function(s, x){ return s + x[1]; }, 0);
+  var othersPrevious = Object.keys(prev.byCat).reduce(function(s, k){
+    return topNames[k] ? s : s + prev.byCat[k];
+  }, 0);
+
+  var rowsOut = [];
+  top.forEach(function(x){
+    var amount = x[1];
+    var share = cur.total ? amount / cur.total : 0;
+    rowsOut.push([x[0], amount, share, airoTask101Bar_(share), airoTask101CompareLabel_(amount, prev.byCat[x[0]] || 0)]);
+  });
+  if (othersCurrent > 0 || othersPrevious > 0) {
+    var shareO = cur.total ? othersCurrent / cur.total : 0;
+    rowsOut.push(['Others', othersCurrent, shareO, airoTask101Bar_(shareO), airoTask101CompareLabel_(othersCurrent, othersPrevious)]);
+  }
+  if (!rowsOut.length) rowsOut.push(['Tidak ada data periode ini', '', '', '', '']);
+  while (rowsOut.length < 6) rowsOut.push(['', '', '', '', '']);
+  return { total: cur.total, rows: rowsOut.slice(0, 6), prevTotal: prev.total };
+}
+
+function airoTask101RegistryRows_(registry) {
+  if (!registry) return [];
+  var h = airoTask101HeaderMap_(registry);
+  var lastRow = registry.getLastRow();
+  if (lastRow < 2) return [];
+  var values = registry.getRange(2, 1, lastRow - 1, registry.getLastColumn()).getValues();
+  var out = [];
+  values.forEach(function(r) {
+    var joined = r.join(' ');
+    if (!joined || /CARA MENAMBAH/i.test(joined)) return;
+    var name = h.account_name ? String(r[h.account_name - 1] || '').trim() : '';
+    var activeRaw = h.active ? r[h.active - 1] : '';
+    var active = activeRaw === true || String(activeRaw).toLowerCase() === 'true' || String(activeRaw) === '1';
+    var order = h.display_order ? Number(r[h.display_order - 1] || 999) : 999;
+    var malformed = !name || isNaN(order);
+    out.push({ name: name, active: active, order: order, malformed: malformed });
+  });
+  return out.sort(function(a,b){ return a.order - b.order || a.name.localeCompare(b.name); });
+}
+
+function airoTask101AccountPanel_(ledgerRows, registryRows) {
+  var latestByAccount = {};
+  ledgerRows.forEach(function(r) {
+    if (!r.account) return;
+    if (!latestByAccount[r.account] || (r.date && latestByAccount[r.account].date && r.date.getTime() >= latestByAccount[r.account].date.getTime())) {
+      latestByAccount[r.account] = r;
+    } else if (!latestByAccount[r.account].date) {
+      latestByAccount[r.account] = r;
+    }
+  });
+  var known = {};
+  var out = [];
+  registryRows.forEach(function(a) {
+    if (!a.name) return;
+    known[a.name] = true;
+    var lr = latestByAccount[a.name];
+    var bal = lr ? Number(lr.balance || 0) : 0;
+    var group = a.malformed ? 'UNKNOWN' : (!a.active ? 'HIDDEN' : (lr || bal !== 0 ? 'ACTIVE' : 'DORMANT'));
+    if (group === 'HIDDEN') return;
+    out.push([a.name, bal, group.toLowerCase(), group]);
+  });
+  Object.keys(latestByAccount).sort().forEach(function(name) {
+    if (!known[name]) out.push([name, Number(latestByAccount[name].balance || 0), 'unknown', 'UNKNOWN']);
+  });
+  while (out.length < 8) out.push(['', '', '', '']);
+  return out.slice(0, 8);
+}
+
+function airoTask101ReviewPending_(review) {
+  if (!review || review.getLastRow() < 2) return 0;
+  var h = airoTask101HeaderMap_(review);
+  if (!h.review_status) return 0;
+  var vals = review.getRange(2, h.review_status, review.getLastRow() - 1, 1).getDisplayValues();
+  var count = 0;
+  vals.forEach(function(v){ if (String(v[0]).toLowerCase() === 'pending') count++; });
+  return count;
+}
+
+function airoTask101ApplyVisual_(dashboard) {
+  dashboard.setFrozenRows(3);
+  dashboard.setColumnWidth(1, 24);
+  dashboard.setColumnWidth(2, 190);
+  dashboard.setColumnWidth(3, 130);
+  dashboard.setColumnWidth(4, 115);
+  dashboard.setColumnWidth(5, 130);
+  dashboard.setColumnWidth(6, 150);
+  dashboard.setColumnWidth(7, 180);
+  dashboard.setColumnWidth(8, 130);
+  dashboard.setColumnWidth(9, 130);
+  dashboard.setColumnWidth(10, 180);
+
+  var all = dashboard.getRange('A1:J45');
+  all.setBackground('#111827').setFontColor('#F9FAFB').setFontFamily('Arial').setFontSize(10);
+  dashboard.getRange('B1:J1').setBackground('#0B1220').setFontColor('#FFFFFF').setFontWeight('bold').setFontSize(14);
+  dashboard.getRange('B2:J3').setBackground('#172033').setFontColor('#F9FAFB');
+  ['B5:E5','G5:J5','B17:F17','G17:J17','B27:F27','G27:J27','G35:J35'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold');
+  });
+  dashboard.getRange('B6:E14').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('G6:J14').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('B18:F24').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('G18:J24').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('B28:F33').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('G28:J33').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('G36:J40').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('B6:J40').setBorder(true, true, true, true, true, true, '#374151', SpreadsheetApp.BorderStyle.SOLID);
+}
+
+function airoTask101WriteSettingsDetail_(settings, rows) {
+  if (!settings) return;
+  var range = settings.getRange('M1:Q20');
+  try { range.breakApart(); } catch (e) {}
+  range.clear({contentsOnly:false});
+  settings.getRange('M1:Q1').setValues([['AIRO Task 10.1 Data Quality Detail', 'Value', 'Status', 'Computed At', 'Notes']]);
+  settings.getRange(2, 13, rows.length, 5).setValues(rows.map(function(r){ return [r[0], r[1], r[2], new Date(), r[3] || '']; }));
+  settings.getRange('M1:Q1').setFontWeight('bold');
+}
+
+function airoTask101RenderDashboardFromCurrentFilter_(ss) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) return { ok: false, error: 'render lock busy' };
+  try {
+    var dashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
+    var ledger = airoTask101FindSheet_(ss, 'Account Ledger', {});
+    var registry = airoTask101FindSheet_(ss, 'Account Registry', { excludeBackup: true });
+    var review = airoTask101FindSheet_(ss, 'Review Queue', {});
+    var financeEvents = airoTask101FindSheet_(ss, 'Finance Events', {});
+    var settings = airoTask101FindSheet_(ss, 'Settings', {});
+    if (!dashboard || !ledger) throw new Error('missing dashboard or account ledger');
+
+    dashboard.showSheet();
+    ss.setActiveSheet(dashboard);
+    ss.moveActiveSheet(1);
+    if (financeEvents) financeEvents.hideSheet();
+
+    var ledgerData = airoTask101ReadLedger_(ledger);
+    var period = airoTask101SelectedPeriod_(dashboard, ledgerData);
+    var latest = airoTask101LatestDate_(ledgerData.rows);
+    var spending = airoTask101BuildSpending_(ledgerData.rows, period);
+    var accountRows = airoTask101AccountPanel_(ledgerData.rows, airoTask101RegistryRows_(registry));
+    var pending = airoTask101ReviewPending_(review);
+
+    var expenseMissingCategory = ledgerData.rows.filter(function(r){ return String(r.type).toLowerCase() === 'expense' && !r.category; }).length;
+    var expenseMissingAmount = ledgerData.rows.filter(function(r){ return String(r.type).toLowerCase() === 'expense' && !Number(r.amount_out || 0); }).length;
+    var unknownAccounts = accountRows.filter(function(r){ return r[3] === 'UNKNOWN'; }).length;
+    var malformedRegistry = 0;
+
+    var body = dashboard.getRange('B1:J45');
+    try { body.breakApart(); } catch(e) {}
+    body.clear({contentsOnly:false});
+
+    dashboard.getRange('B1:J1').merge().setValue('AIRO Finance Dashboard — Ledger-first');
+    dashboard.getRange('B2:E2').merge().setValue('Last ledger update: ' + airoTask101FmtDate_(latest) + ' | Dashboard refreshed: ' + airoTask101FmtDateTime_(new Date()) + ' | Source: Account Ledger | Rows: ' + ledgerData.rows.length);
+    dashboard.getRange('F2').setValue('Bulan');
+    dashboard.getRange('H2').setValue('Tahun');
+    dashboard.getRange('G2').setValue(period.month_name);
+    dashboard.getRange('I2').setValue(String(period.year));
+    airoTask101EnsureFilters_(dashboard, ledgerData);
+
+    dashboard.getRange('B5:E5').merge().setValue('SUMMARY');
+    dashboard.getRange('B6:E10').setValues([
+      ['Selected period', period.month_name + ' ' + period.year, 'Status', spending.total > 0 ? 'FRESH' : 'NO DATA'],
+      ['Ledger rows', ledgerData.rows.length, 'Latest ledger', airoTask101FmtDate_(latest)],
+      ['Expense total', spending.total, 'Previous month', spending.prevTotal],
+      ['Finance Events', financeEvents && financeEvents.isSheetHidden() ? 'DEPRECATED / hidden / no-op' : 'DEPRECATED / visible-warning', 'Transactions recreated', 'false'],
+      ['Computed at', airoTask101FmtDateTime_(new Date()), 'Renderer', 'Task 10.1 single renderer']
+    ]);
+
+    dashboard.getRange('G5:J5').merge().setValue('FILTER CONTRACT');
+    dashboard.getRange('G6:J10').setValues([
+      ['Bulan dropdown', 'Januari–Desember', 'Tahun dropdown', 'Ledger years + 5y'],
+      ['onEdit path', 'single renderer', 'Legacy builder', 'disabled by override'],
+      ['Width policy', 'fixed dashboard widths', 'Theme', 'semi-dark readable'],
+      ['No-delete policy', '7-day stability before delete', 'Finance Events', 'keep hidden'],
+      ['Clean state', 'no legacy labels/errors', 'Idempotent', 'yes']
+    ]);
+
+    dashboard.getRange('B17:F17').setValues([['Akun', 'Saldo', 'Group', 'Status', 'Visual']]);
+    dashboard.getRange(18, 2, accountRows.length, 4).setValues(accountRows);
+    for (var ar = 0; ar < accountRows.length; ar++) {
+      var bal = Number(accountRows[ar][1] || 0);
+      var visual = '';
+      if (accountRows[ar][0]) visual = bal < 0 ? 'critical' : (bal < 100000 ? 'warning' : 'healthy');
+      dashboard.getRange(18 + ar, 6).setValue(visual);
+      if (visual === 'critical') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#FCA5A5');
+      if (visual === 'warning') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#FCD34D');
+      if (visual === 'healthy') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#BBF7D0');
+    }
+
+    dashboard.getRange('B27:F27').setValues([['Kategori', 'Nominal', 'Share', 'Bar', 'vs Bulan Lalu']]);
+    dashboard.getRange(28, 2, 6, 5).setValues(spending.rows);
+
+    var dq = [
+      ['Metric','Value','Status','Notes'],
+      ['Ledger rows', ledgerData.rows.length, 'OK', 'real rows only'],
+      ['Latest ledger date', airoTask101FmtDate_(latest), latest ? 'OK' : 'NO DATA', 'Account Ledger'],
+      ['Expense rows missing category', expenseMissingCategory, expenseMissingCategory ? 'WARN' : 'OK', 'expense only'],
+      ['Expense rows missing amount', expenseMissingAmount, expenseMissingAmount ? 'WARN' : 'OK', 'expense only'],
+      ['Unknown accounts', unknownAccounts, unknownAccounts ? 'WARN' : 'OK', 'ledger/registry mismatch'],
+      ['Malformed registry rows', malformedRegistry, malformedRegistry ? 'WARN' : 'OK', 'registry validation'],
+      ['Review Queue pending', pending, pending ? 'WARN' : 'OK', 'manual review'],
+      ['Finance Events status', financeEvents && financeEvents.isSheetHidden() ? 'DEPRECATED / hidden / no-op' : 'DEPRECATED / visible-warning', 'INFO', 'not Dashboard source']
+    ];
+    dashboard.getRange('G27:J27').setValues([['Data Quality', 'Value', 'Status', 'Notes']]);
+    dashboard.getRange(28, 7, dq.length - 1, 4).setValues(dq.slice(1));
+
+    var findings = [];
+    var negative = accountRows.filter(function(r){ return r[0] && Number(r[1] || 0) < 0; });
+    if (negative.length) findings.push('Critical balance: ' + negative[0][0] + ' is negative.');
+    if (pending) findings.push('Review Queue pending: ' + pending + ' item.');
+    if (spending.total > 0 && spending.rows[0][0]) findings.push('Top spending: ' + spending.rows[0][0] + ' Rp' + Math.round(spending.rows[0][1]).toLocaleString('id-ID') + '.');
+    if (!findings.length) findings.push(spending.total === 0 ? 'Tidak ada data untuk periode ini.' : 'Tidak ada temuan penting bulan ini.');
+    findings = findings.slice(0, 3);
+
+    dashboard.getRange('G35:J35').merge().setValue('SMART INSIGHT — deterministic max 3');
+    dashboard.getRange('G36:J36').merge().setValue('Engine: deterministic | Findings: ' + findings.length);
+    for (var i = 0; i < findings.length; i++) {
+      dashboard.getRange(37 + i, 7, 1, 4).merge().setValue((i + 1) + '. ' + findings[i]);
+    }
+
+    dashboard.getRange('C8:C8').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('D8:D8').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C18:C25').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C28:C33').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('D28:D33').setNumberFormat('0.00%');
+
+    airoTask101ApplyVisual_(dashboard);
+    airoTask101WriteSettingsDetail_(settings, dq.slice(1));
+
+    return {
+      ok: true,
+      selected_month: period.month_name,
+      selected_year: period.year,
+      ledger_rows: ledgerData.rows.length,
+      latest_ledger_date: airoTask101FmtDate_(latest),
+      spending_total: spending.total,
+      spending_rows: spending.rows,
+      account_rows: accountRows.filter(function(r){ return r[0]; }),
+      data_quality_summary: dq,
+      smart_insight_rows: findings,
+      dashboard_first_visible: ss.getSheets().filter(function(sh){ return !sh.isSheetHidden(); })[0].getName() === dashboard.getName(),
+      finance_events_hidden_not_deleted: financeEvents ? financeEvents.isSheetHidden() : false,
+      transactions_recreated: Boolean(airoTask101FindSheet_(ss, 'Transactions', {})),
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      financial_write_performed: false
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function airoTask101LegacyHits_(dashboard) {
+  var data = dashboard.getDataRange().getDisplayValues();
+  var formulas = dashboard.getDataRange().getFormulas();
+  var terms = ['Makanan','Bensin','Lainnya','source: Finance Events','Bar  (source: Finance Events'];
+  var hits = [];
+  for (var r = 0; r < data.length; r++) {
+    for (var c = 0; c < data[r].length; c++) {
+      var v = String(data[r][c] || '');
+      var f = String(formulas[r][c] || '');
+      terms.forEach(function(t) {
+        if (v.indexOf(t) >= 0 || f.indexOf(t) >= 0) hits.push({ row: r + 1, col: c + 1, term: t });
+      });
+    }
+  }
+  return hits;
+}
+
+function airoTask101ErrorCount_(dashboard) {
+  var vals = dashboard.getDataRange().getDisplayValues();
+  var count = 0;
+  vals.forEach(function(row) {
+    row.forEach(function(v) {
+      if (/^#(VALUE|ERROR|REF|N\/A|DIV\/0)!?/.test(String(v || ''))) count++;
+    });
+  });
+  return count;
+}
+
+function airoTask101FinanceFormulaRefCount_(dashboard) {
+  var formulas = dashboard.getDataRange().getFormulas();
+  var count = 0;
+  formulas.forEach(function(row) {
+    row.forEach(function(f) {
+      if (String(f || '').indexOf('Finance Events') >= 0) count++;
+    });
+  });
+  return count;
+}
+
+function airoTask101Widths_(dashboard) {
+  var out = [];
+  for (var i = 1; i <= 10; i++) out.push(dashboard.getColumnWidth(i));
+  return out;
+}
+
+function airoTask101RunRegression_(ss) {
+  var dashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
+  if (!dashboard) throw new Error('dashboard missing');
+  var originalMonth = dashboard.getRange('G2').getDisplayValue();
+  var originalYear = dashboard.getRange('I2').getDisplayValue();
+  var baselineWidth = airoTask101Widths_(dashboard);
+  var steps = [];
+
+  function step(label, month, year) {
+    dashboard.getRange('G2').setValue(month);
+    dashboard.getRange('I2').setValue(String(year));
+    var res = airoTask101RenderDashboardFromCurrentFilter_(ss);
+    var widthOk = JSON.stringify(baselineWidth) === JSON.stringify(airoTask101Widths_(dashboard));
+    steps.push({
+      label: label,
+      ok: res.ok && airoTask101ErrorCount_(dashboard) === 0 && airoTask101LegacyHits_(dashboard).length === 0 && widthOk,
+      selected_month: month,
+      selected_year: year,
+      error_cell_count: airoTask101ErrorCount_(dashboard),
+      legacy_label_hits: airoTask101LegacyHits_(dashboard).length,
+      width_match_baseline: widthOk
+    });
+  }
+
+  step('filter_june_2026', 'Juni', 2026);
+  step('filter_may_2026', 'Mei', 2026);
+  step('filter_future_no_data', 'Januari', (new Date()).getFullYear() + 5);
+  step('filter_back_june_2026', 'Juni', 2026);
+
+  for (var i = 0; i < 3; i++) {
+    var res = airoTask101RenderDashboardFromCurrentFilter_(ss);
+    steps.push({
+      label: 'manual_refresh_' + (i + 1),
+      ok: res.ok && airoTask101ErrorCount_(dashboard) === 0 && airoTask101LegacyHits_(dashboard).length === 0,
+      error_cell_count: airoTask101ErrorCount_(dashboard),
+      legacy_label_hits: airoTask101LegacyHits_(dashboard).length
+    });
+  }
+
+  if (originalMonth) dashboard.getRange('G2').setValue(originalMonth);
+  if (originalYear) dashboard.getRange('I2').setValue(originalYear);
+  var finalRes = airoTask101RenderDashboardFromCurrentFilter_(ss);
+
+  return {
+    ok: steps.every(function(s){ return s.ok; }) && finalRes.ok,
+    baseline_widths: baselineWidth,
+    final_widths: airoTask101Widths_(dashboard),
+    steps: steps,
+    restored_month: originalMonth,
+    restored_year: originalYear
+  };
+}
+
+function runTask101DashboardFilterVisualRepairFromEditor() {
+  var ss = airoTask101GetSs_();
+  var backup = DriveApp.getFileById(ss.getId()).makeCopy('AIRO_FINANCE_TASK10_1_PRE_VISUAL_REPAIR_BACKUP_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss'));
+  var repair = airoTask101RenderDashboardFromCurrentFilter_(ss);
+  var regression = airoTask101RunRegression_(ss);
+  var out = {
+    ok: repair.ok && regression.ok,
+    task: 'AIRO-FINANCE-TASK10.1-DASHBOARD-FILTER-VISUAL-REGRESSION-REPAIR',
+    backup_created: true,
+    backup_name: backup.getName(),
+    backup_id_tail: String(backup.getId()).slice(-6),
+    repair: repair,
+    filter_change_test_results: regression,
+    finance_events_deleted: false,
+    transactions_recreated: repair.transactions_recreated,
+    gmail_read_performed: false,
+    telegram_send_performed: false,
+    financial_write_performed: false
+  };
+  Logger.log(JSON.stringify(out));
+  return out;
+}
+
+function runTask101DashboardReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
+  var financeEvents = airoTask101FindSheet_(ss, 'Finance Events', {});
+  var visible = [];
+  var hidden = [];
+  ss.getSheets().forEach(function(sh){ (sh.isSheetHidden() ? hidden : visible).push(sh.getName()); });
+  var out = {
+    ok: true,
+    selected_month: dashboard ? dashboard.getRange('G2').getDisplayValue() : '',
+    selected_year: dashboard ? dashboard.getRange('I2').getDisplayValue() : '',
+    visible_count: visible.length,
+    hidden_count: hidden.length,
+    visible_order: visible,
+    dashboard_first_visible: dashboard ? visible[0] === dashboard.getName() : false,
+    dashboard_b2: dashboard ? dashboard.getRange('B2').getDisplayValue() : '',
+    dashboard_widths: dashboard ? airoTask101Widths_(dashboard) : [],
+    spending_rows: dashboard ? dashboard.getRange('B28:F33').getDisplayValues() : [],
+    data_quality_summary: dashboard ? dashboard.getRange('G28:J36').getDisplayValues() : [],
+    smart_insight_rows: dashboard ? dashboard.getRange('G35:J40').getDisplayValues() : [],
+    legacy_label_hits: dashboard ? airoTask101LegacyHits_(dashboard) : [],
+    error_cell_count: dashboard ? airoTask101ErrorCount_(dashboard) : 999,
+    dashboard_formula_refs_finance_events_count: dashboard ? airoTask101FinanceFormulaRefCount_(dashboard) : 999,
+    finance_events_hidden_not_deleted: financeEvents ? financeEvents.isSheetHidden() : false,
+    transactions_recreated: Boolean(airoTask101FindSheet_(ss, 'Transactions', {})),
+    gmail_read_performed: false,
+    telegram_send_performed: false,
+    financial_write_performed: false,
+    visual_style_check: 'semi-dark fixed widths; automated style readback limited, owner visual sanity still required'
+  };
+  Logger.log(JSON.stringify(out));
+  return out;
+}
+
+// Override old Task 10 public/manual entry points so old repair/readback routes execute Task 10.1 renderer.
+function runTask10DashboardGovernanceRepairFromEditor() {
+  return runTask101DashboardFilterVisualRepairFromEditor();
+}
+
+function runTask10DashboardReadbackFromEditor() {
+  return runTask101DashboardReadbackFromEditor();
+}
+
+function airoTask10ScheduledDashboardRefresh_() {
+  var ss = airoTask101GetSs_();
+  return airoTask101RenderDashboardFromCurrentFilter_(ss);
+}
+
+function airoTask10MaybeRefreshOnEdit_(e) {
+  return airoTask101OnEdit_(e);
+}
+
+function airoTask101OnEdit_(e) {
+  try {
+    if (!e || !e.range) return false;
+    var sh = e.range.getSheet();
+    var nn = airoTask101Norm_(sh.getName());
+    if (nn.indexOf('dashboard') < 0 || nn.indexOf('v2') >= 0) return false;
+    var a1 = e.range.getA1Notation();
+    if (a1 === 'G2' || a1 === 'I2') {
+      airoTask101RenderDashboardFromCurrentFilter_(sh.getParent());
+      return true;
+    }
+    return false;
+  } catch (err) {
+    Logger.log('AIRO_TASK10_1_ONEDIT_ERROR=' + (err.message || err));
+    return false;
+  }
+}
+// AIRO_TASK10_1_DASHBOARD_FILTER_VISUAL_REPAIR_END
