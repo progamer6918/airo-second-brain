@@ -280,3 +280,11 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 
 
 
+
+## 20260621-140513 — AIRO Finance Task 9 Final Closeout PASS
+- TASK9_FINAL_CLOSEOUT=PASS.
+- Credit Card ledger-first, Asset ledger-first, duplicate cleanup verification, and Dashboard migration are complete.
+- Account Ledger is the source-of-truth.
+- Finance Events remains deprecated/no-op.
+- Transactions was not recreated.
+- Static regression suite and live read-only probe passed.
