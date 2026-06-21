@@ -1,0 +1,18 @@
+Found 17 deployments.
+- AKfycbzf-34Rch9ozXDi22NrZC2VtW_sQhZZUUzp_yGHSyif @HEAD 
+- AKfycbzdIrm-1K4G0MkB7K6iu5hQPG8e0iSjzdp-4MDtaMO8txDZFLVAoMj7Lq4V5YOAeEvJdg @86 - airo write truth readback
+- AKfycbwJGz7zAVvq5eP66LtSwijXPoMRllEh68Ew72_5yPiohrl4ZOdhDx6pBF1NqpbSkFpV-w @1 - n8n append transaction endpoint
+- AKfycbx9sJM2ZijBkjg4n7W6vD08bddiktqSkkDEzb-ge67WTojxvXd3l87abLd6fjWEXxEh @95 - AIRO Finance account ledger cleanup audit
+- AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA @183 - AIRO Finance deploy 20260524_121601
+- AKfycbzNVz4K8DgCoH9pzUkYP4o0C-JRf2Qy28ixT8BoaL3EXgl89goULhYfJ5IHMF44QpZQ_w @190 - AIRO admin smoke readback early doPost intercept 20260524_202858
+- AKfycbzEU6LNUGwTVchbxfIA5W_41xXxIbF0X1MuCyEfc7La66rhrmvSaClCdW6fX6YJT5arOw @187 - AIRO canonical source sync Finance Events schema helper 20260524_185745
+- AKfycbw24BIbdd2Irj4a4mc1AtE3l6GhQ7eu8M37dobupVoddf7cxWf7trlzU1sE8pQ3R7ubFw @2 - direct telegram webhook v1
+- AKfycbwP-MopNaONngjGoynM8-dkEhdD-wHmycNo_sylsz85AXynnu6unAWkdjISxh2Dp5V0Cw @191 - AIRO admin smoke readback fast operational tabs 20260524_204159
+- AKfycbwdewSvqM2_FU_kZrJNqFBBbWaw_W-eQ4jKwuTbbAdeg_pwWlSNYszvAdHKcSqJXJeTJQ @193 - AIRO fix Hutang direct routing 20260525_200720
+- AKfycbxtS4Z4u3HpnjmY9c27nGVohFusQfsRnlMabetiUhOPgc7XP4GCaaxOW0y9oMQRkRmCIA @93 - AIRO Finance account ledger cash backfill
+- AKfycbwugG2WUJw5BcoP5IZvr_jhukhxe8VKsTvQr7OUR8FRx5WwbKOiEUFe8vKiB0RoWgXlsQ @94 - AIRO Finance harden account ledger backfill dedupe
+- AKfycbz21s2rHh_-2jMV-h1iPNV4NhBc1xuQLdzzpGNbqIGyRUssyaJqD0Ly1wbIlibArPwyNA @189 - AIRO admin find smoke readback 20260524_202553
+- AKfycbxlsCAH-hvAND_5KuUV26JCoXXTITdmCLW_sjzI1eQDS4i0mH85TIvsvkow0T5i5wEU6g @96 - AIRO Finance account ledger cleanup duplicates
+- AKfycbwLGNdWSHF6_V-WFteyvPq9tm2hgB_jK-ecv56AImZn3D8VMHBYvtv6IOWFz4MP7qAYqQ @200 - AIRO prod @192 Sprint 4 cash Finance Events emission
+- AKfycbx0rVuz1m2Jsg_Np7_6Mgxdlx5nP52_TtqrHCxBsiQkT4WtGQFFtIJ3n_rez68-QJ6Cow @188 - AIRO canonical source sync Finance Events schema helper 20260524_185833
+- AKfycbx27ehUIFEEhdfksczFwtToQ-KYUBRTifCy3QfvFo5OD-BsBO9RZ9vuKGniJVDRWBMcNA @184 - AIRO live schema verify API executable 20260524_170630

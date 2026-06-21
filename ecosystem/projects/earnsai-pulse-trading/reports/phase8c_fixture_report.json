@@ -1,0 +1,948 @@
+{
+  "catalog": {
+    "bearish": {
+      "description": "Steady downward movement. Short moving average should be below long moving average.",
+      "expected_candidate_action": "SELL",
+      "expected_trend": "bearish",
+      "name": "bearish",
+      "prices": [
+        108.0,
+        106.0,
+        104.0,
+        102.0,
+        101.0,
+        100.0
+      ],
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    "bullish": {
+      "description": "Steady upward movement. Short moving average should be above long moving average.",
+      "expected_candidate_action": "BUY",
+      "expected_trend": "bullish",
+      "name": "bullish",
+      "prices": [
+        100.0,
+        101.0,
+        102.0,
+        104.0,
+        106.0,
+        108.0
+      ],
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    "flat": {
+      "description": "No directional movement. Strategy should stay defensive.",
+      "expected_candidate_action": "HOLD",
+      "expected_trend": "flat",
+      "name": "flat",
+      "prices": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    },
+    "volatile": {
+      "description": "High variance sequence with final short average above long average.",
+      "expected_candidate_action": "BUY",
+      "expected_trend": "bullish",
+      "name": "volatile",
+      "prices": [
+        100.0,
+        106.0,
+        98.0,
+        108.0,
+        97.0,
+        109.0
+      ],
+      "symbol": "BTC/USDT",
+      "timeframe": "1h"
+    }
+  },
+  "ok": true,
+  "runs": [
+    {
+      "checks": {
+        "candidate_action_matches": true,
+        "live_locked": true,
+        "paper_only": true,
+        "risk_status_valid": true,
+        "trend_matches": true
+      },
+      "observed": {
+        "candidate_action": "BUY",
+        "confidence": 0.7447499999999998,
+        "final_action": "BUY",
+        "live_trading_locked": true,
+        "mode": "PAPER_ONLY",
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "trend": "bullish"
+      },
+      "raw_result": {
+        "agents": {
+          "decision": {
+            "agent": "decision",
+            "confidence": 0.7447499999999998,
+            "created_at": "2026-05-03T15:21:13.213017+00:00",
+            "data": {
+              "confidence": 0.7447499999999998,
+              "raw_action": "BUY",
+              "source_agents": [
+                "research",
+                "technical",
+                "sentiment",
+                "strategy",
+                "risk",
+                "decision"
+              ]
+            },
+            "status": "OK",
+            "summary": "Decision agent produced raw action=BUY, confidence=0.74."
+          },
+          "monitoring": {
+            "agent": "monitoring",
+            "confidence": 1.0,
+            "created_at": "2026-05-03T15:21:13.213067+00:00",
+            "data": {
+              "agent_count": 6,
+              "final_action": "BUY",
+              "live_trading_locked": true,
+              "mode": "PAPER_ONLY",
+              "risk_status": "APPROVED_FOR_PAPER_ONLY"
+            },
+            "status": "OK",
+            "summary": "Monitoring baseline recorded final signal and agent outputs."
+          },
+          "research": {
+            "agent": "research",
+            "confidence": 0.62,
+            "created_at": "2026-05-03T15:21:13.212849+00:00",
+            "data": {
+              "external_api_used": false,
+              "private_exchange_api_used": false,
+              "research_bias": "neutral_to_cautious",
+              "symbol": "BTC/USDT",
+              "timeframe": "1h"
+            },
+            "status": "OK",
+            "summary": "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C."
+          },
+          "risk": {
+            "agent": "risk",
+            "confidence": 0.75,
+            "created_at": "2026-05-03T15:21:13.212967+00:00",
+            "data": {
+              "candidate_action": "BUY",
+              "live_trading_locked": true,
+              "max_position_pct": 0.05,
+              "mode": "PAPER_ONLY",
+              "notes": [
+                "safe:risk_precheck_ok"
+              ]
+            },
+            "status": "OK",
+            "summary": "Risk precheck completed before final risk gate."
+          },
+          "sentiment": {
+            "agent": "sentiment",
+            "confidence": 0.55,
+            "created_at": "2026-05-03T15:21:13.212937+00:00",
+            "data": {
+              "external_news_used": false,
+              "sentiment": "neutral",
+              "sentiment_modifier": 0.0,
+              "social_scraping_used": false
+            },
+            "status": "OK",
+            "summary": "Sentiment baseline for BTC/USDT: neutral because no live news/social feed is used in Phase 7C."
+          },
+          "strategy": {
+            "agent": "strategy",
+            "confidence": 0.7424999999999998,
+            "created_at": "2026-05-03T15:21:13.212943+00:00",
+            "data": {
+              "candidate_action": "BUY",
+              "max_position_pct": 0.05,
+              "position_sizing_model": "fixed_small_paper_position",
+              "sentiment": "neutral",
+              "stoploss_pct": -0.02,
+              "take_profit_pct": 0.04,
+              "technical_action": "BUY"
+            },
+            "status": "OK",
+            "summary": "Strategy baseline selected action=BUY from technical=BUY, sentiment=neutral."
+          },
+          "technical": {
+            "agent": "technical",
+            "confidence": 0.7,
+            "created_at": "2026-05-03T15:21:13.212931+00:00",
+            "data": {
+              "long_ma": 103.5,
+              "prices": [
+                100.0,
+                101.0,
+                102.0,
+                104.0,
+                106.0,
+                108.0
+              ],
+              "short_ma": 106.0,
+              "suggested_action": "BUY",
+              "trend": "bullish"
+            },
+            "status": "OK",
+            "summary": "Technical baseline for BTC/USDT: short_ma=106.00, long_ma=103.50, trend=bullish."
+          }
+        },
+        "context": {
+          "prices": [
+            100.0,
+            101.0,
+            102.0,
+            104.0,
+            106.0,
+            108.0
+          ],
+          "scenario": "bullish",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "freqtrade_signal_path": "freqtrade_user_data/signals/latest_signal.json",
+        "journal_path": "logs/decisions.jsonl",
+        "latest_signal_path": "earnsai/signals/latest_signal.json",
+        "ok": true,
+        "phase": "7C",
+        "risk": {
+          "action": "BUY",
+          "confidence": 0.7447499999999998,
+          "live_trading_locked": true,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "790e2a6b-c3a3-4e3a-a93b-c7a13a31cd97",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "signal": {
+          "action": "BUY",
+          "confidence": 0.7447499999999998,
+          "created_at": "2026-05-03T15:21:13.213002+00:00",
+          "entry_reason": [
+            "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C.",
+            "Technical baseline for BTC/USDT: short_ma=106.00, long_ma=103.50, trend=bullish.",
+            "Strategy baseline selected action=BUY from technical=BUY, sentiment=neutral."
+          ],
+          "live_trading_locked": true,
+          "max_position_pct": 0.05,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "790e2a6b-c3a3-4e3a-a93b-c7a13a31cd97",
+          "source_agents": [
+            "research",
+            "technical",
+            "sentiment",
+            "strategy",
+            "risk",
+            "decision"
+          ],
+          "stoploss_pct": -0.02,
+          "symbol": "BTC/USDT",
+          "take_profit_pct": 0.04,
+          "timeframe": "1h",
+          "valid_until": "2026-05-03T16:21:13.213006+00:00"
+        }
+      },
+      "scenario": {
+        "description": "Steady upward movement. Short moving average should be above long moving average.",
+        "expected_candidate_action": "BUY",
+        "expected_trend": "bullish",
+        "name": "bullish",
+        "prices": [
+          100.0,
+          101.0,
+          102.0,
+          104.0,
+          106.0,
+          108.0
+        ],
+        "symbol": "BTC/USDT",
+        "timeframe": "1h"
+      }
+    },
+    {
+      "checks": {
+        "candidate_action_matches": true,
+        "live_locked": true,
+        "paper_only": true,
+        "risk_status_valid": true,
+        "trend_matches": true
+      },
+      "observed": {
+        "candidate_action": "SELL",
+        "confidence": 0.7237499999999999,
+        "final_action": "SELL",
+        "live_trading_locked": true,
+        "mode": "PAPER_ONLY",
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "trend": "bearish"
+      },
+      "raw_result": {
+        "agents": {
+          "decision": {
+            "agent": "decision",
+            "confidence": 0.7237499999999999,
+            "created_at": "2026-05-03T15:21:13.213827+00:00",
+            "data": {
+              "confidence": 0.7237499999999999,
+              "raw_action": "SELL",
+              "source_agents": [
+                "research",
+                "technical",
+                "sentiment",
+                "strategy",
+                "risk",
+                "decision"
+              ]
+            },
+            "status": "OK",
+            "summary": "Decision agent produced raw action=SELL, confidence=0.72."
+          },
+          "monitoring": {
+            "agent": "monitoring",
+            "confidence": 1.0,
+            "created_at": "2026-05-03T15:21:13.213867+00:00",
+            "data": {
+              "agent_count": 6,
+              "final_action": "SELL",
+              "live_trading_locked": true,
+              "mode": "PAPER_ONLY",
+              "risk_status": "APPROVED_FOR_PAPER_ONLY"
+            },
+            "status": "OK",
+            "summary": "Monitoring baseline recorded final signal and agent outputs."
+          },
+          "research": {
+            "agent": "research",
+            "confidence": 0.62,
+            "created_at": "2026-05-03T15:21:13.213723+00:00",
+            "data": {
+              "external_api_used": false,
+              "private_exchange_api_used": false,
+              "research_bias": "neutral_to_cautious",
+              "symbol": "BTC/USDT",
+              "timeframe": "1h"
+            },
+            "status": "OK",
+            "summary": "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C."
+          },
+          "risk": {
+            "agent": "risk",
+            "confidence": 0.75,
+            "created_at": "2026-05-03T15:21:13.213788+00:00",
+            "data": {
+              "candidate_action": "SELL",
+              "live_trading_locked": true,
+              "max_position_pct": 0.05,
+              "mode": "PAPER_ONLY",
+              "notes": [
+                "safe:risk_precheck_ok"
+              ]
+            },
+            "status": "OK",
+            "summary": "Risk precheck completed before final risk gate."
+          },
+          "sentiment": {
+            "agent": "sentiment",
+            "confidence": 0.55,
+            "created_at": "2026-05-03T15:21:13.213763+00:00",
+            "data": {
+              "external_news_used": false,
+              "sentiment": "neutral",
+              "sentiment_modifier": 0.0,
+              "social_scraping_used": false
+            },
+            "status": "OK",
+            "summary": "Sentiment baseline for BTC/USDT: neutral because no live news/social feed is used in Phase 7C."
+          },
+          "strategy": {
+            "agent": "strategy",
+            "confidence": 0.7125,
+            "created_at": "2026-05-03T15:21:13.213769+00:00",
+            "data": {
+              "candidate_action": "SELL",
+              "max_position_pct": 0.05,
+              "position_sizing_model": "fixed_small_paper_position",
+              "sentiment": "neutral",
+              "stoploss_pct": -0.02,
+              "take_profit_pct": 0.04,
+              "technical_action": "SELL"
+            },
+            "status": "OK",
+            "summary": "Strategy baseline selected action=SELL from technical=SELL, sentiment=neutral."
+          },
+          "technical": {
+            "agent": "technical",
+            "confidence": 0.66,
+            "created_at": "2026-05-03T15:21:13.213758+00:00",
+            "data": {
+              "long_ma": 103.5,
+              "prices": [
+                108.0,
+                106.0,
+                104.0,
+                102.0,
+                101.0,
+                100.0
+              ],
+              "short_ma": 101.0,
+              "suggested_action": "SELL",
+              "trend": "bearish"
+            },
+            "status": "OK",
+            "summary": "Technical baseline for BTC/USDT: short_ma=101.00, long_ma=103.50, trend=bearish."
+          }
+        },
+        "context": {
+          "prices": [
+            108.0,
+            106.0,
+            104.0,
+            102.0,
+            101.0,
+            100.0
+          ],
+          "scenario": "bearish",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "freqtrade_signal_path": "freqtrade_user_data/signals/latest_signal.json",
+        "journal_path": "logs/decisions.jsonl",
+        "latest_signal_path": "earnsai/signals/latest_signal.json",
+        "ok": true,
+        "phase": "7C",
+        "risk": {
+          "action": "SELL",
+          "confidence": 0.7237499999999999,
+          "live_trading_locked": true,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "53fd0646-c45f-4a60-b3fe-33d4d58c0896",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "signal": {
+          "action": "SELL",
+          "confidence": 0.7237499999999999,
+          "created_at": "2026-05-03T15:21:13.213815+00:00",
+          "entry_reason": [
+            "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C.",
+            "Technical baseline for BTC/USDT: short_ma=101.00, long_ma=103.50, trend=bearish.",
+            "Strategy baseline selected action=SELL from technical=SELL, sentiment=neutral."
+          ],
+          "live_trading_locked": true,
+          "max_position_pct": 0.05,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "53fd0646-c45f-4a60-b3fe-33d4d58c0896",
+          "source_agents": [
+            "research",
+            "technical",
+            "sentiment",
+            "strategy",
+            "risk",
+            "decision"
+          ],
+          "stoploss_pct": -0.02,
+          "symbol": "BTC/USDT",
+          "take_profit_pct": 0.04,
+          "timeframe": "1h",
+          "valid_until": "2026-05-03T16:21:13.213819+00:00"
+        }
+      },
+      "scenario": {
+        "description": "Steady downward movement. Short moving average should be below long moving average.",
+        "expected_candidate_action": "SELL",
+        "expected_trend": "bearish",
+        "name": "bearish",
+        "prices": [
+          108.0,
+          106.0,
+          104.0,
+          102.0,
+          101.0,
+          100.0
+        ],
+        "symbol": "BTC/USDT",
+        "timeframe": "1h"
+      }
+    },
+    {
+      "checks": {
+        "candidate_action_matches": true,
+        "live_locked": true,
+        "paper_only": true,
+        "risk_status_valid": true,
+        "trend_matches": true
+      },
+      "observed": {
+        "candidate_action": "HOLD",
+        "confidence": 0.48,
+        "final_action": "HOLD",
+        "live_trading_locked": true,
+        "mode": "PAPER_ONLY",
+        "risk_status": "REJECTED",
+        "trend": "flat"
+      },
+      "raw_result": {
+        "agents": {
+          "decision": {
+            "agent": "decision",
+            "confidence": 0.48,
+            "created_at": "2026-05-03T15:21:13.214411+00:00",
+            "data": {
+              "confidence": 0.48,
+              "raw_action": "HOLD",
+              "source_agents": [
+                "research",
+                "technical",
+                "sentiment",
+                "strategy",
+                "risk",
+                "decision"
+              ]
+            },
+            "status": "OK",
+            "summary": "Decision agent produced raw action=HOLD, confidence=0.48."
+          },
+          "monitoring": {
+            "agent": "monitoring",
+            "confidence": 1.0,
+            "created_at": "2026-05-03T15:21:13.214447+00:00",
+            "data": {
+              "agent_count": 6,
+              "final_action": "HOLD",
+              "live_trading_locked": true,
+              "mode": "PAPER_ONLY",
+              "risk_status": "REJECTED"
+            },
+            "status": "OK",
+            "summary": "Monitoring baseline recorded final signal and agent outputs."
+          },
+          "research": {
+            "agent": "research",
+            "confidence": 0.62,
+            "created_at": "2026-05-03T15:21:13.214314+00:00",
+            "data": {
+              "external_api_used": false,
+              "private_exchange_api_used": false,
+              "research_bias": "neutral_to_cautious",
+              "symbol": "BTC/USDT",
+              "timeframe": "1h"
+            },
+            "status": "OK",
+            "summary": "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C."
+          },
+          "risk": {
+            "agent": "risk",
+            "confidence": 0.55,
+            "created_at": "2026-05-03T15:21:13.214377+00:00",
+            "data": {
+              "candidate_action": "HOLD",
+              "live_trading_locked": true,
+              "max_position_pct": 0.0,
+              "mode": "PAPER_ONLY",
+              "notes": [
+                "safe:hold_candidate"
+              ]
+            },
+            "status": "OK",
+            "summary": "Risk precheck completed before final risk gate."
+          },
+          "sentiment": {
+            "agent": "sentiment",
+            "confidence": 0.55,
+            "created_at": "2026-05-03T15:21:13.214355+00:00",
+            "data": {
+              "external_news_used": false,
+              "sentiment": "neutral",
+              "sentiment_modifier": 0.0,
+              "social_scraping_used": false
+            },
+            "status": "OK",
+            "summary": "Sentiment baseline for BTC/USDT: neutral because no live news/social feed is used in Phase 7C."
+          },
+          "strategy": {
+            "agent": "strategy",
+            "confidence": 0.45,
+            "created_at": "2026-05-03T15:21:13.214359+00:00",
+            "data": {
+              "candidate_action": "HOLD",
+              "max_position_pct": 0.0,
+              "position_sizing_model": "fixed_small_paper_position",
+              "sentiment": "neutral",
+              "stoploss_pct": 0.0,
+              "take_profit_pct": 0.0,
+              "technical_action": "HOLD"
+            },
+            "status": "OK",
+            "summary": "Strategy baseline selected action=HOLD from technical=HOLD, sentiment=neutral."
+          },
+          "technical": {
+            "agent": "technical",
+            "confidence": 0.45,
+            "created_at": "2026-05-03T15:21:13.214346+00:00",
+            "data": {
+              "long_ma": 100.0,
+              "prices": [
+                100.0,
+                100.0,
+                100.0,
+                100.0,
+                100.0,
+                100.0
+              ],
+              "short_ma": 100.0,
+              "suggested_action": "HOLD",
+              "trend": "flat"
+            },
+            "status": "OK",
+            "summary": "Technical baseline for BTC/USDT: short_ma=100.00, long_ma=100.00, trend=flat."
+          }
+        },
+        "context": {
+          "prices": [
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0,
+            100.0
+          ],
+          "scenario": "flat",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "freqtrade_signal_path": "freqtrade_user_data/signals/latest_signal.json",
+        "journal_path": "logs/decisions.jsonl",
+        "latest_signal_path": "earnsai/signals/latest_signal.json",
+        "ok": true,
+        "phase": "7C",
+        "risk": {
+          "action": "HOLD",
+          "confidence": 0.48,
+          "live_trading_locked": true,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:hold_candidate",
+            "hold_action_default_safe"
+          ],
+          "risk_status": "REJECTED",
+          "signal_id": "30b385d9-6828-41c8-a363-1ae6d8257dc9",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "signal": {
+          "action": "HOLD",
+          "confidence": 0.48,
+          "created_at": "2026-05-03T15:21:13.214401+00:00",
+          "entry_reason": [
+            "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C.",
+            "Technical baseline for BTC/USDT: short_ma=100.00, long_ma=100.00, trend=flat.",
+            "Strategy baseline selected action=HOLD from technical=HOLD, sentiment=neutral."
+          ],
+          "live_trading_locked": true,
+          "max_position_pct": 0.0,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:hold_candidate",
+            "hold_action_default_safe"
+          ],
+          "risk_status": "REJECTED",
+          "signal_id": "30b385d9-6828-41c8-a363-1ae6d8257dc9",
+          "source_agents": [
+            "research",
+            "technical",
+            "sentiment",
+            "strategy",
+            "risk",
+            "decision"
+          ],
+          "stoploss_pct": 0.0,
+          "symbol": "BTC/USDT",
+          "take_profit_pct": 0.0,
+          "timeframe": "1h",
+          "valid_until": "2026-05-03T16:21:13.214403+00:00"
+        }
+      },
+      "scenario": {
+        "description": "No directional movement. Strategy should stay defensive.",
+        "expected_candidate_action": "HOLD",
+        "expected_trend": "flat",
+        "name": "flat",
+        "prices": [
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0,
+          100.0
+        ],
+        "symbol": "BTC/USDT",
+        "timeframe": "1h"
+      }
+    },
+    {
+      "checks": {
+        "candidate_action_matches": true,
+        "live_locked": true,
+        "paper_only": true,
+        "risk_status_valid": true,
+        "trend_matches": true
+      },
+      "observed": {
+        "candidate_action": "BUY",
+        "confidence": 0.7447499999999998,
+        "final_action": "BUY",
+        "live_trading_locked": true,
+        "mode": "PAPER_ONLY",
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "trend": "bullish"
+      },
+      "raw_result": {
+        "agents": {
+          "decision": {
+            "agent": "decision",
+            "confidence": 0.7447499999999998,
+            "created_at": "2026-05-03T15:21:13.215171+00:00",
+            "data": {
+              "confidence": 0.7447499999999998,
+              "raw_action": "BUY",
+              "source_agents": [
+                "research",
+                "technical",
+                "sentiment",
+                "strategy",
+                "risk",
+                "decision"
+              ]
+            },
+            "status": "OK",
+            "summary": "Decision agent produced raw action=BUY, confidence=0.74."
+          },
+          "monitoring": {
+            "agent": "monitoring",
+            "confidence": 1.0,
+            "created_at": "2026-05-03T15:21:13.215215+00:00",
+            "data": {
+              "agent_count": 6,
+              "final_action": "BUY",
+              "live_trading_locked": true,
+              "mode": "PAPER_ONLY",
+              "risk_status": "APPROVED_FOR_PAPER_ONLY"
+            },
+            "status": "OK",
+            "summary": "Monitoring baseline recorded final signal and agent outputs."
+          },
+          "research": {
+            "agent": "research",
+            "confidence": 0.62,
+            "created_at": "2026-05-03T15:21:13.215077+00:00",
+            "data": {
+              "external_api_used": false,
+              "private_exchange_api_used": false,
+              "research_bias": "neutral_to_cautious",
+              "symbol": "BTC/USDT",
+              "timeframe": "1h"
+            },
+            "status": "OK",
+            "summary": "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C."
+          },
+          "risk": {
+            "agent": "risk",
+            "confidence": 0.75,
+            "created_at": "2026-05-03T15:21:13.215137+00:00",
+            "data": {
+              "candidate_action": "BUY",
+              "live_trading_locked": true,
+              "max_position_pct": 0.05,
+              "mode": "PAPER_ONLY",
+              "notes": [
+                "safe:risk_precheck_ok"
+              ]
+            },
+            "status": "OK",
+            "summary": "Risk precheck completed before final risk gate."
+          },
+          "sentiment": {
+            "agent": "sentiment",
+            "confidence": 0.55,
+            "created_at": "2026-05-03T15:21:13.215115+00:00",
+            "data": {
+              "external_news_used": false,
+              "sentiment": "neutral",
+              "sentiment_modifier": 0.0,
+              "social_scraping_used": false
+            },
+            "status": "OK",
+            "summary": "Sentiment baseline for BTC/USDT: neutral because no live news/social feed is used in Phase 7C."
+          },
+          "strategy": {
+            "agent": "strategy",
+            "confidence": 0.7424999999999998,
+            "created_at": "2026-05-03T15:21:13.215119+00:00",
+            "data": {
+              "candidate_action": "BUY",
+              "max_position_pct": 0.05,
+              "position_sizing_model": "fixed_small_paper_position",
+              "sentiment": "neutral",
+              "stoploss_pct": -0.02,
+              "take_profit_pct": 0.04,
+              "technical_action": "BUY"
+            },
+            "status": "OK",
+            "summary": "Strategy baseline selected action=BUY from technical=BUY, sentiment=neutral."
+          },
+          "technical": {
+            "agent": "technical",
+            "confidence": 0.7,
+            "created_at": "2026-05-03T15:21:13.215110+00:00",
+            "data": {
+              "long_ma": 103.0,
+              "prices": [
+                100.0,
+                106.0,
+                98.0,
+                108.0,
+                97.0,
+                109.0
+              ],
+              "short_ma": 104.66666666666667,
+              "suggested_action": "BUY",
+              "trend": "bullish"
+            },
+            "status": "OK",
+            "summary": "Technical baseline for BTC/USDT: short_ma=104.67, long_ma=103.00, trend=bullish."
+          }
+        },
+        "context": {
+          "prices": [
+            100.0,
+            106.0,
+            98.0,
+            108.0,
+            97.0,
+            109.0
+          ],
+          "scenario": "volatile",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "freqtrade_signal_path": "freqtrade_user_data/signals/latest_signal.json",
+        "journal_path": "logs/decisions.jsonl",
+        "latest_signal_path": "earnsai/signals/latest_signal.json",
+        "ok": true,
+        "phase": "7C",
+        "risk": {
+          "action": "BUY",
+          "confidence": 0.7447499999999998,
+          "live_trading_locked": true,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "970a6e88-3ba2-44a3-8390-611e9377c943",
+          "symbol": "BTC/USDT",
+          "timeframe": "1h"
+        },
+        "signal": {
+          "action": "BUY",
+          "confidence": 0.7447499999999998,
+          "created_at": "2026-05-03T15:21:13.215161+00:00",
+          "entry_reason": [
+            "Research baseline for BTC/USDT on 1h: no external/news API used in Phase 7C.",
+            "Technical baseline for BTC/USDT: short_ma=104.67, long_ma=103.00, trend=bullish.",
+            "Strategy baseline selected action=BUY from technical=BUY, sentiment=neutral."
+          ],
+          "live_trading_locked": true,
+          "max_position_pct": 0.05,
+          "mode": "PAPER_ONLY",
+          "risk_notes": [
+            "safe:risk_precheck_ok",
+            "approved_for_paper_only"
+          ],
+          "risk_status": "APPROVED_FOR_PAPER_ONLY",
+          "signal_id": "970a6e88-3ba2-44a3-8390-611e9377c943",
+          "source_agents": [
+            "research",
+            "technical",
+            "sentiment",
+            "strategy",
+            "risk",
+            "decision"
+          ],
+          "stoploss_pct": -0.02,
+          "symbol": "BTC/USDT",
+          "take_profit_pct": 0.04,
+          "timeframe": "1h",
+          "valid_until": "2026-05-03T16:21:13.215164+00:00"
+        }
+      },
+      "scenario": {
+        "description": "High variance sequence with final short average above long average.",
+        "expected_candidate_action": "BUY",
+        "expected_trend": "bullish",
+        "name": "volatile",
+        "prices": [
+          100.0,
+          106.0,
+          98.0,
+          108.0,
+          97.0,
+          109.0
+        ],
+        "symbol": "BTC/USDT",
+        "timeframe": "1h"
+      }
+    }
+  ],
+  "summary": {
+    "failed": 0,
+    "final_actions": {
+      "bearish": "SELL",
+      "bullish": "BUY",
+      "flat": "HOLD",
+      "volatile": "BUY"
+    },
+    "passed": 4,
+    "risk_statuses": {
+      "bearish": "APPROVED_FOR_PAPER_ONLY",
+      "bullish": "APPROVED_FOR_PAPER_ONLY",
+      "flat": "REJECTED",
+      "volatile": "APPROVED_FOR_PAPER_ONLY"
+    },
+    "total": 4
+  }
+}

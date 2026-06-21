@@ -1,0 +1,28 @@
+
+# Local Notion database IDs, do not share
+FINAL_ROUTING_DB_IDS.local.md
+.aider*
+
+# EarnsAI safe local-only block
+.env
+.env.*
+*.env
+*token*
+*secret*
+*credential*
+*cookie*
+*session*
+*private*key*
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+node_modules/
+logs/
+tmp/
+temp/
+*.log
+*.sqlite*
+*.db

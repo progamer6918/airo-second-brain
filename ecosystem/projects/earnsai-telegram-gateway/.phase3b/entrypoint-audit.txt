@@ -1,0 +1,227 @@
+=== WEBHOOK ENTRYPOINT BLOCK ===
+   525	  async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
+   526	    const url = new URL(request.url);
+   527	
+   528	    if (request.method === "GET" && url.pathname === "/health") {
+   529	      return json({
+   530	        ok: true,
+   531	        service: "earnsai-telegram-gateway",
+   532	        phase: "telegram-webhook-minimal",
+   533	      });
+   534	    }
+   535	
+   536	    if (request.method === "POST" && url.pathname === `/telegram/${env.TELEGRAM_SECRET_PATH}`) {
+   537	      const update: any = await request.json();
+   538	
+   539	      const message = update.message || update.edited_message;
+   540	      const chatId = message?.chat?.id;
+   541	      const rawText = message?.text || message?.caption || "";
+   542	
+   543	      if (!chatId || !rawText.trim()) {
+   544	        return json({ ok: true, ignored: true, reason: "No text message found" });
+   545	      }
+   546	
+   547	        const userId = getAutoMergeUserId(message);
+   548	        const bufferKey = getAutoMergeBufferKey(chatId, userId);
+   549	        const hasExistingBuffer = autoMergeBuffers.has(bufferKey);
+   550	        const isCaptureTrigger = isAutoMergeCaptureTrigger(rawText);
+   551	
+   552	        try {
+   553	          if (hasExistingBuffer && isCaptureTrigger) {
+   554	            await flushAutoMergeBuffer(env, ctx, chatId, userId, "new-capture-trigger");
+   555	          }
+   556	
+   557	          if (hasExistingBuffer && !isCaptureTrigger) {
+   558	            const appended = appendAutoMergeBuffer(env, ctx, chatId, userId, rawText);
+   559	
+   560	            return json({
+   561	              ok: true,
+   562	              captured: false,
+   563	              buffering: appended,
+   564	              auto_merge: true,
+   565	              reason: appended ? "message appended to active buffer" : "buffer missing or flushing",
+   566	            });
+   567	          }
+   568	
+   569	          await startAutoMergeBuffer(env, ctx, chatId, userId, rawText);
+   570	
+   571	          return json({
+   572	            ok: true,
+   573	            captured: false,
+   574	            buffering: true,
+   575	            auto_merge: true,
+   576	            reason: isCaptureTrigger ? "capture trigger detected" : "default capture buffering",
+   577	          });
+   578	      } catch (err: any) {
+   579	        await sendTelegram(
+   580	          env,
+   581	          chatId,
+   582	          `❌ Gagal mencatat ke Notion.\n\n${String(err.message || err).slice(0, 500)}`
+   583	        );
+   584	
+   585	        return json(
+   586	          {
+   587	            ok: false,
+   588	            error: String(err.message || err),
+   589	          },
+   590	          500
+   591	        );
+   592	      }
+   593	    }
+   594	
+   595	    return json({ ok: false, error: "Not found" }, 404);
+   596	  },
+   597	};
+
+=== CAPTURE TRIGGER / AUTO MERGE BLOCK ===
+   160	
+   161	function sleep(ms: number): Promise<void> {
+   162	  return new Promise((resolve) => setTimeout(resolve, ms));
+   163	}
+   164	
+   165	function getAutoMergeUserId(message: any): string {
+   166	  return String(message?.from?.id || "unknown");
+   167	}
+   168	
+   169	function getAutoMergeBufferKey(chatId: number, userId: string): string {
+   170	  return `${chatId}:${userId}`;
+   171	}
+   172	
+   173	function isAutoMergeCaptureTrigger(rawText: string): boolean {
+   174	  const text = rawText.trim().toLowerCase();
+   175	
+   176	  return AUTO_MERGE_CAPTURE_TRIGGERS.some((trigger) =>
+   177	    text === trigger ||
+   178	    text.startsWith(`${trigger} `) ||
+   179	    text.startsWith(`${trigger}\n`) ||
+   180	    text.startsWith(`${trigger}:`)
+   181	  );
+   182	}
+   183	
+   184	async function flushAutoMergeBuffer(
+   185	  env: any,
+   186	  ctx: ExecutionContext,
+   187	  chatId: number,
+   188	  userId: string,
+   189	  reason: string
+   190	): Promise<any | null> {
+   191	  const key = getAutoMergeBufferKey(chatId, userId);
+   192	  const entry = autoMergeBuffers.get(key);
+   193	
+   194	  if (!entry || entry.flushing) return null;
+   195	
+   196	  entry.flushing = true;
+   197	  autoMergeBuffers.delete(key);
+   198	
+   199	  const mergedText = entry.parts.map((x) => x.trim()).filter(Boolean).join("\n").trim();
+   200	  if (!mergedText) return null;
+   201	
+   202	  try {
+   203	    const page = await createRecentCapture(env, mergedText);
+   204	    const initialRoute = classifyInitialRoute(mergedText);
+   205	    const job = runFinalRouting(env, mergedText, initialRoute, page.id, page.url)
+   206	      .catch((err: any) => console.error("Final routing failed", err?.message || err));
+   207	
+   208	    ctx.waitUntil(job);
+   209	
+   210	    await sendTelegram(env, chatId, buildBubuReply(page.url));
+   211	    return page;
+   212	  } catch (err: any) {
+   213	    console.error(`Auto merge flush failed: ${reason}`, err?.message || err);
+   214	    await sendTelegram(
+   215	      env,
+   216	      chatId,
+   217	      `❌ Gagal mencatat gabungan pesan ke Notion.\n\n${String(err.message || err).slice(0, 500)}`
+   218	    ).catch((sendErr: any) => console.error("Failed to send auto merge error", sendErr?.message || sendErr));
+   219	
+   220	    return null;
+   221	  }
+   222	}
+   223	
+   224	function scheduleAutoMergeIdleFlush(
+   225	  env: any,
+   226	  ctx: ExecutionContext,
+   227	  chatId: number,
+   228	  userId: string,
+   229	  idleVersion: number
+   230	): void {
+   231	  const key = getAutoMergeBufferKey(chatId, userId);
+   232	
+   233	  ctx.waitUntil(
+   234	    sleep(AUTO_MERGE_IDLE_MS).then(() => {
+   235	      const current = autoMergeBuffers.get(key);
+   236	      if (!current || current.idleVersion !== idleVersion) return null;
+   237	      return flushAutoMergeBuffer(env, ctx, chatId, userId, "idle-timeout");
+   238	    })
+   239	  );
+   240	}
+   241	
+   242	function scheduleAutoMergeMaxFlush(env: any, ctx: ExecutionContext, chatId: number, userId: string): void {
+   243	  ctx.waitUntil(
+   244	    sleep(AUTO_MERGE_MAX_MS).then(() => flushAutoMergeBuffer(env, ctx, chatId, userId, "max-timeout"))
+   245	  );
+   246	}
+   247	
+   248	async function startAutoMergeBuffer(
+   249	  env: any,
+   250	  ctx: ExecutionContext,
+   251	  chatId: number,
+   252	  userId: string,
+   253	  rawText: string
+   254	): Promise<void> {
+   255	  const entry: AutoMergeBufferEntry = {
+   256	    chatId,
+   257	    userId,
+   258	    parts: [rawText.trim()],
+   259	    idleVersion: 1,
+   260	    flushing: false,
+   261	  };
+   262	
+   263	  autoMergeBuffers.set(getAutoMergeBufferKey(chatId, userId), entry);
+   264	
+   265	  scheduleAutoMergeIdleFlush(env, ctx, chatId, userId, entry.idleVersion);
+   266	  scheduleAutoMergeMaxFlush(env, ctx, chatId, userId);
+   267	
+   268	  await sendTelegram(
+   269	    env,
+   270	    chatId,
+   271	    "🧩 Siap, aku tunggu lanjutan catatannya sekitar 10 detik. Kalau sudah diam, aku gabungkan lalu simpan ke Notion."
+   272	  );
+   273	}
+   274	
+   275	function appendAutoMergeBuffer(
+   276	  env: any,
+   277	  ctx: ExecutionContext,
+   278	  chatId: number,
+   279	  userId: string,
+   280	  rawText: string
+   281	): boolean {
+   282	  const entry = autoMergeBuffers.get(getAutoMergeBufferKey(chatId, userId));
+   283	  if (!entry || entry.flushing) return false;
+   284	
+   285	  entry.parts.push(rawText.trim());
+   286	  entry.idleVersion += 1;
+   287	
+   288	  scheduleAutoMergeIdleFlush(env, ctx, chatId, userId, entry.idleVersion);
+   289	  return true;
+   290	}
+   291	
+   292	
+   293	function classifyInitialRoute(rawText: string): InitialRoute {
+   294	  const text = rawText.toLowerCase();
+   295	
+   296	  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+   297	
+   298	  const hasAny = (words: string[]) =>
+   299	    words.some((word) => {
+   300	      const escaped = escapeRegExp(word.toLowerCase()).replace(/\\s+/g, "\\s+");
+   301	      const pattern = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+   302	      return pattern.test(text);
+   303	    });
+   304	
+   305	  if (hasAny(["ai system log", "system log", "log teknis", "error sistem", "migrasi", "migration", "perubahan workflow", "workflow log", "log ai"])) {
+   306	    return {
+   307	      routedTo: "AI System Log",
+   308	      destinationDb: "AI System Log (pending final routing)",
+   309	      reason: "Rule-based initial route: system error, migration, workflow change, or technical AI log related capture.",
+   310	    };

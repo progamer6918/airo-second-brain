@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -u
+
+ROOT="${EARN_ROOT:-$HOME/earnsai-telegram-gateway}"
+cd "$ROOT" || {
+  echo "ERROR: cannot cd to $ROOT"
+  exit 1
+}
+
+REPORT_DIR=".phase3a"
+REPORT="$REPORT_DIR/last-report.txt"
+mkdir -p "$REPORT_DIR"
+
+section() {
+  echo
+  echo "=== $1 ==="
+}
+
+health() {
+  section "BUBU WORKER HEALTH"
+  curl -sS https://earnsai-telegram-gateway.earnsai.workers.dev/health
+  echo
+}
+
+local_check() {
+  section "LOCAL BUBU SOURCE SHA"
+  sha256sum src/index.ts
+
+  section "AUTO MERGE MARKERS"
+  grep -nE "AUTO_MERGE_IDLE_MS|autoMergeBuffers|default capture buffering|flushAutoMergeBuffer" src/index.ts || true
+
+  section "CHECKPOINT CHECK"
+  ls -la "$HOME/.openclaw/workspace/checkpoints/bubu-auto-merge-default-20260501-LOCAL" 2>/dev/null || true
+}
+
+build_check() {
+  section "TYPESCRIPT CHECK"
+  npx tsc --noEmit
+
+  section "WRANGLER DRY RUN ONLY - NO DEPLOY"
+  npx wrangler deploy --dry-run
+}
+
+phase3a() {
+  {
+    echo "EarnsAI Phase 3A validation report"
+    date
+    health
+    local_check
+    build_check
+  } 2>&1 | tee "$REPORT"
+
+  echo
+  echo "Report saved to: $ROOT/$REPORT"
+}
+
+case "${1:-help}" in
+  health)
+    health
+    ;;
+  local)
+    local_check
+    ;;
+  build)
+    build_check
+    ;;
+  phase3a)
+    phase3a
+    ;;
+  help|*)
+    echo "Usage:"
+    echo "  bin/earnctl health   # cek Worker health"
+    echo "  bin/earnctl local    # cek SHA, marker Auto Merge, checkpoint"
+    echo "  bin/earnctl build    # tsc + wrangler dry-run only"
+    echo "  bin/earnctl phase3a  # semua validasi Phase 3A read-only"
+    ;;
+esac

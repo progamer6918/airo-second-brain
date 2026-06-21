@@ -1,0 +1,68 @@
+{
+  "backtest_adapter": {
+    "execution_enabled": false,
+    "fixture_failed": 0,
+    "fixture_total": 4,
+    "ok": true,
+    "plan_valid": true,
+    "private_exchange_api_used": false
+  },
+  "bridge": {
+    "freqtrade_action": "HOLD",
+    "freqtrade_risk_status": "REJECTED",
+    "latest_action": "HOLD",
+    "latest_risk_status": "REJECTED",
+    "signals_match": true
+  },
+  "fixtures": {
+    "failed": 0,
+    "final_actions": {
+      "bearish": "SELL",
+      "bullish": "BUY",
+      "flat": "HOLD",
+      "volatile": "BUY"
+    },
+    "passed": 4,
+    "total": 4
+  },
+  "generated_at": "2026-05-03T15:21:22.202597+00:00",
+  "journal": {
+    "actions": {
+      "BUY": 251,
+      "HOLD": 139,
+      "SELL": 110
+    },
+    "approved_paper_pct": 72.2,
+    "buy_pct": 50.2,
+    "hold_pct": 27.8,
+    "rejected_pct": 27.8,
+    "risk_statuses": {
+      "APPROVED_FOR_PAPER_ONLY": 361,
+      "REJECTED": 139
+    },
+    "rows": 500,
+    "sell_pct": 22.0
+  },
+  "latest_signal": {
+    "action": "HOLD",
+    "age_seconds": 0.065,
+    "confidence": 0.0,
+    "risk_status": "REJECTED",
+    "safe_for_phase8": true,
+    "valid_schema": true
+  },
+  "live_trading_locked": true,
+  "mode": "PAPER_ONLY",
+  "recommended_next": "Phase 9D CI-style single gate command.",
+  "safety_ok": true,
+  "stability": {
+    "checks": {
+      "bridge_recovers_after_hold_signal": true,
+      "corrupted_temp_signal_detection": true,
+      "missing_freqtrade_signal_fallback": true,
+      "trading_commands_blocked": true,
+      "unknown_command_blocked": true
+    },
+    "ok": true
+  }
+}

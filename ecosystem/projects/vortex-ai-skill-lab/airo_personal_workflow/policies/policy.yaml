@@ -1,0 +1,45 @@
+risk_levels:
+  L0_safe_read:
+    auto: true
+    examples:
+      - query database
+      - read Airo-owned Google Sheet
+      - generate local summary
+
+  L1_safe_write:
+    auto: true
+    notify_user: true
+    examples:
+      - add clear transaction
+      - add receipt attachment
+      - export report draft
+
+  L2_audit_write:
+    auto: true
+    audit_required: true
+    notify_user: true
+    examples:
+      - update paid status
+      - change category
+      - update due date
+      - reconcile evidence
+
+  L3_confirmation_required:
+    auto: false
+    examples:
+      - conflicting transaction amount
+      - edit old financial record
+      - calendar event from ambiguous date
+      - merge duplicate records
+
+  L4_blocked:
+    auto: false
+    blocked: true
+    examples:
+      - read password
+      - read OTP
+      - export browser cookie
+      - access full Drive
+      - financial payment
+      - hard delete
+      - live trading

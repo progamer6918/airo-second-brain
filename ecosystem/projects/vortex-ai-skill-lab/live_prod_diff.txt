@@ -1,0 +1,156 @@
+--- /home/egitaristorandas/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js	2026-06-17 17:46:29.231763739 +0700
++++ /home/egitaristorandas/vortex-ai-skill-lab/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js	2026-06-17 20:55:40.553410645 +0700
+@@ -17176,7 +17176,153 @@
+ 
+ 
+ 
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_START */
++
++function airoTask9CleanupSpec_() {
++  return {
++    spreadsheetId: '1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU',
++    candidates: [
++      ['📒 Account Ledger', 72, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['📒 Account Ledger', 73, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['🧾 Review Queue', 13, 'SMK_T9_CC_PAY_LEDGER_20260611_205927'],
++      ['🧾 Review Queue', 15, 'SMK_T9_CC_PAY_LEDGER_20260612_170925'],
++      ['🧾 Review Queue', 16, 'SMK_T9_CC_PAY_LEDGER_20260612_220244'],
++      ['🧾 Review Queue', 17, 'SMK_T9_CC_FINALTAB_GATE_20260612_222149'],
++      ['🧾 Review Queue', 23, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['🧾 Review Queue', 24, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['💳 Credit Card', 18, 'tg:no_chat_id:no_msg_id:1779367643250:s8xzu55KCCzpWiKw'],
++      ['💳 Credit Card', 19, 'tg:no_chat_id:no_msg_id:1781427034910:8mmjtMWSu0Ea6FnO']
++    ]
++  };
++}
++
++function airoTask9CleanupPreview_() {
++  var target = airoTask9OpenConfiguredSpreadsheet_();
++  var ss = target.spreadsheet;
++  var spec = airoTask9CleanupSpec_();
++
++  if (String(target.spreadsheetId) !== String(spec.spreadsheetId)) {
++    throw new Error('task9_cleanup_workbook_mismatch');
++  }
++
++  var items = spec.candidates.map(function(item) {
++    var sheet = getSheetLoose_(ss, item[0]);
++    if (!sheet) {
++      return {
++        sheet: item[0],
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'sheet_missing'
++      };
++    }
++
++    if (item[1] > sheet.getLastRow()) {
++      return {
++        sheet: sheet.getName(),
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'row_missing'
++      };
++    }
++
++    var row = sheet
++      .getRange(item[1], 1, 1, sheet.getLastColumn())
++      .getDisplayValues()[0];
++
++    var text = row.join(' | ');
++
++    return {
++      sheet: sheet.getName(),
++      row: item[1],
++      marker: item[2],
++      valid: text.indexOf(item[2]) !== -1,
++      preview: text.slice(0, 260)
++    };
++  });
++
++  return {
++    ok: items.length === 10 && items.every(function(item) {
++      return item.valid === true;
++    }),
++    write_performed: false,
++    workbook_write_performed: false,
++    candidate_count: items.length,
++    items: items
++  };
++}
++
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_END */
++
++function airoTask9CleanupMaybeHandleRoute_(e) {
++  var body = {};
++
++  try {
++    body = JSON.parse(
++      e && e.postData && e.postData.contents
++        ? e.postData.contents
++        : '{}'
++    );
++  } catch (err) {
++    return null;
++  }
++
++  var message = body.message || body.edited_message || {};
++  var rawText = String(message.text || '').trim();
++
++  if (rawText !== 'admin task9 cleanup preview') {
++    return null;
++  }
++
++  var chatId = message.chat && message.chat.id;
++  var adminChatId = String(
++    PropertiesService.getScriptProperties().getProperty('ADMIN_CHAT_ID') || ''
++  ).trim();
++
++  if (!adminChatId || String(chatId || '') !== adminChatId) {
++    return json_({
++      ok: false,
++      handled: true,
++      error: 'admin_chat_guard_failed',
++      workbook_write_performed: false
++    });
++  }
++
++  var result = airoTask9CleanupPreview_();
++  var lines = [
++    'Task 9 cleanup preview',
++    '',
++    'Status: ' + (result.ok ? 'READY' : 'BLOCKED'),
++    'Mode: READ ONLY',
++    'Candidates: ' + result.candidate_count
++  ];
++
++  result.items.forEach(function(item) {
++    lines.push(
++      item.sheet + ' row ' + item.row + ': ' +
++      (item.valid ? 'VALID' : 'INVALID')
++    );
++  });
++
++  sendTelegram_(chatId, lines.join('\n'));
++
++  return json_({
++    ok: result.ok,
++    handled: true,
++    command: 'admin task9 cleanup preview',
++    write_performed: false,
++    workbook_write_performed: false,
++    result: result
++  });
++}
++
+ function doPost(e) {
++  var task9CleanupPreviewResult = airoTask9CleanupMaybeHandleRoute_(e);
++  if (task9CleanupPreviewResult) {
++    return task9CleanupPreviewResult;
++  }
++
+   var task9RepairResult = airoTask9ReadAndRepairMaybeHandleRoute_(e);
+   if (task9RepairResult) {
+     return task9RepairResult;

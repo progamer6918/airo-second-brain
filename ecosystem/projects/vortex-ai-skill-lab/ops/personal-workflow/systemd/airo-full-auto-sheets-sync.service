@@ -1,0 +1,10 @@
+[Unit]
+Description=AIRO Full Auto Sheets Sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/airo-personal-workflow/sheets-sync.env
+WorkingDirectory=%h/vortex-ai-skill-lab
+ExecStart=/bin/bash -lc 'set -a; . "%h/.config/airo-personal-workflow/sheets-sync.env"; set +a; cd "%h/vortex-ai-skill-lab"; exec "$AIRO_SYNC_PYTHON" scripts/personal-workflow/airo_full_auto_sheets_sync.py --mode apply'

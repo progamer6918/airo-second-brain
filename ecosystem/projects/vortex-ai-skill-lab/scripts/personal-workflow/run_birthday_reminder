@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+cd /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/
+
+set -a
+source /home/egitaristorandas/earnsai-telegram-gateway/trading-research-lab/paper-trading/.env
+set +a
+
+export BIRTHDAY_CSV_PATH="/home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/ultah_sederhana.csv"
+
+python3 /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/birthday_reminder_simple.py >> /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/birthday_reminder.log 2>&1

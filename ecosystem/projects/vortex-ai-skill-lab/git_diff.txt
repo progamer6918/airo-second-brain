@@ -1,0 +1,1737 @@
+diff --git a/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js b/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js
+index c87e1ed..d468ae3 100644
+--- a/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js
++++ b/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js
+@@ -12626,6 +12626,9 @@ function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+     const rowDesc = String(row[descCol - 1] || '').toLowerCase();
+ 
+     if (rowAmount !== amount) continue;
++
++    const words = keyword.split(/\s+/).filter(w => w.length >= 3);
++
+     if (
+       rowStatus === 'posted' ||
+       rowStatus === 'paid' ||
+@@ -12639,7 +12642,6 @@ function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+       continue;
+     }
+ 
+-    const words = keyword.split(/\s+/).filter(w => w.length >= 3);
+     const keywordMatch = !words.length || words.some(w => rowDesc.includes(w));
+ 
+     if (keywordMatch) {
+@@ -14213,6 +14215,7 @@ function normalizeSupportedAccount_(value) {
+   var v = String(value || '').toLowerCase().replace(/[\s_]+/g, ' ').trim();
+   
+   if (v === 'pocket blu' || v === 'blu pocket') return 'Blu Pocket';
++  if (v === 'pocket blu cc' || v === 'blu pocket cc') return 'Blu Pocket CC';
+   if (v === 'pocket bca' || v === 'bca pocket') return 'BCA Pocket';
+   if (v === 'cc' || v === 'credit card') return 'Credit Card';
+   if (v === 'blu' || v === 'blu bca' || v === 'blubca') return 'Blu';
+@@ -17173,13 +17176,168 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
+ 
+ 
+ 
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_START */
++
++function airoTask9CleanupSpec_() {
++  return {
++    spreadsheetId: '1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU',
++    candidates: [
++      ['📒 Account Ledger', 72, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['📒 Account Ledger', 73, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['🧾 Review Queue', 13, 'SMK_T9_CC_PAY_LEDGER_20260611_205927'],
++      ['🧾 Review Queue', 15, 'SMK_T9_CC_PAY_LEDGER_20260612_170925'],
++      ['🧾 Review Queue', 16, 'SMK_T9_CC_PAY_LEDGER_20260612_220244'],
++      ['🧾 Review Queue', 17, 'SMK_T9_CC_FINALTAB_GATE_20260612_222149'],
++      ['🧾 Review Queue', 23, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['🧾 Review Queue', 24, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['💳 Credit Card', 18, 'tg:no_chat_id:no_msg_id:1779367643250:s8xzu55KCCzpWiKw'],
++      ['💳 Credit Card', 19, 'tg:no_chat_id:no_msg_id:1781427034910:8mmjtMWSu0Ea6FnO']
++    ]
++  };
++}
++
++function airoTask9CleanupPreview_() {
++  var target = airoTask9OpenConfiguredSpreadsheet_();
++  var ss = target.spreadsheet;
++  var spec = airoTask9CleanupSpec_();
++
++  if (String(target.spreadsheetId) !== String(spec.spreadsheetId)) {
++    throw new Error('task9_cleanup_workbook_mismatch');
++  }
++
++  var items = spec.candidates.map(function(item) {
++    var sheet = getSheetLoose_(ss, item[0]);
++    if (!sheet) {
++      return {
++        sheet: item[0],
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'sheet_missing'
++      };
++    }
++
++    if (item[1] > sheet.getLastRow()) {
++      return {
++        sheet: sheet.getName(),
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'row_missing'
++      };
++    }
++
++    var row = sheet
++      .getRange(item[1], 1, 1, sheet.getLastColumn())
++      .getDisplayValues()[0];
++
++    var text = row.join(' | ');
++
++    return {
++      sheet: sheet.getName(),
++      row: item[1],
++      marker: item[2],
++      valid: text.indexOf(item[2]) !== -1,
++      preview: text.slice(0, 260)
++    };
++  });
++
++  return {
++    ok: items.length === 10 && items.every(function(item) {
++      return item.valid === true;
++    }),
++    write_performed: false,
++    workbook_write_performed: false,
++    candidate_count: items.length,
++    items: items
++  };
++}
++
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_END */
++
++function airoTask9CleanupMaybeHandleRoute_(e) {
++  var body = {};
++
++  try {
++    body = JSON.parse(
++      e && e.postData && e.postData.contents
++        ? e.postData.contents
++        : '{}'
++    );
++  } catch (err) {
++    return null;
++  }
++
++  var message = body.message || body.edited_message || {};
++  var rawText = String(message.text || '').trim();
++
++  if (rawText !== 'admin task9 cleanup preview') {
++    return null;
++  }
++
++  var chatId = message.chat && message.chat.id;
++  var adminChatId = String(
++    PropertiesService.getScriptProperties().getProperty('ADMIN_CHAT_ID') || ''
++  ).trim();
++
++  if (!adminChatId || String(chatId || '') !== adminChatId) {
++    return json_({
++      ok: false,
++      handled: true,
++      error: 'admin_chat_guard_failed',
++      workbook_write_performed: false
++    });
++  }
++
++  var result = airoTask9CleanupPreview_();
++  var lines = [
++    'Task 9 cleanup preview',
++    '',
++    'Status: ' + (result.ok ? 'READY' : 'BLOCKED'),
++    'Mode: READ ONLY',
++    'Candidates: ' + result.candidate_count
++  ];
++
++  result.items.forEach(function(item) {
++    lines.push(
++      item.sheet + ' row ' + item.row + ': ' +
++      (item.valid ? 'VALID' : 'INVALID')
++    );
++  });
++
++  sendTelegram_(chatId, lines.join('\n'));
++
++  return json_({
++    ok: result.ok,
++    handled: true,
++    command: 'admin task9 cleanup preview',
++    write_performed: false,
++    workbook_write_performed: false,
++    result: result
++  });
++}
++
+ function doPost(e) {
++  var task9CleanupPreviewResult = airoTask9CleanupMaybeHandleRoute_(e);
++  if (task9CleanupPreviewResult) {
++    return task9CleanupPreviewResult;
++  }
++
++  var task9RepairResult = airoTask9ReadAndRepairMaybeHandleRoute_(e);
++  if (task9RepairResult) {
++    return task9RepairResult;
++  }
+ 
+   var task9CcPendingResult = airoTask9CcPendingPocketCommandMaybeHandleRoute_(e);
+   if (task9CcPendingResult) {
+     return task9CcPendingResult;
+   }
+ 
++  var task9CcSudahResult = airoTask9CcSudahNumberMaybeHandleRoute_(e);
++  if (task9CcSudahResult) {
++    return task9CcSudahResult;
++  }
++
+   var sprint7HApprovalCommandResult = airoSprint7HApprovalCommandMaybeHandleRoute_(e);
+   if (sprint7HApprovalCommandResult) {
+     return sprint7HApprovalCommandResult;
+@@ -17277,6 +17435,31 @@ function doPost(e) {
+ return airoOriginalDoPostForSprint7GmailLabelFilter_(e);
+ }
+ 
++function airoTask9GetConfiguredSpreadsheetId_() {
++  var id = String(PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '').trim();
++  if (!id) {
++    throw new Error('AIRO Task 9 target spreadsheet id missing: ScriptProperties.SPREADSHEET_ID is empty');
++  }
++  return id;
++}
++
++function airoTask9OpenConfiguredSpreadsheet_() {
++  var spreadsheetId = airoTask9GetConfiguredSpreadsheetId_();
++  var ss = SpreadsheetApp.openById(spreadsheetId);
++
++  if (ss && typeof ss.getId === 'function') {
++    var actualId = String(ss.getId() || '').trim();
++    if (actualId && actualId !== spreadsheetId) {
++      throw new Error('AIRO Task 9 target spreadsheet mismatch: expected=' + spreadsheetId + ' actual=' + actualId);
++    }
++  }
++
++  return {
++    spreadsheet: ss,
++    spreadsheetId: spreadsheetId
++  };
++}
++
+ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+   try {
+     var parsed = airoSprint7FParseTelegramText_(e);
+@@ -17284,7 +17467,10 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+       return null;
+     }
+ 
+-    var ss = SpreadsheetApp.getActiveSpreadsheet();
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++    var targetSpreadsheetId = target.spreadsheetId;
++
+     var sheet = getSheetLoose_(ss, 'Credit Card');
+     if (!sheet) {
+       if (parsed.chat_id) {
+@@ -17305,10 +17491,11 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+     var statusColIdx = map.status_pocket_blu;
+     var amountColIdx = map.amount;
+     var descColIdx = map.description || map.merchant_app;
++    var entryIdColIdx = map.cc_entry_id;
+ 
+-    if (!statusColIdx || !amountColIdx) {
++    if (!statusColIdx || !amountColIdx || !entryIdColIdx) {
+       if (parsed.chat_id) {
+-        sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu atau amount tidak ditemukan.");
++        sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu, amount, atau cc_entry_id tidak ditemukan.");
+       }
+       return json_({ ok: false, handled: true, error: "cc_required_columns_missing" });
+     }
+@@ -17341,11 +17528,16 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+           var merchantColIdx = map.merchant_app;
+           var merchantVal = String(merchantColIdx ? row[merchantColIdx - 1] : '').trim();
+           var displayDesc = descVal || merchantVal;
++          var entryIdVal = String(row[entryIdColIdx - 1] || '').trim();
++          var billingCycleColIdx = map.billing_cycle_id;
++          var billingCycleVal = billingCycleColIdx ? String(row[billingCycleColIdx - 1] || '').trim() : '';
+ 
+           if (amountVal > 0 && displayDesc !== '') {
+             pendingItems.push({
+               description: displayDesc,
+-              amount: amountVal
++              amount: amountVal,
++              cc_entry_id: entryIdVal,
++              billing_cycle_id: billingCycleVal
+             });
+             totalPending += amountVal;
+           }
+@@ -17353,18 +17545,40 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+       }
+     }
+ 
++    if (parsed.chat_id && pendingItems.length > 0) {
++      try {
++        var cache = CacheService.getScriptCache();
++        var cacheKey = "cc_pending_snapshot_" + parsed.chat_id;
++        var snapshot = {
++          target_spreadsheet_id: targetSpreadsheetId,
++          generated_at: new Date().toISOString(),
++          items: pendingItems.map(function(item) {
++            return {
++              cc_entry_id: item.cc_entry_id,
++              amount: item.amount,
++              description: item.description,
++              billing_cycle_id: item.billing_cycle_id || ''
++            };
++          })
++        };
++        cache.put(cacheKey, JSON.stringify(snapshot), 900);
++      } catch (cacheErr) {
++        Logger.log("Failed to write CacheService: " + cacheErr.toString());
++      }
++    }
++
+     var replyText = "";
+     if (pendingItems.length === 0) {
+       replyText = "Tidak ada pending CC.";
+     } else {
+       var lines = [];
+-      lines.push("💳 Pending Pocket Blu CC");
++      lines.push("💳 Pending Dana CC");
+       lines.push("");
+       for (var k = 0; k < pendingItems.length; k++) {
+         lines.push((k + 1) + ". " + pendingItems[k].description + " — " + formatBalanceRupiah_(pendingItems[k].amount));
+       }
+       lines.push("");
+-      lines.push("Total belum disiapkan ke Blu: " + formatBalanceRupiah_(totalPending));
++      lines.push("Total belum disisihkan ke Blu Pocket CC: " + formatBalanceRupiah_(totalPending));
+       lines.push("");
+       lines.push("Balas:");
+       lines.push("cc sudah <nomor>");
+@@ -17408,6 +17622,427 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+   }
+ }
+ 
++function airoTask9CcSudahNumberMaybeHandleRoute_(e) {
++  try {
++    var parsed = airoSprint7FParseTelegramText_(e);
++    var rawText = String(parsed.text || "").trim();
++    var match = rawText.match(/^cc\s+sudah\s+(\d+)$/i);
++    if (!match) {
++      return null;
++    }
++
++    var index = Number(match[1]);
++
++    if (!parsed.chat_id) {
++      return json_({ ok: false, handled: true, error: "chat_id_missing" });
++    }
++
++    var cache = CacheService.getScriptCache();
++    var cacheKey = "cc_pending_snapshot_" + parsed.chat_id;
++    var cachedStr = cache.get(cacheKey);
++    var chatId = parsed.chat_id;
++
++    var snapshot = null;
++    try {
++      if (cachedStr) {
++        snapshot = JSON.parse(cachedStr);
++      }
++    } catch (e) {}
++
++    if (!snapshot || !snapshot.items || !snapshot.items.length) {
++      sendTelegram_(chatId, "Nomor pending CC belum terdaftar atau sudah kedaluwarsa.\n\nJalankan `cek tagihan pending cc` terlebih dahulu.");
++      return json_({ ok: false, handled: true, error: "cc_pending_mapping_expired" });
++    }
++
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++    var targetSpreadsheetId = target.spreadsheetId;
++
++    if (String(snapshot.target_spreadsheet_id || '') !== String(targetSpreadsheetId || '')) {
++      sendTelegram_(chatId, '⚠️ Mapping CC sudah tidak valid karena target workbook berubah. Jalankan ulang: cek tagihan pending cc');
++      return json_({
++        ok: false,
++        handled: true,
++        command: 'cc sudah',
++        reason: 'target_spreadsheet_mismatch',
++        write_performed: false
++      });
++    }
++
++    var entryIds = snapshot.items.map(function(item) { return item.cc_entry_id; });
++
++    if (index < 1 || index > entryIds.length) {
++      sendTelegram_(chatId, "Nomor " + index + " tidak valid. Harap pilih nomor antara 1 dan " + entryIds.length + ".");
++      return json_({ ok: false, handled: true, error: "cc_pending_index_out_of_range" });
++    }
++
++    var targetEntryId = entryIds[index - 1];
++    if (!targetEntryId) {
++      sendTelegram_(chatId, "Error: CC Entry ID tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_entry_id_not_found" });
++    }
++
++    if (targetSpreadsheetId !== '1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU') {
++      sendTelegram_(chatId, '⚠️ Target workbook mismatch. Settlement dibatalkan sebelum write.');
++      return json_({
++        ok: false,
++        handled: true,
++        command: 'cc sudah',
++        reason: 'unexpected_target_spreadsheet_id',
++        target_spreadsheet_id: targetSpreadsheetId,
++        write_performed: false
++      });
++    }
++
++    var sheet = getSheetLoose_(ss, 'Credit Card');
++    if (!sheet) {
++      sendTelegram_(chatId, "Error: Tab Credit Card tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "credit_card_tab_not_found" });
++    }
++
++    var headerInfo = findCcHeaderRow_(sheet);
++    if (!headerInfo) {
++      sendTelegram_(parsed.chat_id, "Error: Header Credit Card tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_header_not_found" });
++    }
++
++    var map = ccColMap_(headerInfo.headers);
++    var entryIdColIdx = map.cc_entry_id;
++    var statusColIdx = map.status_pocket_blu;
++    var amountColIdx = map.amount;
++    var descColIdx = map.description || map.merchant_app;
++    var transferredColIdx = map.transferred_at;
++    var linkedTxnIdColIdx = map.linked_txn_id;
++    var notesColIdx = map.notes;
++
++    if (!statusColIdx || !amountColIdx || !entryIdColIdx) {
++      sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu, amount, atau cc_entry_id tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_required_columns_missing" });
++    }
++
++    var startRow = headerInfo.row + 1;
++    var lastRow = sheet.getLastRow();
++    var targetRow = 0;
++    var rowValues = null;
++
++    if (lastRow >= startRow) {
++      var range = sheet.getRange(startRow, 1, lastRow - startRow + 1, headerInfo.headers.length);
++      var values = range.getValues();
++      for (var i = 0; i < values.length; i++) {
++        var rowValuesCandidate = values[i];
++        var entryIdVal = String(rowValuesCandidate[entryIdColIdx - 1] || '').trim();
++        if (entryIdVal === targetEntryId) {
++          targetRow = startRow + i;
++          rowValues = rowValuesCandidate;
++          break;
++        }
++      }
++    }
++
++    if (!targetRow) {
++      sendTelegram_(parsed.chat_id, "Error: Transaksi CC dengan ID " + targetEntryId + " tidak ditemukan di sheet.");
++      return json_({ ok: false, handled: true, error: "cc_row_not_found" });
++    }
++
++    var statusVal = String(rowValues[statusColIdx - 1] || '').trim().toLowerCase();
++    var amountVal = Number(rowValues[amountColIdx - 1]) || 0;
++    var descVal = String(descColIdx ? rowValues[descColIdx - 1] : '').trim();
++    var merchantVal = String(map.merchant_app ? rowValues[map.merchant_app - 1] : '').trim();
++    var displayDesc = descVal || merchantVal;
++    var linkedTxnIdVal = linkedTxnIdColIdx ? String(rowValues[linkedTxnIdColIdx - 1] || '').trim() : '';
++
++    var excludes = ['sudah', 'paid', 'posted', 'transferred'];
++    var isPending = true;
++    for (var j = 0; j < excludes.length; j++) {
++      if (statusVal.indexOf(excludes[j]) !== -1) {
++        isPending = false;
++        break;
++      }
++    }
++
++    if (!isPending) {
++      if (linkedTxnIdVal) {
++        sendTelegram_(parsed.chat_id, "Transaksi sudah disiapkan ke Blu (Already Settled).\nLedger Ref: " + linkedTxnIdVal);
++        return json_({ ok: true, handled: true, error: "cc_already_settled", ledger_ref: linkedTxnIdVal });
++      } else {
++        sendTelegram_(parsed.chat_id, "⚠️ Audit Warning: Status transaksi CC '" + statusVal + "' sudah Sudah tetapi linked_txn_id kosong. Tidak ada auto-write.");
++        return json_({ ok: false, handled: true, error: "CC_STATUS_SUDAH_WITHOUT_LEDGER_LINK" });
++      }
++    }
++
++    if (amountVal <= 0) {
++      sendTelegram_(parsed.chat_id, "Error: Jumlah transaksi CC <= 0.");
++      return json_({ ok: false, handled: true, error: "cc_amount_invalid" });
++    }
++
++    // Check duplicate in Account Ledger
++    var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++    if (ledgerSheet) {
++      var ledgerHeader = findHeader_(ledgerSheet);
++      if (ledgerHeader) {
++        var ledgerMap = {};
++        ledgerHeader.headers.forEach(function(h, idx) { ledgerMap[canonicalKey_(h)] = idx + 1; });
++        var entryIdIdx = ledgerMap.entry_id;
++        var linkedTxnIdIdx = ledgerMap.linked_txn_id;
++        var ledgerLastRow = ledgerSheet.getLastRow();
++        if (ledgerLastRow > ledgerHeader.row) {
++          var ledgerRange = ledgerSheet.getRange(ledgerHeader.row + 1, 1, ledgerLastRow - ledgerHeader.row, ledgerHeader.headers.length);
++          var ledgerValues = ledgerRange.getValues();
++          for (var l = 0; l < ledgerValues.length; l++) {
++            var lRow = ledgerValues[l];
++            var lEntryId = entryIdIdx ? String(lRow[entryIdIdx - 1]).trim() : '';
++            var lLinkedTxnId = linkedTxnIdIdx ? String(lRow[linkedTxnIdIdx - 1]).trim() : '';
++            if (lEntryId === targetEntryId || lLinkedTxnId === targetEntryId) {
++              sendTelegram_(parsed.chat_id, "⚠️ Transaksi sudah tercatat di Account Ledger dengan ID " + targetEntryId + " tetapi belum ditautkan di Credit Card. Silakan tautkan manual.");
++              return json_({ ok: false, handled: true, error: "cc_ledger_duplicate_found", entry_id: targetEntryId });
++            }
++          }
++        }
++      }
++    }
++
++    // Write to Account Ledger as internal transfer: Blu Pocket -> Blu Pocket CC
++    var ledgerCommon = {
++      linked_txn_id: targetEntryId,
++      rowId: targetEntryId
++    };
++    var ledgerParsed = {
++      amount: amountVal,
++      category: 'Transfer',
++      description: "Dana CC reserved for: " + displayDesc,
++      date: todayDate_()
++    };
++    var ledgerRawText = "transfer " + amountVal + " dr blu pocket ke blu pocket cc";
++    var transferInfo = { sourceAccount: "Blu Pocket", targetAccount: "Blu Pocket CC" };
++    var ledgerResult = writeInternalTransferToAccountLedger_(ss, ledgerParsed, ledgerRawText, ledgerCommon, transferInfo);
++
++    if (!ledgerResult || ledgerResult.status !== 'written' || ledgerResult.writeVerified !== true) {
++      sendTelegram_(parsed.chat_id, "Gagal memverifikasi penulisan ke Account Ledger. Settle dibatalkan.");
++      return json_({ ok: false, handled: true, error: "cc_ledger_write_verification_failed" });
++    }
++
++    // Task 9 Step 4 Source verification guard of BOTH rows
++    var ledgerSourceRow = ledgerResult.accountLedgerRows ? ledgerResult.accountLedgerRows[0] : null;
++    var ledgerTargetRow = ledgerResult.accountLedgerRows ? ledgerResult.accountLedgerRows[1] : null;
++    var sourceDetails = getAccountLedgerRowDetails_(ss, ledgerSourceRow);
++    var targetDetails = getAccountLedgerRowDetails_(ss, ledgerTargetRow);
++
++    if (!sourceDetails || !targetDetails) {
++      sendTelegram_(parsed.chat_id, "⚠️ Verification Warning: Gagal membaca detail baris ledger untuk transfer.");
++      return json_({ ok: false, handled: true, error: "cc_ledger_verification_failed_read_details" });
++    }
++
++    var vOutAcc = String(sourceDetails.account || '').trim();
++    var vOutAmt = Number(sourceDetails.amountOut) || 0;
++    var vInAcc = String(targetDetails.account || '').trim();
++    var vInAmt = Number(targetDetails.amountIn) || 0;
++
++    var verificationPassed = true;
++    var verifError = "";
++
++    if (vOutAcc !== "Blu Pocket") {
++      verificationPassed = false;
++      verifError = "source_account_mismatch";
++    } else if (vOutAmt !== amountVal) {
++      verificationPassed = false;
++      verifError = "source_amount_mismatch";
++    } else if (!vInAcc || vInAcc === "") {
++      verificationPassed = false;
++      verifError = "destination_account_blank";
++    } else if (vInAcc !== "Blu Pocket CC") {
++      verificationPassed = false;
++      verifError = "destination_account_mismatch";
++    } else if (vInAmt !== amountVal) {
++      verificationPassed = false;
++      verifError = "destination_amount_mismatch";
++    }
++
++    if (!verificationPassed) {
++      sendTelegram_(parsed.chat_id, "⚠️ WARNING: Ledger verification failed (" + verifError + "). Credit Card status NOT updated.");
++      return json_({
++        ok: false,
++        handled: true,
++        error: "cc_ledger_verification_failed",
++        reason: verifError,
++        source_account: vOutAcc,
++        source_amount: vOutAmt,
++        destination_account: vInAcc,
++        destination_amount: vInAmt
++      });
++    }
++
++    // Update Credit Card row (only after both ledger rows verified!)
++    sheet.getRange(targetRow, statusColIdx).setValue('✅ Sudah');
++    if (transferredColIdx) {
++      sheet.getRange(targetRow, transferredColIdx).setValue(todayDate_());
++    }
++    if (linkedTxnIdColIdx) {
++      sheet.getRange(targetRow, linkedTxnIdColIdx).setValue(ledgerResult.rowId || targetEntryId);
++    }
++    if (notesColIdx) {
++      var oldNotes = String(sheet.getRange(targetRow, notesColIdx).getValue() || '');
++      var newNotes = [oldNotes, 'pocket_blu_settlement: ' + ledgerResult.rowId].filter(Boolean).join(' | ');
++      sheet.getRange(targetRow, notesColIdx).setValue(newNotes);
++    }
++
++    var successLines = [];
++    successLines.push("✅ Dana CC Disisihkan");
++    successLines.push("Item: " + displayDesc);
++    successLines.push("Amount: " + formatBalanceRupiah_(amountVal));
++    successLines.push("Transfer: Blu Pocket → Blu Pocket CC");
++    successLines.push("Ledger Row: 📒 Account Ledger:" + ledgerResult.row);
++
++    if (sourceDetails && targetDetails &&
++        sourceDetails.balance !== '' && sourceDetails.balance !== null && sourceDetails.balance !== undefined &&
++        targetDetails.balance !== '' && targetDetails.balance !== null && targetDetails.balance !== undefined) {
++      successLines.push("Saldo Blu Pocket sekarang: " + formatBalanceRupiah_(sourceDetails.balance));
++      successLines.push("Saldo Blu Pocket CC sekarang: " + formatBalanceRupiah_(targetDetails.balance));
++    }
++
++    sendTelegram_(parsed.chat_id, successLines.join("\n"));
++
++    return json_({
++      ok: true,
++      handled: true,
++      command: "cc sudah " + index,
++      write_performed: true,
++      account_ledger_write_performed: true,
++      cc_status_update_performed: true,
++      item: displayDesc,
++      amount: amountVal,
++      ledger_row: ledgerResult.row
++    });
++
++  } catch (err) {
++    var errMsg = String(err && err.message ? err.message : err);
++    var chatId = null;
++    try {
++      var parsed = airoSprint7FParseTelegramText_(e);
++      chatId = parsed.chat_id;
++    } catch (e2) {}
++
++    if (chatId) {
++      try {
++        sendTelegram_(chatId, "Error executing CC sudah command: " + errMsg);
++      } catch (e3) {}
++    }
++
++    return json_({
++      ok: false,
++      handled: true,
++      command: "cc sudah command",
++      error: errMsg
++    });
++  }
++}
++
++function airoTask9ReadAndRepairMaybeHandleRoute_(e) {
++  try {
++    var body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
++    var msg = body.message || {};
++    var rawText = String(msg.text || '').trim();
++    if (rawText !== "admin task9 read" && rawText !== "admin task9 repair") {
++      return null;
++    }
++
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++
++    if (rawText === "admin task9 read") {
++      var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++      var ledgerLastRow = ledgerSheet ? ledgerSheet.getLastRow() : 0;
++      var row72 = ledgerLastRow >= 72 ? ledgerSheet.getRange(72, 1, 1, 14).getValues()[0] : null;
++      var row73 = ledgerLastRow >= 73 ? ledgerSheet.getRange(73, 1, 1, 14).getValues()[0] : null;
++      // Also dump last 5 rows for debugging
++      var lastFiveStart = Math.max(2, ledgerLastRow - 4);
++      var lastFiveRows = ledgerLastRow >= 2 ? ledgerSheet.getRange(lastFiveStart, 1, ledgerLastRow - lastFiveStart + 1, 14).getValues() : [];
++
++      var ccSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.creditCard || 'Credit Card');
++      if (!ccSheet) ccSheet = getSheetLoose_(ss, 'Credit Card');
++      var ccHeaders = ccSheet ? findCcHeaderRow_(ccSheet).headers : [];
++      var ccMap = ccSheet && ccHeaders.length ? ccColMap_(ccHeaders) : {};
++      var ccRows = ccSheet && ccHeaders.length ? ccSheet.getRange(9, 1, Math.max(1, ccSheet.getLastRow() - 8), ccHeaders.length).getValues() : [];
++      var ccMatched = null;
++      var ccMatchedRowIdx = -1;
++      for (var i = 0; i < ccRows.length; i++) {
++        var row = ccRows[i];
++        var descVal = ccMap.description ? String(row[ccMap.description - 1] || '').trim() : '';
++        var amountVal2 = ccMap.amount ? Number(row[ccMap.amount - 1]) || 0 : 0;
++        if (descVal === "cc beli 24000") {
++          ccMatched = row;
++          ccMatchedRowIdx = 9 + i;
++          break;
++        }
++      }
++
++      return json_({
++        ok: true,
++        ledgerLastRow: ledgerLastRow,
++        row72: row72,
++        row73: row73,
++        lastFiveRows: lastFiveRows,
++        lastFiveStart: lastFiveStart,
++        ccMatched: ccMatched,
++        ccMatchedRowIdx: ccMatchedRowIdx
++      });
++    }
++
++    if (rawText === "admin task9 repair") {
++      var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++      var ledgerLastRow = ledgerSheet ? ledgerSheet.getLastRow() : 0;
++      if (!ledgerSheet || ledgerLastRow < 73) {
++        return json_({
++          ok: false,
++          repaired: false,
++          reason: "row73_does_not_exist",
++          ledgerLastRow: ledgerLastRow
++        });
++      }
++      var row73Account = String(ledgerSheet.getRange(73, 3).getValue() || '').trim();
++      var row73In = Number(ledgerSheet.getRange(73, 4).getValue()) || 0;
++      var row73Type = String(ledgerSheet.getRange(73, 7).getValue() || '').trim();
++      var row73Desc = String(ledgerSheet.getRange(73, 9).getValue() || '').trim();
++
++      if ((row73Account === "" || row73Account === "null" || row73Account === "undefined") && row73In === 24000 && row73Type === "transfer_in" && row73Desc.indexOf("transfer 24000 dr blu pocket ke blu pocket cc") !== -1) {
++        var prevBalance = 0;
++        var values = ledgerSheet.getRange(2, 1, 71, 14).getValues();
++        for (var idx = values.length - 1; idx >= 0; idx--) {
++          var acc = String(values[idx][2] || '').trim();
++          var bal = values[idx][5];
++          if (acc === "Blu Pocket CC" && bal !== "" && bal !== null && bal !== undefined) {
++            prevBalance = Number(bal) || 0;
++            break;
++          }
++        }
++        var newBalance = prevBalance + 24000;
++
++        ledgerSheet.getRange(73, 3).setValue("Blu Pocket CC");
++        ledgerSheet.getRange(73, 6).setValue(newBalance);
++
++        return json_({
++          ok: true,
++          repaired: true,
++          prevBalance: prevBalance,
++          newBalance: newBalance
++        });
++      } else {
++        return json_({
++          ok: false,
++          repaired: false,
++          reason: "guard_mismatch",
++          row73Account: row73Account,
++          row73In: row73In,
++          row73Type: row73Type,
++          row73Desc: row73Desc,
++          ledgerLastRow: ledgerLastRow
++        });
++      }
++    }
++  } catch (err) {
++    return json_({ ok: false, error: err.toString() });
++  }
++}
++
+ /* AIRO_SPRINT7_GMAIL_LABEL_FILTER_READBACK_END */
+ 
+ // AIRO_SPRINT7_EMAIL_INGESTION_LOG_READBACK_START
+@@ -27020,6 +27655,7 @@ function airoEnsureAccountRegistrySheet_(ss) {
+     var seedData = [
+       ['TRUE', 'blu', 'Blu', 'Blu', 'bank', 'Blu', '', 'Blu', '#00A3E0', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Main account'],
+       ['TRUE', 'blu_pocket', 'Blu Pocket', 'Blu', 'bank', 'Blu', 'pocket', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket account'],
++      ['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account'],
+       ['TRUE', 'bca', 'BCA', 'BCA', 'bank', 'BCA', '', 'BCA', '#005AAB', 'FALSE', 'TRUE', 'FALSE', 'BCA Main account'],
+       ['TRUE', 'bca_pocket', 'BCA Pocket', 'BCA', 'bank', 'BCA', 'pocket', 'BCA', '#4C8DFF', 'FALSE', 'TRUE', 'FALSE', 'BCA Pocket account'],
+       ['TRUE', 'cash_umum', 'Cash Umum', 'Cash', 'cash', 'Cash', 'umum', 'Cash', '#28A745', 'TRUE', 'FALSE', 'FALSE', 'Cash Umum'],
+@@ -27118,6 +27754,7 @@ function airoSprint7AccountContractGetStaticRegistry_() {
+   return [
+     { account_id: "blu", account_name: "Blu", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "blu_pocket", account_name: "Blu Pocket", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "pocket", is_cash: false, is_bank: true, is_credit: false },
++    { account_id: "blu_pocket_cc", account_name: "Blu Pocket CC", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "pocket cc", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "bca", account_name: "BCA", provider: "BCA", account_type: "bank", parent_account: "BCA", pocket_name: "", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "bca_pocket", account_name: "BCA Pocket", provider: "BCA", account_type: "bank", parent_account: "BCA", pocket_name: "pocket", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "cash_umum", account_name: "Cash Umum", provider: "Cash", account_type: "cash", parent_account: "Cash", pocket_name: "umum", is_cash: true, is_bank: false, is_credit: false },
+diff --git a/docs/airo-finance/sprint7d/real_email_source_setup_config_20260527.json b/docs/airo-finance/sprint7d/real_email_source_setup_config_20260527.json
+index b5e43c7..d81adb4 100755
+--- a/docs/airo-finance/sprint7d/real_email_source_setup_config_20260527.json
++++ b/docs/airo-finance/sprint7d/real_email_source_setup_config_20260527.json
+@@ -1,91 +1,54 @@
+ {
+-  "schema": "airo_sprint7d_real_email_source_config_v1",
++  "schema": "airo_sprint7d_real_email_source_setup_config_v1",
+   "date": "2026-05-27",
+-  "mode": "manual_config_only",
+-  "email_ingestion_enabled": false,
+-  "email_default_off": true,
+-  "dry_run_only": true,
++  "mode": "manual-config-only",
+   "gmail_live_read_performed": false,
+   "mailbox_read_performed": false,
+   "mail_trigger_created": false,
+   "email_modified": false,
+   "full_email_body_stored": false,
+-  "sensitive_content_stored": false,
+-  "raw_email_forwarded_to_telegram": false,
+   "finance_write_performed": false,
+-  "account_ledger_write_performed": false,
+-  "finance_events_write_performed": false,
+-  "review_queue_write_performed": false,
+-  "domain_tab_write_performed": false,
+-  "gmail_label_user_configured": "Info Terbaru",
+-  "label_created_by_script": false,
+-  "label_modified_by_script": false,
+-  "sources": [
++  "providers": [
+     {
+-      "source_id": "blu_bca_digital",
+-      "provider": "Blu",
+-      "allowed_sender": "receipts@blubybcadigital.id",
+-      "gmail_label": "Info Terbaru",
++      "provider_name": "Blu",
++      "provider_id": "blu",
++      "sender_allowlist": [
++        "receipts@blubybcadigital.id"
++      ],
++      "required_gmail_label": "Info Terbaru",
++      "transaction_types": [
++        "transfer masuk",
++        "transfer keluar",
++        "refund",
++        "e-wallet payment"
++      ],
+       "account_mapping": {
+-        "Blu": "Blu"
++        "default": "Blu"
+       },
+-      "transaction_types_requested": [
+-        "transfer_masuk",
+-        "transfer_keluar",
+-        "e_wallet_payment",
+-        "bayar_otomatis",
+-        "refund"
+-      ],
+-      "safe_subject_examples_redacted": [
+-        "Selamat, Bayar Otomatis Air PDAM anda berhasil",
++      "safe_subject_examples": [
+         "Transaksimu Pakai blu Berhasil",
+         "Info Transaksi Masuk ke blu Kamu 💸"
+-      ],
+-      "hard_block_keywords": [
+-        "OTP",
+-        "kode verifikasi",
+-        "password",
+-        "reset password",
+-        "login",
+-        "perangkat baru",
+-        "security",
+-        "keamanan"
+-      ],
+-      "notes": "Manual config only. No Gmail read in Sprint 7D."
++      ]
+     },
+     {
+-      "source_id": "tokopedia_card",
+-      "provider": "Tokopedia Card",
+-      "allowed_sender": "noreply@tokopedia.com",
+-      "gmail_label": "Info Terbaru",
+-      "account_mapping": {
+-        "Tokopedia Card last4 2003": "Tokopedia Card"
+-      },
+-      "card_last4": "2003",
+-      "transaction_types_requested": [
+-        "kartu_kredit_purchase",
+-        "pembayaran_kartu_kredit",
++      "provider_name": "Tokopedia Card",
++      "provider_id": "tokopedia_card",
++      "sender_allowlist": [
++        "noreply@tokopedia.com"
++      ],
++      "required_gmail_label": "Info Terbaru",
++      "transaction_types": [
++        "kartu kredit purchase",
++        "pembayaran kartu kredit",
+         "refund"
+       ],
+-      "safe_subject_examples_redacted": [
++      "account_mapping": {
++        "last4_2003": "Tokopedia Card"
++      },
++      "safe_subject_examples": [
++        "Selamat, Bayar Otomatis Air PDAM anda berhasil",
+         "Selamat, pembayaran tagihan Kartu Kredit Anda BERHASIL"
+-      ],
+-      "hard_block_keywords": [
+-        "OTP",
+-        "kode verifikasi",
+-        "password",
+-        "reset password",
+-        "login",
+-        "perangkat baru",
+-        "security",
+-        "keamanan"
+-      ],
+-      "risk_note": "noreply@tokopedia.com may include broad marketplace, promo, login, and security emails. Sprint 7E read-only pilot must enforce sender + label + subject/sensitive hard-block before parsing.",
+-      "notes": "Manual config only. No Gmail read in Sprint 7D."
++      ]
+     }
+-  ],
+-  "source_count": 2,
+-  "allowed_sender_count": 2,
+-  "configured_provider_count": 2,
+-  "next": "sprint7e_read_only_gmail_pilot_design"
++  ]
+ }
+diff --git a/docs/personal-workflow/handoff/AIRO_FINANCE_ACCOUNT_LEDGER_PARITY_DELTA_CARRYOVER.md b/docs/personal-workflow/handoff/AIRO_FINANCE_ACCOUNT_LEDGER_PARITY_DELTA_CARRYOVER.md
+old mode 100644
+new mode 100755
+diff --git a/scripts/airo_finance_sprint7n_cc_pending_static_test.js b/scripts/airo_finance_sprint7n_cc_pending_static_test.js
+index d367f4a..9106dfe 100644
+--- a/scripts/airo_finance_sprint7n_cc_pending_static_test.js
++++ b/scripts/airo_finance_sprint7n_cc_pending_static_test.js
+@@ -12,7 +12,17 @@ const src = fs.readFileSync(path.join(repoRoot, "apps-script-live/AIRO_Finance_M
+ let evalCode = src + "\n\n";
+ evalCode += `
+   global.SpreadsheetApp = {
+-    flush: function() {}
++    flush: function() {},
++    openById: function(id) {
++      if (global.SpreadsheetApp.getActiveSpreadsheet) {
++        var ss = global.SpreadsheetApp.getActiveSpreadsheet();
++        if (ss) {
++          ss.getId = function() { return id; };
++        }
++        return ss;
++      }
++      return null;
++    }
+   };
+   global.Logger = {
+     log: function() {}
+@@ -33,6 +43,7 @@ evalCode += `
+       return {
+         getProperty: function(key) {
+           if (key === "BOT_TOKEN") return "mock_bot_token";
++          if (key === "SPREADSHEET_ID") return "1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU";
+           return null;
+         }
+       };
+@@ -51,6 +62,20 @@ evalCode += `
+       };
+     }
+   };
++
++  var mockCache = {};
++  global.CacheService = {
++    getScriptCache: function() {
++      return {
++        put: function(key, val, ttl) {
++          mockCache[key] = val;
++        },
++        get: function(key) {
++          return mockCache[key] || null;
++        }
++      };
++    }
++  };
+ `;
+ 
+ const runner = new Function(evalCode + `
+@@ -174,12 +199,25 @@ console.log("Running airo_finance_sprint7n_cc_pending_static_test...");
+   // Verify Telegram reply
+   assert(global.sendTelegramCalls.length === 1, "Telegram reply should be sent");
+   const replyText = global.sendTelegramCalls[0].text;
+-  assert(replyText.includes("💳 Pending Pocket Blu CC"), "Header mismatch");
++  assert(replyText.includes("💳 Pending Dana CC"), "Header mismatch");
+   assert(replyText.includes("1. Nasgor ShopeeFood — Rp35.000"), "First item display mismatch");
+   assert(replyText.includes("2. UPS Wifi Shopee — Rp81.000"), "Second item fallback display mismatch");
+-  assert(replyText.includes("Total belum disiapkan ke Blu: Rp116.000"), "Total formatted mismatch");
++  assert(replyText.includes("Total belum disisihkan ke Blu Pocket CC: Rp116.000"), "Total formatted mismatch");
+   assert(replyText.includes("cc sudah <nomor>"), "Footer mismatch");
+ 
++  // Verify contract requirements
++  // 1. pending command uses configured target workbook helper
++  assert(src.includes("airoTask9OpenConfiguredSpreadsheet_"), "Must use configured target workbook helper");
++  // 2. pending command stores target_spreadsheet_id
++  const cachedVal = global.CacheService.getScriptCache().get("cc_pending_snapshot_12345");
++  assert(cachedVal !== null, "Cache key cc_pending_snapshot_12345 must exist");
++  const snapshot = JSON.parse(cachedVal);
++  assert(snapshot !== null && snapshot.target_spreadsheet_id !== undefined, "Must store target_spreadsheet_id in CacheService");
++  // 3. pending command remains read-only
++  assert(resultJson.write_performed === false, "Pending command must remain read-only");
++  // 4. pending reply says "Total belum disisihkan ke Blu Pocket CC"
++  assert(replyText.includes("Total belum disisihkan ke Blu Pocket CC"), "Total footer wording mismatch");
++
+   console.log("  Case 2 (Pending filter & formatting check) passed.");
+ }
+ 
+diff --git a/scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs b/scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs
+index c87e1ed..d468ae3 100644
+--- a/scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs
++++ b/scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs
+@@ -12626,6 +12626,9 @@ function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+     const rowDesc = String(row[descCol - 1] || '').toLowerCase();
+ 
+     if (rowAmount !== amount) continue;
++
++    const words = keyword.split(/\s+/).filter(w => w.length >= 3);
++
+     if (
+       rowStatus === 'posted' ||
+       rowStatus === 'paid' ||
+@@ -12639,7 +12642,6 @@ function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+       continue;
+     }
+ 
+-    const words = keyword.split(/\s+/).filter(w => w.length >= 3);
+     const keywordMatch = !words.length || words.some(w => rowDesc.includes(w));
+ 
+     if (keywordMatch) {
+@@ -14213,6 +14215,7 @@ function normalizeSupportedAccount_(value) {
+   var v = String(value || '').toLowerCase().replace(/[\s_]+/g, ' ').trim();
+   
+   if (v === 'pocket blu' || v === 'blu pocket') return 'Blu Pocket';
++  if (v === 'pocket blu cc' || v === 'blu pocket cc') return 'Blu Pocket CC';
+   if (v === 'pocket bca' || v === 'bca pocket') return 'BCA Pocket';
+   if (v === 'cc' || v === 'credit card') return 'Credit Card';
+   if (v === 'blu' || v === 'blu bca' || v === 'blubca') return 'Blu';
+@@ -17173,13 +17176,168 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
+ 
+ 
+ 
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_START */
++
++function airoTask9CleanupSpec_() {
++  return {
++    spreadsheetId: '1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU',
++    candidates: [
++      ['📒 Account Ledger', 72, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['📒 Account Ledger', 73, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['🧾 Review Queue', 13, 'SMK_T9_CC_PAY_LEDGER_20260611_205927'],
++      ['🧾 Review Queue', 15, 'SMK_T9_CC_PAY_LEDGER_20260612_170925'],
++      ['🧾 Review Queue', 16, 'SMK_T9_CC_PAY_LEDGER_20260612_220244'],
++      ['🧾 Review Queue', 17, 'SMK_T9_CC_FINALTAB_GATE_20260612_222149'],
++      ['🧾 Review Queue', 23, 'SMK_T9_CC_PAY_LEDGER_20260616_103300'],
++      ['🧾 Review Queue', 24, 'SMK_T9_CC_PAY_LEDGER_20260616_104005'],
++      ['💳 Credit Card', 18, 'tg:no_chat_id:no_msg_id:1779367643250:s8xzu55KCCzpWiKw'],
++      ['💳 Credit Card', 19, 'tg:no_chat_id:no_msg_id:1781427034910:8mmjtMWSu0Ea6FnO']
++    ]
++  };
++}
++
++function airoTask9CleanupPreview_() {
++  var target = airoTask9OpenConfiguredSpreadsheet_();
++  var ss = target.spreadsheet;
++  var spec = airoTask9CleanupSpec_();
++
++  if (String(target.spreadsheetId) !== String(spec.spreadsheetId)) {
++    throw new Error('task9_cleanup_workbook_mismatch');
++  }
++
++  var items = spec.candidates.map(function(item) {
++    var sheet = getSheetLoose_(ss, item[0]);
++    if (!sheet) {
++      return {
++        sheet: item[0],
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'sheet_missing'
++      };
++    }
++
++    if (item[1] > sheet.getLastRow()) {
++      return {
++        sheet: sheet.getName(),
++        row: item[1],
++        marker: item[2],
++        valid: false,
++        reason: 'row_missing'
++      };
++    }
++
++    var row = sheet
++      .getRange(item[1], 1, 1, sheet.getLastColumn())
++      .getDisplayValues()[0];
++
++    var text = row.join(' | ');
++
++    return {
++      sheet: sheet.getName(),
++      row: item[1],
++      marker: item[2],
++      valid: text.indexOf(item[2]) !== -1,
++      preview: text.slice(0, 260)
++    };
++  });
++
++  return {
++    ok: items.length === 10 && items.every(function(item) {
++      return item.valid === true;
++    }),
++    write_performed: false,
++    workbook_write_performed: false,
++    candidate_count: items.length,
++    items: items
++  };
++}
++
++/* AIRO_TASK9_REVERSIBLE_CLEANUP_V1_END */
++
++function airoTask9CleanupMaybeHandleRoute_(e) {
++  var body = {};
++
++  try {
++    body = JSON.parse(
++      e && e.postData && e.postData.contents
++        ? e.postData.contents
++        : '{}'
++    );
++  } catch (err) {
++    return null;
++  }
++
++  var message = body.message || body.edited_message || {};
++  var rawText = String(message.text || '').trim();
++
++  if (rawText !== 'admin task9 cleanup preview') {
++    return null;
++  }
++
++  var chatId = message.chat && message.chat.id;
++  var adminChatId = String(
++    PropertiesService.getScriptProperties().getProperty('ADMIN_CHAT_ID') || ''
++  ).trim();
++
++  if (!adminChatId || String(chatId || '') !== adminChatId) {
++    return json_({
++      ok: false,
++      handled: true,
++      error: 'admin_chat_guard_failed',
++      workbook_write_performed: false
++    });
++  }
++
++  var result = airoTask9CleanupPreview_();
++  var lines = [
++    'Task 9 cleanup preview',
++    '',
++    'Status: ' + (result.ok ? 'READY' : 'BLOCKED'),
++    'Mode: READ ONLY',
++    'Candidates: ' + result.candidate_count
++  ];
++
++  result.items.forEach(function(item) {
++    lines.push(
++      item.sheet + ' row ' + item.row + ': ' +
++      (item.valid ? 'VALID' : 'INVALID')
++    );
++  });
++
++  sendTelegram_(chatId, lines.join('\n'));
++
++  return json_({
++    ok: result.ok,
++    handled: true,
++    command: 'admin task9 cleanup preview',
++    write_performed: false,
++    workbook_write_performed: false,
++    result: result
++  });
++}
++
+ function doPost(e) {
++  var task9CleanupPreviewResult = airoTask9CleanupMaybeHandleRoute_(e);
++  if (task9CleanupPreviewResult) {
++    return task9CleanupPreviewResult;
++  }
++
++  var task9RepairResult = airoTask9ReadAndRepairMaybeHandleRoute_(e);
++  if (task9RepairResult) {
++    return task9RepairResult;
++  }
+ 
+   var task9CcPendingResult = airoTask9CcPendingPocketCommandMaybeHandleRoute_(e);
+   if (task9CcPendingResult) {
+     return task9CcPendingResult;
+   }
+ 
++  var task9CcSudahResult = airoTask9CcSudahNumberMaybeHandleRoute_(e);
++  if (task9CcSudahResult) {
++    return task9CcSudahResult;
++  }
++
+   var sprint7HApprovalCommandResult = airoSprint7HApprovalCommandMaybeHandleRoute_(e);
+   if (sprint7HApprovalCommandResult) {
+     return sprint7HApprovalCommandResult;
+@@ -17277,6 +17435,31 @@ function doPost(e) {
+ return airoOriginalDoPostForSprint7GmailLabelFilter_(e);
+ }
+ 
++function airoTask9GetConfiguredSpreadsheetId_() {
++  var id = String(PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || '').trim();
++  if (!id) {
++    throw new Error('AIRO Task 9 target spreadsheet id missing: ScriptProperties.SPREADSHEET_ID is empty');
++  }
++  return id;
++}
++
++function airoTask9OpenConfiguredSpreadsheet_() {
++  var spreadsheetId = airoTask9GetConfiguredSpreadsheetId_();
++  var ss = SpreadsheetApp.openById(spreadsheetId);
++
++  if (ss && typeof ss.getId === 'function') {
++    var actualId = String(ss.getId() || '').trim();
++    if (actualId && actualId !== spreadsheetId) {
++      throw new Error('AIRO Task 9 target spreadsheet mismatch: expected=' + spreadsheetId + ' actual=' + actualId);
++    }
++  }
++
++  return {
++    spreadsheet: ss,
++    spreadsheetId: spreadsheetId
++  };
++}
++
+ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+   try {
+     var parsed = airoSprint7FParseTelegramText_(e);
+@@ -17284,7 +17467,10 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+       return null;
+     }
+ 
+-    var ss = SpreadsheetApp.getActiveSpreadsheet();
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++    var targetSpreadsheetId = target.spreadsheetId;
++
+     var sheet = getSheetLoose_(ss, 'Credit Card');
+     if (!sheet) {
+       if (parsed.chat_id) {
+@@ -17305,10 +17491,11 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+     var statusColIdx = map.status_pocket_blu;
+     var amountColIdx = map.amount;
+     var descColIdx = map.description || map.merchant_app;
++    var entryIdColIdx = map.cc_entry_id;
+ 
+-    if (!statusColIdx || !amountColIdx) {
++    if (!statusColIdx || !amountColIdx || !entryIdColIdx) {
+       if (parsed.chat_id) {
+-        sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu atau amount tidak ditemukan.");
++        sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu, amount, atau cc_entry_id tidak ditemukan.");
+       }
+       return json_({ ok: false, handled: true, error: "cc_required_columns_missing" });
+     }
+@@ -17341,11 +17528,16 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+           var merchantColIdx = map.merchant_app;
+           var merchantVal = String(merchantColIdx ? row[merchantColIdx - 1] : '').trim();
+           var displayDesc = descVal || merchantVal;
++          var entryIdVal = String(row[entryIdColIdx - 1] || '').trim();
++          var billingCycleColIdx = map.billing_cycle_id;
++          var billingCycleVal = billingCycleColIdx ? String(row[billingCycleColIdx - 1] || '').trim() : '';
+ 
+           if (amountVal > 0 && displayDesc !== '') {
+             pendingItems.push({
+               description: displayDesc,
+-              amount: amountVal
++              amount: amountVal,
++              cc_entry_id: entryIdVal,
++              billing_cycle_id: billingCycleVal
+             });
+             totalPending += amountVal;
+           }
+@@ -17353,18 +17545,40 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+       }
+     }
+ 
++    if (parsed.chat_id && pendingItems.length > 0) {
++      try {
++        var cache = CacheService.getScriptCache();
++        var cacheKey = "cc_pending_snapshot_" + parsed.chat_id;
++        var snapshot = {
++          target_spreadsheet_id: targetSpreadsheetId,
++          generated_at: new Date().toISOString(),
++          items: pendingItems.map(function(item) {
++            return {
++              cc_entry_id: item.cc_entry_id,
++              amount: item.amount,
++              description: item.description,
++              billing_cycle_id: item.billing_cycle_id || ''
++            };
++          })
++        };
++        cache.put(cacheKey, JSON.stringify(snapshot), 900);
++      } catch (cacheErr) {
++        Logger.log("Failed to write CacheService: " + cacheErr.toString());
++      }
++    }
++
+     var replyText = "";
+     if (pendingItems.length === 0) {
+       replyText = "Tidak ada pending CC.";
+     } else {
+       var lines = [];
+-      lines.push("💳 Pending Pocket Blu CC");
++      lines.push("💳 Pending Dana CC");
+       lines.push("");
+       for (var k = 0; k < pendingItems.length; k++) {
+         lines.push((k + 1) + ". " + pendingItems[k].description + " — " + formatBalanceRupiah_(pendingItems[k].amount));
+       }
+       lines.push("");
+-      lines.push("Total belum disiapkan ke Blu: " + formatBalanceRupiah_(totalPending));
++      lines.push("Total belum disisihkan ke Blu Pocket CC: " + formatBalanceRupiah_(totalPending));
+       lines.push("");
+       lines.push("Balas:");
+       lines.push("cc sudah <nomor>");
+@@ -17408,6 +17622,427 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
+   }
+ }
+ 
++function airoTask9CcSudahNumberMaybeHandleRoute_(e) {
++  try {
++    var parsed = airoSprint7FParseTelegramText_(e);
++    var rawText = String(parsed.text || "").trim();
++    var match = rawText.match(/^cc\s+sudah\s+(\d+)$/i);
++    if (!match) {
++      return null;
++    }
++
++    var index = Number(match[1]);
++
++    if (!parsed.chat_id) {
++      return json_({ ok: false, handled: true, error: "chat_id_missing" });
++    }
++
++    var cache = CacheService.getScriptCache();
++    var cacheKey = "cc_pending_snapshot_" + parsed.chat_id;
++    var cachedStr = cache.get(cacheKey);
++    var chatId = parsed.chat_id;
++
++    var snapshot = null;
++    try {
++      if (cachedStr) {
++        snapshot = JSON.parse(cachedStr);
++      }
++    } catch (e) {}
++
++    if (!snapshot || !snapshot.items || !snapshot.items.length) {
++      sendTelegram_(chatId, "Nomor pending CC belum terdaftar atau sudah kedaluwarsa.\n\nJalankan `cek tagihan pending cc` terlebih dahulu.");
++      return json_({ ok: false, handled: true, error: "cc_pending_mapping_expired" });
++    }
++
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++    var targetSpreadsheetId = target.spreadsheetId;
++
++    if (String(snapshot.target_spreadsheet_id || '') !== String(targetSpreadsheetId || '')) {
++      sendTelegram_(chatId, '⚠️ Mapping CC sudah tidak valid karena target workbook berubah. Jalankan ulang: cek tagihan pending cc');
++      return json_({
++        ok: false,
++        handled: true,
++        command: 'cc sudah',
++        reason: 'target_spreadsheet_mismatch',
++        write_performed: false
++      });
++    }
++
++    var entryIds = snapshot.items.map(function(item) { return item.cc_entry_id; });
++
++    if (index < 1 || index > entryIds.length) {
++      sendTelegram_(chatId, "Nomor " + index + " tidak valid. Harap pilih nomor antara 1 dan " + entryIds.length + ".");
++      return json_({ ok: false, handled: true, error: "cc_pending_index_out_of_range" });
++    }
++
++    var targetEntryId = entryIds[index - 1];
++    if (!targetEntryId) {
++      sendTelegram_(chatId, "Error: CC Entry ID tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_entry_id_not_found" });
++    }
++
++    if (targetSpreadsheetId !== '1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU') {
++      sendTelegram_(chatId, '⚠️ Target workbook mismatch. Settlement dibatalkan sebelum write.');
++      return json_({
++        ok: false,
++        handled: true,
++        command: 'cc sudah',
++        reason: 'unexpected_target_spreadsheet_id',
++        target_spreadsheet_id: targetSpreadsheetId,
++        write_performed: false
++      });
++    }
++
++    var sheet = getSheetLoose_(ss, 'Credit Card');
++    if (!sheet) {
++      sendTelegram_(chatId, "Error: Tab Credit Card tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "credit_card_tab_not_found" });
++    }
++
++    var headerInfo = findCcHeaderRow_(sheet);
++    if (!headerInfo) {
++      sendTelegram_(parsed.chat_id, "Error: Header Credit Card tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_header_not_found" });
++    }
++
++    var map = ccColMap_(headerInfo.headers);
++    var entryIdColIdx = map.cc_entry_id;
++    var statusColIdx = map.status_pocket_blu;
++    var amountColIdx = map.amount;
++    var descColIdx = map.description || map.merchant_app;
++    var transferredColIdx = map.transferred_at;
++    var linkedTxnIdColIdx = map.linked_txn_id;
++    var notesColIdx = map.notes;
++
++    if (!statusColIdx || !amountColIdx || !entryIdColIdx) {
++      sendTelegram_(parsed.chat_id, "Error: Kolom status_pocket_blu, amount, atau cc_entry_id tidak ditemukan.");
++      return json_({ ok: false, handled: true, error: "cc_required_columns_missing" });
++    }
++
++    var startRow = headerInfo.row + 1;
++    var lastRow = sheet.getLastRow();
++    var targetRow = 0;
++    var rowValues = null;
++
++    if (lastRow >= startRow) {
++      var range = sheet.getRange(startRow, 1, lastRow - startRow + 1, headerInfo.headers.length);
++      var values = range.getValues();
++      for (var i = 0; i < values.length; i++) {
++        var rowValuesCandidate = values[i];
++        var entryIdVal = String(rowValuesCandidate[entryIdColIdx - 1] || '').trim();
++        if (entryIdVal === targetEntryId) {
++          targetRow = startRow + i;
++          rowValues = rowValuesCandidate;
++          break;
++        }
++      }
++    }
++
++    if (!targetRow) {
++      sendTelegram_(parsed.chat_id, "Error: Transaksi CC dengan ID " + targetEntryId + " tidak ditemukan di sheet.");
++      return json_({ ok: false, handled: true, error: "cc_row_not_found" });
++    }
++
++    var statusVal = String(rowValues[statusColIdx - 1] || '').trim().toLowerCase();
++    var amountVal = Number(rowValues[amountColIdx - 1]) || 0;
++    var descVal = String(descColIdx ? rowValues[descColIdx - 1] : '').trim();
++    var merchantVal = String(map.merchant_app ? rowValues[map.merchant_app - 1] : '').trim();
++    var displayDesc = descVal || merchantVal;
++    var linkedTxnIdVal = linkedTxnIdColIdx ? String(rowValues[linkedTxnIdColIdx - 1] || '').trim() : '';
++
++    var excludes = ['sudah', 'paid', 'posted', 'transferred'];
++    var isPending = true;
++    for (var j = 0; j < excludes.length; j++) {
++      if (statusVal.indexOf(excludes[j]) !== -1) {
++        isPending = false;
++        break;
++      }
++    }
++
++    if (!isPending) {
++      if (linkedTxnIdVal) {
++        sendTelegram_(parsed.chat_id, "Transaksi sudah disiapkan ke Blu (Already Settled).\nLedger Ref: " + linkedTxnIdVal);
++        return json_({ ok: true, handled: true, error: "cc_already_settled", ledger_ref: linkedTxnIdVal });
++      } else {
++        sendTelegram_(parsed.chat_id, "⚠️ Audit Warning: Status transaksi CC '" + statusVal + "' sudah Sudah tetapi linked_txn_id kosong. Tidak ada auto-write.");
++        return json_({ ok: false, handled: true, error: "CC_STATUS_SUDAH_WITHOUT_LEDGER_LINK" });
++      }
++    }
++
++    if (amountVal <= 0) {
++      sendTelegram_(parsed.chat_id, "Error: Jumlah transaksi CC <= 0.");
++      return json_({ ok: false, handled: true, error: "cc_amount_invalid" });
++    }
++
++    // Check duplicate in Account Ledger
++    var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++    if (ledgerSheet) {
++      var ledgerHeader = findHeader_(ledgerSheet);
++      if (ledgerHeader) {
++        var ledgerMap = {};
++        ledgerHeader.headers.forEach(function(h, idx) { ledgerMap[canonicalKey_(h)] = idx + 1; });
++        var entryIdIdx = ledgerMap.entry_id;
++        var linkedTxnIdIdx = ledgerMap.linked_txn_id;
++        var ledgerLastRow = ledgerSheet.getLastRow();
++        if (ledgerLastRow > ledgerHeader.row) {
++          var ledgerRange = ledgerSheet.getRange(ledgerHeader.row + 1, 1, ledgerLastRow - ledgerHeader.row, ledgerHeader.headers.length);
++          var ledgerValues = ledgerRange.getValues();
++          for (var l = 0; l < ledgerValues.length; l++) {
++            var lRow = ledgerValues[l];
++            var lEntryId = entryIdIdx ? String(lRow[entryIdIdx - 1]).trim() : '';
++            var lLinkedTxnId = linkedTxnIdIdx ? String(lRow[linkedTxnIdIdx - 1]).trim() : '';
++            if (lEntryId === targetEntryId || lLinkedTxnId === targetEntryId) {
++              sendTelegram_(parsed.chat_id, "⚠️ Transaksi sudah tercatat di Account Ledger dengan ID " + targetEntryId + " tetapi belum ditautkan di Credit Card. Silakan tautkan manual.");
++              return json_({ ok: false, handled: true, error: "cc_ledger_duplicate_found", entry_id: targetEntryId });
++            }
++          }
++        }
++      }
++    }
++
++    // Write to Account Ledger as internal transfer: Blu Pocket -> Blu Pocket CC
++    var ledgerCommon = {
++      linked_txn_id: targetEntryId,
++      rowId: targetEntryId
++    };
++    var ledgerParsed = {
++      amount: amountVal,
++      category: 'Transfer',
++      description: "Dana CC reserved for: " + displayDesc,
++      date: todayDate_()
++    };
++    var ledgerRawText = "transfer " + amountVal + " dr blu pocket ke blu pocket cc";
++    var transferInfo = { sourceAccount: "Blu Pocket", targetAccount: "Blu Pocket CC" };
++    var ledgerResult = writeInternalTransferToAccountLedger_(ss, ledgerParsed, ledgerRawText, ledgerCommon, transferInfo);
++
++    if (!ledgerResult || ledgerResult.status !== 'written' || ledgerResult.writeVerified !== true) {
++      sendTelegram_(parsed.chat_id, "Gagal memverifikasi penulisan ke Account Ledger. Settle dibatalkan.");
++      return json_({ ok: false, handled: true, error: "cc_ledger_write_verification_failed" });
++    }
++
++    // Task 9 Step 4 Source verification guard of BOTH rows
++    var ledgerSourceRow = ledgerResult.accountLedgerRows ? ledgerResult.accountLedgerRows[0] : null;
++    var ledgerTargetRow = ledgerResult.accountLedgerRows ? ledgerResult.accountLedgerRows[1] : null;
++    var sourceDetails = getAccountLedgerRowDetails_(ss, ledgerSourceRow);
++    var targetDetails = getAccountLedgerRowDetails_(ss, ledgerTargetRow);
++
++    if (!sourceDetails || !targetDetails) {
++      sendTelegram_(parsed.chat_id, "⚠️ Verification Warning: Gagal membaca detail baris ledger untuk transfer.");
++      return json_({ ok: false, handled: true, error: "cc_ledger_verification_failed_read_details" });
++    }
++
++    var vOutAcc = String(sourceDetails.account || '').trim();
++    var vOutAmt = Number(sourceDetails.amountOut) || 0;
++    var vInAcc = String(targetDetails.account || '').trim();
++    var vInAmt = Number(targetDetails.amountIn) || 0;
++
++    var verificationPassed = true;
++    var verifError = "";
++
++    if (vOutAcc !== "Blu Pocket") {
++      verificationPassed = false;
++      verifError = "source_account_mismatch";
++    } else if (vOutAmt !== amountVal) {
++      verificationPassed = false;
++      verifError = "source_amount_mismatch";
++    } else if (!vInAcc || vInAcc === "") {
++      verificationPassed = false;
++      verifError = "destination_account_blank";
++    } else if (vInAcc !== "Blu Pocket CC") {
++      verificationPassed = false;
++      verifError = "destination_account_mismatch";
++    } else if (vInAmt !== amountVal) {
++      verificationPassed = false;
++      verifError = "destination_amount_mismatch";
++    }
++
++    if (!verificationPassed) {
++      sendTelegram_(parsed.chat_id, "⚠️ WARNING: Ledger verification failed (" + verifError + "). Credit Card status NOT updated.");
++      return json_({
++        ok: false,
++        handled: true,
++        error: "cc_ledger_verification_failed",
++        reason: verifError,
++        source_account: vOutAcc,
++        source_amount: vOutAmt,
++        destination_account: vInAcc,
++        destination_amount: vInAmt
++      });
++    }
++
++    // Update Credit Card row (only after both ledger rows verified!)
++    sheet.getRange(targetRow, statusColIdx).setValue('✅ Sudah');
++    if (transferredColIdx) {
++      sheet.getRange(targetRow, transferredColIdx).setValue(todayDate_());
++    }
++    if (linkedTxnIdColIdx) {
++      sheet.getRange(targetRow, linkedTxnIdColIdx).setValue(ledgerResult.rowId || targetEntryId);
++    }
++    if (notesColIdx) {
++      var oldNotes = String(sheet.getRange(targetRow, notesColIdx).getValue() || '');
++      var newNotes = [oldNotes, 'pocket_blu_settlement: ' + ledgerResult.rowId].filter(Boolean).join(' | ');
++      sheet.getRange(targetRow, notesColIdx).setValue(newNotes);
++    }
++
++    var successLines = [];
++    successLines.push("✅ Dana CC Disisihkan");
++    successLines.push("Item: " + displayDesc);
++    successLines.push("Amount: " + formatBalanceRupiah_(amountVal));
++    successLines.push("Transfer: Blu Pocket → Blu Pocket CC");
++    successLines.push("Ledger Row: 📒 Account Ledger:" + ledgerResult.row);
++
++    if (sourceDetails && targetDetails &&
++        sourceDetails.balance !== '' && sourceDetails.balance !== null && sourceDetails.balance !== undefined &&
++        targetDetails.balance !== '' && targetDetails.balance !== null && targetDetails.balance !== undefined) {
++      successLines.push("Saldo Blu Pocket sekarang: " + formatBalanceRupiah_(sourceDetails.balance));
++      successLines.push("Saldo Blu Pocket CC sekarang: " + formatBalanceRupiah_(targetDetails.balance));
++    }
++
++    sendTelegram_(parsed.chat_id, successLines.join("\n"));
++
++    return json_({
++      ok: true,
++      handled: true,
++      command: "cc sudah " + index,
++      write_performed: true,
++      account_ledger_write_performed: true,
++      cc_status_update_performed: true,
++      item: displayDesc,
++      amount: amountVal,
++      ledger_row: ledgerResult.row
++    });
++
++  } catch (err) {
++    var errMsg = String(err && err.message ? err.message : err);
++    var chatId = null;
++    try {
++      var parsed = airoSprint7FParseTelegramText_(e);
++      chatId = parsed.chat_id;
++    } catch (e2) {}
++
++    if (chatId) {
++      try {
++        sendTelegram_(chatId, "Error executing CC sudah command: " + errMsg);
++      } catch (e3) {}
++    }
++
++    return json_({
++      ok: false,
++      handled: true,
++      command: "cc sudah command",
++      error: errMsg
++    });
++  }
++}
++
++function airoTask9ReadAndRepairMaybeHandleRoute_(e) {
++  try {
++    var body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
++    var msg = body.message || {};
++    var rawText = String(msg.text || '').trim();
++    if (rawText !== "admin task9 read" && rawText !== "admin task9 repair") {
++      return null;
++    }
++
++    var target = airoTask9OpenConfiguredSpreadsheet_();
++    var ss = target.spreadsheet;
++
++    if (rawText === "admin task9 read") {
++      var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++      var ledgerLastRow = ledgerSheet ? ledgerSheet.getLastRow() : 0;
++      var row72 = ledgerLastRow >= 72 ? ledgerSheet.getRange(72, 1, 1, 14).getValues()[0] : null;
++      var row73 = ledgerLastRow >= 73 ? ledgerSheet.getRange(73, 1, 1, 14).getValues()[0] : null;
++      // Also dump last 5 rows for debugging
++      var lastFiveStart = Math.max(2, ledgerLastRow - 4);
++      var lastFiveRows = ledgerLastRow >= 2 ? ledgerSheet.getRange(lastFiveStart, 1, ledgerLastRow - lastFiveStart + 1, 14).getValues() : [];
++
++      var ccSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.creditCard || 'Credit Card');
++      if (!ccSheet) ccSheet = getSheetLoose_(ss, 'Credit Card');
++      var ccHeaders = ccSheet ? findCcHeaderRow_(ccSheet).headers : [];
++      var ccMap = ccSheet && ccHeaders.length ? ccColMap_(ccHeaders) : {};
++      var ccRows = ccSheet && ccHeaders.length ? ccSheet.getRange(9, 1, Math.max(1, ccSheet.getLastRow() - 8), ccHeaders.length).getValues() : [];
++      var ccMatched = null;
++      var ccMatchedRowIdx = -1;
++      for (var i = 0; i < ccRows.length; i++) {
++        var row = ccRows[i];
++        var descVal = ccMap.description ? String(row[ccMap.description - 1] || '').trim() : '';
++        var amountVal2 = ccMap.amount ? Number(row[ccMap.amount - 1]) || 0 : 0;
++        if (descVal === "cc beli 24000") {
++          ccMatched = row;
++          ccMatchedRowIdx = 9 + i;
++          break;
++        }
++      }
++
++      return json_({
++        ok: true,
++        ledgerLastRow: ledgerLastRow,
++        row72: row72,
++        row73: row73,
++        lastFiveRows: lastFiveRows,
++        lastFiveStart: lastFiveStart,
++        ccMatched: ccMatched,
++        ccMatchedRowIdx: ccMatchedRowIdx
++      });
++    }
++
++    if (rawText === "admin task9 repair") {
++      var ledgerSheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
++      var ledgerLastRow = ledgerSheet ? ledgerSheet.getLastRow() : 0;
++      if (!ledgerSheet || ledgerLastRow < 73) {
++        return json_({
++          ok: false,
++          repaired: false,
++          reason: "row73_does_not_exist",
++          ledgerLastRow: ledgerLastRow
++        });
++      }
++      var row73Account = String(ledgerSheet.getRange(73, 3).getValue() || '').trim();
++      var row73In = Number(ledgerSheet.getRange(73, 4).getValue()) || 0;
++      var row73Type = String(ledgerSheet.getRange(73, 7).getValue() || '').trim();
++      var row73Desc = String(ledgerSheet.getRange(73, 9).getValue() || '').trim();
++
++      if ((row73Account === "" || row73Account === "null" || row73Account === "undefined") && row73In === 24000 && row73Type === "transfer_in" && row73Desc.indexOf("transfer 24000 dr blu pocket ke blu pocket cc") !== -1) {
++        var prevBalance = 0;
++        var values = ledgerSheet.getRange(2, 1, 71, 14).getValues();
++        for (var idx = values.length - 1; idx >= 0; idx--) {
++          var acc = String(values[idx][2] || '').trim();
++          var bal = values[idx][5];
++          if (acc === "Blu Pocket CC" && bal !== "" && bal !== null && bal !== undefined) {
++            prevBalance = Number(bal) || 0;
++            break;
++          }
++        }
++        var newBalance = prevBalance + 24000;
++
++        ledgerSheet.getRange(73, 3).setValue("Blu Pocket CC");
++        ledgerSheet.getRange(73, 6).setValue(newBalance);
++
++        return json_({
++          ok: true,
++          repaired: true,
++          prevBalance: prevBalance,
++          newBalance: newBalance
++        });
++      } else {
++        return json_({
++          ok: false,
++          repaired: false,
++          reason: "guard_mismatch",
++          row73Account: row73Account,
++          row73In: row73In,
++          row73Type: row73Type,
++          row73Desc: row73Desc,
++          ledgerLastRow: ledgerLastRow
++        });
++      }
++    }
++  } catch (err) {
++    return json_({ ok: false, error: err.toString() });
++  }
++}
++
+ /* AIRO_SPRINT7_GMAIL_LABEL_FILTER_READBACK_END */
+ 
+ // AIRO_SPRINT7_EMAIL_INGESTION_LOG_READBACK_START
+@@ -27020,6 +27655,7 @@ function airoEnsureAccountRegistrySheet_(ss) {
+     var seedData = [
+       ['TRUE', 'blu', 'Blu', 'Blu', 'bank', 'Blu', '', 'Blu', '#00A3E0', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Main account'],
+       ['TRUE', 'blu_pocket', 'Blu Pocket', 'Blu', 'bank', 'Blu', 'pocket', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket account'],
++      ['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account'],
+       ['TRUE', 'bca', 'BCA', 'BCA', 'bank', 'BCA', '', 'BCA', '#005AAB', 'FALSE', 'TRUE', 'FALSE', 'BCA Main account'],
+       ['TRUE', 'bca_pocket', 'BCA Pocket', 'BCA', 'bank', 'BCA', 'pocket', 'BCA', '#4C8DFF', 'FALSE', 'TRUE', 'FALSE', 'BCA Pocket account'],
+       ['TRUE', 'cash_umum', 'Cash Umum', 'Cash', 'cash', 'Cash', 'umum', 'Cash', '#28A745', 'TRUE', 'FALSE', 'FALSE', 'Cash Umum'],
+@@ -27118,6 +27754,7 @@ function airoSprint7AccountContractGetStaticRegistry_() {
+   return [
+     { account_id: "blu", account_name: "Blu", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "blu_pocket", account_name: "Blu Pocket", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "pocket", is_cash: false, is_bank: true, is_credit: false },
++    { account_id: "blu_pocket_cc", account_name: "Blu Pocket CC", provider: "Blu", account_type: "bank", parent_account: "Blu", pocket_name: "pocket cc", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "bca", account_name: "BCA", provider: "BCA", account_type: "bank", parent_account: "BCA", pocket_name: "", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "bca_pocket", account_name: "BCA Pocket", provider: "BCA", account_type: "bank", parent_account: "BCA", pocket_name: "pocket", is_cash: false, is_bank: true, is_credit: false },
+     { account_id: "cash_umum", account_name: "Cash Umum", provider: "Cash", account_type: "cash", parent_account: "Cash", pocket_name: "umum", is_cash: true, is_bank: false, is_credit: false },

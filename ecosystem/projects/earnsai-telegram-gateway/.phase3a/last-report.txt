@@ -1,0 +1,46 @@
+EarnsAI Phase 3A validation report
+Fri May  1 16:30:26 +07 2026
+
+=== BUBU WORKER HEALTH ===
+{
+  "ok": true,
+  "service": "earnsai-telegram-gateway",
+  "phase": "telegram-webhook-minimal"
+}
+
+=== LOCAL BUBU SOURCE SHA ===
+291f5d3de61a3d7b1510742a765a5f0fda65e1e54a28faf409e33cc895af649c  src/index.ts
+
+=== AUTO MERGE MARKERS ===
+139:const AUTO_MERGE_IDLE_MS = 10_000;
+150:const autoMergeBuffers = new Map<string, AutoMergeBufferEntry>();
+184:async function flushAutoMergeBuffer(
+192:  const entry = autoMergeBuffers.get(key);
+197:  autoMergeBuffers.delete(key);
+234:    sleep(AUTO_MERGE_IDLE_MS).then(() => {
+235:      const current = autoMergeBuffers.get(key);
+237:      return flushAutoMergeBuffer(env, ctx, chatId, userId, "idle-timeout");
+244:    sleep(AUTO_MERGE_MAX_MS).then(() => flushAutoMergeBuffer(env, ctx, chatId, userId, "max-timeout"))
+263:  autoMergeBuffers.set(getAutoMergeBufferKey(chatId, userId), entry);
+282:  const entry = autoMergeBuffers.get(getAutoMergeBufferKey(chatId, userId));
+549:        const hasExistingBuffer = autoMergeBuffers.has(bufferKey);
+554:            await flushAutoMergeBuffer(env, ctx, chatId, userId, "new-capture-trigger");
+576:            reason: isCaptureTrigger ? "capture trigger detected" : "default capture buffering",
+
+=== CHECKPOINT CHECK ===
+total 36
+drwxr-xr-x 2 egitaristorandas egitaristorandas  4096 May  1 14:32 .
+drwxr-xr-x 4 egitaristorandas egitaristorandas  4096 May  1 14:32 ..
+-rw-r--r-- 1 egitaristorandas egitaristorandas   323 May  1 14:32 STATUS.md
+-rw-r--r-- 1 egitaristorandas egitaristorandas 17056 May  1 14:29 index.ts.DEFAULT_AUTO_MERGE_NOT_DEPLOYED
+-rw-r--r-- 1 egitaristorandas egitaristorandas    79 May  1 14:32 index.ts.sha256
+
+=== TYPESCRIPT CHECK ===
+
+=== WRANGLER DRY RUN ONLY - NO DEPLOY ===
+
+ ⛅️ wrangler 4.85.0
+───────────────────
+Total Upload: 22.68 KiB / gzip: 6.27 KiB
+No bindings found.
+--dry-run: exiting now.

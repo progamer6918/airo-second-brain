@@ -1,0 +1,54 @@
+{
+  "schema": "airo_sprint7d_real_email_source_setup_config_v1",
+  "date": "2026-05-27",
+  "mode": "manual-config-only",
+  "gmail_live_read_performed": false,
+  "mailbox_read_performed": false,
+  "mail_trigger_created": false,
+  "email_modified": false,
+  "full_email_body_stored": false,
+  "finance_write_performed": false,
+  "providers": [
+    {
+      "provider_name": "Blu",
+      "provider_id": "blu",
+      "sender_allowlist": [
+        "receipts@blubybcadigital.id"
+      ],
+      "required_gmail_label": "Info Terbaru",
+      "transaction_types": [
+        "transfer masuk",
+        "transfer keluar",
+        "refund",
+        "e-wallet payment"
+      ],
+      "account_mapping": {
+        "default": "Blu"
+      },
+      "safe_subject_examples": [
+        "Transaksimu Pakai blu Berhasil",
+        "Info Transaksi Masuk ke blu Kamu 💸"
+      ]
+    },
+    {
+      "provider_name": "Tokopedia Card",
+      "provider_id": "tokopedia_card",
+      "sender_allowlist": [
+        "noreply@tokopedia.com"
+      ],
+      "required_gmail_label": "Info Terbaru",
+      "transaction_types": [
+        "kartu kredit purchase",
+        "pembayaran kartu kredit",
+        "refund"
+      ],
+      "account_mapping": {
+        "last4_2003": "Tokopedia Card"
+      },
+      "safe_subject_examples": [
+        "Selamat, Bayar Otomatis Air PDAM anda berhasil",
+        "Selamat, pembayaran tagihan Kartu Kredit Anda BERHASIL"
+      ]
+    }
+  ]
+}

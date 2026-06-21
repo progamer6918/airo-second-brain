@@ -1,0 +1,56 @@
+
+!.env.example
+# AIRO / clasp safety
+# AIRO clasp/local safety
+# AIRO generated live Apps Script workspace backup/local clone
+# Airo Personal Workflow local secrets
+# Generated exports/reports
+# Google Apps Script / clasp local auth safety
+# Local runtime data
+# Python cache
+# Secrets / credentials
+**/.clasprc.json
+*.credentials.json
+*.key
+*.pem
+*.pyc
+*.secret.json
+*.token.json
+*secret*
+*token*
+.airo_personal_data/
+.clasprc.json
+.env
+.env.*
+.local-secrets/
+EarnsAI/
+__pycache__/
+apps-script-backups/
+apps-script-live.*/
+apps-script-live/
+client_secret*.json
+credentials*.json
+credentials.json
+exports/personal-workflow/
+google-oauth*.json
+google_credentials*.json
+google_token*.json
+reports/personal-workflow/
+runtime/
+secrets/
+token*.json
+token.json
+trading/
+.aider*
+
+.venv/
+.wrangler/
+scratch/
+payload.json
+temp_*.py
+temp_*.sh
+trigger_*_build.sh
+FETCH_HEAD
+apps-script-prod-v2/.clasp.json
+apps-script-prod-v2/Kode.js
+apps-script-prod-v2/appsscript.json

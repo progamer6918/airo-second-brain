@@ -1,0 +1,14 @@
+===== AIRO FINANCE TASK 9 READONLY PREFLIGHT =====
+2026-06-20T21:46:57+07:00
+MODE=READ_ONLY_NO_PATCH_NO_DEPLOY_NO_WORKBOOK_NO_GMAIL
+
+===== REPO EXISTENCE =====
+MISSING_OR_NOT_GIT=/mnt/c/Ubuntu/home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+MISSING_OR_NOT_GIT=/mnt/c/Ubuntu/home/egitaristorandas/vortex-ai-skill-lab
+
+===== ASB GIT STATE =====
+
+===== AIRO FINANCE GIT STATE =====
+
+===== ASB SYSTEM HEALTH =====
+/mnt/c/Ubuntu/home/egitaristorandas/vortex-ai-skill-lab/preflight.sh: line 48: cd: /mnt/c/Ubuntu/home/egitaristorandas/AI_WORKSPACES/airo-second-brain: No such file or directory

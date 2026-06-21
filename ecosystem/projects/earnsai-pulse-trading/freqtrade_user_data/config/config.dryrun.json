@@ -1,0 +1,38 @@
+{
+  "api_server": {
+    "enabled": false
+  },
+  "bot_name": "EarnsAI-Pulse-DryRun",
+  "cancel_open_orders_on_exit": true,
+  "dry_run": true,
+  "dry_run_wallet": 1000,
+  "exchange": {
+    "ccxt_async_config": {},
+    "ccxt_config": {},
+    "name": "binance",
+    "pair_blacklist": [],
+    "pair_whitelist": [
+      "BTC/USDT"
+    ]
+  },
+  "fiat_display_currency": "USD",
+  "force_entry_enable": false,
+  "initial_state": "stopped",
+  "internals": {
+    "process_throttle_secs": 5
+  },
+  "max_open_trades": 1,
+  "pairlists": [
+    {
+      "method": "StaticPairList"
+    }
+  ],
+  "stake_amount": 50,
+  "stake_currency": "USDT",
+  "telegram": {
+    "enabled": false
+  },
+  "timeframe": "1h",
+  "tradable_balance_ratio": 0.99,
+  "trading_mode": "spot"
+}

@@ -1,0 +1,1775 @@
+# AIRO Finance PRD v1.0 - Living Product Requirements Document
+
+## Living PRD Update - 2026-06-01 - Dashboard Final Closeout (CANONICAL)
+
+Status: **LOCKED — Dashboard Pixel/Excel Template Redesign is closed/pass.**
+
+### Key Decisions:
+1. **Official Dashboard Promotion & Approval**:
+   - The official `🏠 Dashboard` has been successfully promoted, verified, and approved by the user.
+2. **Canonical Dashboard Architecture**:
+   - The architecture is locked as: `_AIRO_Dashboard_Template_Claude` → template copy → official `🏠 Dashboard`.
+3. **Period Selection**:
+   - G2 selected month acts as the period filter. Hidden date helper cells starting at column `M` dynamically compute date ranges.
+4. **User-Facing Focus**:
+   - The main dashboard is the user-facing cockpit. All technical details, runtime logs, and background metrics are strictly offloaded to hidden tabs (like `_AIRO_Ops_Center`).
+5. **Tab Visibility & Cleanup Policies**:
+   - Technical, backup, and copy tabs are hidden, not deleted.
+6. **Minor Accepted Visual Debt**:
+   - No-data wallet balance text may clip in compact columns.
+   - 0% spending progress bar displays as a neutral empty visual track (`░░░░░░░░░░`).
+   - Critical alert card background color polish has been deferred.
+
+---
+
+## Living PRD Update - 2026-05-31 - Dashboard v2 Promoted to Main Dashboard (CANONICAL)
+
+Status: **LOCKED — Supersedes previous preview/build specifications.**
+
+### Decision: Promotion of Dashboard v2 Layout to Main Dashboard
+
+The approved `🏠 Dashboard v2` has been promoted to become the official main `🏠 Dashboard`. The preview layout visual parity and data validation selector have been fully locked into production.
+
+**Canonical Approach (Locked)**:
+1. **Spreadsheet Promotion & Backup**:
+   - The existing `🏠 Dashboard` is backed up to `_AIRO_Dashboard_Pre_Promote_Backup_YYYYMMDD_HHMMSS`.
+   - The approved `🏠 Dashboard v2` preview is archived as `_AIRO_Dashboard_v2_Approved_YYYYMMDD_HHMMSS`.
+   - A fresh clone of the approved layout serves as the new official main `🏠 Dashboard` tab.
+2. **Interactive Period Wiring (`onEdit` Trigger)**:
+   - The trigger watches cell `G2` for month selection changes on both `🏠 Dashboard` and `🏠 Dashboard v2` and executes a dynamic rebuild on the active sheet.
+3. **Webhook Routes**:
+   - `admin promote dashboard` to execute the backup/promotion sequence.
+   - `admin dashboard build` to rebuild `🏠 Dashboard`.
+   - `admin dashboard readback` to execute layout and formula error verification on `🏠 Dashboard`.
+
+### Accepted Gaps & Minor Visual Debt
+* **Wallet clipping**: Wallet balance no-data helper text may be clipped in narrow columns.
+* **0% spending bar track**: 0% category spending progress bar displays as a neutral empty track (`░░░░░░░░░░`).
+* **Alert colors**: Critical alerts card background color polish has been deferred.
+
+---
+
+## Living PRD Update - 2026-05-31 - Dashboard Template Import Recovery (CANONICAL)
+
+Status: **LOCKED — Supersedes previous "Dashboard Excel Parity" approach below.**
+
+### Decision: Template-Import, NOT Cell-by-Cell Redraw
+
+The Apps Script cell-by-cell generated `🏠 Dashboard v2` layout (v205–v207) was **visually rejected** by the user on 2026-05-31 after live inspection. Root cause: Apps Script cannot reliably replicate Excel visual fidelity (column widths, row heights, font rendering, merged cells, formula locale) via `setBackground`/`setFontSize`/`setColumnWidth` calls.
+
+**New canonical approach** (locked):
+1. Import the Excel reference file as a Google Sheets tab: `_AIRO_Dashboard_Template_Claude`
+2. Apps Script `🏠 Dashboard v2` build copies this template tab — it does NOT redraw manually
+3. Dynamic formula wiring is a separate phase, done ONLY after the template visual clone is confirmed
+
+### New Design Lock (overrides previous spec)
+
+- **Template Source**: `docs/airo-finance/references/AIRO_Finance_Dashboard_reference_20260531.xlsx`
+- **Template Tab Name**: `_AIRO_Dashboard_Template_Claude` (must be imported manually by user first)
+- **Build Method**: `sheet.copyTo(ss)` from the template tab, NOT cell-by-cell reconstruction
+- **Phase Gate**: Visual clone must be confirmed by user screenshot before formula wiring begins
+- **Protected Tabs**: `🏠 Dashboard` untouched; `🏠 Dashboard v2` rebuilt from template only
+- **Rejection Record**: `docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_GENERATED_LAYOUT_REJECTION_20260531.md`
+- **Recovery Plan**: `docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_TEMPLATE_IMPORT_RECOVERY_PLAN_20260531.md`
+
+---
+
+## Living PRD Update - 2026-05-31 - Dashboard Excel Parity & Period Filter Redesign
+
+
+Status: Locked Design Specifications.
+
+### Redesign Guidelines
+
+- **Canonical Visual Parity**: The main dashboard visual target is the Excel reference file `AIRO_Finance_Dashboard.xlsx` (`Dashboard!A1:K41`). We must clone the exact layout, colors, column widths, row heights, and font treatments of this template in Google Sheets.
+- **Google Sheets Final Target**: The dashboard remains entirely in Google Sheets (built on preview tab `🏠 Dashboard v2` first, without overwriting `🏠 Dashboard`). A web dashboard is out of scope.
+- **Interactive Period Filter**: The month selector cell in the topbar (cell `G2`, visually like `📅 Mei 2026`) must act as an interactive period filter dropdown. Selecting a month (e.g., `April 2026`, `Mei 2026`) must dynamically update all dashboard metrics through formulas and helper cells.
+- **Helper Date Logic**: Use hidden/helper cells on `🏠 Dashboard v2` starting at column `M` (`M2:M6`) to compute:
+  - `selected_month_label`
+  - `period_start`
+  - `period_end`
+  - `previous_period_start`
+  - `previous_period_end`
+- **Dynamic Formulas**: All core metrics (Net Worth, Cash tersedia, Cashflow, Wallet balances, Spending Categories, Domain Health, Data Quality, etc.) must reference these helper dates to fetch data for the selected month dynamically, instead of using static values written by script.
+- **Apps Script Trigger Integration**: If `Action Required` cards and `Smart Insights` are written by Apps Script, they must read the active month from the `G2` cell first to filter logs, audit items, and alerts for that specific month before rendering.
+- **Observability Separation**: Technical details (Live trigger count, safe trigger count, heartbeat logs, script properties, deployment ID, and script runtime version) are strictly separated and offloaded to the hidden tab `_AIRO_Ops_Center` to keep the user cockpit clean. No technical ops info should be visible on `🏠 Dashboard v2`.
+
+## Living PRD Update - 2026-05-31 - Phase 5 Alert Engine Closeout
+
+Status: Phase 5 (Alert Engine) is closed as PASS based on Telegram live smoke verification.
+
+### Closeout Info
+
+- **Apps Script Deployment ID**: `AKfycbyw5J5RWMoe9Vz2FDRwRInxt3J7VBGF5uWHOTKoKPNDYzgK83wqdrXU7zVP_Db0oOvCFQ`
+- **Apps Script Version**: `@201`
+- **Worker Name**: `airo-finance-telegram-proxy`
+- **Worker URL**: `https://airo-finance-telegram-proxy.earnsai.workers.dev`
+- **Closeout Record**: `docs/airo-finance/records/AIRO_FINANCE_PHASE5_CLOSEOUT_20260531.md`
+- **Date/Time**: 2026-05-31 15:47 WIB
+
+### Closeout Evidence
+
+1. `admin alerts admin chat status` -> PASS (Initially returned missing property error or blank, then returned correctly after setting).
+2. `admin alerts set admin chat` -> PASS (Successfully set chat ID to Script Properties).
+3. `admin alerts admin chat status` -> PASS (Correctly returned masked/censored admin chat ID).
+4. `admin alerts live status` -> PASS (LIVE Enabled is `FALSE`, proving that the live toggle remains disabled by default).
+5. `admin alerts live run once` -> PASS (Returned Sent 0, Proactive Send Performed, with `Trigger Created: false` and `Live Switch Mutated: false`).
+
+### Key Decisions & Safety
+
+- Live switch remains FALSE.
+- Scheduled live trigger remains untouched.
+- No Gmail/email mutation.
+- No Google Sheet mutation.
+- Known debt accepted (initial status check throws missing property error, and worker-bound runtime shows 0/0 trigger counts; not blocker).
+
+
+
+
+## Living PRD Update - 2026-05-31 - Phase 5B-3b Controlled Live Run Once Closeout
+
+Status: Phase 5B-3b is now closed as PASS based on controlled Telegram live run-once smoke evidence.
+
+### Closeout evidence
+
+- Implementation commit: d9bca0e feat(airo-finance): add controlled live alert run once
+- Apps Script runtime live: @96
+- Deployment ID: AKfycbx4HWJNY9YOPIssAF9tn3Gx36hFkumyH0TfsuWInPr0e8aZTyrbIs4-kn_Fd-Kox_ie
+- Final live alert switch state: FALSE
+- Live Trigger Count: 1
+- Safe Trigger Count: 1
+- Controlled ON run once sent exactly 1 alert.
+- Alert sent: [WARNING] Cash Wallet Low Balance.
+- Source: Account Ledger.
+- Max Live Sends Per Run: 1.
+- Send Cap Applied: true.
+- Final OFF run once sent 0.
+- No uncontrolled spam observed.
+- No Gmail/email mutation.
+- No trigger install/uninstall during closeout.
+- Hidden sheets and Cash Ledger remain untouched.
+
+### Closeout record
+
+    docs/airo-finance/records/AIRO_FINANCE_ALERT_ENGINE_CONTROLLED_LIVE_RUN_ONCE_LIVE_PASS_20260531.md
+
+### Known debt carried forward
+
+- ADMIN_CHAT_ID was configured manually through Apps Script Script Properties.
+- Add self-register/readback commands next:
+  - admin alerts set admin chat
+  - admin alerts admin chat status
+- Minor observability polish remains:
+  - Last Safe Heartbeat may show generic runner record after live run.
+  - Authoritative live result should be read from Last Live Heartbeat.
+
+### Next recommended step
+
+Proceed to Phase 5B-3c - ADMIN_CHAT_ID self-register/readback patch.
+
+Do not enable live alerts during the patch. Keep live switch FALSE by default. No Gmail/email activation.
+
+
+
+**Document type:** Living PRD for AI/developer execution
+**Product:** AIRO Personal Finance Command Center
+**Primary platform:** Google Spreadsheet + Google Apps Script + Telegram bot
+**Current PRD status:** Draft v1.0, based on Kitab AIRO Finance Final v2, repo snapshot, workbook export, dashboard screenshots, and Telegram smoke test
+**Last verified:** 2026-05-31 13:42 WIB
+**Current repo commit verified:** `a9b5553` - `fix(airo-finance): separate live alert heartbeat readback`
+**Workbook snapshot:** `Airo Personal Finance (2).xlsx`
+**Live smoke test tags:** `PRDTEST_CAT_2805`, `PRDTEST_CC_2805`, `PRDTEST_TRANSFER_2805`
+
+---
+
+## Source Basis
+
+This PRD consolidates the following working sources:
+
+| Source | Role in PRD |
+|---|---|
+| AIRO Finance Command Center - Final Kitab v2 | Stable doctrine and architecture constraints |
+| Repo snapshot 2026-05-28 18:09 WIB | Current code/documentation progress and latest commit |
+| Google Sheet workbook export | Workbook/tab reality check |
+| Dashboard screenshots | Dashboard visual baseline and UX target |
+| Telegram smoke test 2026-05-28 18:12-18:15 WIB | Live behavior verification |
+
+---
+
+## 1. Executive Summary
+
+AIRO Finance is a personal finance command center operated primarily through Telegram and backed by Google Spreadsheet as the source-of-truth workspace. It is not a generic transaction tracker. The product goal is to become a personal finance copilot that can receive natural-language financial inputs, clarify ambiguity before writing, maintain clean wallet/domain records, track audit/reconciliation quality, show a premium command-center dashboard, and send proactive Telegram alerts for critical financial issues.
+
+This PRD upgrades the original Kitab into an execution-grade product document. It preserves the existing architecture and adds product requirements, acceptance criteria, current implementation status, known gaps, roadmap, and living-PRD governance.
+
+The system must continue from the existing implementation. It must not redesign the architecture from zero unless the owner explicitly approves a breaking change.
+
+---
+
+## 2. Product Vision
+
+AIRO Finance should answer five questions quickly and reliably:
+
+1. What is my financial condition right now?
+2. What needs my attention today?
+3. Can I trust the numbers shown?
+4. Which financial domain has a problem?
+5. Is my spending behavior improving or worsening?
+
+The final experience should feel like a **premium dark financial cockpit**, not a normal spreadsheet report.
+
+---
+
+## 3. Target User
+
+### Primary user
+
+The primary user is the owner of the AIRO Personal Finance system.
+
+### Secondary execution users
+
+This PRD is primarily written for AI/developer agents that will execute patches, tests, and sprint work. It should also be understandable by a future human developer if the project is delegated.
+
+---
+
+## 4. Product Principles
+
+1. Preserve the existing architecture unless a breaking change is explicitly approved.
+2. Google Spreadsheet remains the main operational center and source-of-truth workspace.
+3. Telegram is the primary active interface for input, clarification, admin commands, and alerts.
+4. Clarification-first is mandatory before clean writes when input is ambiguous.
+5. Missing category is ambiguity, not clean data.
+6. Missing critical fields must block clean writes.
+7. Account Ledger records wallet/account movement only.
+8. Domain tabs keep domain-specific financial truth.
+9. Finance Events is the central event index, not a balance ledger.
+10. Dashboard is an intelligence cockpit, not a source-of-truth table.
+11. Review Queue is fallback after clarification fails, not the first destination.
+12. Email ingestion is optional, guarded, and default OFF until proven safe.
+13. OTP/security email must be hard-blocked before parsing or forwarding.
+14. Partial writes must never be silent.
+15. Data quality must control dashboard trust state.
+16. Proactive Telegram alerting is required for critical issues.
+17. The system should be designed for personal use first, while not blocking future productization.
+
+---
+
+## 5. Product Scope
+
+### 5.1 In scope
+
+- Telegram natural-language transaction input.
+- Telegram clarification flow.
+- Admin commands and smoke readback.
+- Account Ledger wallet movement discipline.
+- Domain tabs: Credit Card, Hutang, Aset, Cicilan Rumah.
+- Finance Events as event index.
+- Review Queue for unresolved exceptions.
+- Audit Log for script/admin-level changes.
+- Reconciliation and Data Status.
+- Premium Dashboard Command Center.
+- Proactive Telegram Alert Engine.
+- Email notification ingestion, but only after guarded dry-run progression.
+- Email-to-Telegram clarification bridge.
+- Living PRD lifecycle and current-state refresh process.
+
+### 5.2 Out of scope for current PRD version
+
+- Rebuilding the system as a full SaaS app.
+- Replacing Google Sheet as the source-of-truth.
+- Forcing all existing historical data into a new schema.
+- Bank statement/PDF mutation dashboard as the master flow.
+- Public multi-user product features.
+- Uncontrolled Gmail auto-write.
+- Storing full email bodies.
+- Forwarding OTP/security content to Telegram.
+
+---
+
+## 6. Current Implementation Snapshot
+
+### 6.1 Repo and deployment status
+
+As of the latest snapshot:
+
+- Local branch and remote branch match at commit `a9b5553`.
+- Latest commit: `fix(airo-finance): separate live alert heartbeat readback`.
+- Phase 5B-2a Live Heartbeat Observability has been successfully verified (live pass). `admin alerts live status` now shows separate `Last Safe Heartbeat` and `Last Live Heartbeat` fields.
+- There are local untracked files, so future agents must audit worktree state before applying patches.
+- Apps Script deployment is at version `@95`.
+
+### 6.2 Workbook structure observed
+
+The workbook snapshot includes the following major tabs:
+
+- `Dashboard`
+- `_AIRO_Email_Ingestion_Log`
+- `_AIRO_Audit_Log`
+- `Finance Events`
+- `Account Ledger`
+- `Cash Ledger`
+- `Transactions`
+- `Credit Card`
+- `Cicilan Rumah`
+- `Hutang`
+- `Aset`
+- `Monthly Review`
+- `Review Queue`
+- `Settings`
+- `Sync Log`
+- dashboard backup tabs
+
+### 6.3 Dashboard status
+
+The current dashboard already follows the intended direction:
+
+- Dark premium layout.
+- Topbar with synced timestamp, Data Status, alert count, and period selector.
+- Action Required section.
+- Executive Command Center cards.
+- Wallet & Cashflow board.
+- Domain Health cards.
+- Spending Intelligence panel.
+- Data Quality Center.
+- Smart Insight Panel.
+
+PRD target: preserve this direction and improve reliability, live data binding, and visual consistency.
+
+### 6.4 Telegram smoke test status
+
+| Area | Test | Observed result | Status |
+|---|---|---|---|
+| Clear pending | `admin clear clarification` | Pending clarification cleared | PASS |
+| Missing category | `bca keluar 6789 PRDTEST_CAT_2805` | Bot asked category before write | PASS |
+| Missing category resolution | Reply `Makan` | Wrote to Account Ledger | PASS |
+| Smoke readback | `admin find smoke all PRDTEST_CAT_2805` | Found Account Ledger row | PASS |
+| CC ambiguity | `cc 7890 PRDTEST_CC_2805` | Bot asked CC intent | PASS |
+| CC follow-up | Reply `A` | Bot asked merchant/category detail | PARTIAL PASS |
+| CC write block | Smoke found no write | PASS as safe-block, but flow not complete |
+| Transfer test | `transfer 8888 dari bca ke blu PRDTEST_TRANSFER_2805` while CC clarification pending | No write; likely captured by pending CC clarification context | INCONCLUSIVE / GAP |
+| Email bridge | `admin email sprint7 clarification bridge` | Dry-run design only; email ingestion disabled; no writes | PASS |
+
+### 6.4.1 Sprint 7F-A email bridge live-pass update
+
+As of commit `5d828c6`, Sprint 7F-A has proven the minimum guarded email-to-Telegram clarification loop:
+
+- Gmail candidate detection from `egitaristo@gmail.com`.
+- Sender allowlist for Blu candidate detection.
+- Metadata/subject-only handling.
+- Friendly Telegram clarification UX for category selection.
+- Pending candidate log in `_AIRO_Email_Ingestion_Log`.
+- Telegram answer handler resolving A/B/C/D/E responses.
+- Finance write remains disabled.
+- Gmail trigger remains disabled.
+- No email mutation.
+- No full email body storage.
+
+Open limitations:
+
+- Blu nominal is not available from current subject-only parsing.
+- Automatic trigger is not enabled.
+- Finance write from email remains not approved.
+- Next routing after answer should stay dry-run until explicit write approval.
+
+
+### 6.4.2 Finance Events coverage hardening update
+
+As of commit `ea6bacb`, Finance Events coverage has been hardened for the two live-tested routes below.
+
+Credit Card purchase coverage:
+
+- Live smoke tag: `FECC_2805`.
+- Credit Card purchase writes to the `Credit Card` domain tab.
+- Credit Card purchase also writes a `Finance Events` row.
+- No `Account Ledger` wallet outflow is created for CC purchase.
+
+Internal transfer coverage:
+
+- Live smoke tag: `TRANSFER_FE_2805`.
+- Internal transfer writes two `Account Ledger` rows:
+  - source account `transfer_out`
+  - target account `transfer_in`
+- Internal transfer also writes one `Finance Events` row with direction `transfer`.
+
+Closed gaps:
+
+- CC purchase missing Finance Events index.
+- Internal transfer missing Finance Events index.
+- Pending clarification context isolation for unrelated new finance input.
+
+Open follow-ups:
+
+- Transfer Telegram reply now shows both sides after commit `7745204`.
+- New Credit Card purchase Finance Events rows now show `write_verified:true` after commit `2797c14`. Historical rows may still need future backfill.
+- Email nominal extraction from Blu remains unavailable under subject/metadata-only mode.
+
+
+### 6.4.3 Transfer reply UX live-pass update
+
+As of commit `7745204`, internal transfer Telegram confirmation now shows both transfer sides.
+
+Live smoke tag: `TRANSFER_UX_2805`.
+
+Observed reply summary:
+
+- Transfer tercatat.
+- BCA -> Blu.
+- BCA keluar: Rp8901.
+- Blu masuk: Rp8901.
+- Ditulis ke: Account Ledger.
+- Finance Events: written.
+
+Smoke readback:
+
+- Finance Events row exists.
+- Account Ledger BCA transfer_out row exists.
+- Account Ledger Blu transfer_in row exists.
+
+Closed gap:
+
+- Transfer reply no longer summarizes only one account such as `Akun: Blu`.
+
+Open follow-up:
+
+- Amount display can later be formatted as `Rp8.901` instead of `Rp8901`.
+
+
+
+### 6.4.4 Credit Card write_verified live-pass update
+
+As of implementation commit `2797c14`, Credit Card purchase direct writes now return write verification metadata.
+
+Live smoke tag: `FEVERIFY_2805`.
+
+Result:
+
+- Credit Card row exists.
+- Finance Events row exists.
+- Finance Events payload points to `Credit Card:26`.
+- Finance Events payload shows `write_verified:true`.
+
+Closed gap:
+
+- New Credit Card purchase Finance Events rows no longer show `write_verified:false` when the domain row write is verified.
+
+Remaining follow-up:
+
+- Older historical Finance Events rows may still contain old payload values and can be handled by a future backfill or reconciliation pass.
+
+
+
+### 6.4.5 Sprint 7F-B transient email amount preview
+
+As of commit `52ffdce`, AIRO can read Blu email nominal from plain body transiently in editor dry-run mode.
+
+Live runner:
+
+runSprint7FBManualDryRunPollerWithTransientBodyFromEditor
+
+Safety result:
+
+- full_email_body_stored: false
+- raw_email_forwarded_to_telegram: false
+- finance_write_performed: false
+- mail_trigger_created: false
+- email_modified: false
+
+Amount normalization result:
+
+- 101000
+- 100000
+- 24000
+- 5000
+- 20000
+
+This closes the subject-only nominal gap for Blu email preview. Finance write from email remains OFF.
+
+
+
+### 6.4.6 Sprint 7F-C closeout - email clarification with transient amount
+
+As of commit `1483637`, Sprint 7F-C is live-passed in editor-run guarded mode.
+
+What changed:
+
+- Sprint 7F-B transient amount preview is used as the source for email candidate clarification.
+- Sprint 7F-C sends Telegram clarification with the detected Blu nominal.
+- The selected Blu email candidate displayed `Rp101.000` in Telegram instead of `Nominal belum terbaca`.
+- Pending email candidate is logged/deduped.
+- Finance write remains disabled.
+
+Files changed in implementation:
+
+- `scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs`
+
+Live test result:
+
+- Runner: `runSprint7FSendOneClarificationAndLogPendingFromEditor`
+- Source status: `sprint7fb_transient_body_amount_preview_completed`
+- Final status: `sprint7fc_transient_amount_clarification_sent`
+- Telegram clarification displayed nominal: `Rp101.000`
+- Telegram clarification asked category options A/B/C/D/E.
+
+Safety result:
+
+- `mail_trigger_created:false`
+- `email_modified:false`
+- `full_email_body_stored:false`
+- `raw_email_forwarded_to_telegram:false`
+- `finance_write_performed:false`
+- `write_approved:false`
+
+Done:
+
+- 7F-A detected Gmail candidates.
+- 7F-B extracted Blu nominal from transient plain body.
+- 7F-B normalized Indonesian currency format.
+- 7F-C sent Telegram clarification with nominal.
+- 7F-D preserved transient amount in pending pointer payload and verified no-write route preview with exact nominal on Telegram answer.
+- Email ingestion remains guarded and no-write.
+
+In progress:
+
+- Email-to-finance write is still OFF until explicitly approved.
+
+Known gaps:
+
+- No Gmail trigger is enabled yet.
+- No automatic finance write from email yet.
+- Email answer-to-router/write phase still needs a future guarded sprint.
+- Historical pending rows may contain older `display_amount` values from before 7F-B/7F-C.
+- OTP/security hard-block should be revalidated before any trigger/live automation.
+
+Acceptance criteria:
+
+- Detect allowed Blu email candidate: PASS.
+- Extract nominal without storing full body: PASS.
+- Send Telegram clarification with nominal: PASS.
+- Keep full email body out of storage: PASS.
+- Keep raw email body out of Telegram: PASS.
+- Keep finance write disabled: PASS.
+- Keep Gmail trigger disabled: PASS.
+- Write final ledger/domain rows from email: FAIL / not in scope.
+
+Decision log update:
+
+- Sprint 7F-C may read plain body transiently for amount extraction only.
+- Full body storage and raw body forwarding remain prohibited.
+- Email ingestion stays default OFF/no-write until the router/write phase is separately approved.
+
+Next recommended action:
+
+- Category Contract v1: Implement the category/subcategory mappings globally as a separate future sprint before modifying category clarification prompts.
+- Do not enable Gmail trigger or finance write yet.
+
+Superseded:
+
+- Earlier subject-only email clarification is superseded for Blu nominal preview by 7F-B/7F-C transient amount flow.
+
+
+### 6.4.7 Sprint 7F-D closeout - email answer route preview
+
+As of 2026-05-29, Sprint 7F-D has successfully live-passed and closed:
+
+- **Amount Pointer Fix**: The transient email amount (`display_amount`, `detected_amount`, `amount_idr`, and `amount_source`) is correctly persisted in the pending clarification pointer (`PropertiesService`) payload.
+- **Telegram Route Preview**: When the user answers `A`/`B`/`C`/`D`/`E` in Telegram, the amount is preserved and formatted correctly in the route preview response (e.g. showing `Nominal: Rp24.000` instead of `Nominal: Nominal belum terbaca`).
+- **aaRun7FD Wrapper**: The manual wrapper function `aaRun7FD()` was added at the top of the file for manual execution convenience in the Apps Script Editor dropdown.
+- **Category Clarification Policy v1**: The policy is owner-approved but not yet implemented globally (awaits Category Contract v1).
+- **Safety Locks**: The route preview remains strictly `no-write` (no ledger/events writes, no Gmail trigger, no email modifications, no body storage).
+
+Live test result:
+- Function executed: `aaRun7FD()`
+- Telegram answer: `A`
+- Bot response verification:
+  - `Sprint 7F-D: Route Preview`
+  - `Mode: no-write`
+  - `Nominal: Rp24.000`
+  - `Akun utama: Blu`
+  - `Kategori/label: Makan`
+  - `Event type: expense`
+  - `Domain: Wallet`
+  - `Target preview: Account Ledger + Finance Events`
+  - `Status: ready_for_router_preview_only`
+
+Safety verification:
+  - `Finance write: false`
+  - `Account Ledger write: false`
+  - `Finance Events write: false`
+  - `Review Queue write: false`
+  - `Gmail trigger: false`
+  - `Email modified: false`
+
+
+### 6.4.8 Category Contract v1 Progression
+
+As of May 29, 2026, the Category Contract v1 implementation has progressed through a phased rollout:
+
+*   **v1A Registry + Resolver**:
+    *   **Status**: DONE (commit `f438550`).
+    *   **Scope**: Added the static Category/Subcategory registry schema and lookup logic. Configured Savings and Investment to resolve to `saving_allocation / Aset` and `investment / Aset` respectively.
+*   **v1B Read-only `/kategori` Command**:
+    *   **Status**: DONE (commit `bf367e9`, Apps Script Version 76).
+    *   **Scope**: Implemented read-only Telegram command routing: `/kategori` (lists all 18 categories) and `/kategori <query>` (searches categories/subcategories case-insensitively). Tested and verified live.
+*   **v1C Two-layer Telegram Clarification Flow**:
+    *   **Status**: DONE (commit `15b68ad`, Apps Script Version 77).
+    *   **Scope**: Upgraded the Telegram missing-category clarification flow to support a two-layer step-based flow (Category selection -> Subcategory selection -> Final verification).
+        *   Option `E` is mapped to `"Cari kategori / lihat bantuan"` rather than auto-routing to Other. Option E prompts the user to type an exact supported v1C category name or use `/kategori <query>`, not a free-form category.
+        *   Restricted to 4 core expense categories: `Food & Drink`, `Transport`, `Utilities`, and `Groceries`.
+        *   `Savings` and `Investment` remain blocked from resolving within this flow to prevent unauthorized write routing.
+        *   Invalid inputs are managed by the existing `failOrRetry_` max-attempt behavior before gracefully falling back to the pre-existing Review Queue path.
+        *   No spreadsheet schema changes or write enrichment has been implemented; the flow uses backward-compatible text suffixes to write categories to existing columns (`Makan`, `Transport`, `Tagihan`, `Belanja`).
+        *   Verified live with unique markers `PRDTEST_CATV1C_FOOD` and `PRDTEST_CATV1C_UTIL`.
+*   **v1D-a Email Clarification Category Alignment**:
+    *   **Status**: DONE (commit `cf3e6c1`, Apps Script Version 78, live PASS).
+    *   **Scope**: Aligned the email ingestion Telegram clarification prompt and no-write route preview with the Category Contract v1. The email flow remains strictly no-write / preview only.
+        *   Email expense clarification prompt now lists: `A. Food & Drink`, `B. Transport`, `C. Groceries`, `D. Utilities`, `E. Cari kategori / lihat bantuan`.
+        *   Answer mapping updated: `A` -> `Food & Drink`, `B` -> `Transport`, `C` -> `Groceries`, `D` -> `Utilities`, `E` -> `Cari kategori / lihat bantuan`.
+        *   No-write route preview now resolves category metadata via `airoSprint7CategoryContractResolve_` and displays:
+            *   `Kategori: <category>`
+            *   `Subkategori preview: <registry default>` (preview only, not final)
+            *   `Subkategori final: belum dikonfirmasi`
+            *   Cashflow/Event type and Domain from the registry contract.
+        *   Option E maps to `Other / Review` / `manual_review` preview with `Review Queue future preview` target and includes instruction: `Info: Opsi E (Cari Kategori) dipilih. Silakan kirim /kategori <query> di Telegram untuk melihat daftar kategori/subkategori yang didukung.`
+        *   Finance write remains `false`. Gmail trigger remains disabled. Email mutation remains disabled.
+        *   No spreadsheet schema changes. No write enrichment.
+*   **v1D-b Two-layer Email Clarification Flow**:
+    *   **Status**: DEFERRED. Over-engineered for a no-write preview channel. Not planned until email write is explicitly approved.
+*   **v1E Schema/Write Enrichment**:
+    *   **Status**: FUTURE / PLANNED. Requires explicit owner approval before implementing database schema alterations.
+
+
+### 6.4.9 Finance Events BCA/Blu wallet expense coverage patch
+
+As of commit `2c58192` (Apps Script Version 79), Finance Events indexing is now correctly emitted for all BCA and Blu wallet expense transactions.
+
+**Root cause**: In `writeRouted_`, the BCA/Blu account branch (`tabName === AIRO_CONFIG.tabs.transactions && parsed.account === 'Blu' || parsed.account === 'BCA'`) used an early `return` after a successful `writeAccountLedgerMirror_` call, bypassing the `recordFinanceEventForWriteResult_` call that every other write path (Cash Ledger, CC purchase, internal transfer, generic fallback) calls explicitly.
+
+**Fix**: After a successful Account Ledger write, the branch now creates `finalResult`, calls `recordFinanceEventForWriteResult_` with `event_type: 'transaction_created'` and `event_source: 'telegram'`, then returns `finalResult`. Patch marker: `AIRO_BCA_BLU_EXPENSE_FINANCE_EVENT_EMISSION_V1`.
+
+**Scope**: `writeRouted_` BCA/Blu branch only. No CC, transfer, Cash Ledger, Hutang, Aset, or email paths touched. No schema change. No Gmail trigger. No email finance write.
+
+Live PASS evidence:
+
+- `PRDTEST_FEV1D_DIRECT` (direct parse, BCA): Account Ledger row 74 + Finance Events row 16, amount Rp31.001, category Makan.
+- `PRDTEST_FEV1D_CATFLOW` (missing-category v1C resolved, BCA): Account Ledger row 75 + Finance Events row 17, amount Rp31.002, category Makan.
+
+Static test coverage:
+
+- `airo_finance_events_coverage_static_test.js`: 19/19 PASS.
+- `airo_finance_category_contract_static_test.js`: PASS.
+- `airo_finance_category_contract_email_static_test.js`: PASS.
+- `airo_finance_sprint7fd_email_answer_route_preview_static_test.js`: PASS.
+
+Closed gap:
+
+- `§6.5 gap 4`: Finance Events write coverage for normal Telegram BCA/Blu expense now confirmed. Both direct-parse and missing-category-resolved flows produce an Account Ledger row and a Finance Events row in the same smoke readback.
+
+
+### 6.5 Current high-priority gaps
+
+1. **Pending clarification context isolation**
+   When a CC clarification is pending, a new unrelated transaction can be misinterpreted as the answer to the pending clarification. The bot should either force completion/cancel of the pending clarification or clearly reject unrelated new transaction input until the pending item is resolved. (Previously marked LIVE PASS per PRD/latest smoke status; not modified by this closeout).
+
+2. ~~**CC ambiguity flow not fully completed in test**~~ **RESOLVED** (commit `be49f34` and `9f376c0`, Apps Script v81).
+   The CC purchase clarification recovery and trace-tag preservation have been fully verified. Direct write goes to `Credit Card` + `Finance Events` with the tag preserved (tested with `LIVE3005C_CC_TRACE` PASS).
+
+3. ~~**Internal transfer test inconclusive**~~ **RESOLVED** (live smoke `LIVE3005A_TRANSFER`).
+   Transfer write correctly produces 2 Account Ledger rows (BCA out, Blu in) plus 1 Finance Events group index.
+
+4. ~~**Finance Events write coverage is not fully verified by smoke test**~~ **RESOLVED** (commit `2c58192`, Apps Script v79).
+   Root cause was a missing `recordFinanceEventForWriteResult_` call in the BCA/Blu wallet expense branch of `writeRouted_`. Both direct-parse and missing-category-resolved BCA/Blu expense transactions now correctly write Account Ledger + Finance Events in the same operation. Verified live with `PRDTEST_FEV1D_DIRECT` (FE row 16 + AL row 74) and `PRDTEST_FEV1D_CATFLOW` (FE row 17 + AL row 75).
+
+5. **Finance Events visual style is still too plain**
+   Backend tabs should remain readable and operationally styled, especially Finance Events, Audit Log, Email Ingestion Log, and Review Queue.
+
+6. **Email ingestion remains dry-run/design guarded**
+   This is correct for safety, but it means “ready to use with email” is not yet achieved.
+
+### 6.6 Email Blu Current Capability Matrix
+
+1. **Email Blu -> Telegram clarification**:
+   - **Status**: AVAILABLE via manual runner only.
+   - **Runner**: `aaRun7FD` / `runSprint7FSendOneClarificationAndLogPendingFromEditor`.
+   - **Mode**: dry-run / manual editor / no trigger.
+
+2. **Telegram answer -> email route preview**:
+   - **Status**: AVAILABLE.
+   - **Output**: no-write route preview with amount, provider, account, category metadata, subcategory preview, final subcategory not confirmed, domain, and target preview.
+
+3. **Email Blu -> finance spreadsheet write**:
+   - **Status**: NOT ENABLED.
+   - **Account Ledger write from email**: false.
+   - **Finance Events write from email**: false.
+   - **Review Queue write from email**: false.
+   - **Domain tab write from email**: false.
+
+4. **Automatic Gmail trigger**:
+   - **Status**: NOT ENABLED.
+   - **Approval**: Requires explicit owner approval.
+
+5. **Safety**:
+   - No full email body storage.
+   - No raw email forwarding to Telegram.
+   - No email mutation.
+   - OTP/security hard-block remains required before automation.
+
+6. **Future path**:
+   - Next email step should be controlled email write readiness / manual write pilot, not Gmail trigger.
+   - Gmail trigger is separate later approval.
+
+---
+
+## 7. User Journeys
+
+### 7.1 Telegram transaction input - clear expense
+
+1. User sends: `bca keluar 25000 buat kopi`.
+2. Parser detects amount, account, direction, category/merchant if possible.
+3. If clear, router writes to Account Ledger.
+4. Finance Events records event index.
+5. Audit Log records script insert.
+6. Light reconciliation checks references.
+7. Bot replies with success and tab link.
+8. Dashboard metrics update.
+
+### 7.2 Telegram transaction input - missing category
+
+1. User sends: `bca keluar 6789`.
+2. Parser detects amount/account/direction, but category is missing.
+3. Bot asks category via Telegram choices.
+4. User replies category.
+5. System merges answer with pending candidate.
+6. System writes clean result.
+7. If user does not answer or answer remains ambiguous, item goes to Review Queue.
+
+### 7.3 Credit Card ambiguous input
+
+1. User sends: `cc 7890`.
+2. System detects amount and Credit Card domain, but not event type.
+3. Bot asks whether it is purchase, payment, pocket allocation, or manual.
+4. If purchase, system asks category/merchant detail if missing.
+5. Final purchase writes to Credit Card and Finance Events, not direct Account Ledger outflow.
+6. If payment from wallet, it writes Account Ledger outflow and Credit Card payment match.
+7. Dashboard reflects no double count.
+
+### 7.4 Internal transfer
+
+1. User sends: `transfer 8888 dari bca ke blu`.
+2. System detects source account, destination account, and amount.
+3. Account Ledger records two linked rows: BCA out and Blu in.
+4. Transfer is excluded from net expense/income.
+5. Finance Events records transfer event group.
+6. Reconciliation confirms two-sided transfer.
+
+### 7.5 Email notification candidate
+
+1. Gmail candidate is discovered only from allowed labels/senders.
+2. Sensitive keywords are hard-blocked before finance parsing.
+3. System stores metadata only.
+4. If ambiguous, Telegram clarification is sent.
+5. User replies in Telegram.
+6. System routes only after parser/clarification is proven safe.
+7. No full email body is stored.
+8. OTP/security content is never forwarded.
+
+### 7.6 Dashboard daily use
+
+1. User opens Dashboard.
+2. Topbar shows last sync, period, Data Status, and alerts.
+3. Action Required shows the most important tasks.
+4. Executive cards summarize net worth, cash, cashflow, and critical alerts.
+5. Wallet board shows account health and thresholds.
+6. Domain Health shows Credit Card, Hutang, Aset, Cicilan Rumah status.
+7. Spending Intelligence shows clean category breakdown.
+8. Data Quality Center explains why the dashboard is Trusted, Warning, or Dirty.
+
+---
+
+## 8. Functional Requirements
+
+### 8.1 Telegram Input and Clarification
+
+#### Requirements
+
+- The bot must accept natural-language finance input through Telegram.
+- The bot must parse amount, account, direction, category, domain, date, and raw text.
+- Ambiguous input must not write directly as clean data.
+- Missing category must trigger clarification.
+- Missing critical field must block clean write.
+- Pending clarification must be stored per chat/user context.
+- Pending clarification must be clearable by admin command.
+- Admin commands must work even when a clarification is pending.
+- New unrelated finance input while a clarification is pending must not be misinterpreted as clarification answer.
+
+#### Acceptance Criteria
+
+- `bca keluar <amount>` without category asks category.
+- User category answer completes the write.
+- `cc <amount>` asks CC intent.
+- CC purchase without merchant/category asks follow-up detail.
+- `admin clear clarification` clears pending state.
+- `admin find smoke all <tag>` can read back inserted data.
+- Unrelated new transaction during pending clarification triggers a message such as: “Masih ada klarifikasi pending. Selesaikan dulu, atau kirim `admin clear clarification`."
+
+---
+
+### 8.2 Account Ledger
+
+#### Requirements
+
+- Account Ledger is the wallet/account movement ledger.
+- It must record real money movement only.
+- It must not become the master domain detail table.
+- It must support BCA, Blu, Mandiri, Cash Umum, Cash Bensin, and future wallets.
+- It must support inflow, outflow, and internal transfer.
+- Internal transfer must create two linked rows.
+- Account Ledger must have enough references to connect with Finance Events.
+
+#### Acceptance Criteria
+
+- Expense from wallet writes one outflow row.
+- Income to wallet writes one inflow row.
+- Internal transfer writes source outflow and destination inflow.
+- Credit Card purchase does not write Account Ledger outflow at purchase time.
+- Credit Card payment writes Account Ledger outflow.
+- Asset purchase writes Account Ledger outflow plus Aset domain row.
+- Debt payment writes Account Ledger outflow plus Hutang update.
+
+---
+
+### 8.3 Domain Tabs
+
+#### Requirements
+
+Domain tabs keep domain-specific truth:
+
+- Credit Card: purchases, payments, refunds, fees, statement cycle, matching.
+- Hutang: debt increases, payments, remaining balance, counterparty, active/paid status.
+- Aset: gold, asset purchases/sales, price updates, valuation.
+- Cicilan Rumah: installment payment, progress, due state.
+
+#### Acceptance Criteria
+
+- CC purchase and CC payment are not double counted.
+- CC payment can be matched or flagged as unmatched.
+- Hutang payment updates wallet and domain state.
+- Asset purchase is not treated as ordinary spending category.
+- Gold price update does not create Account Ledger movement.
+- Cicilan Rumah progress updates independently from wallet movement.
+
+---
+
+### 8.4 Finance Events
+
+#### Requirements
+
+Finance Events is the central event index. It must answer:
+
+- What happened?
+- Which source produced it?
+- Which tabs were touched?
+- Which Account Ledger refs are linked?
+- Which domain refs are linked?
+- What is the write status?
+- What is the reconciliation status?
+- Is the event active, warning, dirty, or archived?
+
+Target schema:
+
+```text
+event_id
+event_group_id
+parent_event_id
+event_date
+event_type
+domain
+amount_idr
+primary_account
+counter_account
+category
+subcategory
+source_channel
+raw_text
+clarification_status
+quality_status
+write_status
+account_ledger_refs
+domain_tab
+domain_row_ref
+review_queue_ref
+reconciliation_status
+notes
+created_at
+updated_at
+is_archived
+archived_at
+archived_by
+archive_reason
+superseded_by_event_id
+operation_id
+run_id
+retry_count
+last_error
+last_retry_at
+next_retry_at
+```
+
+#### Visual/styling requirements
+
+Finance Events must not remain a plain/raw table. It should be operationally styled:
+
+- Frozen header row.
+- Filter enabled.
+- Dark or professional header style.
+- Status columns visually scannable.
+- Conditional formatting for `write_status`, `quality_status`, and `reconciliation_status`.
+- Archived rows visually muted.
+- Failed/partial rows highlighted.
+- Key columns kept visible or near the left.
+- Long raw text and notes wrapped but not visually overwhelming.
+
+#### Acceptance Criteria
+
+- Every resolved input after cutover has a Finance Event.
+- Events link to Account Ledger and/or domain tabs.
+- Partial writes are visible.
+- Archived events are excluded from dashboard active metrics.
+- Finance Events is readable by a human within 10 seconds of opening the tab.
+
+---
+
+### 8.5 Review Queue
+
+#### Requirements
+
+Review Queue is for unresolved exceptions only.
+
+Use it for:
+
+- Clarification timeout.
+- User answer remains ambiguous.
+- Parser confidence low.
+- Missing critical fields.
+- Suspicious amount.
+- Cross-domain conflict.
+- Manual approval required.
+
+#### Acceptance Criteria
+
+- Clear ambiguity asks Telegram first.
+- Review Queue is used only after clarification cannot resolve.
+- Review Queue approval writes to final destination and logs audit.
+- Dashboard Action Required shows pending review items.
+
+---
+
+### 8.6 Audit Log
+
+#### Requirements
+
+Audit Log records script/admin-level changes:
+
+- Insert.
+- Update.
+- Archive/delete.
+- Review Queue approval.
+- CC payment match/unmatch.
+- Reconciliation fix.
+- Retry partial write.
+- Admin command.
+
+Target schema:
+
+```text
+audit_id
+timestamp
+actor
+action
+sheet_name
+row_ref
+field_name
+old_value
+new_value
+reason
+source
+event_ref
+run_id
+```
+
+#### Acceptance Criteria
+
+- Script writes produce audit records.
+- Admin actions produce audit records.
+- Reconciliation fixes produce audit records.
+- Dashboard can count audit anomalies.
+
+---
+
+### 8.7 Reconciliation and Partial Write Recovery
+
+#### Requirements
+
+The system must detect:
+
+- Account Ledger row without event ref after cutover.
+- Finance Event without expected Account Ledger/domain refs.
+- Domain row without event ref after cutover.
+- Internal transfer one-sided.
+- CC payment unmatched.
+- Asset purchase without wallet outflow.
+- Debt payment without wallet movement.
+- Balance mismatch.
+- Suspicious amount.
+- Duplicate candidate.
+- Partial failed event.
+- Archived event still counted in active metrics.
+
+#### Acceptance Criteria
+
+- Light reconciliation runs after important writes.
+- Full reconciliation can run by admin command or schedule.
+- Reconciliation outputs `clean`, `warning`, or `dirty`.
+- Partial failure is visible in Data Quality Center.
+- Admin can inspect/retry/fix partial events.
+
+---
+
+### 8.8 Dashboard Command Center
+
+#### Requirements
+
+Dashboard must be a premium dark command center with these sections:
+
+1. Topbar.
+2. Action Required.
+3. Executive Command Center.
+4. Wallet & Cashflow.
+5. Domain Health.
+6. Spending Intelligence.
+7. Data Quality Center.
+8. Smart Insight Panel.
+9. Conditional Email Ingestion Status when enabled.
+
+#### Visual requirements
+
+- Dark premium theme.
+- Rounded cards.
+- Clear grid layout.
+- Severity colors.
+- Large primary cards.
+- Smaller secondary cards.
+- Clean hierarchy.
+- Minimal clutter.
+- Status badges.
+- Period selector.
+- Last synced timestamp.
+
+#### Dashboard Visual Contract v2 (Pixel-Reference Redesign Pass)
+
+The dashboard design matches the premium, card-based Visual Cockpit layout from the Claude-style screenshot reference. 
+
+Key architectural requirements:
+- **Cockpit Concept**: The main Dashboard tab (A1:N78) is designed as a user-facing cockpit. All raw script operational parameters (Live/Safe Trigger Counts, raw deployment IDs, runtimes, or detailed heartbeat logs) are removed from this sheet.
+- **Separated Observability**: A separate hidden or dedicated tab (`_AIRO_Ops_Center` or `_AIRO_Audit_Log` / readback response payload) handles these technical debug values.
+- **Grid Geometry**:
+  - **A1:N4 (Topbar)**: Merged status bar with title, synchronized timestamp, overall Data Status, and period/month selector.
+  - **A6:N14 (Action Required)**: Formatted as a 2x2 grid of four distinct action cards for high-priority tasks (e.g., categorizations, corrections), highlighted by severity.
+  - **A16:N27 (Executive Command Center)**: 3 primary KPI cards (Net Worth, Cashflow, Active Alerts) + secondary cards.
+  - **A29:G45 (Wallet & Cashflow)**: Left-side panel showing wallet account balances and inflow/outflow cards.
+  - **H29:N45 (Domain Health)**: Right-side panel showing domain status cards (Credit Card, Hutang, Aset, KPR).
+  - **A47:G62 (Spending Intelligence)**: Left-side panel showing category spending with custom progress bar indicators.
+  - **H47:N62 (Data Quality Center)**: Right-side panel showing user-facing checks (e.g., tab presence, policy rules, data trust reasons) without code operational variables.
+  - **A64:N78 (Smart Insight Panel)**: Bottom full-width section containing AI/reconciliation smart insight cards.
+- **Styling Rules**:
+  - **Premium Dark Palette**: Latar belakang utama `#121212`, card background `#1e1e1e`, card header `#2d2d2d`, borders `#333333` solid.
+  - **Tipografi**: Roboto font family throughout the entire tab.
+  - **Borders & Merges**: Explicitly define merges and borders to look like rounded/separated cards on the sheet grid.
+
+#### Data requirements
+
+Dashboard must show:
+
+- Net Worth.
+- Cash tersedia.
+- Cashflow bulan ini.
+- Critical alerts.
+- Total aset.
+- Total hutang.
+- Saving rate.
+- Cicilan rumah progress.
+- Wallet balances.
+- Inflow/outflow.
+- Internal transfers.
+- Domain health.
+- Spending categories using clean category only.
+- Uncategorized/pending category separately.
+- Data Quality status.
+- Smart insights.
+
+#### Acceptance Criteria
+
+- Dashboard topbar always shows Data Status.
+- Dashboard never looks fully clean when Data Status is Warning or Dirty.
+- Missing category creates Warning.
+- Dirty data does not silently enter primary metrics.
+- Action Required shows real tasks, not passive insights.
+- Dashboard does not depend on Cash Ledger after dependency removal.
+- Dashboard remains visually close to the current premium dark mockup.
+
+---
+
+### 8.9 Data Status
+
+#### Requirements
+
+Dashboard topbar must show one of:
+
+- `Trusted`
+- `Warning`
+- `Dirty`
+
+#### Trusted
+
+No critical reconciliation issue, no orphan events, no broken refs, no suspicious amount, pending clarification below threshold, and last sync valid.
+
+#### Warning
+
+Missing category, pending clarification, email candidate unresolved, CC payment unmatched, non-critical ref warning, or non-critical partial write.
+
+#### Dirty
+
+Broken balance, large suspicious amount, OTP/security email accidentally parsed, critical missing amount/account, duplicate critical issue, committed event with missing refs, sync failure, or formula error in primary metric.
+
+#### Acceptance Criteria
+
+- Data Status is computed from Data Quality Center.
+- Primary dashboard cards display despite Dirty state, but trust warning is visible.
+- Dirty issues appear in Action Required.
+
+---
+
+### 8.10 Proactive Telegram Alert Engine
+
+#### Requirements
+
+Proactive Telegram alerts must cover:
+
+- CC due N days.
+- Cash wallet below threshold.
+- Data Status changes to Dirty.
+- Partial write failure.
+- Pending clarification older than threshold.
+- Missing category above threshold.
+- Critical reconciliation issue.
+
+Alert fields:
+
+```text
+alert_id
+alert_key
+severity
+message
+source_event_ref
+created_at
+last_sent_at
+cooldown_until
+ack_status
+quiet_hours_policy
+```
+
+#### Acceptance Criteria
+
+- Critical alert can be pushed to Telegram.
+- Warning alert respects cooldown.
+- User can acknowledge alert.
+- Duplicate suppression prevents spam.
+- Dashboard Action Required and Telegram alerts stay consistent.
+
+---
+
+### 8.11 Email Ingestion
+
+#### Requirements
+
+Email ingestion is optional and default OFF. It must stay guarded until safe.
+
+Allowed v1 behavior:
+
+- Read-only first.
+- Manual Gmail label.
+- Sender allowlist.
+- Negative keyword hard-block.
+- Metadata-only parsing.
+- No full email body storage.
+- No markRead.
+- No delete.
+- No email modification in early v1.
+- No automatic ledger write until parser is proven.
+
+Sensitive hard-block keywords include:
+
+```text
+otp
+kode
+verifikasi
+verification
+login
+security
+password
+reset
+perangkat
+device
+one time password
+2fa
+authentication
+auth code
+kode keamanan
+```
+
+#### Acceptance Criteria
+
+- `admin email sprint7 clarification bridge` reports dry-run/default-off status until enabled.
+- No Gmail modifications occur in dry-run.
+- No Finance Events/Account Ledger/Review Queue writes occur in design dry-run.
+- Full email body is never stored.
+- OTP/security content is never forwarded.
+- Ambiguous email asks Telegram before routing.
+
+---
+
+## 9. Non-Functional Requirements
+
+### 9.1 Safety
+
+- All destructive actions require explicit owner approval.
+- No script should overwrite local repo changes without audit.
+- No Gmail trigger should be installed without explicit enable step.
+- No email should be marked read/deleted/modified in early v1.
+- No sensitive email content should enter logs, Review Queue, Telegram, or Finance Events.
+
+### 9.2 Reliability
+
+- Writes should be idempotent where possible.
+- Telegram duplicate update handling must prevent duplicate writes.
+- Partial writes must be detectable and retryable.
+- Admin smoke readback must verify writes.
+
+### 9.3 Maintainability
+
+- New code must preserve existing architecture.
+- Sprint changes must include records/closeout docs.
+- Complex flows must have readback commands.
+- Important new behavior must have smoke tests.
+
+### 9.4 Performance
+
+- Telegram response should be fast enough for daily use.
+- Dashboard should remain usable inside Google Sheet.
+- Email poller should process limited candidates per run.
+- Apps Script timeouts must be considered in write/reconciliation design.
+
+### 9.5 Usability
+
+- Telegram messages must be clear, short, and actionable.
+- Clarification options should use A/B/C/D/E style.
+- Dashboard should be readable without opening raw tabs.
+- Raw/backend tabs should still be human-scannable.
+
+---
+
+## 10. Ready-to-Use Definition
+
+The product is considered ready-to-use when:
+
+1. Telegram input can reliably write clear transactions.
+2. Ambiguous Telegram input asks clarification before write.
+3. Missing category is handled correctly.
+4. Account Ledger is reliable as wallet movement source.
+5. Domain tabs are stable enough for Credit Card, Hutang, Aset, and Cicilan Rumah.
+6. Finance Events records resolved events after cutover.
+7. Audit Log and reconciliation detect major issues.
+8. Dashboard shows Data Status and Action Required.
+9. Dashboard is premium, readable, and useful for daily decisions.
+10. Proactive alerts work for critical cases.
+11. Email ingestion can detect and clarify candidates safely without violating security policy.
+12. Email auto-write is only enabled after proven parser and approval.
+
+---
+
+## 11. Roadmap
+
+### Phase 0 - PRD and current-state alignment
+
+**Goal:** Lock living PRD and prevent outdated execution.
+
+**Scope:**
+
+- Convert Kitab into PRD.
+- Capture current implementation status.
+- Capture known gaps from smoke tests.
+- Define refresh protocol.
+
+**Done when:**
+
+- PRD v1.0 exists.
+- Current State section includes commit, workbook, screenshots, and Telegram smoke test.
+- Next action is clear.
+
+### Phase 1 - Clarification Reliability Hardening
+
+**Goal:** Make Telegram clarification safe and predictable.
+
+**Scope:**
+
+- Fix pending clarification context isolation.
+- Ensure admin commands bypass pending clarification.
+- Ensure unrelated finance input does not get misinterpreted as pending answer.
+- Complete CC purchase clarification flow.
+- Re-test internal transfer after clear pending.
+- **Category Contract v1 sub-sprint:** Continue implementing the owner-approved *Category Clarification Policy v1* (v1A Registry, v1B `/kategori` command, and v1C two-layer clarification are DONE; v1D email alignment remains future; v1E write enrichment is deferred).
+
+**Acceptance tests:**
+
+```text
+admin clear clarification
+cc 7890 PRDTEST_CC2
+A makan tokopedia
+admin find smoke all PRDTEST_CC2
+admin clear clarification
+transfer 8888 dari bca ke blu PRDTEST_TRANSFER2
+admin find smoke all PRDTEST_TRANSFER2
+```
+
+### Phase 2 - Finance Events Coverage and Styling
+
+**Goal:** Make Finance Events useful as event index and operational tab.
+
+**Scope:**
+
+- Verify every resolved event after cutover gets Finance Event.
+- Add missing event refs if needed.
+- Add write status and quality status coverage.
+- Improve Finance Events visual styling.
+- Add filters/freeze/conditional formatting.
+
+**Done when:**
+
+- Smoke test tag appears in Account Ledger and Finance Events.
+- Finance Events is readable and not visually plain.
+- Partial/failed/warning states are visible.
+
+### Phase 3 - Reconciliation and Dashboard Trust
+
+**Goal:** Make dashboard trust state backed by actual checks.
+
+**Scope:**
+
+- Validate Data Quality Center formulas/logic.
+- Validate reconciliation outputs.
+- Confirm Missing Category and Pending Clarification drive Warning.
+- Confirm Dirty state for critical issues.
+- Ensure Action Required reflects real issues.
+
+**Done when:**
+
+- Topbar Data Status is traceable to Data Quality Center.
+- Action Required items have matching source issue.
+- Dashboard avoids false-clean state.
+
+### Phase 4 - Dashboard Polish and Backend Tab Polish
+
+**Goal:** Maintain premium dark command center while improving operational readability.
+
+**Scope:**
+
+- Preserve current dashboard layout direction.
+- Improve visual consistency.
+- Add/verify dashboard source-of-truth formulas.
+- Improve backend tabs: Finance Events, Audit Log, Email Ingestion Log, Review Queue.
+- Hide/soft-archive legacy tabs only after dependency checks.
+
+**Done when:**
+
+- Dashboard feels polished and usable daily.
+- Backend tabs are readable and maintainable.
+- Cash Ledger dependency is verified as removed before archive/delete.
+
+### Phase 5 - Alert Engine Validation (CLOSED)
+
+**Goal:** Confirm proactive Telegram alerting is useful and non-spammy.
+
+**Scope & Progression (Closed / Passed):**
+- **Phase 5A Active Alert Calculation Safe Validation (LIVE PASS / CLOSED):** Closed 2026-05-31.
+- **Phase 5B-1 Guarded Live Alert Control Layer (LIVE PASS / CLOSED):** Closed 2026-05-31.
+- **Phase 5B-2 Controlled Live Trigger Install (LIVE PASS / CLOSED):** Closed 2026-05-31.
+- **Phase 5B-2a Live Heartbeat Observability (LIVE PASS / CLOSED):** Closed 2026-05-31.
+- **Phase 5B-3 Controlled Live Enable Trial:** Closed/Pass (controlled ON/OFF live trial verification completed 2026-06-01).
+
+### Phase 6 - Email Ingestion Controlled Activation
+
+**Goal:** Move from dry-run/design to safe controlled email candidate flow.
+
+**Scope:**
+- Keep email default OFF until explicit enable.
+- **Sprints 7F-A through 7F-D (PASS / Closed):** Detect allowed candidates, extract transient body amounts, send Telegram clarifications with nominal, and handle answers to generate a no-write route preview. (Note: This dry-run preview work was completed ahead of later roadmap phases to establish structural readiness).
+- Verify sender allowlist.
+- Verify label filter.
+- Verify sensitive hard-block.
+- Verify metadata-only log.
+- Verify candidate detection.
+- Verify Telegram clarification preview.
+- **Sprint 7G (Future - Requires Owner Approval):** Prepare controlled email-to-finance routing/write readiness and manual write pilot. Actual finance write from email remains disabled until explicit owner approval. Gmail trigger activation is a separate later step and also requires explicit owner approval.
+- Only later enable controlled routing.
+
+**Done when:**
+- Email candidates can be detected safely.
+- OTP/security email is skipped before parsing.
+- Ambiguous email can ask Telegram without raw body.
+- No auto-write occurs until explicitly approved.
+
+### Phase 7 - Final Ready-to-Use Closeout / Cleanup / Regression
+
+**Goal:** Clean up workspace, verify final system sanity, and confirm full ready-to-use readiness.
+
+**Scope:**
+- Run end-to-end daily-use regression smoke tests.
+- Confirm no duplicate writes on daily transactions.
+- Verify final dashboard warning, dirty, and trusted statuses.
+- Ensure all backup and copy tabs stay hidden.
+- Conduct repository cleanup following audit-first policy.
+
+**Done when:**
+- System is verified stable for daily personal finance tracking.
+- Stale/temporary files in the repository are cleaned up after proper audits.
+- No unresolved visual or structural regressions exist.
+
+---
+
+## 12. Test Plan
+
+### 12.1 Standard pre-test command
+
+```text
+admin clear clarification
+```
+
+### 12.2 Missing category test
+
+```text
+bca keluar 6789 PRDTEST_CAT_NEXT
+```
+
+Expected:
+
+- Bot asks category.
+- No clean write before answer.
+
+Then:
+
+```text
+Makan
+admin find smoke all PRDTEST_CAT_NEXT
+```
+
+Expected:
+
+- Account Ledger row found.
+- Finance Events row should also be found after Finance Events coverage is complete.
+
+### 12.3 CC purchase test
+
+```text
+admin clear clarification
+cc 7890 PRDTEST_CC_NEXT
+A makan tokopedia
+admin find smoke all PRDTEST_CC_NEXT
+```
+
+Expected:
+
+- Credit Card row found.
+- No Account Ledger outflow for CC purchase.
+- Finance Events row found after event coverage is complete.
+
+### 12.4 Transfer test
+
+```text
+admin clear clarification
+transfer 8888 dari bca ke blu PRDTEST_TRANSFER_NEXT
+admin find smoke all PRDTEST_TRANSFER_NEXT
+```
+
+Expected:
+
+- Two Account Ledger rows.
+- Source BCA out.
+- Destination Blu in.
+- Linked transfer ID.
+- Finance Events transfer event group.
+
+### 12.5 Email bridge safety test
+
+```text
+admin email sprint7 clarification bridge
+```
+
+Expected:
+
+- Mode: dry-run or guarded until explicitly enabled.
+- Email ingestion default OFF unless intentionally enabled.
+- No Gmail modification.
+- No full body stored.
+- No finance writes in design dry-run.
+- Sensitive content not forwarded.
+
+### 12.6 Dashboard trust test
+
+Expected checks:
+
+- Topbar shows Data Status.
+- Data Quality Center explains Warning/Dirty.
+- Action Required mirrors issues.
+- Missing category appears as warning.
+- CC unmatched payment appears as warning/critical based on due state.
+
+---
+
+## 13. Decision Log
+
+| Date | Decision | Rationale |
+|---|---|---|
+| 2026-05-28 | Google Spreadsheet remains primary platform | Fastest and most practical for personal use; existing system already built there |
+| 2026-05-28 | PRD target is AI/developer execution | User wants agents to execute efficiently with less repeated context |
+| 2026-05-28 | Dashboard premium dark command center is prioritized | UX priority is dashboard quality and clarity |
+| 2026-05-28 | Email ingestion remains Sprint-late and guarded | High risk because of OTP/security content |
+| 2026-05-28 | PRD must be living with stale-warning protocol | Prevents PRD becoming outdated as project evolves |
+| 2026-05-28 | Finance Events needs visual polish | Backend event index should be readable, not plain/raw |
+| 2026-05-28 | Markdown in repo is canonical PRD source | Supports Git versioning, diff, commit hashes, and repeatable agent handoff |
+| 2026-05-28 | Sprint 7F-C uses transient plain-body amount read only | Enables useful email-to-Telegram clarification while preserving no full body storage, no raw forwarding, and no finance write |
+
+---
+
+## 14. Living PRD Governance and Refresh Protocol
+
+### 14.1 Document hierarchy
+
+AIRO uses four levels of truth:
+
+1. **Kitab / Doctrine** - stable architecture and rules.
+2. **Living PRD** - product requirements, current status, gaps, roadmap.
+3. **Sprint Records / Closeout Logs** - evidence of implementation work.
+4. **Live Reality** - actual repo, Apps Script, Google Sheet, Telegram bot, Gmail behavior, and dashboard.
+
+Execution must respect this hierarchy:
+
+```text
+Kitab = stable principles
+PRD = product plan + current known state
+Sprint Records = proof of what changed
+Live Reality = actual truth before patching
+```
+
+### 14.2 PRD stale conditions
+
+This PRD is considered stale if any of these are true:
+
+- Latest repo commit differs from PRD commit.
+- New sprint closeout exists after `last_verified`.
+- Workbook/dashboard changed significantly.
+- Apps Script deployment changed.
+- Live Telegram behavior differs from PRD acceptance criteria.
+- Email ingestion mode changed.
+- New major tab/schema was added.
+- A breaking architecture change was approved.
+
+### 14.3 Required refresh before using PRD for execution
+
+Before any AI/developer uses this PRD for new implementation:
+
+1. Pull/fetch repo latest.
+2. Check branch, local changes, and remote commit.
+3. Read latest AIRO docs and sprint records.
+4. Check Apps Script deployment status.
+5. Check workbook/dashboard current state.
+6. Run lightweight Telegram smoke test if behavior is relevant.
+7. Update PRD Current Implementation Snapshot.
+8. Update Known Gaps and Next Recommended Action.
+9. Only then propose or apply patches.
+
+### 14.4 Versioning
+
+Recommended version pattern:
+
+```text
+v1.0 = baseline PRD from Kitab + current snapshot + smoke tests
+v1.1 = update after next sprint closeout
+v1.2 = update after email candidate flow becomes live
+v2.0 = breaking architecture change, e.g. major web app migration
+```
+
+### 14.5 What to update after each sprint
+
+After every sprint closeout, update only these PRD sections:
+
+- Version and last verified date.
+- Current Implementation Snapshot.
+- Done / In Progress / Known Gaps.
+- Acceptance Criteria PASS/FAIL.
+- Decision Log.
+- Next Recommended Action.
+- Deprecated or superseded sections.
+
+Do not rewrite the whole PRD unless architecture changes.
+
+---
+
+## 15. Storage and Source-of-Truth Model
+
+### 15.1 Canonical storage
+
+The canonical living PRD should be stored as Markdown in the project repo:
+
+```text
+docs/AIRO_FINANCE_PRD_LIVING.md
+```
+
+This file should be the editable source of truth for the PRD because it supports Git diffs, commit history, branches, review, and reliable AI/developer handoff.
+
+### 15.2 Export storage
+
+Word/PDF exports should be treated as snapshots, not the editable master:
+
+```text
+docs/exports/AIRO_FINANCE_PRD_v1.0_20260528.docx
+docs/exports/AIRO_FINANCE_PRD_v1.0_20260528.pdf
+```
+
+Exports are useful for reading, sharing, and archiving, but future edits should happen in the Markdown source and then be regenerated.
+
+### 15.3 Relationship with the Kitab
+
+The Kitab remains the stable doctrine and architecture guardrail. The PRD is the living execution/product document. If they conflict:
+
+1. Stop execution.
+2. Identify whether the conflict is a product update or architecture break.
+3. If architecture break, ask owner for explicit approval.
+4. Update both documents only when the decision is confirmed.
+
+### 15.4 Google Drive mirror
+
+A Google Drive copy may be kept for convenience, but it should be treated as a read-only mirror unless the repo source is updated afterward. Avoid editing only in Google Docs because it can drift from Git.
+
+### 15.5 Update workflow
+
+For every future PRD update:
+
+1. Update `docs/AIRO_FINANCE_PRD_LIVING.md`.
+2. Commit with a message such as `docs(airo-finance): update living PRD after Sprint 7F-B`.
+3. Export DOCX/PDF snapshot if needed.
+4. Store exports under `docs/exports/`.
+5. Record the new commit hash in the PRD header.
+## 16. Next Recommended Action
+
+The next execution focus should be:
+
+### Priority 1 - Phase 6 — Email Ingestion Controlled Activation
+
+Prepare controlled email-to-finance routing/write readiness and manual write pilot (Sprint 7G).
+- Keep email default OFF and do not trigger any live database writes until explicit owner approval.
+- Gmail integration should remain strictly in sandboxed or read-only preview mode.
+
+---
+
+## 17. Carry-Over Prompt for New AI/Developer Session
+
+Use this prompt when continuing AIRO Finance execution in a new chat:
+
+```text
+Kamu adalah AI/developer assistant untuk project AIRO Personal Finance.
+
+Sumber utama:
+1. Kitab AIRO Finance Final v2 sebagai doctrine arsitektur.
+2. AIRO Finance PRD v1.0 sebagai living product requirements.
+3. Latest sprint records di repo.
+4. Live reality dari repo, Google Sheet, Apps Script, Telegram bot, dan Gmail state.
+
+Jangan redesign arsitektur dari nol. Google Spreadsheet tetap pusat utama. Telegram tetap interface utama. Account Ledger hanya wallet movement. Domain detail tetap di domain tabs. Finance Events adalah central event index, bukan balance ledger. Dashboard adalah intelligence cockpit, bukan source-of-truth. Email ingestion default OFF dan harus guarded. OTP/security email hard-block.
+
+Sebelum patch:
+- cd /home/egitaristorandas/vortex-ai-skill-lab
+- git fetch origin main
+- cek git status --short --branch
+- cek local vs remote commit
+- baca latest AIRO docs/sprint records
+- cek Apps Script deployment status
+- jangan overwrite local changes
+- semua command harus safe, output capture, dan copy output to clipboard
+
+Current PRD baseline:
+- Last verified: 2026-06-01 08:55 WIB
+- Repo commit: faa9c8b
+- Apps Script deployment ID: AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA @228
+- Dashboard: Official 🏠 Dashboard promoted, verified (0 error cells, index 1), backup sheets hidden.
+- Phase 5: Closed / Pass (proactive alert control layer closed, trigger installed, live alerts disabled by default).
+- Email bridge: Sprint 7F-D email answer route preview PASS; dry-run/no-write/no Gmail trigger
+
+Known gaps to address next:
+1. None. Dashboard promotion and tab ordering/visibility cleanup is completed.
+
+Next task:
+Phase 6 — Email Ingestion Controlled Activation
+```
+
+---
+
+## 18. PRD Acceptance Checklist
+
+This PRD is considered usable when:
+
+- It reflects current implementation, not only ideal architecture.
+- It records known gaps honestly.
+- It contains living refresh protocol.
+- It includes next recommended action.
+- It preserves Kitab architecture.
+- It can be used by AI/developer agents without re-asking basic architecture questions.
+- It prevents outdated execution by requiring current-state refresh.
+
+---
+
+## 19. Final Product North Star
+
+AIRO Finance succeeds when the owner can use Telegram naturally, trust the dashboard daily, receive critical alerts proactively, and avoid spreadsheet chaos because every important financial event is clarified, indexed, reconciled, and visible.
+
+The final system should feel like a personal finance command center that is fast, safe, premium, and trustworthy.
+
+---
+
+## 20. Tab and Repo Cleanup Policy
+
+To maintain a clean and reliable workbook UX for daily personal finance use, the following policy applies to all spreadsheet tabs and repository files:
+
+### 20.1 Visible User Tabs
+Only the following 10 working tabs should stay visible to the user:
+- `🏠 Dashboard`
+- `📌 Finance Events`
+- `📒 Account Ledger`
+- `💳 Credit Card`
+- `🏠 Cicilan Rumah`
+- `🤝 Hutang`
+- `🥇 Aset`
+- `📅 Monthly Review`
+- `🧾 Review Queue`
+- `⚙️ Settings`
+
+### 20.2 Hidden Tabs Policy
+- All background, template, backup, and operational logs/sync sheets must remain hidden for daily use.
+- This includes `_AIRO_Ops_Center`, `_AIRO_Email_Ingestion_Log`, `_AIRO_Audit_Log`, `_AIRO_Dedupe_Log`, `🔄 Sync Log`, `_AIRO_Dashboard_Template_Claude`, and all historical promotion backups (`_AIRO_Dashboard_Pre_Promote_Backup_*`, `_AIRO_Dashboard_v2_Approved_*`, etc.).
+
+### 20.3 Deletion Policy
+Deletion of Google Sheet tabs is strictly prohibited until the following sequence is met:
+1. A full spreadsheet backup/export has been created.
+2. The tab is confirmed as a temporary or duplicate sheet.
+3. The user explicitly reviews and approves the deletion list.
+
+### 20.4 Repository Untracked Cleanup Policy
+- Any cleanup of untracked files in the repository must be audit-first. No blind deletions of untracked files are allowed.

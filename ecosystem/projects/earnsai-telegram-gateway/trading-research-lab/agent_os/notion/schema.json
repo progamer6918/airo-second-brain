@@ -1,0 +1,116 @@
+{
+  "workspace_boundary": "Dedicated EarnsAI Notion workspace only",
+  "mode": "SCHEMA_BLUEPRINT_ONLY",
+  "destructive_actions": false,
+  "databases": [
+    {
+      "name": "EarnsAI Command Center",
+      "purpose": "Top-level dashboard for Phase 4 research operations, latest status, and agent activity links.",
+      "properties": {
+        "Name": "title",
+        "Phase": "select",
+        "Status": "select",
+        "Last Updated": "date",
+        "Owner": "rich_text",
+        "Safety Mode": "select"
+      }
+    },
+    {
+      "name": "Research Journal",
+      "purpose": "Human-readable research notes, thesis, hypotheses, market observations, and experiment narratives.",
+      "properties": {
+        "Title": "title",
+        "Date": "date",
+        "Phase": "select",
+        "Status": "select",
+        "Tags": "multi_select",
+        "Summary": "rich_text",
+        "Source Report": "url"
+      }
+    },
+    {
+      "name": "Strategy Registry",
+      "purpose": "Canonical list of strategies being researched, including status, hypothesis, market, and timeframe.",
+      "properties": {
+        "Strategy": "title",
+        "Version": "rich_text",
+        "Status": "select",
+        "Market": "select",
+        "Timeframe": "select",
+        "Hypothesis": "rich_text",
+        "Risk Level": "select",
+        "Last Reviewed": "date"
+      }
+    },
+    {
+      "name": "Backtest Logs",
+      "purpose": "Structured records of backtest runs, inputs, outputs, and summary metrics.",
+      "properties": {
+        "Run ID": "title",
+        "Strategy": "relation_or_text",
+        "Dataset": "rich_text",
+        "Date": "date",
+        "Net Return": "number",
+        "Max Drawdown": "number",
+        "Win Rate": "number",
+        "Status": "select",
+        "Report": "url"
+      }
+    },
+    {
+      "name": "Decision Journal",
+      "purpose": "AI/human decisions, rationale, confidence level, and next actions.",
+      "properties": {
+        "Decision": "title",
+        "Date": "date",
+        "Recommendation": "select",
+        "Confidence": "number",
+        "Rationale": "rich_text",
+        "Next Action": "rich_text",
+        "Approved By Human": "checkbox"
+      }
+    },
+    {
+      "name": "Risk Flags",
+      "purpose": "Risk, bias, data quality, overfitting, and safety concerns discovered during research.",
+      "properties": {
+        "Flag": "title",
+        "Severity": "select",
+        "Status": "select",
+        "Source": "rich_text",
+        "Mitigation": "rich_text",
+        "Created": "date"
+      }
+    },
+    {
+      "name": "Agent Activity Log",
+      "purpose": "Audit trail of orchestrator and sub-agent actions.",
+      "properties": {
+        "Event": "title",
+        "Timestamp": "date",
+        "Agent": "select",
+        "Action": "rich_text",
+        "Mode": "select",
+        "Result": "select",
+        "Artifact": "url"
+      }
+    }
+  ],
+  "allowed_operations": [
+    "create_page",
+    "append_block",
+    "update_status",
+    "create_database_item",
+    "append_research_log"
+  ],
+  "blocked_operations": [
+    "delete_page",
+    "bulk_delete",
+    "share_to_external_user",
+    "invite_user",
+    "change_workspace_settings",
+    "read_personal_workspace",
+    "live_trade",
+    "private_exchange_api"
+  ]
+}

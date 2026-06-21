@@ -1,0 +1,11 @@
+[Unit]
+Description=Run AIRO Full Auto Sheets Sync every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=20s
+Unit=airo-full-auto-sheets-sync.service
+
+[Install]
+WantedBy=timers.target

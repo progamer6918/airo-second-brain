@@ -1,0 +1,12 @@
+name: Safe Task
+description: Safe tracked task for EarnsAI local-to-GitHub workflow
+title: '[TASK] '
+labels: ['task', 'safety-first']
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should be completed?
+    validations:
+      required: true

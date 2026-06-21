@@ -1,0 +1,111 @@
+# EarnsAI Next Step
+
+Stable baseline completed:
+- Telegram webhook is owned by Cloudflare Worker.
+- OpenClaw gateway is active.
+- OpenClaw Telegram channel is disabled: channels.telegram.enabled=false.
+- Telegram captures are raw-safe in Recent Captures.
+- Worker now sets Source=Telegram, Status=Captured, Routed To=Inbox, Reason, Destination DB=Inbox pending final routing.
+- Baseline source of truth is saved in EarnsAI Dev Lab.
+- Recent Captures audit trail for baseline is updated to Routed → EarnsAI Dev Lab.
+
+Do not redo:
+- Do not re-enable OpenClaw Telegram channel.
+- Do not switch Telegram back to OpenClaw polling.
+- Do not add AI routing yet before deciding the next micro-step.
+
+Recommended next micro-step:
+- Add lightweight Recent Captures patch/update helper so each final routing can update:
+  Routed To
+  Destination DB
+  Destination URL
+  Reason
+  Status
+
+Completed after baseline:
+- Created helper: scripts/update_recent_capture.py
+- Helper purpose: update Recent Captures audit trail after final routing.
+- Helper updates: Routed To, Destination DB, Destination URL, Reason, Status.
+- Helper does not touch Raw Input or Raw Note body.
+
+Completed after helper audit trail test:
+- scripts/update_recent_capture.py was tested end-to-end on dummy Telegram capture.
+- Test page ID: 350768ac-bac9-81ca-8278-daa5d4750b00
+- Result: ok=true
+- Verified in Notion:
+  - Status=Routed
+  - Routed To=EarnsAI Dev Lab
+  - Destination DB=EarnsAI Dev Lab
+  - Destination URL filled
+  - Reason updated
+  - Raw Input preserved
+  - Raw Note body preserved
+- Helper audit trail is stable for manual final-routing updates.
+
+Completed final helper audit trail validation:
+- Created real dummy destination page in EarnsAI Dev Lab.
+- Destination page ID: 350768ac-bac9-8166-b4c1-e45723365162
+- Destination URL: https://www.notion.so/TEST-DUMMY-Destination-Page-Audit-Trail-Helper-350768acbac98166b4c1e45723365162
+- Re-updated dummy Recent Capture audit trail to point Destination URL to the real final destination page.
+- Verified in Notion:
+  - Status=Routed
+  - Routed To=EarnsAI Dev Lab
+  - Destination DB=EarnsAI Dev Lab
+  - Destination URL points to real EarnsAI Dev Lab page
+  - Reason updated
+  - Raw Input preserved
+  - Raw Note body preserved
+- Manual final-routing audit trail helper is now stable.
+
+Safety backup created:
+- Backup file: ~/earnsai-backups/earnsai-telegram-gateway-baseline-20260428-212923.tar.gz
+- Excluded: node_modules, .wrangler
+- Purpose: rollback point after Telegram Gateway stable baseline and final helper audit trail validation.
+
+Current milestone position:
+- Overall EarnsAI Capture Intelligence progress estimate: around 38/100.
+- Completed milestone: Stable Capture Foundation + Manual Final Routing Validation.
+- Telegram Gateway baseline is stable.
+- Raw note preservation is stable.
+- Manual Recent Captures audit trail helper is stable.
+- TypeScript config check is now clean: npx tsc --noEmit exits with 0.
+- Next milestone: Automatic Final Routing Bridge.
+- Important rule: do not add AI routing, Queues, Gemini, grammY, Notion SDK, or lifecycle worker before small rule-based routing bridge is validated.
+
+Completed rule-based initial routing bridge:
+- Added classifyInitialRoute(rawText) in Cloudflare Worker.
+- Worker now sets initial Routed To, Destination DB, and Reason based on lightweight rules.
+- Validated routes:
+  - Dev-related capture -> EarnsAI Dev Lab
+  - Skripsi/PAI/research capture -> Notes
+  - Explicit reminder/task/deadline capture -> Tasks
+- Found and fixed substring matching bug:
+  - "tapi" was incorrectly matching keyword "api"
+  - Replaced simple text.includes matching with RegExp boundary matching.
+- Found and fixed negated reminder bug:
+  - "bukan reminder" and "bukan tolong ingatkan" were incorrectly routed to Tasks
+  - Added negation guard for reminder phrases.
+- Validated reminder rule:
+  - "besok" without explicit reminder stays Inbox
+  - "bukan reminder" stays Inbox
+- Raw Input and Raw Note body remained preserved in all routing tests.
+- Latest deployed Worker version after negation fix: 1c9c7d2c-873a-41c0-aefb-0f86e129515f
+
+Completed rule-based initial routing bridge:
+- Added classifyInitialRoute(rawText) in Cloudflare Worker.
+- Worker now sets initial Routed To, Destination DB, and Reason based on lightweight rules.
+- Validated routes:
+  - Dev-related capture -> EarnsAI Dev Lab
+  - Skripsi/PAI/research capture -> Notes
+  - Explicit reminder/task/deadline capture -> Tasks
+- Found and fixed substring matching bug:
+  - "tapi" was incorrectly matching keyword "api"
+  - Replaced simple text.includes matching with RegExp boundary matching.
+- Found and fixed negated reminder bug:
+  - "bukan reminder" and "bukan tolong ingatkan" were incorrectly routed to Tasks
+  - Added negation guard for reminder phrases.
+- Validated reminder rule:
+  - "besok" without explicit reminder stays Inbox
+  - "bukan reminder" stays Inbox
+- Raw Input and Raw Note body remained preserved in all routing tests.
+- Latest deployed Worker version after negation fix: 1c9c7d2c-873a-41c0-aefb-0f86e129515f

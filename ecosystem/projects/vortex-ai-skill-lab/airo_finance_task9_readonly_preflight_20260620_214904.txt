@@ -1,0 +1,1531 @@
+===== AIRO FINANCE TASK 9 READONLY PREFLIGHT =====
+2026-06-20T21:49:04+07:00
+MODE=READ_ONLY_NO_PATCH_NO_DEPLOY_NO_WORKBOOK_NO_GMAIL
+
+===== REPO EXISTENCE =====
+FOUND_GIT_REPO=/home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+FOUND_GIT_REPO=/home/egitaristorandas/vortex-ai-skill-lab
+
+===== ASB GIT STATE =====
+From https://github.com/progamer6918/airo-second-brain
+ * branch            main       -> FETCH_HEAD
+## main...origin/main
+ M .obsidian/app.json
+ M .obsidian/appearance.json
+ M .obsidian/core-plugins.json
+ M scripts/airo-manual-queue-process
+ M scripts/airo-manual-queue-shortid
+ M scripts/airo-wiki-query-readonly
+ M state/system-health.md
+?? .obsidian/graph.json
+HEAD=4425d06aa8b315d15701177fafc914aa22fc86bd
+ORIGIN_MAIN=4425d06aa8b315d15701177fafc914aa22fc86bd
+4425d06 sync: auto-sync brain events and state
+78780dc sync: auto-sync brain events and state
+f6ac1c1 sync: auto-sync brain events and state
+509c0f8 sync: auto-sync brain events and state
+6190f90 sync: auto-sync brain events and state
+fb1e8e9 sync: auto-sync brain events and state
+b2b1a6c sync: auto-sync brain events and state
+e3d9080 sync: auto-sync brain events and state
+
+===== AIRO FINANCE GIT STATE =====
+From github.com:progamer6918/vortex-ai-skill-lab
+ * branch            main       -> FETCH_HEAD
+## main...origin/main
+ M apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js
+ M docs/airo-finance/sprint7d/real_email_source_setup_config_20260527.json
+ M docs/personal-workflow/handoff/AIRO_FINANCE_ACCOUNT_LEDGER_PARITY_DELTA_CARRYOVER.md
+ M scripts/airo_finance_sprint7n_cc_pending_static_test.js
+ M scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs
+?? docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md
+?? scripts/airo_finance_sprint7i_amount_parser_static_test.js
+?? scripts/airo_finance_sprint7j_amount_shared_sanitizer_static_test.js
+?? scripts/airo_finance_sprint7k_cc_finaltab_gate_static_test.js
+?? scripts/airo_finance_sprint7l_cc_no_match_ledger_primary_return_static_test.js
+?? scripts/airo_finance_sprint7o_cc_sudah_static_test.js
+?? scripts/personal-workflow/birthday_reminder.py
+?? scripts/personal-workflow/birthday_reminder_simple.py
+?? scripts/personal-workflow/run_birthday_reminder
+?? scripts/personal-workflow/ultah_sederhana.csv
+HEAD=c1adece0eb6b8a728f2f561c8f973bb497e5a13e
+ORIGIN_MAIN=c1adece0eb6b8a728f2f561c8f973bb497e5a13e
+c1adece feat(airo-finance): add cc pending pocket read-only command
+f048632 docs(airo-finance): document cc numbered settlement workflow
+5bd2728 Sprint 7M: balance reply after Account Ledger write
+495fc51 docs: add AIRO governed project manifest
+33831ff docs(airo-finance): correct invalid credit card live regression
+8ce34ee docs(airo-finance): record credit card live regression
+9297b1d fix(airo-finance): guard credit card payment ledger write
+d9a3e46 fix(airo-finance): route debt approval to hutang projection
+23c52a0 chore(airo-finance): record Rp1m debt review correction
+1b20f48 chore(airo-finance): record live debt subcategory registry update
+58db922 feat(airo-finance): make debt and housing payments ledger-first
+cb8da54 feat(airo-finance): patch transfer account registry resolver
+
+===== ASB SYSTEM HEALTH =====
+generated_at: '2026-06-20T14:49:02.579957Z'
+safe_to_work: true
+system_status: healthy
+repos:
+  airo-second-brain:
+    truth_status: dirty
+    last_sync: '2026-06-13T10:59:23.648439Z'
+  airo-finance:
+    truth_status: dirty
+    last_known_commit: null
+    repo_head: 495fc51d93423b25fa5c41bde37c8dc93d8e4246
+pending:
+  proposals: 0
+  decisions: 0
+  inbox_unprocessed: 9
+errors:
+  count: 0
+  latest: null
+
+===== ASB AIRO FINANCE CURRENT STATE =====
+# AIRO Finance Current State — Task 9 Gate
+
+## Project Status
+- **Task 7**: Selesai (done)
+- **Task 8**: Selesai (done, do not repeat)
+- **Task 9**: Sedang berjalan (`started_regression_gate`, belum final)
+- **Task 10**: Opsional
+- **Sisa Wajib**: 4 (termasuk Task 9, tidak termasuk Task 10)
+
+## Latest Technical State
+- **Production Deployment**: Versi `@297 - feat(airo-finance): add cc pending pocket read-only command` aktif pada deployment ID `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`. (Prior API access repair deployed at `@296`).
+- **Source Parity**: PASS. Kesesuaian kode lokal dan live diuji pada:
+  - `apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js`
+  - `scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs`
+- **Latest Source SHA**: `c1adece`
+- **Task 8 Hutang Patch**: Hadir dan aktif.
+- **Temporary Route / Cleanup Route**: Tidak ada (absent), menjaga kebersihan production.
+- **CC Pending Command Milestone Result**: `FINAL_RESULT=PASS_SECOND_BRAIN_CLOSEOUT_CC_PENDING_COMMAND_PUSHED`
+
+## Remaining Blocker Scope
+1. **Credit Card Ledger-First Verification**: Verifikasi live regression CC dari commit terbaru masih harus dibuktikan (live regression valid: false, CC ledger-first PASS: false).
+2. **Asset Ledger-First Patch**: Implementasi penulisan ledger-first untuk Aset masih pending.
+3. **Dashboard Migration**: Migrasi dashboard formula menjauh dari `Finance Events` masih pending.
+4. **Task 9 Final Closeout**: Penyelesaian dokumentasi dan persetujuan akhir Owner masih pending.
+
+2026-06-11 — Task 9 CC amount parser patch deployed, regression still pending
+
+Status:
+
+Task 7: done
+Task 8: done
+Task 9: started_regression_gate
+Task 10: optional
+Sisa wajib: 4
+TASK9_CAN_CLOSEOUT_NOW=false
+
+Latest Task 9 checkpoint:
+
+Production deployment=@297 - feat(airo-finance): add cc pending pocket read-only command (prior repair at @296)
+Deployment ID=AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA
+Deployment mode=in-place
+New deployment ID created=false
+
+Source checkpoint:
+
+Patched source SHA=d6ff215aa0c9592336f7030c8228070488a8963e1dce69bb9cded6e07374aaa5
+Triple source parity=true
+apps-script-live source contains patch=true
+apps-script-prod-v2 source contains patch=true
+local mirror source contains patch=true
+static parser test=PASS
+
+Important correction:
+
+Actual production deploy source=apps-script-live
+Do not assume apps-script-prod-v2 alone is active deploy source.
+
+Known issue and contamination:
+
+Failed pre-patch CC synthetic test wrote known synthetic contamination:
+- Account Ledger:54
+- Review Queue:13
+
+Expected amount=9021
+Observed polluted amount=205927
+Cleanup policy=defer until owner approval
+
+Current blockers:
+
+CREDIT_CARD_STATUS=milestone_cc_pending_command_done
+ASSET_STATUS=pending
+DASHBOARD_MIGRATION_STATUS=pending
+TASK9_FINAL_CLOSEOUT=pending
+
+Next safe action:
+
+Implement `cc sudah <nomor>` ledger-first workflow.
+Do not proceed to Asset/Dashboard until CC status settlement is resolved.
+
+
+## 2026-06-12 22:04:34 +0700 — Task 9 @292 CC amount runtime PASS, CC still pending
+- Deployment: @292 — AIRO Task 9 shared amount sanitizer guard.
+- Source SHA live/prod/mirror: e77438f86cd075614f4393defc420ccf34932375cfa5fb57814bea52a650f911.
+- Static tests sprint7i/sprint7j: PASS.
+- Post-deploy guard @292: PASS.
+- Live regression @292: PASS for amount runtime only.
+- Expected amount: 9021.
+- Observed amount: 9021.
+- Tag/timestamp amount capture: false.
+- New synthetic row candidate: Review Queue:16.
+- Credit Card status: pending.
+- Asset status: pending.
+- Dashboard migration status: pending.
+- Task 9 can close out now: false.
+
+
+## 2026-06-14 18:15:00 +0700 — Task 9 CC Numbered Settlement Workflow PRD Amendment
+- Status: PRD amended. CC purchase remains domain-only, payment ledger-first.
+- New specifications added for `cek tagihan pending cc` and `cc sudah <nomor>` list-index workflow.
+- Map TTL, ledger-first enforcement, cycle header auto-refresh, and manual override audit flag documented.
+- Source patch/deploy/workbook modifications: none.
+- WebApp 403 status: pending manual deploy by owner.
+
+## 2026-06-14 20:00:00 +0700 — Task 9 CC Pending Pocket Command Milestone Done
+- Status: `cek tagihan pending cc` read-only command implemented, verified, deployed to version `@297`, and pushed (commit `c1adece`).
+- Prior API access repair was deployed at `@296`.
+- WebApp 403 access was resolved after owner OAuth allow.
+- WebApp healthcheck PASS (HTTP_CODE=200, WEBAPP_RUNTIME_ROUTE_GUARD=PASS).
+- Telegram architecture uses local long-poll gateway with webhook empty; pending update count was 0.
+- Gateway restored and singleton running via tmux session `airo-telegram-gateway`.
+- `hermes-gateway.service` was stopped to avoid duplicate getUpdates / 409 Conflict.
+- Direct WebApp test PASS (item_count=2, total_amount=81000, write_performed=false).
+- Owner Telegram live test PASS for command `cek tagihan pending cc` (listed 2 pending items and total Rp81.000).
+- Semantic state details:
+  - `cc_purchase` remains domain-only in Credit Card tab.
+  - `cek tagihan pending cc` is read-only.
+  - `cc sudah <nomor>` is NOT implemented yet.
+  - No Account Ledger write happened.
+  - No CC status update happened.
+  - No Finance Events write.
+  - Transactions not recreated.
+- Current Next Steps:
+  - Implement `cc sudah <nomor>` ledger-first.
+  - Asset purchase ledger-first gap.
+  - Dashboard migration away from Finance Events.
+  - Account Ledger style registry dynamic fix.
+
+===== ASB REVIEW FILES =====
+--- reviews/owner-review-queue-20260612.md ---
+# AIRO Owner Review Queue — 2026-06-12 (PROCESSED)
+
+status: processed
+processed_at: 2026-06-13
+see: reviews/processed/owner-review-processed-20260612.md
+source_count: 6
+
+## Processed Review Item 1: CC Ledger-first Production Deploy
+
+Source:
+- inbox/airo-finance-cc-ledger-first-production-deploy-2026-06-11-0014.md
+
+Risk:
+- HIGH
+
+Type:
+- deploy claim
+
+Summary:
+- Klaim bahwa CC ledger-first source patch telah di-deploy ke production Apps Script.
+- Deployment versi 288 (ID AKfycbzu0...).
+- Deployment description: "AIRO Task 9 CC ledger-first guard".
+
+Evidence needed:
+- Pengecekan langsung di production Apps Script (version 288) dan validasi readback / live smoke test.
+
+Recommended owner action:
+- VERIFY_FIRST
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+## Processed Review Item 2: CC Ledger-first Source Patch
+
+Source:
+- inbox/airo-finance-cc-ledger-first-source-patch-2026-06-11-0013.md
+
+Risk:
+- HIGH
+
+Type:
+- source patch claim
+
+Summary:
+- Klaim bahwa Credit Card source patch telah di-commit di repo lokal AIRO Finance.
+- Finance commit SHA: `9297b1d7d166484b82d6ff9770fd6e78fa55e8ec`.
+- Guard parity dan static diff checks diklaim PASS.
+
+Evidence needed:
+- Konfirmasi ketersediaan commit `9297b1d` di repo AIRO Finance lokal via git diff / static test run.
+
+Recommended owner action:
+- VERIFY_FIRST
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+## Processed Review Item 3: Dashboard Audit + Patch Split Decision
+
+Source:
+- inbox/airo-finance-dashboard-audit-patch-split-decision-2026-06-11-0010.md
+
+Risk:
+- HIGH
+
+Type:
+- architecture decision
+
+Summary:
+- Keputusan pemisahan lingkup patch (split decision) terkait audit dependensi Dashboard.
+- Menegaskan status bahwa Task 8 ditutup, sisa mandatory = 4.
+- AIRO Finance production tertahan di versi 287 selama audit.
+
+Evidence needed:
+- Source code Dashboard saat ini, status depresiasi Finance Events, dan dominasi Account Ledger/domain source truth.
+
+Recommended owner action:
+- DEFER
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+## Processed Review Item 4: Task 9 CC Parser Deploy
+
+Source:
+- inbox/airo-finance-task9-cc-parser-deploy-20260611-223551.md
+
+Risk:
+- HIGH
+
+Type:
+- deploy claim
+
+Summary:
+- Klaim bahwa parser amount untuk Credit Card (Task 9 checkpoint) telah di-deploy.
+- Production apps script diperkirakan berada di versi 291.
+- Penanda `started_regression_gate` untuk Task 9.
+
+Evidence needed:
+- Konfirmasi log deploy ke versi 291, readback eksekusi live, atau validasi fungsional parser di Apps Script.
+
+Recommended owner action:
+- VERIFY_FIRST
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+## Processed Review Item 5: AIRO Sync Operating Rule
+
+Source:
+- inbox/airo-sync-operating-rule-2026-06-10-2351.md
+
+Risk:
+- HIGH
+
+Type:
+- operating rule
+
+Summary:
+- Mengukuhkan AIRO Sync sebagai mekanisme bahwa setiap konsumer AI wajib bertindak sebagai operator ekosistem AIRO.
+- Segala keputusan penting dan progress dari sesi lain didorong ke AIRO Second Brain.
+- Menegaskan pelarangan dump raw transcript dan penangkapan rahasia (secrets).
+
+Evidence needed:
+- Verifikasi apakah aturan ini sudah direfleksikan atau perlu ditambahkan ke dokumen AGENTS.md / CURRENT.md / consumer-policy.
+
+Recommended owner action:
+- VERIFY_FIRST
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+## Processed Review Item 6: Semantic Proposal for airo-finance
+
+Source:
+- distill/proposals/proposal_airo-finance_20260612_101942.md
+
+Risk:
+- MEDIUM
+
+Type:
+- proposal
+
+Summary:
+- File proposal sistem untuk modifikasi knowledge base terkait airo-finance.
+- Data bersumber dari investigasi runtime lokal.
+- Saat ini menunggu review owner sebelum bisa di-promote.
+
+Evidence needed:
+- Owner perlu membaca isi rincian proposal dan menyetujui promosi semantiknya.
+
+Recommended owner action:
+- DEFER
+
+Safe default:
+- DEFER unless evidence is provided
+
+Decision options:
+- [ ] APPROVE
+- [ ] REJECT
+- [ ] DEFER
+- [ ] VERIFY_FIRST
+
+Notes:
+- 
+
+--- reviews/owner-decision-batch-20260612.md ---
+# AIRO Owner Decision Batch — 2026-06-12 (PROCESSED)
+
+status: processed
+processed_at: 2026-06-13
+see: reviews/processed/owner-review-processed-20260612.md
+source: reviews/owner-review-queue-20260612.md
+
+1. CC Ledger-first Production Deploy | default VERIFY_FIRST
+2. CC Ledger-first Source Patch | default VERIFY_FIRST
+3. Dashboard Audit + Patch Split Decision | default DEFER
+4. Task 9 CC Parser Deploy | default VERIFY_FIRST
+5. AIRO Sync Operating Rule | default VERIFY_FIRST
+6. Semantic Proposal for airo-finance | default DEFER
+
+===== ASB LATEST VALIDATION FILES =====
+docs/validation/AIRO_EARESMES_ACTION_SYSTEM_E2E_PROOF_20260613.md
+docs/validation/AIRO_EARESMES_GATEWAY_DURABILITY_20260618.md
+docs/validation/AIRO_EARESMES_LIVE_BUTTON_RESPONSIVENESS_20260613.md
+docs/validation/AIRO_SECOND_BRAIN_FAST_TRACK_RUNTIME_GO_LIVE_20260612.md
+docs/validation/AIRO_SECOND_BRAIN_RUNTIME_NOTIFY_FINAL_20260612.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_FINAL_ACCEPTANCE.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_FINAL_COMPLETION_20260612.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_RUNTIME_ACCEPTANCE.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_RUNTIME_ACCEPTANCE_REPORT.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_STABILIZATION_REPORT.md
+docs/validation/AIRO_SECOND_BRAIN_v0.4.1_VALIDATION_CHECKLIST.md
+docs/validation/obsidian-llm-wiki-v0.6.0-final-validation.md
+docs/validation/report-automation-vba-rc4c2-step0-documentation-20260615_191234.md
+docs/validation/report-automation-vba-rpt003-readonly-audit.md
+
+===== FINANCE CANONICAL DOCS =====
+--- AIRO_MANIFEST.md ---
+---
+project_id: airo-finance
+tier: GOVERNED-GUARDED
+owner: progamer6918
+brain_repo: /home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+brain_file: projects/airo-finance.md
+---
+
+# AIRO Finance Manifest
+
+## Source of Truth
+
+- docs/AIRO_FINANCE_CURRENT_STATE.md
+- docs/AIRO_FINANCE_PRD_LIVING.md
+- docs/airo-finance/records/
+
+## Guarded Paths
+
+- apps-script-prod-v2/
+- scripts/personal-workflow/apps-script/
+- docs/airo-finance/
+- .clasp.json
+- .clasprc.json
+- any token/credential file
+
+## Commit Policy
+
+This repo is PROJECT-GUARDED.
+
+Do not auto-commit source code unless:
+
+- secret guard PASS
+- task context exists
+- diff is reviewed
+- validation output exists or is explicitly skipped with reason
+
+--- docs/AIRO_FINANCE_CURRENT_STATE.md ---
+# AIRO Finance Current State
+
+This file is the compact handoff state for new chats, agents, and future work.
+Update this file after major live milestones, deployment promotions, and blocker changes.
+
+## Last updated
+
+2026-06-03 22:15 WIB
+
+---
+
+## 1. Verified Active Baseline
+
+* **Repo baseline**: `4a902bb` (current HEAD)
+* **Previous PRD baseline**: `bd6815e`
+* **Feature baseline**: `a4fd0ac` (Phase 6H-G3 category registry fix)
+* **Apps Script Project**: `apps-script-live`
+* **Apps Script version**: `@244`
+* **Deployment ID**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+* **Worker**: `airo-finance-telegram-proxy` (running, target `env.APPS_SCRIPT_URL` unchanged, async_ack bridge active)
+* **Gmail trigger**: NOT INSTALLED
+* **Email Ingestion**: DISABLED
+* **Alert Engine**: SAFE MODE (trigger installed, safe mode handler, proactive send OFF)
+* **E-path Layer 1**: LIVE PASS @243
+
+---
+
+## 2. Workbook Schema Contract Summary (Task 0C Verified)
+
+All headers are header-mapped in the Apps Script and correspond to the following structures:
+
+### 2.1 Account Ledger
+* **Headers**: `entry_id, date, account, amount_in, amount_out, balance, type, category, description, raw_text, source_tab, linked_txn_id, notes`
+* **Rules**: 
+  - linked_txn_id is the canonical linkage.
+  - Do not require event_ref in v1.
+  - Do not reorder or rename columns.
+
+### 2.2 Finance Events
+* **Headers**: `event_id, event_ts, event_type, event_source, source_tab, source_row, linked_txn_id, account, category, amount, direction, status, reason, payload_json, notes`
+* **Rules**:
+  - Event index only, not a balance ledger.
+  - Subcategory/status live in payload_json.
+
+### 2.3 Review Queue
+* **Headers**: `queue_id, created_at, source, raw_text, parsed_type, parsed_category, parsed_subcategory, parsed_amount, parsed_currency, parsed_account, parser_confidence, issue_reason, suggested_fix, review_status, reviewed_at, approved_transaction_id, local_db_table, local_db_rowid, sync_hash, notes`
+* **Status**: Missing email extension fields (email_candidate_id, etc.) is expected until Task 3A.
+
+### 2.4 Email Ingestion Log (`_AIRO_Email_Ingestion_Log`)
+* **Headers**: `created_at, candidate_id, message_id, thread_id, sender, provider, received_at, subject_hash, display_amount, inferred_direction, display_time, clarification_question_type, parse_status, candidate_type, clarification_needed, clarification_status, resolved_answer, resolved_label, resolved_at, telegram_chat_id, telegram_sent, write_allowed, write_performed, finance_event_ref, notes`
+* **Rules**:
+  - Main source for email candidate identities. No full body is stored.
+
+### 2.5 Visibility Policies
+* **Transactions**: `💸 Transactions` is visible but forbidden as v1 master (for future statement parsing only).
+* **Cash Ledger**: `💵 Cash Ledger` is hidden, legacy, and transitional.
+* **Monthly Review**: `📅 Monthly Review` is visible, legacy, and partial until rewired or hidden.
+* **Dashboard**: `🏠 Dashboard` is visible and official.
+
+---
+
+## 3. Dashboard and Monthly Review Data Contract (Task 0D Verified)
+
+* **Visual Template Source**: Rebuilt using copy-from-template `_AIRO_Dashboard_Template_Claude` (Excel reference clone).
+* **Topbar helpers**:
+  - `B2`: Sync timestamp (script-written)
+  - `G2`: Selected month dropdown. Current validation values: `📅 April 2026`, `📅 Mei 2026`, `📅 Juni 2026`
+  - `M2`: Selected month helper derived from G2
+  - `M3`: Start date of selected month
+  - `M4`: End date of selected month
+* **Action Required cards**: Script-written values. Global urgent issues (Review Queue pending, poller errors) remain visible regardless of G2. Month-specific issues follow G2 filter.
+* **Smart Insight**: Month-scoped via G2/M2/M3/M4. Displays data-quality warnings if Data Status is Dirty/Warning.
+* **Source Mappings**:
+  - Dashboard analytics reads: `Account Ledger`, `Finance Events`, `Review Queue`
+  - Dashboard must never use `Transactions` or `Cash Ledger` as source of truth.
+  - Monthly Review currently reads `Transactions` in multiple formulas (unrewired, legacy).
+
+---
+
+## 4. Current Handoff Hiearchy & Task Order
+
+Antigravity must execute tasks strictly in this order:
+
+1. **Task 0A** — Runtime State Lock (PASS)
+2. **Task 0B** — CURRENT_STATE.md Refresh (PASS, this file)
+3. **Task 0C** — Workbook Schema Contract Verification (PASS)
+4. **Task 0D** — Dashboard + Monthly Review Contract Verification (PASS)
+5. **Task 1** — E-path subcategory flow completion (PASS)
+6. **Task 2** — Amount pointer fix (PASS)
+7. **Task 3A** — Review Queue email schema extension (PASS)
+8. **Task 3B** — Email → Telegram → Review Queue staging (BLOCKED_OWNER_ACTION_REQUIRED)
+9. **Task 4A** — Polling readiness, no trigger install
+10. **Task 4B** — Scheduled trigger install (owner approval required)
+11. **Task 5** — Controlled email-to-ledger write pilot (owner approval required)
+12. **Task 6** — Final Telegram manual regression matrix
+13. **Task 7** — Dashboard + Finance Events + Reconciliation smoke
+14. **Task 8** — Workbook and repo cleanup audit
+15. **Task 9** — Final closeout and ready-to-use declaration
+
+---
+
+## 5. Active Risks & Mitigation Strategies
+
+| Risk | Severity | Required Handling |
+| :--- | :--- | :--- |
+| Runtime/deployment mismatch | Critical | Task 0A check at start of every session |
+| CURRENT_STATE.md stale | Critical | Task 0B refresh before starting feature work |
+| Review Queue missing email identity | Critical | Staged schema extension in Task 3A |
+| Amount pointer loss | Critical | Task 2 mapping validation |
+| Email-to-ledger duplicate write | Critical | Task 5 idempotency check and dedupe key |
+| Monthly Review reads Transactions | High | Rewire to Account Ledger or hide in Task 7/8 |
+| Transactions visible | High | Forbidden write target; cleanup in Task 8 |
+| Dashboard G2 hardcoded months | Medium | Task 7 dynamic validation range update |
+| Dashboard backups accumulate | Low | Archive policy enforcement in Task 8 |
+
+---
+
+## 6. Historical Handoff Log (Pushed to Handoff History)
+
+For historical logs and sprint records prior to Phase 6H activation, consult the commit history or `docs/airo-finance/records/`.
+Previous operating modes, such as Sprint 2 Domain Tabs and Sprint 3 Cash Ledger Removal, are fully verified and closed.
+All source code, proxy routing, and script deployments are now frozen at version `@243`.
+No feature development, Apps Script deploy, or trigger mutations should occur until Task 3B.
+
+--- docs/AIRO_FINANCE_PRD_LIVING.md ---
+# AIRO FINANCE — FINAL LIVING PRD v2.1.3
+
+Execution Contract after Architecture Freeze Audit
+
+PRD Version      : 2.1.3
+Status           : CANONICAL EXECUTION CONTRACT — READY FOR OWNER-APPROVED REPO REPLACEMENT
+Last verified    : 2026-06-03 19:40 WIB
+Repo baseline    : bd6815e
+Feature baseline : a4fd0ac — Phase 6H-G3 category registry fix
+Apps Script      : apps-script-live @241
+Deployment ID    : AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA
+Worker           : airo-finance-telegram-proxy → env.APPS_SCRIPT_URL unchanged
+Gmail trigger    : NOT INSTALLED
+Email ingestion  : DISABLED
+Alert Engine     : SAFE MODE, trigger installed, proactive send OFF
+E-path layer 1   : LIVE PASS @241
+Audit basis      : Architecture Freeze Audit Pack 1, Pack 1B, Pack 2
+
+---
+
+## 0. Status Claim
+
+This PRD is execution-ready after repo, active source, deployment, workbook schema, and dashboard contract audit.
+
+Allowed claim:
+
+```text
+No known architecture-level blocker remains undocumented after Architecture Freeze Audit.
+Antigravity may execute in task-contract mode with no roadmap discovery expected.
+```
+
+Forbidden claim:
+
+```text
+zero bug
+zero mistake
+zero implementation issue
+project already ready-to-use
+```
+
+This document removes known architecture ambiguity. It does not remove the need for task-level tests, deployment verification, Telegram live smoke, and workbook readback.
+
+---
+
+## 1. Purpose
+
+This document is the execution contract for completing AIRO Personal Finance Command Center.
+
+Antigravity must not use this document as passive documentation. It must execute tasks in order, respect stop gates, avoid speculative redesign, and report evidence after every task.
+
+A task is done only when all layers align:
+
+```text
+repo source
+→ Apps Script editor synced
+→ Apps Script deployed using existing deployment ID
+→ Cloudflare Worker target unchanged or explicitly approved
+→ Telegram live behavior matches expected
+→ Google Sheet write/readback verified
+→ PRD/current-state evidence updated
+→ committed and pushed
+```
+
+Feature existence in repo is not sufficient.
+
+---
+
+## 2. Non-Negotiable Architecture
+
+Do not redesign the system unless the owner explicitly approves a breaking change.
+
+### 2.1 Platform
+
+Google Spreadsheet remains the operational workspace and source-of-truth for current v1.
+
+No web app, localhost backend, SaaS migration, or external database migration is in current scope.
+
+### 2.2 Interface
+
+Telegram is the primary owner-facing interface for:
+
+```text
+manual transaction input
+cash transaction input
+clarification replies
+admin commands
+approval actions
+Review Queue actions
+alert acknowledgement
+email clarification replies
+```
+
+Email never replaces Telegram manual input.
+
+### 2.3 Runtime
+
+```text
+Google Apps Script = main backend runtime
+Cloudflare Worker = Telegram proxy / async_ack bridge
+Gmail = optional passive input only
+GitHub repo = canonical docs and source control
+```
+
+### 2.4 Data Layers
+
+```text
+Account Ledger = wallet/account movement only
+Finance Events = central event index, not balance ledger
+Credit Card = credit card domain truth
+Hutang = debt/liability/receivable domain truth
+Aset = asset/gold/domain truth
+Cicilan Rumah = home installment domain truth
+Review Queue = unresolved exception fallback + email staging gate
+Audit Log = script/admin/reconciliation trail
+Dashboard = intelligence cockpit, not source-of-truth
+Monthly Review = legacy/partial until rewired
+Transactions = visible but forbidden as v1 master
+Cash Ledger = hidden legacy/transitional
+```
+
+### 2.5 Hard Forbidden Actions
+
+Never do these without explicit owner approval:
+
+```text
+store full email body
+forward OTP/security email to Telegram or any sheet tab
+mutate Gmail: archive/delete/read-unread/label change
+write Account Ledger from email
+install Gmail scheduled trigger
+enable proactive Alert Engine send
+change Worker APPS_SCRIPT_URL
+change .clasp.json projectId
+create new Apps Script deployment ID
+delete workbook tabs
+activate noreply@tokopedia.com parser
+run clasp run
+run clasp apis
+inspect credential/token files
+```
+
+Deployment must update the existing Apps Script deployment ID in-place.
+
+---
+
+## 3. Source Truth Hierarchy
+
+Execution must follow this hierarchy:
+
+```text
+1. Live runtime proof
+2. Google Sheet actual schema/formulas
+3. Apps Script active source
+4. Git repo and sprint records
+5. Living PRD
+6. Chat summaries
+```
+
+When conflict exists, live reality wins and the PRD/current-state docs must be updated.
+
+---
+
+## 4. Input Source Contract
+
+Project completion is not email-only.
+
+### 4.1 Telegram Direct Input — Primary
+
+Telegram manual input is the main daily-use path.
+
+Required final regression types:
+
+```text
+cash keluar 15000 parkir
+bca keluar 25000 kopi
+blu masuk 100000 refund
+transfer 50000 dari bca ke blu
+cc 75000 tokopedia skincare
+bayar cc 500000 dari blu
+bayar hutang 100000 ke budi dari bca
+beli emas 1 gram dari bca
+bayar cicilan rumah 3500000 dari bca
+```
+
+Cash transactions usually have no email source. Cash is Telegram/manual first-class input.
+
+Allowed cash aliases if parser supports them:
+
+```text
+Cash Umum keluar 15000 parkir
+Cash Bensin keluar 15000 bensin
+```
+
+### 4.2 Email Notification Input — Passive Auxiliary
+
+Current approved sender:
+
+```text
+receipts@blubybcadigital.id
+```
+
+Candidate/future sender, not active:
+
+```text
+noreply@tokopedia.com
+```
+
+Do not open Tokopedia scope unless owner explicitly approves and parser validation exists.
+
+Target email flow:
+
+```text
+Gmail candidate detected read-only
+→ OTP/security hard-block
+→ metadata-only parsing
+→ Telegram clarification
+→ category/subcategory resolution
+→ Review Queue staging
+→ owner-approved controlled Account Ledger write
+→ Finance Events co-emission
+
+--- docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md ---
+# CANONICAL ROADMAP LOCK
+
+This Kitab is the 100% canonical AIRO Finance roadmap and project guidance source.
+
+Technical implementation docs, V1.2 docs, phase docs, dashboard docs, write-preview docs, and PASS reports are evidence only. They do not define the current sprint.
+
+If any project document conflicts with this Kitab, this Kitab wins.
+
+Current sprint must not advance beyond Sprint 0A until Sprint 0A Definition of Done is fully audited against this Kitab and committed as PASS.
+
+# AIRO Finance Command Center - Final Kitab v2
+
+Status: final operating doctrine for AIRO Personal Finance until project completion.
+
+This document is the primary source of truth for future AI/developer sessions. Do not redesign the architecture from zero unless the user explicitly approves a breaking change.
+
+---
+
+## 0. Executive Decision
+
+AIRO Personal Finance is not a generic spreadsheet tracker. The target is:
+
+```text
+Telegram-based personal finance copilot
++ wallet/account ledger discipline
++ domain-specific financial records
++ central event index
++ clarification-first data cleaning
++ audit/reconciliation safety
++ proactive Telegram alerting
++ premium dashboard command center
+```
+
+Final decisions:
+
+```text
+Account Ledger = wallet/account movement ledger
+Domain Tabs = Credit Card, Hutang, Aset, Cicilan Rumah
+Finance Events = central event index, not a balance ledger
+Dashboard = intelligence cockpit, not source-of-truth
+Transactions = reserved/future project for PDF/bank mutation work
+Cash Ledger = transitional; delete after dependency removal
+Email Ingestion = optional passive input, default OFF
+Review Queue = fallback after clarification fails, not first destination
+```
+
+The system must continue from existing routing and workbook structure. It must not force all data into a new architecture or rebuild from zero.
+
+---
+
+## 1. Core Principles
+
+1. Preserve existing architecture unless a breaking change is explicitly approved.
+2. Clarification-first is mandatory for Telegram and future Email input.
+3. Missing category is ambiguity, not clean data.
+4. Missing critical fields must block clean write.
+5. OTP/security email must be hard-blocked before finance parsing.
+6. Data quality must affect dashboard trust status.
+7. Account Ledger records wallet movement only.
+8. Domain tabs keep domain-specific truth.
+9. Finance Events indexes cross-domain events.
+10. Dashboard must be actionable, data-trust aware, and visually disciplined.
+
+---
+
+## 2. Final Layer Architecture
+
+### Layer 1 - Input Sources
+
+```text
+Telegram Input
++ Optional Email Notification Input
++ Future Bank Mutation Input
+```
+
+#### 2.1 Telegram Input
+
+Telegram is the active/manual/interactive channel.
+
+Used for:
+
+```text
+natural-language transaction input
+clarification responses
+admin commands
+approval actions
+proactive alerts
+```
+
+#### 2.2 Email Notification Input
+
+Email is optional, passive, and default OFF.
+
+Email input is only for transaction notification email from bank/credit card issuers. It is not for PDF statement ingestion. Ambiguous email must be clarified through Telegram.
+
+Rules:
+
+```text
+email_ingestion_enabled = false by default
+read-only / dry-run first
+metadata-only storage
+no full email body storage
+no OTP/security parsing
+no OTP/security forwarding to Telegram
+no automatic ledger write until parser is proven
+```
+
+#### 2.3 Future Bank Mutation Input
+
+This is a separate future project.
+
+```text
+PDF/statement upload
+ Bank Mutations / Statement Transactions
+ separate bank mutation dashboard
+```
+
+Do not mix this with Finance Events for the current personal finance command center.
+
+---
+
+## 3. Clarification Layer
+
+Clarification is the gate before final write.
+
+Standard flow:
+
+```text
+Input
+ Parser
+ Ambiguity Detector
+ if clear: Router
+ if ambiguous: ask user via Telegram
+ user replies
+ AIRO resolves pending candidate
+ final write
+ if timeout/fails: Review Queue
+```
+
+Review Queue is fallback, not first destination.
+
+### 3.1 Mandatory Ambiguity Types
+
+```text
+missing amount
+missing source account
+missing destination account
+missing category
+transfer direction ambiguous
+cash ambiguous
+credit card ambiguous
+debt/hutang ambiguous
+asset/gold ambiguous
+cicilan rumah edge case
+email transaction type ambiguous
+email success/failed status unclear
+non-finance / too unclear safe rejection
+```
+
+### 3.2 Missing Category Policy
+
+Missing category is ambiguity.
+
+```text
+category missing
+ Telegram clarification
+ if resolved: clean category
+ if unresolved: quality_status = needs_category
+ Dashboard Data Status = Warning
+ Action Required: transaksi butuh kategori
+```
+
+Missing category transactions must not be included in final clean category breakdown.
+
+### 3.3 Critical Missing Fields
+
+Critical fields that block clean write:
+
+```text
+amount
+source account
+destination account for transfer
+event type
+success/failed status for email transaction
+CC purchase vs CC payment
+asset purchase vs expense
+debt payment vs normal expense
+```
+
+Critical missing fields must not enter clean ledger/dashboard metrics.
+
+---
+
+## 4. Email-to-Telegram Clarification Bridge
+
+Email ambiguity must not go directly to Review Queue if Telegram clarification can resolve it.
+
+Flow:
+
+```text
+Email candidate parsed
+ ambiguity detector
+ Telegram clarification message
+ pending email candidate stored
+ user replies in Telegram
+ answer merged with email candidate
+ router existing
+ Account Ledger / Domain Tab / Finance Events
+ Audit + Reconciliation
+```
+
+Example CC email clarification:
+
+```text
+AIRO menemukan email Credit Card:
+Nominal: Rp125.000
+Merchant: Tokopedia
+Kartu: ****1234
+
+Ini transaksi apa?
+
+===== LATEST FINANCE RECORDS =====
+docs/airo-finance/records/sprint7_email_clarification_bridge_design_20260527.md
+docs/airo-finance/records/sprint7_email_clarification_bridge_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7_email_clarification_bridge_readback_live_pass_20260527.md
+docs/airo-finance/records/sprint7_email_dry_run_router_design_20260527.md
+docs/airo-finance/records/sprint7_email_dry_run_router_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7_email_dry_run_router_readback_live_pass_20260527.md
+docs/airo-finance/records/sprint7_email_ingestion_log_design_20260527.md
+docs/airo-finance/records/sprint7_email_ingestion_log_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7_email_ingestion_log_readback_live_pass_20260527.md
+docs/airo-finance/records/sprint7_gmail_label_filter_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7b_email_sandbox_fixture_matrix_build_20260527.md
+docs/airo-finance/records/sprint7b_email_sandbox_fixtures_design_20260527.md
+docs/airo-finance/records/sprint7b_email_sandbox_fixtures_readback_live_pass_20260527.md
+docs/airo-finance/records/sprint7b_fixture_matrix_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7b_fixture_matrix_readback_live_pass_20260527.md
+docs/airo-finance/records/sprint7c_synthetic_candidate_simulation_build_20260527.md
+docs/airo-finance/records/sprint7c_synthetic_candidate_simulation_design_20260527.md
+docs/airo-finance/records/sprint7c_synthetic_candidate_simulation_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7d_real_email_source_config_schema_fix_20260527.md
+docs/airo-finance/records/sprint7d_real_email_source_setup_phase_closeout_20260527.md
+docs/airo-finance/records/sprint7e_one_shot_read_only_gmail_pilot_manual_approval_20260527.md
+docs/airo-finance/records/sprint7e_read_only_gmail_pilot_controlled_enable_design_20260527.md
+docs/airo-finance/records/sprint7e_read_only_gmail_pilot_design_20260527.md
+docs/airo-finance/records/sprint7e_read_only_gmail_pilot_guard_contract_20260527.md
+docs/airo-finance/records/sprint7e_read_only_gmail_pilot_status_live_pass_20260527.md
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md
+docs/airo-finance/records/task8_category_registry_debt_subcategories_20260609.md
+docs/airo-finance/records/task8_debt_cicilan_account_ledger_primary_20260609.md
+docs/airo-finance/records/task8_deprecate_finance_events_transactions_20260609.md
+docs/airo-finance/records/task8_email_multipending_patch_20260608.md
+docs/airo-finance/records/task8_readonly_cleanup_audit_20260608.md
+docs/airo-finance/records/task8_review_queue_1m_debt_correction_20260609.md
+docs/airo-finance/records/task8_subcategory_ux_patch_20260609.md
+docs/airo-finance/records/task8_transaction_time_preflight_20260608.md
+docs/airo-finance/records/task8_transfer_registry_resolver_20260609.md
+docs/airo-finance/records/task8b_registry_dropdown_closeout_20260608.md
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md
+
+===== TASK 9 / CC SETTLEMENT SEARCH =====
+docs/AIRO_FINANCE_CURRENT_STATE.md:98:15. **Task 9** — Final closeout and ready-to-use declaration
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_EXCEL_REFERENCE_SPEC_20260531.md:150:- **Total Aset** (`C13`): Sum of assets at `period_end`.
+docs/airo-finance/records/task8_transaction_time_preflight_20260608.md:31:2. `💳 Credit Card`
+docs/airo-finance/records/task8_transaction_time_preflight_20260608.md:74:- `💳 Credit Card`
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_PROMOTION_LIVE_PASS_20260531.md:49:            "💳 Credit Card",
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_PROMOTION_LIVE_PASS_20260531.md:52:            "🥇 Aset",
+docs/airo-finance/records/AIRO_FINANCE_CC_CLARIFICATION_FE_COVERAGE_LIVE_PASS_20260530.md:31:  * Wrote successfully to **Credit Card** (row 25) with description `cc beli makan tokopedia 7890 LIVE3005C_CC_TRACE`.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:1:# AIRO Finance — Task 9 Credit Card Live Regression INVALIDATED
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:6:The previous Credit Card live regression PASS record is invalid.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:15:- Credit Card source patch commit remains valid: 9297b1d
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:16:- Credit Card production deploy remains valid.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:19:- Credit Card live/readback regression is NOT proven.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:20:- Credit Card ledger-first PASS: false.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:31:Run a corrected Credit Card live regression route call with a verified executable URL / call method and fail-fast shell guards.
+docs/airo-finance/records/task9_credit_card_live_regression_invalidated_20260611_0027.md:32:Do not mark Credit Card complete until JSON response is valid and assertions are actually evaluated.
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:5:Scope: Task 7 interrupted Credit Card recovery and reconciliation closeout
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:20:Task 7 was interrupted while resolving three Credit Card rows with `status_pocket_blu = ⏳ Belum`.
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:24:- Credit Card row 17: Rp 24.500, `cc beli shopeefood nurul 24,5rb salad buah`
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:25:- Credit Card row 18: Rp 24.000, `cc beli 24000`
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:26:- Credit Card row 19: Rp 24.000, `cc beli 24000`
+docs/airo-finance/records/task7_cc_recovery_closeout_20260608.md:40:A bounded write was then executed against the Credit Card tab only.
+docs/airo-finance/records/task8_deprecate_finance_events_transactions_20260609.md:9:Owner has manually deleted the `Transactions` / `Transaction` tab from the workbook and has decided to deprecate `📌 Finance Events` as a source-of-truth. The sole source-of-truth is now `📒 Account Ledger` and the individual domain tabs (Cash Ledger, Credit Card, Hutang, Aset, etc.).
+docs/airo-finance/records/task8_deprecate_finance_events_transactions_20260609.md:28:- Writing to individual domain tabs (Credit Card, Hutang, Aset, Cash Ledger) remains fully active.
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:56:| **Slot 1 (Left T)** | `B5:D5` (Msg)<br>`E5` (Action) | `● CC jatuh tempo...`<br>`→ BAYAR` | Outstanding CC payment due within 5 days | `'💳 Credit Card'` | Due dates & unpaid status | Yes (`<= M4`) | Apps Script analyzes and writes dynamically | Show Placeholder: `"✓ Clean / No Action Required"` (Green, `#1A3D25`) | CC payment already wired but not matched | **YES** |
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:67:| **D10** | `Net worth` | Cumulative assets minus cumulative liabilities | `'🥇 Aset'`<br>`'🤝 Hutang'`<br>`'🏠 Cicilan Rumah'` | `value`, `outstanding` | Yes (`<= M4`) | `=SUMIFS('🥇 Aset'!D:D; '🥇 Aset'!A:A; "<="&M4) - (SUMIFS('🤝 Hutang'!D:D; '🤝 Hutang'!A:A; "<="&M4) + SUMIFS('🏠 Cicilan Rumah'!D:D; '🏠 Cicilan Rumah'!A:A; "<="&M4))` | `0` | Asset/debt tables missing historical valuations | **YES** |
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:71:| **C13** | `Total aset` | Total assets valuation | `'🥇 Aset'` | `value` | Yes (`<= M4`) | `=SUMIFS('🥇 Aset'!D:D; '🥇 Aset'!A:A; "<="&M4)` | `0` | Out-of-date valuation | **YES** |
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:96:| **G17:J17** | `Credit Card` | CC outstanding balance | `'💳 Credit Card'` | `balance` | Yes (`<= M4`) | Outstanding balance as of `M4` | `0` | Unmatched purchases not yet reflected | **YES** |
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:98:| **G19:J19** | `Aset / Emas` | Emas valuation | `'🥇 Aset'` | `valuation` | Yes (`<= M4`) | Cumulative gold valuation as of `M4` | `0` | Stale gold price | **YES** |
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_V2_DATA_SOURCE_BINDING_AUDIT_20260531.md:100:| **G22:J22** | `Source Note` | Description of domain updates | Static | None | No | Merged cell string: `"Source: Credit Card / Hutang / Aset / Cicilan"` | N/A | None | **YES** |
+docs/airo-finance/records/task8b_registry_dropdown_closeout_20260608.md:82:- `💳 Credit Card`, because preflight found no category/subcategory columns.
+docs/airo-finance/records/AIRO_FINANCE_PHASE6H_CONTROLLED_ACTIVATION_DECISION_V3.md:80:* **No Direct Writing**: Trigger executions must **not** write to the `Account Ledger`, `Finance Events`, or any domain tabs (`Credit Card`, `Hutang`, `Aset`, etc.) directly.
+docs/airo-finance/records/AIRO_FINANCE_RECONCILIATION_C2_DASHBOARD_TRUST_WIRING_LIVE_PASS_20260531.md:36:Credit Card
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_FINAL_CLOSEOUT_20260601.md:31:  4. `💳 Credit Card`
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_FINAL_CLOSEOUT_20260601.md:34:  7. `🥇 Aset`
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md:1:# AIRO Finance — Task 9 Credit Card Ledger-first Source Patch
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md:6:Credit Card payment source patch only.
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md:22:- Matched CC payment now requires Account Ledger write result `status="written"` and `writeVerified=true` before marking the Credit Card row paid/transferred.
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md:24:- Asset/Aset path is not changed.
+docs/airo-finance/records/task9_credit_card_ledger_first_source_patch_20260611_0012.md:30:Credit Card ledger-first is not PASS until deployed and live/readback regression passes.
+docs/airo-finance/records/task8_readonly_cleanup_audit_20260608.md:28:- `💳 Credit Card`
+docs/airo-finance/records/task8_readonly_cleanup_audit_20260608.md:38:- Credit Card header starts at row 8 and includes `status_pocket_blu`, `transferred_at`, and `notes`.
+docs/airo-finance/records/task8_readonly_cleanup_audit_20260608.md:51:- Credit Card
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:1:# AIRO Finance — Task 9 PRD Reconciliation Audit Record
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:11:This audit establishes the canonical ledger-first architecture as defined by the AIRO Finance PRD, Second Brain, and latest decisions, reconciling them against the current implementation in the Apps Script codebase.
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:24:    *   *Source:* `personas/airo-sync.md:L16` (Principle 11: "Projection Tabs: Tab domain seperti `Hutang`, `Cicilan Rumah`, `Credit Card`, and `Asset` adalah proyeksi/cerminan (mirror) yang diturunkan dari ledger utama.")
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:25:    *   *Source:* `docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L38` ("Domain Tabs = Credit Card, Hutang, Aset, Cicilan Rumah")
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:26:    *   *Source:* `state/active-context.md:L47` ("Hutang/Cicilan/Credit Card/Asset are projections.").
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:46:| **Credit Card purchase** | Write to Credit Card domain tab only (as a liability increase, not cash outflow). | Aligned. `appendCreditCardPurchase_` is called directly by `writeCreditCardSafely_` and writes to domain tab only (no Account Ledger write). | **aligned** | None. | None |
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:47:| **Credit Card payment** | Cash outflow writes Account Ledger first, then updates matching Credit Card row. | Aligned. `markCreditCardPocketBluTransfer_` writes `writeAccountLedgerMirror_` first and verifies write before setting CC row paid. | **aligned** | None. | None |
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:48:| **Asset purchase** | Asset purchase writes Account Ledger first, then updates Aset projection. | Gap. `writeAssetSafely_` writes to `Aset` domain tab first, and only then mirrors to Account Ledger via `writeAccountLedgerMirror_`. | **gap** | Domain-first instead of ledger-first. | Medium |
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:54:## 4. Credit Card Semantics Correct Framing
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:69:*   **Command Target:** `cek tagihan pending cc`
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:81:    2.  Implement the CC Pending Pocket admin command (`cek tagihan pending cc`) in the command handler.
+docs/airo-finance/records/task9_prd_reconciliation_audit_20260614.md:87:    *   Approve the proposed Asset ledger-first implementation plan.
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_PIXEL_REFERENCE_CELL_MAP_20260531.md:65:  - `A27:C34` (Card 5: Total Aset) -> Live valuation of assets.
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_PIXEL_REFERENCE_CELL_MAP_20260531.md:85:  - Items: Credit Card, Hutang, Aset / Emas, Cicilan Rumah.
+docs/airo-finance/records/AIRO_FINANCE_PHASE5_CLOSEOUT_20260531.md:11:1. **Phase 5A (Alert Engine Core & Safe Validation)**: Core alert generation logic for Wallet Balance, Credit Card limits, and Savings targets, running via a safe trigger helper with zero Telegram sends.
+docs/airo-finance/records/task8_review_queue_1m_debt_correction_20260609.md:34:The transaction must not be approved until the current ledger-first source patch is deployed and verified.
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_READBACK_INTEGRITY_GUARD_LIVE_PASS_20260530.md:21:* **Collision Detection Zones**: Implemented range checking to verify that Net Worth and Credit Card panels are safely located in `I16:N24` and `I25:N34` (`net_worth_panel_safe` / `cc_panel_safe`), while ensuring no stale panels exist in the legacy areas `B16:G24` and `B25:G34` (`old_net_worth_collision_clean` / `old_cc_collision_clean`).
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_READBACK_INTEGRITY_GUARD_LIVE_PASS_20260530.md:26:* Narrows down the legacy collision scan from broad ranges (`B16:G24` and `B25:G34`) to specific header cells (`B16:G16` for Net Worth, `B25:G25` for Credit Card) looking specifically for the exact panel title headers (`NET WORTH & HOME EQUITY` and `CREDIT CARD [—–-] TOKOPEDIA CC`). This prevents false-positive warnings triggered by generic finance keywords (e.g., "Credit Card") in official layout texts.
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_READBACK_INTEGRITY_GUARD_LIVE_PASS_20260530.md:83:- Credit Card safe (I25:N34): OK
+docs/airo-finance/records/task8_debt_cicilan_account_ledger_primary_20260609.md:27:- Credit Card flow unchanged.
+docs/airo-finance/records/task8_debt_cicilan_account_ledger_primary_20260609.md:46:- Credit Card ledger-first conversion
+docs/airo-finance/records/task8_debt_cicilan_account_ledger_primary_20260609.md:47:- Asset ledger-first conversion
+docs/airo-finance/records/task8_debt_cicilan_account_ledger_primary_20260609.md:48:- Dashboard migration
+docs/airo-finance/records/AIRO_FINANCE_DASHBOARD_LAYOUT_COLLISION_GUARD_LIVE_PASS_20260530.md:16:   * **Credit Card Panel**: Shifted from `B25:G34` to `I25:N34`. Text references and formatting boundaries were updated.
+docs/airo-finance/records/AIRO_FINANCE_RECONCILIATION_C1_QUALITY_METRICS_LIVE_PASS_20260530.md:15:* **Credit Card preparedness**: Scans the `💳 Credit Card` tab to identify unmatched pocket rows (where `status_pocket_blu` is blank or `⏳ Belum`), using dynamic column indexing via `ccColMap_`.
+docs/airo-finance/records/AIRO_FINANCE_RECONCILIATION_C1_QUALITY_METRICS_LIVE_PASS_20260530.md:54:Credit Card
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:1:# AIRO Finance — Task 9 Credit Card "cc sudah <nomor>" Numbered Settlement Workflow PRD Amendment
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:11:The owner has approved a streamlined Credit Card settlement workflow for daily Telegram use to avoid typing long commands. Instead of typing `bayar tagihan cc ...`, the owner will interact with AIRO using list-based item numbers.
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:19:1.  **Daftar Pending CC (`cek tagihan pending cc`)**:
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:20:    *   Command read-only untuk menampilkan item Credit Card yang `status_pocket_blu` masih pending/belum disiapkan.
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:24:2.  **Penyelesaian Tagihan (`cc sudah <nomor>`)**:
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:25:    *   Nomor pada command `cc sudah <nomor>` adalah nomor urut list (list index) dari output `cek tagihan pending cc` terakhir, **bukan nomor baris spreadsheet**.
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:34:    *   Jika command `cc sudah` dikirim tanpa mapping aktif, AIRO menolak dengan pesan meminta owner menjalankan `cek tagihan pending cc` kembali.
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:43:    *   Hanya jika terverifikasi, update baris Credit Card:
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:50:    *   Setelah settlement berhasil, jalankan refresh header Credit Card agar `PERIODE BERJALAN / UNBILLED` dan total pending tidak stale di spreadsheet.
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:60:cek tagihan pending cc
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:61:cc sudah 1
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:62:cc sudah 2
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:78:cc sudah <nomor>
+docs/airo-finance/records/task9_cc_sudah_number_workflow_prd_amendment_20260614.md:85:*   **No CC Purchase Ledger Outflow**: Pembelian kartu kredit (`cc_purchase`) tetap domain-only di tab Credit Card (bukan wallet outflow).
+
+===== SOURCE FILE MARKERS =====
+--- apps-script-live/AIRO_Finance_Multitab_Final_v1.js ---
+59ef6695024bf54333abdc9569dffac5f0f4b23d299abf8720156bb61ace6cf0  apps-script-live/AIRO_Finance_Multitab_Final_v1.js
+22:    aset: '🥇 Aset',
+362:function normalizeCreditCardClarificationAnswer_(text) {
+373:function canAskCreditCardAmbiguousClarification_(parsed, rawText) {
+382:  if (isCreditCardPurchaseText_(text)) return false;
+393:function buildCreditCardAmbiguousClarificationMessage_(parsed) {
+409:  let choice = normalizeCreditCardClarificationAnswer_(rawText);
+527:    'Saya tangkap ada transaksi Aset/Emas' +
+967:        'Saya belum mencatat transaksi Aset/Emas ini.'
+2343:    if (canAskCreditCardAmbiguousClarification_(parsed, effectiveRawText)) {
+2354:      sendTelegram_(chatId, buildCreditCardAmbiguousClarificationMessage_(parsed));
+2532:    const clearCreditCardPaymentRoute =
+2533:      isCreditCardPaymentText_(effectiveRawText) &&
+2539:    const finalTab = (parsed.needsReview && !clearCreditCardPaymentRoute)
+3512:    return writeCreditCardSafely_(ss, parsed, rawText, common);
+3520:    return writeAssetSafely_(ss, parsed, rawText, common);
+3791:function writeAssetSafely_(ss, parsed, rawText, common) {
+3808:      category: parsed.category || 'Aset',
+4319:    isCreditCardPaymentText_(text)
+4499:  if (typeof isCreditCardPaymentText_ === 'function' && isCreditCardPaymentText_(t)) return 'Blu';
+4500:  if (typeof isCreditCardPurchaseText_ === 'function' && isCreditCardPurchaseText_(t)) return 'Credit Card';
+4612:  if (isCreditCardPaymentText_(t)) return 'cc_payment';
+4613:  if (isCreditCardPurchaseText_(t)) return 'cc_purchase';
+5416: * Sync current gold price from Script Properties to the Aset sheet.
+5448: * 3. Write price to Aset!F12
+5489:    writes_to: '🥇 Aset!F12'
+6018:    getSheetLoose_(ss, 'Aset');
+6032:  const helper = setupAsetNetWorthHelpers_(asset);
+6042:function setupAsetNetWorthHelpers_(asset) {
+6076:  // Hide helper columns if possible so Aset stays clean.
+6104:function setupCreditCardTabCycleHeader_() {
+6315:function setupDashboardCreditCardCyclePanel() {
+6500:  dashboard.getRange('I17:J17').merge().setValue('Total Aset Likuid');
+6501:  dashboard.getRange('K17').setFormula(`=IFERROR(((SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Bensin"))-(SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Bensin")))+'🥇 Aset'!B17+'🥇 Aset'!B18;0)`);
+6504:  dashboard.getRange('K18').setFormula(`=IFERROR('🥇 Aset'!F18;0)`);
+6510:  dashboard.getRange('K20').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6517:  dashboard.getRange('N17').setFormula(`=IFERROR('🥇 Aset'!AB17;0)`);
+6520:  dashboard.getRange('N18').setFormula(`=IFERROR('🥇 Aset'!AB18;0)`);
+6523:  dashboard.getRange('N19').setFormula(`=IFERROR('🥇 Aset'!AB19;0)`);
+6526:  dashboard.getRange('N20').setFormula(`=IFERROR('🥇 Aset'!AB20;0)`);
+6529:  dashboard.getRange('N21').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6602:    getSheetLoose_(ss, 'Aset');
+6610:  // Remove visible duplicate panels from Aset only.
+9517:  setupDashboardCreditCardCyclePanel();
+9636:    '🏦 Aset',
+9681:    aset_emas: '🏦 Aset',
+10524:    '🥇 Aset',
+10795:    const result = fixCreditCardDateMerchantFromRawText();
+10820:    const result = moveCreditCardStatusAfterAmount();
+11081:    const result = setupCreditCardTabCycleHeader_();
+11104:    const result = setupDashboardCreditCardCyclePanel();
+11852:    getSheetLoose_(ss, 'Aset');
+11925: * Hide legacy net worth block in 🥇 Aset.
+11928:function hideLegacyAsetNetWorthPanel() {
+11932:    getSheetLoose_(ss, 'Aset');
+11946:    note: 'Legacy Aset Net Worth hidden. Use Dashboard Net Worth panel as source of truth.'
+11950:function showLegacyAsetNetWorthPanel() {
+11954:    getSheetLoose_(ss, 'Aset');
+12081:function isCreditCardPaymentText_(text) {
+12193:function isCreditCardPurchaseText_(text) {
+12196:  if (isCreditCardPaymentText_(t)) return false;
+12197:  if (isCreditCardRefundText_(t)) return false;
+12206:function isCreditCardRefundText_(text) {
+12250:function writeCreditCardSafely_(ss, parsed, rawText, common) {
+12274:  if (isCreditCardRefundText_(text)) {
+12283:  if (isCreditCardPaymentText_(text)) {
+12284:    return markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common);
+12287:  const purchaseResult = appendCreditCardPurchase_(ss, sheet, parsed, rawText, common);
+12532:function appendCreditCardPurchase_(ss, sheet, parsed, rawText, common) {
+12586:function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+13370:function fixCreditCardStatusDropdownValues() {
+13447:function moveCreditCardStatusAfterAmount() {
+13478:    fixCreditCardStatusDropdownValues();
+13526:  fixCreditCardStatusDropdownValues();
+13600:function fixCreditCardDateMerchantFromRawText() {
+17320:    if (parsed.text !== "cek tagihan pending cc") {
+17438:      lines.push("cc sudah <nomor>");
+17449:      command: "cek tagihan pending cc",
+17473:      command: "cek tagihan pending cc",
+17507:      sendTelegram_(chatId, "Nomor pending CC belum terdaftar atau sudah kedaluwarsa.\n\nJalankan `cek tagihan pending cc` terlebih dahulu.");
+17516:      sendTelegram_(chatId, '⚠️ Mapping CC sudah tidak valid karena target workbook berubah. Jalankan ulang: cek tagihan pending cc');
+17520:        command: 'cc sudah',
+17544:        command: 'cc sudah',
+17761:      command: "cc sudah " + index,
+17787:      command: "cc sudah command",
+24165:      return !!normalizeCreditCardClarificationAnswer_(text);
+24401:      domain: "Aset"
+24406:      domain: "Aset"
+25537:  newV2.getRange("C13").setFormula(`=IFERROR(E10 + '🥇 Aset'!B17 + '🥇 Aset'!B18 + '🥇 Aset'!AB19; 0)`); // Total aset
+25540:  newV2.getRange("E13").setFormula(`=IFERROR('🥇 Aset'!F18 + '🥇 Aset'!AB20; 0)`); // Total hutang
+25545:  // Cicilan rumah progress bar: dynamic Paid Principal % based on Aset values
+25546:  newV2.getRange("I13").setFormula(`=IFERROR(ROUND(100 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19))) & "%  " & REPT("█"; ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))) & REPT("░"; 10 - ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))); "0%  ░░░░░░░░░░")`); // Cicilan rumah
+25594:  newV2.getRange("I18").setFormula(`=IFERROR('🥇 Aset'!F18; 0)`);
+25598:  newV2.getRange("I19").setFormula(`=IFERROR('🥇 Aset'!B17 + '🥇 Aset'!B18; 0)`);
+25602:  newV2.getRange("I20").setFormula(`=IFERROR('🥇 Aset'!AB20; 0)`);
+25764:  card6.setValue("INFO: Aset emas dinilai berdasarkan update pasar Antam logam mulia terbaru")
+25971:    ['Total Aset Likuid', '=IFERROR(((SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Bensin"))-(SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Bensin")))+\'🥇 Aset\'!B17+\'🥇 Aset\'!B18;0)'],
+25972:    ['Hutang Non-Rumah', '=IFERROR(\'🥇 Aset\'!F18;0)'],
+25974:    ['Ekuitas Rumah', '=IFERROR(\'🥇 Aset\'!AB21;0)'],
+26228:    '🥇 Aset',
+26902:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27149:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27160:    'Aset': [4, 32, 33, 34, 35, 36],
+27279:        if (label === 'Aset' && rowNum === 4) {
+27281:            suspiciousRows.push('Aset row 4: no explicit smoke/test tag found. Row skipped as suspicious. Content: ' + rowStr);
+27474:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Dana Darurat', 'dana darurat', '10', 'Savings', 'FALSE', ''],
+27475:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Transfer Tabungan', 'transfer tabungan', '20', 'Savings', 'FALSE', ''],
+27476:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Sinking Fund', 'sinking fund', '30', 'Savings', 'FALSE', ''],
+27477:      ['TRUE', 'Aset', 'investment', 'Investment', 'Emas', 'emas,gold', '10', 'Investment', 'FALSE', ''],
+27478:      ['TRUE', 'Aset', 'investment', 'Investment', 'Saham', 'saham,stock', '20', 'Investment', 'FALSE', ''],
+27479:      ['TRUE', 'Aset', 'investment', 'Investment', 'Reksadana', 'reksadana,mutual fund', '30', 'Investment', 'FALSE', ''],
+--- apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js ---
+07d342398c6c8fadb58f227c841d47023efbd799cd9fe530fe965c87978c3be9  apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js
+22:    aset: '🥇 Aset',
+362:function normalizeCreditCardClarificationAnswer_(text) {
+373:function canAskCreditCardAmbiguousClarification_(parsed, rawText) {
+382:  if (isCreditCardPurchaseText_(text)) return false;
+393:function buildCreditCardAmbiguousClarificationMessage_(parsed) {
+409:  let choice = normalizeCreditCardClarificationAnswer_(rawText);
+527:    'Saya tangkap ada transaksi Aset/Emas' +
+967:        'Saya belum mencatat transaksi Aset/Emas ini.'
+2343:    if (canAskCreditCardAmbiguousClarification_(parsed, effectiveRawText)) {
+2354:      sendTelegram_(chatId, buildCreditCardAmbiguousClarificationMessage_(parsed));
+2532:    const clearCreditCardPaymentRoute =
+2533:      isCreditCardPaymentText_(effectiveRawText) &&
+2539:    const finalTab = (parsed.needsReview && !clearCreditCardPaymentRoute)
+3512:    return writeCreditCardSafely_(ss, parsed, rawText, common);
+3520:    return writeAssetSafely_(ss, parsed, rawText, common);
+3791:function writeAssetSafely_(ss, parsed, rawText, common) {
+3808:      category: parsed.category || 'Aset',
+4319:    isCreditCardPaymentText_(text)
+4499:  if (typeof isCreditCardPaymentText_ === 'function' && isCreditCardPaymentText_(t)) return 'Blu';
+4500:  if (typeof isCreditCardPurchaseText_ === 'function' && isCreditCardPurchaseText_(t)) return 'Credit Card';
+4612:  if (isCreditCardPaymentText_(t)) return 'cc_payment';
+4613:  if (isCreditCardPurchaseText_(t)) return 'cc_purchase';
+5416: * Sync current gold price from Script Properties to the Aset sheet.
+5448: * 3. Write price to Aset!F12
+5489:    writes_to: '🥇 Aset!F12'
+6018:    getSheetLoose_(ss, 'Aset');
+6032:  const helper = setupAsetNetWorthHelpers_(asset);
+6042:function setupAsetNetWorthHelpers_(asset) {
+6076:  // Hide helper columns if possible so Aset stays clean.
+6104:function setupCreditCardTabCycleHeader_() {
+6315:function setupDashboardCreditCardCyclePanel() {
+6500:  dashboard.getRange('I17:J17').merge().setValue('Total Aset Likuid');
+6501:  dashboard.getRange('K17').setFormula(`=IFERROR(((SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Bensin"))-(SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Bensin")))+'🥇 Aset'!B17+'🥇 Aset'!B18;0)`);
+6504:  dashboard.getRange('K18').setFormula(`=IFERROR('🥇 Aset'!F18;0)`);
+6510:  dashboard.getRange('K20').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6517:  dashboard.getRange('N17').setFormula(`=IFERROR('🥇 Aset'!AB17;0)`);
+6520:  dashboard.getRange('N18').setFormula(`=IFERROR('🥇 Aset'!AB18;0)`);
+6523:  dashboard.getRange('N19').setFormula(`=IFERROR('🥇 Aset'!AB19;0)`);
+6526:  dashboard.getRange('N20').setFormula(`=IFERROR('🥇 Aset'!AB20;0)`);
+6529:  dashboard.getRange('N21').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6602:    getSheetLoose_(ss, 'Aset');
+6610:  // Remove visible duplicate panels from Aset only.
+9517:  setupDashboardCreditCardCyclePanel();
+9636:    '🏦 Aset',
+9681:    aset_emas: '🏦 Aset',
+10524:    '🥇 Aset',
+10795:    const result = fixCreditCardDateMerchantFromRawText();
+10820:    const result = moveCreditCardStatusAfterAmount();
+11081:    const result = setupCreditCardTabCycleHeader_();
+11104:    const result = setupDashboardCreditCardCyclePanel();
+11852:    getSheetLoose_(ss, 'Aset');
+11925: * Hide legacy net worth block in 🥇 Aset.
+11928:function hideLegacyAsetNetWorthPanel() {
+11932:    getSheetLoose_(ss, 'Aset');
+11946:    note: 'Legacy Aset Net Worth hidden. Use Dashboard Net Worth panel as source of truth.'
+11950:function showLegacyAsetNetWorthPanel() {
+11954:    getSheetLoose_(ss, 'Aset');
+12081:function isCreditCardPaymentText_(text) {
+12193:function isCreditCardPurchaseText_(text) {
+12196:  if (isCreditCardPaymentText_(t)) return false;
+12197:  if (isCreditCardRefundText_(t)) return false;
+12206:function isCreditCardRefundText_(text) {
+12250:function writeCreditCardSafely_(ss, parsed, rawText, common) {
+12274:  if (isCreditCardRefundText_(text)) {
+12283:  if (isCreditCardPaymentText_(text)) {
+12284:    return markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common);
+12287:  const purchaseResult = appendCreditCardPurchase_(ss, sheet, parsed, rawText, common);
+12532:function appendCreditCardPurchase_(ss, sheet, parsed, rawText, common) {
+12586:function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+13370:function fixCreditCardStatusDropdownValues() {
+13447:function moveCreditCardStatusAfterAmount() {
+13478:    fixCreditCardStatusDropdownValues();
+13526:  fixCreditCardStatusDropdownValues();
+13600:function fixCreditCardDateMerchantFromRawText() {
+17466:    if (parsed.text !== "cek tagihan pending cc") {
+17584:      lines.push("cc sudah <nomor>");
+17595:      command: "cek tagihan pending cc",
+17619:      command: "cek tagihan pending cc",
+17653:      sendTelegram_(chatId, "Nomor pending CC belum terdaftar atau sudah kedaluwarsa.\n\nJalankan `cek tagihan pending cc` terlebih dahulu.");
+17662:      sendTelegram_(chatId, '⚠️ Mapping CC sudah tidak valid karena target workbook berubah. Jalankan ulang: cek tagihan pending cc');
+17666:        command: 'cc sudah',
+17690:        command: 'cc sudah',
+17907:      command: "cc sudah " + index,
+17933:      command: "cc sudah command",
+24311:      return !!normalizeCreditCardClarificationAnswer_(text);
+24547:      domain: "Aset"
+24552:      domain: "Aset"
+25683:  newV2.getRange("C13").setFormula(`=IFERROR(E10 + '🥇 Aset'!B17 + '🥇 Aset'!B18 + '🥇 Aset'!AB19; 0)`); // Total aset
+25686:  newV2.getRange("E13").setFormula(`=IFERROR('🥇 Aset'!F18 + '🥇 Aset'!AB20; 0)`); // Total hutang
+25691:  // Cicilan rumah progress bar: dynamic Paid Principal % based on Aset values
+25692:  newV2.getRange("I13").setFormula(`=IFERROR(ROUND(100 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19))) & "%  " & REPT("█"; ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))) & REPT("░"; 10 - ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))); "0%  ░░░░░░░░░░")`); // Cicilan rumah
+25740:  newV2.getRange("I18").setFormula(`=IFERROR('🥇 Aset'!F18; 0)`);
+25744:  newV2.getRange("I19").setFormula(`=IFERROR('🥇 Aset'!B17 + '🥇 Aset'!B18; 0)`);
+25748:  newV2.getRange("I20").setFormula(`=IFERROR('🥇 Aset'!AB20; 0)`);
+25910:  card6.setValue("INFO: Aset emas dinilai berdasarkan update pasar Antam logam mulia terbaru")
+26117:    ['Total Aset Likuid', '=IFERROR(((SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Bensin"))-(SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Bensin")))+\'🥇 Aset\'!B17+\'🥇 Aset\'!B18;0)'],
+26118:    ['Hutang Non-Rumah', '=IFERROR(\'🥇 Aset\'!F18;0)'],
+26120:    ['Ekuitas Rumah', '=IFERROR(\'🥇 Aset\'!AB21;0)'],
+26374:    '🥇 Aset',
+27048:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27295:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27306:    'Aset': [4, 32, 33, 34, 35, 36],
+27425:        if (label === 'Aset' && rowNum === 4) {
+27427:            suspiciousRows.push('Aset row 4: no explicit smoke/test tag found. Row skipped as suspicious. Content: ' + rowStr);
+27620:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Dana Darurat', 'dana darurat', '10', 'Savings', 'FALSE', ''],
+27621:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Transfer Tabungan', 'transfer tabungan', '20', 'Savings', 'FALSE', ''],
+27622:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Sinking Fund', 'sinking fund', '30', 'Savings', 'FALSE', ''],
+27623:      ['TRUE', 'Aset', 'investment', 'Investment', 'Emas', 'emas,gold', '10', 'Investment', 'FALSE', ''],
+27624:      ['TRUE', 'Aset', 'investment', 'Investment', 'Saham', 'saham,stock', '20', 'Investment', 'FALSE', ''],
+27625:      ['TRUE', 'Aset', 'investment', 'Investment', 'Reksadana', 'reksadana,mutual fund', '30', 'Investment', 'FALSE', ''],
+--- scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs ---
+07d342398c6c8fadb58f227c841d47023efbd799cd9fe530fe965c87978c3be9  scripts/personal-workflow/apps-script/airo_finance_multitab_final_v1.gs
+22:    aset: '🥇 Aset',
+362:function normalizeCreditCardClarificationAnswer_(text) {
+373:function canAskCreditCardAmbiguousClarification_(parsed, rawText) {
+382:  if (isCreditCardPurchaseText_(text)) return false;
+393:function buildCreditCardAmbiguousClarificationMessage_(parsed) {
+409:  let choice = normalizeCreditCardClarificationAnswer_(rawText);
+527:    'Saya tangkap ada transaksi Aset/Emas' +
+967:        'Saya belum mencatat transaksi Aset/Emas ini.'
+2343:    if (canAskCreditCardAmbiguousClarification_(parsed, effectiveRawText)) {
+2354:      sendTelegram_(chatId, buildCreditCardAmbiguousClarificationMessage_(parsed));
+2532:    const clearCreditCardPaymentRoute =
+2533:      isCreditCardPaymentText_(effectiveRawText) &&
+2539:    const finalTab = (parsed.needsReview && !clearCreditCardPaymentRoute)
+3512:    return writeCreditCardSafely_(ss, parsed, rawText, common);
+3520:    return writeAssetSafely_(ss, parsed, rawText, common);
+3791:function writeAssetSafely_(ss, parsed, rawText, common) {
+3808:      category: parsed.category || 'Aset',
+4319:    isCreditCardPaymentText_(text)
+4499:  if (typeof isCreditCardPaymentText_ === 'function' && isCreditCardPaymentText_(t)) return 'Blu';
+4500:  if (typeof isCreditCardPurchaseText_ === 'function' && isCreditCardPurchaseText_(t)) return 'Credit Card';
+4612:  if (isCreditCardPaymentText_(t)) return 'cc_payment';
+4613:  if (isCreditCardPurchaseText_(t)) return 'cc_purchase';
+5416: * Sync current gold price from Script Properties to the Aset sheet.
+5448: * 3. Write price to Aset!F12
+5489:    writes_to: '🥇 Aset!F12'
+6018:    getSheetLoose_(ss, 'Aset');
+6032:  const helper = setupAsetNetWorthHelpers_(asset);
+6042:function setupAsetNetWorthHelpers_(asset) {
+6076:  // Hide helper columns if possible so Aset stays clean.
+6104:function setupCreditCardTabCycleHeader_() {
+6315:function setupDashboardCreditCardCyclePanel() {
+6500:  dashboard.getRange('I17:J17').merge().setValue('Total Aset Likuid');
+6501:  dashboard.getRange('K17').setFormula(`=IFERROR(((SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!D:D;'📒 Account Ledger'!C:C;"Cash Bensin"))-(SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Umum")+SUMIFS('📒 Account Ledger'!E:E;'📒 Account Ledger'!C:C;"Cash Bensin")))+'🥇 Aset'!B17+'🥇 Aset'!B18;0)`);
+6504:  dashboard.getRange('K18').setFormula(`=IFERROR('🥇 Aset'!F18;0)`);
+6510:  dashboard.getRange('K20').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6517:  dashboard.getRange('N17').setFormula(`=IFERROR('🥇 Aset'!AB17;0)`);
+6520:  dashboard.getRange('N18').setFormula(`=IFERROR('🥇 Aset'!AB18;0)`);
+6523:  dashboard.getRange('N19').setFormula(`=IFERROR('🥇 Aset'!AB19;0)`);
+6526:  dashboard.getRange('N20').setFormula(`=IFERROR('🥇 Aset'!AB20;0)`);
+6529:  dashboard.getRange('N21').setFormula(`=IFERROR('🥇 Aset'!AB21;0)`);
+6602:    getSheetLoose_(ss, 'Aset');
+6610:  // Remove visible duplicate panels from Aset only.
+9517:  setupDashboardCreditCardCyclePanel();
+9636:    '🏦 Aset',
+9681:    aset_emas: '🏦 Aset',
+10524:    '🥇 Aset',
+10795:    const result = fixCreditCardDateMerchantFromRawText();
+10820:    const result = moveCreditCardStatusAfterAmount();
+11081:    const result = setupCreditCardTabCycleHeader_();
+11104:    const result = setupDashboardCreditCardCyclePanel();
+11852:    getSheetLoose_(ss, 'Aset');
+11925: * Hide legacy net worth block in 🥇 Aset.
+11928:function hideLegacyAsetNetWorthPanel() {
+11932:    getSheetLoose_(ss, 'Aset');
+11946:    note: 'Legacy Aset Net Worth hidden. Use Dashboard Net Worth panel as source of truth.'
+11950:function showLegacyAsetNetWorthPanel() {
+11954:    getSheetLoose_(ss, 'Aset');
+12081:function isCreditCardPaymentText_(text) {
+12193:function isCreditCardPurchaseText_(text) {
+12196:  if (isCreditCardPaymentText_(t)) return false;
+12197:  if (isCreditCardRefundText_(t)) return false;
+12206:function isCreditCardRefundText_(text) {
+12250:function writeCreditCardSafely_(ss, parsed, rawText, common) {
+12274:  if (isCreditCardRefundText_(text)) {
+12283:  if (isCreditCardPaymentText_(text)) {
+12284:    return markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common);
+12287:  const purchaseResult = appendCreditCardPurchase_(ss, sheet, parsed, rawText, common);
+12532:function appendCreditCardPurchase_(ss, sheet, parsed, rawText, common) {
+12586:function markCreditCardPocketBluTransfer_(ss, sheet, parsed, rawText, common) {
+13370:function fixCreditCardStatusDropdownValues() {
+13447:function moveCreditCardStatusAfterAmount() {
+13478:    fixCreditCardStatusDropdownValues();
+13526:  fixCreditCardStatusDropdownValues();
+13600:function fixCreditCardDateMerchantFromRawText() {
+17466:    if (parsed.text !== "cek tagihan pending cc") {
+17584:      lines.push("cc sudah <nomor>");
+17595:      command: "cek tagihan pending cc",
+17619:      command: "cek tagihan pending cc",
+17653:      sendTelegram_(chatId, "Nomor pending CC belum terdaftar atau sudah kedaluwarsa.\n\nJalankan `cek tagihan pending cc` terlebih dahulu.");
+17662:      sendTelegram_(chatId, '⚠️ Mapping CC sudah tidak valid karena target workbook berubah. Jalankan ulang: cek tagihan pending cc');
+17666:        command: 'cc sudah',
+17690:        command: 'cc sudah',
+17907:      command: "cc sudah " + index,
+17933:      command: "cc sudah command",
+24311:      return !!normalizeCreditCardClarificationAnswer_(text);
+24547:      domain: "Aset"
+24552:      domain: "Aset"
+25683:  newV2.getRange("C13").setFormula(`=IFERROR(E10 + '🥇 Aset'!B17 + '🥇 Aset'!B18 + '🥇 Aset'!AB19; 0)`); // Total aset
+25686:  newV2.getRange("E13").setFormula(`=IFERROR('🥇 Aset'!F18 + '🥇 Aset'!AB20; 0)`); // Total hutang
+25691:  // Cicilan rumah progress bar: dynamic Paid Principal % based on Aset values
+25692:  newV2.getRange("I13").setFormula(`=IFERROR(ROUND(100 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19))) & "%  " & REPT("█"; ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))) & REPT("░"; 10 - ROUND(10 * (1 - ('🥇 Aset'!AB20 / '🥇 Aset'!AB19)))); "0%  ░░░░░░░░░░")`); // Cicilan rumah
+25740:  newV2.getRange("I18").setFormula(`=IFERROR('🥇 Aset'!F18; 0)`);
+25744:  newV2.getRange("I19").setFormula(`=IFERROR('🥇 Aset'!B17 + '🥇 Aset'!B18; 0)`);
+25748:  newV2.getRange("I20").setFormula(`=IFERROR('🥇 Aset'!AB20; 0)`);
+25910:  card6.setValue("INFO: Aset emas dinilai berdasarkan update pasar Antam logam mulia terbaru")
+26117:    ['Total Aset Likuid', '=IFERROR(((SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!D:D;\'📒 Account Ledger\'!C:C;"Cash Bensin"))-(SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Umum")+SUMIFS(\'📒 Account Ledger\'!E:E;\'📒 Account Ledger\'!C:C;"Cash Bensin")))+\'🥇 Aset\'!B17+\'🥇 Aset\'!B18;0)'],
+26118:    ['Hutang Non-Rumah', '=IFERROR(\'🥇 Aset\'!F18;0)'],
+26120:    ['Ekuitas Rumah', '=IFERROR(\'🥇 Aset\'!AB21;0)'],
+26374:    '🥇 Aset',
+27048:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27295:    { label: 'Aset',            emoji: '\uD83E\uDD47', configured: '\uD83E\uDD47 Aset' },
+27306:    'Aset': [4, 32, 33, 34, 35, 36],
+27425:        if (label === 'Aset' && rowNum === 4) {
+27427:            suspiciousRows.push('Aset row 4: no explicit smoke/test tag found. Row skipped as suspicious. Content: ' + rowStr);
+27620:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Dana Darurat', 'dana darurat', '10', 'Savings', 'FALSE', ''],
+27621:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Transfer Tabungan', 'transfer tabungan', '20', 'Savings', 'FALSE', ''],
+27622:      ['TRUE', 'Aset', 'saving_allocation', 'Savings', 'Sinking Fund', 'sinking fund', '30', 'Savings', 'FALSE', ''],
+27623:      ['TRUE', 'Aset', 'investment', 'Investment', 'Emas', 'emas,gold', '10', 'Investment', 'FALSE', ''],
+27624:      ['TRUE', 'Aset', 'investment', 'Investment', 'Saham', 'saham,stock', '20', 'Investment', 'FALSE', ''],
+27625:      ['TRUE', 'Aset', 'investment', 'Investment', 'Reksadana', 'reksadana,mutual fund', '30', 'Investment', 'FALSE', ''],
+===== CLASP DEPLOYMENTS IF AVAILABLE =====
+CLASP_NOT_FOUND
+
+===== PREFLIGHT END =====

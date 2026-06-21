@@ -1,0 +1,9 @@
+{
+  "note": "Template only. Do not put real secrets in this repo.",
+  "local_credentials_path": "~/.local/share/airo-personal-workflow/google/credentials.local.json",
+  "local_token_path": "~/.local/share/airo-personal-workflow/google/token.local.json",
+  "spreadsheet_id_env": "AIRO_GOOGLE_SHEETS_SPREADSHEET_ID",
+  "sheets_range_env": "AIRO_GOOGLE_SHEETS_RANGE",
+  "default_range": "Airo!A:D",
+  "required_scope": "https://www.googleapis.com/auth/spreadsheets"
+}

@@ -1,0 +1,170 @@
+{
+  "actions": {
+    "BUY": 250,
+    "HOLD": 143,
+    "SELL": 107
+  },
+  "confidence_buckets": {
+    "0.00-0.29": 36,
+    "0.30-0.59": 107,
+    "0.60-0.79": 357
+  },
+  "events": {
+    "decision": 36,
+    "multi_agent_decision": 464
+  },
+  "generated_at": "2026-05-03T15:21:12.487647+00:00",
+  "latest_rows": [
+    {
+      "action": "HOLD",
+      "confidence": 0.48,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.904318+00:00",
+      "phase": "7C",
+      "risk_status": "REJECTED"
+    },
+    {
+      "action": "BUY",
+      "confidence": 0.7447499999999998,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.904965+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "BUY",
+      "confidence": 0.7447499999999998,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.905754+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "SELL",
+      "confidence": 0.7237499999999999,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.906291+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "HOLD",
+      "confidence": 0.48,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.906820+00:00",
+      "phase": "7C",
+      "risk_status": "REJECTED"
+    },
+    {
+      "action": "BUY",
+      "confidence": 0.7447499999999998,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.907421+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "BUY",
+      "confidence": 0.7447499999999998,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.908181+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "SELL",
+      "confidence": 0.7237499999999999,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.908718+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    },
+    {
+      "action": "HOLD",
+      "confidence": 0.48,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.909299+00:00",
+      "phase": "7C",
+      "risk_status": "REJECTED"
+    },
+    {
+      "action": "BUY",
+      "confidence": 0.7447499999999998,
+      "event": "multi_agent_decision",
+      "journaled_at": "2026-05-03T15:21:11.909851+00:00",
+      "phase": "7C",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY"
+    }
+  ],
+  "limit": 500,
+  "metrics_snapshot": {
+    "journal": {
+      "actions": {
+        "BUY": 250,
+        "HOLD": 143,
+        "SELL": 107
+      },
+      "approved_paper_ratio": 0.714,
+      "blocked_ratio": 0.0,
+      "buy_ratio": 0.5,
+      "events": {
+        "decision": 36,
+        "multi_agent_decision": 464
+      },
+      "hold_ratio": 0.286,
+      "phases": {
+        "7C": 464,
+        "7C_COMPAT": 36
+      },
+      "rejected_ratio": 0.286,
+      "risk_statuses": {
+        "APPROVED_FOR_PAPER_ONLY": 357,
+        "REJECTED": 143
+      },
+      "rows": 500,
+      "sell_ratio": 0.214
+    },
+    "latest_signal": {
+      "action": "BUY",
+      "age_seconds": 0.578,
+      "confidence": 0.7447499999999998,
+      "exists": true,
+      "expired": false,
+      "live_trading_locked": true,
+      "mode": "PAPER_ONLY",
+      "risk_status": "APPROVED_FOR_PAPER_ONLY",
+      "safe_for_phase8": true,
+      "schema_errors": [],
+      "signal_id": "2f17d798-43de-41cf-befe-d58e3fb6c868",
+      "symbol": "BTC/USDT",
+      "timeframe": "1h",
+      "valid_schema": true
+    },
+    "live_trading_locked": true,
+    "mode": "PAPER_ONLY",
+    "safety_ok": true
+  },
+  "phases": {
+    "7C": 464,
+    "7C_COMPAT": 36
+  },
+  "rates_pct": {
+    "approved_paper_pct": 71.4,
+    "blocked_pct": 0.0,
+    "buy_pct": 50.0,
+    "hold_pct": 28.6,
+    "rejected_pct": 28.6,
+    "sell_pct": 21.4
+  },
+  "risk_statuses": {
+    "APPROVED_FOR_PAPER_ONLY": 357,
+    "REJECTED": 143
+  },
+  "symbols": {
+    "BTC/USDT": 500
+  },
+  "timeframes": {
+    "1h": 500
+  },
+  "total_rows": 500
+}

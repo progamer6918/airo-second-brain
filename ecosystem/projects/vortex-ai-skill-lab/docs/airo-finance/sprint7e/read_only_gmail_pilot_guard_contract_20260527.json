@@ -1,0 +1,139 @@
+{
+  "schema": "airo_sprint7e_read_only_gmail_pilot_guard_contract_v1",
+  "date": "2026-05-27",
+  "mode": "guard_contract_only",
+  "deploy_performed": false,
+  "email_ingestion_enabled": false,
+  "email_default_off": true,
+  "dry_run_only": true,
+  "gmail_live_read_performed": false,
+  "mailbox_read_performed": false,
+  "mail_trigger_created": false,
+  "email_modified": false,
+  "full_email_body_stored": false,
+  "sensitive_content_stored": false,
+  "raw_email_forwarded_to_telegram": false,
+  "finance_write_performed": false,
+  "account_ledger_write_performed": false,
+  "finance_events_write_performed": false,
+  "review_queue_write_performed": false,
+  "domain_tab_write_performed": false,
+  "pilot_enabled_default": false,
+  "manual_approval_required": true,
+  "gmail_label_required": "Info Terbaru",
+  "max_messages_per_run": 5,
+  "max_threads_per_run": 5,
+  "allowed_senders": [
+    "receipts@blubybcadigital.id",
+    "noreply@tokopedia.com"
+  ],
+  "source_mappings": [
+    {
+      "provider": "Blu",
+      "sender": "receipts@blubybcadigital.id",
+      "account_mapping": "Blu -> Blu",
+      "allowed_transaction_types": [
+        "transfer_masuk",
+        "transfer_keluar",
+        "e_wallet_payment",
+        "bayar_otomatis",
+        "refund"
+      ]
+    },
+    {
+      "provider": "Tokopedia Card",
+      "sender": "noreply@tokopedia.com",
+      "account_mapping": "Tokopedia Card last4 2003 -> Tokopedia Card",
+      "allowed_transaction_types": [
+        "kartu_kredit_purchase",
+        "pembayaran_kartu_kredit",
+        "refund"
+      ],
+      "risk_note": "Broad sender; must enforce label + hard-block + subject classification."
+    }
+  ],
+  "metadata_fields_allowed_for_future_pilot": [
+    "message_id",
+    "thread_id",
+    "sender",
+    "subject",
+    "date",
+    "label_presence",
+    "provider",
+    "source_id",
+    "account_mapping",
+    "candidate_status",
+    "parse_status",
+    "block_reason"
+  ],
+  "forbidden_content_storage": [
+    "full_email_body",
+    "raw_email_body",
+    "otp",
+    "auth_code",
+    "login_link",
+    "password_reset_link",
+    "full_card_number",
+    "full_account_number",
+    "private_security_content"
+  ],
+  "sensitive_hard_block_terms": [
+    "OTP",
+    "kode verifikasi",
+    "verification code",
+    "auth code",
+    "password",
+    "reset password",
+    "login",
+    "perangkat baru",
+    "security",
+    "keamanan",
+    "suspicious",
+    "card number",
+    "account number"
+  ],
+  "forbidden_gmail_mutation_operations": [
+    "createLabel",
+    "addLabel",
+    "removeLabel",
+    "markRead",
+    "markUnread",
+    "moveToArchive",
+    "moveToInbox",
+    "moveToTrash",
+    "delete",
+    "star",
+    "unstar"
+  ],
+  "forbidden_finance_write_operations": [
+    "Account Ledger write",
+    "Finance Events write",
+    "Review Queue write",
+    "domain tab write",
+    "dashboard mutation",
+    "reconciliation write"
+  ],
+  "future_pilot_required_output_fields": [
+    "run_id",
+    "run_mode",
+    "gmail_label",
+    "allowed_sender_count",
+    "scanned_message_count",
+    "candidate_count",
+    "skipped_sensitive_count",
+    "skipped_sender_not_allowed_count",
+    "skipped_missing_label_count",
+    "parse_candidate_count",
+    "clarification_needed_count",
+    "dry_run_route_count",
+    "finance_write_performed",
+    "account_ledger_write_performed",
+    "finance_events_write_performed",
+    "review_queue_write_performed",
+    "domain_tab_write_performed",
+    "gmail_modified",
+    "full_email_body_stored",
+    "raw_email_forwarded_to_telegram"
+  ],
+  "next": "sprint7e_read_only_gmail_pilot_static_implementation_default_off"
+}

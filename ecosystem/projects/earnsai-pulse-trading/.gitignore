@@ -1,0 +1,24 @@
+logs/
+backups/
+
+# EarnsAI safety ignores
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.bak.*
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+*.pyc
+*.sqlite
+*.db
+runtime/
+reports/*.tmp
+runtime/test_journals/
+
+# Paper runtime smoke artifacts
+runtime/paper_runtime/smoke_*
+runtime/paper_runtime/config.smoke.json

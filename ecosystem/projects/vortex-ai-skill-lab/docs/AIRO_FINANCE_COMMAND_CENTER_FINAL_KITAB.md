@@ -1,0 +1,1712 @@
+# CANONICAL ROADMAP LOCK
+
+This Kitab is the 100% canonical AIRO Finance roadmap and project guidance source.
+
+Technical implementation docs, V1.2 docs, phase docs, dashboard docs, write-preview docs, and PASS reports are evidence only. They do not define the current sprint.
+
+If any project document conflicts with this Kitab, this Kitab wins.
+
+Current sprint must not advance beyond Sprint 0A until Sprint 0A Definition of Done is fully audited against this Kitab and committed as PASS.
+
+# AIRO Finance Command Center - Final Kitab v2
+
+Status: final operating doctrine for AIRO Personal Finance until project completion.
+
+This document is the primary source of truth for future AI/developer sessions. Do not redesign the architecture from zero unless the user explicitly approves a breaking change.
+
+---
+
+## 0. Executive Decision
+
+AIRO Personal Finance is not a generic spreadsheet tracker. The target is:
+
+```text
+Telegram-based personal finance copilot
++ wallet/account ledger discipline
++ domain-specific financial records
++ central event index
++ clarification-first data cleaning
++ audit/reconciliation safety
++ proactive Telegram alerting
++ premium dashboard command center
+```
+
+Final decisions:
+
+```text
+Account Ledger = wallet/account movement ledger
+Domain Tabs = Credit Card, Hutang, Aset, Cicilan Rumah
+Finance Events = central event index, not a balance ledger
+Dashboard = intelligence cockpit, not source-of-truth
+Transactions = reserved/future project for PDF/bank mutation work
+Cash Ledger = transitional; delete after dependency removal
+Email Ingestion = optional passive input, default OFF
+Review Queue = fallback after clarification fails, not first destination
+```
+
+The system must continue from existing routing and workbook structure. It must not force all data into a new architecture or rebuild from zero.
+
+---
+
+## 1. Core Principles
+
+1. Preserve existing architecture unless a breaking change is explicitly approved.
+2. Clarification-first is mandatory for Telegram and future Email input.
+3. Missing category is ambiguity, not clean data.
+4. Missing critical fields must block clean write.
+5. OTP/security email must be hard-blocked before finance parsing.
+6. Data quality must affect dashboard trust status.
+7. Account Ledger records wallet movement only.
+8. Domain tabs keep domain-specific truth.
+9. Finance Events indexes cross-domain events.
+10. Dashboard must be actionable, data-trust aware, and visually disciplined.
+
+---
+
+## 2. Final Layer Architecture
+
+### Layer 1 - Input Sources
+
+```text
+Telegram Input
++ Optional Email Notification Input
++ Future Bank Mutation Input
+```
+
+#### 2.1 Telegram Input
+
+Telegram is the active/manual/interactive channel.
+
+Used for:
+
+```text
+natural-language transaction input
+clarification responses
+admin commands
+approval actions
+proactive alerts
+```
+
+#### 2.2 Email Notification Input
+
+Email is optional, passive, and default OFF.
+
+Email input is only for transaction notification email from bank/credit card issuers. It is not for PDF statement ingestion. Ambiguous email must be clarified through Telegram.
+
+Rules:
+
+```text
+email_ingestion_enabled = false by default
+read-only / dry-run first
+metadata-only storage
+no full email body storage
+no OTP/security parsing
+no OTP/security forwarding to Telegram
+no automatic ledger write until parser is proven
+```
+
+#### 2.3 Future Bank Mutation Input
+
+This is a separate future project.
+
+```text
+PDF/statement upload
+ Bank Mutations / Statement Transactions
+ separate bank mutation dashboard
+```
+
+Do not mix this with Finance Events for the current personal finance command center.
+
+---
+
+## 3. Clarification Layer
+
+Clarification is the gate before final write.
+
+Standard flow:
+
+```text
+Input
+ Parser
+ Ambiguity Detector
+ if clear: Router
+ if ambiguous: ask user via Telegram
+ user replies
+ AIRO resolves pending candidate
+ final write
+ if timeout/fails: Review Queue
+```
+
+Review Queue is fallback, not first destination.
+
+### 3.1 Mandatory Ambiguity Types
+
+```text
+missing amount
+missing source account
+missing destination account
+missing category
+transfer direction ambiguous
+cash ambiguous
+credit card ambiguous
+debt/hutang ambiguous
+asset/gold ambiguous
+cicilan rumah edge case
+email transaction type ambiguous
+email success/failed status unclear
+non-finance / too unclear safe rejection
+```
+
+### 3.2 Missing Category Policy
+
+Missing category is ambiguity.
+
+```text
+category missing
+ Telegram clarification
+ if resolved: clean category
+ if unresolved: quality_status = needs_category
+ Dashboard Data Status = Warning
+ Action Required: transaksi butuh kategori
+```
+
+Missing category transactions must not be included in final clean category breakdown.
+
+### 3.3 Critical Missing Fields
+
+Critical fields that block clean write:
+
+```text
+amount
+source account
+destination account for transfer
+event type
+success/failed status for email transaction
+CC purchase vs CC payment
+asset purchase vs expense
+debt payment vs normal expense
+```
+
+Critical missing fields must not enter clean ledger/dashboard metrics.
+
+---
+
+## 4. Email-to-Telegram Clarification Bridge
+
+Email ambiguity must not go directly to Review Queue if Telegram clarification can resolve it.
+
+Flow:
+
+```text
+Email candidate parsed
+ ambiguity detector
+ Telegram clarification message
+ pending email candidate stored
+ user replies in Telegram
+ answer merged with email candidate
+ router existing
+ Account Ledger / Domain Tab / Finance Events
+ Audit + Reconciliation
+```
+
+Example CC email clarification:
+
+```text
+AIRO menemukan email Credit Card:
+Nominal: Rp125.000
+Merchant: Tokopedia
+Kartu: ****1234
+
+Ini transaksi apa?
+A. Belanja pakai Credit Card
+B. Bayar tagihan Credit Card
+C. Refund / reversal
+D. Fee / bunga
+E. Review manual
+```
+
+Example Blu/BCA email clarification:
+
+```text
+AIRO menemukan email transaksi Blu:
+Nominal: Rp240.000
+Tanggal: 21 Mei 2026
+Merchant/tujuan: tidak jelas
+
+Ini mau dicatat sebagai apa?
+A. Pengeluaran dari Blu
+B. Transfer internal
+C. Pembayaran Credit Card
+D. Uang masuk / refund
+E. Review manual
+```
+
+---
+
+## 5. Email Security Policy
+
+Email ingestion is high-risk if implemented carelessly. It is allowed only with strict guardrails.
+
+### 5.1 Default Mode
+
+```text
+email_ingestion_enabled = false
+email route mode = disabled / dry_run first
+```
+
+### 5.2 Allowed v1 Behavior
+
+```text
+read-only design
+manual Gmail label such as Finance/ToProcess
+sender allowlist
+negative keyword hard-block
+metadata-only parsing
+no full body email storage
+no markRead
+no delete
+no modify email in v1
+```
+
+### 5.3 Sensitive Email Hard-Block
+
+Hard-block keywords:
+
+```text
+otp
+kode
+verifikasi
+verification
+login
+security
+password
+reset
+perangkat
+device
+one time password
+2fa
+authentication
+auth code
+kode keamanan
+```
+
+Hard rule:
+
+```text
+OTP/security email must not enter finance parser.
+OTP/security content must not be sent to Telegram.
+OTP/security content must not enter Review Queue.
+OTP/security content must not enter Finance Events.
+OTP/security content must not be stored in full.
+Only skipped_sensitive count/hash may be recorded.
+```
+
+---
+
+## 6. Router Policy
+
+Router receives normalized candidates from:
+
+```text
+telegram
+email_blu
+email_cc
+manual
+admin
+future_bank_mutation
+```
+
+Router writes to:
+
+```text
+Account Ledger
+Credit Card
+Hutang
+Aset
+Cicilan Rumah
+Finance Events
+Review Queue
+Audit Log
+```
+
+Routing rules:
+
+```text
+Wallet movement nyata  Account Ledger
+Domain detail  relevant Domain Tab
+Every resolved event after cutover  Finance Events
+Ambiguous unresolved  Review Queue
+Script/admin action  Audit Log
+```
+
+---
+
+## 7. Data Tabs
+
+### 7.1 Account Ledger
+
+Function: wallet/account movement ledger only.
+
+Account Ledger answers:
+
+```text
+saldo BCA
+saldo Blu
+saldo Cash Umum
+saldo Cash Bensin
+wallet inflow/outflow
+internal transfer
+cashflow
+```
+
+Existing schema must be preserved:
+
+```text
+entry_id
+date
+account
+amount_in
+amount_out
+balance
+type
+category
+description
+raw_text
+source_tab
+linked_txn_id
+notes
+```
+
+Allowed additive columns:
+
+```text
+event_ref
+event_group_id
+audit_ref
+quality_status
+```
+
+Do not:
+
+```text
+rewrite schema
+force all domain detail into Account Ledger
+use Account Ledger as event index
+use Account Ledger as replacement for Finance Events
+```
+
+Examples that enter Account Ledger:
+
+```text
+BCA keluar
+Blu masuk
+Cash Umum keluar
+Cash Bensin keluar
+transfer BCA  Blu: two rows
+bayar CC dari Blu: Blu out
+beli emas dari BCA: BCA out
+bayar hutang dari BCA: BCA out
+```
+
+Examples that do not directly enter Account Ledger:
+
+```text
+cc_purchase at purchase time
+market price update for gold
+CC statement summary
+OTP/security email
+domain state without wallet movement
+```
+
+---
+
+### 7.2 Credit Card
+
+Function: credit card domain truth.
+
+Events:
+
+```text
+cc_purchase
+cc_payment
+cc_pocket_allocation
+cc_refund
+cc_fee
+cc_adjustment
+billing cycle
+due date
+payment matching
+```
+
+Rules:
+
+```text
+cc_purchase  Credit Card + Finance Events
+cc_purchase does not directly create Account Ledger outflow
+cc_payment from Blu/BCA  Account Ledger outflow + Credit Card match
+never double count purchase and payment
+```
+
+---
+
+### 7.3 Hutang
+
+Function: debt/liability/receivable domain truth.
+
+Events:
+
+```text
+debt_increase
+debt_payment
+debt_received_payment
+remaining balance
+counterparty
+active/paid status
+```
+
+Rules:
+
+```text
+if money enters/leaves wallet  Account Ledger also writes
+counterparty/status/remaining balance stays in Hutang
+```
+
+---
+
+### 7.4 Aset
+
+Function: asset domain truth.
+
+Events:
+
+```text
+asset_purchase
+asset_sale
+asset_price_update
+gold grams
+gold value
+home value/equity
+asset adjustment
+```
+
+Rules:
+
+```text
+beli emas dari BCA  Account Ledger BCA out + Aset + Finance Events
+price update  Aset update only, not Account Ledger
+asset purchase is not ordinary operating expense
+```
+
+---
+
+### 7.5 Cicilan Rumah
+
+Function: home installment domain truth.
+
+Events:
+
+```text
+home_installment_payment
+installment_no
+date_paid
+amount_paid
+progress
+due status
+remaining months/principal if available
+```
+
+Rules:
+
+```text
+payment from wallet  Account Ledger outflow
+installment progress stays in Cicilan Rumah
+net worth must use home_value_mode to avoid double count
+```
+
+---
+
+### 7.6 Finance Events
+
+Name: `?? Finance Events`.
+
+Function: central event index, not balance ledger.
+
+Finance Events answers:
+
+```text
+what event happened?
+what source produced it?
+which tabs did it touch?
+which Account Ledger refs are linked?
+which domain row refs are linked?
+what is the write status?
+what is the reconciliation status?
+is the event clean, warning, dirty, or archived?
+```
+
+Schema v1:
+
+```text
+event_id
+event_group_id
+parent_event_id
+event_date
+event_type
+domain
+amount_idr
+primary_account
+counter_account
+category
+subcategory
+source_channel
+raw_text
+clarification_status
+quality_status
+write_status
+account_ledger_refs
+domain_tab
+domain_row_ref
+review_queue_ref
+reconciliation_status
+notes
+created_at
+updated_at
+is_archived
+archived_at
+archived_by
+archive_reason
+superseded_by_event_id
+operation_id
+run_id
+retry_count
+last_error
+last_retry_at
+next_retry_at
+```
+
+`source_channel` values:
+
+```text
+telegram
+email_blu
+email_cc
+manual
+admin
+future_bank_mutation
+```
+
+`write_status` values:
+
+```text
+pending_write
+partial_written
+partial_failed
+committed
+reconciled
+failed
+needs_review
+```
+
+Soft-delete policy:
+
+```text
+Never hard delete Finance Events.
+If canceled/corrected  is_archived = true.
+If replaced  superseded_by_event_id points to replacement event.
+Archived events must not enter active dashboard metrics.
+All changes must be audit logged.
+```
+
+Event-first flow:
+
+```text
+1. Create Finance Event: pending_write
+2. Write Account Ledger if wallet movement exists
+3. Write Domain Tab if domain detail exists
+4. Update Finance Event refs
+5. Set write_status = committed
+6. Run light reconciliation
+7. Set reconciliation_status = clean/warning/dirty
+```
+
+---
+
+### 7.7 Review Queue
+
+Function: fallback/exception workflow.
+
+Use Review Queue only when:
+
+```text
+clarification fails
+user timeout
+answer remains ambiguous
+parser confidence low
+critical field missing
+suspicious amount
+cross-domain conflict
+manual approval required
+```
+
+Review Queue is not the first destination for ambiguity.
+
+---
+
+### 7.8 Audit Log
+
+Name: `_AIRO_Audit_Log`.
+
+Schema v1:
+
+```text
+audit_id
+timestamp
+actor
+action
+sheet_name
+row_ref
+field_name
+old_value
+new_value
+reason
+source
+event_ref
+run_id
+```
+
+Log:
+
+```text
+script insert
+script update
+script archive/delete
+Review Queue approval
+CC payment match/unmatch
+reconciliation fix
+retry partial write
+admin command
+```
+
+Manual Google Sheet edit audit can be added later. V1 only needs script/admin-level audit.
+
+---
+
+### 7.9 Email Ingestion Log
+
+Name: `_AIRO_Email_Ingestion_Log`.
+
+This is hidden/backend. It is not user-facing dashboard content.
+
+Schema:
+
+```text
+email_log_id
+message_id
+thread_id
+source_id
+from_email
+subject_hash
+received_at
+processed_at
+parse_status
+parse_confidence
+detected_amount
+detected_date
+detected_merchant
+detected_last4
+sensitive_skip_reason
+clarification_ref
+event_ref
+review_queue_ref
+error_message
+notes
+```
+
+Do not store full email body.
+
+---
+
+## 8. Partial Write Recovery
+
+Apps Script can fail mid-write. Partial failure must not be silent.
+
+Failure examples:
+
+```text
+Account Ledger write succeeds but Finance Events update fails
+Domain Tab write succeeds but refs fail
+Finance Event remains pending_write
+Timeout during route
+Rate limit / Google outage
+```
+
+Policy:
+
+```text
+write_status = partial_failed
+Data Status = Warning or Dirty depending on severity
+Action Required: transaksi gagal commit sempurna
+Audit Log records error
+Admin command must support inspect/retry/fix
+```
+
+Admin commands target:
+
+```text
+admin inspect event <event_id>
+admin retry failed event <event_id>
+admin reconcile partial writes
+admin mark event archived <event_id>
+```
+
+No partial failure may remain invisible.
+
+---
+
+## 9. Reconciliation
+
+### 9.1 Light Reconciliation
+
+Run after important writes.
+
+Check:
+
+```text
+Finance Events has write_status
+Account Ledger refs exist when event needs wallet movement
+Domain refs exist when event needs domain detail
+internal transfer has two sides
+CC payment has match/payment ref
+missing category is not treated as clean
+```
+
+### 9.2 Full Reconciliation
+
+Run via admin command or schedule.
+
+Check:
+
+```text
+Account Ledger row without event_ref after cutover
+Finance Events without expected refs
+Domain rows without event_ref after cutover
+internal transfer one-sided
+CC payment unmatched
+asset purchase without wallet outflow
+debt payment without wallet movement
+balance mismatch
+suspicious amount
+duplicate candidate
+partial_failed event
+archived event still counted in active metrics
+```
+
+Output:
+
+```text
+reconciliation_status = clean | warning | dirty
+issue_count
+critical_count
+last_reconciled_at
+```
+
+---
+
+## 10. Data Status
+
+Dashboard topbar must show:
+
+```text
+Trusted
+Warning
+Dirty
+```
+
+### Trusted
+
+```text
+no critical reconciliation issue
+no orphan Finance Events
+no broken refs
+no suspicious amount
+pending clarification below threshold
+last sync valid
+```
+
+### Warning
+
+```text
+missing category
+pending clarification
+email candidate unresolved
+CC payment unmatched
+Finance Events ref warning non-critical
+partial write non-critical
+```
+
+### Dirty
+
+```text
+broken balance
+large suspicious amount
+OTP/security email accidentally parsed
+critical missing amount/account
+duplicate critical
+event committed but refs missing
+sync failed
+primary metric formula error
+```
+
+Dashboard must not look clean when Data Status is Warning or Dirty.
+
+---
+
+## 11. Net Worth Policy
+
+Required setting:
+
+```text
+home_value_mode = gross_value | equity
+```
+
+If `gross_value`:
+
+```text
+Net Worth =
+Wallet Balances
++ Liquid Assets
++ Gold/Investments
++ Home Gross Value
+- CC Outstanding
+- Hutang Aktif
+- Remaining Home Principal
+```
+
+If `equity`:
+
+```text
+Net Worth =
+Wallet Balances
++ Liquid Assets
++ Gold/Investments
++ Home Equity
+- CC Outstanding
+- Hutang Aktif
+```
+
+Rules:
+
+```text
+If home equity is already calculated, do not subtract remaining principal again.
+If home is recorded gross, subtract remaining home principal.
+Monthly installment obligation is not automatically the same as outstanding principal.
+```
+
+---
+
+## 12. Dashboard Final Vision
+
+Dashboard final is:
+
+```text
+AIRO Personal Finance Command Center
+```
+
+It is not:
+
+```text
+a normal spreadsheet report
+```
+
+Dashboard must answer:
+
+```text
+1. Kondisi keuangan saya sekarang bagaimana?
+2. Apa yang perlu saya tindak hari ini?
+3. Angka ini bisa dipercaya atau tidak?
+4. Domain mana yang sedang bermasalah?
+5. Spending saya membaik atau memburuk?
+```
+
+### 12.1 Visual Principles
+
+```text
+dark premium theme
+rounded cards
+clean grid layout
+status badges
+severity colors
+clear hierarchy
+minimal clutter
+large primary metrics
+smaller secondary metrics
+```
+
+Avoid:
+
+```text
+long raw tables without hierarchy
+all metrics same size
+too many colors
+crowded layout
+numbers without context
+insights without action
+```
+
+### 12.2 Dashboard Layout
+
+```text
+Topbar
+Action Required
+Executive Command Center
+Wallet & Cashflow
+Domain Health
+Spending Intelligence
+Data Quality Center
+Smart Insight Panel
+Conditional Email Ingestion Status
+```
+
+### 12.3 Topbar
+
+Must always show:
+
+```text
+[Synced: timestamp]
+[Data: Trusted / Warning / Dirty]
+[Alerts: count]
+[Period: month selector]
+[Mode: Personal Finance]
+```
+
+Purpose:
+
+```text
+data freshness
+trust status
+period context
+mode separation from future bank mutation dashboard
+```
+
+### 12.4 Action Required
+
+This is the primary to-do section. It is not the same as Smart Insight.
+
+Example:
+
+```text
+[CRITICAL] CC jatuh tempo 3 hari, payment belum match       [Review/Bayar]
+[CRITICAL] Data Status Dirty karena partial write           [Fix]
+[WARNING] 3 transaksi butuh kategori                        [Kategorikan]
+[WARNING] 2 pending clarification belum dijawab             [Jawab]
+[WARNING] Cash umum di bawah threshold                      [Isi Cash]
+```
+
+Rules:
+
+```text
+max 4-6 items
+only show actionable items
+has severity
+has action label
+not mixed with passive insight
+```
+
+### 12.5 Executive Command Center
+
+Primary cards:
+
+```text
+Net Worth
+Cash Tersedia
+Cashflow Bulan Ini
+Critical Alerts
+```
+
+Secondary cards:
+
+```text
+Total Aset
+Total Hutang
+Saving Rate
+Cicilan Rumah Progress
+```
+
+Rules:
+
+```text
+Primary cards larger than secondary cards.
+Critical alerts must stand out.
+Net worth must obey home_value_mode.
+```
+
+### 12.6 Wallet & Cashflow Board
+
+Source: Account Ledger.
+
+Content:
+
+```text
+saldo per wallet
+target vs actual
+inflow
+outflow
+internal transfer
+wallet health
+cash threshold
+```
+
+Rules:
+
+```text
+After Sprint 3, Wallet Board must not read Cash Ledger.
+Cash Umum and Cash Bensin must be read from Account Ledger.
+Internal transfer must not be counted as income/expense.
+```
+
+### 12.7 Domain Health
+
+Sources:
+
+```text
+Credit Card
+Hutang
+Aset
+Cicilan Rumah
+```
+
+Show compact domain status, not raw detail rows.
+
+Badges:
+
+```text
+Clean
+Monitor
+Warning
+Critical
+```
+
+### 12.8 Spending Intelligence
+
+Source: Finance Events with clean category.
+
+Show:
+
+```text
+largest categories
+trend vs previous month
+budget burn rate
+uncategorized amount transparently
+```
+
+Rules:
+
+```text
+Missing category transactions must not enter final category breakdown.
+They must enter Pending Category / Uncategorized and trigger Warning.
+```
+
+### 12.9 Data Quality Center
+
+Sources:
+
+```text
+Review Queue
+Finance Events
+Audit Log
+Reconciliation
+Pending Clarification
+Email Ingestion Log if enabled
+```
+
+Show:
+
+```text
+pending clarification
+missing category
+partial write
+orphan event
+unmatched CC payment
+suspicious amount
+duplicate candidate
+reconciliation status
+sync status
+audit anomalies
+```
+
+Data Quality Center directly controls Topbar Data Status.
+
+### 12.10 Smart Insight Panel
+
+Smart Insight = interpretation.
+
+Action Required = to-do.
+
+Severity:
+
+```text
+critical
+warning
+positive
+info
+```
+
+### 12.11 Conditional Email Ingestion Status
+
+Hidden by default.
+
+```text
+email_ingestion_enabled = false
+```
+
+Only show after Sprint 7 is active.
+
+When active, show:
+
+```text
+last email check
+emails parsed today
+emails skipped sensitive
+emails pending clarification
+emails failed parsing
+email source health
+```
+
+Do not show empty placeholder panel in Sprint 6.
+
+---
+
+## 13. Metric Source of Truth
+
+```text
+Cash tersedia  Account Ledger balance per wallet
+Wallet balances  Account Ledger
+Inflow/outflow  Account Ledger
+Internal transfer  Account Ledger linked transfer rows
+CC outstanding  Credit Card unpaid/unmatched/unprepared
+Total hutang  Hutang active remaining
+Aset emas  Aset current valuation
+Cicilan progress  Cicilan Rumah paid count / total
+Spending category  Finance Events clean category
+Pending category  Finance Events quality_status = needs_category
+Pending clarification  pending state + Review Queue
+Email ingestion health  _AIRO_Email_Ingestion_Log only if enabled
+Data status  Reconciliation + Data Quality rules
+Audit count  _AIRO_Audit_Log
+Net worth  formula based on home_value_mode
+```
+
+---
+
+## 14. Dashboard Gating Rules
+
+```text
+Clean data  primary metrics
+Warning data  Data Quality + Action Required
+Dirty data  dashboard still visible but trust status = Dirty
+Missing category  excluded from final category breakdown
+Partial write  never silent
+OTP/security email parsed  Dirty critical
+Archived Finance Events  excluded from active metrics
+```
+
+---
+
+## 15. Proactive Telegram Alert Engine
+
+Dashboard is passive unless opened. Telegram alert closes the loop.
+
+Triggers v1:
+
+```text
+CC due N days
+Cash wallet below threshold
+Data Status changes to Dirty
+partial write failure
+pending clarification > X hours
+missing category > X items
+critical reconciliation issue
+```
+
+Alert fields:
+
+```text
+alert_id
+alert_key
+severity
+message
+source_event_ref
+created_at
+last_sent_at
+cooldown_until
+ack_status
+quiet_hours_policy
+```
+
+Policy:
+
+```text
+Critical  send immediately
+Warning  cooldown/digest
+Info  dashboard only
+```
+
+Telegram alert should have clear action:
+
+```text
+Review
+Fix
+Acknowledge
+Open Dashboard
+```
+
+---
+
+## 16. Cash Ledger Policy
+
+Cash Ledger will be removed.
+
+No large historical migration required.
+
+Model:
+
+```text
+cutover-forward
+```
+
+Meaning:
+
+```text
+New data after cutover must be clean in Account Ledger/Finance Events.
+Old data does not require full backfill.
+Cash Ledger only needs archive/export before deletion.
+```
+
+Sprint 3 checklist:
+
+```text
+export/archive Cash Ledger
+verify dashboard no longer reads Cash Ledger
+verify Monthly Review no longer reads Cash Ledger
+verify Apps Script no longer needs Cash Ledger compatibility writer
+verify new cash movement is clean in Account Ledger
+delete or archive Cash Ledger
+```
+
+---
+
+## 17. Transactions Policy
+
+`Transactions` is not used for current personal finance dashboard scope.
+
+Status:
+
+```text
+reserved/future
+```
+
+Future project:
+
+```text
+PDF mutasi Blu/BCA
+ Bank Mutations / Statement Transactions
+ separate bank mutation dashboard
+```
+
+Do not mix Transactions with Finance Events.
+
+---
+
+## 18. Final Roadmap
+
+### Sprint 0A - Telegram Clarification Closure
+
+Focus: execute current pending ambiguity work.
+
+Scope:
+
+```text
+Credit Card ambiguous
+Debt/Hutang ambiguous
+Asset/Gold ambiguous
+missing amount
+missing source account
+missing destination account
+missing category
+transfer direction
+cash ambiguous
+safe rejection non-finance
+fallback Review Queue after clarification fails
+```
+
+Definition of Done:
+
+```text
+Ambiguous Telegram input does not directly write.
+AIRO asks Telegram first.
+User answer resolves to correct domain.
+Missing category is clarified.
+Critical missing field blocks clean write.
+Review Queue only after failure/timeout.
+No amount bug from URL/gid/chat transcript.
+```
+
+---
+
+### Sprint 0B - Email Ambiguity Research & Bridge Design
+
+Focus: research/design only, parallel and non-blocking.
+
+Scope:
+
+```text
+email ambiguity taxonomy
+Email-to-Telegram Clarification Bridge design
+OTP/security hard-block policy
+email source allowlist/negative keyword policy
+missing category from email
+duplicate email vs Telegram
+```
+
+Definition of Done:
+
+```text
+Email ambiguity list is defined.
+OTP/security hard-block policy is clear.
+Email ambiguous flow asks Telegram first.
+Review Queue remains fallback.
+No full Email Ingestion implementation yet.
+```
+
+---
+
+### Sprint 1 - Account Ledger Hardening
+
+Scope:
+
+```text
+internal transfer two-sided
+cash movement into Account Ledger
+CC payment into Account Ledger
+asset purchase wallet outflow into Account Ledger
+debt payment wallet outflow into Account Ledger
+balance consistency
+linked_txn_id consistency
+source_tab consistency
+optional quality_status additive column
+```
+
+Definition of Done:
+
+```text
+Account Ledger becomes wallet movement source-of-truth.
+Cash Umum and Cash Bensin can be read from Account Ledger.
+Internal transfer always has two sides.
+Balance is not broken.
+New movement no longer depends on Cash Ledger.
+```
+
+---
+
+### Sprint 2 - Domain Tabs Maturation
+
+Scope:
+
+```text
+Credit Card purchase/payment/match
+Hutang liability/payment/remaining
+Aset gold purchase/value/update
+Cicilan Rumah payment/progress/due
+```
+
+Definition of Done:
+
+```text
+Domain writers are stable.
+CC purchase and payment are not double counted.
+Asset purchase is not ordinary expense.
+Debt payment updates Account Ledger + Hutang.
+Cicilan payment updates Account Ledger + Cicilan Rumah.
+Domain rows are ready for Finance Events refs.
+```
+
+---
+
+### Sprint 3 - Cash Ledger Removal
+
+Scope:
+
+```text
+archive/export Cash Ledger
+remove dashboard dependency
+remove Monthly Review dependency
+remove Apps Script compatibility write
+delete or archive Cash Ledger
+```
+
+Definition of Done:
+
+```text
+No historical migration required.
+Cash Ledger archived/exported.
+Primary formulas no longer read Cash Ledger.
+Script no longer needs Cash Ledger.
+New cash movement is clean in Account Ledger.
+Cash Ledger deleted or archived.
+```
+
+---
+
+### Sprint 4 - Finance Events v1
+
+Scope:
+
+```text
+create ?? Finance Events
+event-first flow
+write_status
+quality_status
+source_channel
+event_group_id
+parent_event_id
+account_ledger_refs
+domain_row_ref
+review_queue_ref
+soft-delete fields
+cutover_date
+partial write fields
+```
+
+Definition of Done:
+
+```text
+Every resolved input after cutover has Finance Event.
+Partial write does not disappear.
+Event links to Account Ledger/domain tab.
+Soft-delete exists.
+Archived event is excluded from active metrics.
+```
+
+---
+
+### Sprint 5 - Audit, Reconciliation, Partial Recovery
+
+Scope:
+
+```text
+_AIRO_Audit_Log
+light reconciliation after write
+full reconciliation admin command/scheduled
+partial write detection
+retry/fix admin command
+Data Status computation
+```
+
+Definition of Done:
+
+```text
+Script/admin changes are logged.
+Reconciliation outputs clean/warning/dirty.
+Partial failure is not silent.
+Action Required appears for partial_failed.
+Admin can inspect/retry/fix event.
+Dashboard can show Data Status.
+```
+
+---
+
+### Sprint 6 - Dashboard Final
+
+Scope:
+
+```text
+Topbar
+Action Required
+Executive Command Center
+Wallet & Cashflow
+Domain Health
+Spending Intelligence
+Data Quality Center
+Smart Insight Panel
+Period selector
+Last synced
+Data Status
+Metric source-of-truth
+home_value_mode
+conditional Email Ingestion Status hidden by default
+```
+
+Definition of Done:
+
+```text
+Dashboard reads correct source-of-truth.
+Dashboard does not read Cash Ledger.
+Missing category creates Warning.
+Unclean data is excluded from clean category.
+Data Status affects trust.
+Action Required contains real to-dos.
+Net worth does not double count.
+Dashboard is aesthetic, disciplined, advanced, and actionable.
+Email Ingestion Status hidden if email_ingestion_enabled = false.
+```
+
+---
+
+### Sprint 6B - Proactive Telegram Alert Engine v1
+
+Scope:
+
+```text
+Telegram alert for CC due
+Telegram alert for Data Status Dirty
+Telegram alert for partial write failure
+Telegram alert for pending clarification timeout
+Telegram alert for cash wallet threshold
+cooldown
+ack_status
+quiet hours
+```
+
+Definition of Done:
+
+```text
+Critical alert can be pushed to Telegram.
+Warning alert does not spam due to cooldown.
+User can acknowledge.
+Dashboard Action Required and Telegram alert are consistent.
+```
+
+---
+
+### Sprint 7 - Email Ingestion v1, Outline Only
+
+Sprint 7 remains high-level until activated to avoid stale details.
+
+Scope:
+
+```text
+read-only dry-run
+Gmail label Finance/ToProcess
+sender allowlist
+negative keyword hard-block
+metadata-only parsing
+_AIRO_Email_Ingestion_Log
+Email-to-Telegram clarification
+controlled routing after parser is proven
+```
+
+Definition of Done:
+
+```text
+Transaction email can be detected without initial auto-write.
+OTP/security email is hard-blocked.
+No full email body is stored.
+Ambiguous email asks Telegram first.
+High-confidence routing only after parser is proven.
+Email Ingestion Status appears only when enabled.
+```
+
+---
+
+## 19. Rules for Future AI/Developer
+
+```text
+1. Do not rewrite existing architecture.
+2. Do not use Transactions as master for this scope.
+3. Account Ledger is wallet movement only.
+4. Domain detail stays in domain tabs.
+5. Finance Events is event index, not balance ledger.
+6. Cash Ledger is deleted after dependency removal.
+7. No large historical migration for Cash Ledger.
+8. Use cutover-forward model.
+9. Clarification-first is mandatory for Telegram and Email.
+10. Review Queue is fallback after clarification fails.
+11. Missing category is ambiguity.
+12. Missing critical fields must not clean write.
+13. OTP/security email is hard-blocked.
+14. Email ingestion is default OFF.
+15. Do not store full email body.
+16. Do not send OTP/security content to Telegram.
+17. Finance Events must support soft-delete/archive.
+18. Partial write must be detected and retryable.
+19. Dashboard must have Data Status and Action Required.
+20. Net worth must follow home_value_mode.
+21. Proactive Telegram Alert is required for critical issues.
+22. Audit and Reconciliation are required before dashboard is trustworthy.
+```
+
+---
+
+## 20. New Chat Bootstrap
+
+When the user says:
+
+```text
+coba akses kitab AIRO Finance
+```
+
+The new chat must run:
+
+```bash
+cd /home/egitaristorandas/vortex-ai-skill-lab
+git pull --rebase --autostash origin main
+cat docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+```
+
+Then it must summarize:
+
+```text
+- current architecture
+- source-of-truth rules
+- dashboard vision
+- roadmap sprint order
+- current next action
+```
+
+Then continue from:
+
+```text
+Sprint 0A - Telegram Clarification Closure
+```
+
+Do not propose a new architecture unless the user explicitly asks to revise the kitab.
+
+---
+
+## 21. New Chat Execution Prompt
+
+Use this prompt in a new ChatGPT session:
+
+```text
+Kamu adalah AI/developer assistant untuk project AIRO Personal Finance.
+
+Pertama, akses kitab AIRO Finance dari repo:
+
+cd /home/egitaristorandas/vortex-ai-skill-lab
+git pull --rebase --autostash origin main
+cat docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+
+Setelah membaca, jangan propose arsitektur baru. Ikuti kitab sebagai source-of-truth final.
+
+Tugas kamu:
+1. Ringkas current architecture secara akurat.
+2. Jelaskan source-of-truth per layer.
+3. Jelaskan dashboard final vision.
+4. Jelaskan roadmap sprint final.
+5. Identifikasi next action paling tepat berdasarkan Sprint 0A.
+6. Sebelum membuat patch, audit repo existing agar tidak menimpa perubahan lokal.
+7. Semua command harus safe, tidak overwrite, pakai output capture, dan diakhiri dengan command yang copy output agar bisa dipaste ke chat.
+
+Constraint wajib:
+- Jangan rewrite existing architecture.
+- Jangan pakai Transactions sebagai master.
+- Account Ledger hanya wallet movement.
+- Domain detail tetap di domain tabs.
+- Finance Events adalah event index.
+- Missing category adalah ambiguity.
+- OTP/security email hard-block.
+- Cash Ledger akan dihapus setelah dependency lepas, tanpa migration besar.
+- Dashboard wajib Data Status + Action Required.
+- Next action mulai dari Sprint 0A: Telegram Clarification Closure.
+```
+

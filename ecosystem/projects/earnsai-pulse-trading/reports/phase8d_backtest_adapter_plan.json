@@ -1,0 +1,89 @@
+{
+  "fixture_readiness": {
+    "failed": 0,
+    "passed": 4,
+    "results": [
+      {
+        "checks_passed": true,
+        "confidence": 0.7447499999999998,
+        "expected_candidate_action": "BUY",
+        "expected_trend": "bullish",
+        "final_action": "BUY",
+        "live_locked": true,
+        "observed_candidate_action": "BUY",
+        "observed_trend": "bullish",
+        "paper_only": true,
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "scenario": "bullish"
+      },
+      {
+        "checks_passed": true,
+        "confidence": 0.7237499999999999,
+        "expected_candidate_action": "SELL",
+        "expected_trend": "bearish",
+        "final_action": "SELL",
+        "live_locked": true,
+        "observed_candidate_action": "SELL",
+        "observed_trend": "bearish",
+        "paper_only": true,
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "scenario": "bearish"
+      },
+      {
+        "checks_passed": true,
+        "confidence": 0.48,
+        "expected_candidate_action": "HOLD",
+        "expected_trend": "flat",
+        "final_action": "HOLD",
+        "live_locked": true,
+        "observed_candidate_action": "HOLD",
+        "observed_trend": "flat",
+        "paper_only": true,
+        "risk_status": "REJECTED",
+        "scenario": "flat"
+      },
+      {
+        "checks_passed": true,
+        "confidence": 0.7447499999999998,
+        "expected_candidate_action": "BUY",
+        "expected_trend": "bullish",
+        "final_action": "BUY",
+        "live_locked": true,
+        "observed_candidate_action": "BUY",
+        "observed_trend": "bullish",
+        "paper_only": true,
+        "risk_status": "APPROVED_FOR_PAPER_ONLY",
+        "scenario": "volatile"
+      }
+    ],
+    "total_scenarios": 4
+  },
+  "next_safe_step": "Phase 8E Telegram report commands, or Phase 8D2 dry-run backtest format adapter.",
+  "ok": true,
+  "plan": {
+    "execution_enabled": false,
+    "input_source": "Deterministic fixtures and JSONL journal outputs.",
+    "live_trading_locked": true,
+    "mode": "PAPER_ONLY",
+    "name": "EarnsAI Phase 8D Backtest Adapter Plan",
+    "output_target": "Local reports only.",
+    "planned_steps": [
+      "Read deterministic fixture scenarios.",
+      "Run existing multi-agent cycle per fixture.",
+      "Collect final action, risk status, and confidence.",
+      "Summarize backtest-readiness without executing orders.",
+      "Write JSON and Markdown planning reports."
+    ],
+    "private_exchange_api_used": false,
+    "purpose": "Define a safe interface for future backtest integration without enabling live trading.",
+    "safety_notes": [
+      "No live trading.",
+      "No private exchange API.",
+      "No real-money execution.",
+      "No automatic FreqTrade process start.",
+      "Adapter remains interface/planning only in Phase 8D."
+    ]
+  },
+  "plan_errors": [],
+  "plan_valid": true
+}
