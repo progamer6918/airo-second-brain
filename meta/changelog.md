@@ -250,3 +250,8 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: updated root `.gitignore` in ASB with live workspace safety ignores.
 - feat: pushed all migration baseline changes successfully to GitHub main branch.
 
+## 2026-06-21 — Legacy Projects Directory Archived
+- feat: archived legacy top-level `projects/` directory containing markdown docs into `archive/legacy-top-level-projects/projects/` to clean up the repository root structure.
+- feat: preserved physical live workspaces under `ecosystem/projects/` completely untouched.
+
+

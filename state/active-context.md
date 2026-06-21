@@ -486,3 +486,11 @@ Notes:
 - status: VORTEX_WORKSPACE_MIGRATION=PASS.
 - next: Test normal AIRO Finance workflow from old path and ASB path.
 
+## 2026-06-21 11:20:00 +0700 — Legacy Projects Directory Archived PASS
+- verified: Top-level `projects/` directory containing legacy markdown documents was moved to `archive/legacy-top-level-projects/projects/` via `git mv`.
+- verified: Top-level `projects/` is no longer present in current HEAD.
+- verified: `ecosystem/projects/` remains untouched and contains all physical live workspaces.
+- status: LEGACY_PROJECTS_ARCHIVING=PASS.
+- next: Normal operations.
+
+
