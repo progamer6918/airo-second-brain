@@ -17317,6 +17317,34 @@ function airoTask9CleanupMaybeHandleRoute_(e) {
   });
 }
 
+function doGet(e) {
+  var probe = e && e.parameter && e.parameter.airo_probe;
+  if (probe === 'task9_access_gate') {
+    var response = {
+      ok: true,
+      handled: true,
+      probe: "task9_access_gate",
+      readonly: true,
+      service: "airo-finance",
+      source: "apps-script-webapp",
+      task: "task9_cc_live_access_gate",
+      timestamp: new Date().toISOString(),
+      writes_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false
+    };
+    return ContentService.createTextOutput(JSON.stringify(response))
+                         .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var errResponse = {
+    ok: false,
+    message: "Forbidden or unknown GET request"
+  };
+  return ContentService.createTextOutput(JSON.stringify(errResponse))
+                       .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doPost(e) {
   var task9CleanupPreviewResult = airoTask9CleanupMaybeHandleRoute_(e);
   if (task9CleanupPreviewResult) {
@@ -17433,34 +17461,6 @@ function doPost(e) {
     return task611SmokeScanResult;
   }
 return airoOriginalDoPostForSprint7GmailLabelFilter_(e);
-}
-
-function doGet(e) {
-  var probe = e && e.parameter && e.parameter.airo_probe;
-  if (probe === 'task9_access_gate') {
-    var response = {
-      ok: true,
-      handled: true,
-      probe: "task9_access_gate",
-      readonly: true,
-      service: "airo-finance",
-      source: "apps-script-webapp",
-      task: "task9_cc_live_access_gate",
-      timestamp: new Date().toISOString(),
-      writes_performed: false,
-      gmail_read_performed: false,
-      telegram_send_performed: false
-    };
-    return ContentService.createTextOutput(JSON.stringify(response))
-                         .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  var errResponse = {
-    ok: false,
-    message: "Forbidden or unknown GET request"
-  };
-  return ContentService.createTextOutput(JSON.stringify(errResponse))
-                       .setMimeType(ContentService.MimeType.JSON);
 }
 
 function airoTask9GetConfiguredSpreadsheetId_() {
