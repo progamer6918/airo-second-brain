@@ -79,13 +79,68 @@ def generate_short_id(m: dict, full_id: str) -> str:
     return short_id
 
 
+def get_active_captures_for_date(date_str: str) -> list:
+    """Get list of full capture IDs from active queue that match date_str."""
+    filepath = os.path.join(REPO_DIR, "inbox/manual-sync-queue.md")
+    if not os.path.exists(filepath):
+        return []
+    
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+    except Exception:
+        return []
+        
+    def title_to_id(title):
+        title = title.strip()
+        title = re.sub(r"(\d{4})-(\d{2})-(\d{2})", r"\1\2\3", title)
+        title = title.lower()
+        title = title.replace("—", " ").replace(":", " ")
+        title = re.sub(r"[^a-z0-9\s-]", "", title)
+        title = re.sub(r"[\s-]+", "-", title)
+        return title.strip("-")
+
+    captures = []
+    for line in content.splitlines():
+        if line.startswith("## "):
+            m = re.match(r"^## (\d{4}-\d{2}-\d{2})", line)
+            if m:
+                heading_date = m.group(1)
+                title = line[3:].strip()
+                cap_id = title_to_id(title)
+                captures.append((heading_date, cap_id))
+                
+    filtered = [cap_id for h_date, cap_id in captures if h_date == date_str]
+    return filtered
+
+
 def resolve_id(short_or_full: str) -> str:
     """Resolve a short ID to full ID. If already full, return as-is."""
     m = load_map()
     if short_or_full in m:
         return m[short_or_full]
-    # Check reverse (it's already a full ID)
-    # Also check by prefix match for robustness
+        
+    # Fallback: parse date from short ID mq-YYYYMMDD-NNN
+    match = re.match(r"^mq-(\d{4})(\d{2})(\d{2})-(\d+)$", short_or_full)
+    if match:
+        year, month, day, seq_str = match.groups()
+        date_str = f"{year}-{month}-{day}"
+        seq_idx = int(seq_str) - 1
+        
+        # 1. Search active queue first
+        active_caps = get_active_captures_for_date(date_str)
+        if 0 <= seq_idx < len(active_caps):
+            return active_caps[seq_idx]
+            
+        # 2. Check archive paths
+        import glob
+        archive_dir = os.path.join(REPO_DIR, f"archive/manual-sync-queue/{date_str}")
+        if os.path.exists(archive_dir):
+            files = sorted(glob.glob(os.path.join(archive_dir, "*.md")))
+            if 0 <= seq_idx < len(files):
+                filename = os.path.basename(files[seq_idx])
+                resolved_id = os.path.splitext(filename)[0]
+                return resolved_id
     return short_or_full
 
 

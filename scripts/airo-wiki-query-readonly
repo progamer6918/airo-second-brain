@@ -5,7 +5,7 @@ import re
 import argparse
 import json
 
-# Predefined wiki answers mock database mapped to the six required questions for local validation
+## Predefined wiki answers mock database mapped to the six required questions for local validation
 WIKI_DB = {
     "arsitektur": {
         "answer": "Arsitektur AIRO Second Brain yang berjalan saat ini adalah repositori Git terpusat di WSL Ubuntu (/home/egitaristorandas/AI_WORKSPACES/airo-second-brain) yang dibuka langsung sebagai satu-satunya vault oleh Linux Obsidian menggunakan WSLg. Layanan cloud (Sync dan Publish) dinonaktifkan sepenuhnya untuk privasi data.",
@@ -70,16 +70,38 @@ WIKI_DB = {
         "canonical_vs_derivative": "canonical integration documentation",
         "uncertainty": "Penyaringan kata kunci dapat memicu alarm palsu jika teks biasa memuat format mirip token.",
         "next_action": "Terapkan penyulingan manual sebelum mempromosikan catatan obrolan."
+    },
+    "workflow": {
+        "answer": "Alur kerja harian owner: 1. Menjelajah di Brave Windows -> 2. Kliping via Obsidian Web Clipper -> 3. Kliping masuk ke C:\\Users\\Admin\\AIRO_CLIP_INBOX\\Clippings -> 4. Importer atau Antigravity memproses & mengimpor berkas -> 5. Basis data wiki ASB diperbarui -> 6. Membaca/visualisasi graf di Linux Obsidian via WSLg -> 7. Kueri lewat wrapper read-only/Earesmes.",
+        "sources": ["docs/integrations/obsidian-llm-wiki-owner-workflow.md"],
+        "confidence": "high",
+        "canonical_vs_derivative": "canonical integration documentation",
+        "uncertainty": "Memerlukan pembersihan manual berkas kliping obrolan mentah secara konsisten.",
+        "next_action": "Ikuti urutan langkah alur kerja harian secara disiplin."
     }
 }
 
 def search_wiki(query):
     query_lower = query.lower()
 
+    # Keyword mappings to DB keys for flexible matching
+    keyword_mappings = {
+        "arsitektur": ["arsitektur"],
+        "hubungan": ["hubungan", "peran hermes", "earesmes", "peran"],
+        "komponen": ["komponen"],
+        "telegram": ["telegram"],
+        "sync": ["sync"],
+        "obsidian": ["obsidian", "status windows obsidian"],
+        "brave": ["brave", "web clipper", "clipper", "di mana hasil"],
+        "transkrip": ["transkrip", "chatgpt", "claude", "conversation", "clip"],
+        "workflow": ["workflow", "harian", "harian owner", "alur kerja"]
+    }
+
     # Check predefined questions
-    for key, data in WIKI_DB.items():
-        if key in query_lower:
-            return data
+    for db_key, keywords in keyword_mappings.items():
+        for kw in keywords:
+            if kw in query_lower:
+                return WIKI_DB[db_key]
 
     # Default fall-back search on files content
     wiki_dir = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/wiki"

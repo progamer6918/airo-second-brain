@@ -112,6 +112,21 @@ def find_archive_file(capture_id):
         
     return None
 
+def read_archive_detail(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            lines = f.readlines()
+        
+        filtered_lines = []
+        for line in lines:
+            if line.startswith("## ") and not re.match(r"^## \d{4}-\d{2}-\d{2}", line):
+                # Cut at non-date headers to prevent leak
+                break
+            filtered_lines.append(line)
+        return "".join(filtered_lines).strip()
+    except Exception:
+        return None
+
 def main():
     parser = argparse.ArgumentParser(description="Process manual sync queue captures.")
     parser.add_argument("--capture-id", required=True, help="Capture ID to process")
@@ -131,9 +146,21 @@ def main():
             if archive_file:
                 print(f"Capture ID '{args.capture_id}' already archived in '{archive_file}'.")
                 sys.exit(0)
+        elif args.action == "detail":
+            archive_file = find_archive_file(args.capture_id)
+            if archive_file:
+                detail_content = read_archive_detail(archive_file)
+                if detail_content:
+                    print("Capture ini sudah diarsipkan.\n")
+                    print(detail_content)
+                    sys.exit(0)
+        
+        if args.capture_id.startswith("mq-"):
+            print("Tombol ini sudah kedaluwarsa. Kirim/ambil card terbaru.")
+            sys.exit(0)
+            
         print(f"Error: Capture ID '{args.capture_id}' not found.", file=sys.stderr)
         sys.exit(2)
-
         
     if args.action == "detail":
         print("".join(target["raw_content"]))
