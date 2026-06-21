@@ -3800,9 +3800,8 @@ function writeAssetSafely_(ss, parsed, rawText, common) {
     }, { createIfMissing: false });
   }
 
-  function mirrorAssetPurchaseToAccountLedger_(result) {
-    if (!result || result.status !== 'written') return result;
-
+  try {
+    const linkedTxnId = common.linked_txn_id || makeTxnId_({}, rawText);
     const accountParsed = Object.assign({}, parsed, {
       type: 'asset_purchase',
       category: parsed.category || 'Aset',
@@ -3810,31 +3809,56 @@ function writeAssetSafely_(ss, parsed, rawText, common) {
       amount: parsed.amount || amountForIntent_(parsed, rawText)
     });
     const accountCommon = Object.assign({}, common, {
-      linked_txn_id: common.linked_txn_id || makeTxnId_({}, rawText)
+      linked_txn_id: linkedTxnId
     });
-    const accountLedgerResult = writeAccountLedgerMirror_(ss, accountParsed, rawText, accountCommon, AIRO_CONFIG.tabs.aset);
 
-    return Object.assign({}, result, {
-      writtenTab: result.writtenTab || tabName,
-      account_ledger_result: accountLedgerResult || null
+    const accountLedgerResult = writeAccountLedgerMirror_(ss, accountParsed, rawText, accountCommon, tabName);
+    const ledgerVerified = accountLedgerResult && accountLedgerResult.status === 'written' && accountLedgerResult.row;
+
+    if (!ledgerVerified) {
+      return {
+        status: 'blocked',
+        reason: 'ledger_write_failed_or_unverified',
+        account_ledger_write_performed: true,
+        account_ledger_write_verified: false,
+        asset_domain_update_performed: false,
+        ledger_first: true
+      };
+    }
+
+    const ledgerRow = accountLedgerResult.row;
+    const updatedCommon = Object.assign({}, common, {
+      linked_txn_id: linkedTxnId
     });
-  }
 
-  try {
+    let domainResult;
     if (parsed.assetSection === 'gold') {
-      return mirrorAssetPurchaseToAccountLedger_(appendGoldAssetRow_(sheet, parsed, rawText, common));
+      domainResult = appendGoldAssetRow_(sheet, parsed, rawText, updatedCommon);
+    } else if (parsed.assetSection === 'savings') {
+      domainResult = appendToAssetSection_(sheet, 'savings', updatedCommon);
+    } else {
+      domainResult = appendByHeader_(ss, AIRO_CONFIG.tabs.review, {
+        ...updatedCommon,
+        status: 'review',
+        fallback_reason: 'asset_section_unclear_or_header_not_found'
+      }, { createIfMissing: false });
     }
 
-    if (parsed.assetSection === 'savings') {
-      const result = appendToAssetSection_(sheet, 'savings', common);
-      if (result.status === 'written') return mirrorAssetPurchaseToAccountLedger_({ ...result, writtenTab: tabName });
-    }
+    const domainUpdated = domainResult && domainResult.status === 'written';
 
-    return appendByHeader_(ss, AIRO_CONFIG.tabs.review, {
-      ...common,
-      status: 'review',
-      fallback_reason: 'asset_section_unclear_or_header_not_found'
-    }, { createIfMissing: false });
+    return {
+      status: domainUpdated ? 'written' : 'partial_success',
+      writtenTab: domainUpdated ? tabName : (domainResult && domainResult.writtenTab || tabName),
+      row: domainResult && domainResult.row || '',
+      account_ledger_result: accountLedgerResult,
+      account_ledger_write_performed: true,
+      account_ledger_write_verified: true,
+      asset_domain_update_performed: domainUpdated,
+      ledger_first: true,
+      linked_txn_id: linkedTxnId,
+      ledger_row: ledgerRow,
+      domain_result: domainResult
+    };
   } catch (err) {
     return appendByHeader_(ss, AIRO_CONFIG.tabs.review, {
       ...common,
