@@ -234,3 +234,8 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - deploy: deployed the feature to production version `@297` (following prior API access repair at version `@296`).
 - ops: resolved WebApp 403 access issues, stopped duplicate `hermes-gateway.service`, and verified singleton gateway inside tmux session `airo-telegram-gateway`.
 - docs: recorded milestone progress in `current-state.md` and `active-context.md`.
+
+## 2026-06-21 — Task 9 CC Numbered Settlement E2E Smoke PASS
+- feat: completed the E2E verification of `cc sudah <nomor>` ledger-first workflow.
+- test: executed local static tests (11 cases) and live smoke queries verifying outflow/inflow ledger insertion, status updates, and duplicate execution protection.
+- deploy: verified active deployment at version `@306` with full triple source parity.

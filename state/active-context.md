@@ -458,3 +458,14 @@ Notes:
 - Button sheets intentionally not touched.
 - Rejected Claude/XML/sandbox visual candidates because macro/buttons/workbook reliability broke.
 - New-report auto-run remains not proven; onboarding is intake/admin approval only.
+
+## 2026-06-21 08:16:00 +0700 — Task 9 CC Numbered Settlement Workflow E2E Smoke PASS
+- verified: All three backend codebases are in 100% source parity.
+- verified: Static tests for CC sudah workflow passed (11/11 cases).
+- verified: Clasp deployment is active at version `@306`.
+- verified: E2E live smoke test completed via `scratch/smoke_run.py`.
+- verified: Command `cc sudah 1` successfully settled "cc bayar pdam 57rb" (outflow Blu Pocket -> inflow Blu Pocket CC) at Ledger rows 119-120.
+- verified: CC row status updated to `✅ Sudah` and linked to transaction reference.
+- verified: Idempotency repeat execution safely returned `cc_already_settled` with no duplicate writes.
+- status: CC_SUDAH_NUMBERED_WORKFLOW=PASS.
+- next: Normal operations.
