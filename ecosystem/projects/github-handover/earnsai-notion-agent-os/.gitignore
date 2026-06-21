@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+*.token
+*.secret
+*.session
+*.sqlite
+*.db
+.venv/
+venv/
+logs/
