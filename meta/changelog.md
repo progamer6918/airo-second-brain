@@ -243,3 +243,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 ## 2026-06-21 — Sprint 7P Normal Operation Guardrail Plan Created
 - docs: added Sprint 7P Normal Operation Guardrail Plan and Owner Telegram Command Cheat Sheet to `vortex-ai-skill-lab`.
 - docs: closed Sprint 7O and registered stable baseline deployment `@306`.
+
+## 2026-06-21 — Vortex AI Skill Lab Workspace Migration to ASB
+- feat: migrated `vortex-ai-skill-lab` to `/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab`.
+- feat: symlinked old path `/home/egitaristorandas/vortex-ai-skill-lab` to the new canonical location to preserve existing workflows.
+- feat: updated root `.gitignore` in ASB with live workspace safety ignores.
+- feat: pushed all migration baseline changes successfully to GitHub main branch.
+

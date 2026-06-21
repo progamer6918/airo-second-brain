@@ -476,3 +476,13 @@ Notes:
 - deploy: skipped deployment since no code changes are introduced.
 - status: CC_SUDAH_NUMBERED_WORKFLOW stable on production version `@306`.
 - next: Normal operations.
+
+## 2026-06-21 10:35:00 +0700 — Vortex AI Skill Lab Workspace Migration to ASB PASS
+- verified: `vortex-ai-skill-lab` migrated from `/home/egitaristorandas/vortex-ai-skill-lab` into ASB at `/home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab`.
+- verified: Old workspace path `/home/egitaristorandas/vortex-ai-skill-lab` remains functional via symlink pointing to the new ASB path.
+- verified: Pre-migration backup created at `/home/egitaristorandas/vortex-ai-skill-lab.__pre_asb_migration_backup`.
+- verified: Root `.gitignore` in ASB updated with live workspace safety ignores to prevent committing secrets/dependencies.
+- verified: Git status clean and changes pushed to origin HEAD:main successfully.
+- status: VORTEX_WORKSPACE_MIGRATION=PASS.
+- next: Test normal AIRO Finance workflow from old path and ASB path.
+
