@@ -30195,7 +30195,9 @@ function airoTask101RenderDashboardFromCurrentFilter_(ss) {
     if (accountSpacerStartRow <= 26) {
       var accountSpacer = dashboard.getRange(accountSpacerStartRow, 2, 27 - accountSpacerStartRow, 5);
       try { accountSpacer.breakApart(); } catch (e) {}
-      accountSpacer.clear({contentsOnly:false});
+      accountSpacer.clearContent();
+      accountSpacer.clearFormat();
+      accountSpacer.clearDataValidations();
       accountSpacer.setBackground('#111827').setFontColor('#F9FAFB');
     }
     // AIRO_TASK10_1_ACCOUNT_SPACER_CLEANUP_END
@@ -30238,6 +30240,17 @@ function airoTask101RenderDashboardFromCurrentFilter_(ss) {
     dashboard.getRange('D28:D33').setNumberFormat('0.00%');
 
     airoTask101ApplyVisual_(dashboard);
+
+    // AIRO_TASK10_1_FINAL_B26_CLEAR_START
+    var finalB26 = dashboard.getRange('B26:F26');
+    try { finalB26.breakApart(); } catch (e) {}
+    finalB26.clearContent();
+    finalB26.clearFormat();
+    finalB26.clearDataValidations();
+    finalB26.setBackground('#111827').setFontColor('#F9FAFB').setFontFamily('Arial').setFontSize(10);
+    SpreadsheetApp.flush();
+    // AIRO_TASK10_1_FINAL_B26_CLEAR_END
+
     airoTask101WriteSettingsDetail_(settings, dq.slice(1));
 
     return {
@@ -30313,15 +30326,17 @@ function airoTask101LegacyHits_(dashboard) {
 
 
 function airoTask101ErrorCount_(dashboard) {
-  var vals = dashboard.getDataRange().getDisplayValues();
+  if (!dashboard) return 999;
+  var vals = dashboard.getRange('B1:J45').getDisplayValues();
   var count = 0;
   vals.forEach(function(row) {
     row.forEach(function(v) {
-      if (/^#(VALUE|ERROR|REF|N\/A|DIV\/0)!?/.test(String(v || ''))) count++;
+      if (/^#(VALUE|ERROR|REF|N\/A|DIV\/0|NAME)\!?/.test(String(v || ''))) count++;
     });
   });
   return count;
 }
+
 
 function airoTask101FinanceFormulaRefCount_(dashboard) {
   var formulas = dashboard.getDataRange().getFormulas();
