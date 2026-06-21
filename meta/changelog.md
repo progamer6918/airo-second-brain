@@ -254,4 +254,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - feat: archived legacy top-level `projects/` directory containing markdown docs into `archive/legacy-top-level-projects/projects/` to clean up the repository root structure.
 - feat: preserved physical live workspaces under `ecosystem/projects/` completely untouched.
 
+## 2026-06-21 — Task 9 Asset Purchase Ledger-First Source Patch Gate PASS
+- feat: refactored `writeAssetSafely_` to enforce ledger-first logic for asset purchases (Gold/Savings).
+- feat: added Node.js static test script `scripts/airo_finance_task9_asset_ledger_first_static_test.js` to assert write order, failure blocks, CC purchase domain-only constraint, and deprecated Finance Events guard.
+- deploy: deployed the patched source code to Google Apps Script production version `@308` (deployment ID remains unchanged).
+- test: confirmed read-only doGet probe returns valid JSON from the live web application.
+- docs: recorded technical details in `docs/airo-finance/records/task9_asset_ledger_first_source_patch_20260621.md`.
+
+
 

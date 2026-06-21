@@ -493,4 +493,12 @@ Notes:
 - status: LEGACY_PROJECTS_ARCHIVING=PASS.
 - next: Normal operations.
 
+## 2026-06-21 12:51:00 +0700 — Task 9 Asset Purchase Ledger-First Source Patch Gate PASS
+- verified: Asset purchase flow refactored to write Account Ledger first, verify write, and only update Aset domain projection if verified.
+- verified: Added `scripts/airo_finance_task9_asset_ledger_first_static_test.js` to assert ledger-first routing.
+- verified: Active deployment version updated to `@308` (deployment ID unchanged).
+- verified: Live read-only doGet probe returns valid JSON.
+- status: ASSET_LEDGER_FIRST_SOURCE_PATCH=PASS.
+- next: `AIRO-FINANCE-TASK9-ASSET-LEDGER-FIRST-LIVE-READBACK-REGRESSION` (owner-approved only).
+
 
