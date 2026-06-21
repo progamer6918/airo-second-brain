@@ -306,3 +306,42 @@ Earesmes operates locally as the resident AIRO Sync persona.
 
 Obsidian may provide the human-facing interface over the same ASB repository.
 ```
+
+<!-- AIRO:LATEST-EVIDENCE-RESOLUTION:START -->
+## Latest Evidence Resolution Protocol
+
+Before declaring any AIRO, ASB, governed project, runtime, GitHub, Antigravity, migration, or workflow task as `done`, `in progress`, `pending`, `blocked`, `stale`, or `needs rework`, resolve the newest available evidence first.
+
+Required status-resolution order:
+
+1. Read or fetch the latest source of truth when access is available.
+2. Check latest Git evidence first when applicable:
+   - current branch
+   - local `HEAD`
+   - `origin/main`
+   - latest relevant commits
+   - remote parity
+3. Read the newest closeout, status, owner decision, and active-context files.
+4. Read the newest validation, live regression, runtime, scheduler, deployment, or command-result evidence.
+5. Only after that, read older preflight, audit, inbox, or log files as historical context.
+
+Conflict rule:
+
+- Newer commit, closeout, validation, live regression, runtime, or deployment evidence supersedes older preflight/log evidence.
+- If an older preflight/log says a task is pending or in progress, but newer commit/closeout/validation evidence proves completion, treat the older file as `SUPERSEDED`.
+- Do not mark a task as pending, in progress, blocked, or requiring rework from an old preflight/log alone.
+- Do not mark a task as done without evidence such as commit hash, push proof, validation log, live regression, runtime output, deployment output, or explicit closeout.
+
+If latest evidence cannot be read, the required status is:
+
+```text
+🟡 POSISI SEKARANG: belum pasti — latest evidence belum berhasil dibaca.
+Status answers should expose the evidence basis compactly when relevant:
+
+LATEST_COMMIT=<hash or unknown>
+LATEST_COMMIT_MESSAGE=<message or unknown>
+LATEST_CLOSEOUT=<path or none>
+LATEST_VALIDATION=<path or none>
+OLD_PREFLIGHT_SUPERSEDED=YES/NO/UNKNOWN
+FINAL_VERDICT=done/progress/blocked/unknown
+<!-- AIRO:LATEST-EVIDENCE-RESOLUTION:END -->
