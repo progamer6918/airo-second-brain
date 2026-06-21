@@ -9441,7 +9441,7 @@ function airoSprint6DashboardFinalBuild_(ss, options) {
     ['Legacy Issues', airoSprint6SafeNumber_(analytics.issue_count_legacy), 'Sprint 5 reconciliation analytics', 'Monitor', 'Classify if active period affected', '', ''],
     ['Critical Issues', airoSprint6SafeNumber_(analytics.critical_count), 'Sprint 5 reconciliation analytics', airoSprint6SafeNumber_(analytics.critical_count) > 0 ? 'Critical' : 'Clean', 'Fix if > 0', '', ''],
     ['Wallet & Cashflow Source', 'Account Ledger', '📒 Account Ledger', 'Source OK', 'Do not read Cash Ledger', '', ''],
-    ['Spending Source', 'Finance Events clean category', '🧭 Finance Events', 'Source OK', 'Exclude missing category from clean breakdown', '', ''],
+    ['Spending Source', 'Account Ledger category', '📒 Account Ledger', 'Source OK', 'Exclude missing category from clean breakdown', '', ''],
   ];
 
   airoSprint6WriteRows_(dashboard, 6, 1, kpiRows);
@@ -9721,7 +9721,7 @@ function airoSprint6DashboardFinalPlan_(ss, options) {
     },
     {
       severity: 'WARNING',
-      source: 'Finance Events / Account Ledger',
+      source: 'Account Ledger',
       message: 'Kategori Lainnya rows need category review.',
       action: 'Review Category'
     },
@@ -25827,14 +25827,14 @@ function airoSprint6DashboardV2Build_(ss, options) {
     const catName = categories[idx];
 
     // % of Total Outflow formula
-    newV2.getRange("C" + rNum).setFormula(`=IF(E22=0; 0; SUMIFS('📌 Finance Events'!J:J; '📌 Finance Events'!I:I; "${catName}"; '📌 Finance Events'!K:K; "outflow"; '📌 Finance Events'!B:B; ">="&M3; '📌 Finance Events'!B:B; "<="&M4) / E22)`);
+    newV2.getRange("C" + rNum).setFormula(`=IF(E22=0; 0; SUMIFS('📒 Account Ledger'!E:E; '📒 Account Ledger'!H:H; "${catName}"; '📒 Account Ledger'!B:B; ">="&M3; '📒 Account Ledger'!B:B; "<="&M4) / E22)`);
 
     // Progress Bar: empty / neutral representation if percentage is 0 or empty
     newV2.getRange("D" + rNum).setFormula(`=IF(OR(C${rNum}=""; C${rNum}=0); "░░░░░░░░░░"; REPT("█"; MAX(0; MIN(10; ROUND(C${rNum} * 10)))) & REPT("░"; 10 - MAX(0; MIN(10; ROUND(C${rNum} * 10)))))`);
 
     // Previous period comparisons (Trend)
-    const currentSum = `SUMIFS('📌 Finance Events'!J:J; '📌 Finance Events'!I:I; "${catName}"; '📌 Finance Events'!K:K; "outflow"; '📌 Finance Events'!B:B; ">="&M3; '📌 Finance Events'!B:B; "<="&M4)`;
-    const prevSum = `SUMIFS('📌 Finance Events'!J:J; '📌 Finance Events'!I:I; "${catName}"; '📌 Finance Events'!K:K; "outflow"; '📌 Finance Events'!B:B; ">="&M5; '📌 Finance Events'!B:B; "<="&M6)`;
+    const currentSum = `SUMIFS('📒 Account Ledger'!E:E; '📒 Account Ledger'!H:H; "${catName}"; '📒 Account Ledger'!B:B; ">="&M3; '📒 Account Ledger'!B:B; "<="&M4)`;
+    const prevSum = `SUMIFS('📒 Account Ledger'!E:E; '📒 Account Ledger'!H:H; "${catName}"; '📒 Account Ledger'!B:B; ">="&M5; '📒 Account Ledger'!B:B; "<="&M6)`;
     const trendFormula = `=IFERROR(IF(${prevSum}=0; "belum cukup data"; IF(${currentSum}=${prevSum}; "  stabil"; IF(${currentSum}>${prevSum}; "▲ +" & ROUND(100*(${currentSum}-${prevSum})/${prevSum}) & "%"; "▼ −" & ROUND(100*(${prevSum}-${currentSum})/${prevSum}) & "%"))); "belum cukup data")`;
     newV2.getRange("E" + rNum).setFormula(trendFormula);
   }
@@ -25844,8 +25844,8 @@ function airoSprint6DashboardV2Build_(ss, options) {
   newV2.getRange("J26").setFormula(`=IF(COUNTIFS('🧾 Review Queue'!D:D; "pending"; '🧾 Review Queue'!C:C; "Credit Card"; '🧾 Review Queue'!B:B; ">="&M3; '🧾 Review Queue'!B:B; "<="&M4) > 0; "⊗ " & COUNTIFS('🧾 Review Queue'!D:D; "pending"; '🧾 Review Queue'!C:C; "Credit Card"; '🧾 Review Queue'!B:B; ">="&M3; '🧾 Review Queue'!B:B; "<="&M4) & " item"; "✓ clean")`);
   newV2.getRange("G26").setFormula(`=IF(J26="✓ clean"; "✓ CC payment matched"; "⊗ CC payment belum match")`);
 
-  newV2.getRange("J27").setFormula(`=IF(COUNTIFS('📌 Finance Events'!B:B; ">="&M3; '📌 Finance Events'!B:B; "<="&M4; '📌 Finance Events'!E:E; "") > 0; "⊗ " & COUNTIFS('📌 Finance Events'!B:B; ">="&M3; '📌 Finance Events'!B:B; "<="&M4; '📌 Finance Events'!E:E; "") & " item"; "✓ clean")`);
-  newV2.getRange("G27").setFormula(`=IF(J27="✓ clean"; "✓ Finance Events domain set"; "⊗ Finance Events tanpa domain ref")`);
+  newV2.getRange("J27").setFormula(`=IF(COUNTIFS('📒 Account Ledger'!B:B; ">="&M3; '📒 Account Ledger'!B:B; "<="&M4; '📒 Account Ledger'!H:H; "") > 0; "⚠ " & COUNTIFS('📒 Account Ledger'!B:B; ">="&M3; '📒 Account Ledger'!B:B; "<="&M4; '📒 Account Ledger'!H:H; "") & " item"; "✓ clean")`);
+  newV2.getRange("G27").setFormula(`=IF(J27="✓ clean"; "✓ Account Ledger category set"; "⚠ Account Ledger tanpa category")`);
 
   newV2.getRange("J28").setFormula(`=IF(COUNTIFS('🧾 Review Queue'!D:D; "pending"; '🧾 Review Queue'!B:B; ">="&M3; '🧾 Review Queue'!B:B; "<="&M4) > 0; "⏳ " & COUNTIFS('🧾 Review Queue'!D:D; "pending"; '🧾 Review Queue'!B:B; ">="&M3; '🧾 Review Queue'!B:B; "<="&M4) & " item"; "✓ clean")`);
   newV2.getRange("G28").setFormula(`=IF(J28="✓ clean"; "✓ No pending clarifications"; "⏳ Pending clarifications exist")`);
@@ -26007,7 +26007,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
         replaced = true;
       }
       // Check for raw formula/debug hints
-      else if (trimmed.indexOf("=SUMIF") >= 0 || trimmed.indexOf("FinanceEvents, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
+      else if (trimmed.indexOf("=SUMIF") >= 0 || trimmed.indexOf("Account Ledger, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
         newValue = "";
         replaced = true;
       }
@@ -26046,7 +26046,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
     const val = finalRow32Vals[0][colIdx];
     const trimmed = val.trim();
     const colLetter = getColumnLetter_(colIdx + 1);
-    if (trimmed.indexOf("=SUMIF") >= 0 || trimmed.indexOf("FinanceEvents, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
+    if (trimmed.indexOf("=SUMIF") >= 0 || trimmed.indexOf("Account Ledger, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
       newV2.getRange(colLetter + "32").setValue("");
     }
   }
@@ -26283,7 +26283,7 @@ function airoSprint6DashboardV2Readback_(ss, options) {
       }
       // Check if display value itself looks like a raw formula or debug string
       const trimmed = val.trim();
-      if (trimmed.indexOf("=") === 0 || trimmed.indexOf("=SUM") >= 0 || trimmed.indexOf("=IF") >= 0 || trimmed.indexOf("FinanceEvents, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
+      if (trimmed.indexOf("=") === 0 || trimmed.indexOf("=SUM") >= 0 || trimmed.indexOf("=IF") >= 0 || trimmed.indexOf("Account Ledger, category") >= 0 || trimmed.indexOf("hanya data clean") >= 0) {
         rawFormulaCells.push({ address: cellAddress, value: val, reason: "Raw formula or debug string" });
       }
       // Check for raw large unformatted money values (magnitude >= 10000, i.e., length >= 5 digits to ignore years)
