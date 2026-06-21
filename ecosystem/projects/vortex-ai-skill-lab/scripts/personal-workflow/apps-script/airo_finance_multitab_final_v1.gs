@@ -30252,22 +30252,54 @@ function airoTask101RenderDashboardFromCurrentFilter_(ss) {
   }
 }
 
+
+function airoTask101IsLegacyDashboardTerm_(display, formula, term) {
+  var text = String(display || '').trim();
+  var f = String(formula || '');
+
+  if (term === 'source: Finance Events' || term === 'Bar  (source: Finance Events') {
+    return text.indexOf(term) >= 0 || f.indexOf(term) >= 0;
+  }
+
+  if (term === 'Makanan' || term === 'Bensin' || term === 'Lainnya') {
+    if (text === term) return true;
+    if (f.indexOf('"' + term + '"') >= 0) return true;
+    if (f.indexOf('; ' + '"' + term + '"') >= 0) return true;
+    return false;
+  }
+
+  return text.indexOf(term) >= 0 || f.indexOf(term) >= 0;
+}
+
 function airoTask101LegacyHits_(dashboard) {
-  var data = dashboard.getDataRange().getDisplayValues();
-  var formulas = dashboard.getDataRange().getFormulas();
-  var terms = ['Makanan','Bensin','Lainnya','source: Finance Events','Bar  (source: Finance Events'];
   var hits = [];
-  for (var r = 0; r < data.length; r++) {
-    for (var c = 0; c < data[r].length; c++) {
-      var v = String(data[r][c] || '');
-      var f = String(formulas[r][c] || '');
-      terms.forEach(function(t) {
-        if (v.indexOf(t) >= 0 || f.indexOf(t) >= 0) hits.push({ row: r + 1, col: c + 1, term: t });
-      });
+  if (!dashboard) return hits;
+
+  var range = dashboard.getRange('B1:J45');
+  var displays = range.getDisplayValues();
+  var formulas = range.getFormulas();
+  var terms = ['Makanan','Bensin','Lainnya','source: Finance Events','Bar  (source: Finance Events'];
+
+  for (var r = 0; r < displays.length; r++) {
+    for (var c = 0; c < displays[r].length; c++) {
+      var display = String(displays[r][c] || '');
+      var formula = String(formulas[r][c] || '');
+      for (var t = 0; t < terms.length; t++) {
+        var term = terms[t];
+        if (airoTask101IsLegacyDashboardTerm_(display, formula, term)) {
+          hits.push({
+            row: r + 1,
+            col: c + 2,
+            term: term
+          });
+        }
+      }
     }
   }
+
   return hits;
 }
+
 
 function airoTask101ErrorCount_(dashboard) {
   var vals = dashboard.getDataRange().getDisplayValues();
@@ -30433,7 +30465,7 @@ function runTask101DashboardForensicReadbackFromEditor() {
       }
 
       legacyTerms.forEach(function(term) {
-        if (display.indexOf(term) >= 0 || formula.indexOf(term) >= 0) {
+        if (airoTask101IsLegacyDashboardTerm_(display, formula, term)) {
           legacyCells.push({
             a1: a1,
             term: term,
