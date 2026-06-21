@@ -29542,11 +29542,23 @@ function airoTask10RepairDashboard_(ss) {
   var accounts = airoTask10AccountPanel_(rows, airoTask10RegistryRows_(registry));
 
   var ledgerRef = airoTask10SheetRef_(ledger);
-  dashboard.getRange('B2').setFormula(
-    '="Last ledger update: "&IFERROR(TEXT(MAX(FILTER(' + ledgerRef + '!B:B,' + ledgerRef + '!A:A<>"")),"d mmmm yyyy, HH:mm"),"NO DATA")&" | Dashboard source: Account Ledger | Rows: "&COUNTA(' + ledgerRef + '!A2:A)'
-  );
+  var latestStr = 'NO DATA';
+  if (latest) {
+    try {
+      latestStr = Utilities.formatDate(latest, Session.getScriptTimeZone(), 'd MMMM yyyy');
+    } catch (eDate) {
+      latestStr = String(latest);
+    }
+  }
+  var refreshedStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMMM yyyy, HH:mm');
+  var b2Value = 'Last ledger update: ' + latestStr + ' | Dashboard refreshed: ' + refreshedStr + ' | Source: Account Ledger | Rows: ' + rows.length;
+  dashboard.getRange('B2').setValue(b2Value);
 
-  dashboard.getRange('B15:E40').clearContent();
+  // Clear and unmerge Wallet & Cashflow range
+  dashboard.getRange('B15:E24').clearContent();
+  try {
+    dashboard.getRange('B15:E24').breakApart();
+  } catch (eBreak) {}
   dashboard.getRange('B15:E15').merge().setValue('💳 WALLET & CASHFLOW — dynamic from Account Registry + Account Ledger');
   dashboard.getRange('B16:E16').setValues([['Akun', 'Saldo', 'Group', 'Status']]);
 
@@ -29555,6 +29567,11 @@ function airoTask10RepairDashboard_(ss) {
   dashboard.getRange(17, 2, accountRows.length, 4).setValues(accountRows);
 
   var startRow = 27;
+  // Clear and unmerge Spending range
+  dashboard.getRange('B27:E33').clearContent();
+  try {
+    dashboard.getRange('B27:E33').breakApart();
+  } catch (eBreak) {}
   dashboard.getRange(startRow, 2, 1, 4).setValues([['Kategori', 'Nominal', 'Share', 'Bar']]);
   var spendRows = [];
   spending.rows.forEach(function(x) {
@@ -29568,7 +29585,11 @@ function airoTask10RepairDashboard_(ss) {
   dashboard.getRange('C28:C33').setNumberFormat('"Rp" #,##0');
   dashboard.getRange('D28:D33').setNumberFormat('0.00%');
 
-  dashboard.getRange('G24:J40').clearContent();
+  // Clear and unmerge Data Quality range
+  dashboard.getRange('G24:J33').clearContent();
+  try {
+    dashboard.getRange('G24:J33').breakApart();
+  } catch (eBreak) {}
   dashboard.getRange('G24:J24').merge().setValue('🔍 DATA QUALITY CENTER');
   var pending = 0;
   if (review) {
@@ -29617,6 +29638,11 @@ function airoTask10RepairDashboard_(ss) {
   if (pending) findings.push('Review Queue pending: ' + pending + ' item.');
   if (!findings.length) findings.push('No actionable insight.');
 
+  // Clear and unmerge Smart Insight range
+  dashboard.getRange('G35:J40').clearContent();
+  try {
+    dashboard.getRange('G35:J40').breakApart();
+  } catch (eBreak) {}
   dashboard.getRange('G35:J35').merge().setValue('🧠 SMART INSIGHT — deterministic rules');
   dashboard.getRange('G36:J36').merge().setValue('Engine: deterministic | Window: current dashboard period | Findings: ' + findings.length);
   for (var i = 0; i < Math.min(4, findings.length); i++) {
