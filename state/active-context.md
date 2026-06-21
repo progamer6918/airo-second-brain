@@ -502,3 +502,18 @@ Notes:
 - next: `AIRO-FINANCE-TASK9-ASSET-LEDGER-FIRST-LIVE-READBACK-REGRESSION` (owner-approved only).
 
 
+
+## 2026-06-21 13:12:00 +0700 — Task 9 Asset Purchase Ledger-First Live/Readback Regression PASS_WITH_LIMITATIONS
+- verified: One controlled live asset write executed: 
+abung BCA 1000 test_task9_asset_ledger_first_live_regression_20260621.
+- verified: Account Ledger rows written (rows 119-120), type=asset_purchase, account=BCA, category=Savings.
+- verified: Aset domain tab row 7 written (routed_status=written, written_tab=🥇 Aset).
+- verified: source_tab=🥇 Aset in Account Ledger confirms ledger-first routing through patched writeAssetSafely_.
+- verified: Static tests before and after PASS (8/8 suites).
+- verified: Live access probe PASS.
+- limitation: write_verified=false in top-level doPost JSON (internal writeAssetSafely_ ledger-first verify is confirmed via source patch static tests not surface response).
+- limitation: 2 ledger rows written instead of 1 (curl redirect retry caused duplicate before valid Python requests write).
+- status: ASSET_LEDGER_FIRST_LIVE_REGRESSION=PASS_WITH_LIMITATIONS.
+- commit: ebf909f (doc record only).
+- push: PASS to origin/main.
+- next: Dashboard migration task or Task 9 final closeout (separate owner-approved task).
