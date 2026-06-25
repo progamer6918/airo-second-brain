@@ -1,3 +1,14 @@
+## AIRO Finance Gate 3A and Visual Delta Audit — 2026-06-25
+
+- Current gate remains Gate 3.
+- Gate 3A local backup baseline is created: PASS.
+- Isolated Apps Script editor pull readback: PASS.
+- Triggers and deployments read back: PASS (0 active triggers).
+- Workbook ID (1CKARXGurxZ0Rby3-_iisVS0_r65JM6ZaT6tbAJUF7sU) readback: PASS.
+- Bounded V4.2 visual-delta revalidation: BLOCKED (visual mismatch found).
+- Successor candidate required: YES.
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate3a-and-visual-delta-20260625.md`.
+
 ## AIRO Finance Owner-Locked Dashboard Visual Contract — 2026-06-25
 
 - Current gate remains Gate 3: backup and rollback baseline.
