@@ -1,3 +1,14 @@
+## AIRO Finance Gate 3B Successor Candidate Audit — 2026-06-25
+
+- Current gate remains Gate 3.
+- Successor candidate generated: V4.3 (PASS).
+- Offline JavaScript syntax validation: PASS.
+- Offline visual contract checks: PASS.
+- Bounded function mutations: PASS (only 4 functions mutated).
+- Successor candidate path: `/mnt/c/Users/Admin/Downloads/airo_task10_1_native_v2_surgical_v4_3_20260625_231132.js`
+- Successor patch path: `/mnt/c/Users/Admin/Downloads/airo_task10_1_native_v2_surgical_v4_3_20260625_231132.patch`
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate3b-successor-candidate-20260625.md`.
+
 ## AIRO Finance Gate 3A and Visual Delta Audit — 2026-06-25
 
 - Current gate remains Gate 3.
