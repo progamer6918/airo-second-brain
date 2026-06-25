@@ -1,6 +1,6 @@
 ## AIRO Finance Latest Execution Override — 2026-06-25
 
-Before AIRO Finance work, read `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-prd-gates-and-v4-2-review-20260625.md`. Older Task 9 and Task 10 optional statuses are historical. Task 10.1 is IN_PROGRESS; V4.2 is offline-only, not deployed. Current gate is Gate 1.
+Before AIRO Finance work, read `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate2-runtime-deployment-preflight-20260625.md`. Older Task 9 and Task 10 optional statuses are historical. Task 10.1 is IN_PROGRESS; V4.2 is offline-only, not deployed. Current gate is Gate 3 (Backup and rollback preparation).
 
 
 last_updated: 2026-06-13
