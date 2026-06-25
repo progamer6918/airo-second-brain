@@ -1,3 +1,15 @@
+## AIRO Finance Owner-Locked Dashboard Visual Contract — 2026-06-25
+
+- Current gate remains Gate 3: backup and rollback baseline.
+- Owner-approved target is now locked in `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_PRD_LIVING.md` v2.1.5.
+- Locked Wallet & Cashflow columns: `WALLET | SALDO | LEVEL | STATUS`; footer: `CASH IN | value | CASH OUT | value`.
+- Locked Spending Intelligence columns: `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.`; the bar belongs to prior-month growth, while `Contr.` is compact percentage only.
+- `OWNER_VISUAL_CONTRACT=LOCKED` is design approval, not deployed owner acceptance.
+- `OWNER_VISUAL_SANITY=PENDING` until Gate 10.
+- `IMPLEMENTATION_MATCH=NOT_YET_PROVEN`.
+- `V4_2_REVALIDATION_REQUIRED=YES` before Gate 4 promotion.
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-owner-final-dashboard-visual-lock-20260625.md`.
+
 ## AIRO Finance Latest Execution Override — 2026-06-25
 
 Before AIRO Finance work, read `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate2-runtime-deployment-preflight-20260625.md`. Older Task 9 and Task 10 optional statuses are historical. Task 10.1 is IN_PROGRESS; V4.2 is offline-only, not deployed. Current gate is Gate 3 (Backup and rollback preparation).

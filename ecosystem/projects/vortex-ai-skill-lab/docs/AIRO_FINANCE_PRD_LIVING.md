@@ -1,10 +1,10 @@
-# AIRO FINANCE — FINAL LIVING PRD v2.1.4
+# AIRO FINANCE — FINAL LIVING PRD v2.1.5
 
 Execution Contract after Architecture Freeze Audit
 
-PRD Version      : 2.1.4
+PRD Version : 2.1.5
 Status           : CANONICAL EXECUTION CONTRACT — TASK 10.1 IN PROGRESS
-Last verified    : 2026-06-25 20:39:30 WIB
+Last verified : 2026-06-25 22:41:45 WIB
 Repo baseline    : bd6815e
 Feature baseline : a4fd0ac — Phase 6H-G3 category registry fix
 Apps Script      : apps-script-live @241
@@ -37,6 +37,7 @@ This section contains the current execution override for Dashboard work. It supe
 * Priority order: visual fidelity → Account Ledger correctness → fast filters.
 
 ### 0A.3 Spending Intelligence Contract
+
 * Source: Account Ledger.
 * Selected period: visible month + year filters.
 * Display: top five eligible expense categories, descending by amount.
@@ -44,7 +45,11 @@ This section contains the current execution override for Dashboard work. It supe
 * `Lainnya` must never include missing/invalid category rows.
 * Missing/invalid category rows are excluded from the clean breakdown and surfaced in Data Quality/Action Required.
 * Category ranking and values must recalculate after verified ledger writes and filter changes.
-* No mandatory budget burn-rate or prior-month trend may be claimed as Task 10.1 acceptance unless separately supported by current code/owner decision.
+* Owner visual decision dated 2026-06-25: visible columns are exactly `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.`.
+* `Contr.` is the abbreviated visible label for contribution and is the category amount divided by total eligible spending for the selected month.
+* The bar belongs to `VS BULAN LALU`, not to `Contr.`. It visualizes the direction and relative magnitude of nominal category growth versus the previous calendar month.
+* Prior-month growth is now a mandatory Task 10.1 visual requirement because it is explicitly owner-approved. A zero/missing previous-month denominator must show a deterministic neutral state such as `belum cukup data`, never infinity or a formula error.
+* Gate 1's earlier PASS remains historical evidence for V4.2 before this owner visual delta. The candidate must be revalidated against this new layout before Gate 4 promotion.
 * Gate 1 must explicitly resolve and document current candidate treatment of:
   * internal transfers;
   * Credit Card payments;
@@ -53,7 +58,98 @@ This section contains the current execution override for Dashboard work. It supe
   * asset/gold purchases;
   * refunds/reversals;
   * fees/interest.
-* If candidate semantics can double-count or mislabel non-consumption wallet outflow as spending, Gate 1 must be `BLOCKED`.
+* If candidate semantics can double-count or mislabel non-consumption wallet outflow as spending, promotion must be `BLOCKED`.
+
+### 0A.3A Owner-Locked Final Dashboard Visual Contract — 2026-06-25
+
+This is the canonical owner-approved target visual for Task 10.1 implementation. It locks the Dashboard v2 shell and the visible information architecture. It is not proof that V4.2 already implements the complete visual.
+
+#### Exact Dashboard v2 geometry
+
+* Visible cockpit range: `A1:K41`.
+* Exact column widths: `A=9, B=111, C=90, D=167, E=90, F=9, G=125, H=69, I=83, J=97, K=9`.
+* Exact row-height sequence for rows 1–41: `6, 34, 8, 29, 34, 34, 10, 29, 26, 48, 10, 26, 40, 10, 29, 26, 34, 34, 34, 34, 34, 29, 10, 29, 26, 34, 34, 34, 34, 34, 34, 18, 10, 48, 48, 48, 10, 21, 21, 21, 21`.
+* Section anchors remain locked to Dashboard v2: Action Required row 4; Executive Command Center row 8; Wallet & Cashflow plus Domain Health row 15; Spending Intelligence plus Data Quality Center row 24; Smart Insight row 33.
+* Month filter is visible at `G2`; year filter is visible at `I2`.
+* No visible `SUMMARY` or `FILTER CONTRACT` panel may consume cockpit space.
+
+#### Locked panel column contracts
+
+* Wallet & Cashflow uses four left-panel slots only: `WALLET | SALDO | LEVEL | STATUS`.
+* `LEVEL` is the existing Dashboard v2 balance-buffer progress bar relative to the wallet target limit. It is not a cash-in/cash-out bar and must not add another visible column.
+* Wallet footer uses the same four slots: `CASH IN | <value> | CASH OUT | <value>`.
+* Spending Intelligence uses four left-panel slots only: `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.`.
+* The `VS BULAN LALU` slot owns the direction arrow, growth bar, and growth percentage.
+* `Contr.` remains a compact percentage value without a contribution bar.
+* All displayed values below are placeholders. Runtime values must remain transaction-derived.
+
+#### Canonical visual reference
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────────┐
+│ ● Synced: <timestamp> │ <DATA STATUS> │ <ALERT COUNT> │ [ BULAN ▼ ] [ TAHUN ▼ ] │ PERSONAL │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────── ACTION REQUIRED ────────────────────────────────────────┐
+│  ┌──────────────────────────────────────┐   ┌───────────────────────────────────────────┐  │
+│  │ ● <dynamic transaction issue>       │   │ ● <dynamic transaction issue>            │  │
+│  │                            → ACTION  │   │                                  → ACTION │  │
+│  └──────────────────────────────────────┘   └───────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────┐   ┌───────────────────────────────────────────┐  │
+│  │ ● <dynamic transaction issue>       │   │ ✓ Clean / No Action Required             │  │
+│  │                            → ACTION  │   │                                    —      │  │
+│  └──────────────────────────────────────┘   └───────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────── EXECUTIVE COMMAND CENTER ────────────────────────────────────┐
+│       NET WORTH             CASH TERSEDIA          CASHFLOW BULAN INI      CRITICAL ALERTS │
+│       <dynamic>               <dynamic>                <dynamic>             <dynamic>     │
+│       TOTAL ASET            TOTAL HUTANG             SAVING RATE          CICILAN RUMAH    │
+│       <dynamic>               <dynamic>                <dynamic>        <% + progress bar> │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────── WALLET & CASHFLOW ─────────────────┬────────── DOMAIN HEALTH ─────┐
+│  WALLET          SALDO             LEVEL           STATUS   │  CREDIT CARD                 │
+│  BCA             <dynamic>         ████████░░      <status> │  <dynamic>        <status>   │
+│  Blu             <dynamic>         ██████░░░░      <status> │                              │
+│  Mandiri         <dynamic>         ███░░░░░░░      <status> │  HUTANG                      │
+│  Cash Bensin     <dynamic>         ██░░░░░░░░      <status> │  <dynamic>        <status>   │
+│  Cash Umum       <dynamic>         █████████░      <status> │                              │
+│                                                             │  ASET EMAS                   │
+│  CASH IN         <dynamic>         CASH OUT        <dynamic>│  <dynamic>        <status>   │
+│                                                             │                              │
+│                                                             │  CICILAN RUMAH               │
+│                                                             │  <dynamic>        <status>   │
+└─────────────────────────────────────────────────────────────┴──────────────────────────────┘
+
+┌────────────────────── SPENDING INTELLIGENCE ──────────────────┬──────── DATA QUALITY CENTER ─┐
+│  KATEGORI        BULAN INI      VS BULAN LALU         CONTR. │  <dynamic quality item>      │
+│  <Top 1>         <nominal>      ▲ ███████░░  +<growth> <contr>│  <dynamic quality item>      │
+│  <Top 2>         <nominal>      ▼ ███░░░░░░  -<growth> <contr>│                              │
+│  <Top 3>         <nominal>      ▲ ██░░░░░░░  +<growth> <contr>│  <dynamic quality item>      │
+│  <Top 4>         <nominal>      ▲ █████████  +<growth> <contr>│                              │
+│  <Top 5>         <nominal>      — ░░░░░░░░░      0.0% <contr>│  <dynamic quality item>      │
+│  Lainnya         <nominal>      ▼ ████░░░░░  -<growth> <contr>│  Audit trail: <dynamic>      │
+└──────────────────────────────────────────────────────────────┴──────────────────────────────┘
+
+┌────────────────────────────────────── SMART INSIGHT ─────────────────────────────────────────┐
+│  ┌──────────────────────────────────────┐   ┌───────────────────────────────────────────┐  │
+│  │ 1  <SEVERITY>                       │   │ 2  <SEVERITY>                             │  │
+│  │ <deterministic insight>             │   │ <deterministic insight>                  │  │
+│  └──────────────────────────────────────┘   └───────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────┐                                                   │
+│  │ 3  <SEVERITY>                       │                                                   │
+│  │ <deterministic insight>             │                                                   │
+│  └──────────────────────────────────────┘                                                   │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Acceptance interpretation
+
+* `OWNER_VISUAL_CONTRACT=LOCKED` means the target design is approved for implementation and documentation.
+* It does not mean `OWNER_VISUAL_SANITY=PASS`; that remains pending until Gate 10 checks the deployed spreadsheet.
+* It does not mark Gate 3, Gate 4, deployment, or runtime validation complete.
+* V4.2 must receive a bounded visual-delta revalidation before promotion because this contract changes Spending Intelligence presentation after the earlier Gate 1 review.
 
 ### 0A.4 Full Task 10.1 Gate Roadmap
 The following is the complete roadmap for Task 10.1 Dashboard stabilization:

@@ -301,3 +301,14 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - docs: executed Gate 2 read-only runtime preflight (PASS).
 - docs: created validation record under docs/validation/airo-task10-1-gate2-runtime-deployment-preflight-20260625.md.
 - state: updated CURRENT.md pointing to Gate 3 backup.
+
+## 2026-06-25 — AIRO Finance Task 10.1 Owner-Locked Final Dashboard Visual
+
+- Bumped Living PRD from v2.1.4 to v2.1.5.
+- Locked the exact Dashboard v2 `A1:K41` geometry, section anchors, column widths, and row heights.
+- Locked Wallet & Cashflow to `WALLET | SALDO | LEVEL | STATUS` with Cash In/Cash Out footer.
+- Locked Spending Intelligence to `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.`.
+- Moved the visual bar contract to prior-month growth; `Contr.` remains abbreviated percentage only.
+- Recorded that the visual contract is approved for implementation, while runtime owner visual sanity remains pending Gate 10.
+- Recorded `V4_2_REVALIDATION_REQUIRED=YES` before promotion.
+- Documentation-only change: no Apps Script source, spreadsheet, deployment, trigger, or live financial write mutation.
