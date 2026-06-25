@@ -1,10 +1,10 @@
-# AIRO FINANCE — FINAL LIVING PRD v2.1.3
+# AIRO FINANCE — FINAL LIVING PRD v2.1.4
 
 Execution Contract after Architecture Freeze Audit
 
-PRD Version      : 2.1.3
-Status           : CANONICAL EXECUTION CONTRACT — READY FOR OWNER-APPROVED REPO REPLACEMENT
-Last verified    : 2026-06-03 19:40 WIB
+PRD Version      : 2.1.4
+Status           : CANONICAL EXECUTION CONTRACT — TASK 10.1 IN PROGRESS
+Last verified    : 2026-06-25 20:39:30 WIB
 Repo baseline    : bd6815e
 Feature baseline : a4fd0ac — Phase 6H-G3 category registry fix
 Apps Script      : apps-script-live @241
@@ -15,6 +15,86 @@ Email ingestion  : DISABLED
 Alert Engine     : SAFE MODE, trigger installed, proactive send OFF
 E-path layer 1   : LIVE PASS @241
 Audit basis      : Architecture Freeze Audit Pack 1, Pack 1B, Pack 2
+
+---
+
+## 0A. Task 10.1 Owner-Approved Execution Override — 2026-06-25
+
+### 0A.1 Context and Scope
+This section contains the current execution override for Dashboard work. It supersedes conflicting older Task 7/9/10, Dashboard source, Finance Events, old carry-over prompt, and old completion wording only where they conflict with Task 10.1. It does not reopen completed Task 9 or Task 10 baseline work.
+
+### 0A.2 Canonical Financial Principles
+* Account Ledger is the financial source of truth.
+* Finance Events is deprecated and no-op.
+* Transactions must not be recreated.
+* Dashboard is an intelligence cockpit, not a financial source of truth.
+* Dashboard must reproduce the Dashboard v2 shell.
+* Visible `SUMMARY` and `FILTER CONTRACT` panels must be removed.
+* Exactly two visible filters: month and year.
+* `ACTION REQUIRED` must be dynamic and transaction-derived.
+* Smart Insight must be deterministic, ranked by severity and impact, maximum three.
+* Dashboard refresh occurs only after verified Account Ledger writes, plus periodic fallback.
+* Priority order: visual fidelity → Account Ledger correctness → fast filters.
+
+### 0A.3 Spending Intelligence Contract
+* Source: Account Ledger.
+* Selected period: visible month + year filters.
+* Display: top five eligible expense categories, descending by amount.
+* Optional `Lainnya`: aggregate categories ranked 6+ only.
+* `Lainnya` must never include missing/invalid category rows.
+* Missing/invalid category rows are excluded from the clean breakdown and surfaced in Data Quality/Action Required.
+* Category ranking and values must recalculate after verified ledger writes and filter changes.
+* No mandatory budget burn-rate or prior-month trend may be claimed as Task 10.1 acceptance unless separately supported by current code/owner decision.
+* Gate 1 must explicitly resolve and document current candidate treatment of:
+  * internal transfers;
+  * Credit Card payments;
+  * debt principal payments;
+  * home installments;
+  * asset/gold purchases;
+  * refunds/reversals;
+  * fees/interest.
+* If candidate semantics can double-count or mislabel non-consumption wallet outflow as spending, Gate 1 must be `BLOCKED`.
+
+### 0A.4 Full Task 10.1 Gate Roadmap
+The following is the complete roadmap for Task 10.1 Dashboard stabilization:
+* **PRE-GATE** — Living PRD Task 10.1 override and status lock
+* **Gate 0** — Exact V4.2 artifact + workspace verification
+* **Gate 1** — Independent V4.2 semantic review
+* **Gate 2** — Runtime/deployment preflight
+* **Gate 3** — Spreadsheet/source backup and rollback baseline
+* **Gate 4** — Candidate-first promotion preserving Owner changes
+* **Gate 5** — In-place Apps Script deployment
+* **Gate 6** — Runtime, spreadsheet recalculation, formula, and filter validation
+* **Gate 7** — Periodic fallback trigger install/readback/rollback proof
+* **Gate 8** — Live verified-ledger post-write Dashboard refresh proof
+* **Gate 9** — Automated visual fidelity audit
+* **Gate 10** — Owner visual sanity/acceptance
+* **Gate 11** — Final regression
+* **Gate 12** — Documentation reconciliation and Task 10.1 closeout
+* **Gate 13** — Exact-path commit, push, remote parity, and final proof
+
+* Current position before this execution: `PRE-GATE`
+* Position after documentation update: `Gate 0`
+* Position after Gate 0 PASS: `Gate 1`
+* No later gate may be marked PASS in this session.
+
+### 0A.5 Owner-Facing Roadmap Requirement
+Every substantive owner-facing AIRO Finance chat/message must start with a FULL Task 10.1 gate roadmap showing all gates, using:
+- `✅` completed;
+- `🟡` current;
+- `⬜` pending;
+- `⛔` blocked;
+- `🎯` exact next action.
+
+It must also show:
+- `CURRENT_GATE`;
+- `CURRENT_POSITION`;
+- `BLOCKER`;
+- `NEXT_ACTION`.
+
+### 0A.6 Old Instructions Superseded
+The old Section 31 carry-over sequence and old Task 10 optional label are superseded by this Task 10.1 override.
+The current carry-over instruction is updated so a new session starts from `Gate 0 → Gate 1`, not from old Task 0A or optional Task 10 wording.
 
 ---
 
@@ -1598,7 +1678,7 @@ Before doing anything, read:
 3. latest docs/airo-finance/records/
 4. docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
 
-This is AIRO Finance Final Living PRD v2.1.3.
+This is AIRO Finance Final Living PRD v2.1.4.
 
 Current baseline:
 - Repo baseline: bd6815e
@@ -1635,9 +1715,10 @@ Critical rules:
 13. Do not skip stop gates.
 
 Execute:
-Task 0A → 0B → 0C → 0D → 1 → 2 → 3A → 3B → 4A → 4B if approved → 5 if approved → 6 → 7 → 8 → 9.
+Gate 0 → Gate 1 (Supersedes old Task 0A–0D / Task 10 sequence).
 
-Task 10 is optional.
+NOTICE: The old Section 31 carry-over sequence and old Task 10 optional label are superseded by the Task 10.1 override (Section 0A).
+A new session starts from: Gate 0 → Gate 1, not from old Task 0A or optional Task 10 wording.
 ```
 
 ---
@@ -1647,7 +1728,7 @@ Task 10 is optional.
 Only replace the repo PRD after owner says:
 
 ```text
-APPROVE replace AIRO living PRD with v2.1.3
+APPROVE replace AIRO living PRD with v2.1.4
 ```
 
 After replacement, commit with:
@@ -1655,7 +1736,7 @@ After replacement, commit with:
 ```bash
 cd /home/egitaristorandas/vortex-ai-skill-lab && {
   git add docs/AIRO_FINANCE_PRD_LIVING.md
-  git commit -m "docs(airo-finance): replace living PRD with v2.1.3 execution contract"
+  git commit -m "docs(airo-finance): replace living PRD with v2.1.4 execution contract"
   git push origin main
   git log -1 --oneline
   git status --short --branch

@@ -288,3 +288,9 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Finance Events remains deprecated/no-op.
 - Transactions was not recreated.
 - Static regression suite and live read-only probe passed.
+
+
+## 2026-06-25 20:39
+- docs: updated AIRO_FINANCE_PRD_LIVING.md to v2.1.4, locked Task 10.1 gates and roadmap.
+- docs: created validation record under docs/validation/airo-task10-1-prd-gates-and-v4-2-review-20260625.md.
+- state: updated CURRENT.md pointing to V4.2 review and Gate 1.
