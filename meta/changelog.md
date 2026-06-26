@@ -333,3 +333,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Verified zero semantic regressions relative to V4.2 candidate (PASS).
 - Backed up all generated V4.3 artifacts to `$HOME/.airo/backups/airo_task10_1_gate3b/` with secured folder/file permissions.
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate3b-successor-candidate-20260625.md`.
+
+## 2026-06-26 — AIRO Finance Task 10.1 Gate 4 Recovery and V4.3.1 Promotion
+
+- Recovered baseline source mirrors back to verified owner baseline 1b3f894158498057f32a5316a37dc30c18c13ecedd8f567acdc1df6d334f8420.
+- Generated formatting-only derivative candidate V4.3.1 (removing trailing spaces/tabs from V4.3 candidate).
+- Verified V4.3.1 syntax check and git diff check (PASS).
+- Promoted V4.3.1 to the three source mirrors: apps-script-live, apps-script-prod-v2, and personal-workflow mirror.
+- Verified git diff check on all modified mirrors (PASS).
+- Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate4-v4-3-1-promotion-20260626.md`.

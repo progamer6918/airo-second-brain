@@ -245,7 +245,7 @@ function normalizeTransferRouteClarificationAnswer_(text) {
   var activeNames = registry.map(function(acc) { return acc.account_name; });
   var routes = [];
   var hasAcc = function(name) { return activeNames.indexOf(name) !== -1; };
-  
+
   if (hasAcc("Blu Pocket") && hasAcc("Blu")) {
     routes.push({ source: "Blu Pocket", target: "Blu" });
   }
@@ -264,7 +264,7 @@ function normalizeTransferRouteClarificationAnswer_(text) {
   for (var i = 0; i < routes.length; i++) {
     var optAlpha = String.fromCharCode(97 + i); // 'a', 'b', 'c'...
     var optNum = String(i + 1); // '1', '2', '3'...
-    
+
     if (t === optAlpha || t === optNum) {
       return routes[i];
     }
@@ -277,7 +277,7 @@ function normalizeTransferRouteClarificationAnswer_(text) {
   }
 
   var aliasPattern = '\\b(pocket\\s+blu|blu\\s+pocket|pocket\\s+bca|bca\\s+pocket|cash\\s+umum|cash\\s+bensin|credit\\s+card|cc|blu|bca|cash|tunai)\\b';
-  
+
   var fromToRegex = new RegExp('(?:dari|from|dr)\\s+' + aliasPattern + '\\s+(?:ke|to)\\s+' + aliasPattern, 'i');
   var m = t.match(fromToRegex);
   if (m) {
@@ -314,10 +314,10 @@ function canAskTransferIncompleteClarification_(parsed, rawText) {
 function buildTransferIncompleteClarificationMessage_(parsed) {
   var registry = airoSprint7AccountContractGetRegistry_();
   var activeNames = registry.map(function(acc) { return acc.account_name; });
-  
+
   var routes = [];
   var hasAcc = function(name) { return activeNames.indexOf(name) !== -1; };
-  
+
   if (hasAcc("Blu Pocket") && hasAcc("Blu")) {
     routes.push({ source: "Blu Pocket", target: "Blu" });
   }
@@ -341,12 +341,12 @@ function buildTransferIncompleteClarificationMessage_(parsed) {
   }
   var manualChar = String.fromCharCode(charCode + routes.length);
   optionsText += manualChar + '. Tulis manual\n';
-  
+
   var amount = (parsed && parsed.amount) || 0;
   var msg = 'Transfer Rp' + amount + ' ini dari akun mana ke akun mana?\n\n' +
             optionsText + '\n' +
             'Contoh manual: transfer ' + amount + ' dari Blu Pocket ke Blu';
-            
+
   // Static verification comments requirement check: BCA → Blu, Cash Umum
   return msg;
 }
@@ -709,7 +709,7 @@ function buildMissingCategoryClarificationMessage_(parsed) {
     ', tapi kategorinya belum jelas.\n',
     'Pilih kategori:'
   ];
-  
+
   for (var i = 0; i < categories.length; i++) {
     var letter = alphabet.charAt(i).toUpperCase();
     lines.push(letter + ". " + categories[i]);
@@ -1213,7 +1213,7 @@ function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, ro
   // Check if we wrote to the Account Ledger (and spreadsheet is available)
   var isLedgerWrite = false;
   var ledgerRow = null;
-  
+
   if (spreadsheet) {
     if (rResult.transferInternal === true) {
       isLedgerWrite = true;
@@ -1241,10 +1241,10 @@ function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, ro
         formattedAmt = 'Rp' + amount;
       }
 
-      if (sourceDetails && targetDetails && 
+      if (sourceDetails && targetDetails &&
           sourceDetails.balance !== '' && sourceDetails.balance !== null && sourceDetails.balance !== undefined &&
           targetDetails.balance !== '' && targetDetails.balance !== null && targetDetails.balance !== undefined) {
-        
+
         return '✅ Transfer dicatat.\n\n' +
           source + ' → ' + target + ': ' + formattedAmt + '\n\n' +
           'Saldo ' + source + ' sekarang: ' + formatBalanceRupiah_(sourceDetails.balance) + '\n' +
@@ -3504,7 +3504,7 @@ function recordFinanceEventForWriteResult_(ss, result, common, parsed, rawText, 
   return result;
 }
 
-function writeRouted_(ss, plannedTab, parsed, rawText, common) {
+function airoWriteRoutedCore_(ss, plannedTab, parsed, rawText, common) {
   const tabName = plannedTab || AIRO_CONFIG.tabs.transactions;
   const key = canonicalSheetName_(tabName);
 
@@ -3786,6 +3786,37 @@ function writeRouted_(ss, plannedTab, parsed, rawText, common) {
     linked_txn_id: common.linked_txn_id || common.rowId || ''
   });
   return result;
+}
+
+function writeRouted_(ss, plannedTab, parsed, rawText, common) {
+  var routedResult = airoWriteRoutedCore_(
+    ss,
+    plannedTab,
+    parsed,
+    rawText,
+    common
+  );
+
+  try {
+    airoTask102RefreshDashboardMetadataAfterWrite_(
+      ss,
+      routedResult
+    );
+  } catch (dashboardRefreshError) {
+    try {
+      Logger.log(
+        'AIRO_TASK10_1_POST_WRITE_REFRESH_ERROR=' +
+        String(
+          dashboardRefreshError &&
+          dashboardRefreshError.message
+            ? dashboardRefreshError.message
+            : dashboardRefreshError
+        )
+      );
+    } catch (loggerError) {}
+  }
+
+  return routedResult;
 }
 
 function writeAssetSafely_(ss, parsed, rawText, common) {
@@ -4533,11 +4564,11 @@ function parseAccount_(text) {
     var accLower = acc.account_name.toLowerCase();
     var providerLower = acc.provider.toLowerCase();
     var pocketLower = acc.pocket_name.toLowerCase();
-    
+
     if (t.indexOf(accLower) !== -1) {
       return acc.account_name;
     }
-    
+
     if (pocketLower && providerLower) {
       var pat1 = providerLower + " " + pocketLower;
       var pat2 = pocketLower + " " + providerLower;
@@ -5075,7 +5106,7 @@ function runTask3AReviewQueueSchemaVerifierFromEditor() {
   if (!header) {
     return { ok: false, reason: 'review_queue_header_missing' };
   }
-  
+
   const targetExtensions = [
     "email_candidate_id",
     "gmail_message_id",
@@ -5088,13 +5119,13 @@ function runTask3AReviewQueueSchemaVerifierFromEditor() {
     "linked_event_id",
     "linked_account_ledger_entry_id"
   ];
-  
+
   const existingHeaders = header.headers;
   const canonicalExisting = existingHeaders.map(function(h) { return canonicalKey_(h); });
   const missing = targetExtensions.filter(function(ext) {
     return canonicalExisting.indexOf(canonicalKey_(ext)) === -1;
   });
-  
+
   return {
     ok: missing.length === 0,
     headers: existingHeaders,
@@ -14237,7 +14268,7 @@ function AIRO_CLEANUP_ACCOUNT_LEDGER_BACKFILL_DUPES_20260517() {
  */
 function normalizeSupportedAccount_(value) {
   var v = String(value || '').toLowerCase().replace(/[\s_]+/g, ' ').trim();
-  
+
   if (v === 'pocket blu' || v === 'blu pocket') return 'Blu Pocket';
   if (v === 'pocket blu cc' || v === 'blu pocket cc') return 'Blu Pocket CC';
   if (v === 'pocket bca' || v === 'bca pocket') return 'BCA Pocket';
@@ -14246,7 +14277,7 @@ function normalizeSupportedAccount_(value) {
   if (v === 'bca') return 'BCA';
   if (v === 'cash umum') return 'Cash Umum';
   if (v === 'cash bensin') return 'Cash Bensin';
-  
+
   if (v === 'cash' || v === 'tunai') {
     var registry = airoSprint7AccountContractGetRegistry_();
     var activeCash = [];
@@ -14275,7 +14306,7 @@ function normalizeSupportedAccount_(value) {
       return name;
     }
   }
-  
+
   return '';
 }
 
@@ -14289,31 +14320,31 @@ function detectInternalTransfer_(parsed, rawText) {
   // Support destination marker: ke, to
   // Support amount suffix: rb, ribu, k
   var aliasPattern = '\\b(pocket\\s+blu|blu\\s+pocket|pocket\\s+bca|bca\\s+pocket|cash\\s+umum|cash\\s+bensin|credit\\s+card|cc|blu|bca|cash|tunai)\\b';
-  
+
   var fromRegex = new RegExp('(?:dari|from|dr)\\s+' + aliasPattern, 'i');
   var toRegex = new RegExp('(?:ke|to)\\s+' + aliasPattern, 'i');
-  
+
   var sourceAccount = '';
   var targetAccount = '';
-  
+
   var fromMatch = t.match(fromRegex);
   if (fromMatch) {
     sourceAccount = normalizeSupportedAccount_(fromMatch[1]);
   }
-  
+
   var toMatch = t.match(toRegex);
   if (toMatch) {
     targetAccount = normalizeSupportedAccount_(toMatch[1]);
   }
-  
+
   if (!sourceAccount && parsed && parsed.account) {
     sourceAccount = normalizeSupportedAccount_(parsed.account);
   }
-  
+
   if (!sourceAccount || !targetAccount || sourceAccount === targetAccount) {
     return null;
   }
-  
+
   return {
     sourceAccount: sourceAccount,
     targetAccount: targetAccount
@@ -17133,7 +17164,7 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
     } else if (isCleanup) {
       sendTelegram_(chatId, 'Task 6.11 — Destructive smoke/test cleanup started...\nDeleting approved rows bottom-up per tab. Please wait.');
       var cleanupResult = airoTask611SmokeCleanupExecute_();
-      
+
       var lines = [
         'Task 6.11 — Smoke/Test Data Cleanup Complete',
         '',
@@ -17145,7 +17176,7 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
       for (var tab in cleanupResult.deleted) {
         lines.push('- ' + tab + ': ' + cleanupResult.deleted[tab] + ' row(s)');
       }
-      
+
       var hasSkipped = false;
       for (var tab in cleanupResult.skipped) {
         if (cleanupResult.skipped[tab] > 0) {
@@ -17162,7 +17193,7 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
           }
         }
       }
-      
+
       if (cleanupResult.suspicious && cleanupResult.suspicious.length > 0) {
         lines.push('');
         lines.push('⚠️ SUSPICIOUS ROWS:');
@@ -17170,14 +17201,14 @@ function airoTask611SmokeAdminCommandMaybeHandleRoute_(e) {
           lines.push('  - ' + row);
         });
       }
-      
+
       lines.push('');
       lines.push('Balance verification: ' + (cleanupResult.balanceVerification || 'OK'));
       lines.push('Smoke verification after cleanup: ' + cleanupResult.smokeVerification);
       lines.push('Archive sheet created/updated: ' + cleanupResult.archiveSheetName);
-      
+
       sendTelegram_(chatId, lines.join('\n'));
-      
+
       return json_({
         ok: cleanupResult.ok,
         handled: true,
@@ -17483,7 +17514,7 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify(response))
                          .setMimeType(ContentService.MimeType.JSON);
   }
-  
+
   var errResponse = {
     ok: false,
     message: "Forbidden or unknown GET request"
@@ -17569,7 +17600,7 @@ function airoTask9CcPendingPocketCommandMaybeHandleRoute_(e) {
       for (var i = 0; i < values.length; i++) {
         var row = values[i];
         var statusVal = String(row[statusColIdx - 1] || '').trim().toLowerCase();
-        
+
         var isPending = true;
         var excludes = ['sudah', 'paid', 'posted', 'transferred'];
         for (var j = 0; j < excludes.length; j++) {
@@ -21114,7 +21145,7 @@ function runSprint7GManualWritePilotFromEditor() {
       if (qId === targetKey) {
         targetRow = header.row + 1 + r;
         rowFound = true;
-        
+
         var writePolicy = writePolicyCol !== -1 ? String(values[r][writePolicyCol] || "").trim() : "";
         var writeStatus = writeStatusCol !== -1 ? String(values[r][writeStatusCol] || "").trim() : "";
         var linkedLedger = linkedLedgerCol !== -1 ? String(values[r][linkedLedgerCol] || "").trim() : "";
@@ -21151,7 +21182,7 @@ function runSprint7GManualWritePilotFromEditor() {
   var rowVal = values[targetRow - header.row - 1];
   var currentWriteStatus = writeStatusCol !== -1 ? String(rowVal[writeStatusCol] || "").trim() : "";
   var currentLinkedLedger = linkedLedgerCol !== -1 ? String(rowVal[linkedLedgerCol] || "").trim() : "";
-  
+
   if (currentWriteStatus === "committed" || currentLinkedLedger !== "") {
     var dedupeResult = {
       ok: true,
@@ -21222,7 +21253,7 @@ function runSprint7GManualWritePilotFromEditor() {
 
   var writeAccountLedgerMirrorName = "writeAccount" + "LedgerMirror_";
   var writeAccountLedgerMirrorFn = this[writeAccountLedgerMirrorName];
-  
+
   var recordFinanceEventForWriteResultName = "recordFinance" + "EventForWriteResult_";
   var recordFinanceEventForWriteResultFn = this[recordFinanceEventForWriteResultName];
 
@@ -21232,7 +21263,7 @@ function runSprint7GManualWritePilotFromEditor() {
 
   if (result && result.status === "written") {
     writePerformed = true;
-    
+
     var feResult = recordFinanceEventForWriteResultFn(ss, result, stagingResult, parsed, rawText, {
       event_type: "transaction_created",
       event_source: "email",
@@ -21240,7 +21271,7 @@ function runSprint7GManualWritePilotFromEditor() {
       source_row: result.row || "",
       linked_txn_id: stagingResult.linked_txn_id
     });
-    
+
     if (feResult && feResult.financeEventStatus === "written") {
       financeEventWritten = true;
     }
@@ -21292,7 +21323,7 @@ function runSprint7GManualWritePilotFromEditor() {
   };
 
   Logger.log(JSON.stringify(finalResult));
-  
+
   if (false) {
     appendByHeader_(null, null, null);
   }
@@ -21423,13 +21454,13 @@ function runSprint7GTask5TargetedReadbackVerifierFromEditor() {
         for (var r = 0; r < ledgerValues.length; r++) {
           var entryId = ledgerMap["entry_id"] !== undefined ? String(ledgerValues[r][ledgerMap["entry_id"]] || "").trim() : "";
           var linkedTxn = ledgerMap["linked_txn_id"] !== undefined ? String(ledgerValues[r][ledgerMap["linked_txn_id"]] || "").trim() : "";
-          
+
           if (entryId === linkedLedger || linkedTxn === "review:review:emc:19e92002b9199392" || linkedTxn === "review:emc:19e92002b9199392") {
             ledgerRowCount++;
             var ledgerAmtOut = ledgerMap["amount_out"] !== undefined ? ledgerValues[r][ledgerMap["amount_out"]] : 0;
             var ledgerAcc = ledgerMap["account"] !== undefined ? String(ledgerValues[r][ledgerMap["account"]] || "").trim() : "";
             var ledgerCat = ledgerMap["category"] !== undefined ? String(ledgerValues[r][ledgerMap["category"]] || "").trim() : "";
-            
+
             if (ledgerAmtOut == expectedAmount && ledgerAcc === expectedAccount && ledgerCat === expectedCategory) {
               ledgerOk = true;
             }
@@ -21463,7 +21494,7 @@ function runSprint7GTask5TargetedReadbackVerifierFromEditor() {
           var linkedTxn = feMap["linked_txn_id"] !== undefined ? String(feValues[r][feMap["linked_txn_id"]] || "").trim() : "";
           if (linkedTxn === "review:review:emc:19e92002b9199392" || linkedTxn === "review:emc:19e92002b9199392" || linkedTxn === linkedLedger) {
             feRowCount++;
-            
+
             var matchedEvent = {};
             for (var c = 0; c < feHeaders.length; c++) {
               matchedEvent[canonicalKey_(feHeaders[c])] = feValues[r][c];
@@ -21475,7 +21506,7 @@ function runSprint7GTask5TargetedReadbackVerifierFromEditor() {
             var feCat = feMap["category"] !== undefined ? String(feValues[r][feMap["category"]] || "").trim() : "";
             var feStatus = feMap["status"] !== undefined ? String(feValues[r][feMap["status"]] || "").trim() : "";
             var fePayloadRaw = feMap["payload_json"] !== undefined ? String(feValues[r][feMap["payload_json"]] || "").trim() : "";
-            
+
             var feAmtNorm = airoSprint7GNormalizeAmountForReadback_(feAmt);
             var feAccNorm = feAcc.toLowerCase();
             var feCatNorm = feCat.toLowerCase();
@@ -21548,7 +21579,7 @@ function runSprint7GTask5TargetedReadbackVerifierFromEditor() {
     var row56Values = reviewSheet.getRange(56, 1, 1, reviewSheet.getLastColumn()).getValues()[0];
     var row56WriteStatus = reviewMap["write_status"] !== undefined ? String(row56Values[reviewMap["write_status"]] || "").trim() : "";
     var row56Ledger = reviewMap["linked_account_ledger_entry_id"] !== undefined ? String(row56Values[reviewMap["linked_account_ledger_entry_id"]] || "").trim() : "";
-    
+
     row56Status = row56WriteStatus;
     if ((row56WriteStatus === "pending" || row56WriteStatus === "staged" || row56WriteStatus === "") && row56Ledger === "") {
       row56Safe = true;
@@ -21787,7 +21818,7 @@ function runSprint7GReviewQueueReadbackVerifierFromEditor() {
           targetRow = header.row + 1 + r;
 
           queueIdVerified = (qId === targetIdempotencyKey);
-          
+
           var rawAmount = amountCol !== -1 ? rowVal[amountCol] : "";
           var normalizedAmount = airoSprint7GNormalizeAmountForReadback_(rawAmount);
           amountVerified = (normalizedAmount === 336541);
@@ -22744,19 +22775,19 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
   }
 
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
-  
+
   if (state === "category_pending") {
     var answer = textRaw.toUpperCase();
     if (!/^[A-E]$/.test(answer)) {
       return null;
     }
-    
+
     var key = pending._property_key || ("AIRO_SPRINT7F_PENDING_EMAIL_" + String(parsed.chat_id));
 
     if (answer === "E") {
       pending.clarification_state = "category_search_pending";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-      
+
       var registry = airoSprint7CategoryContractGetRegistry_();
       var categories = Object.keys(registry);
       var allowed = [];
@@ -22765,16 +22796,16 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
           allowed.push(categories[c]);
         }
       }
-      
+
       var listLines = ["Pilih kategori:"];
       for (var i = 0; i < allowed.length; i++) {
         listLines.push((i + 1) + ". " + allowed[i]);
       }
       listLines.push("0. Other / Review");
-      
+
       var searchPrompt = listLines.join("\n");
       sendTelegram_(parsed.chat_id, searchPrompt);
-      
+
       return json_({
         ok: true,
         sprint: "7H",
@@ -22794,14 +22825,14 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       if (!selectedCat) {
         return null;
       }
-      
+
       pending.selected_category = selectedCat;
       pending.clarification_state = "subcategory_pending";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-      
+
       var subPrompt = airoSprint7CategoryContractBuildSubcategoryPrompt_(selectedCat);
       sendTelegram_(parsed.chat_id, subPrompt);
-      
+
       return json_({
         ok: true,
         sprint: "7H",
@@ -22812,7 +22843,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       });
     }
   }
-  
+
   if (state === "category_search_pending") {
     var registry = airoSprint7CategoryContractGetRegistry_();
     var categories = Object.keys(registry);
@@ -22822,9 +22853,9 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
         allowed.push(categories[c]);
       }
     }
-    
+
     var matchedCat = null;
-    
+
     if (/^\d+$/.test(text)) {
       var num = parseInt(text, 10);
       if (num === 0) {
@@ -22833,7 +22864,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
         matchedCat = allowed[num - 1];
       }
     }
-    
+
     if (!matchedCat) {
       for (var i = 0; i < allowed.length; i++) {
         if (allowed[i].toLowerCase() === text || text.indexOf(allowed[i].toLowerCase()) === 0) {
@@ -22842,21 +22873,21 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
         }
       }
     }
-    
+
     var key = pending._property_key || ("AIRO_SPRINT7F_PENDING_EMAIL_" + String(parsed.chat_id));
-    
+
     if (matchedCat) {
       var catData = registry[matchedCat];
       var subs = (catData && catData.subcategories) ? catData.subcategories : [];
-      
+
       if (subs.length > 0) {
         pending.selected_category = matchedCat;
         pending.clarification_state = "subcategory_pending";
         airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-        
+
         var subPrompt = airoSprint7CategoryContractBuildSubcategoryPrompt_(matchedCat);
         sendTelegram_(parsed.chat_id, subPrompt);
-        
+
         return json_({
           ok: true,
           sprint: "7H",
@@ -22878,7 +22909,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       listLines.push("0. Other / Review");
       var warnMsg = listLines.join("\n");
       sendTelegram_(parsed.chat_id, warnMsg);
-      
+
       return json_({
         ok: true,
         sprint: "7H",
@@ -22889,10 +22920,10 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       });
     }
   }
-  
+
     if (state === "subcategory_pending") {
     var parsedOption = airoSprint7CategoryContractParseSubcategoryOption_(pending.selected_category, text);
-    
+
     if (parsedOption.action === "select") {
       return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, pending.selected_category, parsedOption.subcategory);
     } else if (parsedOption.action === "manual") {
@@ -22901,7 +22932,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       pending.clarification_state = "category_search_pending";
       pending.selected_category = "";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-      
+
       var allowed = [];
       var categories = Object.keys(registry);
       for (var c = 0; c < categories.length; c++) {
@@ -22913,7 +22944,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       }
       listLines.push("0. Other / Review");
       sendTelegram_(parsed.chat_id, listLines.join("\n"));
-      
+
       return json_({
         ok: true,
         sprint: "7H",
@@ -22928,7 +22959,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       var subPromptRetry = "Pilihan subkategori tidak valid. Pilih subkategori yang sesuai (1/2/3...):\n" +
                            airoSprint7CategoryContractBuildSubcategoryPrompt_(pending.selected_category);
       sendTelegram_(parsed.chat_id, subPromptRetry);
-      
+
       return json_({
         ok: true,
         sprint: "7H",
@@ -22939,7 +22970,7 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       });
     }
   }
-  
+
   return null;
 }
 
@@ -22954,12 +22985,12 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
     cashflow_class: category === "Other / Review" ? "manual_review" : "expense",
     domain: category === "Other / Review" ? "Review" : "Wallet"
   };
-  
+
   var updateResult = airoSprint7FUpdatePendingEmailResolution_(pending, resolved);
   if (updateResult.updated) {
     airoSprint7FRemovePendingEmailCandidate_(parsed.chat_id, pending);
   }
-  
+
   var amount = airoSprint7FDAmount_(pending);
   var account = pending.provider === "Blu" ? "Blu" : airoSprint7FDPrimaryAccount_(pending);
 
@@ -22974,7 +23005,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
     parsed_amount: amount,
     parsed_currency: "IDR",
     parsed_account: account,
-    
+
     // Task 3B: Email identity extension fields
     email_candidate_id: pending.candidate_id || "",
     gmail_message_id: pending.message_id || "",
@@ -22986,7 +23017,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
     write_status: "pending",
     linked_event_id: "",
     linked_account_ledger_entry_id: "",
-    
+
     // Fallback fields for legacy compatibility
     intent: "expense",
     target_tab: "🧾 Review Queue",
@@ -22998,7 +23029,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
     notes: "Sprint 7H scheduled poller resolved candidate. Category: " + category + ", Subcategory: " + subcategory,
     parser: "email"
   };
-  
+
   // Dedupe check: scan review queue for existing duplicate_key matching review:emc:<message_id>
   var keyToFind = "review:emc:" + pending.message_id;
   var sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.review);
@@ -23044,7 +23075,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
         var rowValues = buildRowByHeader_(headerList, rowData);
         sheet.getRange(existingRowIndex, 1, 1, rowValues.length).setValues([rowValues]);
         targetRow = existingRowIndex;
-        
+
         // Readback check for duplicate update
         var readbackValues = sheet.getRange(existingRowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
         var checkQueueIdCol = -1;
@@ -23064,7 +23095,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
         var readAmount = airoSprint7GNormalizeAmountForReadback_(readAmountRaw);
         var readAccount = checkAccountCol !== -1 ? String(readbackValues[checkAccountCol] || "").trim() : "";
         var readStatus = checkStatusCol !== -1 ? String(readbackValues[checkStatusCol] || "").trim() : "";
-        
+
         if (
           readQueueId === "review:emc:" + pending.message_id &&
           readAmount === amount &&
@@ -23083,7 +23114,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
                     "Status: pending approval.\n" +
                     "Balas /approval untuk langsung menyetujui transaksi ini.\n" +
                     "Readback: " + (readbackVerified ? "PASS." : "Failed.");
-    
+
     if (readbackVerified && targetRow > 0) {
     airoTask614StoreDirectApproval_(
       parsed.chat_id,
@@ -23093,7 +23124,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
   }
 
   sendTelegram_(parsed.chat_id, replyText);
-    
+
     return json_({
       ok: true,
       sprint: "7H",
@@ -23114,9 +23145,9 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
       domain_tab_write_performed: false
     });
   }
-  
+
   var appendRes = appendByHeader_(ss, AIRO_CONFIG.tabs.review, rowData, { createIfMissing: false });
-  
+
   if (appendRes && appendRes.status === "written") {
     targetRow = appendRes.row;
     var sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.review);
@@ -23142,7 +23173,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
         var readAmount = airoSprint7GNormalizeAmountForReadback_(readAmountRaw);
         var readAccount = checkAccountCol !== -1 ? String(readbackValues[checkAccountCol] || "").trim() : "";
         var readStatus = checkStatusCol !== -1 ? String(readbackValues[checkStatusCol] || "").trim() : "";
-        
+
         if (
           readQueueId === "review:emc:" + pending.message_id &&
           readAmount === amount &&
@@ -23154,7 +23185,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
       }
     }
   }
-  
+
   var replyText = "Resolusi transaksi email tersimpan ke Review Queue.\n\n" +
                   "Nominal: " + airoSprint7FFormatRupiah_(amount) + "\n" +
                   "Akun: " + account + "\n" +
@@ -23162,7 +23193,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
                   "Status: pending approval.\n" +
                   "Balas /approval untuk langsung menyetujui transaksi ini.\n" +
                   "Readback: " + (readbackVerified ? "PASS." : "Failed.");
-  
+
   if (readbackVerified && targetRow > 0) {
     airoTask614StoreDirectApproval_(
       parsed.chat_id,
@@ -23172,7 +23203,7 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
   }
 
   sendTelegram_(parsed.chat_id, replyText);
-  
+
   return json_({
     ok: true,
     sprint: "7H",
@@ -23198,30 +23229,30 @@ function airoSprint7HGetPendingItems_(ss) {
   if (!sheet) return [];
   var header = findHeader_(sheet);
   if (!header) return [];
-  
+
   var lastRow = sheet.getLastRow();
   if (lastRow <= header.row) return [];
-  
+
   var headers = header.headers;
   var map = reviewHeaderMap_(headers);
   var values = sheet.getRange(header.row + 1, 1, lastRow - header.row, sheet.getLastColumn()).getValues();
-  
+
   var pendingItems = [];
-  
+
   for (var r = values.length - 1; r >= 0; r--) {
     var rowVal = values[r];
     var rowNum = header.row + 1 + r;
-    
+
     var writePolicy = getReviewValue_(rowVal, map, ["write_policy"]);
     var writeStatus = getReviewValue_(rowVal, map, ["write_status"]);
     var reviewStatus = getReviewValue_(rowVal, map, ["review_status", "status"]);
     var linkedLedger = getReviewValue_(rowVal, map, ["linked_account_ledger_entry_id"]);
     var linkedEvent = getReviewValue_(rowVal, map, ["linked_event_id"]);
-    
-    if (writePolicy === "staging" && 
+
+    if (writePolicy === "staging" &&
         (writeStatus === "pending" || reviewStatus === "pending") &&
         !linkedLedger && !linkedEvent) {
-      
+
       var qId = getReviewValue_(rowVal, map, ["queue_id"]);
       var parsedType = getReviewValue_(rowVal, map, ["parsed_type", "type"]);
       var parsedAmount = normalizeReviewAmount_(getReviewValue_(rowVal, map, ["parsed_amount", "amount"]));
@@ -23234,7 +23265,7 @@ function airoSprint7HGetPendingItems_(ss) {
       var gmailThreadId = getReviewValue_(rowVal, map, ["gmail_thread_id"]);
       var source = getReviewValue_(rowVal, map, ["source"]);
       var createdAt = getReviewValue_(rowVal, map, ["created_at"]);
-      
+
       pendingItems.push({
         rowNumber: rowNum,
         queue_id: qId,
@@ -23258,28 +23289,28 @@ function airoSprint7HGetPendingItems_(ss) {
       });
     }
   }
-  
+
   return pendingItems;
 }
 
 function airoSprint7HFindItem_(pendingItems, arg) {
   if (!arg) return null;
   var argTrim = String(arg).trim();
-  
+
   if (/^\d+$/.test(argTrim)) {
     var idx = parseInt(argTrim, 10) - 1;
     if (idx >= 0 && idx < pendingItems.length) {
       return pendingItems[idx];
     }
   }
-  
+
   for (var i = 0; i < pendingItems.length; i++) {
     var item = pendingItems[i];
     if (item.queue_id === argTrim || (item.queue_id && item.queue_id.split(":").pop() === argTrim)) {
       return item;
     }
   }
-  
+
   return null;
 }
 
@@ -23288,22 +23319,22 @@ function airoSprint7HFindItemInSheet_(ss, arg, pendingItems) {
   if (!sheet) return null;
   var header = findHeader_(sheet);
   if (!header) return null;
-  
+
   var argTrim = String(arg).trim();
-  
+
   if (/^\d+$/.test(argTrim) && pendingItems) {
     var idx = parseInt(argTrim, 10) - 1;
     if (idx >= 0 && idx < pendingItems.length) {
       return pendingItems[idx];
     }
   }
-  
+
   var lastRow = sheet.getLastRow();
   if (lastRow <= header.row) return null;
   var headers = header.headers;
   var map = reviewHeaderMap_(headers);
   var values = sheet.getRange(header.row + 1, 1, lastRow - header.row, sheet.getLastColumn()).getValues();
-  
+
   for (var r = values.length - 1; r >= 0; r--) {
     var rowVal = values[r];
     var rowNum = header.row + 1 + r;
@@ -23325,7 +23356,7 @@ function airoSprint7HFindItemInSheet_(ss, arg, pendingItems) {
       var gmailThreadId = getReviewValue_(rowVal, map, ["gmail_thread_id"]);
       var source = getReviewValue_(rowVal, map, ["source"]);
       var createdAt = getReviewValue_(rowVal, map, ["created_at"]);
-      
+
       return {
         rowNumber: rowNum,
         queue_id: qId,
@@ -23349,7 +23380,7 @@ function airoSprint7HFindItemInSheet_(ss, arg, pendingItems) {
       };
     }
   }
-  
+
   return null;
 }
 
@@ -23744,7 +23775,7 @@ function airoSprint7HApprovalList_(ss, chatId) {
     chatId,
     pendingItems
   );
-  
+
   var lines = ["📋 Pending Review Queue (Terbaru):", ""];
   var limit = Math.min(pendingItems.length, 10);
   for (var i = 0; i < limit; i++) {
@@ -23754,23 +23785,23 @@ function airoSprint7HApprovalList_(ss, chatId) {
     if (item.parsed_subcategory) {
       catSub += " / " + item.parsed_subcategory;
     }
-    
+
     var dateStr = "";
     if (item.created_at) {
       dateStr = String(item.created_at).split(" ")[0];
     }
-    
+
     lines.push(
-      (i + 1) + ". Rp" + item.parsed_amount.toLocaleString("id-ID") + " (" + item.parsed_account + ") - " + 
+      (i + 1) + ". Rp" + item.parsed_amount.toLocaleString("id-ID") + " (" + item.parsed_account + ") - " +
       catSub + " [" + item.source + ", " + dateStr + "] (id: " + shortId + ")"
     );
   }
-  
+
   if (pendingItems.length > 10) {
     lines.push("");
     lines.push("... dan " + (pendingItems.length - 10) + " transaksi lainnya.");
   }
-  
+
   lines.push("");
   lines.push("Gunakan `/approval detail <nomor>` atau `/approval approve <nomor>`.");
   return lines.join("\n");
@@ -23789,7 +23820,7 @@ function airoSprint7HApprovalDetail_(ss, arg) {
   if (!item) {
     return "Transaksi tidak ditemukan.";
   }
-  
+
   var lines = [
     "🔍 Detail Transaksi Pending (Row " + item.rowNumber + "):",
     "----------------------------------------",
@@ -23822,14 +23853,14 @@ function airoSprint7HApprovalFix_(ss, arg) {
   if (!item) {
     return "Transaksi tidak ditemukan.";
   }
-  
+
   var url = "";
   try {
     url = ss.getUrl();
   } catch (e) {
     url = "https://docs.google.com/spreadsheets";
   }
-  
+
   var lines = [
     "🛠️ Petunjuk untuk Fix Transaksi (Row " + item.rowNumber + "):",
     "",
@@ -23855,19 +23886,19 @@ function airoSprint7HApprovalReject_(ss, arg) {
   if (!item) {
     return "Transaksi tidak ditemukan.";
   }
-  
+
   var sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.review);
   if (!sheet) return "Error: Review Queue sheet missing.";
-  
+
   var header = findHeader_(sheet);
   if (!header) return "Error: Review Queue header missing.";
-  
+
   var map = reviewHeaderMap_(header.headers);
-  
+
   setReviewValue_(sheet, item.rowNumber, map, ["write_status"], "rejected");
   setReviewValue_(sheet, item.rowNumber, map, ["review_status", "status"], "rejected");
   setReviewValue_(sheet, item.rowNumber, map, ["reviewed_at"], new Date());
-  
+
   var audit = ss.getSheetByName("_AIRO_Audit_Log");
   if (audit) {
     try {
@@ -23885,7 +23916,7 @@ function airoSprint7HApprovalReject_(ss, arg) {
       ]);
     } catch(e) {}
   }
-  
+
   var reply = "❌ Transaksi berhasil ditolak!\n\n" +
               "Nominal: Rp" + item.parsed_amount.toLocaleString("id-ID") + "\n" +
               "Akun: " + item.parsed_account + "\n" +
@@ -23899,15 +23930,15 @@ function airoSprint7HApprovalApprove_(ss, arg) {
   if (!arg) {
     return "Error: Harap masukkan nomor transaksi. Contoh: `/approval approve 1`";
   }
-  
+
   var sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.review);
   if (!sheet) return "Error: Review Queue sheet missing.";
-  
+
   var header = findHeader_(sheet);
   if (!header) return "Error: Review Queue header missing.";
-  
+
   var map = reviewHeaderMap_(header.headers);
-  
+
   var pendingItems = airoSprint7HGetPendingItems_(ss);
 
   var item = /^review:/i.test(
@@ -23922,12 +23953,12 @@ function airoSprint7HApprovalApprove_(ss, arg) {
   if (!item) {
     return "Transaksi tidak ditemukan.";
   }
-  
+
   var isAlreadyCommitted = (item.write_status === "committed" || item.linked_account_ledger_entry_id !== "");
   if (isAlreadyCommitted) {
     return "Dedupe hit: Transaksi ini sudah disetujui sebelumnya (already_committed).\nReadback: PASS.";
   }
-  
+
   // Pre-checks
   if (item.write_policy !== "staging") {
     return "Gagal: write_policy bukan staging (" + item.write_policy + ").";
@@ -23938,13 +23969,13 @@ function airoSprint7HApprovalApprove_(ss, arg) {
   if (item.linked_account_ledger_entry_id !== "" || item.linked_event_id !== "") {
     return "Gagal: linked ledger atau event sudah terisi.";
   }
-  
+
   // Required fields checks
   if (!item.parsed_type) return "Gagal: parsed_type kosong.";
   if (!item.parsed_amount || isNaN(item.parsed_amount) || item.parsed_amount <= 0) return "Gagal: parsed_amount tidak valid.";
   if (!item.parsed_account) return "Gagal: parsed_account kosong.";
   if (!item.parsed_category) return "Gagal: parsed_category kosong.";
-  
+
   var registry = airoSprint7CategoryContractGetRegistry_();
   var catData = registry[item.parsed_category];
   if (catData && catData.subcategories && catData.subcategories.length > 0) {
@@ -23952,13 +23983,13 @@ function airoSprint7HApprovalApprove_(ss, arg) {
       return "Gagal: parsed_subcategory kosong untuk kategori " + item.parsed_category + ".";
     }
   }
-  
+
   if (!item.email_candidate_id) return "Gagal: email_candidate_id kosong.";
   if (item.source === "email") {
     if (!item.gmail_message_id) return "Gagal: gmail_message_id kosong.";
     if (!item.gmail_thread_id) return "Gagal: gmail_thread_id kosong.";
   }
-  
+
   var parsedDate = null;
   var candidateDateRaw = parseDate_(item.raw_text || "");
   var candidateDate = airoEnsureDateObject_(candidateDateRaw);
@@ -24025,7 +24056,7 @@ function airoSprint7HApprovalApprove_(ss, arg) {
 
   if (result && result.status === "written") {
     writePerformed = true;
-    
+
     var feResult = recordFinanceEventForWriteResult_(ss, result, stagingResult, parsedObj, item.raw_text, {
       event_type: "transaction_created",
       event_source: "email",
@@ -24033,7 +24064,7 @@ function airoSprint7HApprovalApprove_(ss, arg) {
       source_row: result.row || "",
       linked_txn_id: stagingResult.linked_txn_id
     });
-    
+
     if (feResult && feResult.financeEventStatus === "written") {
       financeEventWritten = true;
     }
@@ -24044,7 +24075,7 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     setReviewValue_(sheet, item.rowNumber, map, ["approved_transaction_id"], result.rowId);
     setReviewValue_(sheet, item.rowNumber, map, ["reviewed_at"], new Date());
     setReviewValue_(sheet, item.rowNumber, map, ["issue_reason"], "processed_to_" + result.writtenTab);
-    
+
     if (result.financeEventRow) {
       setReviewValue_(sheet, item.rowNumber, map, ["linked_event_id"], "fe:" + result.financeEventRow);
     }
@@ -24243,12 +24274,12 @@ function runTask3BCorrectiveRepairFromEditor() {
   if (!sheet) return "Sheet missing";
   var header = findHeader_(sheet);
   if (!header) return "Header missing";
-  
+
   var headers = header.headers;
   var keyToFind = "review:emc:19e92002b9199392";
   var targetRow = 53;
   var rowFound = false;
-  
+
   // Find column indexes
   var queueIdCol = -1;
   var dupKeyCol = -1;
@@ -24259,7 +24290,7 @@ function runTask3BCorrectiveRepairFromEditor() {
     if (canonical === "duplicate_key") dupKeyCol = c;
     if (canonical === "created_at") createdAtCol = c;
   }
-  
+
   // Scan to find the row index bottom-up
   var lastRow = sheet.getLastRow();
   var startRow = header.row + 1;
@@ -24276,17 +24307,17 @@ function runTask3BCorrectiveRepairFromEditor() {
       }
     }
   }
-  
+
   var existingCreatedAt = "";
   if (rowFound && createdAtCol !== -1) {
     existingCreatedAt = String(sheet.getRange(targetRow, createdAtCol + 1).getValue() || "").trim();
   }
-  
+
   var createdAtVal = existingCreatedAt;
   if (!createdAtVal) {
     createdAtVal = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
   }
-  
+
   var rowData = {
     queue_id: "review:emc:19e92002b9199392",
     created_at: createdAtVal,
@@ -24299,7 +24330,7 @@ function runTask3BCorrectiveRepairFromEditor() {
     parsed_currency: "IDR",
     parsed_account: "Blu",
     review_status: "pending",
-    
+
     email_candidate_id: "emc:9602892257e7f752",
     gmail_message_id: "19e92002b9199392",
     gmail_thread_id: "19e92002b9199392",
@@ -24310,7 +24341,7 @@ function runTask3BCorrectiveRepairFromEditor() {
     write_status: "pending",
     linked_event_id: "",
     linked_account_ledger_entry_id: "",
-    
+
     intent: "expense",
     target_tab: "🧾 Review Queue",
     reason: "email_candidate_resolved_ingestion",
@@ -24321,7 +24352,7 @@ function runTask3BCorrectiveRepairFromEditor() {
     notes: "Sprint 7H scheduled poller resolved candidate. Category: Food & Drink, Subcategory: Kopi",
     parser: "email"
   };
-  
+
   var rowValues = buildRowByHeader_(headers, rowData);
   sheet.getRange(targetRow, 1, 1, rowValues.length).setValues([rowValues]);
   return "Row " + targetRow + " repaired: " + (rowFound ? "found by key" : "fallback to 53");
@@ -24655,9 +24686,9 @@ function airoSprint7CategoryContractGetRegistry_() {
     if (!ss) {
       return airoSprint7CategoryContractGetStaticRegistry_();
     }
-    
+
     airoEnsureCategoryRegistrySheet_(ss);
-    
+
     var sheet = ss.getSheetByName("📚 Category Registry");
     if (!sheet) {
       return airoSprint7CategoryContractGetStaticRegistry_();
@@ -24667,7 +24698,7 @@ function airoSprint7CategoryContractGetRegistry_() {
       return airoSprint7CategoryContractGetStaticRegistry_();
     }
     var headers = values[0].map(function(h) { return String(h || "").trim().toLowerCase(); });
-    
+
     var colActive = headers.indexOf("active");
     var colDomain = headers.indexOf("domain");
     var colEventType = headers.indexOf("event_type");
@@ -24691,7 +24722,7 @@ function airoSprint7CategoryContractGetRegistry_() {
       if (!active) {
         continue;
       }
-      
+
       var category = String(row[colCategory] || "").trim();
       if (!category) {
         continue;
@@ -24768,10 +24799,10 @@ function airoSprint7CategoryContractMatchSubcategory_(category, text, subs) {
     if (!catData) return null;
     subs = catData.subcategories;
   }
-  
+
   var cleanText = String(text || "").trim().toLowerCase();
   if (!cleanText) return null;
-  
+
   // 1. Exact match with index (e.g. "2" or "2.")
   if (/^\d+\.?$/.test(cleanText)) {
     var num = parseInt(cleanText, 10);
@@ -24779,7 +24810,7 @@ function airoSprint7CategoryContractMatchSubcategory_(category, text, subs) {
       return subs[num - 1];
     }
   }
-  
+
   // 2. Leading number match (e.g. "2. makan diluar" or "2 makan diluar")
   var leadingNumMatch = cleanText.match(/^(\d+)\s*[\.\s]\s*(.*)$/);
   if (leadingNumMatch) {
@@ -24788,7 +24819,7 @@ function airoSprint7CategoryContractMatchSubcategory_(category, text, subs) {
       return subs[num - 1];
     }
   }
-  
+
   // 3. Exact case-insensitive match or normalized match
   var normalizedInput = cleanText.replace(/[^a-z0-9]/g, "");
   for (var i = 0; i < subs.length; i++) {
@@ -24798,7 +24829,7 @@ function airoSprint7CategoryContractMatchSubcategory_(category, text, subs) {
       return subs[i];
     }
   }
-  
+
   // 4. Letter match fallback (e.g. "a", "b")
   var alphabet = "abcdefghijklmnopqrstuvwxyz";
   if (cleanText.length === 1) {
@@ -24807,7 +24838,7 @@ function airoSprint7CategoryContractMatchSubcategory_(category, text, subs) {
       return subs[idx];
     }
   }
-  
+
   return null;
 }
 
@@ -24977,7 +25008,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
         return categories[num - 1];
       }
     }
-    
+
     var alphabet = "abcdefghijklmnopqrstuvwxyz";
     if (inputText.length === 1) {
       var idx = alphabet.indexOf(inputText);
@@ -24992,7 +25023,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
       if (inputText === catLower || catLower.indexOf(inputText) !== -1 || inputText.indexOf(catLower) !== -1) {
         return cat;
       }
-      
+
       var info = registry[cat] || {};
       var aliases = info.aliases || [];
       for (var k = 0; k < aliases.length; k++) {
@@ -25064,7 +25095,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     }
 
     var category = findRegistryCategory_(text);
-    
+
     var helpIndexNum = String(categories.length + 1);
     var alphabet = "abcdefghijklmnopqrstuvwxyz";
     var helpIndexLetter = alphabet.charAt(categories.length);
@@ -25141,7 +25172,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
       "Atau gunakan /kategori <query>."
     );
   }
-  
+
   if (step === 2) {
     var parsedOption = airoSprint7CategoryContractParseSubcategoryOption_(pending.selected_category, text);
 
@@ -25185,7 +25216,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
       }
       if (foundSub) break;
     }
-    
+
     if (foundSub) {
       return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, foundSub);
     }
@@ -25231,19 +25262,19 @@ function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
   var registry = airoSprint7CategoryContractGetRegistry_();
   var catData = registry[category];
   if (!catData) return "Pilih subkategori untuk " + category;
-  
+
   var subs = catData.subcategories;
   var lines = ["Pilih subkategori untuk " + category + ":"];
   var alphabet = "abcdefghijklmnopqrstuvwxyz";
-  
+
   for (var i = 0; i < subs.length; i++) {
     var letter = alphabet.charAt(i).toUpperCase();
     lines.push(letter + ". " + subs[i]);
   }
-  
+
   var manualLetter = alphabet.charAt(subs.length).toUpperCase();
   lines.push(manualLetter + ". Tulis manual / lainnya");
-  
+
   return lines.join("\n");
 }
 
@@ -25297,7 +25328,7 @@ function runTask8SubcategoryUxSelfTestFromEditor() {
   var results = [];
   var passed = true;
   var category = "Debt & Obligations";
-  
+
   var res1 = airoSprint7CategoryContractParseSubcategoryOption_(category, "a");
   var tc1 = (res1.action === "select" && res1.subcategory === "Cicilan Rumah");
   results.push({ test: 'reply "a" => select Cicilan Rumah', passed: tc1, result: res1 });
@@ -25473,11 +25504,11 @@ function airoApplyDashboardSeverityColors_(sheet) {
     .setBackground("#1a3d25")
     .setFontColor("#5fd87a")
     .setRanges([
-      sheet.getRange("D2"), 
-      sheet.getRange("E17:E19"), 
-      sheet.getRange("J19"), 
+      sheet.getRange("D2"),
+      sheet.getRange("E17:E19"),
+      sheet.getRange("J19"),
       sheet.getRange("G30:J30"),
-      sheet.getRange("E5:E6"), 
+      sheet.getRange("E5:E6"),
       sheet.getRange("J5:J6"),
       sheet.getRange("B36:E36")
     ])
@@ -25490,9 +25521,9 @@ function airoApplyDashboardSeverityColors_(sheet) {
     .setBackground("#3d1515")
     .setFontColor("#ff6b6b")
     .setRanges([
-      sheet.getRange("E21"), 
-      sheet.getRange("J17"), 
-      sheet.getRange("G26:J27"), 
+      sheet.getRange("E21"),
+      sheet.getRange("J17"),
+      sheet.getRange("G26:J27"),
       sheet.getRange("B34:J34")
     ])
     .build();
@@ -25504,10 +25535,10 @@ function airoApplyDashboardSeverityColors_(sheet) {
     .setBackground("#3d2d0f")
     .setFontColor("#ffaa40")
     .setRanges([
-      sheet.getRange("D2"), 
-      sheet.getRange("E20"), 
-      sheet.getRange("J18"), 
-      sheet.getRange("G28:J29"), 
+      sheet.getRange("D2"),
+      sheet.getRange("E20"),
+      sheet.getRange("J18"),
+      sheet.getRange("G28:J29"),
       sheet.getRange("B35:J35")
     ])
     .build();
@@ -25630,7 +25661,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
 
   // Setup dropdown validation for G2 and restore selected value safely
   newV2.getRange('G2').clearDataValidations();
-  
+
   const validMonths = ['📅 April 2026', '📅 Mei 2026', '📅 Juni 2026'];
   const cleanExisting = existingG2.replace(/^📅\s*/, '').trim();
   let normalizedG2 = '📅 Mei 2026';
@@ -25641,9 +25672,9 @@ function airoSprint6DashboardV2Build_(ss, options) {
   } else if (cleanExisting === 'Juni 2026') {
     normalizedG2 = '📅 Juni 2026';
   }
-  
+
   newV2.getRange('G2').setValue(normalizedG2);
-  
+
   const monthRule = SpreadsheetApp.newDataValidation()
     .requireValueInList(validMonths, true)
     .setAllowInvalid(false)
@@ -25682,7 +25713,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
 
   // 1. Topbar Wiring
   newV2.getRange("B2").setValue(formatIndoTimestamp_(new Date()));
-  
+
   // Set Data Status badge dynamically based on health analysis
   const statusCell = newV2.getRange("D2");
   if (analytics.dashboard_status === 'Trusted') {
@@ -25728,7 +25759,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
       const isCritical = actObj.severity === 'CRITICAL';
       const bg = isCritical ? "#3D1515" : "#3D2D0F";
       const fg = isCritical ? "#FF6B6B" : "#FFAA40";
-      
+
       cardRange.setBackground(bg);
       firstCell.setValue("●  " + actObj.message).setFontColor(fg);
       actionCell.setValue("→ " + actObj.action.toUpperCase()).setFontColor(fg).setFontWeight("bold");
@@ -25744,7 +25775,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
   // 🎯 EXECUTIVE COMMAND CENTER
   // Net worth: total assets minus total debts (general + home loan)
   newV2.getRange("D10").setFormula(`=IFERROR(C13 - E13; 0)`); // Net worth
-  
+
   // Cash tersedia: total liquid balances across ledger cash/bank accounts as of period_end
   newV2.getRange("E10").setFormula(`=SUM(C17:C21)`); // Cash tersedia
 
@@ -25774,13 +25805,13 @@ function airoSprint6DashboardV2Build_(ss, options) {
     const rNum = startRow + idx;
     const wName = wallets[idx];
     const targetLimit = wName.toLowerCase().indexOf("cash") >= 0 ? 1000000 : 5000000;
-    
+
     // Balance formula: Cumulative sum of inflows minus outflows
     newV2.getRange("C" + rNum).setFormula(`=IFERROR(SUMIFS('📒 Account Ledger'!D:D; '📒 Account Ledger'!C:C; "${wName}"; '📒 Account Ledger'!B:B; "<="&M4) - SUMIFS('📒 Account Ledger'!E:E; '📒 Account Ledger'!C:C; "${wName}"; '📒 Account Ledger'!B:B; "<="&M4); 0)`);
-    
+
     // Progress Bar: █░ visual style relative to target limit
     newV2.getRange("D" + rNum).setFormula(`=REPT("█"; MAX(0; MIN(10; ROUND(C${rNum} / ${targetLimit} * 10)))) & REPT("░"; 10 - MAX(0; MIN(10; ROUND(C${rNum} / ${targetLimit} * 10))))`);
-    
+
     // Status: Safe/Warning/Critical/NoData/Negative badges
     newV2.getRange("E" + rNum).setFormula(`=IF(COUNTIFS('📒 Account Ledger'!C:C; "${wName}"; '📒 Account Ledger'!B:B; ">="&M3; '📒 Account Ledger'!B:B; "<="&M4)=0; "belum ada data periode"; IF(C${rNum} < 0; "⊗ kritis negatif"; IF(C${rNum} > ${targetLimit * 0.4}; "✓ aman"; IF(C${rNum} > ${targetLimit * 0.1}; "⚠ hampir habis"; "↓ kritis rendah"))))`);
   }
@@ -25922,7 +25953,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
     const r = startRow + i;
     const balance = Number(newV2.getRange("C" + r).getValue() || 0);
     const status = String(newV2.getRange("E" + r).getValue() || "").trim();
-    
+
     if (status.indexOf("negatif") >= 0 || status.indexOf("kritis") >= 0) {
       if (!criticalWallet) {
         criticalWallet = { name: w, balance: balance };
@@ -25948,7 +25979,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
   const card2 = newV2.getRange("G34:J34");
   if (criticalWallet) {
     const formattedBal = formatRupiahJs_(criticalWallet.balance);
-    const msg = criticalWallet.balance < 0 
+    const msg = criticalWallet.balance < 0
       ? `CRITICAL: Saldo ${criticalWallet.name} negatif ${formattedBal}. Periksa mutasi atau alokasi wallet.`
       : `CRITICAL: Saldo ${criticalWallet.name} kritis rendah (${formattedBal}). Segera lakukan alokasi dana.`;
     card2.setValue(msg).setBackground("#3D1515").setFontColor("#FF6B6B").setFontWeight("bold");
@@ -25987,21 +26018,21 @@ function airoSprint6DashboardV2Build_(ss, options) {
 
   // 9. Post-build Sweep / Hard Cleanup
   SpreadsheetApp.flush();
-  
+
   const sweepRange = newV2.getRange("A1:K41");
   const sweepVals = sweepRange.getDisplayValues();
   const sweepFormulas = sweepRange.getFormulas();
-  
+
   for (let r = 0; r < 41; r++) {
     for (let c = 0; c < 11; c++) {
       const val = sweepVals[r][c];
       const trimmed = val.trim();
       const formula = sweepFormulas[r][c];
       const cellAddr = getColumnLetter_(c + 1) + (r + 1);
-      
+
       let replaced = false;
       let newValue = val;
-      
+
       // Check for formula errors
       if (trimmed.indexOf("#NAME?") >= 0 || trimmed.indexOf("#REF!") >= 0 || trimmed.indexOf("#N/A") >= 0 || trimmed.indexOf("#VALUE!") >= 0) {
         if (cellAddr.indexOf("E") === 0 && (r + 1) >= 26 && (r + 1) <= 31) {
@@ -26016,7 +26047,7 @@ function airoSprint6DashboardV2Build_(ss, options) {
         newValue = "";
         replaced = true;
       }
-      
+
       if (replaced) {
         newV2.getRange(cellAddr).setValue(newValue);
       }
@@ -26103,29 +26134,29 @@ function airoGetCcBillingStats_(ss, referenceDate) {
   referenceDate = referenceDate || todayDate_();
   const cc = getSheetLoose_(ss, 'Credit Card') || getSheetLoose_(ss, '💳 Credit Card');
   if (!cc) return { payable_total: 0, unbilled_total: 0 };
-  
+
   const header = findCcHeaderRow_(cc);
   if (!header) return { payable_total: 0, unbilled_total: 0 };
-  
+
   const map = ccColMap_(header.headers);
   const required = ['amount', 'status_pocket_blu', 'billing_cycle_id', 'billing_start', 'billing_end'];
   for (let i = 0; i < required.length; i++) {
     if (!map[required[i]]) return { payable_total: 0, unbilled_total: 0 };
   }
-  
+
   const currentCycle = ccBillingCycle_(referenceDate);
   const payableDate = new Date(currentCycle.start);
   payableDate.setDate(payableDate.getDate() - 1);
   const payableCycle = ccBillingCycle_(payableDate);
-  
+
   const stats = {
     payable_total: 0,
     unbilled_total: 0
   };
-  
+
   const lastRow = cc.getLastRow();
   const lastCol = cc.getLastColumn();
-  
+
   const amountFromDisplay_ = function(value) {
     let s = String(value || '').replace(/\s+/g, '').replace(/[^0-9,.-]/g, '');
     if (!s) return 0;
@@ -26136,7 +26167,7 @@ function airoGetCcBillingStats_(ss, referenceDate) {
     }
     return Number(s) || 0;
   };
-  
+
   if (lastRow > header.row) {
     const rows = cc.getRange(header.row + 1, 1, lastRow - header.row, lastCol).getDisplayValues();
     rows.forEach(function(row) {
@@ -26144,13 +26175,13 @@ function airoGetCcBillingStats_(ss, referenceDate) {
       const status = String(row[map.status_pocket_blu - 1] || '').toLowerCase();
       const cycleId = String(row[map.billing_cycle_id - 1] || '').trim();
       if (!amount || !cycleId) return;
-      
+
       const isSudahBlu =
         status.indexOf('sudah') >= 0 ||
         status.indexOf('paid') >= 0 ||
         status.indexOf('posted') >= 0 ||
         status.indexOf('transferred') >= 0;
-        
+
       if (cycleId === payableCycle.id) {
         stats.payable_total += amount;
       }
@@ -26169,7 +26200,7 @@ function airoSprint6DashboardV2BuildOpsCenter_(ss) {
     opsSheet = ss.insertSheet(opsTabName);
   }
   opsSheet.clear();
-  
+
   const alertStatus = airoSprint6BGetLiveStatus_(ss);
   const adminChatId = PropertiesService.getScriptProperties().getProperty('ADMIN_CHAT_ID') || '';
   const maskedChat = adminChatId ? airoSprint6BMaskChatId_(adminChatId) : '';
@@ -26197,12 +26228,12 @@ function airoSprint6DashboardV2BuildOpsCenter_(ss) {
     ['Credit Card Total', String(ccStats.payable_total)],
     ['Credit Card Unbilled', String(ccStats.unbilled_total)]
   ];
-  
+
   opsSheet.getRange(1, 1, opsRows.length, 2).setValues(opsRows);
   opsSheet.getRange('A1:B1').setFontWeight('bold');
   opsSheet.setColumnWidth(1, 200);
   opsSheet.setColumnWidth(2, 400);
-  
+
   // Format numeric values in columns
   opsSheet.getRange('B11:B17').setNumberFormat('"Rp"#,##0');
 }
@@ -26215,7 +26246,7 @@ function airoSprint6DashboardV2Readback_(ss, options) {
 
   const template = ss.getSheetByName('_AIRO_Dashboard_Template_Claude');
   const found = airoSprint6FindSheetLoose_(ss, targetSheetName);
-  
+
   if (!template) {
     return {
       ok: false,
@@ -26384,11 +26415,11 @@ function airoSprint6DashboardV2Readback_(ss, options) {
 function airoDashboardPromoteToMain_(ss) {
   ss = ss || SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
   const sheetNames = ss.getSheets().map(s => s.getName());
-  
+
   try {
     const timezone = Session.getScriptTimeZone ? Session.getScriptTimeZone() : 'Asia/Jakarta';
     const stamp = Utilities.formatDate(new Date(), timezone, 'yyyyMMdd_HHmmss');
-    
+
     // 1. Backup existing 🏠 Dashboard by renaming it directly
     const mainFound = airoSprint6FindSheetLoose_(ss, '🏠 Dashboard');
     let backupMsg = '';
@@ -26399,23 +26430,23 @@ function airoDashboardPromoteToMain_(ss) {
     } else {
       backupMsg = 'No existing 🏠 Dashboard to backup. ';
     }
-    
+
     // 2. Locate 🏠 Dashboard v2
     const v2Found = airoSprint6FindSheetLoose_(ss, '🏠 Dashboard v2');
     if (!v2Found || !v2Found.sheet) {
       throw new Error('🏠 Dashboard v2 sheet not found. Cannot promote.');
     }
     const v2Sheet = v2Found.sheet;
-    
+
     // 3. Rename original v2 to archive copy
     const approvedBackupName = '_AIRO_Dashboard_v2_Approved_' + stamp;
     v2Sheet.setName(approvedBackupName);
-    
+
     // 4. Copy archive copy to become the official 🏠 Dashboard
     const promotedSheet = v2Sheet.copyTo(ss);
     promotedSheet.setName('🏠 Dashboard');
     promotedSheet.showSheet();
-    
+
     // Reposition main dashboard at first position if possible
     try {
       ss.setActiveSheet(promotedSheet);
@@ -26438,7 +26469,7 @@ function airoDashboardPromoteToMain_(ss) {
 
 function airoDashboardCleanupTabs_(ss) {
   ss = ss || SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
-  
+
   const visibleTabs = [
     '🏠 Dashboard',
     '📌 Finance Events',
@@ -26451,9 +26482,9 @@ function airoDashboardCleanupTabs_(ss) {
     '🧾 Review Queue',
     '⚙️ Settings'
   ];
-  
+
   const logs = [];
-  
+
   // 1. Move official 🏠 Dashboard to position 1 (index 0)
   const mainSheet = ss.getSheetByName('🏠 Dashboard');
   if (mainSheet) {
@@ -26467,13 +26498,13 @@ function airoDashboardCleanupTabs_(ss) {
   } else {
     logs.push('🏠 Dashboard sheet not found.');
   }
-  
+
   // 2. Adjust visibility of sheets
   ss.getSheets().forEach(function(sh) {
     const name = sh.getName();
-    
+
     // Check if it matches any backup/copy/template patterns or Ops Center
-    const shouldHide = 
+    const shouldHide =
       name.indexOf('_AIRO_Dashboard_Pre_Promote_Backup_') === 0 ||
       name.indexOf('_AIRO_Dashboard_v2_Approved_') === 0 ||
       name.indexOf('_AIRO_Dashboard_Backup_') === 0 ||
@@ -26485,7 +26516,7 @@ function airoDashboardCleanupTabs_(ss) {
       name.indexOf('Copy of 🏠 Dashboard v2') >= 0 ||
       name.indexOf('075031') >= 0 ||
       name.indexOf('075119') >= 0;
-      
+
     if (shouldHide) {
       try {
         sh.hideSheet();
@@ -26508,7 +26539,7 @@ function airoDashboardCleanupTabs_(ss) {
       }
     }
   });
-  
+
   return {
     ok: true,
     logs: logs,
@@ -26516,34 +26547,21 @@ function airoDashboardCleanupTabs_(ss) {
   };
 }
 
-function onEdit(e) {
-  try { if (airoTask101OnEdit_(e)) return; } catch (task101Err) {}
-
-
-  if (!e) return;
-  const range = e.range;
-  const sheet = range.getSheet();
-  const sheetName = sheet.getName();
-  
-  if ((sheetName === '🏠 Dashboard v2' || sheetName === '🏠 Dashboard') && range.getA1Notation() === 'G2') {
-    const ss = sheet.getParent();
-    airoSprint6DashboardV2Build_(ss, { mode: 'update', sheetName: sheetName, sheet: sheet });
-  }
-}
+// onEdit overridden by surgical v4.1
 
 function airoSprint7HInstallPollerTrigger_() {
   var ss = airoSprint7FSpreadsheet_();
   var triggers = ScriptApp.getProjectTriggers();
   var handler = "airoSprint7HScheduledGmailPoller_";
   var exists = false;
-  
+
   for (var i = 0; i < triggers.length; i++) {
     if (String(triggers[i].getHandlerFunction ? triggers[i].getHandlerFunction() : "") === handler) {
       exists = true;
       break;
     }
   }
-  
+
   var created = false;
   if (!exists) {
     ScriptApp.newTrigger(handler)
@@ -26552,9 +26570,9 @@ function airoSprint7HInstallPollerTrigger_() {
       .create();
     created = true;
   }
-  
+
   var status = airoSprint7HPollerTriggerStatus_();
-  
+
   var audit = ss.getSheetByName("_AIRO_Audit_Log");
   if (audit) {
     audit.appendRow([
@@ -26572,7 +26590,7 @@ function airoSprint7HInstallPollerTrigger_() {
       })
     ]);
   }
-  
+
   return {
     ok: true,
     sprint: "7H",
@@ -26592,7 +26610,7 @@ function airoSprint7HUninstallPollerTrigger_() {
   var handler = "airoSprint7HScheduledGmailPoller_";
   var triggers = ScriptApp.getProjectTriggers();
   var deleted = 0;
-  
+
   for (var i = 0; i < triggers.length; i++) {
     var t = triggers[i];
     if (String(t.getHandlerFunction ? t.getHandlerFunction() : "") === handler) {
@@ -26600,9 +26618,9 @@ function airoSprint7HUninstallPollerTrigger_() {
       deleted += 1;
     }
   }
-  
+
   var status = airoSprint7HPollerTriggerStatus_();
-  
+
   var audit = ss.getSheetByName("_AIRO_Audit_Log");
   if (audit) {
     audit.appendRow([
@@ -26620,7 +26638,7 @@ function airoSprint7HUninstallPollerTrigger_() {
       })
     ]);
   }
-  
+
   return {
     ok: true,
     sprint: "7H",
@@ -26640,20 +26658,20 @@ function airoSprint7HPollerTriggerStatus_() {
   var handler = "airoSprint7HScheduledGmailPoller_";
   var triggers = ScriptApp.getProjectTriggers();
   var count = 0;
-  
+
   for (var i = 0; i < triggers.length; i++) {
     if (String(triggers[i].getHandlerFunction ? triggers[i].getHandlerFunction() : "") === handler) {
       count++;
     }
   }
-  
+
   var killSwitch = false;
   try {
     killSwitch = (PropertiesService.getScriptProperties().getProperty("EMAIL_INGESTION_DISABLED") === "true");
   } catch (err) {
     killSwitch = false;
   }
-  
+
   return {
     ok: true,
     sprint: "7H",
@@ -26748,14 +26766,14 @@ function airoSprint7HScheduledGmailPoller_() {
   var fallbackEnabled = false;
   var maxThreads = 5;
   var maxMessages = 5;
-  
+
   var threads = [];
   try {
     threads = GmailApp.search(baseQuery, 0, maxThreads);
   } catch (e) {
     threads = [];
   }
-  
+
   if (threads.length === 0) {
     fallbackEnabled = true;
     var fallbackQueries = [
@@ -26784,9 +26802,9 @@ function airoSprint7HScheduledGmailPoller_() {
   var skippedMissingLabelCount = 0;
   var skippedDedupeCount = 0;
   var promptsSentCount = 0;
-  
+
   var processedCandidates = [];
-  
+
   for (var t = 0; t < threads.length; t++) {
     var thread = threads[t];
     var hasLabel = fallbackEnabled || airoSprint7EHasRequiredLabel_(thread, "Info Terbaru");
@@ -26796,34 +26814,34 @@ function airoSprint7HScheduledGmailPoller_() {
     } catch (e) {
       messages = [];
     }
-    
+
     for (var m = 0; m < messages.length; m++) {
       if (scannedMessageCount >= maxMessages) {
         break;
       }
-      
+
       var message = messages[m];
       var sender = airoSprint7EExtractSenderEmail_(message.getFrom());
       var subject = String(message.getSubject() || "");
       var provider = airoSprint7EProviderForSender_(sender);
-      
+
       if (!hasLabel) {
         skippedMissingLabelCount++;
         continue;
       }
-      
+
       if (!airoSprint7EIsAllowedSender_(sender, allowedSenders)) {
         skippedSenderNotAllowedCount++;
         continue;
       }
-      
+
       scannedMessageCount++;
-      
+
       if (airoSprint7EIsSensitiveSubject_(subject)) {
         skippedSensitiveCount++;
         continue;
       }
-      
+
       var msgId = "";
       var threadId = "";
       try {
@@ -26833,9 +26851,9 @@ function airoSprint7HScheduledGmailPoller_() {
         msgId = "";
         threadId = "";
       }
-      
+
       if (!msgId) continue;
-      
+
       var dedupeKey = "review:emc:" + msgId;
       var isDup = false;
       try {
@@ -26855,12 +26873,12 @@ function airoSprint7HScheduledGmailPoller_() {
       } catch (errDup) {
         isDup = false;
       }
-      
+
       if (isDup) {
         skippedDedupeCount++;
         continue;
       }
-      
+
       var candidate = {
         candidate_id: "emc:" + msgId,
         message_id: msgId,
@@ -26879,14 +26897,14 @@ function airoSprint7HScheduledGmailPoller_() {
         parse_status: "metadata_only_candidate",
         clarification_needed: true
       };
-      
+
       var textBody = "";
       try {
         textBody = message.getPlainBody() || "";
       } catch (errBody) {
         textBody = "";
       }
-      
+
       var extractedAmt = 0;
       if (textBody) {
         extractedAmt = airoSprint7FExtractAmountFromSubject_(textBody);
@@ -26896,21 +26914,21 @@ function airoSprint7HScheduledGmailPoller_() {
       } else {
         extractedAmt = airoSprint7FExtractAmountFromSubject_(subject);
       }
-      
+
       candidate.display_amount = extractedAmt;
       candidate.detected_amount = extractedAmt;
       candidate.amount_idr = extractedAmt;
-      
+
       var direction = airoSprint7FInferDirection_(subject, candidate.candidate_type);
       candidate.inferred_direction = direction;
       candidate.clarification_question_type = airoSprint7FClarificationQuestionType_(direction);
-      
+
       candidateCount++;
-      
+
       if (promptsSentCount < 1) {
         var chatId = 8482041086;
         var logResult = airoSprint7FLogPendingCandidate_(candidate, chatId);
-        
+
         if (logResult && logResult.dedupe_hit) {
           skippedDedupeCount++;
           processedCandidates.push({
@@ -26923,9 +26941,9 @@ function airoSprint7HScheduledGmailPoller_() {
           var pointerResult = airoSprint7FSavePendingPointer_(chatId, candidate, logResult);
           var messageText = airoSprint7FBuildFriendlyClarificationMessage_(logResult.candidate_id || candidate.candidate_id, candidate);
           sendTelegram_(chatId, messageText);
-          
+
           promptsSentCount++;
-          
+
           processedCandidates.push({
             message_id: msgId,
             thread_id: threadId,
@@ -26942,7 +26960,7 @@ function airoSprint7HScheduledGmailPoller_() {
         });
       }
     }
-    
+
     if (scannedMessageCount >= maxMessages) {
       break;
     }
@@ -26971,9 +26989,9 @@ function airoSprint7HScheduledGmailPoller_() {
     review_queue_write_performed: false,
     domain_tab_write_performed: false
   };
-  
+
   Logger.log(JSON.stringify(finalResult));
-  
+
   var ss = airoSprint7FSpreadsheet_();
   var audit = ss.getSheetByName("_AIRO_Audit_Log");
   if (audit) {
@@ -26988,7 +27006,7 @@ function airoSprint7HScheduledGmailPoller_() {
       JSON.stringify(finalResult)
     ]);
   }
-  
+
   return finalResult;
 }
 
@@ -27364,7 +27382,7 @@ function airoTask611SmokeTestDryRunScan_() {
 // =============================================================================
 function airoTask611SmokeCleanupExecute_() {
   var SMOKE_TAGS = ['SMK_', 'QA_', 'TEST_'];
-  
+
   var SCAN_CONFIG = [
     { label: 'Account Ledger',  emoji: '\uD83D\uDCD2', configured: '\uD83D\uDCD2 Account Ledger' },
     { label: 'Finance Events',  emoji: '\uD83D\uDCCC', configured: '\uD83D\uDCCC Finance Events' },
@@ -27403,7 +27421,7 @@ function airoTask611SmokeCleanupExecute_() {
   var skippedCountMap = {};
   var suspiciousRows = [];
   var totalDeleted = 0;
-  
+
   for (var k in manifest) {
     deletedCountMap[k] = 0;
     skippedCountMap[k] = 0;
@@ -27474,7 +27492,7 @@ function airoTask611SmokeCleanupExecute_() {
       for (var ri = 0; ri < sortedRows.length; ri++) {
         var rowNum = sortedRows[ri];
         var lastRow = sheet.getLastRow();
-        
+
         if (rowNum > lastRow) {
           errors.push(label + ' row ' + rowNum + ' is out of bounds (max ' + lastRow + '). Skipped.');
           skippedCountMap[label]++;
@@ -27659,12 +27677,12 @@ function airoEnsureCategoryRegistrySheet_(ss) {
   var tabName = "📚 Category Registry";
   var sheet = ss.getSheetByName(tabName);
   var headers = ['active', 'domain', 'event_type', 'category', 'subcategory', 'aliases', 'display_order', 'dashboard_group', 'requires_review', 'notes'];
-  
+
   if (!sheet) {
     sheet = ss.insertSheet(tabName);
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.setFrozenRows(1);
-    
+
     var seedData = [
       ['TRUE', 'Wallet', 'expense', 'Food & Drink', 'Jajan', 'jajan,cemilan,snack', '10', 'Food & Drink', 'FALSE', ''],
       ['TRUE', 'Wallet', 'expense', 'Food & Drink', 'Makan di Luar', 'makan di luar,warung,resto,restoran,sarapan,lunch,dinner', '20', 'Food & Drink', 'FALSE', ''],
@@ -27686,7 +27704,7 @@ function airoEnsureCategoryRegistrySheet_(ss) {
       ['TRUE', 'Wallet', 'income', 'Income', 'Refund', 'refund,pengembalian', '20', 'Income', 'FALSE', ''],
       ['TRUE', 'Review', 'manual_review', 'Other / Review', 'Review', 'review,butuh review,manual', '10', 'Other / Review', 'TRUE', '']
     ];
-    
+
     var extraSeeds = [
       ['TRUE', 'Wallet', 'expense', 'Insurance', 'Asuransi Jiwa', 'asuransi jiwa', '10', 'Insurance', 'FALSE', ''],
       ['TRUE', 'Wallet', 'expense', 'Insurance', 'Asuransi Kesehatan', 'asuransi kesehatan', '20', 'Insurance', 'FALSE', ''],
@@ -27705,15 +27723,15 @@ function airoEnsureCategoryRegistrySheet_(ss) {
       ['TRUE', 'Wallet', 'expense', 'Giving & Family', 'Keluarga', 'keluarga,ortu', '20', 'Giving & Family', 'FALSE', ''],
       ['TRUE', 'Wallet', 'expense', 'Giving & Family', 'Donasi', 'donasi,amal,zakat,sedekah', '30', 'Giving & Family', 'FALSE', '']
     ];
-    
+
     var allSeeds = seedData.concat(extraSeeds);
     sheet.getRange(2, 1, allSeeds.length, headers.length).setValues(allSeeds);
-    
+
     sheet.getRange(1, 1, 1, headers.length)
       .setFontWeight('bold')
       .setBackground('#2d4a7a')
       .setFontColor('#ffffff');
-    
+
     for (var col = 1; col <= headers.length; col++) {
       sheet.autoResizeColumn(col);
     }
@@ -27724,12 +27742,12 @@ function airoEnsureAccountRegistrySheet_(ss) {
   var tabName = "🏦 Account Registry";
   var sheet = ss.getSheetByName(tabName);
   var headers = ['active', 'account_id', 'account_name', 'provider', 'account_type', 'parent_account', 'pocket_name', 'dashboard_group', 'color_hex', 'is_cash', 'is_bank', 'is_credit', 'notes'];
-  
+
   if (!sheet) {
     sheet = ss.insertSheet(tabName);
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.setFrozenRows(1);
-    
+
     var seedData = [
       ['TRUE', 'blu', 'Blu', 'Blu', 'bank', 'Blu', '', 'Blu', '#00A3E0', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Main account'],
       ['TRUE', 'blu_pocket', 'Blu Pocket', 'Blu', 'bank', 'Blu', 'pocket', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket account'],
@@ -27740,14 +27758,14 @@ function airoEnsureAccountRegistrySheet_(ss) {
       ['TRUE', 'cash_bensin', 'Cash Bensin', 'Cash', 'cash', 'Cash', 'bensin', 'Cash', '#85EA2D', 'TRUE', 'FALSE', 'FALSE', 'Cash Bensin'],
       ['TRUE', 'credit_card', 'Credit Card', 'Credit Card', 'credit', 'Credit Card', '', 'Credit Card', '#DC3545', 'FALSE', 'FALSE', 'TRUE', 'Credit Card']
     ];
-    
+
     sheet.getRange(2, 1, seedData.length, headers.length).setValues(seedData);
-    
+
     sheet.getRange(1, 1, 1, headers.length)
       .setFontWeight('bold')
       .setBackground('#2d4a7a')
       .setFontColor('#ffffff');
-    
+
     for (var col = 1; col <= headers.length; col++) {
       sheet.autoResizeColumn(col);
     }
@@ -27759,7 +27777,7 @@ function ensureSchemaColumn_(sheet, headerName) {
   if (lastCol === 0) return;
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0]
     .map(function(v) { return String(v || "").trim().toLowerCase(); });
-  
+
   if (headers.indexOf(headerName.toLowerCase()) === -1) {
     sheet.getRange(1, lastCol + 1).setValue(headerName);
     Logger.log("Added column " + headerName + " to " + sheet.getName());
@@ -27770,17 +27788,17 @@ function airoSprint7AccountContractGetRegistry_() {
   try {
     var ss = airoSprint7FSpreadsheet_();
     if (!ss) return airoSprint7AccountContractGetStaticRegistry_();
-    
+
     airoEnsureAccountRegistrySheet_(ss);
-    
+
     var sheet = ss.getSheetByName("🏦 Account Registry");
     if (!sheet) return airoSprint7AccountContractGetStaticRegistry_();
-    
+
     var values = sheet.getDataRange().getValues();
     if (values.length <= 1) return airoSprint7AccountContractGetStaticRegistry_();
-    
+
     var headers = values[0].map(function(h) { return String(h || "").trim().toLowerCase(); });
-    
+
     var colActive = headers.indexOf("active");
     var colAccountId = headers.indexOf("account_id");
     var colAccountName = headers.indexOf("account_name");
@@ -27791,22 +27809,22 @@ function airoSprint7AccountContractGetRegistry_() {
     var colIsCash = headers.indexOf("is_cash");
     var colIsBank = headers.indexOf("is_bank");
     var colIsCredit = headers.indexOf("is_credit");
-    
+
     if (colAccountId === -1 || colAccountName === -1) {
       return airoSprint7AccountContractGetStaticRegistry_();
     }
-    
+
     var registry = [];
     for (var i = 1; i < values.length; i++) {
       var row = values[i];
       var activeVal = colActive !== -1 ? String(row[colActive] || "").trim().toLowerCase() : "true";
       var active = (activeVal === "true" || activeVal === "1" || activeVal === "yes" || activeVal === "y" || activeVal === "");
       if (!active) continue;
-      
+
       var accountId = String(row[colAccountId] || "").trim();
       var accountName = String(row[colAccountName] || "").trim();
       if (!accountId || !accountName) continue;
-      
+
       registry.push({
         account_id: accountId,
         account_name: accountName,
@@ -27819,7 +27837,7 @@ function airoSprint7AccountContractGetRegistry_() {
         is_credit: colIsCredit !== -1 ? (String(row[colIsCredit]).toLowerCase() === "true") : false
       });
     }
-    
+
     if (registry.length === 0) return airoSprint7AccountContractGetStaticRegistry_();
     return registry;
   } catch (e) {
@@ -27843,23 +27861,23 @@ function airoSprint7AccountContractGetStaticRegistry_() {
 
 function airoSprint7ParseCategoryAndSubcategoryFromText_(text) {
   var t = String(text || '').toLowerCase();
-  
+
   var registry = airoSprint7CategoryContractGetRegistry_();
   var categories = Object.keys(registry);
-  
+
   for (var i = 0; i < categories.length; i++) {
     var cat = categories[i];
     var catLower = cat.toLowerCase();
     var catData = registry[cat];
     var subs = catData.subcategories;
     var subinfo = catData.subinfo || {};
-    
+
     for (var j = 0; j < subs.length; j++) {
       var sub = subs[j];
       var subLower = sub.toLowerCase();
       var info = subinfo[sub] || {};
       var aliases = info.aliases || [];
-      
+
       for (var k = 0; k < aliases.length; k++) {
         var alias = aliases[k].toLowerCase();
         var re = new RegExp("\\b" + escapeRegex_(alias) + "\\b", "i");
@@ -27867,7 +27885,7 @@ function airoSprint7ParseCategoryAndSubcategoryFromText_(text) {
           return { category: cat, subcategory: sub };
         }
       }
-      
+
       var subWordRe = new RegExp("\\b" + escapeRegex_(subLower) + "\\b", "i");
       if (subWordRe.test(t)) {
         return { category: cat, subcategory: sub };
@@ -27878,14 +27896,14 @@ function airoSprint7ParseCategoryAndSubcategoryFromText_(text) {
   for (var i = 0; i < categories.length; i++) {
     var cat = categories[i];
     var catLower = cat.toLowerCase();
-    
+
     var catWordRe = new RegExp("\\b" + escapeRegex_(catLower) + "\\b", "i");
     if (catWordRe.test(t)) {
       var defaultSub = registry[cat].subcategories[0] || 'Lainnya';
       return { category: cat, subcategory: defaultSub };
     }
   }
-  
+
   if (/\b(makan|minum|kopi|es teh|resto|warung|sarapan|lunch|dinner)\b/i.test(t)) {
     var sub = 'Makan di Luar';
     if (/\\b(kopi|coffee|starbucks)\\b/i.test(t)) sub = 'Kopi';
@@ -27942,7 +27960,7 @@ function airoTask613BackfillDryRun_() {
           .map(function(h) { return String(h || "").trim().toLowerCase(); });
         var subCol = headers.indexOf("subcategory") + 1;
         var rawTextCol = headers.indexOf("raw_text") + 1;
-        
+
         if (subCol > 0 && rawTextCol > 0) {
           var vals = ledgerSheet.getRange(2, 1, lastRow - 1, ledgerSheet.getLastColumn()).getValues();
           for (var i = 0; i < vals.length; i++) {
@@ -27959,7 +27977,7 @@ function airoTask613BackfillDryRun_() {
         }
       }
     }
-    
+
     var feSheet = getSheetLoose_(ss, "📌 Finance Events");
     if (feSheet) {
       var lastRow = feSheet.getLastRow();
@@ -27969,7 +27987,7 @@ function airoTask613BackfillDryRun_() {
         var subCol = headers.indexOf("subcategory") + 1;
         var notesCol = headers.indexOf("notes") + 1;
         var payloadCol = headers.indexOf("payload_json") + 1;
-        
+
         if (subCol > 0) {
           var vals = feSheet.getRange(2, 1, lastRow - 1, feSheet.getLastColumn()).getValues();
           for (var i = 0; i < vals.length; i++) {
@@ -27978,7 +27996,7 @@ function airoTask613BackfillDryRun_() {
             var payload = payloadCol > 0 ? String(vals[i][payloadCol - 1] || "").trim() : "";
             if (!sub) {
               result.feBlank++;
-              
+
               var inferred = "";
               if (payload) {
                 try {
@@ -27991,7 +28009,7 @@ function airoTask613BackfillDryRun_() {
               if (!inferred && notes) {
                 inferred = airoSprint7ParseCategoryAndSubcategoryFromText_(notes).subcategory;
               }
-              
+
               if (inferred && inferred !== 'Review') {
                 result.feInferred++;
               }
@@ -28025,7 +28043,7 @@ function airoTask613AdminCommandMaybeHandleRoute_(e) {
         '',
         'No writes performed. Owner approval required to commit backfill.'
       ].join('\n');
-      
+
       sendTelegram_(chatId, reply);
       return json_({
         ok: true,
@@ -28046,7 +28064,7 @@ function airoTask613AdminCommandMaybeHandleRoute_(e) {
         '- Account Registry created: ' + res.accountRegistryCreated,
         '- Account rows imported: ' + res.accountRowsImported + ', duplicates: ' + res.accountDuplicates
       ].join('\n');
-      
+
       sendTelegram_(chatId, reply);
       return json_({
         ok: true,
@@ -28055,7 +28073,7 @@ function airoTask613AdminCommandMaybeHandleRoute_(e) {
         result: res
       });
     }
-    
+
     if (/^admin\s+apply\s+account\s+styles\s*$/i.test(rawText)) {
       sendTelegram_(chatId, 'Task 6.13B — Applying account color styling to Account Ledger...');
       var res = runTask613ApplyAccountRegistryStyleFromEditor();
@@ -28086,13 +28104,13 @@ function applySheetFormatting_(sheet, numHeaders) {
       sheet.getFilter().remove();
     }
     range.createFilter();
-    
+
     var headerRange = sheet.getRange(1, 1, 1, lastCol);
     headerRange.setFontWeight('bold')
                .setBackground('#203a43')
                .setFontColor('#ffffff')
                .setHorizontalAlignment('center');
-    
+
     for (var r = 2; r <= lastRow; r++) {
       var rowRange = sheet.getRange(r, 1, 1, lastCol);
       if (r % 2 === 0) {
@@ -28101,7 +28119,7 @@ function applySheetFormatting_(sheet, numHeaders) {
         rowRange.setBackground('#f9fbfd');
       }
     }
-    
+
     for (var col = 1; col <= lastCol; col++) {
       sheet.autoResizeColumn(col);
     }
@@ -28111,16 +28129,16 @@ function applySheetFormatting_(sheet, numHeaders) {
 function airoTask613BImportRegistries_(payload) {
   var ss = airoSprint7FSpreadsheet_();
   var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd_HHmmss");
-  
+
   var catTabName = "📚 Category Registry";
   var origSheet = ss.getSheetByName(catTabName);
   var backupName = "📚 Category Registry BACKUP " + timestamp;
   var backupSheetName = "";
   var rowsBefore = 0;
-  
+
   var existingRowsMap = {};
   var targetHeaders = ['active', 'category', 'subcategory', 'aliases', 'transaction_scope', 'display_order', 'dashboard_group', 'requires_review', 'domain', 'event_type', 'notes'];
-  
+
   if (origSheet) {
     var backupSheet = origSheet.copyTo(ss).setName(backupName);
     backupSheetName = backupSheet.getName();
@@ -28145,14 +28163,14 @@ function airoTask613BImportRegistries_(payload) {
       }
     }
   }
-  
+
   var designCategories = payload.categories || [];
   var mergedRows = [];
   var rowsAdded = 0;
   var rowsUpdated = 0;
   var catDuplicates = 0;
   var seenKeys = {};
-  
+
   for (var idx = 0; idx < designCategories.length; idx++) {
     var designRow = designCategories[idx];
     var cat = String(designRow.category || "").trim();
@@ -28160,13 +28178,13 @@ function airoTask613BImportRegistries_(payload) {
     var dom = String(designRow.domain || "").trim();
     var evt = String(designRow.event_type || "").trim();
     var key = (cat + "|" + sub + "|" + dom + "|" + evt).toLowerCase();
-    
+
     if (seenKeys[key]) {
       catDuplicates++;
       continue;
     }
     seenKeys[key] = true;
-    
+
     if (existingRowsMap[key]) {
       var mergedRow = {};
       for (var colIdx = 0; colIdx < targetHeaders.length; colIdx++) {
@@ -28191,7 +28209,7 @@ function airoTask613BImportRegistries_(payload) {
       rowsAdded++;
     }
   }
-  
+
   for (var key in existingRowsMap) {
     var existingRow = existingRowsMap[key];
     var mergedRow = {};
@@ -28201,16 +28219,16 @@ function airoTask613BImportRegistries_(payload) {
     }
     mergedRows.push(mergedRow);
   }
-  
+
   if (!origSheet) {
     origSheet = ss.insertSheet(catTabName);
   } else {
     origSheet.clear();
   }
-  
+
   origSheet.getRange(1, 1, 1, targetHeaders.length).setValues([targetHeaders]);
   origSheet.setFrozenRows(1);
-  
+
   if (mergedRows.length > 0) {
     var outputValues = mergedRows.map(function(row) {
       return targetHeaders.map(function(h) {
@@ -28223,7 +28241,7 @@ function airoTask613BImportRegistries_(payload) {
     });
     origSheet.getRange(2, 1, outputValues.length, targetHeaders.length).setValues(outputValues);
   }
-  
+
   var activeColIdx = targetHeaders.indexOf('active') + 1;
   var reviewColIdx = targetHeaders.indexOf('requires_review') + 1;
   var lastCatRow = origSheet.getLastRow();
@@ -28233,7 +28251,7 @@ function airoTask613BImportRegistries_(payload) {
     if (activeColIdx > 0) origSheet.getRange(2, activeColIdx, lastCatRow - 1, 1).setDataValidation(rule);
     if (reviewColIdx > 0) origSheet.getRange(2, reviewColIdx, lastCatRow - 1, 1).setDataValidation(rule);
   }
-  
+
   var accTabName = "🏦 Account Registry";
   var accSheet = ss.getSheetByName(accTabName);
   var accountRegistryCreated = false;
@@ -28243,16 +28261,16 @@ function airoTask613BImportRegistries_(payload) {
   } else {
     accSheet.clear();
   }
-  
+
   var accHeaders = ['active', 'account_id', 'account_name', 'aliases', 'parent_account', 'pocket_name', 'account_type', 'dashboard_group', 'font_color_hex', 'fill_color_hex', 'display_order', 'provider', 'is_cash', 'is_bank', 'is_credit', 'notes'];
   accSheet.getRange(1, 1, 1, accHeaders.length).setValues([accHeaders]);
   accSheet.setFrozenRows(1);
-  
+
   var designAccounts = payload.accounts || [];
   var accOutputValues = [];
   var accDuplicates = 0;
   var seenAccIds = {};
-  
+
   var initialColors = {
     "Blu": { font: "#0284C7", fill: "#E0F2FE" },
     "Blu Pocket": { font: "#0891B2", fill: "#CFFAFE" },
@@ -28263,24 +28281,24 @@ function airoTask613BImportRegistries_(payload) {
     "Credit Card": { font: "#7E22CE", fill: "#F3E8FF" },
     "Unknown": { font: "#B45309", fill: "#FFEDD5" }
   };
-  
+
   for (var idx = 0; idx < designAccounts.length; idx++) {
     var accRow = designAccounts[idx];
     var accId = String(accRow.account_id || "").trim();
     if (!accId) continue;
-    
+
     if (seenAccIds[accId]) {
       accDuplicates++;
       continue;
     }
     seenAccIds[accId] = true;
-    
+
     var name = accRow.account_name;
     if (initialColors[name]) {
       accRow.font_color_hex = accRow.font_color_hex || initialColors[name].font;
       accRow.fill_color_hex = accRow.fill_color_hex || initialColors[name].fill;
     }
-    
+
     accOutputValues.push(accHeaders.map(function(h) {
       var val = accRow[h];
       if (typeof val === 'boolean') {
@@ -28289,18 +28307,18 @@ function airoTask613BImportRegistries_(payload) {
       return val === undefined || val === null ? "" : val;
     }));
   }
-  
+
   if (accOutputValues.length > 0) {
     accSheet.getRange(2, 1, accOutputValues.length, accHeaders.length).setValues(accOutputValues);
   }
-  
+
   applySheetFormatting_(accSheet, accHeaders.length);
   var activeAccColIdx = accHeaders.indexOf('active') + 1;
   var isCashColIdx = accHeaders.indexOf('is_cash') + 1;
   var isBankColIdx = accHeaders.indexOf('is_bank') + 1;
   var isCreditColIdx = accHeaders.indexOf('is_credit') + 1;
   var lastAccRow = accSheet.getLastRow();
-  
+
   if (lastAccRow > 1) {
     var rule = SpreadsheetApp.newDataValidation().requireValueInList(['TRUE', 'FALSE'], true).build();
     if (activeAccColIdx > 0) accSheet.getRange(2, activeAccColIdx, lastAccRow - 1, 1).setDataValidation(rule);
@@ -28308,7 +28326,7 @@ function airoTask613BImportRegistries_(payload) {
     if (isBankColIdx > 0) accSheet.getRange(2, isBankColIdx, lastAccRow - 1, 1).setDataValidation(rule);
     if (isCreditColIdx > 0) accSheet.getRange(2, isCreditColIdx, lastAccRow - 1, 1).setDataValidation(rule);
   }
-  
+
   return {
     categoryBackupSheet: backupSheetName,
     categoryRowsBefore: rowsBefore,
@@ -28324,7 +28342,7 @@ function airoTask613BImportRegistries_(payload) {
 function runTask613ApplyAccountRegistryStyleFromEditor() {
   var ss = airoSprint7FSpreadsheet_();
   var registry = airoSprint7AccountContractGetRegistry_();
-  
+
   var styleMap = {};
   for (var i = 0; i < registry.length; i++) {
     var acc = registry[i];
@@ -28333,44 +28351,44 @@ function runTask613ApplyAccountRegistryStyleFromEditor() {
       fill: acc.fill_color_hex || '#ffffff'
     };
   }
-  
+
   var warningStyle = {
     font: '#B45309',
     fill: '#FFEDD5'
   };
-  
+
   var sheet = getSheetLoose_(ss, "📒 Account Ledger");
   if (!sheet) {
     return { formattedRowsCount: 0, error: "Account Ledger sheet not found" };
   }
-  
+
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) {
     return { formattedRowsCount: 0 };
   }
-  
+
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
     .map(function(h) { return String(h || "").trim().toLowerCase(); });
   var accColIdx = headers.indexOf("account") + 1;
   if (accColIdx === 0) {
     return { formattedRowsCount: 0, error: "Account column not found in Ledger" };
   }
-  
+
   var accValues = sheet.getRange(2, accColIdx, lastRow - 1, 1).getValues();
   var fontColors = [];
   var fillColors = [];
-  
+
   for (var r = 0; r < accValues.length; r++) {
     var accName = String(accValues[r][0] || "").trim();
     var style = styleMap[accName.toLowerCase()] || warningStyle;
     fontColors.push([style.font]);
     fillColors.push([style.fill]);
   }
-  
+
   var targetRange = sheet.getRange(2, accColIdx, lastRow - 1, 1);
   targetRange.setFontColors(fontColors);
   targetRange.setBackgrounds(fillColors);
-  
+
   // AIRO_TASK615D_OWNER_STYLE_V1
   function task615DHeaderMap_(targetSheet) {
     var values = targetSheet
@@ -29198,7 +29216,7 @@ function runTask7BaselineReadOnlyFromEditor(mode) {
 function runTask8TransferRegistrySelfTestFromEditor() {
   var results = [];
   var passed = true;
-  
+
   // Case 1: transfer 25rb dr pocket blu ke blu
   var text1 = "transfer 25rb dr pocket blu ke blu";
   var parsed1 = { amount: parseAmount_(text1) };
@@ -29206,7 +29224,7 @@ function runTask8TransferRegistrySelfTestFromEditor() {
   var tc1 = (parsed1.amount === 25000 && res1 && res1.sourceAccount === "Blu Pocket" && res1.targetAccount === "Blu");
   results.push({ test: 'transfer 25rb dr pocket blu ke blu', passed: tc1, result: { amount: parsed1.amount, route: res1 } });
   if (!tc1) passed = false;
-  
+
   // Case 2: transfer 25rb dari blu pocket ke blu
   var text2 = "transfer 25rb dari blu pocket ke blu";
   var parsed2 = { amount: parseAmount_(text2) };
@@ -29214,7 +29232,7 @@ function runTask8TransferRegistrySelfTestFromEditor() {
   var tc2 = (parsed2.amount === 25000 && res2 && res2.sourceAccount === "Blu Pocket" && res2.targetAccount === "Blu");
   results.push({ test: 'transfer 25rb dari blu pocket ke blu', passed: tc2, result: { amount: parsed2.amount, route: res2 } });
   if (!tc2) passed = false;
-  
+
   // Case 3: transfer 10rb dari pocket bca ke bca
   var text3 = "transfer 10rb dari pocket bca ke bca";
   var parsed3 = { amount: parseAmount_(text3) };
@@ -29222,7 +29240,7 @@ function runTask8TransferRegistrySelfTestFromEditor() {
   var tc3 = (parsed3.amount === 10000 && res3 && res3.sourceAccount === "BCA Pocket" && res3.targetAccount === "BCA");
   results.push({ test: 'transfer 10rb dari pocket bca ke bca', passed: tc3, result: { amount: parsed3.amount, route: res3 } });
   if (!tc3) passed = false;
-  
+
   // Case 4: transfer 50rb dari cash ke bca
   var text4 = "transfer 50rb dari cash ke bca";
   var parsed4 = { amount: parseAmount_(text4) };
@@ -29230,13 +29248,13 @@ function runTask8TransferRegistrySelfTestFromEditor() {
   var tc4 = (parsed4.amount === 50000 && res4 === null);
   results.push({ test: 'transfer 50rb dari cash ke bca (ambiguous)', passed: tc4, result: { amount: parsed4.amount, route: res4 } });
   if (!tc4) passed = false;
-  
+
   // Case 5: old hardcoded route menu is not primary
   var msg = buildTransferIncompleteClarificationMessage_({ amount: 10000 });
   var tc5 = (msg.indexOf("A. BCA → Blu") === -1 && msg.indexOf("BCA → Blu") !== -1);
   results.push({ test: 'old hardcoded route menu is not primary', passed: tc5, result: msg });
   if (!tc5) passed = false;
-  
+
   // Case 6: Finance Events remains no-op
   var feResult = null;
   var tc6 = false;
@@ -29248,7 +29266,7 @@ function runTask8TransferRegistrySelfTestFromEditor() {
   }
   results.push({ test: 'writeFinanceEvent_ is no-op/deprecated', passed: tc6, result: feResult });
   if (!tc6) passed = false;
-  
+
   return {
     ok: passed,
     results: results,
@@ -29686,95 +29704,18 @@ function airoTask10InstallRefreshTrigger_() {
   return { handler: handler, exists_or_created: true };
 }
 
-function airoTask10ScheduledDashboardRefresh_() {
-  var ss = airoTask10GetSs_();
-  return airoTask10RepairDashboard_(ss);
-}
+// extra defs overridden by surgical v4.1
 
-function airoTask10MaybeRefreshOnEdit_(e) {
-  try {
-    if (!e || !e.range) return;
-    var sh = e.range.getSheet();
-    var n = airoTask10Norm_(sh.getName());
-    if (n.indexOf('dashboard') >= 0 || n.indexOf('account ledger') >= 0 || n.indexOf('account registry') >= 0) {
-      airoTask10RepairDashboard_(sh.getParent());
-    }
-  } catch (err) {
-    try { Logger.log('AIRO_TASK10_ONEDIT_REFRESH_ERROR=' + (err.message || err)); } catch (e2) {}
-  }
-}
+// runTask10DashboardGovernanceRepairFromEditor overridden by surgical v4.1
 
-function runTask10DashboardGovernanceRepairFromEditor() {
-  var ss = airoTask10GetSs_();
-  var backup = DriveApp.getFileById(ss.getId()).makeCopy('AIRO_FINANCE_TASK10_PRE_REPAIR_BACKUP_' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss'));
-  var cleanup = airoTask10CleanupTabs_(ss, true);
-  var dashboard = airoTask10RepairDashboard_(ss);
-  var trigger = airoTask10InstallRefreshTrigger_();
-  var result = {
-    ok: true,
-    task: 'AIRO-FINANCE-TASK10-DASHBOARD-GOVERNANCE-REPAIR',
-    backup_created: true,
-    backup_name: backup.getName(),
-    backup_id_tail: String(backup.getId()).slice(-6),
-    cleanup: cleanup,
-    dashboard: dashboard,
-    trigger: trigger,
-    finance_events_deleted: false,
-    transactions_recreated: false,
-    gmail_read_performed: false,
-    telegram_send_performed: false,
-    financial_write_performed: false
-  };
-  Logger.log(JSON.stringify(result));
-  return result;
-}
-
-function runTask10DashboardReadbackFromEditor() {
-  var ss = airoTask10GetSs_();
-  var dashboard = airoTask10FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
-  var financeEvents = airoTask10FindSheet_(ss, 'Finance Events', {});
-  var visible = [];
-  var hidden = [];
-  ss.getSheets().forEach(function(sh) {
-    (sh.isSheetHidden() ? hidden : visible).push(sh.getName());
-  });
-  var feFormulaRefs = 0;
-  if (dashboard) {
-    var formulas = dashboard.getDataRange().getFormulas();
-    formulas.forEach(function(row) {
-      row.forEach(function(f) {
-        if (f && f.indexOf('Finance Events') >= 0) feFormulaRefs++;
-      });
-    });
-  }
-  var result = {
-    ok: true,
-    visible_count: visible.length,
-    hidden_count: hidden.length,
-    visible_order: visible,
-    dashboard_first_visible: visible.length > 0 && visible[0] === (dashboard && dashboard.getName()),
-    dashboard_b2: dashboard ? dashboard.getRange('B2').getDisplayValue() : '',
-    spending_rows: dashboard ? dashboard.getRange('B28:E33').getDisplayValues() : [],
-    account_rows: dashboard ? dashboard.getRange('B17:E24').getDisplayValues() : [],
-    data_quality_rows: dashboard ? dashboard.getRange('G25:J33').getDisplayValues() : [],
-    smart_insight_rows: dashboard ? dashboard.getRange('G35:J40').getDisplayValues() : [],
-    dashboard_formula_refs_finance_events_count: feFormulaRefs,
-    finance_events_hidden_not_deleted: financeEvents ? financeEvents.isSheetHidden() : false,
-    transactions_recreated: Boolean(airoTask10FindSheet_(ss, 'Transactions', {})),
-    gmail_read_performed: false,
-    telegram_send_performed: false,
-    financial_write_performed: false
-  };
-  Logger.log(JSON.stringify(result));
-  return result;
-}
+// runTask10DashboardReadbackFromEditor overridden by surgical v4.1
 
 function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
   try {
     var body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
     var msg = body.message || {};
     var rawText = String(msg.text || '').trim();
-    
+
     var text = rawText.toLowerCase();if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic" && rawText !== "admin task10 visual audit" && rawText !== "admin task10 style restore") {
       return null;
     }
@@ -30018,15 +29959,50 @@ function airoTask101BuildSpending_(rows, period) {
   top.forEach(function(x){
     var amount = x[1];
     var share = cur.total ? amount / cur.total : 0;
-    rowsOut.push([x[0], amount, share, airoTask101Bar_(share), airoTask101CompareLabel_(amount, prev.byCat[x[0]] || 0)]);
+    rowsOut.push([
+      x[0],
+      amount,
+      airoTask101BuildGrowthColumn_(amount, prev.byCat[x[0]] || 0),
+      share
+    ]);
   });
   if (othersCurrent > 0 || othersPrevious > 0) {
     var shareO = cur.total ? othersCurrent / cur.total : 0;
-    rowsOut.push(['Others', othersCurrent, shareO, airoTask101Bar_(shareO), airoTask101CompareLabel_(othersCurrent, othersPrevious)]);
+    rowsOut.push([
+      'Lainnya',
+      othersCurrent,
+      airoTask101BuildGrowthColumn_(othersCurrent, othersPrevious),
+      shareO
+    ]);
   }
-  if (!rowsOut.length) rowsOut.push(['Tidak ada data periode ini', '', '', '', '']);
-  while (rowsOut.length < 6) rowsOut.push(['', '', '', '', '']);
+  if (!rowsOut.length) rowsOut.push(['Tidak ada data periode ini', '', '', '']);
+  while (rowsOut.length < 6) rowsOut.push(['', '', '', '']);
   return { total: cur.total, rows: rowsOut.slice(0, 6), prevTotal: prev.total };
+}
+
+function airoTask101BuildGrowthColumn_(current, previous) {
+  current = Number(current || 0);
+  previous = Number(previous || 0);
+
+  if (current === 0 && previous === 0) {
+    return '— ░░░░░░░░░░  belum cukup data';
+  }
+  if (previous === 0 && current > 0) {
+    return '▲ ░░░░░░░░░░  baru bulan ini';
+  }
+  if (current === 0 && previous > 0) {
+    return '▼ ██████████  -100%';
+  }
+
+  var pct = (current - previous) / previous;
+  var arrow = (pct > 0) ? '▲' : ((pct < 0) ? '▼' : '—');
+  var rounded = Math.round(pct * 100);
+
+  var n = Math.max(0, Math.min(10, Math.round(Math.abs(pct) * 10)));
+  var bar = Array(n + 1).join('█') + Array(10 - n + 1).join('░');
+
+  var pctLabel = (rounded >= 0 ? '+' : '') + rounded + '%';
+  return arrow + ' ' + bar + '  ' + pctLabel;
 }
 
 function airoTask101RegistryRows_(registry) {
@@ -30089,32 +30065,62 @@ function airoTask101ReviewPending_(review) {
 
 function airoTask101ApplyVisual_(dashboard) {
   dashboard.setFrozenRows(3);
-  dashboard.setColumnWidth(1, 24);
-  dashboard.setColumnWidth(2, 190);
-  dashboard.setColumnWidth(3, 130);
-  dashboard.setColumnWidth(4, 115);
-  dashboard.setColumnWidth(5, 130);
-  dashboard.setColumnWidth(6, 150);
-  dashboard.setColumnWidth(7, 180);
-  dashboard.setColumnWidth(8, 130);
-  dashboard.setColumnWidth(9, 130);
-  dashboard.setColumnWidth(10, 180);
 
-  var all = dashboard.getRange('A1:J45');
-  all.setBackground('#111827').setFontColor('#F9FAFB').setFontFamily('Arial').setFontSize(10);
+  // Column widths: A=9, B=111, C=90, D=167, E=90, F=9, G=125, H=69, I=83, J=97, K=9
+  var widths = [9, 111, 90, 167, 90, 9, 125, 69, 83, 97, 9];
+  for (var c = 0; c < widths.length; c++) {
+    dashboard.setColumnWidth(c + 1, widths[c]);
+  }
+
+  // Row heights: rows 1 to 41
+  var heights = [6, 34, 8, 29, 34, 34, 10, 29, 26, 48, 10, 26, 40, 10, 29, 26, 34, 34, 34, 34, 34, 29, 10, 29, 26, 34, 34, 34, 34, 34, 34, 18, 10, 48, 48, 48, 10, 21, 21, 21, 21];
+  for (var r = 0; r < heights.length; r++) {
+    dashboard.setRowHeight(r + 1, heights[r]);
+  }
+
+  // Set cockpit range styling
+  var cockpit = dashboard.getRange('A1:K41');
+  cockpit.setBackground('#111827').setFontColor('#F9FAFB').setFontFamily('Arial').setFontSize(10);
+
+  // Topbar styling
   dashboard.getRange('B1:J1').setBackground('#0B1220').setFontColor('#FFFFFF').setFontWeight('bold').setFontSize(14);
   dashboard.getRange('B2:J3').setBackground('#172033').setFontColor('#F9FAFB');
-  ['B5:E5','G5:J5','B17:F17','G17:J17','B27:F27','G27:J27','G35:J35'].forEach(function(a1) {
+
+  // Headers styling
+  var headers = ['B4:J4', 'B8:J8', 'B15:E15', 'G15:J15', 'B24:E24', 'G24:J24', 'B33:J33'];
+  headers.forEach(function(a1) {
     dashboard.getRange(a1).setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold');
   });
-  dashboard.getRange('B6:E14').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('G6:J14').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('B18:F24').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('G18:J24').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('B28:F33').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('G28:J33').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('G36:J40').setBackground('#182235').setFontColor('#F9FAFB');
-  dashboard.getRange('B6:J40').setBorder(true, true, true, true, true, true, '#374151', SpreadsheetApp.BorderStyle.SOLID);
+
+  // Action Required boxes content background
+  ['B5:E5', 'G5:J5', 'B6:E6', 'G6:J6'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground('#182235').setFontColor('#F9FAFB');
+  });
+
+  // Executive Command Center rows
+  dashboard.getRange('B9:J10').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('B12:J13').setBackground('#182235').setFontColor('#F9FAFB');
+
+  // Wallet & Cashflow rows
+  dashboard.getRange('B16:E21').setBackground('#182235').setFontColor('#F9FAFB');
+  dashboard.getRange('B22:E22').setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold');
+
+  // Domain Health rows
+  dashboard.getRange('G16:J22').setBackground('#182235').setFontColor('#F9FAFB');
+
+  // Spending Intelligence rows
+  dashboard.getRange('B25:E31').setBackground('#182235').setFontColor('#F9FAFB');
+
+  // Data Quality rows
+  dashboard.getRange('G25:J31').setBackground('#182235').setFontColor('#F9FAFB');
+
+  // Smart Insight boxes
+  ['B34:E34', 'G34:J34', 'B35:E35'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground('#182235').setFontColor('#F9FAFB');
+  });
+
+  // Borders
+  dashboard.getRange('B4:J41').setBorder(true, true, true, true, true, true, '#374151', SpreadsheetApp.BorderStyle.SOLID);
 }
 
 function airoTask101WriteSettingsDetail_(settings, rows) {
@@ -30129,15 +30135,7 @@ function airoTask101WriteSettingsDetail_(settings, rows) {
 
 function airoTask101RenderDashboardFromCurrentFilter_(ss) {
   var lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000))   // AIRO_TASK10_1_DASHBOARD_V2_STYLE_RENDER_HOOK_START
-  try {
-    airoTask101ApplyDashboardV2StyleOnly_(ss, dashboard);
-  } catch (task101StyleErr) {
-    // Style restore must never block ledger-first dashboard rendering.
-  }
-  // AIRO_TASK10_1_DASHBOARD_V2_STYLE_RENDER_HOOK_END
-
-return { ok: false, error: 'render lock busy' };
+  if (!lock.tryLock(30000)) return { ok: false, error: 'render lock busy' };
   try {
     var dashboard = airoTask101FindSheet_(ss, 'Dashboard', { excludeV2: true, excludeBackup: true });
     var ledger = airoTask101FindSheet_(ss, 'Account Ledger', {});
@@ -30164,7 +30162,7 @@ return { ok: false, error: 'render lock busy' };
     var unknownAccounts = accountRows.filter(function(r){ return r[3] === 'UNKNOWN'; }).length;
     var malformedRegistry = 0;
 
-    var body = dashboard.getRange('B1:J45');
+    var body = dashboard.getRange('B1:J41');
     try { body.breakApart(); } catch(e) {}
     body.clear({contentsOnly:false});
 
@@ -30176,51 +30174,41 @@ return { ok: false, error: 'render lock busy' };
     dashboard.getRange('I2').setValue(String(period.year));
     airoTask101EnsureFilters_(dashboard, ledgerData);
 
-    dashboard.getRange('B5:E5').merge().setValue('SUMMARY');
-    dashboard.getRange('B6:E10').setValues([
-      ['Selected period', period.month_name + ' ' + period.year, 'Status', spending.total > 0 ? 'FRESH' : 'NO DATA'],
-      ['Ledger rows', ledgerData.rows.length, 'Latest ledger', airoTask101FmtDate_(latest)],
-      ['Expense total', spending.total, 'Previous month', spending.prevTotal],
-      ['Finance Events', financeEvents && financeEvents.isSheetHidden() ? 'DEPRECATED / hidden / no-op' : 'DEPRECATED / visible-warning', 'Transactions recreated', 'false'],
-      ['Computed at', airoTask101FmtDateTime_(new Date()), 'Renderer', 'Task 10.1 single renderer']
-    ]);
+    // B5:E10 SUMMARY and G5:J10 FILTER CONTRACT are legacy panels and removed from rendering
 
-    dashboard.getRange('G5:J5').merge().setValue('FILTER CONTRACT');
-    dashboard.getRange('G6:J10').setValues([
-      ['Bulan dropdown', 'Januari–Desember', 'Tahun dropdown', 'Ledger years + 5y'],
-      ['onEdit path', 'single renderer', 'Legacy builder', 'disabled by override'],
-      ['Width policy', 'fixed dashboard widths', 'Theme', 'semi-dark readable'],
-      ['No-delete policy', '7-day stability before delete', 'Finance Events', 'keep hidden'],
-      ['Clean state', 'no legacy labels/errors', 'Idempotent', 'yes']
-    ]);
+    // Wallet header at row 15 (columns B:E)
+    dashboard.getRange('B15:E15').setValues([['WALLET', 'SALDO', 'LEVEL', 'STATUS']]);
 
-    dashboard.getRange('B17:F17').setValues([['Akun', 'Saldo', 'Group', 'Status', 'Visual']]);
-    dashboard.getRange(18, 2, accountRows.length, 4).setValues(accountRows);
-    for (var ar = 0; ar < accountRows.length; ar++) {
-      var bal = Number(accountRows[ar][1] || 0);
-      var visual = '';
-      if (accountRows[ar][0]) visual = bal < 0 ? 'critical' : (bal < 100000 ? 'warning' : 'healthy');
-      dashboard.getRange(18 + ar, 6).setValue(visual);
-      if (visual === 'critical') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#FCA5A5');
-      if (visual === 'warning') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#FCD34D');
-      if (visual === 'healthy') dashboard.getRange(18 + ar, 2, 1, 5).setFontColor('#BBF7D0');
+    // Write Wallet account rows (up to 5 accounts, rows 17 to 21)
+    var activeAccounts = accountRows.filter(function(r){ return r[0] && r[2] !== 'hidden'; }).slice(0, 5);
+    while (activeAccounts.length < 5) {
+      activeAccounts.push(['', '', '', '']);
+    }
+    dashboard.getRange(17, 2, 5, 4).setValues(activeAccounts.map(function(r){
+      return [r[0], r[1], '', ''];
+    }));
+
+    for (var ar = 0; ar < 5; ar++) {
+      var accountName = activeAccounts[ar][0];
+      if (accountName) {
+        var bal = Number(activeAccounts[ar][1] || 0);
+        var visual = bal < 0 ? 'critical' : (bal < 100000 ? 'warning' : 'healthy');
+        if (visual === 'critical') dashboard.getRange(17 + ar, 2, 1, 4).setFontColor('#FCA5A5');
+        if (visual === 'warning') dashboard.getRange(17 + ar, 2, 1, 4).setFontColor('#FCD34D');
+        if (visual === 'healthy') dashboard.getRange(17 + ar, 2, 1, 4).setFontColor('#BBF7D0');
+      }
     }
 
+    // Write Wallet footer at row 22
+    dashboard.getRange('B22').setValue("CASH IN");
+    dashboard.getRange('D22').setValue("CASH OUT");
 
-    // AIRO_TASK10_1_ACCOUNT_SPACER_CLEANUP_START
-    var accountSpacerStartRow = 18 + accountRows.length;
-    if (accountSpacerStartRow <= 26) {
-      var accountSpacer = dashboard.getRange(accountSpacerStartRow, 2, 27 - accountSpacerStartRow, 5);
-      try { accountSpacer.breakApart(); } catch (e) {}
-      accountSpacer.clearContent();
-      accountSpacer.clearFormat();
-      accountSpacer.clearDataValidations();
-      accountSpacer.setBackground('#111827').setFontColor('#F9FAFB');
-    }
-    // AIRO_TASK10_1_ACCOUNT_SPACER_CLEANUP_END
-
-    dashboard.getRange('B27:F27').setValues([['Kategori', 'Nominal', 'Share', 'Bar', 'vs Bulan Lalu']]);
-    dashboard.getRange(28, 2, 6, 5).setValues(spending.rows);
+    // Spending Intelligence header at row 24 (columns B:E)
+    dashboard.getRange('B24:E24').setValues([['KATEGORI', 'BULAN INI', 'VS BULAN LALU', 'CONTR.']]);
+    // Write Spending categories rows (rows 25 to 30)
+    dashboard.getRange(25, 2, 6, 4).setValues(spending.rows.map(function(r){
+      return [r[0], r[1], '', ''];
+    }));
 
     var dq = [
       ['Metric','Value','Status','Notes'],
@@ -30233,8 +30221,9 @@ return { ok: false, error: 'render lock busy' };
       ['Review Queue pending', pending, pending ? 'WARN' : 'OK', 'manual review'],
       ['Finance Events status', financeEvents && financeEvents.isSheetHidden() ? 'DEPRECATED / hidden / no-op' : 'DEPRECATED / visible-warning', 'INFO', 'not Dashboard source']
     ];
-    dashboard.getRange('G27:J27').setValues([['Data Quality', 'Value', 'Status', 'Notes']]);
-    dashboard.getRange(28, 7, dq.length - 1, 4).setValues(dq.slice(1));
+    // Data Quality header at row 24 (columns G:J)
+    dashboard.getRange('G24:J24').setValues([['Data Quality', 'Value', 'Status', 'Notes']]);
+    dashboard.getRange(25, 7, 7, 4).setValues(dq.slice(1, 8)); // 7 rows to G25:J31
 
     var findings = [];
     var negative = accountRows.filter(function(r){ return r[0] && Number(r[1] || 0) < 0; });
@@ -30244,31 +30233,27 @@ return { ok: false, error: 'render lock busy' };
     if (!findings.length) findings.push(spending.total === 0 ? 'Tidak ada data untuk periode ini.' : 'Tidak ada temuan penting bulan ini.');
     findings = findings.slice(0, 3);
 
-    dashboard.getRange('G35:J35').merge().setValue('SMART INSIGHT — deterministic max 3');
-    dashboard.getRange('G36:J36').merge().setValue('Engine: deterministic | Findings: ' + findings.length);
-    for (var i = 0; i < findings.length; i++) {
-      dashboard.getRange(37 + i, 7, 1, 4).merge().setValue((i + 1) + '. ' + findings[i]);
-    }
+    // Smart Insight header at row 33
+    dashboard.getRange('B33:J33').merge().setValue('SMART INSIGHT');
+    dashboard.getRange('B34:J36').clearContent();
 
-    dashboard.getRange('C8:C8').setNumberFormat('"Rp" #,##0');
-    dashboard.getRange('D8:D8').setNumberFormat('"Rp" #,##0');
-    dashboard.getRange('C18:C25').setNumberFormat('"Rp" #,##0');
-    dashboard.getRange('C28:C33').setNumberFormat('"Rp" #,##0');
-    dashboard.getRange('D28:D33').setNumberFormat('0.00%');
+    dashboard.getRange('C10:E10').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C13:E13').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C17:C21').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C22').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('E22').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('C25:C30').setNumberFormat('"Rp" #,##0');
+    dashboard.getRange('E25:E30').setNumberFormat('0.00%');
 
     airoTask101ApplyVisual_(dashboard);
 
-    // AIRO_TASK10_1_FINAL_B26_CLEAR_START
-    var finalB26 = dashboard.getRange('B26:F26');
-    try { finalB26.breakApart(); } catch (e) {}
-    finalB26.clearContent();
-    finalB26.clearFormat();
-    finalB26.clearDataValidations();
-    finalB26.setBackground('#111827').setFontColor('#F9FAFB').setFontFamily('Arial').setFontSize(10);
-    SpreadsheetApp.flush();
-    // AIRO_TASK10_1_FINAL_B26_CLEAR_END
+    try {
+      airoTask101ApplyDashboardV2StyleOnly_(ss, dashboard);
+    } catch (task101StyleErr) {
+      // Style restore must never block ledger-first dashboard rendering.
+    }
 
-    airoTask101WriteSettingsDetail_(settings, dq.slice(1));
+    SpreadsheetApp.flush();
 
     return {
       ok: true,
@@ -30913,39 +30898,1644 @@ function runTask101DashboardReadbackFromEditor() {
   return out;
 }
 
-// Override old Task 10 public/manual entry points so old repair/readback routes execute Task 10.1 renderer.
+
+// AIRO_TASK10_1_DASHBOARD_FILTER_VISUAL_REPAIR_END
+
+
+// AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_START
+// Marker: AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2
+
+function airoTask102GetActiveDashboard_(ss) {
+  return ss ? ss.getSheetByName('🏠 Dashboard') : null;
+}
+
+function airoTask102GetV2Template_(ss) {
+  return ss ? ss.getSheetByName('🏠 Dashboard v2') : null;
+}
+
+function airoTask103Months_() {
+  return [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+}
+
+function airoTask103ParseSelection_(monthValue, yearValue) {
+  var months = airoTask103Months_();
+  var rawMonth = String(monthValue || '').trim();
+  var rawYear = String(yearValue || '').trim();
+  var month = '';
+  var year = '';
+
+  for (var i = 0; i < months.length; i++) {
+    if (rawMonth.indexOf(months[i]) >= 0) {
+      month = months[i];
+      break;
+    }
+  }
+
+  var match = rawMonth.match(/(?:19|20)\d{2}/);
+  if (!match) match = rawYear.match(/(?:19|20)\d{2}/);
+  if (match) year = match[0];
+
+  return { month: month, year: year };
+}
+
+function airoTask103LedgerPeriods_(ledger) {
+  var months = airoTask103Months_();
+  var periodMap = {};
+  var latest = null;
+
+  if (ledger && ledger.getLastRow() >= 2) {
+    var values = ledger
+      .getRange(2, 2, ledger.getLastRow() - 1, 1)
+      .getValues();
+
+    for (var i = 0; i < values.length; i++) {
+      var value = values[i][0];
+      var date = null;
+
+      if (
+        Object.prototype.toString.call(value) === '[object Date]' &&
+        !isNaN(value.getTime())
+      ) {
+        date = value;
+      } else if (value) {
+        var parsed = Date.parse(value);
+        if (!isNaN(parsed)) date = new Date(parsed);
+      }
+
+      if (!date) continue;
+
+      var key = date.getFullYear() + '-' + (date.getMonth() + 1);
+      periodMap[key] = {
+        month: months[date.getMonth()],
+        year: String(date.getFullYear()),
+        date: date
+      };
+
+      if (!latest || date.getTime() > latest.getTime()) latest = date;
+    }
+  }
+
+  var periods = Object.keys(periodMap)
+    .sort()
+    .map(function(key) {
+      return periodMap[key];
+    });
+
+  return {
+    periods: periods,
+    latest: latest
+  };
+}
+
+function airoTask102InstallFilters_(dashboard) {
+  var ss = dashboard.getParent();
+  var active = airoTask102GetActiveDashboard_(ss);
+  var ledger = ss.getSheetByName('📒 Account Ledger');
+
+  if (!active || !ledger) {
+    throw new Error('exact active Dashboard or Account Ledger missing');
+  }
+
+  var desired = airoTask103ParseSelection_(
+    active.getRange('G2').getDisplayValue(),
+    active.getRange('I2').getDisplayValue()
+  );
+
+  var periodInfo = airoTask103LedgerPeriods_(ledger);
+  var months = airoTask103Months_();
+  var yearsMap = {};
+
+  for (var i = 0; i < periodInfo.periods.length; i++) {
+    yearsMap[periodInfo.periods[i].year] = true;
+  }
+
+  var currentYear = new Date().getFullYear();
+  for (var y = currentYear; y <= currentYear + 5; y++) {
+    yearsMap[String(y)] = true;
+  }
+
+  var years = Object.keys(yearsMap).sort(function(a, b) {
+    return Number(a) - Number(b);
+  });
+
+  if (
+    months.indexOf(desired.month) < 0 &&
+    periodInfo.latest
+  ) {
+    desired.month = months[periodInfo.latest.getMonth()];
+  }
+
+  if (
+    years.indexOf(String(desired.year)) < 0 &&
+    periodInfo.latest
+  ) {
+    desired.year = String(periodInfo.latest.getFullYear());
+  }
+
+  if (months.indexOf(desired.month) < 0) {
+    desired.month = months[new Date().getMonth()];
+  }
+
+  if (years.indexOf(String(desired.year)) < 0) {
+    desired.year = String(currentYear);
+  }
+
+  var monthCell = dashboard.getRange('G2');
+  var yearCell = dashboard.getRange('I2');
+
+  monthCell.clearDataValidations();
+  yearCell.clearDataValidations();
+
+  var monthRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(months, true)
+    .setAllowInvalid(false)
+    .build();
+
+  var yearRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(years, true)
+    .setAllowInvalid(false)
+    .build();
+
+  monthCell.setDataValidation(monthRule);
+  yearCell.setDataValidation(yearRule);
+
+  dashboard.getRange('F2').setValue('Bulan');
+  dashboard.getRange('H2').setValue('Tahun');
+
+  monthCell.setValue(desired.month);
+  // Preserving template layout: no format mutation allowed on G2 or I2
+  yearCell.setValue(String(desired.year));
+
+  SpreadsheetApp.flush();
+
+  if (monthCell.getDisplayValue() !== desired.month) {
+    throw new Error('month filter readback mismatch');
+  }
+
+  if (yearCell.getDisplayValue() !== String(desired.year)) {
+    throw new Error('year filter readback mismatch');
+  }
+
+  return {
+    ok: true,
+    selected_month: desired.month,
+    selected_year: String(desired.year)
+  };
+}
+
+function airoTask102VisualSignature_(sheet) {
+  if (!sheet) return null;
+
+  var widths = [];
+  var heights = [];
+  var drawings = 0;
+
+  for (var col = 1; col <= 10; col++) {
+    widths.push(sheet.getColumnWidth(col));
+  }
+
+  for (var row = 1; row <= 41; row++) {
+    heights.push(sheet.getRowHeight(row));
+  }
+
+  var merges = sheet
+    .getRange('A1:J41')
+    .getMergedRanges()
+    .map(function(range) {
+      return range.getA1Notation();
+    })
+    .sort();
+
+  try {
+    drawings = sheet.getDrawings().length;
+  } catch (drawingError) {
+    drawings = 0;
+  }
+
+  var range = sheet.getRange('A1:J41');
+
+  return {
+    widths: widths,
+    heights: heights,
+    merges: merges,
+    frozenRows: sheet.getFrozenRows(),
+    gridlinesHidden: sheet.hasHiddenGridlines(),
+    drawings: drawings,
+    fontFamilies: range.getFontFamilies(),
+    fontSizes: range.getFontSizes(),
+    fontWeights: range.getFontWeights(),
+    fontColors: range.getFontColors(),
+    backgrounds: range.getBackgrounds(),
+    horizontalAlignments: range.getHorizontalAlignments(),
+    verticalAlignments: range.getVerticalAlignments(),
+    numberFormats: range.getNumberFormats()
+  };
+}
+
+function airoTask102SignaturesEqual_(left, right) {
+  if (!left || !right) return false;
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function airoTask103RestoreTemplateMerges_(candidate, template) {
+  var templateMerges = template
+    .getRange('A1:J41')
+    .getMergedRanges()
+    .map(function(range) {
+      return range.getA1Notation();
+    })
+    .sort();
+
+  var candidateMerges = candidate
+    .getRange('A1:J41')
+    .getMergedRanges()
+    .map(function(range) {
+      return range.getA1Notation();
+    })
+    .sort();
+
+  var templateMap = {};
+  var candidateMap = {};
+
+  templateMerges.forEach(function(a1) {
+    templateMap[a1] = true;
+  });
+
+  candidateMerges.forEach(function(a1) {
+    candidateMap[a1] = true;
+  });
+
+  for (var i = 0; i < candidateMerges.length; i++) {
+    if (!templateMap[candidateMerges[i]]) {
+      throw new Error(
+        'candidate contains extra merge: ' +
+        candidateMerges[i]
+      );
+    }
+  }
+
+  for (var j = 0; j < templateMerges.length; j++) {
+    var a1 = templateMerges[j];
+    if (candidateMap[a1]) continue;
+
+    var range = candidate.getRange(a1);
+    var displays = range.getDisplayValues();
+
+    for (var r = 0; r < displays.length; r++) {
+      for (var c = 0; c < displays[r].length; c++) {
+        if (r === 0 && c === 0) continue;
+
+        if (String(displays[r][c] || '') !== '') {
+          throw new Error(
+            'cannot restore merge because non-anchor cell is populated: ' +
+            a1
+          );
+        }
+      }
+    }
+
+    range.merge();
+  }
+
+  var finalSignature = airoTask102VisualSignature_(candidate);
+  var templateSignature = airoTask102VisualSignature_(template);
+
+  if (!airoTask102SignaturesEqual_(finalSignature, templateSignature)) {
+    throw new Error('candidate structure differs from Dashboard v2');
+  }
+}
+
+function airoTask103FormulaStats_(sheet) {
+  var formulas = sheet.getRange('A1:Z41').getFormulas();
+  var formulaCount = 0;
+  var financeEventsRefs = 0;
+  var transactionsRefs = 0;
+
+  for (var r = 0; r < formulas.length; r++) {
+    for (var c = 0; c < formulas[r].length; c++) {
+      var formula = String(formulas[r][c] || '');
+      if (!formula) continue;
+
+      formulaCount++;
+
+      if (/finance events|finance_events/i.test(formula)) {
+        financeEventsRefs++;
+      }
+
+      if (/(^|[^A-Za-z])transactions([^A-Za-z]|$)/i.test(formula)) {
+        transactionsRefs++;
+      }
+    }
+  }
+
+  return {
+    formula_count: formulaCount,
+    finance_events_refs: financeEventsRefs,
+    transactions_refs: transactionsRefs
+  };
+}
+
+function airoTask103VisibleErrorCount_(sheet) {
+  var ranges = [
+    'B2:J6',
+    'B9:J13',
+    'B16:J22',
+    'B25:J32',
+    'B34:J36'
+  ];
+
+  var errorPattern = /#REF!|#VALUE!|#NAME\?|#N\/A|#DIV\/0!/;
+  var count = 0;
+
+  for (var i = 0; i < ranges.length; i++) {
+    var values = sheet.getRange(ranges[i]).getDisplayValues();
+
+    for (var r = 0; r < values.length; r++) {
+      for (var c = 0; c < values[r].length; c++) {
+        if (errorPattern.test(String(values[r][c] || ''))) {
+          count++;
+        }
+      }
+    }
+  }
+
+  return count;
+}
+
+function airoTask103TriggerCount_() {
+  var triggers = ScriptApp.getProjectTriggers();
+  var count = 0;
+
+  for (var i = 0; i < triggers.length; i++) {
+    if (
+      triggers[i].getHandlerFunction() ===
+      'airoTask102ScheduledNativeRefresh_'
+    ) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+function airoTask103CandidateName_() {
+  return (
+    PropertiesService
+      .getScriptProperties()
+      .getProperty('AIRO_TASK10_1_CANDIDATE_NAME') ||
+    ''
+  );
+}
+
+function airoTask103CandidateSheets_(ss) {
+  return ss.getSheets().filter(function(sheet) {
+    return (
+      sheet
+        .getName()
+        .indexOf('_AIRO_Dashboard_Task10_1_Native_') === 0
+    );
+  });
+}
+
+function airoTask103FindFinanceEvents_(ss) {
+  return airoTask101FindSheet_(
+    ss,
+    'Finance Events',
+    {}
+  );
+}
+
+function airoTask103FindTransactions_(ss) {
+  return airoTask101FindSheet_(
+    ss,
+    'Transactions',
+    {}
+  );
+}
+
+function airoTask103ReadSheet_(sheet, mode) {
+  var ss = sheet ? sheet.getParent() : null;
+  var template = ss ? airoTask102GetV2Template_(ss) : null;
+  var active = ss ? airoTask102GetActiveDashboard_(ss) : null;
+
+  if (!sheet || !template || !active) {
+    return {
+      ok: false,
+      mode: mode,
+      error: 'required exact sheet missing',
+      financial_write_performed: false
+    };
+  }
+
+  SpreadsheetApp.flush();
+
+  var stats = airoTask103FormulaStats_(sheet);
+  var errorCount = airoTask103VisibleErrorCount_(sheet);
+  var sheetSignature = airoTask102VisualSignature_(sheet);
+  var templateSignature = airoTask102VisualSignature_(template);
+  var structureMatch = airoTask102SignaturesEqual_(
+    sheetSignature,
+    templateSignature
+  );
+
+  var helperStart = sheet.getRange('M2').getValue();
+  var helperEnd = sheet.getRange('M3').getValue();
+
+  var helperDatesValid = (
+    Object.prototype.toString.call(helperStart) === '[object Date]' &&
+    !isNaN(helperStart.getTime()) &&
+    Object.prototype.toString.call(helperEnd) === '[object Date]' &&
+    !isNaN(helperEnd.getTime())
+  );
+
+  var monthValidation = Boolean(
+    sheet.getRange('G2').getDataValidation()
+  );
+
+  var yearValidation = Boolean(
+    sheet.getRange('I2').getDataValidation()
+  );
+
+  var financeEvents = airoTask103FindFinanceEvents_(ss);
+  var transactions = airoTask103FindTransactions_(ss);
+  var visible = ss.getSheets().filter(function(item) {
+    return !item.isSheetHidden();
+  });
+
+  var triggerCount = airoTask103TriggerCount_();
+  var candidateSheets = airoTask103CandidateSheets_(ss);
+
+  var storedV2Signature = (
+    PropertiesService
+      .getScriptProperties()
+      .getProperty('AIRO_TASK10_1_V2_SIGNATURE') ||
+    ''
+  );
+
+  var v2OriginalUnchanged = (
+    !storedV2Signature ||
+    storedV2Signature === JSON.stringify(templateSignature)
+  );
+
+  var marker = sheet.getRange('Z1').getDisplayValue();
+  var basePass = (
+    marker === 'AIRO_TASK10_1_NATIVE_V2_FINAL' &&
+    stats.formula_count > 0 &&
+    stats.finance_events_refs === 0 &&
+    stats.transactions_refs === 0 &&
+    errorCount === 0 &&
+    structureMatch &&
+    helperDatesValid &&
+    monthValidation &&
+    yearValidation &&
+    v2OriginalUnchanged &&
+    Boolean(financeEvents) &&
+    financeEvents.isSheetHidden() &&
+    !transactions
+  );
+
+  var modePass = false;
+
+  if (mode === 'candidate') {
+    modePass = (
+      sheet.isSheetHidden() &&
+      active.getName() === '🏠 Dashboard' &&
+      active.getRange('Z1').getDisplayValue() !==
+        'AIRO_TASK10_1_NATIVE_V2_FINAL' &&
+      triggerCount === 0 &&
+      candidateSheets.length === 1
+    );
+  }
+
+  if (mode === 'active') {
+    modePass = (
+      sheet.getName() === '🏠 Dashboard' &&
+      !sheet.isSheetHidden() &&
+      visible.length > 0 &&
+      visible[0].getName() === '🏠 Dashboard' &&
+      triggerCount === 1 &&
+      candidateSheets.length === 0
+    );
+  }
+
+  return {
+    ok: basePass && modePass,
+    mode: mode,
+    marker: marker,
+    sheet_name: sheet.getName(),
+    selected_month: sheet.getRange('G2').getDisplayValue(),
+    selected_year: sheet.getRange('I2').getDisplayValue(),
+    helper_start: helperStart,
+    helper_end: helperEnd,
+    helper_dates_valid: helperDatesValid,
+    formula_count: stats.formula_count,
+    formula_error_count: errorCount,
+    formula_refs_finance_events_count:
+      stats.finance_events_refs,
+    formula_refs_transactions_count:
+      stats.transactions_refs,
+    structure_match: structureMatch,
+    month_validation_present: monthValidation,
+    year_validation_present: yearValidation,
+    v2_original_unchanged: v2OriginalUnchanged,
+    sheet_hidden: sheet.isSheetHidden(),
+    active_dashboard_first_visible:
+      visible.length > 0 &&
+      visible[0].getName() === '🏠 Dashboard',
+    active_dashboard_unchanged:
+      active.getRange('Z1').getDisplayValue() !==
+      'AIRO_TASK10_1_NATIVE_V2_FINAL',
+    candidate_sheet_count: candidateSheets.length,
+    fallback_trigger_count: triggerCount,
+    finance_events_hidden_not_deleted:
+      Boolean(financeEvents) &&
+      financeEvents.isSheetHidden(),
+    transactions_recreated: Boolean(transactions),
+    financial_write_performed: false,
+    gmail_read_performed: false,
+    telegram_send_performed: false
+  };
+}
+
+function airoTask102InstallNativeFormulas_(dashboard) {
+  dashboard.getRange("M2").setFormula('=IF(OR($G$2="",$I$2=""),"",DATE(VALUE($I$2),MATCH($G$2,{"Januari";"Februari";"Maret";"April";"Mei";"Juni";"Juli";"Agustus";"September";"Oktober";"November";"Desember"},0),1))');
+  dashboard.getRange("M3").setFormula('=IF($M$2="","",EOMONTH($M$2,0))');
+  dashboard.getRange("M4").setFormula('=IF($M$2="","",EDATE($M$2,-1))');
+  dashboard.getRange("M5").setFormula('=IF($M$4="","",EOMONTH($M$4,0))');
+  dashboard.getRange("M6").setFormula('=COUNTIFS(\'📒 Account Ledger\'!$B:$B,">="&$M$2,\'📒 Account Ledger\'!$B:$B,"<="&$M$3)');
+  dashboard.getRange("M7").setFormula('=IFERROR(SUMIFS(\'📒 Account Ledger\'!$E:$E,\'📒 Account Ledger\'!$G:$G,"expense",\'📒 Account Ledger\'!$B:$B,">="&$M$2,\'📒 Account Ledger\'!$B:$B,"<="&$M$3),0)');
+  dashboard.getRange("M8").setFormula('=IFERROR(SUMIFS(\'📒 Account Ledger\'!$D:$D,\'📒 Account Ledger\'!$G:$G,"income",\'📒 Account Ledger\'!$B:$B,">="&$M$2,\'📒 Account Ledger\'!$B:$B,"<="&$M$3),0)');
+  dashboard.getRange("M9").setFormula('=IFERROR(SUM(SUMIFS(\'📒 Account Ledger\'!$E:$E,\'📒 Account Ledger\'!$G:$G,{"expense";"debt_payment";"cc_payment";"asset_purchase"},\'📒 Account Ledger\'!$B:$B,">="&$M$2,\'📒 Account Ledger\'!$B:$B,"<="&$M$3)),0)');
+  dashboard.getRange("M10").setFormula('=IFERROR(MAX(FILTER(\'📒 Account Ledger\'!$B$2:$B,\'📒 Account Ledger\'!$B$2:$B<>"")),"")');
+  dashboard.getRange("M11").setFormula('=COUNTA(\'📒 Account Ledger\'!$A$2:$A)');
+  dashboard.getRange("M12").setFormula('=COUNTIFS(\'📒 Account Ledger\'!$G:$G,"expense",\'📒 Account Ledger\'!$B:$B,">="&$M$2,\'📒 Account Ledger\'!$B:$B,"<="&$M$3,\'📒 Account Ledger\'!$H:$H,"")');
+  dashboard.getRange("M13").setFormula('=COUNTIF(\'🧾 Review Queue\'!$N$2:$N,"pending")');
+  dashboard.getRange("M14").setFormula('=SUMPRODUCT(N(\'📒 Account Ledger\'!$C$2:$C<>""),N(COUNTIF(\'🏦 Account Registry\'!$C$2:$C,\'📒 Account Ledger\'!$C$2:$C)=0))');
+  dashboard.getRange("M15").setFormula('=$M$11&"|"&TEXT($M$10,"yyyymmdd")&"|"&$M$12&"|"&$M$13&"|"&$M$14');
+
+  dashboard.getRange("N10:P35").clearContent();
+  dashboard.getRange("Q10:S35").clearContent();
+  dashboard.getRange("T10:V35").clearContent();
+
+  dashboard.getRange("N10").setFormula('=QUERY(FILTER({\'📒 Account Ledger\'!$H$2:$H,\'📒 Account Ledger\'!$E$2:$E},\'📒 Account Ledger\'!$G$2:$G="expense",\'📒 Account Ledger\'!$B$2:$B>=$M$2,\'📒 Account Ledger\'!$B$2:$B<=$M$3,\'📒 Account Ledger\'!$H$2:$H<>""),"select Col1,sum(Col2) group by Col1 order by sum(Col2) desc label sum(Col2) \'\'",0)');
+  dashboard.getRange("Q10").setFormula('=QUERY(FILTER({\'📒 Account Ledger\'!$H$2:$H,\'📒 Account Ledger\'!$E$2:$E},\'📒 Account Ledger\'!$G$2:$G="expense",\'📒 Account Ledger\'!$B$2:$B>=$M$4,\'📒 Account Ledger\'!$B$2:$B<=$M$5,\'📒 Account Ledger\'!$H$2:$H<>""),"select Col1,sum(Col2) group by Col1 order by sum(Col2) desc label sum(Col2) \'\'",0)');
+  dashboard.getRange("T10").setFormula('=SORT(FILTER({\'🏦 Account Registry\'!$C$2:$C,\'🏦 Account Registry\'!$K$2:$K,\'🏦 Account Registry\'!$G$2:$G},REGEXMATCH(LOWER(TO_TEXT(\'🏦 Account Registry\'!$A$2:$A)),"^(true|1)$"),REGEXMATCH(LOWER(\'🏦 Account Registry\'!$G$2:$G),"bank|cash|pocket"),\'🏦 Account Registry\'!$C$2:$C<>""), 2, TRUE)');
+
+  dashboard.getRange("B2").setFormula('="● Synced: "&IF($Z$2="","pending",TEXT($Z$2,"d mmmm yyyy, hh:mm"))&" | Ledger: "&IF($M$10="","NO DATA",TEXT($M$10,"d mmmm yyyy"))&" | Rows: "&$M$11');
+  dashboard.getRange("D2").setFormula('=IF(OR($M$12>0,$M$13>0,$M$14>0,COUNTIF($C$17:$C$21,"<0")>0),"⚠ Data: Review Needed","✓ Data: Trusted")');
+  dashboard.getRange("E2").setFormula('="🔔 "&(COUNTIF($C$17:$C$21,"<0")+$M$12+$M$13+$M$14)&" alerts"');
+
+  dashboard.getRange("B5").setFormula('=IF(COUNTIF($C$17:$C$21,"<0")>0,"⊗ Saldo negatif: "&INDEX($B$17:$B$21,MATCH(MIN($C$17:$C$21),$C$17:$C$21,0)),"✓ Clean / No Action Required")');
+  dashboard.getRange("E5").setFormula('=IF(COUNTIF($C$17:$C$21,"<0")>0,TEXT(ABS(MIN($C$17:$C$21)),"Rp#,##0"),"—")');
+  dashboard.getRange("G5").setFormula('=IF($M$13>0,"⏳ Review Queue pending","✓ Clean / No Action Required")');
+  dashboard.getRange("J5").setFormula('=IF($M$13>0,$M$13&" item","—")');
+  dashboard.getRange("B6").setFormula('=IF($M$12>0,"🏷 Expense tanpa kategori","✓ Clean / No Action Required")');
+  dashboard.getRange("E6").setFormula('=IF($M$12>0,$M$12&" item","—")');
+  dashboard.getRange("G6").setFormula('=IF(OR(COUNTIF($J$17:$J$20,"*kritis*")>0,COUNTIF($J$17:$J$20,"*overdue*")>0),"⊗ Domain perlu perhatian","✓ Clean / No Action Required")');
+  dashboard.getRange("J6").setFormula('=COUNTIF($J$17:$J$20,"*kritis*")+COUNTIF($J$17:$J$20,"*overdue*")');
+
+  dashboard.getRange("D10").setFormula('=IFERROR(C13-E13,0)');
+  dashboard.getRange("E10").setFormula('=SUM(C17:C21)');
+  dashboard.getRange("G10").setFormula('=IFERROR(C22-E22,0)');
+  dashboard.getRange("J10").setFormula('=COUNTIF($C$17:$C$21,"<0")+$M$12+$M$13+$M$14+COUNTIF($J$17:$J$20,"*kritis*")+COUNTIF($J$17:$J$20,"*overdue*")');
+  dashboard.getRange("G13").setFormula('=IFERROR(G10/C22,0)');
+
+  // Wallet account rows: 17 to 21 (5 rows)
+  for (var r = 17; r <= 21; r++) {
+    dashboard.getRange("B" + r).setFormula('=IFERROR(INDEX($T$10:$T,ROW()-16),"")');
+    dashboard.getRange("C" + r).setFormula('=IF($B' + r + '="","",IFERROR(SUMIFS(\'📒 Account Ledger\'!$D:$D,\'📒 Account Ledger\'!$C:$C,$B' + r + ',\'📒 Account Ledger\'!$B:$B,"<="&$M$3)-SUMIFS(\'📒 Account Ledger\'!$E:$E,\'📒 Account Ledger\'!$C:$C,$B' + r + ',\'📒 Account Ledger\'!$B:$B,"<="&$M$3),0))');
+    dashboard.getRange("D" + r).setFormula('=IF($B' + r + '="","",REPT("█", MAX(0, MIN(10, ROUND($C' + r + ' / IF(REGEXMATCH(LOWER(INDEX($V$10:$V,ROW()-16)),"cash"),1000000,5000000) * 10)))) & REPT("░", 10 - MAX(0, MIN(10, ROUND($C' + r + ' / IF(REGEXMATCH(LOWER(INDEX($V$10:$V,ROW()-16)),"cash"),1000000,5000000) * 10)))))');
+    dashboard.getRange("E" + r).setFormula('=IF($B' + r + '="","",IF($C' + r + '<0,"⊗ kritis negatif",IF($C' + r + '<(0.1*IF(REGEXMATCH(LOWER(INDEX($V$10:$V,ROW()-16)),"cash"),1000000,5000000)),"↓ kritis rendah",IF($C' + r + '<(0.5*IF(REGEXMATCH(LOWER(INDEX($V$10:$V,ROW()-16)),"cash"),1000000,5000000)),"⚠ hampir habis","✓ aman"))))');
+  }
+
+  dashboard.getRange("B22").setValue("CASH IN");
+  dashboard.getRange("C22").setFormula("=$M$8");
+  dashboard.getRange("D22").setValue("CASH OUT");
+  dashboard.getRange("E22").setFormula("=$M$9");
+  dashboard.getRange("G22").setValue("Source: Credit Card, Hutang, Aset, Cicilan Rumah tabs");
+
+  // Spending Intelligence rows: 25 to 29 (5 rows)
+  for (var r = 25; r <= 29; r++) {
+    var idx = r - 24;
+    dashboard.getRange("B" + r).setFormula('=IFERROR(INDEX($N$10:$N,' + idx + '),"")');
+    dashboard.getRange("C" + r).setFormula('=IF($B' + r + '="","",IFERROR(INDEX($O$10:$O,' + idx + '),0))');
+    dashboard.getRange("D" + r).setFormula(
+      '=IF($B' + r + '="","",IF(AND(C' + r + '=0,IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)=0),"— ░░░░░░░░░░  belum cukup data",IF(IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)=0,"▲ ░░░░░░░░░░  baru bulan ini",IF(C' + r + '=0,"▼ ██████████  -100%",IF(C' + r + '=IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0),"— ░░░░░░░░░░  stabil",IF(C' + r + '>IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0),"▲ " & REPT("█",MAX(0,MIN(10,ROUND((C' + r + '-IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0))/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*10)))) & REPT("░",10-MAX(0,MIN(10,ROUND((C' + r + '-IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0))/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*10)))) & "  +" & ROUND((C' + r + '-IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0))/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*100) & "%","▼ " & REPT("█",MAX(0,MIN(10,ROUND((IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)-C' + r + ')/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*10)))) & REPT("░",10-MAX(0,MIN(10,ROUND((IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)-C' + r + ')/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*10)))) & "  -" & ROUND((IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)-C' + r + ')/IFERROR(VLOOKUP(B' + r + ',$Q$10:$R,2,FALSE),0)*100) & "%"))))))'
+    );
+    dashboard.getRange("E" + r).setFormula('=IF($B' + r + '="","",IF($M$7=0,0,C' + r + '/$M$7))');
+  }
+
+  // Lainnya row: 30
+  dashboard.getRange("B30").setFormula('=IF(INDEX($N$10:$N,6)<>"","Lainnya","")');
+  dashboard.getRange("C30").setFormula('=IF($B30="","",SUM($O$10:$O)-SUM($O$10:$O$14))');
+  dashboard.getRange("E30").setFormula('=IF($B30="","",IF($M$7=0,0,C30/$M$7))');
+
+  var prevSumTop5 = 'IFERROR(VLOOKUP($B$25,$Q$10:$R,2,FALSE),0)+IFERROR(VLOOKUP($B$26,$Q$10:$R,2,FALSE),0)+IFERROR(VLOOKUP($B$27,$Q$10:$R,2,FALSE),0)+IFERROR(VLOOKUP($B$28,$Q$10:$R,2,FALSE),0)+IFERROR(VLOOKUP($B$29,$Q$10:$R,2,FALSE),0)';
+  var curLainnya = 'C30';
+  var prevLainnya = '(SUM($R$10:$R)-(' + prevSumTop5 + '))';
+
+  dashboard.getRange("D30").setFormula(
+    '=IF($B30="","",IF(AND(' + curLainnya + '=0,' + prevLainnya + '=0),"— ░░░░░░░░░░  belum cukup data",IF(' + prevLainnya + '=0,"▲ ░░░░░░░░░░  baru bulan ini",IF(' + curLainnya + '=0,"▼ ██████████  -100%",IF(' + curLainnya + '=' + prevLainnya + ',"— ░░░░░░░░░░  stabil",IF(' + curLainnya + '>' + prevLainnya + ',"▲ " & REPT("█",MAX(0,MIN(10,ROUND((' + curLainnya + '-' + prevLainnya + ')/' + prevLainnya + '*10)))) & REPT("░",10-MAX(0,MIN(10,ROUND((' + curLainnya + '-' + prevLainnya + ')/' + prevLainnya + '*10)))) & "  +" & ROUND((' + curLainnya + '-' + prevLainnya + ')/' + prevLainnya + '*100) & "%","▼ " & REPT("█",MAX(0,MIN(10,ROUND((' + prevLainnya + '-' + curLainnya + ')/' + prevLainnya + '*10)))) & REPT("░",10-MAX(0,MIN(10,ROUND((' + prevLainnya + '-' + curLainnya + ')/' + prevLainnya + '*10)))) & "  -" & ROUND((' + prevLainnya + '-' + curLainnya + ')/' + prevLainnya + '*100) & "%"))))))'
+  );
+
+  dashboard.getRange("I19").setFormula('=IFERROR(\'🥇 Aset\'!B16+\'🥇 Aset\'!B17,0)');
+  dashboard.getRange("J19").setFormula('=IF(I19>0,"✓ tracked","monitor")');
+  dashboard.getRange("H19").setFormula('=IF(I19>0,"auto dari Aset","belum ada valuasi")');
+
+  dashboard.getRange("I20").setFormula('=IFERROR(\'🥇 Aset\'!AB19,0)');
+  dashboard.getRange("J20").setFormula('=IF(I20>0,"on track","✓ lunas")');
+  dashboard.getRange("H20").setFormula('=IF(I20>0,"sisa "&TEXT(I20,"Rp#,##0"),"lunas")');
+
+  // Shift Data Quality Center formulas (rows 25 to 31)
+  dashboard.getRange("G25").setFormula('=IF($M$13>0,"⏳ Action: Resolve Review Queue","✓ Review Queue Clean")');
+  dashboard.getRange("J25").setFormula('=$M$13');
+  dashboard.getRange("G26").setFormula('=IF($M$14>0,"⚠ Action: Map Unknown Accounts","✓ Accounts Registered")');
+  dashboard.getRange("J26").setFormula('=$M$14');
+  dashboard.getRange("G27").setFormula('=IF($M$12>0,"⚠ Action: Categorize Transactions","✓ Categories Allocated")');
+  dashboard.getRange("J27").setFormula('=$M$12');
+  dashboard.getRange("G28").setValue("Last transaction date");
+  dashboard.getRange("J28").setFormula('=IF($M$10="","NO DATA",TEXT($M$10,"d mmmm yyyy"))');
+  dashboard.getRange("G29").setValue("Last dashboard refresh");
+  dashboard.getRange("J29").setFormula('=IF($Z$2="","pending",TEXT($Z$2,"d mmmm yyyy, hh:mm"))');
+  dashboard.getRange("G30").setValue("✓ Dashboard source: Account Ledger");
+  dashboard.getRange("J30").setValue("PASS");
+  dashboard.getRange("G31").setValue("Source: Account Ledger + Review Queue + runtime metadata");
+
+  // SMART INSIGHT
+  dashboard.getRange("W10").setValue(1);
+  dashboard.getRange("W11").setValue(2);
+  dashboard.getRange("W12").setValue(3);
+  dashboard.getRange("W13").setValue(4);
+  dashboard.getRange("W15").setValue(6);
+
+  dashboard.getRange("X10").setFormula('=IF(MIN(C$17:C$21)<0, "Peringatan: Akun " & INDEX(B$17:B$21, MATCH(MIN(C$17:C$21), C$17:C$21, 0)) & " memiliki saldo negatif sebesar " & TEXT(MIN(C$17:C$21), "Rp#,##0") & ". Harap lakukan transfer.", "")');
+  dashboard.getRange("Y10").setFormula('=IF(X10<>"", 60, 0)');
+  dashboard.getRange("Z10").setFormula('=IF(X10<>"", ABS(MIN(C$17:C$21)), 0)');
+
+  dashboard.getRange("X11").setFormula('=IF(OR(J$17="kritis", J$17="overdue", J$18="kritis", J$18="overdue"), "Perhatian: Terdapat domain kesehatan keuangan yang memerlukan perhatian segera!", "")');
+  dashboard.getRange("Y11").setFormula('=IF(X11<>"", 50, 0)');
+  dashboard.getRange("Z11").setFormula('=IF(X11<>"", SUMIFS(I$17:I$20, J$17:J$20, "kritis") + SUMIFS(I$17:I$20, J$17:J$20, "overdue"), 0)');
+
+  dashboard.getRange("X12").setFormula('=IF(M$13>0, "Terdapat " & M$13 & " transaksi di Review Queue yang memerlukan konfirmasi Anda agar laporan akurat.", "")');
+  dashboard.getRange("Y12").setFormula('=IF(X12<>"", 40, 0)');
+  dashboard.getRange("Z12").setFormula('=IF(X12<>"", M$13, 0)');
+
+  dashboard.getRange("X13").setFormula('=IF(M$12>0, "Terdapat " & M$12 & " transaksi pengeluaran yang belum memiliki kategori.", "")');
+  dashboard.getRange("Y13").setFormula('=IF(X13<>"", 30, 0)');
+  dashboard.getRange("Z13").setFormula('=IF(X13<>"", M$12, 0)');
+
+  dashboard.getRange("X14").setFormula('=IF(G$10<0, "Arus kas defisit sebesar " & TEXT(ABS(G$10), "Rp#,##0") & ". Harap kurangi pengeluaran.", "")');
+  dashboard.getRange("Y14").setFormula('=IF(X14<>"", 20, 0)');
+  dashboard.getRange("Z14").setFormula('=IF(X14<>"", ABS(G$10), 0)');
+
+  dashboard.getRange("X15").setFormula('=IF(AND(B$26<>"", C$26>0.3), "Pengeluaran terbesar bulan ini adalah pada kategori " & B$26 & " sebesar " & TEXT(C$26, "0.0%") & " dari total pengeluaran.", "")');
+  dashboard.getRange("Y15").setFormula('=IF(X15<>"", 10, 0)');
+  dashboard.getRange("Z15").setFormula('=IF(X15<>"", C$26, 0)');
+
+  dashboard.getRange("B34").setFormula('=IFERROR(INDEX(SORT(FILTER(W$10:Z$15, X$10:X$15<>""), 3, FALSE, 4, FALSE, 1, TRUE), 1, 2), "")');
+  dashboard.getRange("G34").setFormula('=IFERROR(INDEX(SORT(FILTER(W$10:Z$15, X$10:X$15<>""), 3, FALSE, 4, FALSE, 1, TRUE), 2, 2), "")');
+  dashboard.getRange("B35").setFormula('=IFERROR(INDEX(SORT(FILTER(W$10:Z$15, X$10:X$15<>""), 3, FALSE, 4, FALSE, 1, TRUE), 3, 2), "")');
+
+  dashboard.getRange("G35").clearContent();
+  dashboard.getRange("B36").clearContent();
+  dashboard.getRange("G36").clearContent();
+}
+
+function airoTask102RefreshDomainHealth_(ss, dashboard) {
+  var ccSheet = ss.getSheetByName('💳 Credit Card') || ss.getSheetByName('Credit Card');
+  var ccCount = 0;
+  var ccAmount = 0;
+  var ccStatus = 'safe';
+
+  if (ccSheet) {
+    var ccHeader = findCcHeaderRow_(ccSheet);
+    if (ccHeader) {
+      var ccMap = ccColMap_(ccHeader.headers);
+      var amountCol = ccMap['amount'];
+      var statusCol = ccMap['status_pocket_blu'];
+      if (amountCol && statusCol) {
+        var startRow = ccHeader.row + 1;
+        var endRow = ccSheet.getLastRow();
+        if (endRow >= startRow) {
+          var data = ccSheet.getRange(startRow, 1, endRow - startRow + 1, ccSheet.getLastColumn()).getValues();
+          for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            var amt = Number(row[amountCol - 1] || 0);
+            var st = String(row[statusCol - 1] || '').trim().toLowerCase();
+
+            var isExcluded = (st === 'paid' || st === 'posted' || st === 'transferred' || st === 'sudah' || st === 'lunas');
+            if (!isExcluded && amt !== 0) {
+              ccCount++;
+              ccAmount += amt;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (ccAmount > 10000000) {
+    ccStatus = 'kritis';
+  } else if (ccAmount > 2000000) {
+    ccStatus = 'monitor';
+  } else {
+    ccStatus = 'safe';
+  }
+
+  dashboard.getRange("H17").setValue(ccCount);
+  dashboard.getRange("I17").setValue(ccAmount);
+  dashboard.getRange("J17").setValue(ccStatus);
+
+  var hutangSheet = ss.getSheetByName('🤝 Hutang') || ss.getSheetByName('Hutang');
+  var hutangCount = 0;
+  var hutangAmount = 0;
+  var hasOverdue = false;
+  var hasCritical = false;
+
+  if (hutangSheet) {
+    var masterHeader = findHutangMasterHeader_(hutangSheet);
+    var paymentHeader = findHutangPaymentHeader_(hutangSheet);
+    if (masterHeader && paymentHeader) {
+      var hMap = hutangColMap_(masterHeader.headers);
+      var sisaCol = hMap['sisa_hutang'];
+      var statusCol = hMap['status'];
+      var nameCol = hMap['nama'];
+
+      if (sisaCol && statusCol && nameCol) {
+        var startRow = masterHeader.row + 1;
+        var endRow = paymentHeader.row - 1;
+        if (endRow >= startRow) {
+          var data = hutangSheet.getRange(startRow, 1, endRow - startRow + 1, hutangSheet.getLastColumn()).getValues();
+          for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            var personName = String(row[nameCol - 1] || '').trim();
+            if (personName === '') continue;
+
+            var sisa = Number(row[sisaCol - 1] || 0);
+            var st = String(row[statusCol - 1] || '').trim().toLowerCase();
+
+            if (sisa > 0 && st !== 'lunas') {
+              hutangCount++;
+              hutangAmount += sisa;
+              if (st === 'overdue') {
+                hasOverdue = true;
+              } else if (st === 'kritis' || st === 'critical') {
+                hasCritical = true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  var hutangStatus = 'safe';
+  if (hasOverdue) {
+    hutangStatus = 'overdue';
+  } else if (hasCritical) {
+    hutangStatus = 'kritis';
+  } else if (hutangAmount > 0) {
+    hutangStatus = 'monitor';
+  } else {
+    hutangStatus = 'safe';
+  }
+
+  dashboard.getRange("H18").setValue(hutangCount);
+  dashboard.getRange("I18").setValue(hutangAmount);
+  dashboard.getRange("J18").setValue(hutangStatus);
+}
+
+function airoTask102RefreshDashboardMetadataAfterWrite_(ss, routedResult) {
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  if (!dashboard) return 'skipped: no active dashboard';
+
+  var z1 = String(dashboard.getRange("Z1").getValue()).trim();
+  if (z1 !== 'AIRO_TASK10_1_NATIVE_V2_FINAL') {
+    return 'skipped: marker incorrect';
+  }
+
+  if (!routedResult) return 'skipped: no routed result';
+
+  var verified = false;
+
+  if (
+    routedResult.status === 'written' &&
+    routedResult.writeVerified === true &&
+    (routedResult.writtenTab === '📒 Account Ledger' || routedResult.writtenTab === 'Account Ledger')
+  ) {
+    verified = true;
+  }
+
+  if (
+    routedResult.account_ledger_write_performed === true &&
+    routedResult.writeVerified === true
+  ) {
+    verified = true;
+  }
+
+  if (
+    routedResult.account_ledger_result &&
+    routedResult.account_ledger_result.status === 'written' &&
+    routedResult.account_ledger_result.writeVerified === true &&
+    (routedResult.account_ledger_result.writtenTab === '📒 Account Ledger' || routedResult.account_ledger_result.writtenTab === 'Account Ledger')
+  ) {
+    verified = true;
+  }
+
+  if (!verified) {
+    return 'skipped: unverified or non-ledger write';
+  }
+
+  airoTask102RefreshDomainHealth_(ss, dashboard);
+
+  dashboard.getRange("Z2").setValue(new Date());
+  dashboard.getRange("Z3").setValue("POST_WRITE_PASS");
+
+  SpreadsheetApp.flush();
+  return 'success';
+}
+
+function runTask103DashboardCandidateBuildFromEditor() {
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    return {
+      ok: false,
+      error: 'candidate build lock busy',
+      financial_write_performed: false
+    };
+  }
+
+  try {
+    var ss = airoTask101GetSs_();
+    var active = airoTask102GetActiveDashboard_(ss);
+    var template = airoTask102GetV2Template_(ss);
+    var ledger = ss.getSheetByName('📒 Account Ledger');
+    var review = ss.getSheetByName('🧾 Review Queue');
+    var registry = ss.getSheetByName('🏦 Account Registry');
+
+    if (
+      !active ||
+      !template ||
+      !ledger ||
+      !review ||
+      !registry
+    ) {
+      throw new Error('required exact sheets missing');
+    }
+
+    if (
+      active.getRange('Z1').getDisplayValue() ===
+      'AIRO_TASK10_1_NATIVE_V2_FINAL'
+    ) {
+      var activeReadback = runTask103DashboardActiveReadbackFromEditor();
+      if (activeReadback.ok) {
+        return {
+          ok: true,
+          error: 'active Dashboard is already native final',
+          financial_write_performed: false,
+          active_readback: activeReadback
+        };
+      } else {
+        return {
+          ok: false,
+          RESULT: 'BLOCKED',
+          readback: activeReadback,
+          financial_write_performed: false
+        };
+      }
+    }
+
+    var existingName = airoTask103CandidateName_();
+
+    if (existingName) {
+      var existing = ss.getSheetByName(existingName);
+
+      if (!existing) {
+        PropertiesService
+          .getScriptProperties()
+          .deleteProperty('AIRO_TASK10_1_CANDIDATE_NAME');
+      } else {
+        return airoTask103ReadSheet_(
+          existing,
+          'candidate'
+        );
+      }
+    }
+
+    var staleCandidates = airoTask103CandidateSheets_(ss);
+
+    if (staleCandidates.length > 0) {
+      return {
+        ok: false,
+        error: 'unowned candidate sheet already exists',
+        stale_candidate_names: staleCandidates.map(function(sheet) {
+          return sheet.getName();
+        }),
+        financial_write_performed: false
+      };
+    }
+
+    var v2Signature = JSON.stringify(
+      airoTask102VisualSignature_(template)
+    );
+
+    PropertiesService
+      .getScriptProperties()
+      .setProperty(
+        'AIRO_TASK10_1_V2_SIGNATURE',
+        v2Signature
+      );
+
+    var timestamp = Utilities.formatDate(
+      new Date(),
+      ss.getSpreadsheetTimeZone() || 'Asia/Jakarta',
+      'yyyyMMdd_HHmmss'
+    );
+
+    var candidateName =
+      '_AIRO_Dashboard_Task10_1_Native_' +
+      timestamp;
+
+    var candidate = template.copyTo(ss);
+    candidate.setName(candidateName);
+    candidate.hideSheet();
+
+    PropertiesService
+      .getScriptProperties()
+      .setProperty(
+        'AIRO_TASK10_1_CANDIDATE_NAME',
+        candidateName
+      );
+
+    candidate
+      .getRange('Z5')
+      .setValue(
+        'AIRO_TASK10_1_CURRENT_RUN_' +
+        timestamp
+      );
+
+    airoTask103RestoreTemplateMerges_(
+      candidate,
+      template
+    );
+
+    airoTask102InstallFilters_(candidate);
+    airoTask102InstallNativeFormulas_(candidate);
+
+    airoTask103RestoreTemplateMerges_(
+      candidate,
+      template
+    );
+
+    airoTask102RefreshDomainHealth_(
+      ss,
+      candidate
+    );
+
+    candidate
+      .getRange('Z1')
+      .setValue(
+        'AIRO_TASK10_1_NATIVE_V2_FINAL'
+      );
+
+    candidate
+      .getRange('Z2')
+      .setValue(new Date());
+
+    candidate
+      .getRange('Z3')
+      .setValue('CANDIDATE_PASS');
+
+    candidate
+      .getRange('Z5')
+      .setValue(
+        'AIRO_TASK10_1_CURRENT_RUN_' +
+        timestamp
+      );
+
+    if (candidate.getMaxColumns() >= 26) {
+      candidate.hideColumns(13, 14);
+    }
+
+    SpreadsheetApp.flush();
+    Utilities.sleep(1000);
+    SpreadsheetApp.flush();
+
+    var readback = airoTask103ReadSheet_(
+      candidate,
+      'candidate'
+    );
+
+    return {
+      ok: readback.ok,
+      candidate_name: candidateName,
+      candidate_hidden: candidate.isSheetHidden(),
+      active_dashboard_unchanged: true,
+      candidate_readback: readback,
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false
+    };
+
+  } catch (error) {
+    return {
+      ok: false,
+      error: String(
+        error && error.message
+          ? error.message
+          : error
+      ),
+      candidate_name: airoTask103CandidateName_(),
+      active_dashboard_unchanged: true,
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function runTask103DashboardCandidateReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var candidateName = airoTask103CandidateName_();
+  var candidate = candidateName
+    ? ss.getSheetByName(candidateName)
+    : null;
+
+  if (!candidate) {
+    return {
+      ok: false,
+      mode: 'candidate',
+      error: 'owned candidate missing',
+      candidate_name: candidateName,
+      financial_write_performed: false
+    };
+  }
+
+  return airoTask103ReadSheet_(
+    candidate,
+    'candidate'
+  );
+}
+
+function airoTask103CapturePeriodMetrics_(sheet) {
+  return {
+    m2: sheet.getRange('M2').getValue(),
+    m3: sheet.getRange('M3').getValue(),
+    m6: Number(sheet.getRange('M6').getValue() || 0),
+    m7: Number(sheet.getRange('M7').getValue() || 0),
+    b26: sheet.getRange('B26').getDisplayValue(),
+    b34: sheet.getRange('B34').getDisplayValue(),
+    g34: sheet.getRange('G34').getDisplayValue()
+  };
+}
+
+function airoTask103DateKey_(value) {
+  if (
+    Object.prototype.toString.call(value) ===
+      '[object Date]' &&
+    !isNaN(value.getTime())
+  ) {
+    return String(value.getTime());
+  }
+
+  return String(value);
+}
+
+function airoTask103FilterProbe_(sheet, mode) {
+  var ss = sheet ? sheet.getParent() : null;
+  var ledger = ss
+    ? ss.getSheetByName('📒 Account Ledger')
+    : null;
+
+  if (!sheet || !ledger) {
+    return {
+      ok: false,
+      error: 'sheet or Account Ledger missing',
+      financial_write_performed: false
+    };
+  }
+
+  var precheck = airoTask103ReadSheet_(
+    sheet,
+    mode
+  );
+
+  if (!precheck.ok) {
+    return {
+      ok: false,
+      error: 'filter probe precheck failed',
+      precheck: precheck,
+      financial_write_performed: false
+    };
+  }
+
+  var periodInfo = airoTask103LedgerPeriods_(ledger);
+  var originalMonth =
+    sheet.getRange('G2').getDisplayValue();
+  var originalYear =
+    sheet.getRange('I2').getDisplayValue();
+
+  var baseline = airoTask103CapturePeriodMetrics_(sheet);
+  if (baseline.m6 === 0) {
+    return {
+      ok: false,
+      FILTER_PROBE: "BLOCKED",
+      BLOCKER: "no_comparable_nonempty_period",
+      financial_write_performed: false
+    };
+  }
+
+  var foundComparable = false;
+  var periodChanged = false;
+  var dataChanged = false;
+  var test = null;
+  var testPeriod = null;
+
+  try {
+    for (var i = periodInfo.periods.length - 1; i >= 0; i--) {
+      var item = periodInfo.periods[i];
+      if (item.month === originalMonth && item.year === originalYear) {
+        continue;
+      }
+
+      sheet.getRange('G2').setValue(item.month);
+      sheet.getRange('I2').setValue(item.year);
+      SpreadsheetApp.flush();
+      Utilities.sleep(1000);
+      SpreadsheetApp.flush();
+
+      test = airoTask103CapturePeriodMetrics_(sheet);
+      if (test.m6 > 0) {
+        testPeriod = item;
+        periodChanged = (
+          airoTask103DateKey_(baseline.m2) !== airoTask103DateKey_(test.m2) ||
+          airoTask103DateKey_(baseline.m3) !== airoTask103DateKey_(test.m3)
+        );
+        dataChanged = (
+          baseline.m6 !== test.m6 ||
+          baseline.m7 !== test.m7 ||
+          baseline.b26 !== test.b26 ||
+          baseline.b34 !== test.b34 ||
+          baseline.g34 !== test.g34
+        );
+        foundComparable = true;
+        break;
+      }
+    }
+  } finally {
+    sheet.getRange('G2').setValue(originalMonth);
+    sheet.getRange('I2').setValue(originalYear);
+    SpreadsheetApp.flush();
+    Utilities.sleep(1000);
+    SpreadsheetApp.flush();
+  }
+
+  var restored = (
+    sheet.getRange('G2').getDisplayValue() === originalMonth &&
+    sheet.getRange('I2').getDisplayValue() === originalYear
+  );
+
+  var ok = foundComparable && periodChanged && dataChanged && restored;
+
+  if (!foundComparable) {
+    return {
+      ok: false,
+      FILTER_PROBE: "BLOCKED",
+      BLOCKER: "no_comparable_nonempty_period",
+      financial_write_performed: false
+    };
+  }
+
+  return {
+    ok: ok,
+    mode: mode,
+    FILTER_PROBE: ok ? 'PASS' : 'BLOCKED',
+    FILTER_VALUES_RESTORED: restored ? 'YES' : 'NO',
+    PERIOD_CHANGED: periodChanged ? 'YES' : 'NO',
+    DATA_CHANGED: dataChanged ? 'YES' : 'NO',
+    FORMULA_COUNT_GT_ZERO: precheck.formula_count > 0 ? 'YES' : 'NO',
+    RENDERER_CALLED: 'NO',
+    original_filter_values: [originalMonth, originalYear],
+    test_filter_values: [testPeriod.month, testPeriod.year],
+    financial_write_performed: false,
+    gmail_read_performed: false,
+    telegram_send_performed: false
+  };
+}
+
+function runTask103DashboardCandidateFilterProbeFromEditor() {
+  var ss = airoTask101GetSs_();
+  var candidateName = airoTask103CandidateName_();
+  var candidate = candidateName
+    ? ss.getSheetByName(candidateName)
+    : null;
+
+  return airoTask103FilterProbe_(
+    candidate,
+    'candidate'
+  );
+}
+
+function runTask103DashboardActiveFilterProbeFromEditor() {
+  var ss = airoTask101GetSs_();
+  return airoTask103FilterProbe_(
+    airoTask102GetActiveDashboard_(ss),
+    'active'
+  );
+}
+
+function runTask103DashboardPromoteFromEditor() {
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    return {
+      ok: false,
+      error: 'promotion lock busy',
+      active_renamed: false,
+      financial_write_performed: false
+    };
+  }
+
+  var ss = airoTask101GetSs_();
+  var active = airoTask102GetActiveDashboard_(ss);
+  var candidateName = airoTask103CandidateName_();
+  var candidate = candidateName
+    ? ss.getSheetByName(candidateName)
+    : null;
+
+  if (!active || !candidate) {
+    lock.releaseLock();
+    return {
+      ok: false,
+      error: 'exact active Dashboard or owned candidate missing',
+      financial_write_performed: false
+    };
+  }
+
+  var activeOrigName = active.getName();
+  var activeOrigHidden = active.isSheetHidden();
+  var activeOrigIndex = active.getIndex();
+
+  var candidateOrigName = candidate.getName();
+  var candidateOrigHidden = candidate.isSheetHidden();
+  var candidateOrigIndex = candidate.getIndex();
+
+  var activeSheet = ss.getActiveSheet();
+  var activeSheetName = activeSheet ? activeSheet.getName() : '';
+  var activeSheetIndex = activeSheet ? activeSheet.getIndex() : 1;
+  var candidatePropValue = PropertiesService.getScriptProperties().getProperty('AIRO_TASK10_1_CANDIDATE_NAME');
+
+  var triggers = ScriptApp.getProjectTriggers();
+  var matchingFallbackCount = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'airoTask102ScheduledNativeRefresh_') {
+      matchingFallbackCount++;
+    }
+  }
+
+  if (matchingFallbackCount > 1) {
+    lock.releaseLock();
+    return {
+      ok: false,
+      RESULT: 'BLOCKED',
+      error: 'Promotion blocked: matching trigger count is greater than 1',
+      financial_write_performed: false
+    };
+  }
+
+  var createdTriggerId = '';
+  var activeRenamed = false;
+  var candidatePromoted = false;
+  var backupName = '';
+
+  try {
+    var candidateReadback =
+      airoTask103ReadSheet_(
+        candidate,
+        'candidate'
+      );
+
+    if (!candidateReadback.ok) {
+      throw new Error('candidate readback failed before promotion');
+    }
+
+    var candidateProbe =
+      airoTask103FilterProbe_(
+        candidate,
+        'candidate'
+      );
+
+    if (!candidateProbe.ok) {
+      throw new Error('candidate filter probe failed before promotion');
+    }
+
+    var timestamp = Utilities.formatDate(
+      new Date(),
+      ss.getSpreadsheetTimeZone() || 'Asia/Jakarta',
+      'yyyyMMdd_HHmmss'
+    );
+
+    backupName =
+      '_AIRO_Dashboard_Pre_Task10_1_' +
+      timestamp;
+
+    active.setName(backupName);
+    activeRenamed = true;
+
+    active.hideSheet();
+
+    candidate.setName('🏠 Dashboard');
+    candidatePromoted = true;
+
+    candidate.showSheet();
+
+    ss.setActiveSheet(candidate);
+
+    ss.moveActiveSheet(1);
+
+    // Verify readback after renames and sheet moves
+    var readback = runTask103DashboardActiveReadbackFromEditor();
+    if (!readback.ok) {
+      throw new Error('active readback failed after promotion');
+    }
+
+    // Perform trigger creation ONLY if matchingFallbackCount was 0
+    if (matchingFallbackCount === 0) {
+      var newTrigger = ScriptApp.newTrigger('airoTask102ScheduledNativeRefresh_')
+        .timeBased()
+        .everyMinutes(15)
+        .create();
+      createdTriggerId = newTrigger.getUniqueId();
+
+      var checkTriggers = ScriptApp.getProjectTriggers();
+      var checkCount = 0;
+      var foundCreated = false;
+      for (var i = 0; i < checkTriggers.length; i++) {
+        if (checkTriggers[i].getHandlerFunction() === 'airoTask102ScheduledNativeRefresh_') {
+          checkCount++;
+          if (checkTriggers[i].getUniqueId() === createdTriggerId) {
+            foundCreated = true;
+          }
+        }
+      }
+
+      if (!foundCreated || checkCount !== 1) {
+        throw new Error('Trigger verification failed after creation');
+      }
+    }
+
+    PropertiesService
+      .getScriptProperties()
+      .deleteProperty(
+        'AIRO_TASK10_1_CANDIDATE_NAME'
+      );
+
+    SpreadsheetApp.flush();
+    Utilities.sleep(1000);
+    SpreadsheetApp.flush();
+
+    return {
+      ok: true,
+      active_renamed: activeRenamed,
+      candidate_promoted: candidatePromoted,
+      backup_sheet_name: backupName,
+      active_readback: readback,
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false
+    };
+
+  } catch (error) {
+    var rollbackErrors = [];
+
+    try {
+      if (candidate && candidate.getName() !== candidateOrigName) {
+        candidate.setName(candidateOrigName);
+      }
+    } catch (err) {
+      rollbackErrors.push('candidate rename rollback error: ' + err.toString());
+    }
+
+    try {
+      if (candidate) {
+        if (candidateOrigHidden) {
+          candidate.hideSheet();
+        } else {
+          candidate.showSheet();
+        }
+      }
+    } catch (err) {
+      rollbackErrors.push('candidate visibility rollback error: ' + err.toString());
+    }
+
+    try {
+      if (active && active.getName() !== activeOrigName) {
+        active.setName(activeOrigName);
+      }
+    } catch (err) {
+      rollbackErrors.push('active rename rollback error: ' + err.toString());
+    }
+
+    try {
+      if (active) {
+        if (activeOrigHidden) {
+          active.hideSheet();
+        } else {
+          active.showSheet();
+        }
+      }
+    } catch (err) {
+      rollbackErrors.push('active visibility rollback error: ' + err.toString());
+    }
+
+    try {
+      if (active) {
+        ss.setActiveSheet(active);
+        ss.moveActiveSheet(activeOrigIndex);
+      }
+    } catch (err) {
+      rollbackErrors.push('active index rollback error: ' + err.toString());
+    }
+
+    try {
+      if (candidate) {
+        ss.setActiveSheet(candidate);
+        ss.moveActiveSheet(candidateOrigIndex);
+      }
+    } catch (err) {
+      rollbackErrors.push('candidate index rollback error: ' + err.toString());
+    }
+
+    try {
+      if (activeSheet) {
+        ss.setActiveSheet(activeSheet);
+      }
+    } catch (err) {
+      rollbackErrors.push('active sheet selection rollback error: ' + err.toString());
+    }
+
+    try {
+      if (candidatePropValue) {
+        PropertiesService.getScriptProperties().setProperty('AIRO_TASK10_1_CANDIDATE_NAME', candidatePropValue);
+      } else {
+        PropertiesService.getScriptProperties().deleteProperty('AIRO_TASK10_1_CANDIDATE_NAME');
+      }
+    } catch (err) {
+      rollbackErrors.push('candidate property rollback error: ' + err.toString());
+    }
+
+    if (createdTriggerId) {
+      try {
+        var triggersCheck = ScriptApp.getProjectTriggers();
+        for (var i = 0; i < triggersCheck.length; i++) {
+          if (triggersCheck[i].getUniqueId() === createdTriggerId) {
+            ScriptApp.deleteTrigger(triggersCheck[i]);
+            break;
+          }
+        }
+      } catch (err) {
+        rollbackErrors.push('trigger deletion rollback error: ' + err.toString());
+      }
+    }
+
+    try {
+      SpreadsheetApp.flush();
+    } catch (err) {
+      rollbackErrors.push('flush rollback error: ' + err.toString());
+    }
+
+    var visibleDashboardCount = 0;
+    try {
+      ss.getSheets().forEach(function(sh) {
+        if (sh.getName() === '🏠 Dashboard' && !sh.isSheetHidden()) {
+          visibleDashboardCount++;
+        }
+      });
+    } catch (err) {}
+
+    var rollbackPassed = (rollbackErrors.length === 0 && visibleDashboardCount === 1);
+    var unusedLog = 'Rollback Info: ' + activeSheetName + ' at index ' + activeSheetIndex;
+
+    return {
+      ok: false,
+      error: 'Promotion failed: ' + error.toString() + ' | ' + unusedLog,
+      PROMOTION: 'BLOCKED',
+      ROLLBACK: rollbackPassed ? 'PASS' : 'BLOCKED',
+      rollback_errors: rollbackErrors,
+      financial_write_performed: false
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function runTask103DashboardActiveReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var active = airoTask102GetActiveDashboard_(ss);
+
+  if (!active) {
+    return {
+      ok: false,
+      mode: 'active',
+      error: 'exact active Dashboard missing',
+      financial_write_performed: false
+    };
+  }
+
+  return airoTask103ReadSheet_(
+    active,
+    'active'
+  );
+}
+
+function runTask102DashboardNativeV2InstallFromEditor() {
+  return runTask103DashboardCandidateBuildFromEditor();
+}
+
+function runTask102DashboardNativeV2ReadbackFromEditor() {
+  return runTask103DashboardActiveReadbackFromEditor();
+}
+
+function runTask102DashboardFilterProbeFromEditor() {
+  return runTask103DashboardActiveFilterProbeFromEditor();
+}
+
 function runTask10DashboardGovernanceRepairFromEditor() {
-  return runTask101DashboardFilterVisualRepairFromEditor();
+  return runTask103DashboardCandidateBuildFromEditor();
 }
 
 function runTask10DashboardReadbackFromEditor() {
-  return runTask101DashboardReadbackFromEditor();
+  return runTask103DashboardActiveReadbackFromEditor();
 }
 
 function airoTask10ScheduledDashboardRefresh_() {
-  var ss = airoTask101GetSs_();
-  return airoTask101RenderDashboardFromCurrentFilter_(ss);
+  return airoTask102ScheduledNativeRefresh_();
 }
 
-function airoTask10MaybeRefreshOnEdit_(e) {
-  return airoTask101OnEdit_(e);
-}
+function airoTask101OnEdit_(event) {
+  if (!event || !event.range) return false;
 
-function airoTask101OnEdit_(e) {
-  try {
-    if (!e || !e.range) return false;
-    var sh = e.range.getSheet();
-    var nn = airoTask101Norm_(sh.getName());
-    if (nn.indexOf('dashboard') < 0 || nn.indexOf('v2') >= 0) return false;
-    var a1 = e.range.getA1Notation();
-    if (a1 === 'G2' || a1 === 'I2') {
-      airoTask101RenderDashboardFromCurrentFilter_(sh.getParent());
-      return true;
-    }
+  var range = event.range;
+  var sheet = range.getSheet();
+
+  if (sheet.getName() !== '🏠 Dashboard') {
     return false;
-  } catch (err) {
-    Logger.log('AIRO_TASK10_1_ONEDIT_ERROR=' + (err.message || err));
+  }
+
+  var a1 = range.getA1Notation();
+
+  if (a1 !== 'G2' && a1 !== 'I2') {
+    return false;
+  }
+
+  var months = airoTask103Months_();
+  var month =
+    sheet.getRange('G2').getDisplayValue();
+  var year =
+    sheet.getRange('I2').getDisplayValue();
+
+  if (months.indexOf(month) < 0) {
+    throw new Error('invalid month filter');
+  }
+
+  if (!/^(?:19|20)\d{2}$/.test(year)) {
+    throw new Error('invalid year filter');
+  }
+
+  sheet
+    .getRange('Z4')
+    .setValue(new Date());
+
+  SpreadsheetApp.flush();
+
+  return true;
+}
+
+function airoTask10MaybeRefreshOnEdit_(event) {
+  return airoTask101OnEdit_(event);
+}
+
+function onEdit(event) {
+  try {
+    return airoTask101OnEdit_(event);
+  } catch (error) {
+    Logger.log(
+      'AIRO_TASK10_1_NATIVE_ONEDIT_ERROR=' +
+      String(
+        error && error.message
+          ? error.message
+          : error
+      )
+    );
+
     return false;
   }
 }
-// AIRO_TASK10_1_DASHBOARD_FILTER_VISUAL_REPAIR_END
+
+// AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END

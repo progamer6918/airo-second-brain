@@ -1,3 +1,13 @@
+## AIRO Finance Gate 4 Recovery and V4.3.1 Promotion — 2026-06-26
+
+- Current gate is Gate 5 (Gate 4 PASS).
+- Recovered baseline source mirrors back to verified owner baseline 1b3f894 (PASS).
+- Generated formatting-only derivative candidate V4.3.1 (trailing whitespaces removed) (PASS).
+- Verified diff V4.3 -> V4.3.1 is whitespace-only (PASS).
+- Promoted V4.3.1 to the three source mirrors (PASS).
+- Verified git diff check on promoted sources: PASS.
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate4-v4-3-1-promotion-20260626.md`.
+
 ## AIRO Finance Gate 3B Successor Candidate Audit — 2026-06-25
 
 - Current gate remains Gate 3.
