@@ -342,3 +342,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Promoted V4.3.1 to the three source mirrors: apps-script-live, apps-script-prod-v2, and personal-workflow mirror.
 - Verified git diff check on all modified mirrors (PASS).
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate4-v4-3-1-promotion-20260626.md`.
+
+## 2026-06-26 — AIRO Finance Task 10.1 Gate 5 Apps Script Deployment
+
+- Deployed V4.3.1 Apps Script source via clasp push to prod-v2 in-place.
+- Verified remote source parity via isolated readback (PASS).
+- No spreadsheet mutations, trigger mutations, or live financial writes were performed.
+- Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate5-apps-script-deploy-20260626.md`.

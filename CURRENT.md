@@ -1,3 +1,12 @@
+## AIRO Finance Gate 5 Apps Script Deployment — 2026-06-26
+
+- Current gate is Gate 6 (Gate 5 PASS).
+- Deployed V4.3.1 Apps Script source to clasp prod-v2 in-place (PASS).
+- clasp push completed successfully (PASS).
+- Isolated readback and remote source parity verified (PASS).
+- No spreadsheet, trigger, or live financial data mutated.
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate5-apps-script-deploy-20260626.md`.
+
 ## AIRO Finance Gate 4 Recovery and V4.3.1 Promotion — 2026-06-26
 
 - Current gate is Gate 5 (Gate 4 PASS).
