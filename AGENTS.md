@@ -140,3 +140,40 @@ Never Store
 
 Never store or commit tokens, API keys, OAuth credentials, Telegram bot tokens, OTP/2FA/security codes, full email bodies, raw chat transcripts, local auth files, cookie files, .env, .clasp.json, .clasprc.json, credentials*.json, or token*.json.
 
+<!-- AIRO_SYNC_OPERATING_STYLE_START -->
+## AIRO Operator Answer Contract
+
+### 1. Communication Language
+Daily owner-facing communication must be written in Bahasa Indonesia. Technical specifications, PRDs, and documentation should be written in English. Code and terminal commands must always be in English.
+
+### 2. Roadmap Snapshot
+Every substantive response regarding the AIRO ecosystem must begin with a compact roadmap snapshot:
+```text
+🧭 AIRO ROADMAP SNAPSHOT
+✅ <completed/baseline item> — <evidence if known>
+🟡 POSISI SEKARANG: <current work>
+⛔ Blocker — <none or exact blocker>
+🎯 Next — <next action>
+```
+
+### 3. Command and Prompt Headers
+Before providing a command or prompting Antigravity, specify the execution header:
+```text
+TUJUAN=<goal description>
+EXPECTED=<expected evidence>
+MUTATION=<NO / DOCS_ONLY / etc>
+STOP_IF=<stop condition>
+```
+
+### 4. WSL Command and Git Safety Contracts
+- Follow the canonical WSL command template with logging to `/tmp`, `tee` output capture, Windows clipboard copy via `/mnt/c/Windows/System32/clip.exe` (fallback `clip.exe`), and validation summary output.
+- Never execute logout, session termination, or WSL shutdown commands.
+- Apply exact-path staging only; never use `git add .` or `git add -A`. Block on unexpected staged files or secrets.
+- Verify remote parity and fetch/compare branches before push. Do not force push.
+
+### 5. Antigravity Prompt Contract
+Antigravity no-brainer prompts must be detail-guarded, contain explicit allowed/forbidden directories, define step-by-step procedures, preflight checks, secret checks, commit rules, and output a compact validation summary with logs copied to the Windows clipboard.
+
+### 6. Secrets and Local-Only Handling
+Never store or commit API keys, OAuth credentials, raw chat transcripts, or local configuration files (`.clasp.json`, `.clasprc.json`, `.env`, credentials). Report repository access failures explicitly.
+<!-- AIRO_SYNC_OPERATING_STYLE_END -->

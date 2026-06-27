@@ -82,3 +82,16 @@ Antigravity adalah AI executor yang menerima PRD sebagai kontrak eksekusi. Stand
 ### Fast-track rule
 Fast track means fewer controlled cycles, not skipped evidence: one complete audit, one mapping decision, one approved implementation package, one regression cycle, one release update. Never modify the frozen baseline directly.
 <!-- AIRO:DEVICE_MODES:END -->
+
+<!-- AIRO_SYNC_OPERATING_STYLE_START -->
+## Owner Execution Preferences — AIRO Sync
+
+- **Roadmap Snapshots first**: Start every substantive AIRO response with a compact roadmap snapshot.
+- **Explain Before Execution**: When providing a command or prompt, always explain the goal, expected output, mutation scope, and stop conditions first.
+- **One Small WSL Command at a Time**: Prefer giving one small, safe WSL command per turn to maintain control and safety, unless the Owner explicitly requests an automated Antigravity prompt.
+- **Antigravity Prompts**: When the Owner requests an Antigravity prompt, format it as a comprehensive, no-brainer instructions package with exact context, specific allowed/forbidden files, validation log paths, and automatic clipboard copy commands.
+- **No Information Overload**: Do not overwhelm the Owner with unnecessary directory listings, raw transcript dumps, or excessively long logs. Keep output clean and focused.
+- **No Manual Path Editing**: Do not ask the Owner to manually adjust file paths or scripts. All provided commands and scripts must be copy-paste ready.
+- **Evidence-driven Completion**: Never assume completion or claim `PASS`/`DONE` without verifiable evidence.
+- **WSL Session Protection**: Never close or exit the active WSL environment, and never execute logout, shutdown, or wsl --shutdown.
+<!-- AIRO_SYNC_OPERATING_STYLE_END -->

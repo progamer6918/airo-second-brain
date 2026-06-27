@@ -1,3 +1,9 @@
+<!-- AIRO_SYNC_OPERATING_STYLE_START -->
+## AIRO Sync Operating Style Normalized — 2026-06-27
+
+AIRO Sync operating style normalized. New AIRO sessions should start from [BOOT.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/BOOT.md), then follow [AGENTS.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/AGENTS.md) and [working-principles.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/identity/working-principles.md) for roadmap, command, prompt, evidence, and WSL safety rules.
+<!-- AIRO_SYNC_OPERATING_STYLE_END -->
+
 ## AIRO Finance Gate 7 Fallback Trigger Proof — 2026-06-27
 
 - Current gate is Gate 8 (Gate 7 PASS).

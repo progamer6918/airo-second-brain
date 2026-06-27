@@ -363,3 +363,11 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Installed periodic fallback trigger (action: ALREADY_PRESENT) and verified via readback (PASS).
 - Generated rollback proof script under backups (PASS).
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate7-fallback-trigger-proof-20260627.md`.
+
+<!-- AIRO_SYNC_OPERATING_STYLE_START -->
+## 2026-06-27 — AIRO Sync operating style normalized
+
+- Updated [BOOT.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/BOOT.md), [AGENTS.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/AGENTS.md), [working-principles.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/identity/working-principles.md), and [CURRENT.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/CURRENT.md) to codify the canonical AIRO Sync operating style.
+- Added WSL/Git safety guidelines, roadmap snapshot requirements, prompt headers, and command clipboard copy contracts.
+- This is a docs-only mutation.
+<!-- AIRO_SYNC_OPERATING_STYLE_END -->
