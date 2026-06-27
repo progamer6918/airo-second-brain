@@ -371,3 +371,9 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Added WSL/Git safety guidelines, roadmap snapshot requirements, prompt headers, and command clipboard copy contracts.
 - This is a docs-only mutation.
 <!-- AIRO_SYNC_OPERATING_STYLE_END -->
+
+## 2026-06-27 — AIRO Finance Task 10.1 Gate 8 Ledger Verification
+
+- Verified active ledger state using read-only dashboard cells readback (PASS).
+- Confirmed ledger row count is 136 and latest date is 2026-06-27 (PASS).
+- Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate8-ledger-post-write-verification-20260627.md`.
