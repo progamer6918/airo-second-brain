@@ -1,3 +1,18 @@
+## AIRO Finance Gate 6R Dashboard-only Remediation — 2026-06-27
+
+- Current gate is Gate 7 (Gate 6R PASS).
+- Executed read-only verification of @HEAD WebApp response (PASS).
+- Verified visual contract:
+  - Spending header: `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.` (PASS)
+  - Wallet header: `WALLET | SALDO | LEVEL | STATUS` (PASS)
+  - Cashflow footer: `CASH IN / CASH OUT` (PASS)
+  - Column widths A:K set exactly (PASS)
+  - Legacy panels absent (PASS)
+  - Formula errors = 0 (PASS)
+- No trigger, Cloudflare, Gmail, Telegram, or ledger data mutated.
+- Authorized mutation: `DASHBOARD_ONLY` (PASS).
+- Validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate6r-dashboard-only-remediation-20260627.md` and `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate6-runtime-validation-20260627.md`.
+
 ## AIRO Finance Gate 5 Apps Script Deployment — 2026-06-26
 
 - Current gate is Gate 6 (Gate 5 PASS).

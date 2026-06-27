@@ -349,3 +349,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Verified remote source parity via isolated readback (PASS).
 - No spreadsheet mutations, trigger mutations, or live financial writes were performed.
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate5-apps-script-deploy-20260626.md`.
+
+## 2026-06-27 — AIRO Finance Task 10.1 Gate 6R Dashboard-only Remediation
+
+- Verified @HEAD WebApp response from `/tmp/airo_gate6r_head_response.raw.local.json` (PASS).
+- Validated Gate 6R visual contract details: Spending header `KATEGORI | BULAN INI | VS BULAN LALU | CONTR.`, Wallet header `WALLET | SALDO | LEVEL | STATUS`, Cashflow footer `CASH IN / CASH OUT`, column widths, absent legacy panels, and 0 formula errors (PASS).
+- No trigger, Cloudflare, Gmail, Telegram, or ledger data mutated.
+- Created validation records under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate6r-dashboard-only-remediation-20260627.md` and `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate6-runtime-validation-20260627.md`.

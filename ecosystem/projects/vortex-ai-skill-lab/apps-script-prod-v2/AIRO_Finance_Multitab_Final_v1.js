@@ -29716,7 +29716,7 @@ function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
     var msg = body.message || {};
     var rawText = String(msg.text || '').trim();
 
-    var text = rawText.toLowerCase();if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic" && rawText !== "admin task10 visual audit" && rawText !== "admin task10 style restore") {
+    var text = rawText.toLowerCase();if (rawText !== "admin task10 repair" && rawText !== "admin task10 read" && rawText !== "admin task10 forensic" && rawText !== "admin task10 visual audit" && rawText !== "admin task10 style restore" && rawText !== "admin task10 gate6r render only") {
       return null;
     }
   if (rawText === "admin task10 visual audit") {
@@ -29727,6 +29727,22 @@ function airoTask10ReadAndRepairMaybeHandleRoute_(e) {
     }
 
 
+
+    if (rawText === "admin task10 gate6r render only") {
+      var ss = airoTask101GetSs_();
+      var res = airoTask101RenderDashboardFromCurrentFilter_(ss);
+      var rb = runTask101DashboardForensicReadbackFromEditor();
+      return json_({
+        ok: !!res.ok && !!rb.ok,
+        task: 'AIRO_TASK10_1_GATE6R_RENDER_ONLY',
+        render: res,
+        readback: rb,
+        financial_write_performed: false,
+        telegram_send_performed: false,
+        gmail_read_performed: false,
+        trigger_mutation_performed: false
+      });
+    }
 
     if (rawText === "admin task10 repair") {
       var res = runTask10DashboardGovernanceRepairFromEditor();
