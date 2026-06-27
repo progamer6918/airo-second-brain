@@ -29788,7 +29788,23 @@ function airoTask101FindSheet_(ss, base, opts) {
     if (opts.excludeSpec && nn.indexOf('spec') >= 0) return;
     found.push(sh);
   });
-  return found.length ? found[found.length - 1] : null;
+  if (!found.length) return null;
+  if (String(base || '').toLowerCase().trim() === 'dashboard') {
+    for (var oi = 0; oi < found.length; oi++) {
+      var on = String(found[oi].getName() || '').toLowerCase();
+      if (on.indexOf('dashboard') >= 0 &&
+          on.indexOf('v2') < 0 &&
+          on.indexOf('backup') < 0 &&
+          on.indexOf('legacy') < 0 &&
+          on.indexOf('pre promote') < 0 &&
+          on.indexOf('template') < 0 &&
+          on.indexOf('copy of') < 0 &&
+          on.indexOf('native') < 0 &&
+          on.indexOf('task10') < 0 &&
+          !found[oi].isSheetHidden()) return found[oi];
+    }
+  }
+  return found[found.length - 1];
 }
 
 function airoTask101MonthNames_() {
