@@ -32544,6 +32544,41 @@ function airoTask101OnEdit_(event) {
     .getRange('Z4')
     .setValue(new Date());
 
+  try {
+    var refreshSs =
+      event && event.source
+        ? event.source
+        : airoTask101GetSs_();
+
+    airoTask102RefreshDomainHealth_(
+      refreshSs,
+      sheet
+    );
+
+    sheet
+      .getRange('Z5')
+      .setValue(new Date());
+
+    sheet
+      .getRange('Z6')
+      .setValue('ONEDIT_REFRESH_PASS');
+  } catch (refreshError) {
+    sheet
+      .getRange('Z6')
+      .setValue('ONEDIT_REFRESH_ERROR');
+
+    try {
+      Logger.log(
+        'AIRO_TASK10_2_ONEDIT_REFRESH_ERROR=' +
+        String(
+          refreshError && refreshError.message
+            ? refreshError.message
+            : refreshError
+        )
+      );
+    } catch (loggerError) {}
+  }
+
   SpreadsheetApp.flush();
 
   return true;
@@ -32567,6 +32602,90 @@ function onEdit(event) {
     );
 
     return false;
+  }
+}
+
+function airoTask102ScheduledNativeRefresh_() {
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    return {
+      ok: false,
+      status: "skipped",
+      reason: "lock_busy",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  }
+
+  try {
+    var ss = airoTask101GetSs_();
+    var dashboard = airoTask102GetActiveDashboard_(ss);
+
+    if (!dashboard) {
+      return {
+        ok: false,
+        status: "skipped",
+        reason: "active_dashboard_missing",
+        handler: "airoTask102ScheduledNativeRefresh_",
+        financial_write_performed: false,
+        gmail_read_performed: false,
+        telegram_send_performed: false,
+        trigger_created: false
+      };
+    }
+
+    var marker = String(dashboard.getRange("Z1").getDisplayValue() || "").trim();
+
+    if (marker !== "AIRO_TASK10_1_NATIVE_V2_FINAL") {
+      return {
+        ok: false,
+        status: "skipped",
+        reason: "marker_incorrect",
+        marker: marker,
+        handler: "airoTask102ScheduledNativeRefresh_",
+        financial_write_performed: false,
+        gmail_read_performed: false,
+        telegram_send_performed: false,
+        trigger_created: false
+      };
+    }
+
+    airoTask102RefreshDomainHealth_(ss, dashboard);
+
+    dashboard.getRange("Z5").setValue(new Date());
+    dashboard.getRange("Z6").setValue("SCHEDULED_REFRESH_PASS");
+
+    SpreadsheetApp.flush();
+
+    var readback = runTask103DashboardActiveReadbackFromEditor();
+
+    return {
+      ok: !!(readback && readback.ok),
+      status: readback && readback.ok ? "success" : "readback_failed",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      active_readback: readback,
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: "error",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      error: String(error && error.message ? error.message : error),
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  } finally {
+    lock.releaseLock();
   }
 }
 

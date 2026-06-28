@@ -1,3 +1,90 @@
+
+
+<!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_START -->
+## Task 10.2 / Gate 11B - Owner-Facing Chat Roadmap Rule
+
+Every substantive AIRO Finance reply must start with this compact linear roadmap snapshot. The snapshot must use Living PRD naming only: Task, Gate, and Gate 11B substep names. Do not introduce alternate taxonomy labels.
+
+Required snapshot format:
+
+    AIRO ROADMAP SNAPSHOT
+    Task 0A-10: HISTORICAL / BASELINE
+    Task 10.1: Gate 0-10 PASS -> Gate 11 IN_PROGRESS -> Gate 12-13 PENDING
+    Task 10.2: Gate 11A PASS -> Gate 11B IN_PROGRESS
+    CURRENT: Task 10.2 / Gate 11B-S6 - Roadmap / PRD Status Sync
+    LAST PASS: Gate 11B docs status block update + full roadmap extract PASS
+    BLOCKER: no clasp push / no remote source readback / no runtime proof
+    NEXT: Gate 11B-S7 - Guarded Source Push from apps-script-live
+
+Update rule:
+- When the gate advances, update only CURRENT, LAST PASS, BLOCKER, and NEXT.
+- Keep the roadmap linear: Task 0A-10 -> Task 10.1 Gate 0-13 -> Task 10.2 Gate 11A/11B.
+- Do not use invented labels such as AIRO-FIN-*.
+- Do not claim Gate 11B PASS until source push, remote source readback, and runtime proof are complete.
+- If CURRENT.md, Living PRD, and validation logs disagree, state the conflict explicitly and prefer the newest validation/runtime evidence.
+<!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_END -->
+
+
+<!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_START -->
+## AIRO Finance Task 10.2 / Gate 11B — Local Patch + Deploy Preflight Status (2026-06-28 16:35 Asia/Jakarta)
+
+### Status
+- Current gate: Gate 11B IN_PROGRESS.
+- Gate 11A: PASS — filter dropdown readback was completed; it did not prove runtime panel refresh.
+- Gate 11B local source patch: PASS.
+- Apps Script runtime deployment: NOT YET DONE.
+- Runtime readback after deployment: NOT YET DONE.
+- Trigger install/update: NOT YET DONE.
+- Git commit/push/parity: NOT YET DONE.
+
+### What changed locally
+- Patched local Apps Script source:
+  `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Current patched SHA256:
+  `22732054a0c514bb221d26ebccb227dadfbda661277d0833fe23c9154d0cd25d`
+- Added missing scheduled refresh handler:
+  `airoTask102ScheduledNativeRefresh_()`
+- Added safe onEdit refresh binding for active Dashboard filter cells:
+  `G2` / `I2`
+- The onEdit path writes dashboard status markers:
+  `Z5` timestamp and `Z6` status (`ONEDIT_REFRESH_PASS` / `ONEDIT_REFRESH_ERROR`).
+- The scheduled path writes dashboard status marker:
+  `Z6 = SCHEDULED_REFRESH_PASS`.
+
+### Evidence recorded in local validation logs
+- Gate 11A evidence says Gate 11B remains open for:
+  - permanent safe renderer
+  - onEdit binding to renderer
+  - scheduled refresh repair
+- Combined static validation: PASS.
+- Deploy folder evidence probe:
+  - `apps-script-live` is patched.
+  - `apps-script-prod-v2` is not patched.
+  - live/prod script IDs are different.
+  - selected next deploy surface: `apps-script-live`.
+- Live clasp status preflight:
+  - local SHA check PASS.
+  - `clasp status` read-only PASS.
+  - deployments read-only PASS.
+  - no `clasp push` performed.
+
+### Roadmap from this point
+1. Guarded `clasp push` from:
+   `ecosystem/projects/vortex-ai-skill-lab/apps-script-live`
+2. Remote/source readback to prove Apps Script editor contains the patched handler and onEdit binding.
+3. Runtime/devMode proof for scheduled refresh handler and/or safe Dashboard filter refresh.
+4. Only after runtime proof: update Gate 11B PASS docs.
+5. Then commit docs + source patch with exact evidence.
+6. Then push and verify remote parity.
+
+### Safety constraints
+- Do not claim Gate 11B PASS before deployment and runtime readback.
+- Do not use `apps-script-prod-v2` for this Gate 11B push unless a later evidence probe supersedes this note.
+- Do not install triggers until source push and runtime readback are proven.
+- Do not use `git add .`.
+<!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_END -->
+
+
 # AIRO FINANCE — FINAL LIVING PRD v2.1.5
 
 Execution Contract after Architecture Freeze Audit

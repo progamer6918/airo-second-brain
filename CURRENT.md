@@ -1,3 +1,51 @@
+
+
+<!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_START -->
+## AIRO Finance Chat Roadmap Rule - Task 10.2 / Gate 11B
+
+Every substantive AIRO Finance reply must start with:
+
+    AIRO ROADMAP SNAPSHOT
+    Task 0A-10: HISTORICAL / BASELINE
+    Task 10.1: Gate 0-10 PASS -> Gate 11 IN_PROGRESS -> Gate 12-13 PENDING
+    Task 10.2: Gate 11A PASS -> Gate 11B IN_PROGRESS
+    CURRENT: Task 10.2 / Gate 11B-S6 - Roadmap / PRD Status Sync
+    LAST PASS: Gate 11B docs status block update + full roadmap extract PASS
+    BLOCKER: no clasp push / no remote source readback / no runtime proof
+    NEXT: Gate 11B-S7 - Guarded Source Push from apps-script-live
+
+Use only Living PRD naming: Task, Gate, and Gate 11B-Sx. Do not use invented labels such as AIRO-FIN-*.
+<!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_END -->
+
+
+<!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_START -->
+## AIRO Finance Task 10.2 / Gate 11B — Local Patch + Deploy Preflight Status 2026-06-28_1635
+
+- Current gate: Gate 11B IN_PROGRESS.
+- Gate 11A: PASS; it only proved selectable filters, not runtime panel refresh.
+- Gate 11B local patch: PASS.
+- Patched local source: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Patched SHA256: `22732054a0c514bb221d26ebccb227dadfbda661277d0833fe23c9154d0cd25d`
+- Patch contents:
+  - added missing `airoTask102ScheduledNativeRefresh_()`
+  - bound Dashboard `G2/I2` onEdit path to safe refresh markers
+- Deploy surface decision so far:
+  - `apps-script-live` patched
+  - `apps-script-prod-v2` not patched
+  - live/prod script IDs differ
+  - next deploy candidate: guarded `clasp push` from `apps-script-live`
+- Latest read-only preflight:
+  - `clasp status` from `apps-script-live`: PASS
+  - deployments read-only: PASS
+- NOT DONE:
+  - no `clasp push`
+  - no Apps Script runtime proof
+  - no trigger install/update
+  - no Gate 11B PASS closeout
+  - no git commit/push/parity proof
+<!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_END -->
+
+
 ## AIRO Finance Gate 9 Visual Audit — 2026-06-27
 
 - Current gate is Gate 10 (Gate 9 PASS).
