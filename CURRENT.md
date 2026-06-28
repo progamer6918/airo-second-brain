@@ -300,3 +300,40 @@ Notes:
 - Button sheets intentionally not touched.
 - Rejected Claude/XML/sandbox visual candidates because macro/buttons/workbook reliability broke.
 - New-report auto-run remains not proven; onboarding is intake/admin approval only.
+
+
+<!-- AIRO_TASK10_1_GATE10_PROGRESS_START -->
+## AIRO Finance Task 10.1 Gate 10 — Latest Progress
+
+Updated: 20260628_120519
+
+Current working tab:
+AIRO_Dashboard_Task10_1_DynamicCandidate1_20260628_111913
+
+Current status:
+- DynamicCandidate1 Phase 1B in-place polish PASS for owner screenshot review.
+- No Gate 10 PASS claimed yet.
+- No full Living PRD final claimed yet.
+
+Evidence summary:
+- NO_NEW_TAB=YES
+- NO_LIVE_DASHBOARD_EDIT=YES
+- NO_LEDGER_DOMAIN_MUTATION=YES
+- VISIBLE_ERROR_COUNT_A1K41=0
+- FORMULA_COUNT_A1K41=0
+- WALLET_HEADER_PASS=True
+- CASHFLOW_FOOTER_PASS=True
+- SPENDING_HEADER_PASS=True
+- FILTERS_PASS=True
+- ACTION_COUNT_CRITICAL_ONLY=1
+- PENDING_REVIEW_WARNING_COUNT=10
+
+Latest progress record:
+ecosystem/projects/vortex-ai-skill-lab/docs/progress/AIRO_FINANCE_TASK10_1_GATE10_DYNAMIC_CANDIDATE1_PHASE1B_20260628_120102.md
+
+Next:
+- Continue in-place on DynamicCandidate1.
+- Do not create more candidate tabs for minor polish.
+- Next technical scope: domain parser + registry mapping.
+- Final owner acceptance and promotion still pending.
+<!-- AIRO_TASK10_1_GATE10_PROGRESS_END -->
