@@ -356,3 +356,12 @@ Next:
 - Ledger/domain source tabs were not mutated.
 - Old candidate tabs remain for rollback; cleanup deferred.
 - Evidence record: ecosystem/projects/vortex-ai-skill-lab/docs/progress/AIRO_FINANCE_TASK10_1_GATE10_LIVE_DASHBOARD_ACCEPTANCE_20260628_131817.md
+
+## AIRO Finance Task 10.2 / Gate 11A — Filter Dropdown PASS 20260628_134926
+
+- Live Dashboard G2/I2 dropdown install/readback PASS.
+- Owner screenshot confirms I2 Tahun dropdown visible with 2026-2031.
+- Dashboard visual baseline remained intact; no visible #ERROR.
+- Scope was filter validation only; no renderer/panel auto-refresh claimed.
+- Gate 11B remains open for permanent safe renderer and onEdit runtime refresh.
+- Evidence record: ecosystem/projects/vortex-ai-skill-lab/docs/progress/AIRO_FINANCE_TASK10_2_GATE11A_FILTER_DROPDOWN_PASS_20260628_134926.md
