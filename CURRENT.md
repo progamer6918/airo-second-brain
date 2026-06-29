@@ -30,6 +30,8 @@ Use only Living PRD naming: Task, Gate, and Gate 11B-Sx. Do not use invented lab
 - B2 topbar repair: PASS (writes directly to bypass merge/locale issues).
 - Scheduler connected: NO (intentionally not connected in this gate).
 - Git commit/push/parity: PASS.
+- Post-closeout visual sanity fix: PASS (helper columns hidden; visible A1:K41 formula errors = 0).
+- Visual sanity validation: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-visual-sanity-fix-20260629.md`.
 
 ### Current verified state
 - Patched local Apps Script source:

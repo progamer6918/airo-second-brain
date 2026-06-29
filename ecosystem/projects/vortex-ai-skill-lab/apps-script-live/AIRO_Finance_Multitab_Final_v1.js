@@ -32665,6 +32665,7 @@ function airoTask11bPermanentDashboardRefresh_(opts) {
     dashboard.getRange('Z3').setValue('GATE11B_MANUAL_REFRESH_PASS');
     dashboard.getRange('Z4').setValue(new Date());
     result.b2_topbar = airoGate11bWriteVisibleTopbarB2_(dashboard, reason);
+    result.visible_wallet_status_repair = airoGate11bRepairVisibleWalletStatusAndTopbar_(dashboard, reason);
 
     SpreadsheetApp.flush();
 
@@ -32790,6 +32791,139 @@ function airoTask101OnEdit_(event) {
 function airoTask10MaybeRefreshOnEdit_(event) {
   return airoTask101OnEdit_(event);
 }
+
+
+
+// AIRO_GATE11B_WALLET_STATUS_SCRIPT_WRITTEN
+function airoGate11bRepairVisibleWalletStatusAndTopbar_(dashboard, reason) {
+  var ss = dashboard.getParent();
+  var tz = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone() || 'Asia/Jakarta';
+  var now = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy HH:mm:ss');
+  var month = dashboard.getRange('G2').getDisplayValue();
+  var year = dashboard.getRange('I2').getDisplayValue();
+  var ledgerRows = dashboard.getRange('M11').getDisplayValue();
+
+  var topbar = '● Synced: ' + now + ' | Period: ' + month + ' ' + year + ' | Ledger rows: ' + ledgerRows + ' | Source: Account Ledger';
+  dashboard.getRange('B2').setValue(topbar);
+
+  var statuses = [];
+  for (var row = 17; row <= 21; row++) {
+    var wallet = String(dashboard.getRange(row, 2).getDisplayValue() || '').trim();
+    var balanceRaw = dashboard.getRange(row, 3).getValue();
+    var balanceText = String(dashboard.getRange(row, 3).getDisplayValue() || '').replace(/[^\d,\.\-]/g, '').replace(/\./g, '').replace(',', '.');
+    var balance = 0;
+
+    if (typeof balanceRaw === 'number') {
+      balance = balanceRaw;
+    } else if (balanceText && !isNaN(Number(balanceText))) {
+      balance = Number(balanceText);
+    }
+
+    var status = '';
+    if (wallet) {
+      if (balance < 0) {
+        status = 'CRIT: saldo negatif';
+      } else if (balance === 0) {
+        status = 'OK';
+      } else if (balance < 50000) {
+        status = 'WARN: saldo rendah';
+      } else {
+        status = 'OK';
+      }
+    }
+
+    dashboard.getRange(row, 5).setValue(status);
+    statuses.push({ row: row, wallet: wallet, balance: balance, status: status });
+  }
+
+  SpreadsheetApp.flush();
+
+  return {
+    reason: reason || '',
+    b2: dashboard.getRange('B2').getDisplayValue(),
+    status_rows_written: statuses.length,
+    statuses: statuses
+  };
+}
+
+
+// AIRO_GATE11B_VISUAL_SANITY_FIX_HELPER_START
+function runGate11bVisualSanityFixFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  var result = {
+    task: 'AIRO_GATE11B_VISUAL_SANITY_FIX',
+    manual_editor_required: false,
+    scheduler_connected: false,
+    trigger_created: false,
+    ledger_domain_mutated: false,
+    helper_columns_hidden: false,
+    visible_error_count_a1k41: null,
+    visible_error_cells_a1k41: [],
+    final_verdict: 'FAIL_GATE11B_VISUAL_SANITY'
+  };
+
+  var renderResult = airoTask11bPermanentDashboardRefresh_({
+    dryRun: false,
+    reason: 'visual_sanity_fix',
+    ss: ss
+  });
+  result.renderer_final_verdict = renderResult && renderResult.final_verdict ? renderResult.final_verdict : '';
+
+  // Owner-facing cockpit is A:K. Hide helper/debug columns after the cockpit.
+  dashboard.hideColumns(12, 15); // L:Z
+  SpreadsheetApp.flush();
+  result.helper_columns_hidden = dashboard.isColumnHiddenByUser(12) && dashboard.isColumnHiddenByUser(26);
+
+  var range = dashboard.getRange('A1:K41');
+  var display = range.getDisplayValues();
+  var formulas = range.getFormulas();
+  var errors = [];
+  for (var r = 0; r < display.length; r++) {
+    for (var c = 0; c < display[r].length; c++) {
+      var v = String(display[r][c] || '');
+      if (v.indexOf('#ERROR!') !== -1 || v.indexOf('#N/A') !== -1 || v.indexOf('#REF!') !== -1 || v.indexOf('#VALUE!') !== -1 || v.indexOf('#DIV/0!') !== -1) {
+        errors.push({
+          cell: dashboard.getRange(r + 1, c + 1).getA1Notation(),
+          display: v,
+          has_formula: !!formulas[r][c],
+          formula: formulas[r][c] ? String(formulas[r][c]).slice(0, 180) : ''
+        });
+      }
+    }
+  }
+
+  result.visible_error_count_a1k41 = errors.length;
+  result.visible_error_cells_a1k41 = errors.slice(0, 25);
+
+  result.readback = {
+    g2: dashboard.getRange('G2').getDisplayValue(),
+    i2: dashboard.getRange('I2').getDisplayValue(),
+    b2: dashboard.getRange('B2').getDisplayValue(),
+    b17: dashboard.getRange('B17').getDisplayValue(),
+    e17: dashboard.getRange('E17').getDisplayValue(),
+    b25: dashboard.getRange('B25').getDisplayValue(),
+    c25: dashboard.getRange('C25').getDisplayValue(),
+    d25: dashboard.getRange('D25').getDisplayValue(),
+    e25: dashboard.getRange('E25').getDisplayValue(),
+    g25: dashboard.getRange('G25').getDisplayValue(),
+    b34: dashboard.getRange('B34').getDisplayValue(),
+    col_l_hidden: dashboard.isColumnHiddenByUser(12),
+    col_n_hidden: dashboard.isColumnHiddenByUser(14),
+    col_z_hidden: dashboard.isColumnHiddenByUser(26)
+  };
+
+  if (result.helper_columns_hidden && result.visible_error_count_a1k41 === 0) {
+    result.final_verdict = 'PASS_GATE11B_VISUAL_SANITY_FIX';
+    result.ok = true;
+  } else {
+    result.ok = false;
+  }
+
+  return result;
+}
+// AIRO_GATE11B_VISUAL_SANITY_FIX_HELPER_END
+
 
 function onEdit(event) {
   try {
