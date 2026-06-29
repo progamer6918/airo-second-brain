@@ -22811,7 +22811,11 @@ if (!parsed.chat_id) {
         status: "sprint7h_email_category_search_pending",
         handled: true,
         waiting: true,
-        finance_write_performed: false
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false,
+        domain_tab_write_performed: false
       });
     } else {
       var categoryMap = {
@@ -22838,7 +22842,11 @@ if (!parsed.chat_id) {
         status: "sprint7h_email_category_selected",
         handled: true,
         waiting: true,
-        finance_write_performed: false
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false,
+        domain_tab_write_performed: false
       });
     }
   }
@@ -23058,7 +23066,7 @@ function airoC3GValidateEmailWritebackCandidate_(pending, amount, account, categ
 function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, subcategory) {
 
   // AIRO_C3G_WRITEBACK_FIX_ENTRY_BEGIN
-  category = airoC3GCategoryFromShortReply_(parsed, category);
+  category = String(category || "").trim();
   subcategory = String(subcategory || "Lainnya").trim() || "Lainnya";
   // AIRO_C3G_WRITEBACK_FIX_ENTRY_END
 
