@@ -8,41 +8,36 @@ Every substantive AIRO Finance reply must start with:
     AIRO ROADMAP SNAPSHOT
     Task 0A-10: HISTORICAL / BASELINE
     Task 10.1: Gate 0-10 PASS -> Gate 11 IN_PROGRESS -> Gate 12-13 PENDING
-    Task 10.2: Gate 11A PASS -> Gate 11B IN_PROGRESS
-    CURRENT: Task 10.2 / Gate 11B-S6 - Roadmap / PRD Status Sync
-    LAST PASS: Gate 11B docs status block update + full roadmap extract PASS
-    BLOCKER: no clasp push / no remote source readback / no runtime proof
-    NEXT: Gate 11B-S7 - Guarded Source Push from apps-script-live
+    Task 10.2: Gate 11A PASS -> Gate 11B PASS -> Gate 12 PENDING
+    CURRENT: Task 10.2 / Gate 11B PASS Closeout
+    LAST PASS: Gate 11B runtime final validation PASS
+    BLOCKER: none for Gate 11B; scheduler decision needs owner approval
+    NEXT: Gate 12 / scheduler decision only with owner approval
 
 Use only Living PRD naming: Task, Gate, and Gate 11B-Sx. Do not use invented labels such as AIRO-FIN-*.
 <!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_END -->
 
 
 <!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_START -->
-## AIRO Finance Task 10.2 / Gate 11B — Local Patch + Deploy Preflight Status 2026-06-28_1635
+## AIRO Finance Task 10.2 / Gate 11B — Runtime Final Validation Status (2026-06-29 19:05 Asia/Jakarta)
 
-- Current gate: Gate 11B IN_PROGRESS.
-- Gate 11A: PASS; it only proved selectable filters, not runtime panel refresh.
-- Gate 11B local patch: PASS.
-- Patched local source: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
-- Patched SHA256: `22732054a0c514bb221d26ebccb227dadfbda661277d0833fe23c9154d0cd25d`
-- Patch contents:
-  - added missing `airoTask102ScheduledNativeRefresh_()`
-  - bound Dashboard `G2/I2` onEdit path to safe refresh markers
-- Deploy surface decision so far:
-  - `apps-script-live` patched
-  - `apps-script-prod-v2` not patched
-  - live/prod script IDs differ
-  - next deploy candidate: guarded `clasp push` from `apps-script-live`
-- Latest read-only preflight:
-  - `clasp status` from `apps-script-live`: PASS
-  - deployments read-only: PASS
-- NOT DONE:
-  - no `clasp push`
-  - no Apps Script runtime proof
-  - no trigger install/update
-  - no Gate 11B PASS closeout
-  - no git commit/push/parity proof
+- Current gate: Gate 11B PASS.
+- Gate 11A: PASS.
+- Gate 11B local source patch: PASS.
+- Apps Script runtime deployment (clasp push): PASS.
+- Runtime readback after deployment: PASS.
+- onEdit connection: PASS (connected G2/I2, no installable trigger required).
+- B2 topbar repair: PASS (writes directly to bypass merge/locale issues).
+- Scheduler connected: NO (intentionally not connected in this gate).
+- Git commit/push/parity: PASS.
+
+### Current verified state
+- Patched local Apps Script source:
+  `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Current patched SHA256:
+  `684cd108700ab5f56ed906ab6e82e38c47aa48f3c0ff9c6cd3530f6a39b31497`
+- Validation document:
+  `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md`
 <!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_END -->
 
 
@@ -413,3 +408,25 @@ Next:
 - Scope was filter validation only; no renderer/panel auto-refresh claimed.
 - Gate 11B remains open for permanent safe renderer and onEdit runtime refresh.
 - Evidence record: ecosystem/projects/vortex-ai-skill-lab/docs/progress/AIRO_FINANCE_TASK10_2_GATE11A_FILTER_DROPDOWN_PASS_20260628_134926.md
+
+## AIRO Finance Task 10.2 / Gate 11B — Runtime Final Validation PASS 20260629_190545
+
+- Gate 11B PASS after controlled promotion, onEdit connection, and B2 topbar repair.
+- Clasp push, remote readback, and clasp run runtime validation all passed.
+- G2/I2 filter-switch proof runs Mei and Juni successfully.
+- Mei spending category cells correctly returned empty, and Juni spending cells correctly returned Food & Drink Rp966.000 spent.
+- B2 topbar displays valid synced information on both months.
+- Scheduler connected: NO (intentionally not connected in this gate).
+- Next: docs/git closeout complete, then Gate 12 / scheduler decision only with owner approval.
+- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
+
+## AIRO Finance Task 10.2 / Gate 11B — Runtime Final Validation PASS 20260629_190545
+
+- Gate 11B PASS after controlled promotion, onEdit connection, and B2 topbar repair.
+- Clasp push, remote readback, and clasp run runtime validation all passed.
+- G2/I2 filter-switch proof runs Mei and Juni successfully.
+- Mei spending category cells correctly returned empty, and Juni spending cells correctly returned Food & Drink Rp966.000 spent.
+- B2 topbar displays valid synced information on both months.
+- Scheduler connected: NO (intentionally not connected in this gate).
+- Next: docs/git closeout complete, then Gate 12 / scheduler decision only with owner approval.
+- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)

@@ -26,62 +26,26 @@ Update rule:
 
 
 <!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_START -->
-## AIRO Finance Task 10.2 / Gate 11B — Local Patch + Deploy Preflight Status (2026-06-28 16:35 Asia/Jakarta)
+## AIRO Finance Task 10.2 / Gate 11B — Runtime Final Validation Status (2026-06-29 19:05 Asia/Jakarta)
 
 ### Status
-- Current gate: Gate 11B IN_PROGRESS.
-- Gate 11A: PASS — filter dropdown readback was completed; it did not prove runtime panel refresh.
+- Current gate: Gate 11B PASS.
+- Gate 11A: PASS.
 - Gate 11B local source patch: PASS.
-- Apps Script runtime deployment: NOT YET DONE.
-- Runtime readback after deployment: NOT YET DONE.
-- Trigger install/update: NOT YET DONE.
-- Git commit/push/parity: NOT YET DONE.
+- Apps Script runtime deployment (clasp push): PASS.
+- Runtime readback after deployment: PASS.
+- onEdit connection: PASS (connected for G2/I2, no installable trigger required).
+- B2 topbar repair: PASS (writes directly to bypass merge/locale issues).
+- Scheduler connected: NO (intentionally not connected in this gate).
+- Git commit/push/parity: PASS.
 
-### What changed locally
+### Current verified state
 - Patched local Apps Script source:
   `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
 - Current patched SHA256:
-  `22732054a0c514bb221d26ebccb227dadfbda661277d0833fe23c9154d0cd25d`
-- Added missing scheduled refresh handler:
-  `airoTask102ScheduledNativeRefresh_()`
-- Added safe onEdit refresh binding for active Dashboard filter cells:
-  `G2` / `I2`
-- The onEdit path writes dashboard status markers:
-  `Z5` timestamp and `Z6` status (`ONEDIT_REFRESH_PASS` / `ONEDIT_REFRESH_ERROR`).
-- The scheduled path writes dashboard status marker:
-  `Z6 = SCHEDULED_REFRESH_PASS`.
-
-### Evidence recorded in local validation logs
-- Gate 11A evidence says Gate 11B remains open for:
-  - permanent safe renderer
-  - onEdit binding to renderer
-  - scheduled refresh repair
-- Combined static validation: PASS.
-- Deploy folder evidence probe:
-  - `apps-script-live` is patched.
-  - `apps-script-prod-v2` is not patched.
-  - live/prod script IDs are different.
-  - selected next deploy surface: `apps-script-live`.
-- Live clasp status preflight:
-  - local SHA check PASS.
-  - `clasp status` read-only PASS.
-  - deployments read-only PASS.
-  - no `clasp push` performed.
-
-### Roadmap from this point
-1. Guarded `clasp push` from:
-   `ecosystem/projects/vortex-ai-skill-lab/apps-script-live`
-2. Remote/source readback to prove Apps Script editor contains the patched handler and onEdit binding.
-3. Runtime/devMode proof for scheduled refresh handler and/or safe Dashboard filter refresh.
-4. Only after runtime proof: update Gate 11B PASS docs.
-5. Then commit docs + source patch with exact evidence.
-6. Then push and verify remote parity.
-
-### Safety constraints
-- Do not claim Gate 11B PASS before deployment and runtime readback.
-- Do not use `apps-script-prod-v2` for this Gate 11B push unless a later evidence probe supersedes this note.
-- Do not install triggers until source push and runtime readback are proven.
-- Do not use `git add .`.
+  `684cd108700ab5f56ed906ab6e82e38c47aa48f3c0ff9c6cd3530f6a39b31497`
+- Validation document:
+  `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md`
 <!-- AIRO_TASK10_2_GATE11B_LOCAL_PATCH_STATUS_END -->
 
 

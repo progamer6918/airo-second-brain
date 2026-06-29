@@ -32510,6 +32510,209 @@ function airoTask10ScheduledDashboardRefresh_() {
   return airoTask102ScheduledNativeRefresh_();
 }
 
+
+
+function airoGate11bFormulaToSheetLocale_(formula) {
+  formula = String(formula || '');
+  var out = '';
+  var inString = false;
+  var arrayDepth = 0;
+
+  for (var i = 0; i < formula.length; i++) {
+    var ch = formula.charAt(i);
+
+    if (ch === '"') {
+      out += ch;
+      if (inString && formula.charAt(i + 1) === '"') {
+        out += formula.charAt(i + 1);
+        i++;
+      } else {
+        inString = !inString;
+      }
+      continue;
+    }
+
+    if (!inString) {
+      if (ch === '{') {
+        arrayDepth++;
+      } else if (ch === '}') {
+        arrayDepth = Math.max(0, arrayDepth - 1);
+      }
+
+      if (ch === ',') {
+        out += arrayDepth > 0 ? '\\' : ';';
+        continue;
+      }
+    }
+
+    out += ch;
+  }
+
+  return out;
+}
+
+function airoGate11bRepairDashboardFormulaLocale_(dashboard) {
+  var range = dashboard.getRange('A1:Z41');
+  var formulas = range.getFormulas();
+  var changed = [];
+
+  for (var r = 0; r < formulas.length; r++) {
+    for (var c = 0; c < formulas[r].length; c++) {
+      var original = formulas[r][c];
+      if (!original) continue;
+
+      var converted = airoGate11bFormulaToSheetLocale_(original);
+      if (converted !== original) {
+        dashboard.getRange(r + 1, c + 1).setFormula(converted);
+        changed.push(dashboard.getRange(r + 1, c + 1).getA1Notation());
+      }
+    }
+  }
+
+  SpreadsheetApp.flush();
+
+  return {
+    converted_count: changed.length,
+    sample_changed: changed.slice(0, 25)
+  };
+}
+
+
+// AIRO_GATE11B_PERMANENT_RENDERER_START
+function airoTask11bPermanentDashboardRefresh_(opts) {
+  opts = opts || {};
+  var dryRun = opts.dryRun !== false;
+  var reason = String(opts.reason || 'manual');
+  var ss = opts.ss || airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+
+  var result = {
+    ok: false,
+    task: 'AIRO_GATE11B_PERMANENT_DASHBOARD_REFRESH',
+    dry_run: dryRun,
+    reason: reason,
+    dashboard_render_performed: false,
+    workbook_write_performed: false,
+    ledger_domain_mutated: false,
+    onedit_connected: false,
+    scheduled_refresh_connected: false,
+    old_renderer_used: false,
+    target_tab: '',
+    selected_month: '',
+    selected_year: '',
+    marker: '',
+    final_verdict: 'BLOCKED_UNINITIALIZED'
+  };
+
+  if (!dashboard) {
+    result.final_verdict = 'BLOCKED_ACTIVE_DASHBOARD_NOT_FOUND';
+    result.error = 'active Dashboard missing';
+    return result;
+  }
+
+  result.target_tab = dashboard.getName();
+  result.marker = String(dashboard.getRange('Z1').getDisplayValue()).trim();
+
+  var month = String(dashboard.getRange('G2').getDisplayValue()).trim();
+  var year = String(dashboard.getRange('I2').getDisplayValue()).trim();
+  var months = airoTask103Months_();
+
+  result.selected_month = month;
+  result.selected_year = year;
+
+  if (months.indexOf(month) < 0) {
+    result.final_verdict = 'BLOCKED_INVALID_MONTH_FILTER';
+    result.error = 'invalid G2 month';
+    return result;
+  }
+
+  if (!/^(?:19|20)\d{2}$/.test(year)) {
+    result.final_verdict = 'BLOCKED_INVALID_YEAR_FILTER';
+    result.error = 'invalid I2 year';
+    return result;
+  }
+
+  result.preflight = {
+    z1: result.marker,
+    g2: month,
+    i2: year,
+    has_install_filters: typeof airoTask102InstallFilters_ === 'function',
+    has_install_native_formulas: typeof airoTask102InstallNativeFormulas_ === 'function',
+    has_refresh_domain_health: typeof airoTask102RefreshDomainHealth_ === 'function'
+  };
+
+  if (dryRun) {
+    result.ok = true;
+    result.final_verdict = 'PASS_GATE11B_PERMANENT_RENDERER_DRYRUN';
+    result.note = 'Dry-run only. No workbook write.';
+    return result;
+  }
+
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) {
+    result.final_verdict = 'BLOCKED_RENDER_LOCK_BUSY';
+    result.error = 'render lock busy';
+    return result;
+  }
+
+  try {
+    airoTask102InstallFilters_(dashboard);
+    airoTask102InstallNativeFormulas_(dashboard);
+    result.formula_locale_repair = airoGate11bRepairDashboardFormulaLocale_(dashboard);
+    airoTask102RefreshDomainHealth_(ss, dashboard);
+
+    dashboard.getRange('Z2').setValue(new Date());
+    dashboard.getRange('Z3').setValue('GATE11B_MANUAL_REFRESH_PASS');
+    dashboard.getRange('Z4').setValue(new Date());
+    result.b2_topbar = airoGate11bWriteVisibleTopbarB2_(dashboard, reason);
+
+    SpreadsheetApp.flush();
+
+    result.readback = {
+      b2: dashboard.getRange('B2').getDisplayValue() || dashboard.getRange('A2').getDisplayValue(),
+      g2: dashboard.getRange('G2').getDisplayValue(),
+      i2: dashboard.getRange('I2').getDisplayValue(),
+      m2: dashboard.getRange('M2').getDisplayValue(),
+      m3: dashboard.getRange('M3').getDisplayValue(),
+      m4: dashboard.getRange('M4').getDisplayValue(),
+      b25: dashboard.getRange('B25').getDisplayValue(),
+      c25: dashboard.getRange('C25').getDisplayValue(),
+      d25: dashboard.getRange('D25').getDisplayValue(),
+      e25: dashboard.getRange('E25').getDisplayValue(),
+      g25: dashboard.getRange('G25').getDisplayValue(),
+      b34: dashboard.getRange('B34').getDisplayValue()
+    };
+
+    result.ok = true;
+    result.dashboard_render_performed = true;
+    result.workbook_write_performed = true;
+    result.final_verdict = 'PASS_GATE11B_PERMANENT_RENDERER_MANUAL_REFRESH';
+    return result;
+  } catch (error) {
+    result.ok = false;
+    result.final_verdict = 'FAIL_GATE11B_PERMANENT_RENDERER_EXCEPTION';
+    result.error = String(error && error.message ? error.message : error);
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function runGate11bPermanentRendererDryRunFromEditor() {
+  return airoTask11bPermanentDashboardRefresh_({
+    dryRun: true,
+    reason: 'editor_dry_run'
+  });
+}
+
+function runGate11bPermanentRendererManualRefreshFromEditor() {
+  return airoTask11bPermanentDashboardRefresh_({
+    dryRun: false,
+    reason: 'editor_manual_refresh'
+  });
+}
+// AIRO_GATE11B_PERMANENT_RENDERER_END
+
 function airoTask101OnEdit_(event) {
   if (!event || !event.range) return false;
 
@@ -32590,6 +32793,16 @@ function airoTask10MaybeRefreshOnEdit_(event) {
 
 function onEdit(event) {
   try {
+    // AIRO_GATE11B_ONEDIT_CONNECTED_AFTER_FILTER_SWITCH_PASS
+    if (!event || !event.range) return false;
+    var range = event.range;
+    var sheet = range.getSheet();
+    if (sheet.getName() !== "🏠 Dashboard") return false;
+    var a1 = range.getA1Notation();
+    if (a1 !== "G2" && a1 !== "I2") return false;
+    var ss = event.source || airoTask101GetSs_();
+    var refreshRes = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"onedit_filter_refresh", ss:ss});
+    return refreshRes.ok;
     return airoTask101OnEdit_(event);
   } catch (error) {
     Logger.log(
@@ -32687,6 +32900,202 @@ function airoTask102ScheduledNativeRefresh_() {
   } finally {
     lock.releaseLock();
   }
+}
+
+function runGate11bFilterSwitchProofFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+
+  if (!dashboard) {
+    return { ok: false, error: "exact active Dashboard missing" };
+  }
+
+  var originalMonth = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var originalYear = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+
+  var months = airoTask103Months_();
+  if (months.indexOf("Mei") < 0 || months.indexOf("Juni") < 0) {
+    return { ok: false, error: "months list validation failed" };
+  }
+
+  function readback(label) {
+    return {
+      label: label,
+      g2: dashboard.getRange("G2").getDisplayValue(),
+      i2: dashboard.getRange("I2").getDisplayValue(),
+      b2: dashboard.getRange("B2").getDisplayValue() || dashboard.getRange("A2").getDisplayValue(),
+      m2: dashboard.getRange("M2").getDisplayValue(),
+      m3: dashboard.getRange("M3").getDisplayValue(),
+      m4: dashboard.getRange("M4").getDisplayValue(),
+      b25: dashboard.getRange("B25").getDisplayValue(),
+      c25: dashboard.getRange("C25").getDisplayValue(),
+      d25: dashboard.getRange("D25").getDisplayValue(),
+      e25: dashboard.getRange("E25").getDisplayValue(),
+      g25: dashboard.getRange("G25").getDisplayValue(),
+      b34: dashboard.getRange("B34").getDisplayValue(),
+      z2: dashboard.getRange("Z2").getDisplayValue(),
+      z3: dashboard.getRange("Z3").getDisplayValue(),
+      z4: dashboard.getRange("Z4").getDisplayValue()
+    };
+  }
+
+  // 1. Set G2=Juni, I2=2026, flush
+  dashboard.getRange("G2").setValue("Juni");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var refreshJuni = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"filter_switch_juni_proof", ss:ss});
+  var juniRead = readback("juni");
+
+  // 2. Set G2=Mei, I2=2026, flush
+  dashboard.getRange("G2").setValue("Mei");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var refreshMei = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"filter_switch_mei_proof", ss:ss});
+  var meiRead = readback("mei");
+
+  // 3. Restore original G2/I2 if not Mei/2026
+  if (originalMonth !== "Mei" || originalYear !== "2026") {
+    dashboard.getRange("G2").setValue(originalMonth);
+    dashboard.getRange("I2").setValue(originalYear);
+    SpreadsheetApp.flush();
+  }
+
+  var periodChanged = (juniRead.m2 !== meiRead.m2 || juniRead.m3 !== meiRead.m3 || juniRead.m4 !== meiRead.m4);
+  var spendingChanged = (juniRead.b25 !== meiRead.b25 || juniRead.c25 !== meiRead.c25);
+  var b2NonemptyJuni = (juniRead.b2 !== "");
+  var b2NonemptyMei = (meiRead.b2 !== "");
+
+  var finalVerdict = "FAIL_GATE11B_FILTER_SWITCH_INCOMPLETE";
+  if (periodChanged && refreshJuni.ok && refreshMei.ok) {
+    finalVerdict = "PASS_GATE11B_FILTER_SWITCH_PROOF";
+  }
+
+  return {
+    ok: (finalVerdict === "PASS_GATE11B_FILTER_SWITCH_PROOF"),
+    original_month: originalMonth,
+    original_year: originalYear,
+    juni_verdict: refreshJuni.final_verdict,
+    mei_verdict: refreshMei.final_verdict,
+    juni_readback: juniRead,
+    mei_readback: meiRead,
+    period_changed: periodChanged,
+    spending_changed: spendingChanged,
+    b2_nonempty_juni: b2NonemptyJuni,
+    b2_nonempty_mei: b2NonemptyMei,
+    final_verdict: finalVerdict
+  };
+}
+
+function airoGate11bWriteVisibleTopbarB2_(dashboard, reason) {
+  // AIRO_GATE11B_B2_TOPBAR_SCRIPT_WRITTEN
+  var g2 = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var i2 = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+  var m11 = String(dashboard.getRange("M11").getDisplayValue() || "").trim();
+  var z2 = String(dashboard.getRange("Z2").getDisplayValue() || "").trim();
+  
+  var text = "● Synced: " + z2 + " | Period: " + g2 + " " + i2 + " | Ledger rows: " + m11 + " | Source: Account Ledger";
+  dashboard.getRange("A2").setValue(text);
+  dashboard.getRange("B2").setValue(text);
+  return text;
+}
+
+function runDebugB2() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  var range = dashboard.getRange("B2");
+  return {
+    formula: range.getFormula(),
+    value: range.getValue(),
+    display: range.getDisplayValue(),
+    isPartOfMerge: range.isPartOfMerge(),
+    mergedRanges: range.getMergedRanges().map(function(r) { return r.getA1Notation(); })
+  };
+}
+
+function runGate11bOnEditBindingProofFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+
+  if (!dashboard) {
+    return { ok: false, error: "exact active Dashboard missing" };
+  }
+
+  var originalMonth = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var originalYear = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+
+  function readback(label) {
+    var valB2 = dashboard.getRange("B2").getDisplayValue();
+    var valA2 = dashboard.getRange("A2").getDisplayValue();
+    var displayB2 = valB2 || valA2;
+    return {
+      label: label,
+      g2: dashboard.getRange("G2").getDisplayValue(),
+      i2: dashboard.getRange("I2").getDisplayValue(),
+      b2: displayB2,
+      m2: dashboard.getRange("M2").getDisplayValue(),
+      m3: dashboard.getRange("M3").getDisplayValue(),
+      m4: dashboard.getRange("M4").getDisplayValue(),
+      b25: dashboard.getRange("B25").getDisplayValue(),
+      c25: dashboard.getRange("C25").getDisplayValue(),
+      d25: dashboard.getRange("D25").getDisplayValue(),
+      e25: dashboard.getRange("E25").getDisplayValue(),
+      g25: dashboard.getRange("G25").getDisplayValue(),
+      b34: dashboard.getRange("B34").getDisplayValue(),
+      z2: dashboard.getRange("Z2").getDisplayValue(),
+      z3: dashboard.getRange("Z3").getDisplayValue(),
+      z4: dashboard.getRange("Z4").getDisplayValue()
+    };
+  }
+
+  // 1. Set G2=Juni, I2=2026, flush
+  dashboard.getRange("G2").setValue("Juni");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var onEditResultJuni = onEdit({range: dashboard.getRange("G2"), source: ss});
+  var juniRead = readback("juni");
+
+  // 2. Set G2=Mei, I2=2026, flush
+  dashboard.getRange("G2").setValue("Mei");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var onEditResultMei = onEdit({range: dashboard.getRange("G2"), source: ss});
+  var meiRead = readback("mei");
+
+  // 3. Restore original G2/I2 if not Mei/2026
+  if (originalMonth !== "Mei" || originalYear !== "2026") {
+    dashboard.getRange("G2").setValue(originalMonth);
+    dashboard.getRange("I2").setValue(originalYear);
+    SpreadsheetApp.flush();
+  }
+
+  var periodChanged = (juniRead.m2 !== meiRead.m2 || juniRead.m3 !== meiRead.m3 || juniRead.m4 !== meiRead.m4);
+  var spendingChanged = (juniRead.b25 !== meiRead.b25 || juniRead.c25 !== meiRead.c25);
+  var b2NonemptyJuni = (juniRead.b2 !== "");
+  var b2NonemptyMei = (meiRead.b2 !== "");
+
+  var finalVerdict = "FAIL_GATE11B_ONEDIT_BINDING_PROOF";
+  if (periodChanged && onEditResultJuni && onEditResultMei) {
+    finalVerdict = "PASS_GATE11B_ONEDIT_BINDING_PROOF";
+  }
+
+  return {
+    ok: (finalVerdict === "PASS_GATE11B_ONEDIT_BINDING_PROOF"),
+    original_month: originalMonth,
+    original_year: originalYear,
+    juni_onedit_verdict: onEditResultJuni ? "PASS" : "FAIL",
+    mei_onedit_verdict: onEditResultMei ? "PASS" : "FAIL",
+    juni_readback: juniRead,
+    mei_readback: meiRead,
+    period_changed: periodChanged,
+    spending_changed: spendingChanged,
+    b2_nonempty_juni: b2NonemptyJuni,
+    b2_nonempty_mei: b2NonemptyMei,
+    final_verdict: finalVerdict
+  };
 }
 
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
