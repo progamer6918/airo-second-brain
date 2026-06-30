@@ -553,3 +553,24 @@ abung BCA 1000 test_task9_asset_ledger_first_live_regression_20260621.
 - telegram_command_used: NO.
 - deploy_performed_in_closeout: NO.
 - next: Post-Task-9 owner review / next roadmap item.
+
+<!-- AIRO_ARFIN_NO_TEST_PROOF_20260630_BEGIN -->
+## AIRO Arfin no-test proof — 2026-06-30
+
+Status:
+- `ARFIN_STATIC_DEEP_SCAN=PASS_WITH_LIMITATIONS`
+- `ARFIN_CAPABILITY_IN_SOURCE=PROVEN`
+- `ARFIN_DEPLOYMENT_SOURCE_PARITY=PROVEN`
+- `ACTIVE_DEPLOYMENT_VERSION=112`
+- `SOURCE_SHA=add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19`
+- `PROVIDER_COUNT=6`
+- `FULL_RUNTIME_FUNCTIONING=NOT_YET_PROVEN`
+
+Evidence:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_NO_TEST_PROOF_20260630.md`
+- `ecosystem/projects/vortex-ai-skill-lab/docs/evidence/AIRO_ARFIN_NO_TEST_PROOF_20260630.json`
+
+Claim boundary:
+- Safe: active deployment source parity and source capability are proven.
+- Unsafe: full end-to-end Arfin runtime functioning; requires guarded runtime route proof.
+<!-- AIRO_ARFIN_NO_TEST_PROOF_20260630_END -->

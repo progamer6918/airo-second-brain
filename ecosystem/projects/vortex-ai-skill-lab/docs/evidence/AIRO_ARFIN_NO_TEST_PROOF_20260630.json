@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-06-30T22:28:49",
+  "static_json": "/tmp/airo_arfin_static_deep_scan_v2_20260630_215945.json",
+  "deploy_json": "/tmp/airo_arfin_runtime_source_readback_no_test_v2_20260630_222407.json",
+  "arfin_static_deep_scan": "PASS_WITH_LIMITATIONS",
+  "arfin_capability_in_source": "PROVEN",
+  "arfin_deployment_source_parity": "PROVEN",
+  "active_deployment_version": 112,
+  "deployment_source_sha256": "add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19",
+  "local_source_sha256": "add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19",
+  "head_source_sha256": "add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19",
+  "sha_match": true,
+  "provider_count": 6,
+  "provider_ids": [
+    "bca_transaction_notification",
+    "blu_transaction_notification",
+    "credit_card_purchase_notification",
+    "failed_transaction_notification",
+    "otp_security_notification",
+    "refund_reversal_notification"
+  ],
+  "apps_script_function_count": 695,
+  "docs_scanned_count": 503,
+  "normalizer_function_count": 8,
+  "deployment_count": 7,
+  "target_deployment_count": 1,
+  "source_file": "AIRO_Finance_Multitab_Final_v1",
+  "source_type": "SERVER_JS",
+  "full_runtime_functioning": "NOT_YET_PROVEN",
+  "runtime_limitations": [
+    "No scripts.run executed.",
+    "No Gmail read executed.",
+    "No Telegram send executed.",
+    "No workbook edit/readback test executed.",
+    "No end-to-end transaction route test executed."
+  ],
+  "final_no_test_verdict": "ARFIN_DEPLOYMENT_SOURCE_PROVEN_BUT_RUNTIME_NOT_TESTED"
+}
