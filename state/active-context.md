@@ -689,3 +689,30 @@ Evidence:
 Next:
 - Gate C1 source patch only, no deploy.
 <!-- AIRO_ARFIN_GATE_C0_EXACT_BODY_EXTRACT_20260630_END -->
+
+<!-- AIRO_ARFIN_GATE_C1A_PATCH_POINT_FINDER_20260630_BEGIN -->
+## AIRO Arfin Gate C1A patch-point finder — 2026-06-30
+
+Status:
+- `PASS_GATE_C1A_PATCH_POINTS_READY`
+- Blockers: `NONE`
+- Approval write routed count: `1`
+- Email fallback calls count: `9`
+- Approval command approve call count: `2`
+- Fallback direct approval signal count: `6`
+- No source patch, no deploy, no API call, no Gmail read, no Telegram send, no workbook edit.
+
+Patch points:
+- Approval write point: `L24354 var result = writeRouted_(ss, plannedTab, parsedObj, item.raw_text, stagingResult);`
+- Direct approval store points: `L23420`, `L23499`
+- Helper insertion after `airoSprint7HResolveToReviewQueueFallback_` line `23526`
+- Helper insertion after `writeInternalTransferToAccountLedger_` line `14604`
+- Helper insertion after `airoBuildFinanceWriteSuccessReply_` line `1318`
+
+Evidence:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_GATE_C1A_PATCH_POINT_FINDER_20260630.md`
+- `ecosystem/projects/vortex-ai-skill-lab/docs/evidence/AIRO_ARFIN_GATE_C1A_PATCH_POINT_FINDER_20260630.json`
+
+Next:
+- Gate C1B source patch only, no deploy.
+<!-- AIRO_ARFIN_GATE_C1A_PATCH_POINT_FINDER_20260630_END -->
