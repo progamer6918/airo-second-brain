@@ -25197,7 +25197,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     }
 
     if (parsedOption.action === "select") {
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, parsedOption.subcategory);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, parsedOption.subcategory);
     }
 
     // Fallback: aliases check
@@ -25218,12 +25218,12 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     }
 
     if (foundSub) {
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, foundSub);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, foundSub);
     }
 
     for (var j = 0; j < subs.length; j++) {
       if (subs[j].toLowerCase() === text) {
-        return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, subs[j]);
+        return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, subs[j]);
       }
     }
 
@@ -25233,7 +25233,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     );
   }
 
-  if (step === 2.5) {
+  if (step === 3) { return airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_); } if (step === 2.5) {
     if (text === "0" || text === "back" || text === "kembali" || text === "0.") {
       pending.step = 2;
       pending.attempts = 0;
@@ -25250,7 +25250,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
       var subs = registry[pending.selected_category].subcategories;
       var matchedSub = airoSprint7CategoryContractMatchSubcategory_(pending.selected_category, manualSub, subs);
       var resolvedSub = matchedSub || manualSub;
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, resolvedSub);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, resolvedSub);
     }
     return failOrRetry("Subkategori tidak boleh kosong. Silakan ketik subkategori.");
   }
@@ -25258,7 +25258,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
   return failOrRetry_("Klarifikasi error, silakan tulis ulang transaksi.");
 }
 
-function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
+function airoSprint7CategoryContractBuildFundingSourcePrompt_() { return "Sumber dana transaksi ini dari mana?\\n\\nPilih salah satu:\\nA. BCA\\nB. Blu\\nC. Cash\\nD. Credit Card\\nE. Manual / lainnya"; } function airoSprint7CategoryContractNormalizeFundingSourceAnswer_(text) { var normalized = normalizeClarificationAccountAnswer_(text); if (normalized === "manual") return "Manual"; return normalized || ""; } function airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, matchedSub) { pending.step = 3; pending.clarification_state = "funding_source_pending"; pending.selected_subcategory = matchedSub; pending.attempts = 0; savePendingClarification_(chatId, pending); sendTelegram_(chatId, airoSprint7CategoryContractBuildFundingSourcePrompt_()); return { handled: true, waiting: true, funding_source_pending: true, finance_write_performed: false, workbook_write_performed: false }; } function airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_) { var fundingSource = airoSprint7CategoryContractNormalizeFundingSourceAnswer_(rawText); if (!fundingSource) { return failOrRetry_("Sumber dana belum valid.\\n\\n" + airoSprint7CategoryContractBuildFundingSourcePrompt_()); } pending.funding_source = fundingSource; pending.clarification_state = "funding_source_pending_resolved"; savePendingClarification_(chatId, pending); return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, pending.selected_subcategory || "Lainnya"); } function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
   var registry = airoSprint7CategoryContractGetRegistry_();
   var catData = registry[category];
   if (!catData) return "Pilih subkategori untuk " + category;
