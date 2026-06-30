@@ -2242,6 +2242,35 @@ if (/^admin\s+(email\s+)?sprint7\s+(guard|status|plan)\s*$/i.test(rawText) || /^
       return json_(specialCommand);
     }
 
+
+// AIRO_C3S_LEGACY_EMAIL_PENDING_REPLY_FAILCLOSED_BEGIN
+if (chatId && airoSprint7FIsEmailPendingReplyText_(rawText) && airoSprint7FHasPendingEmailCandidate_(chatId)) {
+  var airoC3SEmailRouteResult_ = airoSprint7FEmailAnswerMaybeHandleRoute_(e);
+  if (airoC3SEmailRouteResult_) {
+    return airoC3SEmailRouteResult_;
+  }
+
+  sendTelegram_(
+    chatId,
+    "⚠️ Balasan transaksi email tidak diproses karena state klarifikasi tidak aman. Tidak ada data yang ditulis. Silakan tunggu prompt transaksi baru atau balas dengan format seperti: 1 A."
+  );
+
+  return json_({
+    ok: false,
+    handled: true,
+    status: "AIRO_C3S_EMAIL_PENDING_REPLY_FAIL_CLOSED",
+    reason: "pending_email_reply_not_claimed_by_email_route",
+    write_performed: false,
+    google_write_performed: false,
+    finance_write_performed: false,
+    account_ledger_write_performed: false,
+    finance_events_write_performed: false,
+    review_queue_write_performed: false,
+    domain_tab_write_performed: false
+  });
+}
+// AIRO_C3S_LEGACY_EMAIL_PENDING_REPLY_FAILCLOSED_END
+
 const pendingClarification = tryHandlePendingClarificationReply_(chatId, rawText);
     if (pendingClarification && pendingClarification.handled) {
       return json_(pendingClarification);
@@ -20865,7 +20894,10 @@ function airoSprint7FSavePendingPointer_(chatId, candidate, logResult) {
     display_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
     detected_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
     amount_idr: airoSprint7FDStableCandidateAmount_(candidate, logResult),
-    amount_source: candidate.amount_source || logResult.amount_source || "",
+    amount_source: candidate.amount_source || (logResult && logResult.amount_source) || "",
+    inferred_direction: candidate.inferred_direction || candidate.direction || candidate.transaction_direction || candidate.transaction_type || candidate.cashflow_type || (logResult && (logResult.inferred_direction || logResult.direction || logResult.transaction_direction || logResult.transaction_type || logResult.cashflow_type)) || "",
+    clarification_question_type: airoSprint7FInferQuestionTypeFromPending_(candidate, logResult),
+    question_type: airoSprint7FInferQuestionTypeFromPending_(candidate, logResult),
     clarification_status: "pending",
     write_allowed: false,
     email_log_ref: logResult.row_number || "",
@@ -22204,9 +22236,66 @@ function airoSprint7FBuildEmailPendingDisambiguationMessage_(list) {
   return lines.join("\n");
 }
 
+
+// AIRO_C3S_EMAIL_PENDING_REPLY_GUARD_BEGIN
+function airoSprint7FInferQuestionTypeFromPending_(pending, fallbackPending) {
+  pending = pending || {};
+  fallbackPending = fallbackPending || {};
+
+  function firstRecognized_(value) {
+    var v = String(value || "").trim().toLowerCase();
+    if (v === "category_income" || v === "income" || v === "pemasukan") return "category_income";
+    if (v === "category_expense" || v === "expense" || v === "pengeluaran") return "category_expense";
+    if (v === "direction") return "direction";
+    return "";
+  }
+
+  var directKeys = ["clarification_question_type", "question_type", "pending_question_type"];
+  for (var i = 0; i < directKeys.length; i++) {
+    var direct = firstRecognized_(pending[directKeys[i]]) || firstRecognized_(fallbackPending[directKeys[i]]);
+    if (direct) return direct;
+  }
+
+  var hintParts = [];
+  var hintKeys = [
+    "inferred_direction", "direction", "transaction_direction", "transaction_type",
+    "cashflow_type", "cashflow_class", "type", "candidate_type",
+    "subject", "email_subject", "label", "sender", "snippet", "text_preview", "raw_text"
+  ];
+  for (var j = 0; j < hintKeys.length; j++) {
+    hintParts.push(String(pending[hintKeys[j]] || ""));
+    hintParts.push(String(fallbackPending[hintKeys[j]] || ""));
+  }
+
+  var hint = hintParts.join(" ").toLowerCase();
+
+  if (/(category_income|pemasukan|income|transaksi masuk|masuk ke|gaji|refund|piutang|credit|kredit)/i.test(hint)) return "category_income";
+  if (/(category_expense|pengeluaran|expense|transaksi keluar|keluar|pakai|berhasil|debit|pembayaran|purchase|payment)/i.test(hint)) return "category_expense";
+
+  return "";
+}
+
+function airoSprint7FIsEmailPendingReplyText_(textRaw) {
+  var text = String(textRaw || "").trim();
+  return /^#?\d+\s*[A-Ea-e]$/.test(text) || /^[A-Ea-e]$/.test(text);
+}
+
+function airoSprint7FHasPendingEmailCandidate_(chatId) {
+  try {
+    var list = airoSprint7FLoadPendingEmailCandidateList_(chatId);
+    if (list && list.length) return true;
+  } catch (err1) {}
+  try {
+    var legacy = airoSprint7FLoadPendingEmailCandidate_(chatId);
+    if (legacy) return true;
+  } catch (err2) {}
+  return false;
+}
+// AIRO_C3S_EMAIL_PENDING_REPLY_GUARD_END
+
 function airoSprint7FParseEmailPendingSelector_(textRaw) {
   var raw = String(textRaw || "").trim();
-  var match = raw.match(/^#?(\d+)\s+(.+)$/);
+  var match = raw.match(/^#?(\d+)\s*([A-Za-z].*)$/);
   if (!match) {
     return {
       has_selector: false,
@@ -22776,18 +22865,9 @@ if (!parsed.chat_id) {
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
 
   if (state === "category_pending") {
-    var questionType = String(pending.clarification_question_type || "").toLowerCase();
-    var candidateType = String(pending.candidate_type || "").toLowerCase();
-
-    if (!questionType) {
-      if (candidateType.indexOf("transfer_masuk") >= 0) {
-        questionType = "category_income";
-      } else if (candidateType.indexOf("blu_transaction") >= 0) {
-        questionType = "category_expense";
-      } else {
-        questionType = "direction";
-      }
-    }
+    var questionType = airoSprint7FInferQuestionTypeFromPending_(pending);
+    pending.clarification_question_type = questionType;
+    pending.question_type = questionType;
 
     if (questionType !== "category_expense" && questionType !== "category_income" && questionType !== "direction") {
       sendTelegram_(parsed.chat_id, "⚠️ Tipe pertanyaan tidak dikenal. Gagal melanjutkan klarifikasi.");
