@@ -631,3 +631,24 @@ Evidence:
 Next:
 - Gate B patch design: exact patch anchors + pending field lifecycle + idempotency plan.
 <!-- AIRO_ARFIN_GATE_A_SOURCE_AUDIT_20260630_END -->
+
+<!-- AIRO_ARFIN_GATE_B_PATCH_DESIGN_20260630_BEGIN -->
+## AIRO Arfin Gate B patch design — funding source confirmation + balance readback — 2026-06-30
+
+Status:
+- Gate B design captured only.
+- No source patch, no deploy, no API call, no Gmail read, no Telegram send, no workbook edit.
+- Design reuses Gate A anchors and existing Blu Pocket/internal-transfer/balance logic.
+- Next step requires owner approval before Gate C source patch.
+
+Patch design:
+- Add funding-source pending state after category/subcategory and before approval.
+- Block `/approval` if funding source unresolved.
+- If funding source equals spending account, keep existing write path.
+- If funding source differs, create internal transfer first, then existing routed expense.
+- Add idempotency key and partial-failure guard.
+- Final success reply must show post-write balances.
+
+Evidence doc:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_GATE_B_FUNDING_SOURCE_PATCH_DESIGN_20260630.md`
+<!-- AIRO_ARFIN_GATE_B_PATCH_DESIGN_20260630_END -->
