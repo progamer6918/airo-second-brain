@@ -574,3 +574,19 @@ Claim boundary:
 - Safe: active deployment source parity and source capability are proven.
 - Unsafe: full end-to-end Arfin runtime functioning; requires guarded runtime route proof.
 <!-- AIRO_ARFIN_NO_TEST_PROOF_20260630_END -->
+
+<!-- AIRO_ARFIN_FUNDING_SOURCE_REQUIREMENT_20260630_BEGIN -->
+## AIRO Arfin next requirement — funding source confirmation + balance readback — 2026-06-30
+
+Owner-requested next step:
+- After category/subcategory, before final approval, Arfin should ask whether the transaction uses the detected account's current balance or is funded by another account first.
+- Example: Blu Pocket -> Blu transfer for the same transaction amount, then Blu performs the expense.
+- If owner chooses current/detected account, keep normal flow.
+- If owner chooses another account, create linked internal transfer first, then actual transaction.
+- Every successful transaction write must show post-write balance/readback in Telegram.
+- Current gap: approval success reply shows ledger/readback but not balance.
+- Status: requirement captured only; not implemented; no source patch/deploy/runtime test.
+
+Evidence doc:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_FUNDING_SOURCE_CONFIRMATION_REQUIREMENT_20260630.md`
+<!-- AIRO_ARFIN_FUNDING_SOURCE_REQUIREMENT_20260630_END -->
