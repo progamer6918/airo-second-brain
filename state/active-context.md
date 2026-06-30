@@ -590,3 +590,24 @@ Owner-requested next step:
 Evidence doc:
 - `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_FUNDING_SOURCE_CONFIRMATION_REQUIREMENT_20260630.md`
 <!-- AIRO_ARFIN_FUNDING_SOURCE_REQUIREMENT_20260630_END -->
+
+<!-- AIRO_ARFIN_FUNDING_SOURCE_IMPLEMENTATION_PLAN_20260630_BEGIN -->
+## AIRO Arfin implementation plan — funding source confirmation + balance readback — 2026-06-30
+
+Status:
+- Plan captured only.
+- Requirement already captured.
+- No source patch, no deploy, no API call, no Gmail read, no Telegram send, no workbook edit.
+
+Implementation order:
+1. Gate A read-only source audit for approval/pending/router/internal-transfer/balance anchors.
+2. Gate B patch design with funding source pending fields and lifecycle.
+3. Gate C minimal source patch only.
+4. Gate D static validation.
+5. Gate E source commit.
+6. Gate F deploy after owner approval.
+7. Gate G guarded runtime proof.
+
+Evidence doc:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_FUNDING_SOURCE_IMPLEMENTATION_PLAN_20260630.md`
+<!-- AIRO_ARFIN_FUNDING_SOURCE_IMPLEMENTATION_PLAN_20260630_END -->
