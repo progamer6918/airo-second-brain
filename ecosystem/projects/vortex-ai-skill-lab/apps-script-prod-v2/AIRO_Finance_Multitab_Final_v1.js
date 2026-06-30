@@ -22776,9 +22776,39 @@ if (!parsed.chat_id) {
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
 
   if (state === "category_pending") {
+    var questionType = String(pending.clarification_question_type || "").toLowerCase();
+    var candidateType = String(pending.candidate_type || "").toLowerCase();
+
+    if (!questionType) {
+      if (candidateType.indexOf("transfer_masuk") >= 0) {
+        questionType = "category_income";
+      } else if (candidateType.indexOf("blu_transaction") >= 0) {
+        questionType = "category_expense";
+      } else {
+        questionType = "direction";
+      }
+    }
+
+    if (questionType !== "category_expense" && questionType !== "category_income" && questionType !== "direction") {
+      sendTelegram_(parsed.chat_id, "⚠️ Tipe pertanyaan tidak dikenal. Gagal melanjutkan klarifikasi.");
+      return json_({
+        ok: false,
+        status: "AIRO_ERROR_UNKNOWN_QUESTION_TYPE",
+        handled: true,
+        finance_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+
     var answer = textRaw.toUpperCase();
-    if (!/^[A-E]$/.test(answer)) {
-      return null;
+    if (questionType === "direction") {
+      if (!/^[A-D]$/.test(answer)) {
+        return null;
+      }
+    } else {
+      if (!/^[A-E]$/.test(answer)) {
+        return null;
+      }
     }
 
     var key = pending._property_key || ("AIRO_SPRINT7F_PENDING_EMAIL_" + String(parsed.chat_id));
@@ -22817,18 +22847,89 @@ if (!parsed.chat_id) {
         review_queue_write_performed: false,
         domain_tab_write_performed: false
       });
-    } else {
+    }
+
+    if (questionType === "direction") {
+      if (answer === "A") {
+        pending.inferred_direction = "pengeluaran";
+        pending.clarification_question_type = "category_expense";
+        pending.clarification_state = "category_pending";
+        airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
+
+        var promptMsg = airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || pending.message_id, pending);
+        sendTelegram_(parsed.chat_id, promptMsg);
+
+        return json_({
+          ok: true,
+          sprint: "7H",
+          status: "sprint7h_email_direction_pengeluaran_selected",
+          handled: true,
+          waiting: true,
+          finance_write_performed: false,
+          account_ledger_write_performed: false,
+          finance_events_write_performed: false,
+          review_queue_write_performed: false,
+          domain_tab_write_performed: false
+        });
+      }
+      if (answer === "B") {
+        pending.inferred_direction = "pemasukan";
+        pending.clarification_question_type = "category_income";
+        pending.clarification_state = "category_pending";
+        airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
+
+        var promptMsg = airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || pending.message_id, pending);
+        sendTelegram_(parsed.chat_id, promptMsg);
+
+        return json_({
+          ok: true,
+          sprint: "7H",
+          status: "sprint7h_email_direction_pemasukan_selected",
+          handled: true,
+          waiting: true,
+          finance_write_performed: false,
+          account_ledger_write_performed: false,
+          finance_events_write_performed: false,
+          review_queue_write_performed: false,
+          domain_tab_write_performed: false
+        });
+      }
+      if (answer === "C") {
+        return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, "Other / Review", "Transfer");
+      }
+      if (answer === "D") {
+        return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, "Other / Review", "Abaikan");
+      }
+    }
+
+    var selectedCat = "";
+    if (questionType === "category_expense") {
       var categoryMap = {
         A: "Food & Drink",
         B: "Transport",
         C: "Groceries",
         D: "Utilities"
       };
-      var selectedCat = categoryMap[answer];
-      if (!selectedCat) {
-        return null;
-      }
+      selectedCat = categoryMap[answer];
+    } else if (questionType === "category_income") {
+      var categoryMap = {
+        A: "Gaji / income",
+        B: "Refund",
+        C: "Transfer antar akun sendiri",
+        D: "Piutang dibayar"
+      };
+      selectedCat = categoryMap[answer];
+    }
 
+    if (!selectedCat) {
+      return null;
+    }
+
+    var registry = airoSprint7CategoryContractGetRegistry_();
+    var catData = registry[selectedCat];
+    var subs = (catData && catData.subcategories) ? catData.subcategories : [];
+
+    if (subs.length > 0) {
       pending.selected_category = selectedCat;
       pending.clarification_state = "subcategory_pending";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
@@ -22848,6 +22949,8 @@ if (!parsed.chat_id) {
         review_queue_write_performed: false,
         domain_tab_write_performed: false
       });
+    } else {
+      return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, selectedCat, "Lainnya");
     }
   }
 
