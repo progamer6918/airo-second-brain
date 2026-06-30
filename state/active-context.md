@@ -652,3 +652,40 @@ Patch design:
 Evidence doc:
 - `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_GATE_B_FUNDING_SOURCE_PATCH_DESIGN_20260630.md`
 <!-- AIRO_ARFIN_GATE_B_PATCH_DESIGN_20260630_END -->
+
+<!-- AIRO_ARFIN_GATE_C0_EXACT_BODY_EXTRACT_20260630_BEGIN -->
+## AIRO Arfin Gate C0 exact-body extraction — 2026-06-30
+
+Status:
+- `PASS_GATE_C0_EXACT_BODY_EXTRACTED`
+- Source SHA: `add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19`
+- Function count parsed: `693`
+- Required function count: `11`
+- Missing required: `NONE`
+- No source patch, no deploy, no API call, no Gmail read, no Telegram send, no workbook edit.
+
+Key patch anchors:
+- `airoSprint7FEmailAnswerMaybeHandleRoute_` L22823-L23165
+- `airoSprint7HApprovalApprove_` L24230-L24417
+- `airoSprint7HApprovalCommandMaybeHandleRoute_` L24419-L24570
+- `airoSprint7HResolveToReviewQueueFallback_` L23249-L23526
+- `writeInternalTransferToAccountLedger_` L14519-L14604
+- `writeRouted_` L3820-L3849
+- `airoWriteRoutedCore_` L3536-L3818
+- `getAccountLedgerRowDetails_` L1163-L1186
+- `airoBuildFinanceWriteSuccessReply_` L1188-L1318
+
+Insertion candidates:
+- After `airoSprint7FEmailAnswerMaybeHandleRoute_` line 23165
+- After `airoSprint7HResolveToReviewQueueFallback_` line 23526
+- After `airoSprint7HApprovalCommandMaybeHandleRoute_` line 24570
+- After `writeInternalTransferToAccountLedger_` line 14604
+- After `airoBuildFinanceWriteSuccessReply_` line 1318
+
+Evidence:
+- `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_ARFIN_GATE_C0_EXACT_BODY_EXTRACT_20260630.md`
+- `ecosystem/projects/vortex-ai-skill-lab/docs/evidence/AIRO_ARFIN_GATE_C0_EXACT_BODY_EXTRACT_20260630.json`
+
+Next:
+- Gate C1 source patch only, no deploy.
+<!-- AIRO_ARFIN_GATE_C0_EXACT_BODY_EXTRACT_20260630_END -->
