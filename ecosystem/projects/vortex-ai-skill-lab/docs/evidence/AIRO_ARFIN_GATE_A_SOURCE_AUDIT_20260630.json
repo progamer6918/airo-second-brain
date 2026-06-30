@@ -1,0 +1,4977 @@
+{
+  "generated_at": "2026-06-30T22:50:15",
+  "mode": "READ_ONLY_SOURCE_AUDIT",
+  "local_head": "cfbc12ee20049cadb065ff1b20d92d64729ac9b6",
+  "source_rel": "ecosystem/projects/vortex-ai-skill-lab/apps-script-prod-v2/AIRO_Finance_Multitab_Final_v1.js",
+  "source_sha256": "add9d5a538e48ed8cde6049f0632cbb8318c28e7074428ccc00dae7985353b19",
+  "function_count": 693,
+  "candidate_functions": {
+    "tryHandlePendingClarificationReply_": {
+      "found": true,
+      "start_line": 789,
+      "end_line": 1151,
+      "line_count": 363,
+      "signature": "function tryHandlePendingClarificationReply_(chatId, rawText)",
+      "callers": [
+        "airoOriginalDoPostForSprint7ParserPlan_"
+      ],
+      "direct_internal_calls": [
+        "airoSprint7CategoryContractMissingCategoryHandleReply_",
+        "buildAssetGoldAmbiguousClarificationMessage_",
+        "buildAssetGoldClarifiedText_",
+        "cashClarificationResolvedText_",
+        "clearPendingClarification_",
+        "creditCardClarificationResolvedText_",
+        "debtAmbiguousClarificationResolvedText_",
+        "directionClarificationResolvedText_",
+        "failOrRetry_",
+        "getPendingClarification_",
+        "getProp_",
+        "makeTxnId_",
+        "normalizeAssetGoldAmbiguousClarificationAnswer_",
+        "normalizeClarificationAccountAnswer_",
+        "parseAmountAccountClarificationAnswer_",
+        "parseFinanceText_",
+        "reprocessClarifiedTelegramText_",
+        "savePendingClarification_",
+        "sendClarificationFormatHelp_",
+        "sendTelegram_",
+        "transferClarificationResolvedText_",
+        "tryHandlePendingClarificationReply_",
+        "writeRouted_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 62,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 9,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 3,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 9,
+          "reply": 2,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "reprocessClarifiedTelegramText_": {
+      "found": true,
+      "start_line": 558,
+      "end_line": 576,
+      "line_count": 19,
+      "signature": "function reprocessClarifiedTelegramText_(chatId, rawText)",
+      "callers": [
+        "tryHandlePendingClarificationReply_"
+      ],
+      "direct_internal_calls": [
+        "doPost",
+        "reprocessClarifiedTelegramText_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "airoSprint7FEmailAnswerMaybeHandleRoute_": {
+      "found": true,
+      "start_line": 22823,
+      "end_line": 23165,
+      "line_count": 343,
+      "signature": "function airoSprint7FEmailAnswerMaybeHandleRoute_(e)",
+      "callers": [
+        "airoOriginalDoPostForSprint7ParserPlan_",
+        "doPost"
+      ],
+      "direct_internal_calls": [
+        "airoSprint7CategoryContractBuildSubcategoryPrompt_",
+        "airoSprint7CategoryContractGetRegistry_",
+        "airoSprint7CategoryContractParseSubcategoryOption_",
+        "airoSprint7FBuildEmailPendingDisambiguationMessage_",
+        "airoSprint7FBuildFriendlyClarificationMessage_",
+        "airoSprint7FEmailAnswerMaybeHandleRoute_",
+        "airoSprint7FInferQuestionTypeFromPending_",
+        "airoSprint7FParseTelegramPayload_",
+        "airoSprint7FSelectPendingEmailCandidate_",
+        "airoSprint7FUpsertPendingEmailCandidate_",
+        "airoSprint7HResolveToReviewQueueFallback_",
+        "json_",
+        "sendTelegram_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 71,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 2
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 9
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 2,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 10,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "airoSprint7FUpdatePendingEmailResolution_": {
+      "found": true,
+      "start_line": 22460,
+      "end_line": 22522,
+      "line_count": 63,
+      "signature": "function airoSprint7FUpdatePendingEmailResolution_(pending, resolved)",
+      "callers": [
+        "airoSprint7HResolveToReviewQueueFallback_"
+      ],
+      "direct_internal_calls": [
+        "airoSprint7FEmailLogHeaders_",
+        "airoSprint7FEnsureResolutionHeaders_",
+        "airoSprint7FUpdatePendingEmailResolution_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 5,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "airoSprint7FUpsertPendingEmailCandidate_": {
+      "found": true,
+      "start_line": 22172,
+      "end_line": 22191,
+      "line_count": 20,
+      "signature": "function airoSprint7FUpsertPendingEmailCandidate_(chatId, pending)",
+      "callers": [
+        "airoSprint7FEmailAnswerMaybeHandleRoute_",
+        "runTask8EmailMultiPendingSelfTestFromEditor"
+      ],
+      "direct_internal_calls": [
+        "airoSprint7FEmailPendingCandidateIdentity_",
+        "airoSprint7FLoadPendingEmailCandidateList_",
+        "airoSprint7FNormalizePendingEmailCandidate_",
+        "airoSprint7FSavePendingEmailCandidateList_",
+        "airoSprint7FUpsertPendingEmailCandidate_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 10,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 2,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "airoSprint7HApprovalCommandMaybeHandleRoute_": {
+      "found": true,
+      "start_line": 24419,
+      "end_line": 24570,
+      "line_count": 152,
+      "signature": "function airoSprint7HApprovalCommandMaybeHandleRoute_(e)",
+      "callers": [
+        "doPost"
+      ],
+      "direct_internal_calls": [
+        "airoSprint7FParseTelegramPayload_",
+        "airoSprint7FSpreadsheet_",
+        "airoSprint7HApprovalApprove_",
+        "airoSprint7HApprovalCommandMaybeHandleRoute_",
+        "airoSprint7HApprovalDetail_",
+        "airoSprint7HApprovalFix_",
+        "airoSprint7HApprovalList_",
+        "airoSprint7HApprovalReject_",
+        "airoTask614ApprovalHelp_",
+        "airoTask614GetDirectApprovalQueueId_",
+        "airoTask614ResolveApprovalArg_",
+        "json_",
+        "sendTelegram_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 5,
+          "approval": 20,
+          "approve": 4,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 1,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 2,
+          "reply": 18,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "writeInternalTransferToAccountLedger_": {
+      "found": true,
+      "start_line": 14519,
+      "end_line": 14604,
+      "line_count": 86,
+      "signature": "function writeInternalTransferToAccountLedger_(ss, parsed, rawText, common, transfer)",
+      "callers": [
+        "airoTask9CcSudahNumberMaybeHandleRoute_",
+        "airoWriteRoutedCore_"
+      ],
+      "direct_internal_calls": [
+        "makeTxnId_",
+        "recordFinanceEventForWriteResult_",
+        "writeAccountLedgerMirror_",
+        "writeCashLedgerCompatibility_",
+        "writeInternalTransferToAccountLedger_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 1,
+          "transfer": 28,
+          "fromAccount": 0,
+          "toAccount": 1,
+          "linked_txn_id": 4
+        },
+        "account_ledger": {
+          "Account Ledger": 1,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 4
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "writeRouted_": {
+      "found": true,
+      "start_line": 3820,
+      "end_line": 3849,
+      "line_count": 30,
+      "signature": "function writeRouted_(ss, plannedTab, parsed, rawText, common)",
+      "callers": [
+        "airoOriginalDoPostForSprint7ParserPlan_",
+        "airoSprint7CategoryContractMissingCategoryHandleReply_",
+        "airoSprint7HApprovalApprove_",
+        "failOrRetry_",
+        "processReviewQueueApproved",
+        "tryHandlePendingClarificationReply_"
+      ],
+      "direct_internal_calls": [
+        "airoTask102RefreshDashboardMetadataAfterWrite_",
+        "airoWriteRoutedCore_",
+        "writeRouted_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "writeAccountLedgerPrimary_": {
+      "found": true,
+      "start_line": 2890,
+      "end_line": 2967,
+      "line_count": 78,
+      "signature": "function writeAccountLedgerPrimary_(ss, parsed, rawText, common, sourceTab)",
+      "callers": [
+        "airoWriteRoutedCore_",
+        "appendDebtPaymentAndUpdateMaster_"
+      ],
+      "direct_internal_calls": [
+        "findAccountLedgerEntryById_",
+        "makeTxnId_",
+        "writeAccountLedgerMirror_",
+        "writeAccountLedgerPrimary_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 9
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 4,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 2
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 9
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 5,
+          "PASS": 0
+        }
+      }
+    },
+    "findAccountLedgerEntryById_": {
+      "found": true,
+      "start_line": 2842,
+      "end_line": 2888,
+      "line_count": 47,
+      "signature": "function findAccountLedgerEntryById_(ss, entryId)",
+      "callers": [
+        "writeAccountLedgerPrimary_"
+      ],
+      "direct_internal_calls": [
+        "canonicalKey_",
+        "findAccountLedgerEntryById_",
+        "findHeader_",
+        "getSheetLoose_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 2
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 2,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 0
+        },
+        "balance_readback": {
+          "balance": 0,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 0,
+          "findAccountLedgerEntryById_": 1
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 2
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "getAccountLedgerRowDetails_": {
+      "found": true,
+      "start_line": 1163,
+      "end_line": 1186,
+      "line_count": 24,
+      "signature": "function getAccountLedgerRowDetails_(ss, row)",
+      "callers": [
+        "airoBuildFinanceWriteSuccessReply_",
+        "airoTask9CcSudahNumberMaybeHandleRoute_"
+      ],
+      "direct_internal_calls": [
+        "getAccountLedgerRowDetails_",
+        "getSheetLoose_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 0,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 0,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 2
+        },
+        "balance_readback": {
+          "balance": 2,
+          "saldo": 0,
+          "getAccountLedgerRowDetails_": 2,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 0,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    },
+    "airoBuildFinanceWriteSuccessReply_": {
+      "found": true,
+      "start_line": 1188,
+      "end_line": 1318,
+      "line_count": 131,
+      "signature": "function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, routedResult, tabLink)",
+      "callers": [
+        "airoOriginalDoPostForSprint7ParserPlan_"
+      ],
+      "direct_internal_calls": [
+        "airoBuildFinanceWriteSuccessReply_",
+        "airoSprint7FFormatRupiah_",
+        "canonicalSheetName_",
+        "formatBalanceRupiah_",
+        "getAccountLedgerRowDetails_"
+      ],
+      "term_counts": {
+        "approval": {
+          "/approval": 0,
+          "approval": 0,
+          "approve": 0,
+          "approved": 0
+        },
+        "pending": {
+          "pending": 0,
+          "AIRO_PENDING_CLARIFICATION": 0,
+          "pendingCandidate": 0,
+          "pending email": 0,
+          "pending_email": 0
+        },
+        "review_queue": {
+          "Review Queue": 0,
+          "review queue": 0,
+          "ReviewQueue": 0
+        },
+        "funding_new_requirement_absent_expected": {
+          "funding_source": 0,
+          "funding source": 0,
+          "sumber dana": 0,
+          "Blu Pocket": 0
+        },
+        "internal_transfer": {
+          "internal transfer": 0,
+          "transfer": 4,
+          "fromAccount": 0,
+          "toAccount": 0,
+          "linked_txn_id": 0
+        },
+        "account_ledger": {
+          "Account Ledger": 3,
+          "entry_id": 0,
+          "amount_in": 0,
+          "amount_out": 0,
+          "balance": 19
+        },
+        "balance_readback": {
+          "balance": 19,
+          "saldo": 5,
+          "getAccountLedgerRowDetails_": 3,
+          "findAccountLedgerEntryById_": 0
+        },
+        "idempotency": {
+          "idempot": 0,
+          "duplicate": 0,
+          "dedupe": 0,
+          "already": 0,
+          "lock": 0,
+          "linked_txn_id": 0
+        },
+        "telegram_reply": {
+          "sendTelegram_": 0,
+          "reply": 1,
+          "Readback": 0,
+          "PASS": 0
+        }
+      }
+    }
+  },
+  "missing_candidate_functions": [],
+  "critical_missing": [],
+  "global_hits": {
+    "approval": [
+      {
+        "line": 1539,
+        "term": "approve",
+        "text": "// Promotes the approved Dashboard v2 to become the official main Dashboard."
+      },
+      {
+        "line": 4048,
+        "term": "approve",
+        "text": "if (allowedLower.includes('auto_approved') && allowedLower.includes('needs_review')) {"
+      },
+      {
+        "line": 4052,
+        "term": "approve",
+        "text": "return pick('auto_approved');"
+      },
+      {
+        "line": 4056,
+        "term": "approve",
+        "text": "if (allowedLower.includes('pending') && allowedLower.includes('approved')) {"
+      },
+      {
+        "line": 4799,
+        "term": "approve",
+        "text": "* Process Review Queue rows that have been manually marked approved/edited."
+      },
+      {
+        "line": 4803,
+        "term": "approve",
+        "text": "* - Set review_status to approved or edited"
+      },
+      {
+        "line": 4804,
+        "term": "approve",
+        "text": "* - Run processReviewQueueApproved()"
+      },
+      {
+        "line": 4811,
+        "term": "approve",
+        "text": "function processReviewQueueApproved() {"
+      },
+      {
+        "line": 4851,
+        "term": "approve",
+        "text": "const approvedTxnId = String(getReviewValue_(row, map, ['approved_transaction_id']) || '').trim();"
+      },
+      {
+        "line": 4853,
+        "term": "approve",
+        "text": "if (!['approved', 'edited'].includes(status)) {"
+      },
+      {
+        "line": 4858,
+        "term": "approve",
+        "text": "if (approvedTxnId) {"
+      },
+      {
+        "line": 4874,
+        "term": "approve",
+        "text": "setReviewValue_(sheet, sheetRow, map, ['issue_reason'], 'approved_but_amount_missing');"
+      },
+      {
+        "line": 4880,
+        "term": "approve",
+        "text": "setReviewValue_(sheet, sheetRow, map, ['issue_reason'], 'approved_but_account_missing');"
+      },
+      {
+        "line": 4900,
+        "term": "approve",
+        "text": "const plannedTab = routeReviewApprovedTab_(parsed, rawText);"
+      },
+      {
+        "line": 4907,
+        "term": "approve",
+        "text": "setReviewValue_(sheet, sheetRow, map, ['approved_transaction_id'], result.rowId || (result.writtenTab + ':' + result.row));"
+      },
+      {
+        "line": 4932,
+        "term": "approve",
+        "text": "function processReviewQueueApprovedOnEdit(e) {"
+      },
+      {
+        "line": 4933,
+        "term": "approve",
+        "text": "processReviewQueueApproved();"
+      },
+      {
+        "line": 4940,
+        "term": "approve",
+        "text": "if (t.getHandlerFunction && t.getHandlerFunction() === 'processReviewQueueApprovedOnEdit') {"
+      },
+      {
+        "line": 4946,
+        "term": "approve",
+        "text": ".newTrigger('processReviewQueueApprovedOnEdit')"
+      },
+      {
+        "line": 4953,
+        "term": "approve",
+        "text": "trigger: 'processReviewQueueApprovedOnEdit'"
+      },
+      {
+        "line": 4958,
+        "term": "approve",
+        "text": "function routeReviewApprovedTab_(parsed, rawText) {"
+      },
+      {
+        "line": 9869,
+        "term": "approve",
+        "text": "msg += '\\nNext: approve controlled Dashboard build only after this dry-run plan looks correct.';"
+      },
+      {
+        "line": 16315,
+        "term": "approve",
+        "text": "live_sender_approved: false,"
+      },
+      {
+        "line": 16485,
+        "term": "approve",
+        "text": "lines.push(\"- Live sender approved: \" + summary.live_sender_approved);"
+      },
+      {
+        "line": 16679,
+        "term": "approve",
+        "text": "live_sender_approved: false"
+      },
+      {
+        "line": 16770,
+        "term": "approval",
+        "text": "\"no email state modification without user approval\""
+      },
+      {
+        "line": 17174,
+        "term": "approve",
+        "text": "lines.push('Owner must review and approve before any deletion.');"
+      },
+      {
+        "line": 17175,
+        "term": "approval",
+        "text": "lines.push('Deletion is BLOCKED until owner approval.');"
+      },
+      {
+        "line": 17194,
+        "term": "approve",
+        "text": "sendTelegram_(chatId, 'Task 6.11 — Destructive smoke/test cleanup started...\\nDeleting approved rows bottom-up per tab. Please wait.');"
+      },
+      {
+        "line": 17430,
+        "term": "approval",
+        "text": "var sprint7HApprovalCommandResult = airoSprint7HApprovalCommandMaybeHandleRoute_(e);"
+      }
+    ],
+    "pending": [
+      {
+        "line": 12,
+        "term": "pending",
+        "text": "return runSprint7FSendOneClarificationAndLogPendingFromEditor();"
+      },
+      {
+        "line": 30,
+        "term": "pending",
+        "text": "return 'AIRO_PENDING_CLARIFICATION_' + String(chatId || '').trim();"
+      },
+      {
+        "line": 33,
+        "term": "pending",
+        "text": "function clearPendingClarification_(chatId) {"
+      },
+      {
+        "line": 38,
+        "term": "pending",
+        "text": "function getPendingClarification_(chatId) {"
+      },
+      {
+        "line": 45,
+        "term": "pending",
+        "text": "clearPendingClarification_(chatId);"
+      },
+      {
+        "line": 50,
+        "term": "pending",
+        "text": "function savePendingClarification_(chatId, pending) {"
+      },
+      {
+        "line": 51,
+        "term": "pending",
+        "text": "if (!chatId || !pending) return;"
+      },
+      {
+        "line": 55,
+        "term": "pending",
+        "text": "...pending,"
+      },
+      {
+        "line": 171,
+        "term": "pending",
+        "text": "function cashClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 173,
+        "term": "pending",
+        "text": "const amount = String(Number((pending && pending.amount) || 0));"
+      },
+      {
+        "line": 228,
+        "term": "pending",
+        "text": "function directionClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 230,
+        "term": "pending",
+        "text": "const amount = String(Number((pending && pending.amount) || 0));"
+      },
+      {
+        "line": 231,
+        "term": "pending",
+        "text": "const account = String((pending && pending.account) || '').toLowerCase();"
+      },
+      {
+        "line": 354,
+        "term": "pending",
+        "text": "function transferClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 358,
+        "term": "pending",
+        "text": "const amount = String(Number((pending && pending.amount) || 0));"
+      },
+      {
+        "line": 408,
+        "term": "pending",
+        "text": "function creditCardClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 410,
+        "term": "pending",
+        "text": "if (!choice && pending && pending.cc_intent === 'cc_purchase') {"
+      },
+      {
+        "line": 413,
+        "term": "pending",
+        "text": "const amount = String(Number((pending && pending.amount) || 0));"
+      },
+      {
+        "line": 425,
+        "term": "pending",
+        "text": "const tagMatch = String(pending && pending.original_text || '').match(/\\b(?:LIVE[A-Z0-9_]*|PRDTEST_[A-Z0-9_]*|QA_[A-Z0-9_]*|FEVERIFY_[A-Z0-9_]*|FECC_[A-Z0-9_]*|CTXISO_[A-Z0-9_]*|SMOKE_[A-Z0-9_]*|TEST_[A-Z0-9_]*)\\b/g);"
+      },
+      {
+        "line": 578,
+        "term": "pending",
+        "text": "function debtAmbiguousClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 594,
+        "term": "pending",
+        "text": "const originalText = String((pending && (pending.original_text || pending.rawText || pending.text)) || '').trim();"
+      },
+      {
+        "line": 602,
+        "term": "pending",
+        "text": "const originalText = String((pending && (pending.original_text || pending.rawText || pending.text)) || '').trim();"
+      },
+      {
+        "line": 723,
+        "term": "pending",
+        "text": "function missingCategoryClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 725,
+        "term": "pending",
+        "text": "const originalText = String((pending && pending.original_text) || '').trim();"
+      },
+      {
+        "line": 789,
+        "term": "pending",
+        "text": "function tryHandlePendingClarificationReply_(chatId, rawText) {"
+      },
+      {
+        "line": 790,
+        "term": "pending",
+        "text": "const pending = getPendingClarification_(chatId);"
+      },
+      {
+        "line": 791,
+        "term": "pending",
+        "text": "if (!pending || !pending.type) return null;"
+      },
+      {
+        "line": 794,
+        "term": "pending",
+        "text": "const attempts = Number(pending.attempts || 0) + 1;"
+      },
+      {
+        "line": 795,
+        "term": "pending",
+        "text": "const maxAttempts = (pending.type === 'missing_category') ? 3 : 2;"
+      },
+      {
+        "line": 798,
+        "term": "pending",
+        "text": "clearPendingClarification_(chatId);"
+      }
+    ],
+    "review_queue": [
+      {
+        "line": 25,
+        "term": "Review Queue",
+        "text": "review: '🧾 Review Queue'"
+      },
+      {
+        "line": 1359,
+        "term": "Review Queue",
+        "text": "// \"sprint5\" can never be parsed as a Rp5 Review Queue transaction."
+      },
+      {
+        "line": 3290,
+        "term": "ReviewQueue",
+        "text": "function styleReviewQueueSheet_(sheet) {"
+      },
+      {
+        "line": 3405,
+        "term": "ReviewQueue",
+        "text": "styleReviewQueueSheet_(rqSheet);"
+      },
+      {
+        "line": 4055,
+        "term": "Review Queue",
+        "text": "// Review Queue status validation"
+      },
+      {
+        "line": 4313,
+        "term": "Review Queue",
+        "text": "// Task 3B: Bypass loose alias matching for Review Queue and identity columns to prevent collision."
+      },
+      {
+        "line": 4513,
+        "term": "Review Queue",
+        "text": "// Clear borrow/debt-in intents should not be forced to Review Queue when"
+      },
+      {
+        "line": 4799,
+        "term": "Review Queue",
+        "text": "* Process Review Queue rows that have been manually marked approved/edited."
+      },
+      {
+        "line": 4802,
+        "term": "Review Queue",
+        "text": "* - Edit row in 🧾 Review Queue"
+      },
+      {
+        "line": 4804,
+        "term": "ReviewQueue",
+        "text": "* - Run processReviewQueueApproved()"
+      },
+      {
+        "line": 4807,
+        "term": "ReviewQueue",
+        "text": "* - Run setupReviewQueueAutoProcessor() once"
+      },
+      {
+        "line": 4811,
+        "term": "ReviewQueue",
+        "text": "function processReviewQueueApproved() {"
+      },
+      {
+        "line": 4932,
+        "term": "ReviewQueue",
+        "text": "function processReviewQueueApprovedOnEdit(e) {"
+      },
+      {
+        "line": 4933,
+        "term": "ReviewQueue",
+        "text": "processReviewQueueApproved();"
+      },
+      {
+        "line": 4936,
+        "term": "ReviewQueue",
+        "text": "function setupReviewQueueAutoProcessor() {"
+      },
+      {
+        "line": 4940,
+        "term": "ReviewQueue",
+        "text": "if (t.getHandlerFunction && t.getHandlerFunction() === 'processReviewQueueApprovedOnEdit') {"
+      },
+      {
+        "line": 4946,
+        "term": "ReviewQueue",
+        "text": ".newTrigger('processReviewQueueApprovedOnEdit')"
+      },
+      {
+        "line": 4953,
+        "term": "ReviewQueue",
+        "text": "trigger: 'processReviewQueueApprovedOnEdit'"
+      },
+      {
+        "line": 5060,
+        "term": "ReviewQueue",
+        "text": "function extendReviewQueueSchema_() {"
+      },
+      {
+        "line": 5122,
+        "term": "ReviewQueue",
+        "text": "function runTask3AReviewQueueSchemaExtensionFromEditor() {"
+      },
+      {
+        "line": 5123,
+        "term": "ReviewQueue",
+        "text": "const result = extendReviewQueueSchema_();"
+      },
+      {
+        "line": 5128,
+        "term": "ReviewQueue",
+        "text": "function runTask3AReviewQueueSchemaVerifierFromEditor() {"
+      },
+      {
+        "line": 6777,
+        "term": "Review Queue",
+        "text": "'Review Queue',"
+      },
+      {
+        "line": 7255,
+        "term": "Review Queue",
+        "text": "msg += '- Review Queue write performed: ' + String(Boolean(safety.review_queue_write_performed)) + '\\n\\n';"
+      },
+      {
+        "line": 7260,
+        "term": "Review Queue",
+        "text": "msg += '- Review Queue fallback required: true\\n';"
+      },
+      {
+        "line": 8409,
+        "term": "Review Queue",
+        "text": "const reviewTab = airoSprint6BGetTabSummary_(ss, '🧾 Review Queue');"
+      },
+      {
+        "line": 9062,
+        "term": "Review Queue",
+        "text": "source: reviewTab.actual_name || '🧾 Review Queue',"
+      },
+      {
+        "line": 9722,
+        "term": "Review Queue",
+        "text": "'🧾 Review Queue',"
+      },
+      {
+        "line": 9769,
+        "term": "Review Queue",
+        "text": "pending_clarification: '🧾 Review Queue / pending state',"
+      },
+      {
+        "line": 10080,
+        "term": "Review Queue",
+        "text": "// Scan Review Queue"
+      }
+    ],
+    "funding_new_requirement_absent_expected": [
+      {
+        "line": 249,
+        "term": "Blu Pocket",
+        "text": "if (hasAcc(\"Blu Pocket\") && hasAcc(\"Blu\")) {"
+      },
+      {
+        "line": 250,
+        "term": "Blu Pocket",
+        "text": "routes.push({ source: \"Blu Pocket\", target: \"Blu\" });"
+      },
+      {
+        "line": 321,
+        "term": "Blu Pocket",
+        "text": "if (hasAcc(\"Blu Pocket\") && hasAcc(\"Blu\")) {"
+      },
+      {
+        "line": 322,
+        "term": "Blu Pocket",
+        "text": "routes.push({ source: \"Blu Pocket\", target: \"Blu\" });"
+      },
+      {
+        "line": 348,
+        "term": "Blu Pocket",
+        "text": "'Contoh manual: transfer ' + amount + ' dari Blu Pocket ke Blu';"
+      },
+      {
+        "line": 4611,
+        "term": "Blu Pocket",
+        "text": "if (/\\bpocket\\b/i.test(t)) return 'Blu Pocket';"
+      },
+      {
+        "line": 14301,
+        "term": "Blu Pocket",
+        "text": "if (v === 'pocket blu' || v === 'blu pocket') return 'Blu Pocket';"
+      },
+      {
+        "line": 14302,
+        "term": "Blu Pocket",
+        "text": "if (v === 'pocket blu cc' || v === 'blu pocket cc') return 'Blu Pocket CC';"
+      },
+      {
+        "line": 17698,
+        "term": "Blu Pocket",
+        "text": "lines.push(\"Total belum disisihkan ke Blu Pocket CC: \" + formatBalanceRupiah_(totalPending));"
+      },
+      {
+        "line": 17921,
+        "term": "Blu Pocket",
+        "text": "// Write to Account Ledger as internal transfer: Blu Pocket -> Blu Pocket CC"
+      },
+      {
+        "line": 17932,
+        "term": "Blu Pocket",
+        "text": "var ledgerRawText = \"transfer \" + amountVal + \" dr blu pocket ke blu pocket cc\";"
+      },
+      {
+        "line": 17933,
+        "term": "Blu Pocket",
+        "text": "var transferInfo = { sourceAccount: \"Blu Pocket\", targetAccount: \"Blu Pocket CC\" };"
+      },
+      {
+        "line": 17960,
+        "term": "Blu Pocket",
+        "text": "if (vOutAcc !== \"Blu Pocket\") {"
+      },
+      {
+        "line": 17969,
+        "term": "Blu Pocket",
+        "text": "} else if (vInAcc !== \"Blu Pocket CC\") {"
+      },
+      {
+        "line": 18009,
+        "term": "Blu Pocket",
+        "text": "successLines.push(\"Transfer: Blu Pocket → Blu Pocket CC\");"
+      },
+      {
+        "line": 18015,
+        "term": "Blu Pocket",
+        "text": "successLines.push(\"Saldo Blu Pocket sekarang: \" + formatBalanceRupiah_(sourceDetails.balance));"
+      },
+      {
+        "line": 18016,
+        "term": "Blu Pocket",
+        "text": "successLines.push(\"Saldo Blu Pocket CC sekarang: \" + formatBalanceRupiah_(targetDetails.balance));"
+      },
+      {
+        "line": 18114,
+        "term": "Blu Pocket",
+        "text": "if (String(regValues[rIdx][2]).trim() === \"Blu Pocket CC\") {"
+      },
+      {
+        "line": 18120,
+        "term": "Blu Pocket",
+        "text": "regSheet.appendRow(['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account']);"
+      },
+      {
+        "line": 18141,
+        "term": "Blu Pocket",
+        "text": "if ((row73Account === \"\" || row73Account === \"null\" || row73Account === \"undefined\") && row73In === 24000 && row73Type === \"transfer_in\" && row73Desc.indexOf(\"transfer 24000 dr blu pocket ke blu pocket cc\") !== -1) {"
+      },
+      {
+        "line": 18147,
+        "term": "Blu Pocket",
+        "text": "if (acc === \"Blu Pocket CC\" && bal !== \"\" && bal !== null && bal !== undefined) {"
+      },
+      {
+        "line": 18154,
+        "term": "Blu Pocket",
+        "text": "ledgerSheet.getRange(73, 3).setValue(\"Blu Pocket CC\");"
+      },
+      {
+        "line": 28055,
+        "term": "Blu Pocket",
+        "text": "['TRUE', 'blu_pocket', 'Blu Pocket', 'Blu', 'bank', 'Blu', 'pocket', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket account'],"
+      },
+      {
+        "line": 28056,
+        "term": "Blu Pocket",
+        "text": "['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account'],"
+      },
+      {
+        "line": 28154,
+        "term": "Blu Pocket",
+        "text": "{ account_id: \"blu_pocket\", account_name: \"Blu Pocket\", provider: \"Blu\", account_type: \"bank\", parent_account: \"Blu\", pocket_name: \"pocket\", is_cash: false, is_bank: true, is_credit: false },"
+      },
+      {
+        "line": 28155,
+        "term": "Blu Pocket",
+        "text": "{ account_id: \"blu_pocket_cc\", account_name: \"Blu Pocket CC\", provider: \"Blu\", account_type: \"bank\", parent_account: \"Blu\", pocket_name: \"pocket cc\", is_cash: false, is_bank: true, is_credit: false },"
+      },
+      {
+        "line": 28578,
+        "term": "Blu Pocket",
+        "text": "\"Blu Pocket\": { font: \"#0891B2\", fill: \"#CFFAFE\" },"
+      },
+      {
+        "line": 29526,
+        "term": "Blu Pocket",
+        "text": "var tc1 = (parsed1.amount === 25000 && res1 && res1.sourceAccount === \"Blu Pocket\" && res1.targetAccount === \"Blu\");"
+      },
+      {
+        "line": 29530,
+        "term": "Blu Pocket",
+        "text": "// Case 2: transfer 25rb dari blu pocket ke blu"
+      },
+      {
+        "line": 29531,
+        "term": "Blu Pocket",
+        "text": "var text2 = \"transfer 25rb dari blu pocket ke blu\";"
+      }
+    ],
+    "internal_transfer": [
+      {
+        "line": 82,
+        "term": "transfer",
+        "text": "/\\b(beli|bayar|jajan|makan|minum|kopi|sarapan|siang|malam|cash|tunai|bca|blu|cc|credit card|kartu kredit|tokopedia|shopee|grab|gojek|transfer|tf|topup|tarik|masuk|keluar|terima|diterima|gaji|refund|hutang|utang|pinjam|ci"
+      },
+      {
+        "line": 112,
+        "term": "transfer",
+        "text": "if (/\\b(hutang|utang|pinjam|pinjaman|cicilan|kpr|angsuran|emas|gold|aset|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit)\\b/i.test(text)) return false;"
+      },
+      {
+        "line": 141,
+        "term": "transfer",
+        "text": "if (detectInternalTransfer_(parsed, rawText) !== null) {"
+      },
+      {
+        "line": 190,
+        "term": "transfer",
+        "text": "if (/^(c|3)$/i.test(t) || /\\b(transfer|tf|pindah)\\b/i.test(t)) return 'transfer';"
+      },
+      {
+        "line": 198,
+        "term": "transfer",
+        "text": "if (detectInternalTransfer_(parsed, rawText) !== null) {"
+      },
+      {
+        "line": 210,
+        "term": "transfer",
+        "text": "const hasClearAction = /\\b(beli|bayar|makan|minum|kopi|jajan|transfer|tf|dari|ke|masuk|keluar|gaji|refund|terima|diterima|topup|tarik|cc|credit card|cash|tunai)\\b/i.test(text);"
+      },
+      {
+        "line": 221,
+        "term": "transfer",
+        "text": "'C. Transfer\\n' +"
+      },
+      {
+        "line": 241,
+        "term": "transfer",
+        "text": "function normalizeTransferRouteClarificationAnswer_(text) {"
+      },
+      {
+        "line": 303,
+        "term": "transfer",
+        "text": "function canAskTransferIncompleteClarification_(parsed, rawText) {"
+      },
+      {
+        "line": 308,
+        "term": "transfer",
+        "text": "if (!/\\b(transfer|tf|pindah)\\b/i.test(text)) return false;"
+      },
+      {
+        "line": 310,
+        "term": "transfer",
+        "text": "var resolved = detectInternalTransfer_(parsed, rawText);"
+      },
+      {
+        "line": 314,
+        "term": "transfer",
+        "text": "function buildTransferIncompleteClarificationMessage_(parsed) {"
+      },
+      {
+        "line": 346,
+        "term": "transfer",
+        "text": "var msg = 'Transfer Rp' + amount + ' ini dari akun mana ke akun mana?\\n\\n' +"
+      },
+      {
+        "line": 348,
+        "term": "transfer",
+        "text": "'Contoh manual: transfer ' + amount + ' dari Blu Pocket ke Blu';"
+      },
+      {
+        "line": 354,
+        "term": "transfer",
+        "text": "function transferClarificationResolvedText_(pending, rawText) {"
+      },
+      {
+        "line": 355,
+        "term": "transfer",
+        "text": "const route = normalizeTransferRouteClarificationAnswer_(rawText);"
+      },
+      {
+        "line": 359,
+        "term": "transfer",
+        "text": "return 'transfer ' + amount + ' dari ' + route.source.toLowerCase() + ' ke ' + route.target.toLowerCase();"
+      },
+      {
+        "line": 385,
+        "term": "transfer",
+        "text": "if (/\\b(beli|belanja|bayar tagihan|bayar cc|lunas|pelunasan|alokasi|pocket|blu cc|belum ke blu|dari blu|ke blu|transferred|transfer)\\b/i.test(text)) {"
+      },
+      {
+        "line": 635,
+        "term": "transfer",
+        "text": "/\\b(beli|bayar|jajan|makan|minum|kopi|bensin|parkir|tol|grab|gojek|shopee|tokopedia|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit|hutang|utang|pinjam|cicilan|kpr|emas|gold|aset|nabung|tabung|saving|gaji|"
+      },
+      {
+        "line": 679,
+        "term": "transfer",
+        "text": "/\\b(beli|bayar|jajan|makan|minum|kopi|bensin|parkir|tol|grab|gojek|shopee|tokopedia|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit|hutang|utang|pinjam|cicilan|kpr|emas|gold|aset|nabung|tabung|saving|gaji|"
+      },
+      {
+        "line": 696,
+        "term": "transfer",
+        "text": "if (/\\b(transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit|tokopedia cc|tokopedia card|hutang|utang|pinjam|pinjaman|cicilan rumah|kpr|angsuran rumah|emas|gold|aset|nabung|tabung|saving|savings|investasi|gaji|"
+      },
+      {
+        "line": 749,
+        "term": "transfer",
+        "text": "if (/\\b(hutang|utang|pinjam|pinjaman|cicilan rumah|kpr|angsuran rumah|emas|gold|aset|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit)\\b/i.test(text)) {"
+      },
+      {
+        "line": 785,
+        "term": "transfer",
+        "text": "'- transfer 100000 dari bca ke blu'"
+      },
+      {
+        "line": 1037,
+        "term": "transfer",
+        "text": "if (pending.type === 'transfer_incomplete') {"
+      },
+      {
+        "line": 1038,
+        "term": "transfer",
+        "text": "const resolvedText = transferClarificationResolvedText_(pending, rawText);"
+      },
+      {
+        "line": 1044,
+        "term": "transfer",
+        "text": "'Saya belum mencatat transfer ini.\\n\\n' +"
+      },
+      {
+        "line": 1046,
+        "term": "transfer",
+        "text": "'- transfer 100000 dari bca ke blu\\n' +"
+      },
+      {
+        "line": 1047,
+        "term": "transfer",
+        "text": "'- transfer 50rb dari blu ke bca\\n' +"
+      },
+      {
+        "line": 1048,
+        "term": "transfer",
+        "text": "'- transfer 25rb dari bca ke cash'"
+      },
+      {
+        "line": 1076,
+        "term": "transfer",
+        "text": "'C. Transfer\\n' +"
+      }
+    ],
+    "account_ledger": [
+      {
+        "line": 23,
+        "term": "Account Ledger",
+        "text": "accountLedger: '📒 Account Ledger',"
+      },
+      {
+        "line": 191,
+        "term": "balance",
+        "text": "if (/^(d|4)$/i.test(t) || /\\b(saldo|balance|tercatat|awal|akhir)\\b/i.test(t)) return 'balance';"
+      },
+      {
+        "line": 1153,
+        "term": "balance",
+        "text": "function formatBalanceRupiah_(amount) {"
+      },
+      {
+        "line": 1171,
+        "term": "balance",
+        "text": "// Column F: Balance (6th column)"
+      },
+      {
+        "line": 1177,
+        "term": "balance",
+        "text": "balance: values[3]"
+      },
+      {
+        "line": 1213,
+        "term": "Account Ledger",
+        "text": "// Check if we wrote to the Account Ledger (and spreadsheet is available)"
+      },
+      {
+        "line": 1239,
+        "term": "balance",
+        "text": "var formattedAmt = formatBalanceRupiah_(amount);"
+      },
+      {
+        "line": 1245,
+        "term": "balance",
+        "text": "sourceDetails.balance !== '' && sourceDetails.balance !== null && sourceDetails.balance !== undefined &&"
+      },
+      {
+        "line": 1246,
+        "term": "balance",
+        "text": "targetDetails.balance !== '' && targetDetails.balance !== null && targetDetails.balance !== undefined) {"
+      },
+      {
+        "line": 1250,
+        "term": "balance",
+        "text": "'Saldo ' + source + ' sekarang: ' + formatBalanceRupiah_(sourceDetails.balance) + '\\n' +"
+      },
+      {
+        "line": 1251,
+        "term": "balance",
+        "text": "'Saldo ' + target + ' sekarang: ' + formatBalanceRupiah_(targetDetails.balance);"
+      },
+      {
+        "line": 1255,
+        "term": "Account Ledger",
+        "text": "'Saldo terbaru belum bisa dibaca otomatis. Cek Account Ledger untuk verifikasi.';"
+      },
+      {
+        "line": 1263,
+        "term": "balance",
+        "text": "var formattedAmt = formatBalanceRupiah_(amount);"
+      },
+      {
+        "line": 1272,
+        "term": "balance",
+        "text": "formattedAmt = formatBalanceRupiah_(details.amountIn);"
+      },
+      {
+        "line": 1275,
+        "term": "balance",
+        "text": "formattedAmt = formatBalanceRupiah_(details.amountOut);"
+      },
+      {
+        "line": 1281,
+        "term": "balance",
+        "text": "if (details && details.balance !== '' && details.balance !== null && details.balance !== undefined) {"
+      },
+      {
+        "line": 1285,
+        "term": "balance",
+        "text": "'Saldo ' + account + ' sekarang: ' + formatBalanceRupiah_(details.balance);"
+      },
+      {
+        "line": 1289,
+        "term": "Account Ledger",
+        "text": "'Saldo terbaru belum bisa dibaca otomatis. Cek Account Ledger untuk verifikasi.';"
+      },
+      {
+        "line": 2631,
+        "term": "amount_in",
+        "text": "const inCol = findCashLedgerExactHeaderCol_(sheet, 'amount_in');"
+      },
+      {
+        "line": 2632,
+        "term": "amount_out",
+        "text": "const outCol = findCashLedgerExactHeaderCol_(sheet, 'amount_out');"
+      },
+      {
+        "line": 2742,
+        "term": "entry_id",
+        "text": "linked_txn_id: event.linked_txn_id || event.entry_id || '',"
+      },
+      {
+        "line": 2756,
+        "term": "Account Ledger",
+        "text": "// Deprecation guard: Finance Events is deprecated by owner; Account Ledger/domain tabs are source-of-truth."
+      },
+      {
+        "line": 2763,
+        "term": "Account Ledger",
+        "text": "reason: \"Finance Events deprecated by owner; Account Ledger/domain tabs are source-of-truth\","
+      },
+      {
+        "line": 2794,
+        "term": "entry_id",
+        "text": "entry_id: entryId,"
+      },
+      {
+        "line": 2807,
+        "term": "amount_in",
+        "text": "amount_in: cashInflow ? parsed.amount : '',"
+      },
+      {
+        "line": 2808,
+        "term": "amount_out",
+        "text": "amount_out: cashInflow ? '' : parsed.amount,"
+      },
+      {
+        "line": 2821,
+        "term": "Account Ledger",
+        "text": "* Mirrors cash movement to the Account Ledger tab."
+      },
+      {
+        "line": 2822,
+        "term": "balance",
+        "text": "* Balance is intentionally left blank for Google Sheet formulas."
+      },
+      {
+        "line": 2853,
+        "term": "entry_id",
+        "text": "const entryIndex = keys.indexOf('entry_id');"
+      },
+      {
+        "line": 2876,
+        "term": "entry_id",
+        "text": "entry_id: current,"
+      }
+    ],
+    "balance_readback": [
+      {
+        "line": 82,
+        "term": "saldo",
+        "text": "/\\b(beli|bayar|jajan|makan|minum|kopi|sarapan|siang|malam|cash|tunai|bca|blu|cc|credit card|kartu kredit|tokopedia|shopee|grab|gojek|transfer|tf|topup|tarik|masuk|keluar|terima|diterima|gaji|refund|hutang|utang|pinjam|ci"
+      },
+      {
+        "line": 133,
+        "term": "saldo",
+        "text": "if (/^(c|3)$/i.test(t) || /\\b(pegang|saldo awal|awal|start)\\b/i.test(t)) return 'cash_start';"
+      },
+      {
+        "line": 134,
+        "term": "saldo",
+        "text": "if (/^(d|4)$/i.test(t) || /\\b(sisa|remaining|saldo akhir|akhir)\\b/i.test(t)) return 'cash_remaining';"
+      },
+      {
+        "line": 153,
+        "term": "saldo",
+        "text": "const hasClearMeaning = /\\b(masuk|keluar|terima|diterima|beli|bayar|kepake|terpakai|pegang|saldo|sisa|dari|ke|bensin|bbm)\\b/i.test(text);"
+      },
+      {
+        "line": 164,
+        "term": "saldo",
+        "text": "'C. Saldo cash awal / saya pegang cash\\n' +"
+      },
+      {
+        "line": 179,
+        "term": "saldo",
+        "text": "if (direction === 'cash_start') return ('saya pegang cash ' + amount + ' saldo awal ' + tail).trim();"
+      },
+      {
+        "line": 180,
+        "term": "saldo",
+        "text": "if (direction === 'cash_remaining') return ('sisa cash ' + amount + ' saldo akhir ' + tail).trim();"
+      },
+      {
+        "line": 191,
+        "term": "balance",
+        "text": "if (/^(d|4)$/i.test(t) || /\\b(saldo|balance|tercatat|awal|akhir)\\b/i.test(t)) return 'balance';"
+      },
+      {
+        "line": 222,
+        "term": "saldo",
+        "text": "'D. Saldo awal/saldo tercatat\\n' +"
+      },
+      {
+        "line": 635,
+        "term": "saldo",
+        "text": "/\\b(beli|bayar|jajan|makan|minum|kopi|bensin|parkir|tol|grab|gojek|shopee|tokopedia|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit|hutang|utang|pinjam|cicilan|kpr|emas|gold|aset|nabung|tabung|saving|gaji|"
+      },
+      {
+        "line": 1077,
+        "term": "saldo",
+        "text": "'D. Saldo awal/saldo tercatat\\n' +"
+      },
+      {
+        "line": 1103,
+        "term": "saldo",
+        "text": "'C. Saldo cash awal / saya pegang cash\\n' +"
+      },
+      {
+        "line": 1153,
+        "term": "balance",
+        "text": "function formatBalanceRupiah_(amount) {"
+      },
+      {
+        "line": 1163,
+        "term": "getAccountLedgerRowDetails_",
+        "text": "function getAccountLedgerRowDetails_(ss, row) {"
+      },
+      {
+        "line": 1171,
+        "term": "balance",
+        "text": "// Column F: Balance (6th column)"
+      },
+      {
+        "line": 1177,
+        "term": "balance",
+        "text": "balance: values[3]"
+      },
+      {
+        "line": 1182,
+        "term": "getAccountLedgerRowDetails_",
+        "text": "Logger.log('getAccountLedgerRowDetails_ error: ' + e.message);"
+      },
+      {
+        "line": 1236,
+        "term": "getAccountLedgerRowDetails_",
+        "text": "var sourceDetails = getAccountLedgerRowDetails_(spreadsheet, sourceRow);"
+      },
+      {
+        "line": 1237,
+        "term": "getAccountLedgerRowDetails_",
+        "text": "var targetDetails = getAccountLedgerRowDetails_(spreadsheet, targetRow);"
+      },
+      {
+        "line": 1239,
+        "term": "balance",
+        "text": "var formattedAmt = formatBalanceRupiah_(amount);"
+      },
+      {
+        "line": 1245,
+        "term": "balance",
+        "text": "sourceDetails.balance !== '' && sourceDetails.balance !== null && sourceDetails.balance !== undefined &&"
+      },
+      {
+        "line": 1246,
+        "term": "balance",
+        "text": "targetDetails.balance !== '' && targetDetails.balance !== null && targetDetails.balance !== undefined) {"
+      },
+      {
+        "line": 1250,
+        "term": "balance",
+        "text": "'Saldo ' + source + ' sekarang: ' + formatBalanceRupiah_(sourceDetails.balance) + '\\n' +"
+      },
+      {
+        "line": 1251,
+        "term": "balance",
+        "text": "'Saldo ' + target + ' sekarang: ' + formatBalanceRupiah_(targetDetails.balance);"
+      },
+      {
+        "line": 1255,
+        "term": "saldo",
+        "text": "'Saldo terbaru belum bisa dibaca otomatis. Cek Account Ledger untuk verifikasi.';"
+      },
+      {
+        "line": 1260,
+        "term": "getAccountLedgerRowDetails_",
+        "text": "var details = getAccountLedgerRowDetails_(spreadsheet, rowToRead);"
+      },
+      {
+        "line": 1263,
+        "term": "balance",
+        "text": "var formattedAmt = formatBalanceRupiah_(amount);"
+      },
+      {
+        "line": 1272,
+        "term": "balance",
+        "text": "formattedAmt = formatBalanceRupiah_(details.amountIn);"
+      },
+      {
+        "line": 1275,
+        "term": "balance",
+        "text": "formattedAmt = formatBalanceRupiah_(details.amountOut);"
+      },
+      {
+        "line": 1281,
+        "term": "balance",
+        "text": "if (details && details.balance !== '' && details.balance !== null && details.balance !== undefined) {"
+      }
+    ],
+    "idempotency": [
+      {
+        "line": 465,
+        "term": "already",
+        "text": "// If the text already contains both a recognized debt verb AND a person AND"
+      },
+      {
+        "line": 589,
+        "term": "already",
+        "text": "// When user replies with a choice letter (A/B) and the ORIGINAL text already"
+      },
+      {
+        "line": 1333,
+        "term": "dedupe",
+        "text": "const dedupeUpdate ="
+      },
+      {
+        "line": 1340,
+        "term": "dedupe",
+        "text": "const dedupeMessage ="
+      },
+      {
+        "line": 1343,
+        "term": "dedupe",
+        "text": "(dedupeUpdate && dedupeUpdate.message) ? dedupeUpdate.message :"
+      },
+      {
+        "line": 1344,
+        "term": "dedupe",
+        "text": "(dedupeUpdate && dedupeUpdate.edited_message) ? dedupeUpdate.edited_message :"
+      },
+      {
+        "line": 1347,
+        "term": "dedupe",
+        "text": "const dedupe = reserveTelegramUpdateOnce_(dedupeUpdate, dedupeMessage, rawText);"
+      },
+      {
+        "line": 1348,
+        "term": "duplicate",
+        "text": "if (dedupe && dedupe.duplicate) {"
+      },
+      {
+        "line": 1352,
+        "term": "duplicate",
+        "text": "reason: 'duplicate_telegram_update',"
+      },
+      {
+        "line": 1353,
+        "term": "dedupe",
+        "text": "dedupe_key: dedupe.key"
+      },
+      {
+        "line": 1897,
+        "term": "duplicate",
+        "text": "replyText += '- **Suppressed**: ' + String(runOnceResult.suppressed_count || runOnceResult.blocked_duplicate_count || 0) + '\\n';"
+      },
+      {
+        "line": 2111,
+        "term": "duplicate",
+        "text": "// AIRO_SPRINT6B_DUPLICATE_SUPPRESSION_RUNNER_ROUTE_V1"
+      },
+      {
+        "line": 2112,
+        "term": "duplicate",
+        "text": "// Read-only duplicate suppression runner. No send, no trigger, no write."
+      },
+      {
+        "line": 2113,
+        "term": "duplicate",
+        "text": "if (/^admin\\s+(alerts?\\s+)?sprint6b\\s+duplicate\\s+(check|runner|verify)\\s*$/i.test(rawText) || /^admin\\s+sprint6b\\s+alerts?\\s+duplicate\\s+(check|runner|verify)\\s*$/i.test(rawText)) {"
+      },
+      {
+        "line": 2116,
+        "term": "duplicate",
+        "text": "const airoSprint6BDupeResult_ = airoSprint6BDuplicateSuppressionRunner_(airoSprint6BDupeSs_);"
+      },
+      {
+        "line": 2117,
+        "term": "duplicate",
+        "text": "sendTelegram_(chatId, airoBuildSprint6BDuplicateSuppressionRunnerReply_(airoSprint6BDupeResult_));"
+      },
+      {
+        "line": 2121,
+        "term": "duplicate",
+        "text": "command: 'sprint6b_duplicate_suppression_runner',"
+      },
+      {
+        "line": 2130,
+        "term": "duplicate",
+        "text": "sendTelegram_(chatId, 'Sprint 6B duplicate suppression runner error.\\n\\n' + airoSprint6BDupeError_);"
+      },
+      {
+        "line": 2134,
+        "term": "duplicate",
+        "text": "command: 'sprint6b_duplicate_suppression_runner',"
+      },
+      {
+        "line": 2667,
+        "term": "linked_txn_id",
+        "text": "'linked_txn_id',"
+      },
+      {
+        "line": 2724,
+        "term": "lock",
+        "text": "reason: 'sensitive_payload_blocked'"
+      },
+      {
+        "line": 2742,
+        "term": "linked_txn_id",
+        "text": "linked_txn_id: event.linked_txn_id || event.entry_id || '',"
+      },
+      {
+        "line": 2790,
+        "term": "linked_txn_id",
+        "text": "const entryId = common.linked_txn_id || makeTxnId_({}, rawText);"
+      },
+      {
+        "line": 2825,
+        "term": "lock",
+        "text": "function withAccountLedgerPrimaryLock_(callback) {"
+      },
+      {
+        "line": 2826,
+        "term": "lock",
+        "text": "const lock = LockService.getScriptLock();"
+      },
+      {
+        "line": 2827,
+        "term": "already",
+        "text": "const alreadyHeld = lock.hasLock();"
+      },
+      {
+        "line": 2829,
+        "term": "already",
+        "text": "if (!alreadyHeld) {"
+      },
+      {
+        "line": 2830,
+        "term": "lock",
+        "text": "lock.waitLock(30000);"
+      },
+      {
+        "line": 2836,
+        "term": "already",
+        "text": "if (!alreadyHeld && lock.hasLock()) {"
+      },
+      {
+        "line": 2837,
+        "term": "lock",
+        "text": "lock.releaseLock();"
+      }
+    ],
+    "telegram_reply": [
+      {
+        "line": 8,
+        "term": "reply",
+        "text": "* Telegram -> Cloudflare Worker -> Apps Script doPost -> Google Sheet -> Telegram reply"
+      },
+      {
+        "line": 583,
+        "term": "reply",
+        "text": "// If current reply is itself a complete debt intent (with person), use it directly."
+      },
+      {
+        "line": 775,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 789,
+        "term": "reply",
+        "text": "function tryHandlePendingClarificationReply_(chatId, rawText) {"
+      },
+      {
+        "line": 838,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, finalMessage);"
+      },
+      {
+        "line": 890,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 907,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 923,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 953,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, buildAssetGoldAmbiguousClarificationMessage_(pending.parsed || pending || {}));"
+      },
+      {
+        "line": 965,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 995,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 1009,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 1034,
+        "term": "reply",
+        "text": "return airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending, rawText, failOrRetry_);"
+      },
+      {
+        "line": 1042,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_("
+      },
+      {
+        "line": 1188,
+        "term": "reply",
+        "text": "function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, routedResult, tabLink) {"
+      },
+      {
+        "line": 1364,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, airoBuildSprint5ReconciliationReply_(airoSprint5ReconResult_));"
+      },
+      {
+        "line": 1375,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, 'Sprint 5 reconciliation audit error.\\n\\n' + airoSprint5ReconError_);"
+      },
+      {
+        "line": 1394,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, airoBuildSprint6DashboardFinalPlanReply_(airoSprint6Plan_));"
+      },
+      {
+        "line": 1405,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, 'Sprint 6 Dashboard Final plan error.\\n\\n' + airoSprint6Error_);"
+      },
+      {
+        "line": 1424,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, airoBuildSprint6EnsureAuditLogReply_(airoSprint6AuditResult_));"
+      },
+      {
+        "line": 1435,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, 'Sprint 6 ensure Audit Log error.\\n\\n' + airoSprint6AuditError_);"
+      },
+      {
+        "line": 1454,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, airoBuildSprint6DashboardFinalBuildReply_(airoSprint6BuildResult_));"
+      },
+      {
+        "line": 1465,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, 'Sprint 6 Dashboard Final build error.\\n\\n' + airoSprint6BuildError_);"
+      },
+      {
+        "line": 1483,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, '📊 Dashboard v2 cockpit build selesai.\\nTab: ' + airoV2BuildResult_.dashboard_tab);"
+      },
+      {
+        "line": 1494,
+        "term": "sendTelegram_",
+        "text": "sendTelegram_(chatId, 'Sprint 6 Dashboard v2 build error:\\n\\n' + errorMsg);"
+      },
+      {
+        "line": 1506,
+        "term": "Readback",
+        "text": "// AIRO_DASHBOARD_V2_PIXEL_REFERENCE_READBACK_ROUTE_V1"
+      },
+      {
+        "line": 1508,
+        "term": "Readback",
+        "text": "if (/^admin\\s+(dashboard\\s+)?v2\\s+(readback|verify|check)\\s*$/i.test(rawText)) {"
+      },
+      {
+        "line": 1510,
+        "term": "Readback",
+        "text": "const airoV2ReadbackSs_ = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));"
+      },
+      {
+        "line": 1511,
+        "term": "Readback",
+        "text": "const airoV2ReadbackResult_ = airoSprint6DashboardV2Readback_(airoV2ReadbackSs_);"
+      },
+      {
+        "line": 1512,
+        "term": "Readback",
+        "text": "let msg = '🔎 Dashboard v2 readback selesai.\\n';"
+      }
+    ]
+  },
+  "discovered": {
+    "approval_route_candidates": [
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "normalizeValueForValidation_",
+        "start_line": 3989,
+        "end_line": 4077,
+        "line_count": 89
+      },
+      {
+        "function": "processReviewQueueApproved",
+        "start_line": 4811,
+        "end_line": 4930,
+        "line_count": 120
+      },
+      {
+        "function": "processReviewQueueApprovedOnEdit",
+        "start_line": 4932,
+        "end_line": 4934,
+        "line_count": 3
+      },
+      {
+        "function": "setupReviewQueueAutoProcessor",
+        "start_line": 4936,
+        "end_line": 4955,
+        "line_count": 20
+      },
+      {
+        "function": "routeReviewApprovedTab_",
+        "start_line": 4958,
+        "end_line": 5004,
+        "line_count": 47
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalPlanReply_",
+        "start_line": 9824,
+        "end_line": 9872,
+        "line_count": 49
+      },
+      {
+        "function": "airoSprint7SourceAllowlistDesign_",
+        "start_line": 16289,
+        "end_line": 16449,
+        "line_count": 161
+      },
+      {
+        "function": "airoSprint7SourceAllowlistReadbackText_",
+        "start_line": 16451,
+        "end_line": 16543,
+        "line_count": 93
+      },
+      {
+        "function": "airoSprint7SourceAllowlistMaybeHandleRoute_",
+        "start_line": 16655,
+        "end_line": 16681,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterDesign_",
+        "start_line": 16695,
+        "end_line": 16873,
+        "line_count": 179
+      },
+      {
+        "function": "airoTask611SmokeAdminCommandMaybeHandleRoute_",
+        "start_line": 17116,
+        "end_line": 17259,
+        "line_count": 144
+      },
+      {
+        "function": "doPost",
+        "start_line": 17404,
+        "end_line": 17525,
+        "line_count": 122
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesContract_",
+        "start_line": 18895,
+        "end_line": 18992,
+        "line_count": 98
+      },
+      {
+        "function": "airoSprint7EReadOnlyGmailPilotStatusContract_",
+        "start_line": 19260,
+        "end_line": 19331,
+        "line_count": 72
+      },
+      {
+        "function": "airoSprint7EReadOnlyGmailPilotStatusReplyText_",
+        "start_line": 19333,
+        "end_line": 19374,
+        "line_count": 42
+      },
+      {
+        "function": "airoSprint7EReadOnlyGmailPilotStatusMaybeHandleRoute_",
+        "start_line": 19376,
+        "end_line": 19434,
+        "line_count": 59
+      },
+      {
+        "function": "airoSprint7EOneShotReadOnlyPilotContract_",
+        "start_line": 19438,
+        "end_line": 19468,
+        "line_count": 31
+      },
+      {
+        "function": "airoSprint7FContract_",
+        "start_line": 20020,
+        "end_line": 20043,
+        "line_count": 24
+      },
+      {
+        "function": "airoSprint7FStatus_",
+        "start_line": 20045,
+        "end_line": 20075,
+        "line_count": 31
+      },
+      {
+        "function": "airoSprint7FBuildStatusReply_",
+        "start_line": 20077,
+        "end_line": 20118,
+        "line_count": 42
+      },
+      {
+        "function": "runSprint7FManualDryRunPollerFromEditor",
+        "start_line": 20155,
+        "end_line": 20306,
+        "line_count": 152
+      },
+      {
+        "function": "runSprint7FBManualDryRunPollerWithTransientBodyFromEditor",
+        "start_line": 20366,
+        "end_line": 20446,
+        "line_count": 81
+      },
+      {
+        "function": "runSprint7FSendOneClarificationPreviewFromEditor",
+        "start_line": 20566,
+        "end_line": 20674,
+        "line_count": 109
+      },
+      {
+        "function": "runSprint7FSendOneClarificationAndLogPendingFromEditor",
+        "start_line": 20915,
+        "end_line": 21008,
+        "line_count": 94
+      },
+      {
+        "function": "runSprint7GManualWritePilotFromEditor",
+        "start_line": 21123,
+        "end_line": 21364,
+        "line_count": 242
+      },
+      {
+        "function": "runSprint7GTask5TargetedReadbackVerifierFromEditor",
+        "start_line": 21383,
+        "end_line": 21639,
+        "line_count": 257
+      },
+      {
+        "function": "airoSprint7FDBuildNoWriteRoutePreview_",
+        "start_line": 22715,
+        "end_line": 22775,
+        "line_count": 61
+      },
+      {
+        "function": "airoSprint7HResolveToReviewQueueFallback_",
+        "start_line": 23249,
+        "end_line": 23526,
+        "line_count": 278
+      },
+      {
+        "function": "airoTask614DirectApprovalPropertyKey_",
+        "start_line": 23690,
+        "end_line": 23692,
+        "line_count": 3
+      },
+      {
+        "function": "airoTask614SnapshotPropertyKey_",
+        "start_line": 23694,
+        "end_line": 23696,
+        "line_count": 3
+      },
+      {
+        "function": "airoTask614StoreDirectApproval_",
+        "start_line": 23714,
+        "end_line": 23736,
+        "line_count": 23
+      },
+      {
+        "function": "airoTask614GetDirectApprovalQueueId_",
+        "start_line": 23738,
+        "end_line": 23764,
+        "line_count": 27
+      },
+      {
+        "function": "airoTask614StoreApprovalSnapshot_",
+        "start_line": 23766,
+        "end_line": 23804,
+        "line_count": 39
+      },
+      {
+        "function": "airoTask614ResolveApprovalArg_",
+        "start_line": 23806,
+        "end_line": 23847,
+        "line_count": 42
+      },
+      {
+        "function": "airoTask614FindReviewItemByQueueId_",
+        "start_line": 23849,
+        "end_line": 24055,
+        "line_count": 207
+      },
+      {
+        "function": "airoTask614ApprovalHelp_",
+        "start_line": 24057,
+        "end_line": 24066,
+        "line_count": 10
+      },
+      {
+        "function": "airoSprint7HApprovalList_",
+        "start_line": 24069,
+        "end_line": 24109,
+        "line_count": 41
+      },
+      {
+        "function": "airoSprint7HApprovalDetail_",
+        "start_line": 24111,
+        "end_line": 24142,
+        "line_count": 32
+      },
+      {
+        "function": "airoSprint7HApprovalFix_",
+        "start_line": 24144,
+        "end_line": 24175,
+        "line_count": 32
+      },
+      {
+        "function": "airoSprint7HApprovalReject_",
+        "start_line": 24177,
+        "end_line": 24228,
+        "line_count": 52
+      },
+      {
+        "function": "airoSprint7HApprovalApprove_",
+        "start_line": 24230,
+        "end_line": 24417,
+        "line_count": 188
+      },
+      {
+        "function": "airoSprint7HApprovalCommandMaybeHandleRoute_",
+        "start_line": 24419,
+        "end_line": 24570,
+        "line_count": 152
+      },
+      {
+        "function": "airoDashboardPromoteToMain_",
+        "start_line": 26716,
+        "end_line": 26769,
+        "line_count": 54
+      },
+      {
+        "function": "airoDashboardCleanupTabs_",
+        "start_line": 26771,
+        "end_line": 26849,
+        "line_count": 79
+      },
+      {
+        "function": "airoTask613AdminCommandMaybeHandleRoute_",
+        "start_line": 28330,
+        "end_line": 28396,
+        "line_count": 67
+      },
+      {
+        "function": "runTask614ArmDirectApprovalFromWsl",
+        "start_line": 29395,
+        "end_line": 29420,
+        "line_count": 26
+      },
+      {
+        "function": "runTask614ClearApprovalStateFromWsl",
+        "start_line": 29423,
+        "end_line": 29480,
+        "line_count": 58
+      },
+      {
+        "function": "airoTask10SheetRef_",
+        "start_line": 29613,
+        "end_line": 31939,
+        "line_count": 2327
+      },
+      {
+        "function": "airoTask10CleanupTabs_",
+        "start_line": 29770,
+        "end_line": 29845,
+        "line_count": 76
+      }
+    ],
+    "pending_candidate_candidates": [
+      {
+        "function": "savePendingClarification_",
+        "start_line": 50,
+        "end_line": 59,
+        "line_count": 10
+      },
+      {
+        "function": "tryHandlePendingClarificationReply_",
+        "start_line": 789,
+        "end_line": 1151,
+        "line_count": 363
+      },
+      {
+        "function": "failOrRetry_",
+        "start_line": 793,
+        "end_line": 844,
+        "line_count": 52
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "airoSprint6BAlertEnginePlan_",
+        "start_line": 8398,
+        "end_line": 9110,
+        "line_count": 713
+      },
+      {
+        "function": "airoSprint7FBuildStatusReply_",
+        "start_line": 20077,
+        "end_line": 20118,
+        "line_count": 42
+      },
+      {
+        "function": "airoSprint7FLogPendingCandidate_",
+        "start_line": 20799,
+        "end_line": 20855,
+        "line_count": 57
+      },
+      {
+        "function": "airoSprint7FSavePendingPointer_",
+        "start_line": 20879,
+        "end_line": 20913,
+        "line_count": 35
+      },
+      {
+        "function": "runSprint7FSendOneClarificationAndLogPendingFromEditor",
+        "start_line": 20915,
+        "end_line": 21008,
+        "line_count": 94
+      },
+      {
+        "function": "runTask8EmailMultiPendingSelfTestFromEditor",
+        "start_line": 21046,
+        "end_line": 21121,
+        "line_count": 76
+      },
+      {
+        "function": "airoSprint7FEmailPendingCandidateIdentity_",
+        "start_line": 22093,
+        "end_line": 22104,
+        "line_count": 12
+      },
+      {
+        "function": "airoSprint7FNormalizePendingEmailCandidate_",
+        "start_line": 22106,
+        "end_line": 22117,
+        "line_count": 12
+      },
+      {
+        "function": "airoSprint7FLoadPendingEmailCandidateList_",
+        "start_line": 22119,
+        "end_line": 22139,
+        "line_count": 21
+      },
+      {
+        "function": "airoSprint7FSavePendingEmailCandidateList_",
+        "start_line": 22141,
+        "end_line": 22170,
+        "line_count": 30
+      },
+      {
+        "function": "airoSprint7FUpsertPendingEmailCandidate_",
+        "start_line": 22172,
+        "end_line": 22191,
+        "line_count": 20
+      },
+      {
+        "function": "airoSprint7FRemovePendingEmailCandidate_",
+        "start_line": 22193,
+        "end_line": 22211,
+        "line_count": 19
+      },
+      {
+        "function": "airoSprint7FHasPendingEmailCandidate_",
+        "start_line": 22283,
+        "end_line": 22293,
+        "line_count": 11
+      },
+      {
+        "function": "airoSprint7FSelectPendingEmailCandidate_",
+        "start_line": 22314,
+        "end_line": 22354,
+        "line_count": 41
+      },
+      {
+        "function": "airoSprint7FLoadPendingEmailCandidate_",
+        "start_line": 22372,
+        "end_line": 22386,
+        "line_count": 15
+      },
+      {
+        "function": "airoSprint7FResolveAnswerLabel_",
+        "start_line": 22388,
+        "end_line": 22437,
+        "line_count": 50
+      },
+      {
+        "function": "airoSprint7FUpdatePendingEmailResolution_",
+        "start_line": 22460,
+        "end_line": 22522,
+        "line_count": 63
+      },
+      {
+        "function": "airoSprint7FDNormalizeSourceChannel_",
+        "start_line": 22528,
+        "end_line": 22538,
+        "line_count": 11
+      },
+      {
+        "function": "airoSprint7FDPrimaryAccount_",
+        "start_line": 22540,
+        "end_line": 22552,
+        "line_count": 13
+      },
+      {
+        "function": "airoSprint7FDInferAction_",
+        "start_line": 22579,
+        "end_line": 22670,
+        "line_count": 92
+      },
+      {
+        "function": "airoSprint7FDBuildNoWriteRoutePreview_",
+        "start_line": 22715,
+        "end_line": 22775,
+        "line_count": 61
+      },
+      {
+        "function": "airoSprint7FEmailAnswerMaybeHandleRoute_",
+        "start_line": 22823,
+        "end_line": 23165,
+        "line_count": 343
+      },
+      {
+        "function": "airoC3GValidateEmailWritebackCandidate_",
+        "start_line": 23230,
+        "end_line": 23246,
+        "line_count": 17
+      },
+      {
+        "function": "airoSprint7HResolveToReviewQueueFallback_",
+        "start_line": 23249,
+        "end_line": 23526,
+        "line_count": 278
+      },
+      {
+        "function": "airoSprint7CategoryContractMissingCategoryHandleReply_",
+        "start_line": 25299,
+        "end_line": 25560,
+        "line_count": 262
+      },
+      {
+        "function": "airoSprint7HScheduledGmailPoller_",
+        "start_line": 27016,
+        "end_line": 27313,
+        "line_count": 298
+      }
+    ],
+    "review_queue_candidates": [
+      {
+        "function": "buildMissingCategoryClarificationMessage_",
+        "start_line": 701,
+        "end_line": 721,
+        "line_count": 21
+      },
+      {
+        "function": "tryHandlePendingClarificationReply_",
+        "start_line": 789,
+        "end_line": 1151,
+        "line_count": 363
+      },
+      {
+        "function": "failOrRetry_",
+        "start_line": 793,
+        "end_line": 844,
+        "line_count": 52
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "styleReviewQueueSheet_",
+        "start_line": 3290,
+        "end_line": 3341,
+        "line_count": 52
+      },
+      {
+        "function": "airoStyleBackendTabs_",
+        "start_line": 3387,
+        "end_line": 3429,
+        "line_count": 43
+      },
+      {
+        "function": "writeAssetSafely_",
+        "start_line": 3851,
+        "end_line": 3929,
+        "line_count": 79
+      },
+      {
+        "function": "normalizeValueForValidation_",
+        "start_line": 3989,
+        "end_line": 4077,
+        "line_count": 89
+      },
+      {
+        "function": "normalizeDataForTab_",
+        "start_line": 4079,
+        "end_line": 4091,
+        "line_count": 13
+      },
+      {
+        "function": "fieldForHeader_",
+        "start_line": 4309,
+        "end_line": 4381,
+        "line_count": 73
+      },
+      {
+        "function": "routePlannedTab_",
+        "start_line": 4383,
+        "end_line": 4431,
+        "line_count": 49
+      },
+      {
+        "function": "reviewIssueReasonForParsed_",
+        "start_line": 4433,
+        "end_line": 4468,
+        "line_count": 36
+      },
+      {
+        "function": "parseFinanceText_",
+        "start_line": 4470,
+        "end_line": 4531,
+        "line_count": 62
+      },
+      {
+        "function": "processReviewQueueApproved",
+        "start_line": 4811,
+        "end_line": 4930,
+        "line_count": 120
+      },
+      {
+        "function": "processReviewQueueApprovedOnEdit",
+        "start_line": 4932,
+        "end_line": 4934,
+        "line_count": 3
+      },
+      {
+        "function": "setupReviewQueueAutoProcessor",
+        "start_line": 4936,
+        "end_line": 4955,
+        "line_count": 20
+      },
+      {
+        "function": "routeReviewApprovedTab_",
+        "start_line": 4958,
+        "end_line": 5004,
+        "line_count": 47
+      },
+      {
+        "function": "reviewHeaderMap_",
+        "start_line": 5005,
+        "end_line": 5014,
+        "line_count": 10
+      },
+      {
+        "function": "getReviewValue_",
+        "start_line": 5016,
+        "end_line": 5025,
+        "line_count": 10
+      },
+      {
+        "function": "setReviewValue_",
+        "start_line": 5027,
+        "end_line": 5037,
+        "line_count": 11
+      },
+      {
+        "function": "normalizeReviewAmount_",
+        "start_line": 5039,
+        "end_line": 5043,
+        "line_count": 5
+      },
+      {
+        "function": "normalizeReviewAccount_",
+        "start_line": 5045,
+        "end_line": 5058,
+        "line_count": 14
+      },
+      {
+        "function": "extendReviewQueueSchema_",
+        "start_line": 5060,
+        "end_line": 5120,
+        "line_count": 61
+      },
+      {
+        "function": "runTask3AReviewQueueSchemaExtensionFromEditor",
+        "start_line": 5122,
+        "end_line": 5126,
+        "line_count": 5
+      },
+      {
+        "function": "runTask3AReviewQueueSchemaVerifierFromEditor",
+        "start_line": 5128,
+        "end_line": 5163,
+        "line_count": 36
+      },
+      {
+        "function": "refreshCashLedgerMaintenance",
+        "start_line": 5165,
+        "end_line": 5235,
+        "line_count": 71
+      },
+      {
+        "function": "refreshCashReportingFormulas",
+        "start_line": 5269,
+        "end_line": 5324,
+        "line_count": 56
+      },
+      {
+        "function": "refreshCashMonthlyReviewFormulas",
+        "start_line": 5326,
+        "end_line": 5328,
+        "line_count": 3
+      },
+      {
+        "function": "dashboardLayoutReadOnlyAudit_",
+        "start_line": 6740,
+        "end_line": 6800,
+        "line_count": 61
+      },
+      {
+        "function": "airoSprint7EmailSourceContractGuard_",
+        "start_line": 7163,
+        "end_line": 7235,
+        "line_count": 73
+      },
+      {
+        "function": "airoBuildSprint7EmailSourceContractGuardReply_",
+        "start_line": 7237,
+        "end_line": 7278,
+        "line_count": 42
+      },
+      {
+        "function": "airoSprint6BGuardedTriggerStatus_",
+        "start_line": 7359,
+        "end_line": 7376,
+        "line_count": 18
+      },
+      {
+        "function": "airoSprint6BInstallGuardedTrigger_",
+        "start_line": 7378,
+        "end_line": 7428,
+        "line_count": 51
+      },
+      {
+        "function": "airoSprint6BUninstallGuardedTrigger_",
+        "start_line": 7430,
+        "end_line": 7482,
+        "line_count": 53
+      },
+      {
+        "function": "airoSprint6BAlertEnginePlan_",
+        "start_line": 8398,
+        "end_line": 9110,
+        "line_count": 713
+      },
+      {
+        "function": "airoSprint6DashboardFinalReadback_",
+        "start_line": 9160,
+        "end_line": 9398,
+        "line_count": 239
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalReadbackReply_",
+        "start_line": 9400,
+        "end_line": 9457,
+        "line_count": 58
+      },
+      {
+        "function": "airoSprint6DashboardFinalBuild_",
+        "start_line": 9459,
+        "end_line": 9663,
+        "line_count": 205
+      },
+      {
+        "function": "airoSprint6DashboardFinalPlan_",
+        "start_line": 9708,
+        "end_line": 9822,
+        "line_count": 115
+      },
+      {
+        "function": "airoSprint5ReconciliationReadOnly_",
+        "start_line": 9874,
+        "end_line": 10197,
+        "line_count": 324
+      },
+      {
+        "function": "airoBuildSprint5DashboardAnalytics_",
+        "start_line": 10218,
+        "end_line": 10463,
+        "line_count": 246
+      },
+      {
+        "function": "airoBuildSprint5ReconciliationReply_",
+        "start_line": 10487,
+        "end_line": 10554,
+        "line_count": 68
+      },
+      {
+        "function": "airoFindSmokeRowPreview_",
+        "start_line": 10577,
+        "end_line": 10584,
+        "line_count": 8
+      },
+      {
+        "function": "airoFindSmokeAcrossWorkbook_",
+        "start_line": 10586,
+        "end_line": 10678,
+        "line_count": 93
+      },
+      {
+        "function": "airoBuildFindSmokeReply_",
+        "start_line": 10680,
+        "end_line": 10729,
+        "line_count": 50
+      },
+      {
+        "function": "handleSpecialFinanceCommand_",
+        "start_line": 10731,
+        "end_line": 12006,
+        "line_count": 1276
+      },
+      {
+        "function": "writeCreditCardSafely_",
+        "start_line": 12334,
+        "end_line": 12387,
+        "line_count": 54
+      },
+      {
+        "function": "writeHutangSafely_",
+        "start_line": 12390,
+        "end_line": 12453,
+        "line_count": 64
+      },
+      {
+        "function": "appendCreditCardPurchase_",
+        "start_line": 12616,
+        "end_line": 12668,
+        "line_count": 53
+      },
+      {
+        "function": "markCreditCardPocketBluTransfer_",
+        "start_line": 12670,
+        "end_line": 12874,
+        "line_count": 205
+      },
+      {
+        "function": "appendDebtMasterRow_",
+        "start_line": 13029,
+        "end_line": 13079,
+        "line_count": 51
+      },
+      {
+        "function": "appendDebtIncreaseAndUpdateMaster_",
+        "start_line": 13354,
+        "end_line": 13438,
+        "line_count": 85
+      },
+      {
+        "function": "airoLiveSchemaVerifyOnly",
+        "start_line": 14606,
+        "end_line": 14665,
+        "line_count": 60
+      },
+      {
+        "function": "airoSprint7DryRunParserPlan_",
+        "start_line": 14668,
+        "end_line": 14771,
+        "line_count": 104
+      },
+      {
+        "function": "airoSprint7DryRunParserPlanText_",
+        "start_line": 14773,
+        "end_line": 14813,
+        "line_count": 41
+      },
+      {
+        "function": "airoSprint7ParserPlanReply_",
+        "start_line": 14899,
+        "end_line": 14920,
+        "line_count": 22
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7SamplePreview_",
+        "start_line": 14952,
+        "end_line": 14960,
+        "line_count": 9
+      },
+      {
+        "function": "airoSprint7SamplePreviewNormalize_",
+        "start_line": 14964,
+        "end_line": 14966,
+        "line_count": 3
+      },
+      {
+        "function": "airoSprint7SamplePreviewHash_",
+        "start_line": 14968,
+        "end_line": 14993,
+        "line_count": 26
+      },
+      {
+        "function": "airoSprint7SamplePreviewHasSensitiveKeyword_",
+        "start_line": 14995,
+        "end_line": 15023,
+        "line_count": 29
+      },
+      {
+        "function": "airoSprint7SamplePreviewExtractAmount_",
+        "start_line": 15025,
+        "end_line": 15051,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7SamplePreviewCleanMerchant_",
+        "start_line": 15053,
+        "end_line": 15106,
+        "line_count": 54
+      },
+      {
+        "function": "airoSprint7SamplePreviewTokenKey_",
+        "start_line": 15108,
+        "end_line": 15110,
+        "line_count": 3
+      },
+      {
+        "function": "airoSprint7SamplePreviewExtractMerchant_",
+        "start_line": 15112,
+        "end_line": 15145,
+        "line_count": 34
+      },
+      {
+        "function": "airoSprint7SamplePreviewExtractPaymentMethod_",
+        "start_line": 15147,
+        "end_line": 15167,
+        "line_count": 21
+      },
+      {
+        "function": "airoSprint7SamplePreviewGuessCategory_",
+        "start_line": 15169,
+        "end_line": 15201,
+        "line_count": 33
+      },
+      {
+        "function": "airoSprint7ManualSampleEmailPreview_",
+        "start_line": 15203,
+        "end_line": 15383,
+        "line_count": 181
+      },
+      {
+        "function": "airoSprint7ManualSampleEmailPreviewText_",
+        "start_line": 15385,
+        "end_line": 15432,
+        "line_count": 48
+      },
+      {
+        "function": "airoSprint7SamplePreviewExtractCommand_",
+        "start_line": 15434,
+        "end_line": 15473,
+        "line_count": 40
+      },
+      {
+        "function": "airoSprint7SamplePreviewGetBotToken_",
+        "start_line": 15475,
+        "end_line": 15513,
+        "line_count": 39
+      },
+      {
+        "function": "airoSprint7SamplePreviewReply_",
+        "start_line": 15515,
+        "end_line": 15536,
+        "line_count": 22
+      },
+      {
+        "function": "airoSprint7SamplePreviewJsonOutput_",
+        "start_line": 15538,
+        "end_line": 15542,
+        "line_count": 5
+      },
+      {
+        "function": "airoSprint7SamplePreviewMaybeHandleRoute_",
+        "start_line": 15544,
+        "end_line": 15575,
+        "line_count": 32
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7FixtureMatrix_",
+        "start_line": 15577,
+        "end_line": 15585,
+        "line_count": 9
+      },
+      {
+        "function": "airoSprint7FixtureMatrixDesign_",
+        "start_line": 15589,
+        "end_line": 15714,
+        "line_count": 126
+      },
+      {
+        "function": "airoSprint7FixtureMatrixReadbackText_",
+        "start_line": 15716,
+        "end_line": 15784,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7FixtureMatrixReply_",
+        "start_line": 15867,
+        "end_line": 15888,
+        "line_count": 22
+      },
+      {
+        "function": "airoSprint7ProviderProfilesDesign_",
+        "start_line": 15936,
+        "end_line": 16068,
+        "line_count": 133
+      },
+      {
+        "function": "airoSprint7ProviderProfilesReadbackText_",
+        "start_line": 16070,
+        "end_line": 16138,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7ProviderProfilesReply_",
+        "start_line": 16221,
+        "end_line": 16242,
+        "line_count": 22
+      }
+    ],
+    "internal_transfer_candidates": [
+      {
+        "function": "canAskCashAmbiguousClarification_",
+        "start_line": 140,
+        "end_line": 156,
+        "line_count": 17
+      },
+      {
+        "function": "canAskDirectionAmbiguousClarification_",
+        "start_line": 197,
+        "end_line": 213,
+        "line_count": 17
+      },
+      {
+        "function": "canAskTransferIncompleteClarification_",
+        "start_line": 303,
+        "end_line": 312,
+        "line_count": 10
+      },
+      {
+        "function": "airoWriteRoutedCore_",
+        "start_line": 3536,
+        "end_line": 3818,
+        "line_count": 283
+      },
+      {
+        "function": "savingsEventType_",
+        "start_line": 3962,
+        "end_line": 3978,
+        "line_count": 17
+      },
+      {
+        "function": "parseFinanceText_",
+        "start_line": 4470,
+        "end_line": 4531,
+        "line_count": 62
+      },
+      {
+        "function": "airoSprint6DashboardFinalPlan_",
+        "start_line": 9708,
+        "end_line": 9822,
+        "line_count": 115
+      },
+      {
+        "function": "handleSpecialFinanceCommand_",
+        "start_line": 10731,
+        "end_line": 12006,
+        "line_count": 1276
+      },
+      {
+        "function": "writeCreditCardSafely_",
+        "start_line": 12334,
+        "end_line": 12387,
+        "line_count": 54
+      },
+      {
+        "function": "markCreditCardPocketBluTransfer_",
+        "start_line": 12670,
+        "end_line": 12874,
+        "line_count": 205
+      },
+      {
+        "function": "detectInternalTransfer_",
+        "start_line": 14345,
+        "end_line": 14381,
+        "line_count": 37
+      },
+      {
+        "function": "writeInternalTransferToAccountLedger_",
+        "start_line": 14519,
+        "end_line": 14604,
+        "line_count": 86
+      },
+      {
+        "function": "airoTask9CcSudahNumberMaybeHandleRoute_",
+        "start_line": 17742,
+        "end_line": 18054,
+        "line_count": 313
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterContract_",
+        "start_line": 18712,
+        "end_line": 18797,
+        "line_count": 86
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesContract_",
+        "start_line": 18895,
+        "end_line": 18992,
+        "line_count": 98
+      },
+      {
+        "function": "airoSprint7BFixtureMatrixContract_",
+        "start_line": 19094,
+        "end_line": 19152,
+        "line_count": 59
+      },
+      {
+        "function": "airoSprint7FDInferAction_",
+        "start_line": 22579,
+        "end_line": 22670,
+        "line_count": 92
+      },
+      {
+        "function": "airoSprint7FDEventTypeForAction_",
+        "start_line": 22672,
+        "end_line": 22684,
+        "line_count": 13
+      },
+      {
+        "function": "airoSprint7FDDomainForAction_",
+        "start_line": 22686,
+        "end_line": 22691,
+        "line_count": 6
+      },
+      {
+        "function": "airoSprint7FDTargetTabsForAction_",
+        "start_line": 22693,
+        "end_line": 22699,
+        "line_count": 7
+      },
+      {
+        "function": "airoSprint7FDBuildNoWriteRoutePreview_",
+        "start_line": 22715,
+        "end_line": 22775,
+        "line_count": 61
+      },
+      {
+        "function": "runTask8TransferRegistrySelfTestFromEditor",
+        "start_line": 29518,
+        "end_line": 29580,
+        "line_count": 63
+      }
+    ],
+    "balance_readback_candidates": [
+      {
+        "function": "isClearlyNonFinanceOrTooUnclear_",
+        "start_line": 73,
+        "end_line": 90,
+        "line_count": 18
+      },
+      {
+        "function": "normalizeCashClarificationAnswer_",
+        "start_line": 128,
+        "end_line": 138,
+        "line_count": 11
+      },
+      {
+        "function": "canAskCashAmbiguousClarification_",
+        "start_line": 140,
+        "end_line": 156,
+        "line_count": 17
+      },
+      {
+        "function": "buildCashAmbiguousClarificationMessage_",
+        "start_line": 158,
+        "end_line": 169,
+        "line_count": 12
+      },
+      {
+        "function": "cashClarificationResolvedText_",
+        "start_line": 171,
+        "end_line": 183,
+        "line_count": 13
+      },
+      {
+        "function": "normalizeDirectionClarificationAnswer_",
+        "start_line": 185,
+        "end_line": 195,
+        "line_count": 11
+      },
+      {
+        "function": "buildDirectionAmbiguousClarificationMessage_",
+        "start_line": 215,
+        "end_line": 226,
+        "line_count": 12
+      },
+      {
+        "function": "isSprint0ANonFinanceSafeReject_",
+        "start_line": 614,
+        "end_line": 648,
+        "line_count": 35
+      },
+      {
+        "function": "tryHandlePendingClarificationReply_",
+        "start_line": 789,
+        "end_line": 1151,
+        "line_count": 363
+      },
+      {
+        "function": "formatBalanceRupiah_",
+        "start_line": 1153,
+        "end_line": 1161,
+        "line_count": 9
+      },
+      {
+        "function": "getAccountLedgerRowDetails_",
+        "start_line": 1163,
+        "end_line": 1186,
+        "line_count": 24
+      },
+      {
+        "function": "airoBuildFinanceWriteSuccessReply_",
+        "start_line": 1188,
+        "end_line": 1318,
+        "line_count": 131
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "writeAccountLedgerPrimary_",
+        "start_line": 2890,
+        "end_line": 2967,
+        "line_count": 78
+      },
+      {
+        "function": "writeAccountLedgerMirror_",
+        "start_line": 3117,
+        "end_line": 3172,
+        "line_count": 56
+      },
+      {
+        "function": "ensureAccountLedgerSheet_",
+        "start_line": 3179,
+        "end_line": 3214,
+        "line_count": 36
+      },
+      {
+        "function": "stringifyReadbackCell_",
+        "start_line": 4102,
+        "end_line": 4105,
+        "line_count": 4
+      },
+      {
+        "function": "buildReadbackText_",
+        "start_line": 4107,
+        "end_line": 4109,
+        "line_count": 3
+      },
+      {
+        "function": "verifyAppendWrite_",
+        "start_line": 4111,
+        "end_line": 4123,
+        "line_count": 13
+      },
+      {
+        "function": "appendByHeader_",
+        "start_line": 4125,
+        "end_line": 4172,
+        "line_count": 48
+      },
+      {
+        "function": "airoSprint6BDuplicateSuppressionRunner_",
+        "start_line": 7828,
+        "end_line": 7899,
+        "line_count": 72
+      },
+      {
+        "function": "airoSprint6BCooldownSuppressionReadback_",
+        "start_line": 7938,
+        "end_line": 8001,
+        "line_count": 64
+      },
+      {
+        "function": "airoBuildSprint6BCooldownSuppressionReadbackReply_",
+        "start_line": 8003,
+        "end_line": 8039,
+        "line_count": 37
+      },
+      {
+        "function": "airoSprint6BAckAlert_",
+        "start_line": 8041,
+        "end_line": 8084,
+        "line_count": 44
+      },
+      {
+        "function": "airoSprint6BAlertEnginePlan_",
+        "start_line": 8398,
+        "end_line": 9110,
+        "line_count": 713
+      },
+      {
+        "function": "airoSprint6DashboardFinalReadback_",
+        "start_line": 9160,
+        "end_line": 9398,
+        "line_count": 239
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalReadbackReply_",
+        "start_line": 9400,
+        "end_line": 9457,
+        "line_count": 58
+      },
+      {
+        "function": "airoSprint6DashboardFinalBuild_",
+        "start_line": 9459,
+        "end_line": 9663,
+        "line_count": 205
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalBuildReply_",
+        "start_line": 9665,
+        "end_line": 9680,
+        "line_count": 16
+      },
+      {
+        "function": "airoSprint6DashboardFinalPlan_",
+        "start_line": 9708,
+        "end_line": 9822,
+        "line_count": 115
+      },
+      {
+        "function": "airoBuildFindSmokeReply_",
+        "start_line": 10680,
+        "end_line": 10729,
+        "line_count": 50
+      },
+      {
+        "function": "handleSpecialFinanceCommand_",
+        "start_line": 10731,
+        "end_line": 12006,
+        "line_count": 1276
+      },
+      {
+        "function": "appendCreditCardPurchase_",
+        "start_line": 12616,
+        "end_line": 12668,
+        "line_count": 53
+      },
+      {
+        "function": "appendDebtPaymentAndUpdateMaster_",
+        "start_line": 13082,
+        "end_line": 13353,
+        "line_count": 272
+      },
+      {
+        "function": "AIRO_BACKFILL_ACCOUNT_LEDGER_FROM_CASH_LEDGER",
+        "start_line": 13758,
+        "end_line": 14012,
+        "line_count": 255
+      },
+      {
+        "function": "airoSprint7FixtureMatrixReadbackText_",
+        "start_line": 15716,
+        "end_line": 15784,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7FixtureMatrixMaybeHandleRoute_",
+        "start_line": 15896,
+        "end_line": 15922,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7ProviderProfilesReadbackText_",
+        "start_line": 16070,
+        "end_line": 16138,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7ProviderProfilesMaybeHandleRoute_",
+        "start_line": 16250,
+        "end_line": 16275,
+        "line_count": 26
+      },
+      {
+        "function": "airoSprint7SourceAllowlistReadbackText_",
+        "start_line": 16451,
+        "end_line": 16543,
+        "line_count": 93
+      },
+      {
+        "function": "airoSprint7SourceAllowlistMaybeHandleRoute_",
+        "start_line": 16655,
+        "end_line": 16681,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterReadbackText_",
+        "start_line": 16875,
+        "end_line": 16945,
+        "line_count": 71
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterMaybeHandleRoute_",
+        "start_line": 17057,
+        "end_line": 17110,
+        "line_count": 54
+      },
+      {
+        "function": "airoTask611SmokeAdminCommandMaybeHandleRoute_",
+        "start_line": 17116,
+        "end_line": 17259,
+        "line_count": 144
+      },
+      {
+        "function": "airoTask9CcPendingPocketCommandMaybeHandleRoute_",
+        "start_line": 17580,
+        "end_line": 17740,
+        "line_count": 161
+      },
+      {
+        "function": "airoTask9CcSudahNumberMaybeHandleRoute_",
+        "start_line": 17742,
+        "end_line": 18054,
+        "line_count": 313
+      },
+      {
+        "function": "airoTask9ReadAndRepairMaybeHandleRoute_",
+        "start_line": 18056,
+        "end_line": 18179,
+        "line_count": 124
+      },
+      {
+        "function": "airoSprint7EmailIngestionLogContract_",
+        "start_line": 18184,
+        "end_line": 18264,
+        "line_count": 81
+      },
+      {
+        "function": "airoSprint7EmailCandidateLifecycleContract_",
+        "start_line": 18365,
+        "end_line": 18452,
+        "line_count": 88
+      },
+      {
+        "function": "airoSprint7EmailClarificationBridgeContract_",
+        "start_line": 18544,
+        "end_line": 18616,
+        "line_count": 73
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterContract_",
+        "start_line": 18712,
+        "end_line": 18797,
+        "line_count": 86
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesContract_",
+        "start_line": 18895,
+        "end_line": 18992,
+        "line_count": 98
+      },
+      {
+        "function": "airoSprint7BFixtureMatrixContract_",
+        "start_line": 19094,
+        "end_line": 19152,
+        "line_count": 59
+      },
+      {
+        "function": "runSprint7GManualWritePilotFromEditor",
+        "start_line": 21123,
+        "end_line": 21364,
+        "line_count": 242
+      },
+      {
+        "function": "airoSprint7GNormalizeAmountForReadback_",
+        "start_line": 21366,
+        "end_line": 21381,
+        "line_count": 16
+      },
+      {
+        "function": "runSprint7GTask5TargetedReadbackVerifierFromEditor",
+        "start_line": 21383,
+        "end_line": 21639,
+        "line_count": 257
+      },
+      {
+        "function": "runSprint7GReviewQueueReadbackVerifierFromEditor",
+        "start_line": 21641,
+        "end_line": 21938,
+        "line_count": 298
+      },
+      {
+        "function": "airoSprint7HResolveToReviewQueueFallback_",
+        "start_line": 23249,
+        "end_line": 23526,
+        "line_count": 278
+      },
+      {
+        "function": "airoSprint7HApprovalReject_",
+        "start_line": 24177,
+        "end_line": 24228,
+        "line_count": 52
+      },
+      {
+        "function": "airoSprint7HApprovalApprove_",
+        "start_line": 24230,
+        "end_line": 24417,
+        "line_count": 188
+      },
+      {
+        "function": "airoSprint6DashboardV2Build_",
+        "start_line": 25879,
+        "end_line": 26402,
+        "line_count": 524
+      },
+      {
+        "function": "airoSprint6DashboardV2Readback_",
+        "start_line": 26542,
+        "end_line": 26714,
+        "line_count": 173
+      },
+      {
+        "function": "airoTask611SmokeCleanupExecute_",
+        "start_line": 27685,
+        "end_line": 27933,
+        "line_count": 249
+      },
+      {
+        "function": "runTask613ApplyAccountRegistryStyleFromEditor",
+        "start_line": 28644,
+        "end_line": 29085,
+        "line_count": 442
+      },
+      {
+        "function": "runTask7BaselineReadOnlyFromEditor",
+        "start_line": 29483,
+        "end_line": 29516,
+        "line_count": 34
+      },
+      {
+        "function": "airoTask10SheetRef_",
+        "start_line": 29613,
+        "end_line": 31939,
+        "line_count": 2327
+      },
+      {
+        "function": "airoTask10ReadLedger_",
+        "start_line": 29628,
+        "end_line": 29655,
+        "line_count": 28
+      },
+      {
+        "function": "airoTask10AccountPanel_",
+        "start_line": 29732,
+        "end_line": 29755,
+        "line_count": 24
+      },
+      {
+        "function": "airoTask10RepairDashboard_",
+        "start_line": 29847,
+        "end_line": 29994,
+        "line_count": 148
+      },
+      {
+        "function": "airoTask10ReadAndRepairMaybeHandleRoute_",
+        "start_line": 30015,
+        "end_line": 30066,
+        "line_count": 52
+      },
+      {
+        "function": "airoTask101ReadLedger_",
+        "start_line": 30157,
+        "end_line": 30190,
+        "line_count": 34
+      },
+      {
+        "function": "airoTask101AccountPanel_",
+        "start_line": 30362,
+        "end_line": 30388,
+        "line_count": 27
+      },
+      {
+        "function": "airoTask101RenderDashboardFromCurrentFilter_",
+        "start_line": 30470,
+        "end_line": 30613,
+        "line_count": 144
+      },
+      {
+        "function": "runTask101DashboardForensicReadbackFromEditor",
+        "start_line": 30749,
+        "end_line": 30862,
+        "line_count": 114
+      },
+      {
+        "function": "runTask101DashboardReadbackFromEditor",
+        "start_line": 31201,
+        "end_line": 31233,
+        "line_count": 33
+      },
+      {
+        "function": "airoTask102InstallFilters_",
+        "start_line": 31327,
+        "end_line": 31421,
+        "line_count": 95
+      },
+      {
+        "function": "airoTask102InstallNativeFormulas_",
+        "start_line": 31797,
+        "end_line": 31939,
+        "line_count": 143
+      },
+      {
+        "function": "runTask103DashboardCandidateBuildFromEditor",
+        "start_line": 32095,
+        "end_line": 32295,
+        "line_count": 201
+      },
+      {
+        "function": "runTask103DashboardCandidateReadbackFromEditor",
+        "start_line": 32297,
+        "end_line": 32318,
+        "line_count": 22
+      },
+      {
+        "function": "runTask103DashboardPromoteFromEditor",
+        "start_line": 32487,
+        "end_line": 32770,
+        "line_count": 284
+      }
+    ],
+    "success_reply_candidates": [
+      {
+        "function": "airoBuildFinanceWriteSuccessReply_",
+        "start_line": 1188,
+        "end_line": 1318,
+        "line_count": 131
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "writeAccountLedgerPrimary_",
+        "start_line": 2890,
+        "end_line": 2967,
+        "line_count": 78
+      },
+      {
+        "function": "stringifyReadbackCell_",
+        "start_line": 4102,
+        "end_line": 4105,
+        "line_count": 4
+      },
+      {
+        "function": "buildReadbackText_",
+        "start_line": 4107,
+        "end_line": 4109,
+        "line_count": 3
+      },
+      {
+        "function": "verifyAppendWrite_",
+        "start_line": 4111,
+        "end_line": 4123,
+        "line_count": 13
+      },
+      {
+        "function": "appendByHeader_",
+        "start_line": 4125,
+        "end_line": 4172,
+        "line_count": 48
+      },
+      {
+        "function": "airoBuildSprint6EnsureAuditLogReply_",
+        "start_line": 6884,
+        "end_line": 6894,
+        "line_count": 11
+      },
+      {
+        "function": "airoBuildSprint7EmailSourceContractGuardReply_",
+        "start_line": 7237,
+        "end_line": 7278,
+        "line_count": 42
+      },
+      {
+        "function": "airoBuildSprint6BTriggerLifecycleReply_",
+        "start_line": 7794,
+        "end_line": 7826,
+        "line_count": 33
+      },
+      {
+        "function": "airoSprint6BDuplicateSuppressionRunner_",
+        "start_line": 7828,
+        "end_line": 7899,
+        "line_count": 72
+      },
+      {
+        "function": "airoBuildSprint6BDuplicateSuppressionRunnerReply_",
+        "start_line": 7901,
+        "end_line": 7936,
+        "line_count": 36
+      },
+      {
+        "function": "airoSprint6BCooldownSuppressionReadback_",
+        "start_line": 7938,
+        "end_line": 8001,
+        "line_count": 64
+      },
+      {
+        "function": "airoBuildSprint6BCooldownSuppressionReadbackReply_",
+        "start_line": 8003,
+        "end_line": 8039,
+        "line_count": 37
+      },
+      {
+        "function": "airoSprint6BAckAlert_",
+        "start_line": 8041,
+        "end_line": 8084,
+        "line_count": 44
+      },
+      {
+        "function": "airoBuildSprint6BAckAlertReply_",
+        "start_line": 8086,
+        "end_line": 8096,
+        "line_count": 11
+      },
+      {
+        "function": "airoBuildSprint6BControlledSendTestReply_",
+        "start_line": 8180,
+        "end_line": 8193,
+        "line_count": 14
+      },
+      {
+        "function": "airoBuildSprint6BAlertRunnerSafeModeReply_",
+        "start_line": 8365,
+        "end_line": 8396,
+        "line_count": 32
+      },
+      {
+        "function": "airoBuildSprint6BAlertEnginePlanReply_",
+        "start_line": 9112,
+        "end_line": 9158,
+        "line_count": 47
+      },
+      {
+        "function": "airoSprint6DashboardFinalReadback_",
+        "start_line": 9160,
+        "end_line": 9398,
+        "line_count": 239
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalReadbackReply_",
+        "start_line": 9400,
+        "end_line": 9457,
+        "line_count": 58
+      },
+      {
+        "function": "airoSprint6DashboardFinalBuild_",
+        "start_line": 9459,
+        "end_line": 9663,
+        "line_count": 205
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalBuildReply_",
+        "start_line": 9665,
+        "end_line": 9680,
+        "line_count": 16
+      },
+      {
+        "function": "airoBuildSprint6DashboardFinalPlanReply_",
+        "start_line": 9824,
+        "end_line": 9872,
+        "line_count": 49
+      },
+      {
+        "function": "airoBuildSprint5ReconciliationReply_",
+        "start_line": 10487,
+        "end_line": 10554,
+        "line_count": 68
+      },
+      {
+        "function": "airoBuildFindSmokeReply_",
+        "start_line": 10680,
+        "end_line": 10729,
+        "line_count": 50
+      },
+      {
+        "function": "handleSpecialFinanceCommand_",
+        "start_line": 10731,
+        "end_line": 12006,
+        "line_count": 1276
+      },
+      {
+        "function": "appendCreditCardPurchase_",
+        "start_line": 12616,
+        "end_line": 12668,
+        "line_count": 53
+      },
+      {
+        "function": "appendDebtPaymentAndUpdateMaster_",
+        "start_line": 13082,
+        "end_line": 13353,
+        "line_count": 272
+      },
+      {
+        "function": "airoSprint7FixtureMatrixReadbackText_",
+        "start_line": 15716,
+        "end_line": 15784,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7FixtureMatrixMaybeHandleRoute_",
+        "start_line": 15896,
+        "end_line": 15922,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7ProviderProfilesReadbackText_",
+        "start_line": 16070,
+        "end_line": 16138,
+        "line_count": 69
+      },
+      {
+        "function": "airoSprint7ProviderProfilesMaybeHandleRoute_",
+        "start_line": 16250,
+        "end_line": 16275,
+        "line_count": 26
+      },
+      {
+        "function": "airoSprint7SourceAllowlistReadbackText_",
+        "start_line": 16451,
+        "end_line": 16543,
+        "line_count": 93
+      },
+      {
+        "function": "airoSprint7SourceAllowlistMaybeHandleRoute_",
+        "start_line": 16655,
+        "end_line": 16681,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterReadbackText_",
+        "start_line": 16875,
+        "end_line": 16945,
+        "line_count": 71
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterMaybeHandleRoute_",
+        "start_line": 17057,
+        "end_line": 17110,
+        "line_count": 54
+      },
+      {
+        "function": "airoSprint7EmailIngestionLogContract_",
+        "start_line": 18184,
+        "end_line": 18264,
+        "line_count": 81
+      },
+      {
+        "function": "airoSprint7EmailCandidateLifecycleContract_",
+        "start_line": 18365,
+        "end_line": 18452,
+        "line_count": 88
+      },
+      {
+        "function": "airoSprint7EmailClarificationBridgeContract_",
+        "start_line": 18544,
+        "end_line": 18616,
+        "line_count": 73
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterContract_",
+        "start_line": 18712,
+        "end_line": 18797,
+        "line_count": 86
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesContract_",
+        "start_line": 18895,
+        "end_line": 18992,
+        "line_count": 98
+      },
+      {
+        "function": "airoSprint7BFixtureMatrixContract_",
+        "start_line": 19094,
+        "end_line": 19152,
+        "line_count": 59
+      },
+      {
+        "function": "airoSprint7FBuildStatusReply_",
+        "start_line": 20077,
+        "end_line": 20118,
+        "line_count": 42
+      },
+      {
+        "function": "airoSprint7FStatusMaybeHandleRoute_",
+        "start_line": 20137,
+        "end_line": 20151,
+        "line_count": 15
+      },
+      {
+        "function": "runSprint7GManualWritePilotFromEditor",
+        "start_line": 21123,
+        "end_line": 21364,
+        "line_count": 242
+      },
+      {
+        "function": "airoSprint7GNormalizeAmountForReadback_",
+        "start_line": 21366,
+        "end_line": 21381,
+        "line_count": 16
+      },
+      {
+        "function": "runSprint7GTask5TargetedReadbackVerifierFromEditor",
+        "start_line": 21383,
+        "end_line": 21639,
+        "line_count": 257
+      },
+      {
+        "function": "runSprint7GReviewQueueReadbackVerifierFromEditor",
+        "start_line": 21641,
+        "end_line": 21938,
+        "line_count": 298
+      },
+      {
+        "function": "airoSprint7HResolveToReviewQueueFallback_",
+        "start_line": 23249,
+        "end_line": 23526,
+        "line_count": 278
+      },
+      {
+        "function": "airoSprint7HApprovalReject_",
+        "start_line": 24177,
+        "end_line": 24228,
+        "line_count": 52
+      },
+      {
+        "function": "airoSprint7HApprovalApprove_",
+        "start_line": 24230,
+        "end_line": 24417,
+        "line_count": 188
+      },
+      {
+        "function": "airoSprint7CategoryContractKategoriCommandMaybeHandleRoute_",
+        "start_line": 25196,
+        "end_line": 25221,
+        "line_count": 26
+      },
+      {
+        "function": "airoSprint7CategoryContractKategoriCommandBuildReply_",
+        "start_line": 25223,
+        "end_line": 25297,
+        "line_count": 75
+      },
+      {
+        "function": "airoSprint6DashboardV2Readback_",
+        "start_line": 26542,
+        "end_line": 26714,
+        "line_count": 173
+      },
+      {
+        "function": "runTask7BaselineReadOnlyFromEditor",
+        "start_line": 29483,
+        "end_line": 29516,
+        "line_count": 34
+      },
+      {
+        "function": "airoTask10SheetRef_",
+        "start_line": 29613,
+        "end_line": 31939,
+        "line_count": 2327
+      },
+      {
+        "function": "airoTask10ReadAndRepairMaybeHandleRoute_",
+        "start_line": 30015,
+        "end_line": 30066,
+        "line_count": 52
+      },
+      {
+        "function": "runTask101DashboardForensicReadbackFromEditor",
+        "start_line": 30749,
+        "end_line": 30862,
+        "line_count": 114
+      },
+      {
+        "function": "runTask101DashboardReadbackFromEditor",
+        "start_line": 31201,
+        "end_line": 31233,
+        "line_count": 33
+      },
+      {
+        "function": "airoTask102InstallFilters_",
+        "start_line": 31327,
+        "end_line": 31421,
+        "line_count": 95
+      },
+      {
+        "function": "runTask103DashboardCandidateBuildFromEditor",
+        "start_line": 32095,
+        "end_line": 32295,
+        "line_count": 201
+      },
+      {
+        "function": "runTask103DashboardCandidateReadbackFromEditor",
+        "start_line": 32297,
+        "end_line": 32318,
+        "line_count": 22
+      },
+      {
+        "function": "runTask103DashboardPromoteFromEditor",
+        "start_line": 32487,
+        "end_line": 32770,
+        "line_count": 284
+      },
+      {
+        "function": "runTask103DashboardActiveReadbackFromEditor",
+        "start_line": 32772,
+        "end_line": 32789,
+        "line_count": 18
+      },
+      {
+        "function": "runTask102DashboardNativeV2ReadbackFromEditor",
+        "start_line": 32795,
+        "end_line": 32797,
+        "line_count": 3
+      },
+      {
+        "function": "runTask10DashboardReadbackFromEditor",
+        "start_line": 32807,
+        "end_line": 32809,
+        "line_count": 3
+      }
+    ],
+    "idempotency_candidates": [
+      {
+        "function": "canAskDebtAmbiguousClarification_",
+        "start_line": 457,
+        "end_line": 476,
+        "line_count": 20
+      },
+      {
+        "function": "debtAmbiguousClarificationResolvedText_",
+        "start_line": 578,
+        "end_line": 612,
+        "line_count": 35
+      },
+      {
+        "function": "airoOriginalDoPostForSprint7ParserPlan_",
+        "start_line": 1322,
+        "end_line": 2597,
+        "line_count": 1276
+      },
+      {
+        "function": "getFinanceEventsHeaders_",
+        "start_line": 2659,
+        "end_line": 2678,
+        "line_count": 20
+      },
+      {
+        "function": "financeEventPayloadJson_",
+        "start_line": 2714,
+        "end_line": 2731,
+        "line_count": 18
+      },
+      {
+        "function": "buildFinanceEvent_",
+        "start_line": 2733,
+        "end_line": 2753,
+        "line_count": 21
+      },
+      {
+        "function": "writeCashLedger_",
+        "start_line": 2783,
+        "end_line": 2818,
+        "line_count": 36
+      },
+      {
+        "function": "withAccountLedgerPrimaryLock_",
+        "start_line": 2825,
+        "end_line": 2840,
+        "line_count": 16
+      },
+      {
+        "function": "findAccountLedgerEntryById_",
+        "start_line": 2842,
+        "end_line": 2888,
+        "line_count": 47
+      },
+      {
+        "function": "writeAccountLedgerPrimary_",
+        "start_line": 2890,
+        "end_line": 2967,
+        "line_count": 78
+      },
+      {
+        "function": "findProjectionRowByLedgerEntryId_",
+        "start_line": 2969,
+        "end_line": 3059,
+        "line_count": 91
+      },
+      {
+        "function": "writeAccountLedgerMirror_",
+        "start_line": 3117,
+        "end_line": 3172,
+        "line_count": 56
+      },
+      {
+        "function": "ensureAccountLedgerSheet_",
+        "start_line": 3179,
+        "end_line": 3214,
+        "line_count": 36
+      },
+      {
+        "function": "recordFinanceEventForWriteResult_",
+        "start_line": 3481,
+        "end_line": 3534,
+        "line_count": 54
+      },
+      {
+        "function": "airoWriteRoutedCore_",
+        "start_line": 3536,
+        "end_line": 3818,
+        "line_count": 283
+      },
+      {
+        "function": "writeAssetSafely_",
+        "start_line": 3851,
+        "end_line": 3929,
+        "line_count": 79
+      },
+      {
+        "function": "appendToAssetSection_",
+        "start_line": 3931,
+        "end_line": 3960,
+        "line_count": 30
+      },
+      {
+        "function": "buildRowByHeader_",
+        "start_line": 4219,
+        "end_line": 4299,
+        "line_count": 81
+      },
+      {
+        "function": "fieldForHeader_",
+        "start_line": 4309,
+        "end_line": 4381,
+        "line_count": 73
+      },
+      {
+        "function": "processReviewQueueApproved",
+        "start_line": 4811,
+        "end_line": 4930,
+        "line_count": 120
+      },
+      {
+        "function": "extendReviewQueueSchema_",
+        "start_line": 5060,
+        "end_line": 5120,
+        "line_count": 61
+      },
+      {
+        "function": "runTask3AReviewQueueSchemaVerifierFromEditor",
+        "start_line": 5128,
+        "end_line": 5163,
+        "line_count": 36
+      },
+      {
+        "function": "appendGoldAssetRow_",
+        "start_line": 5628,
+        "end_line": 5723,
+        "line_count": 96
+      },
+      {
+        "function": "setupDashboardNetWorthPanel",
+        "start_line": 6564,
+        "end_line": 6679,
+        "line_count": 116
+      },
+      {
+        "function": "cleanupDuplicateNetWorthPanels",
+        "start_line": 6681,
+        "end_line": 6734,
+        "line_count": 54
+      },
+      {
+        "function": "airoSprint7EmailSourceContractGuard_",
+        "start_line": 7163,
+        "end_line": 7235,
+        "line_count": 73
+      },
+      {
+        "function": "airoBuildSprint7EmailSourceContractGuardReply_",
+        "start_line": 7237,
+        "end_line": 7278,
+        "line_count": 42
+      },
+      {
+        "function": "airoSprint6BTriggerHandlerSafe_",
+        "start_line": 7280,
+        "end_line": 7306,
+        "line_count": 27
+      },
+      {
+        "function": "airoSprint6BGuardedTriggerStatus_",
+        "start_line": 7359,
+        "end_line": 7376,
+        "line_count": 18
+      },
+      {
+        "function": "airoSprint6BInstallGuardedTrigger_",
+        "start_line": 7378,
+        "end_line": 7428,
+        "line_count": 51
+      },
+      {
+        "function": "airoSprint6BTriggerHandlerLive_",
+        "start_line": 7629,
+        "end_line": 7689,
+        "line_count": 61
+      },
+      {
+        "function": "airoSprint6BInstallLiveTrigger_",
+        "start_line": 7691,
+        "end_line": 7744,
+        "line_count": 54
+      },
+      {
+        "function": "airoSprint6BDuplicateSuppressionRunner_",
+        "start_line": 7828,
+        "end_line": 7899,
+        "line_count": 72
+      },
+      {
+        "function": "airoBuildSprint6BDuplicateSuppressionRunnerReply_",
+        "start_line": 7901,
+        "end_line": 7936,
+        "line_count": 36
+      },
+      {
+        "function": "airoSprint6BCooldownSuppressionReadback_",
+        "start_line": 7938,
+        "end_line": 8001,
+        "line_count": 64
+      },
+      {
+        "function": "airoSprint6BAlertEnginePlan_",
+        "start_line": 8398,
+        "end_line": 9110,
+        "line_count": 713
+      },
+      {
+        "function": "airoSprint5ReconciliationReadOnly_",
+        "start_line": 9874,
+        "end_line": 10197,
+        "line_count": 324
+      },
+      {
+        "function": "airoBuildSprint5DashboardAnalytics_",
+        "start_line": 10218,
+        "end_line": 10463,
+        "line_count": 246
+      },
+      {
+        "function": "airoBuildSprint5ReconciliationReply_",
+        "start_line": 10487,
+        "end_line": 10554,
+        "line_count": 68
+      },
+      {
+        "function": "airoBuildFindSmokeReply_",
+        "start_line": 10680,
+        "end_line": 10729,
+        "line_count": 50
+      },
+      {
+        "function": "hideLegacyAsetNetWorthPanel",
+        "start_line": 12012,
+        "end_line": 12032,
+        "line_count": 21
+      },
+      {
+        "function": "reserveTelegramUpdateOnce_",
+        "start_line": 12052,
+        "end_line": 12098,
+        "line_count": 47
+      },
+      {
+        "function": "makeTelegramDedupeKey_",
+        "start_line": 12100,
+        "end_line": 12118,
+        "line_count": 19
+      },
+      {
+        "function": "getOrCreateDedupeSheet_",
+        "start_line": 12120,
+        "end_line": 12141,
+        "line_count": 22
+      },
+      {
+        "function": "showAiroDedupeLog",
+        "start_line": 12143,
+        "end_line": 12152,
+        "line_count": 10
+      },
+      {
+        "function": "hideAiroDedupeLog",
+        "start_line": 12154,
+        "end_line": 12163,
+        "line_count": 10
+      },
+      {
+        "function": "ensureDropdownAcceptsCurrentValues_",
+        "start_line": 12201,
+        "end_line": 12275,
+        "line_count": 75
+      },
+      {
+        "function": "writeCreditCardSafely_",
+        "start_line": 12334,
+        "end_line": 12387,
+        "line_count": 54
+      },
+      {
+        "function": "appendCreditCardPurchase_",
+        "start_line": 12616,
+        "end_line": 12668,
+        "line_count": 53
+      },
+      {
+        "function": "markCreditCardPocketBluTransfer_",
+        "start_line": 12670,
+        "end_line": 12874,
+        "line_count": 205
+      },
+      {
+        "function": "appendDebtMasterRow_",
+        "start_line": 13029,
+        "end_line": 13079,
+        "line_count": 51
+      },
+      {
+        "function": "appendDebtPaymentAndUpdateMaster_",
+        "start_line": 13082,
+        "end_line": 13353,
+        "line_count": 272
+      },
+      {
+        "function": "appendDebtIncreaseAndUpdateMaster_",
+        "start_line": 13354,
+        "end_line": 13438,
+        "line_count": 85
+      },
+      {
+        "function": "moveCreditCardStatusAfterAmount",
+        "start_line": 13531,
+        "end_line": 13619,
+        "line_count": 89
+      },
+      {
+        "function": "AIRO_BACKFILL_ACCOUNT_LEDGER_FROM_CASH_LEDGER",
+        "start_line": 13758,
+        "end_line": 14012,
+        "line_count": 255
+      },
+      {
+        "function": "AIRO_AUDIT_ACCOUNT_LEDGER_BACKFILL_CLEANUP",
+        "start_line": 14066,
+        "end_line": 14180,
+        "line_count": 115
+      },
+      {
+        "function": "task8DebtCicilanLedgerFirstContract_",
+        "start_line": 14388,
+        "end_line": 14420,
+        "line_count": 33
+      },
+      {
+        "function": "runTask8DebtCicilanLedgerFirstSelfTestFromEditor",
+        "start_line": 14422,
+        "end_line": 14517,
+        "line_count": 96
+      },
+      {
+        "function": "writeInternalTransferToAccountLedger_",
+        "start_line": 14519,
+        "end_line": 14604,
+        "line_count": 86
+      },
+      {
+        "function": "airoSprint7DryRunParserPlan_",
+        "start_line": 14668,
+        "end_line": 14771,
+        "line_count": 104
+      },
+      {
+        "function": "airoSprint7DryRunParserPlanText_",
+        "start_line": 14773,
+        "end_line": 14813,
+        "line_count": 41
+      },
+      {
+        "function": "airoSprint7SamplePreviewCleanMerchant_",
+        "start_line": 15053,
+        "end_line": 15106,
+        "line_count": 54
+      },
+      {
+        "function": "airoSprint7ManualSampleEmailPreview_",
+        "start_line": 15203,
+        "end_line": 15383,
+        "line_count": 181
+      },
+      {
+        "function": "airoSprint7ManualSampleEmailPreviewText_",
+        "start_line": 15385,
+        "end_line": 15432,
+        "line_count": 48
+      },
+      {
+        "function": "airoSprint7FixtureMatrixDesign_",
+        "start_line": 15589,
+        "end_line": 15714,
+        "line_count": 126
+      },
+      {
+        "function": "airoSprint7ProviderProfilesDesign_",
+        "start_line": 15936,
+        "end_line": 16068,
+        "line_count": 133
+      },
+      {
+        "function": "airoSprint7SourceAllowlistDesign_",
+        "start_line": 16289,
+        "end_line": 16449,
+        "line_count": 161
+      },
+      {
+        "function": "airoSprint7GmailLabelFilterDesign_",
+        "start_line": 16695,
+        "end_line": 16873,
+        "line_count": 179
+      },
+      {
+        "function": "airoTask611SmokeAdminCommandMaybeHandleRoute_",
+        "start_line": 17116,
+        "end_line": 17259,
+        "line_count": 144
+      },
+      {
+        "function": "airoTask9CleanupMaybeHandleRoute_",
+        "start_line": 17342,
+        "end_line": 17402,
+        "line_count": 61
+      },
+      {
+        "function": "airoTask9CcSudahNumberMaybeHandleRoute_",
+        "start_line": 17742,
+        "end_line": 18054,
+        "line_count": 313
+      },
+      {
+        "function": "airoSprint7EmailIngestionLogContract_",
+        "start_line": 18184,
+        "end_line": 18264,
+        "line_count": 81
+      },
+      {
+        "function": "airoSprint7EmailCandidateLifecycleContract_",
+        "start_line": 18365,
+        "end_line": 18452,
+        "line_count": 88
+      },
+      {
+        "function": "airoSprint7EmailClarificationBridgeContract_",
+        "start_line": 18544,
+        "end_line": 18616,
+        "line_count": 73
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterContract_",
+        "start_line": 18712,
+        "end_line": 18797,
+        "line_count": 86
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterReplyText_",
+        "start_line": 18799,
+        "end_line": 18834,
+        "line_count": 36
+      },
+      {
+        "function": "airoSprint7EmailDryRunRouterMaybeHandleRoute_",
+        "start_line": 18836,
+        "end_line": 18891,
+        "line_count": 56
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesContract_",
+        "start_line": 18895,
+        "end_line": 18992,
+        "line_count": 98
+      },
+      {
+        "function": "airoSprint7BEmailSandboxFixturesReplyText_",
+        "start_line": 18994,
+        "end_line": 19032,
+        "line_count": 39
+      },
+      {
+        "function": "airoSprint7BFixtureMatrixContract_",
+        "start_line": 19094,
+        "end_line": 19152,
+        "line_count": 59
+      }
+    ]
+  },
+  "funding_requirement_existing_hits": [
+    {
+      "line": 249,
+      "term": "Blu Pocket",
+      "text": "if (hasAcc(\"Blu Pocket\") && hasAcc(\"Blu\")) {"
+    },
+    {
+      "line": 250,
+      "term": "Blu Pocket",
+      "text": "routes.push({ source: \"Blu Pocket\", target: \"Blu\" });"
+    },
+    {
+      "line": 321,
+      "term": "Blu Pocket",
+      "text": "if (hasAcc(\"Blu Pocket\") && hasAcc(\"Blu\")) {"
+    },
+    {
+      "line": 322,
+      "term": "Blu Pocket",
+      "text": "routes.push({ source: \"Blu Pocket\", target: \"Blu\" });"
+    },
+    {
+      "line": 348,
+      "term": "Blu Pocket",
+      "text": "'Contoh manual: transfer ' + amount + ' dari Blu Pocket ke Blu';"
+    },
+    {
+      "line": 4611,
+      "term": "Blu Pocket",
+      "text": "if (/\\bpocket\\b/i.test(t)) return 'Blu Pocket';"
+    },
+    {
+      "line": 14301,
+      "term": "Blu Pocket",
+      "text": "if (v === 'pocket blu' || v === 'blu pocket') return 'Blu Pocket';"
+    },
+    {
+      "line": 14302,
+      "term": "Blu Pocket",
+      "text": "if (v === 'pocket blu cc' || v === 'blu pocket cc') return 'Blu Pocket CC';"
+    },
+    {
+      "line": 17698,
+      "term": "Blu Pocket",
+      "text": "lines.push(\"Total belum disisihkan ke Blu Pocket CC: \" + formatBalanceRupiah_(totalPending));"
+    },
+    {
+      "line": 17921,
+      "term": "Blu Pocket",
+      "text": "// Write to Account Ledger as internal transfer: Blu Pocket -> Blu Pocket CC"
+    },
+    {
+      "line": 17932,
+      "term": "Blu Pocket",
+      "text": "var ledgerRawText = \"transfer \" + amountVal + \" dr blu pocket ke blu pocket cc\";"
+    },
+    {
+      "line": 17933,
+      "term": "Blu Pocket",
+      "text": "var transferInfo = { sourceAccount: \"Blu Pocket\", targetAccount: \"Blu Pocket CC\" };"
+    },
+    {
+      "line": 17960,
+      "term": "Blu Pocket",
+      "text": "if (vOutAcc !== \"Blu Pocket\") {"
+    },
+    {
+      "line": 17969,
+      "term": "Blu Pocket",
+      "text": "} else if (vInAcc !== \"Blu Pocket CC\") {"
+    },
+    {
+      "line": 18009,
+      "term": "Blu Pocket",
+      "text": "successLines.push(\"Transfer: Blu Pocket → Blu Pocket CC\");"
+    },
+    {
+      "line": 18015,
+      "term": "Blu Pocket",
+      "text": "successLines.push(\"Saldo Blu Pocket sekarang: \" + formatBalanceRupiah_(sourceDetails.balance));"
+    },
+    {
+      "line": 18016,
+      "term": "Blu Pocket",
+      "text": "successLines.push(\"Saldo Blu Pocket CC sekarang: \" + formatBalanceRupiah_(targetDetails.balance));"
+    },
+    {
+      "line": 18114,
+      "term": "Blu Pocket",
+      "text": "if (String(regValues[rIdx][2]).trim() === \"Blu Pocket CC\") {"
+    },
+    {
+      "line": 18120,
+      "term": "Blu Pocket",
+      "text": "regSheet.appendRow(['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account']);"
+    },
+    {
+      "line": 18141,
+      "term": "Blu Pocket",
+      "text": "if ((row73Account === \"\" || row73Account === \"null\" || row73Account === \"undefined\") && row73In === 24000 && row73Type === \"transfer_in\" && row73Desc.indexOf(\"transfer 24000 dr blu pocket ke blu pocket cc\") !== -1) {"
+    },
+    {
+      "line": 18147,
+      "term": "Blu Pocket",
+      "text": "if (acc === \"Blu Pocket CC\" && bal !== \"\" && bal !== null && bal !== undefined) {"
+    },
+    {
+      "line": 18154,
+      "term": "Blu Pocket",
+      "text": "ledgerSheet.getRange(73, 3).setValue(\"Blu Pocket CC\");"
+    },
+    {
+      "line": 28055,
+      "term": "Blu Pocket",
+      "text": "['TRUE', 'blu_pocket', 'Blu Pocket', 'Blu', 'bank', 'Blu', 'pocket', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket account'],"
+    },
+    {
+      "line": 28056,
+      "term": "Blu Pocket",
+      "text": "['TRUE', 'blu_pocket_cc', 'Blu Pocket CC', 'Blu', 'bank', 'Blu', 'pocket cc', 'Blu', '#4CD2FF', 'FALSE', 'TRUE', 'FALSE', 'Blu BCA Pocket CC account'],"
+    },
+    {
+      "line": 28154,
+      "term": "Blu Pocket",
+      "text": "{ account_id: \"blu_pocket\", account_name: \"Blu Pocket\", provider: \"Blu\", account_type: \"bank\", parent_account: \"Blu\", pocket_name: \"pocket\", is_cash: false, is_bank: true, is_credit: false },"
+    },
+    {
+      "line": 28155,
+      "term": "Blu Pocket",
+      "text": "{ account_id: \"blu_pocket_cc\", account_name: \"Blu Pocket CC\", provider: \"Blu\", account_type: \"bank\", parent_account: \"Blu\", pocket_name: \"pocket cc\", is_cash: false, is_bank: true, is_credit: false },"
+    },
+    {
+      "line": 28578,
+      "term": "Blu Pocket",
+      "text": "\"Blu Pocket\": { font: \"#0891B2\", fill: \"#CFFAFE\" },"
+    },
+    {
+      "line": 29526,
+      "term": "Blu Pocket",
+      "text": "var tc1 = (parsed1.amount === 25000 && res1 && res1.sourceAccount === \"Blu Pocket\" && res1.targetAccount === \"Blu\");"
+    },
+    {
+      "line": 29530,
+      "term": "Blu Pocket",
+      "text": "// Case 2: transfer 25rb dari blu pocket ke blu"
+    },
+    {
+      "line": 29531,
+      "term": "Blu Pocket",
+      "text": "var text2 = \"transfer 25rb dari blu pocket ke blu\";"
+    },
+    {
+      "line": 29534,
+      "term": "Blu Pocket",
+      "text": "var tc2 = (parsed2.amount === 25000 && res2 && res2.sourceAccount === \"Blu Pocket\" && res2.targetAccount === \"Blu\");"
+    },
+    {
+      "line": 29535,
+      "term": "Blu Pocket",
+      "text": "results.push({ test: 'transfer 25rb dari blu pocket ke blu', passed: tc2, result: { amount: parsed2.amount, route: res2 } });"
+    }
+  ],
+  "verdict": "PASS_GATE_A_ANCHORS_IDENTIFIED_REQUIREMENT_TERMS_ALREADY_PRESENT_REVIEW_NEEDED",
+  "no_source_patch": true,
+  "no_deploy": true,
+  "no_api_call": true,
+  "no_gmail_read": true,
+  "no_telegram_send": true,
+  "no_workbook_edit": true
+}
