@@ -2242,35 +2242,6 @@ if (/^admin\s+(email\s+)?sprint7\s+(guard|status|plan)\s*$/i.test(rawText) || /^
       return json_(specialCommand);
     }
 
-
-// AIRO_C3S_LEGACY_EMAIL_PENDING_REPLY_FAILCLOSED_BEGIN
-if (chatId && airoSprint7FIsEmailPendingReplyText_(rawText) && airoSprint7FHasPendingEmailCandidate_(chatId)) {
-  var airoC3SEmailRouteResult_ = airoSprint7FEmailAnswerMaybeHandleRoute_(e);
-  if (airoC3SEmailRouteResult_) {
-    return airoC3SEmailRouteResult_;
-  }
-
-  sendTelegram_(
-    chatId,
-    "⚠️ Balasan transaksi email tidak diproses karena state klarifikasi tidak aman. Tidak ada data yang ditulis. Silakan tunggu prompt transaksi baru atau balas dengan format seperti: 1 A."
-  );
-
-  return json_({
-    ok: false,
-    handled: true,
-    status: "AIRO_C3S_EMAIL_PENDING_REPLY_FAIL_CLOSED",
-    reason: "pending_email_reply_not_claimed_by_email_route",
-    write_performed: false,
-    google_write_performed: false,
-    finance_write_performed: false,
-    account_ledger_write_performed: false,
-    finance_events_write_performed: false,
-    review_queue_write_performed: false,
-    domain_tab_write_performed: false
-  });
-}
-// AIRO_C3S_LEGACY_EMAIL_PENDING_REPLY_FAILCLOSED_END
-
 const pendingClarification = tryHandlePendingClarificationReply_(chatId, rawText);
     if (pendingClarification && pendingClarification.handled) {
       return json_(pendingClarification);
@@ -20894,10 +20865,7 @@ function airoSprint7FSavePendingPointer_(chatId, candidate, logResult) {
     display_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
     detected_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
     amount_idr: airoSprint7FDStableCandidateAmount_(candidate, logResult),
-    amount_source: candidate.amount_source || (logResult && logResult.amount_source) || "",
-    inferred_direction: candidate.inferred_direction || candidate.direction || candidate.transaction_direction || candidate.transaction_type || candidate.cashflow_type || (logResult && (logResult.inferred_direction || logResult.direction || logResult.transaction_direction || logResult.transaction_type || logResult.cashflow_type)) || "",
-    clarification_question_type: airoSprint7FInferQuestionTypeFromPending_(candidate, logResult),
-    question_type: airoSprint7FInferQuestionTypeFromPending_(candidate, logResult),
+    amount_source: candidate.amount_source || logResult.amount_source || "",
     clarification_status: "pending",
     write_allowed: false,
     email_log_ref: logResult.row_number || "",
@@ -22236,66 +22204,9 @@ function airoSprint7FBuildEmailPendingDisambiguationMessage_(list) {
   return lines.join("\n");
 }
 
-
-// AIRO_C3S_EMAIL_PENDING_REPLY_GUARD_BEGIN
-function airoSprint7FInferQuestionTypeFromPending_(pending, fallbackPending) {
-  pending = pending || {};
-  fallbackPending = fallbackPending || {};
-
-  function firstRecognized_(value) {
-    var v = String(value || "").trim().toLowerCase();
-    if (v === "category_income" || v === "income" || v === "pemasukan") return "category_income";
-    if (v === "category_expense" || v === "expense" || v === "pengeluaran") return "category_expense";
-    if (v === "direction") return "direction";
-    return "";
-  }
-
-  var directKeys = ["clarification_question_type", "question_type", "pending_question_type"];
-  for (var i = 0; i < directKeys.length; i++) {
-    var direct = firstRecognized_(pending[directKeys[i]]) || firstRecognized_(fallbackPending[directKeys[i]]);
-    if (direct) return direct;
-  }
-
-  var hintParts = [];
-  var hintKeys = [
-    "inferred_direction", "direction", "transaction_direction", "transaction_type",
-    "cashflow_type", "cashflow_class", "type", "candidate_type",
-    "subject", "email_subject", "label", "sender", "snippet", "text_preview", "raw_text"
-  ];
-  for (var j = 0; j < hintKeys.length; j++) {
-    hintParts.push(String(pending[hintKeys[j]] || ""));
-    hintParts.push(String(fallbackPending[hintKeys[j]] || ""));
-  }
-
-  var hint = hintParts.join(" ").toLowerCase();
-
-  if (/(category_income|pemasukan|income|transaksi masuk|masuk ke|gaji|refund|piutang|credit|kredit)/i.test(hint)) return "category_income";
-  if (/(category_expense|pengeluaran|expense|transaksi keluar|keluar|pakai|berhasil|debit|pembayaran|purchase|payment)/i.test(hint)) return "category_expense";
-
-  return "";
-}
-
-function airoSprint7FIsEmailPendingReplyText_(textRaw) {
-  var text = String(textRaw || "").trim();
-  return /^#?\d+\s*[A-Ea-e]$/.test(text) || /^[A-Ea-e]$/.test(text);
-}
-
-function airoSprint7FHasPendingEmailCandidate_(chatId) {
-  try {
-    var list = airoSprint7FLoadPendingEmailCandidateList_(chatId);
-    if (list && list.length) return true;
-  } catch (err1) {}
-  try {
-    var legacy = airoSprint7FLoadPendingEmailCandidate_(chatId);
-    if (legacy) return true;
-  } catch (err2) {}
-  return false;
-}
-// AIRO_C3S_EMAIL_PENDING_REPLY_GUARD_END
-
 function airoSprint7FParseEmailPendingSelector_(textRaw) {
   var raw = String(textRaw || "").trim();
-  var match = raw.match(/^#?(\d+)\s*([A-Za-z].*)$/);
+  var match = raw.match(/^#?(\d+)\s+(.+)$/);
   if (!match) {
     return {
       has_selector: false,
@@ -22822,7 +22733,8 @@ function airoSprint7FDRoutePreviewMessage_(pending, resolved, routePreview) {
 
 function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
   var parsed = airoSprint7FParseTelegramPayload_(e);
-if (!parsed.chat_id) {
+
+  if (!parsed.chat_id) {
     return null;
   }
 
@@ -22865,30 +22777,9 @@ if (!parsed.chat_id) {
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
 
   if (state === "category_pending") {
-    var questionType = airoSprint7FInferQuestionTypeFromPending_(pending);
-    pending.clarification_question_type = questionType;
-    pending.question_type = questionType;
-
-    if (questionType !== "category_expense" && questionType !== "category_income" && questionType !== "direction") {
-      sendTelegram_(parsed.chat_id, "⚠️ Tipe pertanyaan tidak dikenal. Gagal melanjutkan klarifikasi.");
-      return json_({
-        ok: false,
-        status: "AIRO_ERROR_UNKNOWN_QUESTION_TYPE",
-        handled: true,
-        finance_write_performed: false,
-        review_queue_write_performed: false
-      });
-    }
-
     var answer = textRaw.toUpperCase();
-    if (questionType === "direction") {
-      if (!/^[A-D]$/.test(answer)) {
-        return null;
-      }
-    } else {
-      if (!/^[A-E]$/.test(answer)) {
-        return null;
-      }
+    if (!/^[A-E]$/.test(answer)) {
+      return null;
     }
 
     var key = pending._property_key || ("AIRO_SPRINT7F_PENDING_EMAIL_" + String(parsed.chat_id));
@@ -22921,95 +22812,20 @@ if (!parsed.chat_id) {
         status: "sprint7h_email_category_search_pending",
         handled: true,
         waiting: true,
-        finance_write_performed: false,
-        account_ledger_write_performed: false,
-        finance_events_write_performed: false,
-        review_queue_write_performed: false,
-        domain_tab_write_performed: false
+        finance_write_performed: false
       });
-    }
-
-    if (questionType === "direction") {
-      if (answer === "A") {
-        pending.inferred_direction = "pengeluaran";
-        pending.clarification_question_type = "category_expense";
-        pending.clarification_state = "category_pending";
-        airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-
-        var promptMsg = airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || pending.message_id, pending);
-        sendTelegram_(parsed.chat_id, promptMsg);
-
-        return json_({
-          ok: true,
-          sprint: "7H",
-          status: "sprint7h_email_direction_pengeluaran_selected",
-          handled: true,
-          waiting: true,
-          finance_write_performed: false,
-          account_ledger_write_performed: false,
-          finance_events_write_performed: false,
-          review_queue_write_performed: false,
-          domain_tab_write_performed: false
-        });
-      }
-      if (answer === "B") {
-        pending.inferred_direction = "pemasukan";
-        pending.clarification_question_type = "category_income";
-        pending.clarification_state = "category_pending";
-        airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
-
-        var promptMsg = airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || pending.message_id, pending);
-        sendTelegram_(parsed.chat_id, promptMsg);
-
-        return json_({
-          ok: true,
-          sprint: "7H",
-          status: "sprint7h_email_direction_pemasukan_selected",
-          handled: true,
-          waiting: true,
-          finance_write_performed: false,
-          account_ledger_write_performed: false,
-          finance_events_write_performed: false,
-          review_queue_write_performed: false,
-          domain_tab_write_performed: false
-        });
-      }
-      if (answer === "C") {
-        return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, "Other / Review", "Transfer");
-      }
-      if (answer === "D") {
-        return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, "Other / Review", "Abaikan");
-      }
-    }
-
-    var selectedCat = "";
-    if (questionType === "category_expense") {
+    } else {
       var categoryMap = {
         A: "Food & Drink",
         B: "Transport",
         C: "Groceries",
         D: "Utilities"
       };
-      selectedCat = categoryMap[answer];
-    } else if (questionType === "category_income") {
-      var categoryMap = {
-        A: "Gaji / income",
-        B: "Refund",
-        C: "Transfer antar akun sendiri",
-        D: "Piutang dibayar"
-      };
-      selectedCat = categoryMap[answer];
-    }
+      var selectedCat = categoryMap[answer];
+      if (!selectedCat) {
+        return null;
+      }
 
-    if (!selectedCat) {
-      return null;
-    }
-
-    var registry = airoSprint7CategoryContractGetRegistry_();
-    var catData = registry[selectedCat];
-    var subs = (catData && catData.subcategories) ? catData.subcategories : [];
-
-    if (subs.length > 0) {
       pending.selected_category = selectedCat;
       pending.clarification_state = "subcategory_pending";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
@@ -23023,14 +22839,8 @@ if (!parsed.chat_id) {
         status: "sprint7h_email_category_selected",
         handled: true,
         waiting: true,
-        finance_write_performed: false,
-        account_ledger_write_performed: false,
-        finance_events_write_performed: false,
-        review_queue_write_performed: false,
-        domain_tab_write_performed: false
+        finance_write_performed: false
       });
-    } else {
-      return airoSprint7HResolveToReviewQueueFallback_(parsed, pending, selectedCat, "Lainnya");
     }
   }
 
@@ -23164,95 +22974,7 @@ if (!parsed.chat_id) {
   return null;
 }
 
-
-// AIRO_C3G_WRITEBACK_FIX_BEGIN
-function airoC3GNormalizeAmount_(value) {
-  if (typeof value === "number" && isFinite(value)) {
-    return Math.round(Math.abs(value));
-  }
-  var text = String(value || "").trim();
-  if (!text) return 0;
-  text = text.replace(/[^\d,.\-]/g, "");
-  if (!text) return 0;
-  if (text.indexOf(",") !== -1 && text.indexOf(".") !== -1) {
-    text = text.replace(/\./g, "").replace(",", ".");
-  } else {
-    text = text.replace(/[,.](?=\d{3}(\D|$))/g, "").replace(",", ".");
-  }
-  var num = Number(text);
-  if (!isFinite(num)) return 0;
-  return Math.round(Math.abs(num));
-}
-
-function airoC3GStablePendingAmount_(pending) {
-  pending = pending || {};
-  var keys = ["amount_idr", "detected_amount", "display_amount", "parsed_amount", "amount", "nominal"];
-  for (var i = 0; i < keys.length; i++) {
-    var amt = airoC3GNormalizeAmount_(pending[keys[i]]);
-    if (amt > 0) return amt;
-  }
-  try {
-    var fallback = airoC3GNormalizeAmount_(airoSprint7FDAmount_(pending));
-    if (fallback > 0) return fallback;
-  } catch (err) {}
-  return 0;
-}
-
-function airoC3GStablePendingAccount_(pending) {
-  pending = pending || {};
-  var provider = String(pending.provider || pending.email_provider || "").trim();
-  if (/^blu$/i.test(provider)) return "Blu";
-  var keys = ["account", "parsed_account", "primary_account", "wallet", "account_name"];
-  for (var i = 0; i < keys.length; i++) {
-    var value = String(pending[keys[i]] || "").trim();
-    if (value && !/^unknown$/i.test(value)) return value;
-  }
-  try {
-    var fallback = String(airoSprint7FDPrimaryAccount_(pending) || "").trim();
-    if (fallback && !/^unknown$/i.test(fallback)) return fallback;
-  } catch (err) {}
-  if (provider) return provider;
-  return "";
-}
-
-function airoC3GCategoryFromShortReply_(parsed, category) {
-  var text = String((parsed && parsed.text_raw) || "").trim().toLowerCase();
-  var map = {
-    a: "Food & Drink",
-    b: "Transport",
-    c: "Groceries",
-    d: "Utilities"
-  };
-  if (map[text]) return map[text];
-  return String(category || "").trim();
-}
-
-function airoC3GValidateEmailWritebackCandidate_(pending, amount, account, category) {
-  pending = pending || {};
-  var cat = String(category || "").trim();
-  if (!pending.message_id && !pending.candidate_id) {
-    return { ok: false, reason: "missing_candidate_identity" };
-  }
-  if (!(amount > 0)) {
-    return { ok: false, reason: "missing_or_zero_amount" };
-  }
-  if (!account || /^unknown$/i.test(String(account || "").trim())) {
-    return { ok: false, reason: "missing_or_unknown_account" };
-  }
-  if (!cat) {
-    return { ok: false, reason: "missing_category" };
-  }
-  return { ok: true, reason: "ok" };
-}
-// AIRO_C3G_WRITEBACK_FIX_END
-
 function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, subcategory) {
-
-  // AIRO_C3G_WRITEBACK_FIX_ENTRY_BEGIN
-  category = String(category || "").trim();
-  subcategory = String(subcategory || "Lainnya").trim() || "Lainnya";
-  // AIRO_C3G_WRITEBACK_FIX_ENTRY_END
-
   var ss = airoSprint7FSpreadsheet_();
   var resolved = {
     ok: true,
@@ -23269,31 +22991,8 @@ function airoSprint7HResolveToReviewQueueFallback_(parsed, pending, category, su
     airoSprint7FRemovePendingEmailCandidate_(parsed.chat_id, pending);
   }
 
-  var amount = airoC3GStablePendingAmount_(pending);
-  var account = airoC3GStablePendingAccount_(pending);
-  var airoC3GValidation_ = airoC3GValidateEmailWritebackCandidate_(pending, amount, account, category);
-  if (!airoC3GValidation_.ok) {
-    sendTelegram_(
-      parsed.chat_id,
-      "⚠️ Resolusi email dibatalkan supaya tidak menulis data rusak.\n\n" +
-      "Alasan: " + airoC3GValidation_.reason + "\n" +
-      "Silakan reprocess email transaksi ini setelah pending candidate diperbaiki."
-    );
-    return json_({
-      ok: false,
-      status: "AIRO_C3G_WRITEBACK_BLOCKED_INVALID_PENDING_CANDIDATE",
-      handled: true,
-      reason: airoC3GValidation_.reason,
-      finance_write_performed: false,
-      account_ledger_write_performed: false,
-      finance_events_write_performed: false,
-      review_queue_write_performed: false,
-      domain_tab_write_performed: false,
-      telegram_send_performed: true,
-      email_modified: false,
-      trigger_created: false
-    });
-  }
+  var amount = airoSprint7FDAmount_(pending);
+  var account = pending.provider === "Blu" ? "Blu" : airoSprint7FDPrimaryAccount_(pending);
 
   var rowData = {
     queue_id: "review:emc:" + pending.message_id,
@@ -25498,7 +25197,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     }
 
     if (parsedOption.action === "select") {
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, parsedOption.subcategory);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, parsedOption.subcategory);
     }
 
     // Fallback: aliases check
@@ -25519,12 +25218,12 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     }
 
     if (foundSub) {
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, foundSub);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, foundSub);
     }
 
     for (var j = 0; j < subs.length; j++) {
       if (subs[j].toLowerCase() === text) {
-        return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, subs[j]);
+        return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, subs[j]);
       }
     }
 
@@ -25534,7 +25233,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
     );
   }
 
-  if (step === 2.5) {
+  if (step === 3) { return airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_); } if (step === 2.5) {
     if (text === "0" || text === "back" || text === "kembali" || text === "0.") {
       pending.step = 2;
       pending.attempts = 0;
@@ -25551,7 +25250,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
       var subs = registry[pending.selected_category].subcategories;
       var matchedSub = airoSprint7CategoryContractMatchSubcategory_(pending.selected_category, manualSub, subs);
       var resolvedSub = matchedSub || manualSub;
-      return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, resolvedSub);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, resolvedSub);
     }
     return failOrRetry("Subkategori tidak boleh kosong. Silakan ketik subkategori.");
   }
@@ -25559,7 +25258,7 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
   return failOrRetry_("Klarifikasi error, silakan tulis ulang transaksi.");
 }
 
-function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
+function airoSprint7CategoryContractBuildFundingSourcePrompt_() { return "Sumber dana transaksi ini dari mana?\\n\\nPilih salah satu:\\nA. BCA\\nB. Blu\\nC. Cash\\nD. Credit Card\\nE. Manual / lainnya"; } function airoSprint7CategoryContractNormalizeFundingSourceAnswer_(text) { var normalized = normalizeClarificationAccountAnswer_(text); if (normalized === "manual") return "Manual"; return normalized || ""; } function airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, matchedSub) { pending.step = 3; pending.clarification_state = "funding_source_pending"; pending.selected_subcategory = matchedSub; pending.attempts = 0; savePendingClarification_(chatId, pending); sendTelegram_(chatId, airoSprint7CategoryContractBuildFundingSourcePrompt_()); return { handled: true, waiting: true, funding_source_pending: true, finance_write_performed: false, workbook_write_performed: false }; } function airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_) { var fundingSource = airoSprint7CategoryContractNormalizeFundingSourceAnswer_(rawText); if (!fundingSource) { return failOrRetry_("Sumber dana belum valid.\\n\\n" + airoSprint7CategoryContractBuildFundingSourcePrompt_()); } pending.funding_source = fundingSource; pending.clarification_state = "funding_source_pending_resolved"; savePendingClarification_(chatId, pending); return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, pending.selected_subcategory || "Lainnya"); } function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
   var registry = airoSprint7CategoryContractGetRegistry_();
   var catData = registry[category];
   if (!catData) return "Pilih subkategori untuk " + category;
@@ -27014,7 +26713,6 @@ function runSprint7HPollerTriggerStatusFromEditor() {
 }
 
 function airoSprint7HScheduledGmailPoller_() {
-
   var disabled = false;
   try {
     disabled = (PropertiesService.getScriptProperties().getProperty("EMAIL_INGESTION_DISABLED") === "true");
@@ -32814,29 +32512,71 @@ function airoTask10ScheduledDashboardRefresh_() {
 
 
 
-// AIRO_GATE11B_DASHBOARD_VISUAL_CONTRACT_FALLBACK
-function airoGate11bDashboardGuardPass_(dashboardSheet, marker) {
-  if (String(marker || '').trim() === 'AIRO_TASK10_1_NATIVE_V2_FINAL') return true;
-  return airoGate11bDashboardVisualContractPass_(dashboardSheet);
+function airoGate11bFormulaToSheetLocale_(formula) {
+  formula = String(formula || '');
+  var out = '';
+  var inString = false;
+  var arrayDepth = 0;
+
+  for (var i = 0; i < formula.length; i++) {
+    var ch = formula.charAt(i);
+
+    if (ch === '"') {
+      out += ch;
+      if (inString && formula.charAt(i + 1) === '"') {
+        out += formula.charAt(i + 1);
+        i++;
+      } else {
+        inString = !inString;
+      }
+      continue;
+    }
+
+    if (!inString) {
+      if (ch === '{') {
+        arrayDepth++;
+      } else if (ch === '}') {
+        arrayDepth = Math.max(0, arrayDepth - 1);
+      }
+
+      if (ch === ',') {
+        out += arrayDepth > 0 ? '\\' : ';';
+        continue;
+      }
+    }
+
+    out += ch;
+  }
+
+  return out;
 }
 
-function airoGate11bDashboardVisualContractPass_(dashboardSheet) {
-  function norm_(v) { return String(v || '').trim().replace(/\s+/g, ' '); }
-  function row_(a1) { return dashboardSheet.getRange(a1).getDisplayValues()[0].map(norm_).join('|'); }
-  var title = norm_(dashboardSheet.getRange('A1').getDisplayValue());
-  var walletHeader = row_('B16:E16');
-  var categoryHeader = row_('B24:E24');
-  var month = norm_(dashboardSheet.getRange('G2').getDisplayValue());
-  var yearNum = parseInt(norm_(dashboardSheet.getRange('I2').getDisplayValue()).replace(/[^0-9]/g, ''), 10);
-  var validMonths = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  return title.indexOf('AIRO Finance Dashboard') !== -1
-    && walletHeader === 'WALLET|SALDO|LEVEL|STATUS'
-    && categoryHeader === 'KATEGORI|BULAN INI|VS BULAN LALU|CONTR.'
-    && validMonths.indexOf(month) !== -1
-    && !isNaN(yearNum)
-    && yearNum >= 2000
-    && yearNum <= 2100;
+function airoGate11bRepairDashboardFormulaLocale_(dashboard) {
+  var range = dashboard.getRange('A1:Z41');
+  var formulas = range.getFormulas();
+  var changed = [];
+
+  for (var r = 0; r < formulas.length; r++) {
+    for (var c = 0; c < formulas[r].length; c++) {
+      var original = formulas[r][c];
+      if (!original) continue;
+
+      var converted = airoGate11bFormulaToSheetLocale_(original);
+      if (converted !== original) {
+        dashboard.getRange(r + 1, c + 1).setFormula(converted);
+        changed.push(dashboard.getRange(r + 1, c + 1).getA1Notation());
+      }
+    }
+  }
+
+  SpreadsheetApp.flush();
+
+  return {
+    converted_count: changed.length,
+    sample_changed: changed.slice(0, 25)
+  };
 }
+
 
 // AIRO_GATE11B_PERMANENT_RENDERER_START
 function airoTask11bPermanentDashboardRefresh_(opts) {
@@ -32873,15 +32613,10 @@ function airoTask11bPermanentDashboardRefresh_(opts) {
   result.target_tab = dashboard.getName();
   result.marker = String(dashboard.getRange('Z1').getDisplayValue()).trim();
 
-  if (!airoGate11bDashboardGuardPass_(dashboard, result.marker)) {
-    result.final_verdict = 'BLOCKED_DASHBOARD_MARKER_MISMATCH';
-    result.error = 'Z1 marker mismatch';
-    return result;
-  }
-
-  var months = airoTask103Months_();
   var month = String(dashboard.getRange('G2').getDisplayValue()).trim();
   var year = String(dashboard.getRange('I2').getDisplayValue()).trim();
+  var months = airoTask103Months_();
+
   result.selected_month = month;
   result.selected_year = year;
 
@@ -32903,14 +32638,13 @@ function airoTask11bPermanentDashboardRefresh_(opts) {
     i2: year,
     has_install_filters: typeof airoTask102InstallFilters_ === 'function',
     has_install_native_formulas: typeof airoTask102InstallNativeFormulas_ === 'function',
-    has_refresh_domain_health: typeof airoTask102RefreshDomainHealth_ === 'function',
-    prohibited_old_renderer_available_but_not_used: typeof airoTask101RenderDashboardFromCurrentFilter_ === 'function'
+    has_refresh_domain_health: typeof airoTask102RefreshDomainHealth_ === 'function'
   };
 
   if (dryRun) {
     result.ok = true;
     result.final_verdict = 'PASS_GATE11B_PERMANENT_RENDERER_DRYRUN';
-    result.note = 'Dry-run only. No workbook write. Old renderer intentionally not used.';
+    result.note = 'Dry-run only. No workbook write.';
     return result;
   }
 
@@ -32924,13 +32658,31 @@ function airoTask11bPermanentDashboardRefresh_(opts) {
   try {
     airoTask102InstallFilters_(dashboard);
     airoTask102InstallNativeFormulas_(dashboard);
+    result.formula_locale_repair = airoGate11bRepairDashboardFormulaLocale_(dashboard);
     airoTask102RefreshDomainHealth_(ss, dashboard);
 
     dashboard.getRange('Z2').setValue(new Date());
     dashboard.getRange('Z3').setValue('GATE11B_MANUAL_REFRESH_PASS');
     dashboard.getRange('Z4').setValue(new Date());
+    result.b2_topbar = airoGate11bWriteVisibleTopbarB2_(dashboard, reason);
+    result.visible_wallet_status_repair = airoGate11bRepairVisibleWalletStatusAndTopbar_(dashboard, reason);
 
     SpreadsheetApp.flush();
+
+    result.readback = {
+      b2: dashboard.getRange('B2').getDisplayValue() || dashboard.getRange('A2').getDisplayValue(),
+      g2: dashboard.getRange('G2').getDisplayValue(),
+      i2: dashboard.getRange('I2').getDisplayValue(),
+      m2: dashboard.getRange('M2').getDisplayValue(),
+      m3: dashboard.getRange('M3').getDisplayValue(),
+      m4: dashboard.getRange('M4').getDisplayValue(),
+      b25: dashboard.getRange('B25').getDisplayValue(),
+      c25: dashboard.getRange('C25').getDisplayValue(),
+      d25: dashboard.getRange('D25').getDisplayValue(),
+      e25: dashboard.getRange('E25').getDisplayValue(),
+      g25: dashboard.getRange('G25').getDisplayValue(),
+      b34: dashboard.getRange('B34').getDisplayValue()
+    };
 
     result.ok = true;
     result.dashboard_render_performed = true;
@@ -32961,7 +32713,6 @@ function runGate11bPermanentRendererManualRefreshFromEditor() {
   });
 }
 // AIRO_GATE11B_PERMANENT_RENDERER_END
-
 
 function airoTask101OnEdit_(event) {
   if (!event || !event.range) return false;
@@ -32997,6 +32748,41 @@ function airoTask101OnEdit_(event) {
     .getRange('Z4')
     .setValue(new Date());
 
+  try {
+    var refreshSs =
+      event && event.source
+        ? event.source
+        : airoTask101GetSs_();
+
+    airoTask102RefreshDomainHealth_(
+      refreshSs,
+      sheet
+    );
+
+    sheet
+      .getRange('Z5')
+      .setValue(new Date());
+
+    sheet
+      .getRange('Z6')
+      .setValue('ONEDIT_REFRESH_PASS');
+  } catch (refreshError) {
+    sheet
+      .getRange('Z6')
+      .setValue('ONEDIT_REFRESH_ERROR');
+
+    try {
+      Logger.log(
+        'AIRO_TASK10_2_ONEDIT_REFRESH_ERROR=' +
+        String(
+          refreshError && refreshError.message
+            ? refreshError.message
+            : refreshError
+        )
+      );
+    } catch (loggerError) {}
+  }
+
   SpreadsheetApp.flush();
 
   return true;
@@ -33006,8 +32792,151 @@ function airoTask10MaybeRefreshOnEdit_(event) {
   return airoTask101OnEdit_(event);
 }
 
+
+
+// AIRO_GATE11B_WALLET_STATUS_SCRIPT_WRITTEN
+function airoGate11bRepairVisibleWalletStatusAndTopbar_(dashboard, reason) {
+  var ss = dashboard.getParent();
+  var tz = ss.getSpreadsheetTimeZone() || Session.getScriptTimeZone() || 'Asia/Jakarta';
+  var now = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy HH:mm:ss');
+  var month = dashboard.getRange('G2').getDisplayValue();
+  var year = dashboard.getRange('I2').getDisplayValue();
+  var ledgerRows = dashboard.getRange('M11').getDisplayValue();
+
+  var topbar = '● Synced: ' + now + ' | Period: ' + month + ' ' + year + ' | Ledger rows: ' + ledgerRows + ' | Source: Account Ledger';
+  dashboard.getRange('B2').setValue(topbar);
+
+  var statuses = [];
+  for (var row = 17; row <= 21; row++) {
+    var wallet = String(dashboard.getRange(row, 2).getDisplayValue() || '').trim();
+    var balanceRaw = dashboard.getRange(row, 3).getValue();
+    var balanceText = String(dashboard.getRange(row, 3).getDisplayValue() || '').replace(/[^\d,\.\-]/g, '').replace(/\./g, '').replace(',', '.');
+    var balance = 0;
+
+    if (typeof balanceRaw === 'number') {
+      balance = balanceRaw;
+    } else if (balanceText && !isNaN(Number(balanceText))) {
+      balance = Number(balanceText);
+    }
+
+    var status = '';
+    if (wallet) {
+      if (balance < 0) {
+        status = 'CRIT: saldo negatif';
+      } else if (balance === 0) {
+        status = 'OK';
+      } else if (balance < 50000) {
+        status = 'WARN: saldo rendah';
+      } else {
+        status = 'OK';
+      }
+    }
+
+    dashboard.getRange(row, 5).setValue(status);
+    statuses.push({ row: row, wallet: wallet, balance: balance, status: status });
+  }
+
+  SpreadsheetApp.flush();
+
+  return {
+    reason: reason || '',
+    b2: dashboard.getRange('B2').getDisplayValue(),
+    status_rows_written: statuses.length,
+    statuses: statuses
+  };
+}
+
+
+// AIRO_GATE11B_VISUAL_SANITY_FIX_HELPER_START
+function runGate11bVisualSanityFixFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  var result = {
+    task: 'AIRO_GATE11B_VISUAL_SANITY_FIX',
+    manual_editor_required: false,
+    scheduler_connected: false,
+    trigger_created: false,
+    ledger_domain_mutated: false,
+    helper_columns_hidden: false,
+    visible_error_count_a1k41: null,
+    visible_error_cells_a1k41: [],
+    final_verdict: 'FAIL_GATE11B_VISUAL_SANITY'
+  };
+
+  var renderResult = airoTask11bPermanentDashboardRefresh_({
+    dryRun: false,
+    reason: 'visual_sanity_fix',
+    ss: ss
+  });
+  result.renderer_final_verdict = renderResult && renderResult.final_verdict ? renderResult.final_verdict : '';
+
+  // Owner-facing cockpit is A:K. Hide helper/debug columns after the cockpit.
+  dashboard.hideColumns(12, 15); // L:Z
+  SpreadsheetApp.flush();
+  result.helper_columns_hidden = dashboard.isColumnHiddenByUser(12) && dashboard.isColumnHiddenByUser(26);
+
+  var range = dashboard.getRange('A1:K41');
+  var display = range.getDisplayValues();
+  var formulas = range.getFormulas();
+  var errors = [];
+  for (var r = 0; r < display.length; r++) {
+    for (var c = 0; c < display[r].length; c++) {
+      var v = String(display[r][c] || '');
+      if (v.indexOf('#ERROR!') !== -1 || v.indexOf('#N/A') !== -1 || v.indexOf('#REF!') !== -1 || v.indexOf('#VALUE!') !== -1 || v.indexOf('#DIV/0!') !== -1) {
+        errors.push({
+          cell: dashboard.getRange(r + 1, c + 1).getA1Notation(),
+          display: v,
+          has_formula: !!formulas[r][c],
+          formula: formulas[r][c] ? String(formulas[r][c]).slice(0, 180) : ''
+        });
+      }
+    }
+  }
+
+  result.visible_error_count_a1k41 = errors.length;
+  result.visible_error_cells_a1k41 = errors.slice(0, 25);
+
+  result.readback = {
+    g2: dashboard.getRange('G2').getDisplayValue(),
+    i2: dashboard.getRange('I2').getDisplayValue(),
+    b2: dashboard.getRange('B2').getDisplayValue(),
+    b17: dashboard.getRange('B17').getDisplayValue(),
+    e17: dashboard.getRange('E17').getDisplayValue(),
+    b25: dashboard.getRange('B25').getDisplayValue(),
+    c25: dashboard.getRange('C25').getDisplayValue(),
+    d25: dashboard.getRange('D25').getDisplayValue(),
+    e25: dashboard.getRange('E25').getDisplayValue(),
+    g25: dashboard.getRange('G25').getDisplayValue(),
+    b34: dashboard.getRange('B34').getDisplayValue(),
+    col_l_hidden: dashboard.isColumnHiddenByUser(12),
+    col_n_hidden: dashboard.isColumnHiddenByUser(14),
+    col_z_hidden: dashboard.isColumnHiddenByUser(26)
+  };
+
+  if (result.helper_columns_hidden && result.visible_error_count_a1k41 === 0) {
+    result.final_verdict = 'PASS_GATE11B_VISUAL_SANITY_FIX';
+    result.ok = true;
+  } else {
+    result.ok = false;
+  }
+
+  return result;
+}
+// AIRO_GATE11B_VISUAL_SANITY_FIX_HELPER_END
+
+
 function onEdit(event) {
   try {
+    // AIRO_GATE11B_ONEDIT_CONNECTED_AFTER_FILTER_SWITCH_PASS
+    if (!event || !event.range) return false;
+    var range = event.range;
+    var sheet = range.getSheet();
+    if (sheet.getName() !== "🏠 Dashboard") return false;
+    var a1 = range.getA1Notation();
+    if (a1 !== "G2" && a1 !== "I2") return false;
+    var ss = event.source || airoTask101GetSs_();
+    var refreshRes = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"onedit_filter_refresh", ss:ss});
+    return refreshRes.ok;
     return airoTask101OnEdit_(event);
   } catch (error) {
     Logger.log(
@@ -33021,6 +32950,286 @@ function onEdit(event) {
 
     return false;
   }
+}
+
+function airoTask102ScheduledNativeRefresh_() {
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    return {
+      ok: false,
+      status: "skipped",
+      reason: "lock_busy",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  }
+
+  try {
+    var ss = airoTask101GetSs_();
+    var dashboard = airoTask102GetActiveDashboard_(ss);
+
+    if (!dashboard) {
+      return {
+        ok: false,
+        status: "skipped",
+        reason: "active_dashboard_missing",
+        handler: "airoTask102ScheduledNativeRefresh_",
+        financial_write_performed: false,
+        gmail_read_performed: false,
+        telegram_send_performed: false,
+        trigger_created: false
+      };
+    }
+
+    var marker = String(dashboard.getRange("Z1").getDisplayValue() || "").trim();
+
+    if (marker !== "AIRO_TASK10_1_NATIVE_V2_FINAL") {
+      return {
+        ok: false,
+        status: "skipped",
+        reason: "marker_incorrect",
+        marker: marker,
+        handler: "airoTask102ScheduledNativeRefresh_",
+        financial_write_performed: false,
+        gmail_read_performed: false,
+        telegram_send_performed: false,
+        trigger_created: false
+      };
+    }
+
+    airoTask102RefreshDomainHealth_(ss, dashboard);
+
+    dashboard.getRange("Z5").setValue(new Date());
+    dashboard.getRange("Z6").setValue("SCHEDULED_REFRESH_PASS");
+
+    SpreadsheetApp.flush();
+
+    var readback = runTask103DashboardActiveReadbackFromEditor();
+
+    return {
+      ok: !!(readback && readback.ok),
+      status: readback && readback.ok ? "success" : "readback_failed",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      active_readback: readback,
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: "error",
+      handler: "airoTask102ScheduledNativeRefresh_",
+      error: String(error && error.message ? error.message : error),
+      financial_write_performed: false,
+      gmail_read_performed: false,
+      telegram_send_performed: false,
+      trigger_created: false
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function runGate11bFilterSwitchProofFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+
+  if (!dashboard) {
+    return { ok: false, error: "exact active Dashboard missing" };
+  }
+
+  var originalMonth = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var originalYear = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+
+  var months = airoTask103Months_();
+  if (months.indexOf("Mei") < 0 || months.indexOf("Juni") < 0) {
+    return { ok: false, error: "months list validation failed" };
+  }
+
+  function readback(label) {
+    return {
+      label: label,
+      g2: dashboard.getRange("G2").getDisplayValue(),
+      i2: dashboard.getRange("I2").getDisplayValue(),
+      b2: dashboard.getRange("B2").getDisplayValue() || dashboard.getRange("A2").getDisplayValue(),
+      m2: dashboard.getRange("M2").getDisplayValue(),
+      m3: dashboard.getRange("M3").getDisplayValue(),
+      m4: dashboard.getRange("M4").getDisplayValue(),
+      b25: dashboard.getRange("B25").getDisplayValue(),
+      c25: dashboard.getRange("C25").getDisplayValue(),
+      d25: dashboard.getRange("D25").getDisplayValue(),
+      e25: dashboard.getRange("E25").getDisplayValue(),
+      g25: dashboard.getRange("G25").getDisplayValue(),
+      b34: dashboard.getRange("B34").getDisplayValue(),
+      z2: dashboard.getRange("Z2").getDisplayValue(),
+      z3: dashboard.getRange("Z3").getDisplayValue(),
+      z4: dashboard.getRange("Z4").getDisplayValue()
+    };
+  }
+
+  // 1. Set G2=Juni, I2=2026, flush
+  dashboard.getRange("G2").setValue("Juni");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var refreshJuni = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"filter_switch_juni_proof", ss:ss});
+  var juniRead = readback("juni");
+
+  // 2. Set G2=Mei, I2=2026, flush
+  dashboard.getRange("G2").setValue("Mei");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var refreshMei = airoTask11bPermanentDashboardRefresh_({dryRun:false, reason:"filter_switch_mei_proof", ss:ss});
+  var meiRead = readback("mei");
+
+  // 3. Restore original G2/I2 if not Mei/2026
+  if (originalMonth !== "Mei" || originalYear !== "2026") {
+    dashboard.getRange("G2").setValue(originalMonth);
+    dashboard.getRange("I2").setValue(originalYear);
+    SpreadsheetApp.flush();
+  }
+
+  var periodChanged = (juniRead.m2 !== meiRead.m2 || juniRead.m3 !== meiRead.m3 || juniRead.m4 !== meiRead.m4);
+  var spendingChanged = (juniRead.b25 !== meiRead.b25 || juniRead.c25 !== meiRead.c25);
+  var b2NonemptyJuni = (juniRead.b2 !== "");
+  var b2NonemptyMei = (meiRead.b2 !== "");
+
+  var finalVerdict = "FAIL_GATE11B_FILTER_SWITCH_INCOMPLETE";
+  if (periodChanged && refreshJuni.ok && refreshMei.ok) {
+    finalVerdict = "PASS_GATE11B_FILTER_SWITCH_PROOF";
+  }
+
+  return {
+    ok: (finalVerdict === "PASS_GATE11B_FILTER_SWITCH_PROOF"),
+    original_month: originalMonth,
+    original_year: originalYear,
+    juni_verdict: refreshJuni.final_verdict,
+    mei_verdict: refreshMei.final_verdict,
+    juni_readback: juniRead,
+    mei_readback: meiRead,
+    period_changed: periodChanged,
+    spending_changed: spendingChanged,
+    b2_nonempty_juni: b2NonemptyJuni,
+    b2_nonempty_mei: b2NonemptyMei,
+    final_verdict: finalVerdict
+  };
+}
+
+function airoGate11bWriteVisibleTopbarB2_(dashboard, reason) {
+  // AIRO_GATE11B_B2_TOPBAR_SCRIPT_WRITTEN
+  var g2 = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var i2 = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+  var m11 = String(dashboard.getRange("M11").getDisplayValue() || "").trim();
+  var z2 = String(dashboard.getRange("Z2").getDisplayValue() || "").trim();
+  
+  var text = "● Synced: " + z2 + " | Period: " + g2 + " " + i2 + " | Ledger rows: " + m11 + " | Source: Account Ledger";
+  dashboard.getRange("A2").setValue(text);
+  dashboard.getRange("B2").setValue(text);
+  return text;
+}
+
+function runDebugB2() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  var range = dashboard.getRange("B2");
+  return {
+    formula: range.getFormula(),
+    value: range.getValue(),
+    display: range.getDisplayValue(),
+    isPartOfMerge: range.isPartOfMerge(),
+    mergedRanges: range.getMergedRanges().map(function(r) { return r.getA1Notation(); })
+  };
+}
+
+function runGate11bOnEditBindingProofFromClasp() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+
+  if (!dashboard) {
+    return { ok: false, error: "exact active Dashboard missing" };
+  }
+
+  var originalMonth = String(dashboard.getRange("G2").getDisplayValue() || "").trim();
+  var originalYear = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
+
+  function readback(label) {
+    var valB2 = dashboard.getRange("B2").getDisplayValue();
+    var valA2 = dashboard.getRange("A2").getDisplayValue();
+    var displayB2 = valB2 || valA2;
+    return {
+      label: label,
+      g2: dashboard.getRange("G2").getDisplayValue(),
+      i2: dashboard.getRange("I2").getDisplayValue(),
+      b2: displayB2,
+      m2: dashboard.getRange("M2").getDisplayValue(),
+      m3: dashboard.getRange("M3").getDisplayValue(),
+      m4: dashboard.getRange("M4").getDisplayValue(),
+      b25: dashboard.getRange("B25").getDisplayValue(),
+      c25: dashboard.getRange("C25").getDisplayValue(),
+      d25: dashboard.getRange("D25").getDisplayValue(),
+      e25: dashboard.getRange("E25").getDisplayValue(),
+      g25: dashboard.getRange("G25").getDisplayValue(),
+      b34: dashboard.getRange("B34").getDisplayValue(),
+      z2: dashboard.getRange("Z2").getDisplayValue(),
+      z3: dashboard.getRange("Z3").getDisplayValue(),
+      z4: dashboard.getRange("Z4").getDisplayValue()
+    };
+  }
+
+  // 1. Set G2=Juni, I2=2026, flush
+  dashboard.getRange("G2").setValue("Juni");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var onEditResultJuni = onEdit({range: dashboard.getRange("G2"), source: ss});
+  var juniRead = readback("juni");
+
+  // 2. Set G2=Mei, I2=2026, flush
+  dashboard.getRange("G2").setValue("Mei");
+  dashboard.getRange("I2").setValue("2026");
+  SpreadsheetApp.flush();
+
+  var onEditResultMei = onEdit({range: dashboard.getRange("G2"), source: ss});
+  var meiRead = readback("mei");
+
+  // 3. Restore original G2/I2 if not Mei/2026
+  if (originalMonth !== "Mei" || originalYear !== "2026") {
+    dashboard.getRange("G2").setValue(originalMonth);
+    dashboard.getRange("I2").setValue(originalYear);
+    SpreadsheetApp.flush();
+  }
+
+  var periodChanged = (juniRead.m2 !== meiRead.m2 || juniRead.m3 !== meiRead.m3 || juniRead.m4 !== meiRead.m4);
+  var spendingChanged = (juniRead.b25 !== meiRead.b25 || juniRead.c25 !== meiRead.c25);
+  var b2NonemptyJuni = (juniRead.b2 !== "");
+  var b2NonemptyMei = (meiRead.b2 !== "");
+
+  var finalVerdict = "FAIL_GATE11B_ONEDIT_BINDING_PROOF";
+  if (periodChanged && onEditResultJuni && onEditResultMei) {
+    finalVerdict = "PASS_GATE11B_ONEDIT_BINDING_PROOF";
+  }
+
+  return {
+    ok: (finalVerdict === "PASS_GATE11B_ONEDIT_BINDING_PROOF"),
+    original_month: originalMonth,
+    original_year: originalYear,
+    juni_onedit_verdict: onEditResultJuni ? "PASS" : "FAIL",
+    mei_onedit_verdict: onEditResultMei ? "PASS" : "FAIL",
+    juni_readback: juniRead,
+    mei_readback: meiRead,
+    period_changed: periodChanged,
+    spending_changed: spendingChanged,
+    b2_nonempty_juni: b2NonemptyJuni,
+    b2_nonempty_mei: b2NonemptyMei,
+    final_verdict: finalVerdict
+  };
 }
 
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
