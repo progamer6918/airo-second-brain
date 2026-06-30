@@ -26,6 +26,57 @@ Usage:
   python3 ops/telegram/telegram-gateway.py
 """
 
+
+# AIRO_C3M3_WEBHOOK_ACTIVE_POLLING_GUARD_BEGIN
+def _airo_c3m3_exit_if_webhook_active_():
+    """
+    Local polling guard.
+    Telegram Bot API forbids getUpdates while webhook is active.
+    Production AIRO Arfin uses Cloudflare Worker webhook, so this local gateway
+    must fail closed unless AIRO_ALLOW_TELEGRAM_POLLING=1 is explicitly set.
+    """
+    import os as _os
+    import sys as _sys
+    import json as _json
+    import urllib.request as _urllib_request
+    from pathlib import Path as _Path
+
+    if _os.environ.get("AIRO_ALLOW_TELEGRAM_POLLING") == "1":
+        return
+
+    env_path = _Path(_os.environ.get("AIRO_TELEGRAM_ENV", "/home/egitaristorandas/.airo/telegram.env"))
+    if not env_path.exists():
+        return
+
+    token = ""
+    try:
+        for _line in env_path.read_text(encoding="utf-8").splitlines():
+            if _line.startswith("AIRO_TELEGRAM_BOT_TOKEN="):
+                token = _line.split("=", 1)[1].strip()
+                break
+    except Exception:
+        return
+
+    if not token:
+        return
+
+    try:
+        _raw = _urllib_request.urlopen(
+            "https://api.telegram.org/bot" + token + "/getWebhookInfo",
+            timeout=15
+        ).read().decode("utf-8")
+        _data = _json.loads(_raw)
+        _url = ((_data.get("result") or {}).get("url") or "").strip()
+        if _url:
+            _sys.stderr.write("[AIRO_C3M3] WEBHOOK_ACTIVE=YES; local getUpdates gateway disabled. Set AIRO_ALLOW_TELEGRAM_POLLING=1 only after deleting webhook.\n")
+            _sys.exit(0)
+    except Exception as _err:
+        _sys.stderr.write("[AIRO_C3M3] webhook guard check failed; refusing local polling fail-closed: " + str(_err) + "\n")
+        _sys.exit(0)
+
+_airo_c3m3_exit_if_webhook_active_()
+# AIRO_C3M3_WEBHOOK_ACTIVE_POLLING_GUARD_END
+
 import sys
 import os
 import json
