@@ -432,3 +432,25 @@ Next:
 - Scheduler connected: NO (intentionally not connected in this gate).
 - Next: docs/git closeout complete, then Gate 12 / scheduler decision only with owner approval.
 - Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
+
+<!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_START -->
+## AIRO Finance Task 10.3 — Arfin Telegram Runtime Hardening
+
+Status: PASS / CLOSED.
+
+Final validated head: e83ef3d5e05715c41e4728e745ffb2ac8a4b720e.
+
+Closed behavior:
+- cek saldo, saldo, and balance route before write path.
+- cek saldo reads Account Registry + Account Ledger only.
+- Credit Card / Debt / Asset are excluded.
+- cek saldo bca is exact BCA-only after strict filter patch.
+- cek saldo mandiri offers Account Registry choices.
+- saldo 5jt asks check-balance vs record/update-balance.
+- Live WebApp Telegram smoke PASS.
+- Owner visual confirmation PASS.
+
+Evidence doc:
+docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.md
+<!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_END -->
+

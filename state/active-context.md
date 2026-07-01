@@ -716,3 +716,23 @@ Evidence:
 Next:
 - Gate C1B source patch only, no deploy.
 <!-- AIRO_ARFIN_GATE_C1A_PATCH_POINT_FINDER_20260630_END -->
+
+<!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_START -->
+## Closed — AIRO Finance Task 10.3
+
+Task 10.3 Arfin Telegram Runtime Hardening is PASS and closed.
+
+Final validated head: e83ef3d5e05715c41e4728e745ffb2ac8a4b720e.
+
+Final runtime behavior:
+- cek saldo / saldo / balance live through WebApp /exec.
+- Account source: Account Registry.
+- Balance source: Account Ledger.
+- Specific-account filter is exact-first; cek saldo bca returns only BCA.
+- Unknown account and ambiguous amount prompts work.
+- No workbook write by return contract during live smoke.
+- Owner visual confirmation PASS.
+
+Next roadmap position: resume broader AIRO Finance roadmap after Task 10.3 closeout.
+<!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_END -->
+
