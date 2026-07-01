@@ -1889,3 +1889,78 @@ cd /home/egitaristorandas/vortex-ai-skill-lab && {
   git status --short --branch
 }
 ```
+<!-- AIRO_TASK_10_3_ARFIN_TELEGRAM_RUNTIME_HARDENING_V1 -->
+## Task 10.3 — Arfin Telegram Runtime Hardening
+
+**Status:** Planned / design recorded.
+**Created:** 20260701_175131.
+**Owner decision source:** chat decision set, Gate 1 read-only audit, Gate 1B function body audit.
+
+### Scope
+
+Task 10.3 adds Telegram runtime hardening for Arfin balance/account interactions without changing dashboard source-of-truth rules.
+
+Primary feature:
+
+- Telegram command: `cek saldo`, `saldo`, `balance`.
+- Account list source: `Account Registry`.
+- Balance source: `Account Ledger` / latest balance engine.
+- Display scope: active accounts plus inactive/nonactive accounts when latest balance is nonzero.
+- Display groups: Bank / E-Wallet and Cash only.
+- Excluded from `cek saldo`: Credit Card, Debt, Asset.
+- Conflict winner: Account Ledger / latest balance engine.
+- Account-specific command: `cek saldo <akun>` returns only the matched account; if no match, offer Account Registry choices.
+- Ambiguous amount phrase such as `saldo 5jt`: ask whether user wants to check balance or record/update balance.
+
+### Gate roadmap
+
+- Gate 0 — Owner decision capture.
+- Gate 1 — Account Registry / source anchor read-only audit. PASS.
+- Gate 1B — Function body and read/write-risk audit. PASS.
+- Gate 2 — Living PRD design record. CURRENT.
+- Gate 3 — Exact-anchor source design for read-only `cek saldo`.
+- Gate 4 — Minimal source patch.
+- Gate 5 — Static validation.
+- Gate 6 — Deploy/readback.
+- Gate 7 — Synthetic runtime proof.
+- Gate 8 — Controlled live Telegram smoke.
+- Gate 9 — Closeout docs and final parity.
+
+### Gate 1 / 1B evidence summary
+
+- Repository HEAD and `origin/main`: `b32dadfece2721f70a0c0f50df23e74e4f0f38f4`.
+- Live/prod source parity: PASS.
+- `airoSprint7AccountContractGetRegistry_`: direct body classified read-only candidate.
+- `airoEnsureAccountRegistrySheet_`: write-risk due to `insertSheet()` and `.setValues()`.
+- `airoTask101ReadLedger_`: read-only candidate.
+- `airoTask101AccountPanel_`: read-only candidate.
+- `sendTelegram_`: write-risk by design due to Telegram send side effect; must be mocked in synthetic tests.
+
+### Design guardrails
+
+Do not implement `cek saldo` by calling any helper that may auto-create `Account Registry`.
+
+Required helper design:
+
+- `airoTask103ReadAccountRegistryReadOnly_(ss)`
+  - Must use `getSheetByName` only.
+  - Must not call `airoEnsureAccountRegistrySheet_`.
+  - Must not call `insertSheet`, `.setValue`, `.setValues`, `.appendRow`, `.clear`, or trigger APIs.
+  - If the tab is missing or schema is incomplete, return a safe blocked response.
+
+- `airoTask103ReadLatestAccountBalances_(ss, accounts)`
+  - Must read from Account Ledger / latest balance engine.
+  - Must not write.
+
+- `airoTask103HandleBalanceCommand_(chatId, text)`
+  - Must parse only `cek saldo`, `saldo`, `balance` command variants.
+  - Must exclude Credit Card, Debt, Asset from the response.
+  - Must support account-specific matching and choice fallback.
+  - Must ask clarification for ambiguous amount phrases such as `saldo 5jt`.
+
+### Non-goals
+
+- No dashboard renderer change.
+- No scheduler/trigger change.
+- No credit card/debt/asset balance output in `cek saldo`.
+- No write/update saldo implementation in this task unless explicitly opened as a later gate.
