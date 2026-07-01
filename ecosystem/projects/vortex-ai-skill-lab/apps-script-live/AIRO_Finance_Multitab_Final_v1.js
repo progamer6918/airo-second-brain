@@ -17372,7 +17372,359 @@ function airoTask9CleanupMaybeHandleRoute_(e) {
   });
 }
 
-function doPost(e) {
+/* AIRO_TASK_10_3_CEK_SALDO_COMMAND_V1_START */
+function airoTask103Norm_(v) {
+  return String(v || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function airoTask103ParseTelegramPayload_(e) {
+  var body = {};
+  try {
+    body = JSON.parse(e && e.postData && e.postData.contents ? e.postData.contents : '{}');
+  } catch (err) {
+    body = {};
+  }
+  var message = body.message || body.edited_message || {};
+  var text = String(message.text || '').trim();
+  var chatId = message.chat && message.chat.id;
+  return { text: text, chat_id: chatId, message: message };
+}
+
+function airoTask103IsAmbiguousBalanceAmount_(text) {
+  var t = String(text || '').trim().toLowerCase();
+  return /^(saldo|balance)\s+(rp\s*)?\d/i.test(t);
+}
+
+function airoTask103IsBalanceCommand_(text) {
+  var t = String(text || '').trim().toLowerCase();
+  if (!t) return false;
+  if (/^cek\s+saldo(\s+.+)?$/i.test(t)) return true;
+  if (/^saldo(\s+.+)?$/i.test(t)) return true;
+  if (/^balance(\s+.+)?$/i.test(t)) return true;
+  return false;
+}
+
+function airoTask103ExtractAccountFilter_(text) {
+  var raw = String(text || '').trim();
+  var t = raw.replace(/^cek\s+saldo\b/i, '').replace(/^saldo\b/i, '').replace(/^balance\b/i, '').trim();
+  if (airoTask103IsAmbiguousBalanceAmount_(raw)) return '';
+  return t;
+}
+
+function airoTask103FindSheetLooseReadOnly_(ss, wanted) {
+  var target = airoTask103Norm_(wanted);
+  var sheets = ss.getSheets();
+  var exact = null;
+  var loose = null;
+  for (var i = 0; i < sheets.length; i++) {
+    var sh = sheets[i];
+    var n = airoTask103Norm_(sh.getName());
+    if (n === target) exact = sh;
+    if (!loose && n.indexOf(target) >= 0) loose = sh;
+  }
+  return exact || loose;
+}
+
+function airoTask103HeaderMap_(sheet) {
+  var lastCol = Math.max(1, sheet.getLastColumn());
+  var headers = sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0];
+  var map = {};
+  headers.forEach(function(v, i) {
+    var k = airoTask103Norm_(v).replace(/\s+/g, '_');
+    if (k) map[k] = i + 1;
+  });
+  return map;
+}
+
+function airoTask103HeaderCol_(map, names) {
+  for (var i = 0; i < names.length; i++) {
+    if (map[names[i]]) return map[names[i]];
+  }
+  return 0;
+}
+
+function airoTask103Truthy_(v) {
+  var s = String(v || '').toLowerCase().trim();
+  return v === true || s === 'true' || s === 'yes' || s === 'y' || s === '1' || s === 'active' || s === 'aktif' || s === 'enabled';
+}
+
+function airoTask103ReadAccountRegistryReadOnly_(ss) {
+  var sheet = airoTask103FindSheetLooseReadOnly_(ss, 'Account Registry');
+  if (!sheet) {
+    return { ok: false, error: 'account_registry_tab_missing', accounts: [] };
+  }
+
+  var map = airoTask103HeaderMap_(sheet);
+  var nameCol = airoTask103HeaderCol_(map, ['account_name', 'account', 'akun', 'name', 'nama_akun']);
+  var activeCol = airoTask103HeaderCol_(map, ['active', 'enabled', 'is_active', 'status']);
+  var orderCol = airoTask103HeaderCol_(map, ['display_order', 'order', 'sort_order', 'urutan']);
+  var typeCol = airoTask103HeaderCol_(map, ['type', 'account_type', 'group', 'category', 'kategori']);
+  var aliasCol = airoTask103HeaderCol_(map, ['alias', 'aliases', 'keyword', 'keywords']);
+
+  if (!nameCol) {
+    return { ok: false, error: 'account_registry_account_name_header_missing', accounts: [] };
+  }
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { ok: true, error: '', accounts: [] };
+  }
+
+  var values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+  var accounts = [];
+
+  values.forEach(function(r) {
+    var joined = r.join(' ');
+    if (!String(joined || '').trim()) return;
+    if (/CARA MENAMBAH/i.test(joined)) return;
+
+    var name = String(r[nameCol - 1] || '').trim();
+    if (!name) return;
+
+    var activeRaw = activeCol ? r[activeCol - 1] : true;
+    var order = orderCol ? Number(r[orderCol - 1] || 999) : 999;
+    if (isNaN(order)) order = 999;
+
+    accounts.push({
+      name: name,
+      norm: airoTask103Norm_(name),
+      active: activeCol ? airoTask103Truthy_(activeRaw) : true,
+      order: order,
+      type: String(typeCol ? r[typeCol - 1] || '' : '').trim(),
+      aliases: String(aliasCol ? r[aliasCol - 1] || '' : '').trim()
+    });
+  });
+
+  accounts.sort(function(a, b) {
+    return a.order - b.order || a.name.localeCompare(b.name);
+  });
+
+  return { ok: true, error: '', accounts: accounts, sheet_name: sheet.getName() };
+}
+
+function airoTask103IsExcludedAccount_(account) {
+  var text = airoTask103Norm_((account && account.name) + ' ' + (account && account.type) + ' ' + (account && account.aliases));
+  if (/\b(credit|card|cc|kartu kredit)\b/i.test(text)) return true;
+  if (/\b(debt|hutang|utang|loan|pinjaman|kpr|cicilan)\b/i.test(text)) return true;
+  if (/\b(asset|aset|gold|emas|investment|investasi)\b/i.test(text)) return true;
+  return false;
+}
+
+function airoTask103AccountGroup_(account) {
+  var text = airoTask103Norm_((account && account.name) + ' ' + (account && account.type));
+  if (/\b(cash|tunai)\b/i.test(text)) return 'Cash';
+  return 'Bank / E-Wallet';
+}
+
+function airoTask103ReadLatestAccountBalances_(ss, accountNames) {
+  var sheet = airoTask103FindSheetLooseReadOnly_(ss, 'Account Ledger');
+  if (!sheet) {
+    return { ok: false, error: 'account_ledger_tab_missing', balances: {}, latest_date: null, rows: 0 };
+  }
+
+  var map = airoTask103HeaderMap_(sheet);
+  var accountCol = airoTask103HeaderCol_(map, ['account', 'akun', 'account_name', 'nama_akun']);
+  var balanceCol = airoTask103HeaderCol_(map, ['balance', 'saldo', 'running_balance', 'saldo_akhir']);
+  var dateCol = airoTask103HeaderCol_(map, ['date', 'tanggal', 'created_at', 'timestamp']);
+  var amountInCol = airoTask103HeaderCol_(map, ['amount_in', 'in', 'cash_in', 'money_in']);
+  var amountOutCol = airoTask103HeaderCol_(map, ['amount_out', 'out', 'cash_out', 'money_out']);
+
+  if (!accountCol) {
+    return { ok: false, error: 'account_ledger_account_header_missing', balances: {}, latest_date: null, rows: 0 };
+  }
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { ok: true, error: '', balances: {}, latest_date: null, rows: 0 };
+  }
+
+  var values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+  var latest = {};
+  var sums = {};
+  var latestDate = null;
+
+  values.forEach(function(r, idx) {
+    var account = String(r[accountCol - 1] || '').trim();
+    if (!account) return;
+
+    var dt = dateCol ? new Date(r[dateCol - 1]) : null;
+    var time = dt && !isNaN(dt.getTime()) ? dt.getTime() : 0;
+    if (dt && !isNaN(dt.getTime()) && (!latestDate || dt.getTime() > latestDate.getTime())) latestDate = dt;
+
+    var balance = balanceCol ? Number(r[balanceCol - 1] || 0) : null;
+    var inVal = amountInCol ? Number(r[amountInCol - 1] || 0) : 0;
+    var outVal = amountOutCol ? Number(r[amountOutCol - 1] || 0) : 0;
+
+    if (!balanceCol) {
+      sums[account] = Number(sums[account] || 0) + inVal - outVal;
+      balance = sums[account];
+    }
+
+    var key = airoTask103Norm_(account);
+    if (!latest[key] || time >= latest[key].time || (!latest[key].time && idx >= latest[key].idx)) {
+      latest[key] = { account: account, balance: Number(balance || 0), date: dt, time: time, idx: idx };
+    }
+  });
+
+  return { ok: true, error: '', balances: latest, latest_date: latestDate, rows: values.length, sheet_name: sheet.getName() };
+}
+
+function airoTask103FormatRupiah_(n) {
+  n = Number(n || 0);
+  var sign = n < 0 ? '-' : '';
+  var abs = Math.abs(Math.round(n));
+  return sign + 'Rp' + abs.toLocaleString('id-ID');
+}
+
+function airoTask103FmtDateTime_(d) {
+  if (!d || isNaN(d.getTime())) return 'NO DATA';
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+}
+
+function airoTask103BuildBalanceReply_(registryResult, ledgerResult, filterRaw) {
+  if (!registryResult.ok) {
+    return '⚠️ Cek saldo belum bisa jalan.\n\nAccount Registry tidak siap: ' + registryResult.error + '\n\nTidak ada write yang dilakukan.';
+  }
+  if (!ledgerResult.ok) {
+    return '⚠️ Cek saldo belum bisa jalan.\n\nAccount Ledger tidak siap: ' + ledgerResult.error + '\n\nTidak ada write yang dilakukan.';
+  }
+
+  var filter = airoTask103Norm_(filterRaw);
+  var accounts = registryResult.accounts.filter(function(a) {
+    return !airoTask103IsExcludedAccount_(a);
+  });
+
+  if (filter) {
+    var matched = accounts.filter(function(a) {
+      var hay = airoTask103Norm_(a.name + ' ' + a.aliases);
+      return hay === filter || hay.indexOf(filter) >= 0 || filter.indexOf(a.norm) >= 0;
+    });
+
+    if (!matched.length) {
+      var choices = accounts.slice(0, 8).map(function(a, i) {
+        return String.fromCharCode(65 + i) + '. ' + a.name;
+      });
+      return 'Aku belum nemu akun "' + filterRaw + '" di Account Registry.\n\nMaksudnya yang mana?\n' + choices.join('\n');
+    }
+
+    accounts = matched;
+  }
+
+  var rows = [];
+  accounts.forEach(function(a) {
+    var b = ledgerResult.balances[a.norm];
+    var balance = b ? Number(b.balance || 0) : 0;
+    if (!a.active && balance === 0) return;
+    rows.push({ account: a, balance: balance });
+  });
+
+  if (!rows.length) {
+    return '📊 Kondisi Saldo\n\nBelum ada akun Bank/E-Wallet atau Cash yang bisa ditampilkan dari Account Registry.';
+  }
+
+  var groups = { 'Bank / E-Wallet': [], 'Cash': [] };
+  var total = 0;
+  rows.forEach(function(r) {
+    var g = airoTask103AccountGroup_(r.account);
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(r);
+    total += Number(r.balance || 0);
+  });
+
+  var lines = [];
+  lines.push(filter ? '📊 Kondisi Saldo — ' + rows[0].account.name : '📊 Kondisi Saldo');
+  lines.push('');
+
+  ['Bank / E-Wallet', 'Cash'].forEach(function(g) {
+    if (!groups[g] || !groups[g].length) return;
+    lines.push(g);
+    groups[g].forEach(function(r) {
+      var status = r.account.active ? '' : ' · nonactive';
+      lines.push('• ' + r.account.name + ': ' + airoTask103FormatRupiah_(r.balance) + status);
+    });
+    lines.push('');
+  });
+
+  if (!filter) {
+    lines.push('Total tersedia: ' + airoTask103FormatRupiah_(total));
+  }
+  lines.push('Last sync: ' + airoTask103FmtDateTime_(ledgerResult.latest_date));
+  lines.push('Sumber akun: Account Registry');
+  lines.push('Sumber saldo: Account Ledger');
+
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function airoTask103HandleBalanceCommand_(chatId, text) {
+  if (!airoTask103IsBalanceCommand_(text)) return null;
+
+  if (airoTask103IsAmbiguousBalanceAmount_(text)) {
+    var ask = [
+      'Maksudnya mau cek saldo atau catat/update saldo?',
+      '',
+      'A. Cek saldo akun',
+      'B. Catat/update saldo akun',
+      'C. Batal'
+    ].join('\n');
+    if (chatId) sendTelegram_(chatId, ask);
+    return json_({
+      ok: true,
+      handled: true,
+      command: 'task10_3_balance_amount_ambiguous',
+      write_performed: false,
+      workbook_write_performed: false,
+      telegram_send_performed: !!chatId
+    });
+  }
+
+  var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
+  var registry = airoTask103ReadAccountRegistryReadOnly_(ss);
+  var ledger = airoTask103ReadLatestAccountBalances_(ss, registry.accounts || []);
+  var filterRaw = airoTask103ExtractAccountFilter_(text);
+  var reply = airoTask103BuildBalanceReply_(registry, ledger, filterRaw);
+
+  if (chatId) sendTelegram_(chatId, reply);
+
+  return json_({
+    ok: registry.ok && ledger.ok,
+    handled: true,
+    command: 'task10_3_cek_saldo',
+    account_filter: filterRaw,
+    account_registry_ok: registry.ok,
+    account_ledger_ok: ledger.ok,
+    account_count: registry.accounts ? registry.accounts.length : 0,
+    ledger_rows: ledger.rows || 0,
+    write_performed: false,
+    workbook_write_performed: false,
+    gmail_read_performed: false,
+    trigger_mutation_performed: false,
+    telegram_send_performed: !!chatId
+  });
+}
+
+function airoTask103BalanceCommandMaybeHandleRoute_(e) {
+  try {
+    var parsed = airoTask103ParseTelegramPayload_(e);
+    if (!parsed.text || !airoTask103IsBalanceCommand_(parsed.text)) return null;
+    return airoTask103HandleBalanceCommand_(parsed.chat_id, parsed.text);
+  } catch (err) {
+    var parsedErr = airoTask103ParseTelegramPayload_(e);
+    var msg = '⚠️ Cek saldo error:\n' + String(err && err.message ? err.message : err);
+    if (parsedErr.chat_id) {
+      try { sendTelegram_(parsedErr.chat_id, msg); } catch (sendErr) {}
+    }
+    return json_({
+      ok: false,
+      handled: true,
+      command: 'task10_3_cek_saldo',
+      error: String(err && err.message ? err.message : err),
+      write_performed: false,
+      workbook_write_performed: false
+    });
+  }
+}
+/* AIRO_TASK_10_3_CEK_SALDO_COMMAND_V1_END */
+function doPost(e) { var task103BalanceCommandResult = airoTask103BalanceCommandMaybeHandleRoute_(e); if (task103BalanceCommandResult) { return task103BalanceCommandResult; }
   var task10RepairResult = airoTask10ReadAndRepairMaybeHandleRoute_(e);
   if (task10RepairResult) {
     return task10RepairResult;
