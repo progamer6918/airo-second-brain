@@ -17516,7 +17516,7 @@ function airoTask103AccountGroup_(account) {
   return 'Bank / E-Wallet';
 }
 
-function airoTask103ReadLatestAccountBalances_(ss, accountNames) {
+ /* AIRO_TASK_10_3_STRICT_ACCOUNT_FILTER_V2_START */ function airoTask103CompactNorm_(v) { return airoTask103Norm_(v).replace(/\s+/g, ''); } function airoTask103AliasNorms_(aliases) { return String(aliases || '').split(/[,;|\n\/]+/).map(function(x) { return airoTask103Norm_(x); }).filter(function(x) { return !!x; }); } function airoTask103AccountNameMatchesFilter_(account, filterRaw) { var filter = airoTask103Norm_(filterRaw); if (!filter) return true; var compactFilter = airoTask103CompactNorm_(filter); var nameNorm = account && account.norm ? account.norm : airoTask103Norm_(account && account.name); if (nameNorm === filter) return true; if (compactFilter && airoTask103CompactNorm_(account && account.name) === compactFilter) return true; return false; } function airoTask103AccountAliasMatchesFilter_(account, filterRaw) { var filter = airoTask103Norm_(filterRaw); if (!filter) return true; var compactFilter = airoTask103CompactNorm_(filter); var aliases = airoTask103AliasNorms_(account && account.aliases); for (var i = 0; i < aliases.length; i++) { if (aliases[i] === filter) return true; if (compactFilter && airoTask103CompactNorm_(aliases[i]) === compactFilter) return true; } return false; } function airoTask103FindAccountMatches_(accounts, filterRaw) { var byName = accounts.filter(function(a) { return airoTask103AccountNameMatchesFilter_(a, filterRaw); }); if (byName.length) return byName; return accounts.filter(function(a) { return airoTask103AccountAliasMatchesFilter_(a, filterRaw); }); } /* AIRO_TASK_10_3_STRICT_ACCOUNT_FILTER_V2_END */ function airoTask103ReadLatestAccountBalances_(ss, accountNames) {
   var sheet = airoTask103FindSheetLooseReadOnly_(ss, 'Account Ledger');
   if (!sheet) {
     return { ok: false, error: 'account_ledger_tab_missing', balances: {}, latest_date: null, rows: 0 };
@@ -17594,13 +17594,7 @@ function airoTask103BuildBalanceReply_(registryResult, ledgerResult, filterRaw) 
     return !airoTask103IsExcludedAccount_(a);
   });
 
-  if (filter) {
-    var matched = accounts.filter(function(a) {
-      var hay = airoTask103Norm_(a.name + ' ' + a.aliases);
-      return hay === filter || hay.indexOf(filter) >= 0 || filter.indexOf(a.norm) >= 0;
-    });
-
-    if (!matched.length) {
+  if (filter) { var matched = airoTask103FindAccountMatches_(accounts, filterRaw); if (!matched.length) {
       var choices = accounts.slice(0, 8).map(function(a, i) {
         return String.fromCharCode(65 + i) + '. ' + a.name;
       });
