@@ -736,3 +736,10 @@ Final runtime behavior:
 Next roadmap position: resume broader AIRO Finance roadmap after Task 10.3 closeout.
 <!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_END -->
 
+<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_START -->
+## AIRO_TASK_10_4_GATE1_PRD_LOCK
+Current position: Gate 1 PRD/spec lock.
+Next gate: Gate 2 source design audit, no mutation.
+Non-negotiable: do not patch write flow before design audit confirms safe insertion points around funding source, category/subcategory, email pending candidates, review queue, and writeRouted_.
+<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_END -->
+

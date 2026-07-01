@@ -454,3 +454,10 @@ Evidence doc:
 docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.md
 <!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_END -->
 
+<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_START -->
+## AIRO_TASK_10_4_GATE1_PRD_LOCK
+Status: Gate 1 PRD/spec lock.
+Next: Gate 2 source design audit, no mutation.
+Note: No source code patch exists yet.
+<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_END -->
+
