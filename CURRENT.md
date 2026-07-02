@@ -1,3 +1,8 @@
+# ASB-GOV DECISION CHECKPOINT
+- ASB-GOV-0C owner decisions recorded at decisions/approved/asb-gov-0c-owner-decisions-20260702.md
+- This does not normalize roadmap/PRD yet.
+- Project folder classification and ASB PRD/CURRENT/active-context policy are now owner-approved.
+- Next: ASB-GOV-2 only with owner approval.
 
 
 <!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_START -->

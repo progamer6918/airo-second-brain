@@ -743,3 +743,10 @@ Next gate: Gate 2 source design audit, no mutation.
 Non-negotiable: do not patch write flow before design audit confirms safe insertion points around funding source, category/subcategory, email pending candidates, review queue, and writeRouted_.
 <!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_END -->
 
+## 2026-07-02 — ASB-GOV-0C owner decisions recorded
+- Project folder classifications approved.
+- ASB PRD v0.5.1 active canonical; v0.4.1 superseded/archive-reference.
+- CURRENT.md remains active-but-mixed snapshot pending separate normalization.
+- state/active-context.md remains legacy mixed history log.
+- Decision record path: decisions/approved/asb-gov-0c-owner-decisions-20260702.md
+- No runtime/source mutation.
