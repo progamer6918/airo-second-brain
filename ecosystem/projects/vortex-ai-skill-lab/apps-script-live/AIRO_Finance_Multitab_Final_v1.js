@@ -1141,6 +1141,10 @@ function tryHandlePendingClarificationReply_(chatId, rawText) {
     };
   }
 
+  if (pending.type === 'outgoing_confirmation') {
+    return airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRetry_);
+  }
+
   if (pending.type === 'missing_category') {
     return airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending, rawText, failOrRetry_);
   }
@@ -2402,6 +2406,52 @@ const pendingClarification = tryHandlePendingClarificationReply_(chatId, rawText
         ok: true,
         skipped: true,
         reason: 'non_finance_or_too_unclear'
+      });
+    }
+
+    if (parsed.type === 'expense') {
+      var accountsList = [];
+      try {
+        accountsList = getEligibleFundingSourceAccounts_();
+      } catch (e) {
+        accountsList = getStaticEligibleFundingSourceAccounts_();
+      }
+      
+      var tempCategory = parsed.category || "Lainnya";
+      var tempSubcategory = parsed.subcategory || "";
+
+      var alphabet = "abcdefghijklmnopqrstuvwxyz";
+      var optionToAccount = {};
+      accountsList.forEach(function(acc, idx) {
+        if (idx < alphabet.length) {
+          optionToAccount[alphabet.charAt(idx)] = acc;
+        }
+      });
+
+      savePendingClarification_(chatId, {
+        type: 'outgoing_confirmation',
+        step: 1,
+        original_text: effectiveRawText,
+        rawText: effectiveRawText,
+        amount: parsed.amount,
+        category: tempCategory,
+        subcategory: tempSubcategory,
+        account: parsed.account || "Unknown",
+        description: parsed.description || parsed.rawText || effectiveRawText,
+        attempts: 0,
+        optionToAccount: optionToAccount
+      });
+
+      var promptMsg = airoBuildOutgoingAccountPromptMessage_(parsed.amount, parsed.description || parsed.rawText || effectiveRawText, parsed.account || "Unknown", tempCategory, tempSubcategory, accountsList);
+      sendTelegram_(chatId, promptMsg);
+
+      return json_({
+        ok: true,
+        clarification_requested: true,
+        clarification_type: 'outgoing_confirmation',
+        amount: parsed.amount,
+        category: tempCategory,
+        account: parsed.account || "Unknown"
       });
     }
 
@@ -27992,6 +28042,596 @@ function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
     dashboard_mutation: "NO",
     gmail_read: "NO",
     telegram_send: "NO",
+    cases: cases
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
+function airoBuildOutgoingAccountPromptMessage_(amount, description, tempAccount, tempCategory, tempSubcategory, accountsList) {
+  var lines = [
+    "❓ Konfirmasi transaksi keluar",
+    "",
+    "Terdeteksi:",
+    "Nominal: Rp" + amount,
+    "Deskripsi: " + description,
+    "Akun sementara: " + tempAccount,
+    "Kategori/subkategori sementara: " + tempCategory + " > " + (tempSubcategory || "<belum dipilih>"),
+    "",
+    "Sumber dana dari akun mana?",
+    ""
+  ];
+
+  var alphabet = "abcdefghijklmnopqrstuvwxyz";
+  accountsList.forEach(function(acc, idx) {
+    if (idx < alphabet.length) {
+      var letter = alphabet.charAt(idx).toUpperCase();
+      lines.push(letter + ". " + acc);
+    }
+  });
+
+  lines.push("");
+  lines.push("0. Review / batalkan dulu");
+  lines.push("");
+  lines.push("Balas huruf akun, atau tulis nama akun.");
+
+  return lines.join("\n");
+}
+
+function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description, registry) {
+  var lines = [
+    "❓ Konfirmasi subkategori",
+    "",
+    "Transaksi:",
+    "Rp" + amount + " keluar",
+    "Akun: " + account,
+    "Deskripsi: " + description,
+    "",
+    "Pilih subkategori:"
+  ];
+
+  var alphabet = "abcdefghijklmnopqrstuvwxyz";
+  var optionIndex = 0;
+  var optionToSubcategory = {}; // maps "a" to {category: "...", subcategory: "..."}
+  
+  var categories = Object.keys(registry).filter(function(c) {
+    return c !== "Other / Review" && registry[c].subcategories && registry[c].subcategories.length > 0;
+  });
+
+  categories.forEach(function(cat) {
+    lines.push("");
+    lines.push(cat);
+    var subs = registry[cat].subcategories;
+    subs.forEach(function(sub) {
+      if (optionIndex < alphabet.length) {
+        var letter = alphabet.charAt(optionIndex).toUpperCase();
+        lines.push(letter + ". " + sub);
+        optionToSubcategory[alphabet.charAt(optionIndex)] = { category: cat, subcategory: sub };
+        optionIndex++;
+      }
+    });
+  });
+
+  lines.push("");
+  lines.push("0. Review");
+  lines.push("? Cari kategori/subkategori lain");
+  lines.push("+ Tambah kategori/subkategori baru");
+  lines.push("");
+  lines.push("Balas huruf, atau tulis langsung:");
+  lines.push("Makan di Luar");
+  lines.push("Food & Drink > Makan di Luar");
+
+  return {
+    text: lines.join("\n"),
+    mapping: optionToSubcategory
+  };
+}
+
+function airoParseAccountChoice_(inputText, accountsList, optionMapping) {
+  var t = String(inputText || "").trim().toLowerCase();
+  if (!t) return null;
+
+  // Check if it's a letter in optionMapping
+  if (optionMapping && optionMapping[t]) {
+    return optionMapping[t];
+  }
+
+  // Check if it's one of the values in optionMapping (case-insensitive, exact or substring)
+  if (optionMapping) {
+    var keys = Object.keys(optionMapping);
+    for (var i = 0; i < keys.length; i++) {
+      var val = optionMapping[keys[i]];
+      var valLower = val.toLowerCase();
+      if (t === valLower || valLower.indexOf(t) !== -1 || t.indexOf(valLower) !== -1) {
+        return val;
+      }
+    }
+  }
+
+  // Check case-insensitive exact or substring match in accountsList
+  for (var i = 0; i < accountsList.length; i++) {
+    var acc = accountsList[i];
+    var accLower = acc.toLowerCase();
+    if (t === accLower || accLower.indexOf(t) !== -1 || t.indexOf(accLower) !== -1) {
+      return acc;
+    }
+  }
+
+  return null;
+}
+
+function airoParseSubcategoryChoice_(inputText, optionMapping, registry) {
+  var t = String(inputText || "").trim().toLowerCase();
+  if (!t) return null;
+
+  // Check special cases
+  if (t === "0" || t === "review" || t === "batal" || t === "cancel") {
+    return { type: "review" };
+  }
+  if (t === "?" || t === "help" || t === "bantuan") {
+    return { type: "help" };
+  }
+  if (t === "+" || t === "tambah") {
+    return { type: "add_flow" };
+  }
+
+  // Check if it's a letter in optionMapping
+  if (optionMapping && optionMapping[t]) {
+    var mapped = optionMapping[t];
+    return { type: "resolved", category: mapped.category, subcategory: mapped.subcategory };
+  }
+
+  // Check qualified format "Category > Subcategory" or "Subcategory > Category"
+  var resolved = airoSprint7CategoryContractResolveAnswerText_(inputText);
+  if (resolved.type === "resolved") {
+    return { type: "resolved", category: resolved.category, subcategory: resolved.subcategory };
+  }
+  if (resolved.type === "category_only") {
+    return { type: "category_only", category: resolved.category };
+  }
+  if (resolved.type === "ambiguous") {
+    return { type: "ambiguous", candidates: resolved.candidates };
+  }
+
+  // Check raw string direct match in any subcategory in the registry
+  var candidates = [];
+  var catKeys = Object.keys(registry);
+  for (var i = 0; i < catKeys.length; i++) {
+    var cat = catKeys[i];
+    var subs = registry[cat].subcategories || [];
+    for (var j = 0; j < subs.length; j++) {
+      var sub = subs[j];
+      var subLower = sub.toLowerCase();
+      if (t === subLower || subLower.indexOf(t) !== -1 || t.indexOf(subLower) !== -1) {
+        var isDup = false;
+        for (var k = 0; k < candidates.length; k++) {
+          if (candidates[k].category === cat && candidates[k].subcategory === sub) {
+            isDup = true; break;
+          }
+        }
+        if (!isDup) {
+          candidates.push({ category: cat, subcategory: sub });
+        }
+      }
+    }
+  }
+
+  if (candidates.length === 1) {
+    return { type: "resolved", category: candidates[0].category, subcategory: candidates[0].subcategory };
+  } else if (candidates.length > 1) {
+    return { type: "ambiguous", candidates: candidates };
+  }
+
+  return null;
+}
+
+function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRetry_) {
+  var step = pending.step || 1;
+  var text = String(rawText || "").trim().toLowerCase();
+
+  // Cancel/Review option
+  if (text === "0" || text === "review" || text === "batal" || text === "cancel") {
+    clearPendingClarification_(chatId);
+    try {
+      var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
+      var origText = String(pending.original_text || pending.rawText || pending.text || "").trim();
+      var parsedData = parseFinanceText_(origText);
+      var stagingData = {
+        rowId: makeTxnId_({}, origText || ('clarification_cancelled_' + String(new Date().getTime())))
+      };
+      var fallbackResult = writeRouted_(ss, AIRO_CONFIG.tabs.review, parsedData, origText, stagingData);
+      sendTelegram_(chatId, "Transaksi dibatalkan dan dikirim ke Review Queue untuk ditinjau manual.");
+      return {
+        handled: true,
+        cancelled: true,
+        fallback_to_review: true,
+        status: 'review_queue_fallback_after_clarification_failed',
+        clarification_type: pending.type,
+        written_tab: fallbackResult.writtenTab || AIRO_CONFIG.tabs.review,
+        row: fallbackResult.row || '',
+        sprint0a_guard: 'review_queue_after_clarification_failed'
+      };
+    } catch(e) {
+      Logger.log("Error writing review fallback: " + e.toString());
+      sendTelegram_(chatId, "Transaksi dibatalkan.");
+      return { handled: true, cancelled: true };
+    }
+  }
+
+  if (step === 1) {
+    var accountsList = getEligibleFundingSourceAccounts_();
+    var optionMapping = pending.optionToAccount || {};
+    var chosenAccount = airoParseAccountChoice_(rawText, accountsList, optionMapping);
+
+    if (!chosenAccount) {
+      var errPrompt = airoBuildOutgoingAccountPromptMessage_(pending.amount, pending.description, pending.account, pending.category, pending.subcategory, accountsList);
+      return failOrRetry_(
+        "Akun tidak valid. Silakan pilih dari daftar berikut:\n\n" + errPrompt
+      );
+    }
+
+    pending.confirmed_account = chosenAccount;
+    pending.step = 2;
+    pending.attempts = 0;
+    
+    var registry = airoSprint7CategoryContractGetRegistry_();
+    var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, chosenAccount, pending.description, registry);
+    pending.optionToSubcategory = subPromptData.mapping;
+
+    savePendingClarification_(chatId, pending);
+    sendTelegram_(chatId, subPromptData.text);
+
+    return {
+      handled: true,
+      waiting: true
+    };
+  }
+
+  if (step === 2) {
+    var optionMapping = pending.optionToSubcategory || {};
+    var registry = airoSprint7CategoryContractGetRegistry_();
+    var subChoice = airoParseSubcategoryChoice_(rawText, optionMapping, registry);
+
+    if (!subChoice) {
+      var currentAccount = pending.confirmed_account;
+      var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, currentAccount, pending.description, registry);
+      return failOrRetry_(
+        "Pilihan subkategori tidak valid. Silakan pilih kembali:\n\n" + subPromptData.text
+      );
+    }
+
+    if (subChoice.type === "review") {
+      clearPendingClarification_(chatId);
+      try {
+        var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
+        var origText = String(pending.original_text || pending.rawText || pending.text || "").trim();
+        var parsedData = parseFinanceText_(origText);
+        var stagingData = {
+          rowId: makeTxnId_({}, origText || ('clarification_cancelled_' + String(new Date().getTime())))
+        };
+        var fallbackResult = writeRouted_(ss, AIRO_CONFIG.tabs.review, parsedData, origText, stagingData);
+        sendTelegram_(chatId, "Transaksi dibatalkan dan dikirim ke Review Queue untuk ditinjau manual.");
+        return {
+          handled: true,
+          cancelled: true,
+          fallback_to_review: true,
+          status: 'review_queue_fallback_after_clarification_failed',
+          clarification_type: pending.type,
+          written_tab: fallbackResult.writtenTab || AIRO_CONFIG.tabs.review,
+          row: fallbackResult.row || '',
+          sprint0a_guard: 'review_queue_after_clarification_failed'
+        };
+      } catch(e) {
+        Logger.log("Error writing review fallback: " + e.toString());
+        sendTelegram_(chatId, "Transaksi dibatalkan.");
+        return { handled: true, cancelled: true };
+      }
+    }
+
+    if (subChoice.type === "help") {
+      var categories = Object.keys(registry).filter(function(c) { return c !== "Other / Review"; });
+      var categoriesList = categories.map(function(c) { return "- " + c; }).join("\n");
+      sendTelegram_(chatId, "Daftar kategori yang tersedia:\n" + categoriesList + "\n\nKetik salah satu kategori untuk melihat subkategorinya, atau gunakan format Kategori > Subkategori (misal: Transport > Bensin) untuk menentukan pilihan.");
+      return { handled: true, waiting: true };
+    }
+
+    if (subChoice.type === "add_flow") {
+      sendTelegram_(chatId, "Fitur menambah kategori/subkategori baru belum diaktifkan (OUT_OF_SCOPE untuk Task 10.5C). Silakan gunakan kategori yang sudah ada.");
+      return { handled: true, waiting: true };
+    }
+
+    if (subChoice.type === "category_only") {
+      pending.selected_category = subChoice.category;
+      
+      var singleRegistry = {};
+      singleRegistry[subChoice.category] = registry[subChoice.category];
+      
+      var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, singleRegistry);
+      pending.optionToSubcategory = subPromptData.mapping;
+      
+      savePendingClarification_(chatId, pending);
+      sendTelegram_(chatId, "Kategori terpilih: " + subChoice.category + "\nSilakan pilih subkategori:\n\n" + subPromptData.text);
+      return { handled: true, waiting: true };
+    }
+
+    if (subChoice.type === "ambiguous") {
+      var choicesMsg = "Pilihan subkategori '" + rawText + "' ambigu. Silakan ketik pilihan lengkap dengan kategori (Kategori > Subkategori), contoh:\n" +
+                        subChoice.candidates.map(function(c) { return "- " + c.category + " > " + c.subcategory; }).join("\n");
+      sendTelegram_(chatId, choicesMsg);
+      return { handled: true, waiting: true };
+    }
+
+    if (subChoice.type === "resolved") {
+      clearPendingClarification_(chatId);
+
+      var finalParsed = {
+        date: pending.date || parseDate_(pending.original_text) || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'),
+        type: 'expense',
+        category: subChoice.category,
+        subcategory: subChoice.subcategory,
+        description: pending.description || pending.original_text,
+        amount: pending.amount,
+        account: pending.confirmed_account,
+        creditor: '',
+        merchant: '',
+        billingCycleId: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM'),
+        assetSection: '',
+        goldAction: '',
+        goldKarat: '',
+        goldWeightGram: '',
+        goldPureGram: '',
+        goldPurchasePrice: '',
+        goldPurchaseDate: '',
+        goldNotes: '',
+        goldEstimatedValue: '',
+        goldMarketPrice24k: ''
+      };
+      finalParsed.issue_reason = '';
+      finalParsed.needsReview = false;
+
+      resolvePostingModeAndFundingSource_(finalParsed, pending.original_text);
+
+      try {
+        var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
+        var finalTab = routePlannedTab_(finalParsed, pending.original_text);
+        var stagingResult = {
+          rowId: makeTxnId_({}, pending.original_text || ('clarification_resolved_' + String(new Date().getTime())))
+        };
+        var routedResult = writeRouted_(ss, finalTab, finalParsed, pending.original_text, stagingResult);
+        var tabLink = routedResult.tabUrl || getSheetTabUrlByName_(ss, routedResult.writtenTab || finalTab);
+        var reply = airoBuildFinanceWriteSuccessReply_(ss, finalTab, finalTab, finalParsed, routedResult, tabLink);
+        sendTelegram_(chatId, reply);
+
+        return {
+          ok: true,
+          handled: true,
+          appended: true,
+          planned_tab: finalTab,
+          written_tab: routedResult.writtenTab || finalTab,
+          routed_status: routedResult.status,
+          row: routedResult.row || '',
+          row_id: routedResult.rowId || '',
+          write_verified: routedResult.writeVerified === true,
+          readback_raw_text: routedResult.readbackRawText || ''
+        };
+      } catch (err) {
+        Logger.log("Error writing resolved transaction: " + err.toString());
+        sendTelegram_(chatId, "Error saat menyimpan transaksi.");
+        return { handled: true, error: err.toString() };
+      }
+    }
+  }
+
+  return { handled: false };
+}
+
+function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
+  var step = pending.step || 1;
+  var text = String(rawText || "").trim().toLowerCase();
+
+  if (text === "0" || text === "review" || text === "batal" || text === "cancel") {
+    return {
+      handled: true,
+      cancelled: true,
+      fallback_to_review: true,
+      status: 'review_queue_fallback_after_clarification_failed',
+      clarification_type: pending.type,
+      mock_write_tab: "🧾 Review Queue"
+    };
+  }
+
+  if (step === 1) {
+    var accountsList = getEligibleFundingSourceAccounts_();
+    var optionMapping = pending.optionToAccount || {};
+    var chosenAccount = airoParseAccountChoice_(rawText, accountsList, optionMapping);
+
+    if (!chosenAccount) {
+      return {
+        handled: false,
+        error: "invalid_account",
+        route: "retry_account_prompt"
+      };
+    }
+
+    return {
+      handled: true,
+      waiting: true,
+      confirmed_account: chosenAccount,
+      next_step: 2,
+      route: "subcategory_prompt"
+    };
+  }
+
+  if (step === 2) {
+    var optionMapping = pending.optionToSubcategory || {};
+    var registry = airoSprint7CategoryContractGetRegistry_();
+    var subChoice = airoParseSubcategoryChoice_(rawText, optionMapping, registry);
+
+    if (!subChoice) {
+      return {
+        handled: false,
+        error: "invalid_subcategory",
+        route: "retry_subcategory_prompt"
+      };
+    }
+
+    if (subChoice.type === "review") {
+      return {
+        handled: true,
+        cancelled: true,
+        fallback_to_review: true,
+        status: 'review_queue_fallback_after_clarification_failed',
+        clarification_type: pending.type,
+        mock_write_tab: "🧾 Review Queue"
+      };
+    }
+
+    if (subChoice.type === "help") {
+      return { handled: true, waiting: true, route: "help" };
+    }
+
+    if (subChoice.type === "add_flow") {
+      return { handled: true, waiting: true, route: "add_flow_out_of_scope" };
+    }
+
+    if (subChoice.type === "category_only") {
+      return { handled: true, waiting: true, route: "subcategory_prompt_single_category", selected_category: subChoice.category };
+    }
+
+    if (subChoice.type === "ambiguous") {
+      return { handled: true, waiting: true, route: "ambiguous_prompt", candidates: subChoice.candidates };
+    }
+
+    if (subChoice.type === "resolved") {
+      return {
+        handled: true,
+        resolved: true,
+        category: subChoice.category,
+        subcategory: subChoice.subcategory,
+        confirmed_account: pending.confirmed_account,
+        route: "ledger_write"
+      };
+    }
+  }
+
+  return { handled: false };
+}
+
+function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
+  var cases = [];
+  var passed = true;
+
+  var mockPendingAccount = {
+    type: "outgoing_confirmation",
+    step: 1,
+    original_text: "cash bayar makan rp 1",
+    amount: 1,
+    category: "Food & Drink",
+    subcategory: "",
+    account: "Cash Umum",
+    description: "makan",
+    attempts: 0,
+    optionToAccount: {
+      a: "Cash Umum",
+      b: "Cash Makan",
+      c: "Cash Bensin",
+      d: "BCA",
+      e: "Blu"
+    }
+  };
+
+  // Case 1: invalid account selection
+  var res1 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "invalid_choice");
+  var tc1 = (res1.handled === false && res1.error === "invalid_account");
+  cases.push({ name: "invalid_account_selection", pass: tc1, details: JSON.stringify(res1) });
+  if (!tc1) passed = false;
+
+  // Case 2: cancel/review selection
+  var res2 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "0");
+  var tc2 = (res2.handled === true && res2.cancelled === true && res2.fallback_to_review === true);
+  cases.push({ name: "cancel_account_selection", pass: tc2, details: JSON.stringify(res2) });
+  if (!tc2) passed = false;
+
+  // Case 3: valid account selection (by letter option)
+  var res3 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "b");
+  var tc3 = (res3.handled === true && res3.waiting === true && res3.confirmed_account === "Cash Makan" && res3.next_step === 2);
+  cases.push({ name: "valid_account_selection_letter", pass: tc3, details: JSON.stringify(res3) });
+  if (!tc3) passed = false;
+
+  // Case 4: valid account selection (by exact name)
+  var res4 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "Cash Makan");
+  var tc4 = (res4.handled === true && res4.waiting === true && res4.confirmed_account === "Cash Makan" && res4.next_step === 2);
+  cases.push({ name: "valid_account_selection_name", pass: tc4, details: JSON.stringify(res4) });
+  if (!tc4) passed = false;
+
+  // Mock Step 2 pending state
+  var mockPendingSubcategory = {
+    type: "outgoing_confirmation",
+    step: 2,
+    original_text: "cash bayar makan rp 1",
+    amount: 1,
+    category: "Food & Drink",
+    subcategory: "",
+    account: "Cash Umum",
+    confirmed_account: "Cash Makan",
+    description: "makan",
+    attempts: 0,
+    optionToSubcategory: {
+      a: { category: "Food & Drink", subcategory: "Jajan" },
+      b: { category: "Food & Drink", subcategory: "Makan di Luar" },
+      c: { category: "Food & Drink", subcategory: "Kopi" },
+      d: { category: "Food & Drink", subcategory: "Makan Siang" },
+      e: { category: "Transport", subcategory: "Bensin" }
+    }
+  };
+
+  // Case 5: qualified subcategory selection
+  var res5 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Food & Drink > Makan di Luar");
+  var tc5 = (res5.handled === true && res5.resolved === true && res5.category === "Food & Drink" && res5.subcategory === "Makan di Luar" && res5.route === "ledger_write");
+  cases.push({ name: "qualified_subcategory_selection", pass: tc5, details: JSON.stringify(res5) });
+  if (!tc5) passed = false;
+
+  // Case 6: exact subcategory selection by letter
+  var res6 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "b");
+  var tc6 = (res6.handled === true && res6.resolved === true && res6.category === "Food & Drink" && res6.subcategory === "Makan di Luar" && res6.route === "ledger_write");
+  cases.push({ name: "exact_subcategory_selection_letter", pass: tc6, details: JSON.stringify(res6) });
+  if (!tc6) passed = false;
+
+  // Case 7: ambiguous subcategory selection
+  var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Medicine");
+  var tc7 = (res7.handled === true && res7.waiting === true && res7.route === "ambiguous_prompt" && res7.candidates.length >= 2);
+  cases.push({ name: "ambiguous_subcategory_selection", pass: tc7, details: JSON.stringify(res7) });
+  if (!tc7) passed = false;
+
+  // Case 8: category only selection
+  var res8 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Food & Drink");
+  var tc8 = (res8.handled === true && res8.waiting === true && res8.route === "subcategory_prompt_single_category" && res8.selected_category === "Food & Drink");
+  cases.push({ name: "category_only_selection", pass: tc8, details: JSON.stringify(res8) });
+  if (!tc8) passed = false;
+
+  // Case 9: cancel/review selection at step 2
+  var res9 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "0");
+  var tc9 = (res9.handled === true && res9.cancelled === true && res9.fallback_to_review === true);
+  cases.push({ name: "cancel_subcategory_selection", pass: tc9, details: JSON.stringify(res9) });
+  if (!tc9) passed = false;
+
+  // Case 10: help route selection
+  var res10 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "?");
+  var tc10 = (res10.handled === true && res10.waiting === true && res10.route === "help");
+  cases.push({ name: "help_route_selection", pass: tc10, details: JSON.stringify(res10) });
+  if (!tc10) passed = false;
+
+  // Case 11: add flow placeholder selection
+  var res11 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "+");
+  var tc11 = (res11.handled === true && res11.waiting === true && res11.route === "add_flow_out_of_scope");
+  cases.push({ name: "add_flow_selection", pass: tc11, details: JSON.stringify(res11) });
+  if (!tc11) passed = false;
+
+  var result = {
+    task: "AIRO Finance Task 10.5L",
+    status: passed ? "PASS" : "FAIL",
+    mutation_scope: "OUTGOING_CONFIRMATION_GATE_SELFTEST",
     cases: cases
   };
 
