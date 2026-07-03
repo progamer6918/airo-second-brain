@@ -3190,6 +3190,106 @@ function writeAccountLedgerMirror_(ss, parsed, rawText, common, sourceTab) {
     accountName = cashAccountNameForLedger_(rawText);
   }
 
+  if (parsed.posting_mode === 'FUNDED_PAYMENT_ACCOUNT_OUTGOING') {
+    try { ensureAccountLedgerSheet_(ss); } catch (e) {}
+    
+    // Row 1: Funding source OUT
+    const row1 = {
+      entry_id: entryId + ':src',
+      date: date,
+      account: parsed.funding_source_account,
+      amount_in: '',
+      amount_out: amount,
+      balance: '',
+      type: 'transfer_out',
+      category: 'Transfer',
+      subcategory: '',
+      description: 'Transfer to ' + accountName + ' for: ' + rawText,
+      raw_text: rawText,
+      source_tab: sourceTab,
+      linked_txn_id: entryId + ':out',
+      notes: ''
+    };
+    const res1 = appendByHeader_(ss, AIRO_CONFIG.tabs.accountLedger, row1, { createIfMissing: false });
+    if (res1 && res1.status === 'written' && res1.row) {
+      try {
+        const sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
+        if (sheet) {
+          const r = res1.row;
+          const formula = '=IF(C' + r + '="";"";SUMIFS($D$2:D' + r + ';$C$2:C' + r + ';C' + r + ')-SUMIFS($E$2:E' + r + ';$C$2:C' + r + ';C' + r + '))';
+          sheet.getRange(r, 6).setFormula(formula);
+          applyAccountLedgerRowStyle_(sheet, r);
+        }
+      } catch (e) {}
+    }
+
+    // Row 2: Payment account IN
+    const row2 = {
+      entry_id: entryId + ':in',
+      date: date,
+      account: accountName,
+      amount_in: amount,
+      amount_out: '',
+      balance: '',
+      type: 'cc_payment',
+      category: 'Transfer',
+      subcategory: '',
+      description: 'Funded from ' + parsed.funding_source_account + ' for: ' + rawText,
+      raw_text: rawText,
+      source_tab: sourceTab,
+      linked_txn_id: entryId + ':out',
+      notes: ''
+    };
+    const res2 = appendByHeader_(ss, AIRO_CONFIG.tabs.accountLedger, row2, { createIfMissing: false });
+    if (res2 && res2.status === 'written' && res2.row) {
+      try {
+        const sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
+        if (sheet) {
+          const r = res2.row;
+          const formula = '=IF(C' + r + '="";"";SUMIFS($D$2:D' + r + ';$C$2:C' + r + ';C' + r + ')-SUMIFS($E$2:E' + r + ';$C$2:C' + r + ';C' + r + '))';
+          sheet.getRange(r, 6).setFormula(formula);
+          applyAccountLedgerRowStyle_(sheet, r);
+        }
+      } catch (e) {}
+    }
+
+    // Row 3: Payment account OUT (primary purchase row)
+    const row3 = {
+      entry_id: entryId + ':out',
+      date: date,
+      account: accountName,
+      amount_in: '',
+      amount_out: amount,
+      balance: '',
+      type: parsed.type || 'expense',
+      category: parsed.category || 'Lainnya',
+      subcategory: parsed.subcategory || '',
+      description: rawText,
+      raw_text: rawText,
+      source_tab: sourceTab,
+      linked_txn_id: entryId + ':out',
+      notes: ''
+    };
+    const res3 = appendByHeader_(ss, AIRO_CONFIG.tabs.accountLedger, row3, { createIfMissing: false });
+    if (res3 && res3.status === 'written' && res3.row) {
+      try {
+        const sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.accountLedger);
+        if (sheet) {
+          const r = res3.row;
+          const formula = '=IF(C' + r + '="";"";SUMIFS($D$2:D' + r + ';$C$2:C' + r + ';C' + r + ')-SUMIFS($E$2:E' + r + ';$C$2:C' + r + ';C' + r + '))';
+          sheet.getRange(r, 6).setFormula(formula);
+          applyAccountLedgerRowStyle_(sheet, r);
+        }
+      } catch (e) {}
+    }
+
+    if (res3) {
+      res3.multiEntryWrite = true;
+      res3.rowId = entryId + ':out';
+    }
+    return res3;
+  }
+
   const row = {
     entry_id: entryId,
     date: date,
