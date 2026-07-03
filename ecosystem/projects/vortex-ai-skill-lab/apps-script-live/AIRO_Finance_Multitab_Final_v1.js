@@ -27818,6 +27818,187 @@ function airoSprint7HScheduledGmailPoller_() {
 // write_performed: false,
 // Sprint 7F-D: Route Preview Mode: no-write
 
+function airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(pending, rawText) {
+  var registry = airoSprint7CategoryContractGetRegistry_();
+  var categories = Object.keys(registry).filter(function(c) { return c !== "Other / Review"; });
+  var step = pending.step || 1;
+  var text = String(rawText || "").trim().toLowerCase();
+
+  function findRegistryCategory_(inputText) {
+    if (/^\d+\.?$/.test(inputText)) {
+      var num = parseInt(inputText, 10);
+      if (num >= 1 && num <= categories.length) {
+        return categories[num - 1];
+      }
+    }
+
+    var alphabet = "abcdefghijklmnopqrstuvwxyz";
+    if (inputText.length === 1) {
+      var idx = alphabet.indexOf(inputText);
+      if (idx >= 0 && idx < categories.length) {
+        return categories[idx];
+      }
+    }
+
+    for (var i = 0; i < categories.length; i++) {
+      var cat = categories[i];
+      var catLower = cat.toLowerCase();
+      if (inputText === catLower || catLower.indexOf(inputText) !== -1 || inputText.indexOf(catLower) !== -1) {
+        return cat;
+      }
+
+      var info = registry[cat] || {};
+      var aliases = info.aliases || [];
+      for (var k = 0; k < aliases.length; k++) {
+        if (aliases[k].toLowerCase() === inputText) {
+          return cat;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Cancel / Review logic at start
+  if (text === "review" || text === "batal" || text === "cancel") {
+    return {
+      handled: true,
+      cancelled: true,
+      fallback_to_review: true,
+      status: 'review_queue_fallback_after_clarification_failed',
+      clarification_type: pending.type,
+      mock_write_tab: "🧾 Review Queue"
+    };
+  }
+
+  if (step === 1) {
+    if (text === "?") {
+      return { handled: true, waiting: true, route: "help" };
+    }
+
+    if (text === "+") {
+      return { handled: true, waiting: true, route: "add_flow_out_of_scope" };
+    }
+
+    if (text === "0" || text === "back" || text === "kembali" || text === "0.") {
+      return {
+        handled: true,
+        cancelled: true,
+        fallback_to_review: true,
+        status: 'review_queue_fallback_after_clarification_failed',
+        clarification_type: pending.type,
+        mock_write_tab: "🧾 Review Queue"
+      };
+    }
+
+    // Dynamic resolution check
+    var resolvedAnswer = airoSprint7CategoryContractResolveAnswerText_(rawText);
+    if (resolvedAnswer.type === "resolved") {
+      return {
+        handled: true,
+        resolved: true,
+        category: resolvedAnswer.category,
+        subcategory: resolvedAnswer.subcategory,
+        route: "funding_source_pending"
+      };
+    } else if (resolvedAnswer.type === "category_only") {
+      return { handled: true, waiting: true, route: "subcategory_prompt", selected_category: resolvedAnswer.category };
+    } else if (resolvedAnswer.type === "ambiguous") {
+      return { handled: true, waiting: true, route: "ambiguous_prompt", candidates: resolvedAnswer.candidates };
+    }
+
+    var category = findRegistryCategory_(text);
+
+    var helpIndexNum = String(categories.length + 1);
+    var alphabet = "abcdefghijklmnopqrstuvwxyz";
+    var helpIndexLetter = alphabet.charAt(categories.length);
+    var isHelpChoice = (text === helpIndexLetter || text === helpIndexNum || text === "e" || text === "5" || text === "cari" || text === "bantuan" || text === "cari kategori");
+
+    if (isHelpChoice) {
+      return { handled: true, waiting: true, route: "manual_search" };
+    }
+
+    if (category) {
+      return { handled: true, waiting: true, route: "subcategory_prompt", selected_category: category };
+    }
+
+    return { handled: false, route: "fallback_retry_prompt" };
+  }
+
+  return { handled: false };
+}
+
+function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
+  var cases = [];
+  var passed = true;
+
+  var mockPending = {
+    type: "missing_category",
+    step: 1,
+    original_text: "makan 50000",
+    attempts: 0
+  };
+
+  // Case 1: qualified_subcategory
+  var resQualified = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "Bensin > Transport");
+  var tc1 = (resQualified.handled === true && resQualified.resolved === true && resQualified.category === "Transport" && resQualified.subcategory === "Bensin");
+  cases.push({ name: "qualified_subcategory", pass: tc1, details: JSON.stringify(resQualified) });
+  if (!tc1) passed = false;
+
+  // Case 2: exact_subcategory
+  var resExact = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "Bensin");
+  var tc2 = (resExact.handled === true && resExact.resolved === true && resExact.category === "Transport" && resExact.subcategory === "Bensin");
+  cases.push({ name: "exact_subcategory", pass: tc2, details: JSON.stringify(resExact) });
+  if (!tc2) passed = false;
+
+  // Case 3: ambiguous_subcategory
+  var resAmb = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "Medicine");
+  var tc3 = (resAmb.handled === true && resAmb.waiting === true && resAmb.route === "ambiguous_prompt" && resAmb.candidates.length >= 2);
+  cases.push({ name: "ambiguous_subcategory", pass: tc3, details: JSON.stringify(resAmb) });
+  if (!tc3) passed = false;
+
+  // Case 4: category_only
+  var resCat = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "Transport");
+  var tc4 = (resCat.handled === true && resCat.waiting === true && resCat.route === "subcategory_prompt" && resCat.selected_category === "Transport");
+  cases.push({ name: "category_only", pass: tc4, details: JSON.stringify(resCat) });
+  if (!tc4) passed = false;
+
+  // Case 5: review_fallback
+  var resZero = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "0");
+  var tc5 = (resZero.handled === true && resZero.cancelled === true && resZero.fallback_to_review === true && resZero.mock_write_tab === "🧾 Review Queue");
+  cases.push({ name: "review_fallback", pass: tc5, details: JSON.stringify(resZero) });
+  if (!tc5) passed = false;
+
+  // Case 6: help_route
+  var resHelp = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "?");
+  var tc6 = (resHelp.handled === true && resHelp.waiting === true && resHelp.route === "help");
+  cases.push({ name: "help_route", pass: tc6, details: JSON.stringify(resHelp) });
+  if (!tc6) passed = false;
+
+  // Case 7: add_flow_placeholder
+  var resAdd = airoSprint7CategoryContractMissingCategoryHandleReplyDryRun_(mockPending, "+");
+  var tc7 = (resAdd.handled === true && resAdd.waiting === true && resAdd.route === "add_flow_out_of_scope");
+  cases.push({ name: "add_flow_placeholder", pass: tc7, details: JSON.stringify(resAdd) });
+  if (!tc7) passed = false;
+
+  var result = {
+    task: "AIRO Finance Task 10.5J",
+    status: passed ? "PASS" : "FAIL",
+    mutation_scope: "TELEGRAM_CATEGORY_DRYRUN_INTEGRATION_SELFTEST",
+    production_behavior_changed: "NO",
+    workbook_mutation: "NO",
+    ledger_write: "NO",
+    review_queue_write: "NO",
+    category_registry_mutation: "NO",
+    dashboard_mutation: "NO",
+    gmail_read: "NO",
+    telegram_send: "NO",
+    cases: cases
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
 function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
   var cases = [];
   var passed = true;
