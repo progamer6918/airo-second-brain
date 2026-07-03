@@ -475,3 +475,11 @@ docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.m
 - Verification document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-4-deployed-readback-runtime-pending-20260703.md`
 <!-- AIRO_TASK_10_4_DEPLOYED_READBACK_END -->
 
+<!-- AIRO_TASK_10_5A_READBACK_START -->
+## AIRO Finance Task 10.5A — Category/Account Registry Readback Completed (2026-07-03)
+- Status: Readback snapshot completed PASS.
+- Workspace document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5a-category-account-registry-readback-20260703.md`
+- Next: Task 10.5B Telegram Category/Subcategory prompt design.
+<!-- AIRO_TASK_10_5A_READBACK_END -->
+
+

@@ -765,3 +765,8 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - Target file: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
 - Verification document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-4-deployed-readback-runtime-pending-20260703.md`
 - Next: Proceed to Telegram category/subcategory flow design and implementation (Task 10.5).
+
+## 2026-07-03 — AIRO Finance Task 10.5A Category/Account Registry Readback Snapshot
+- status: Registry readback snapshot completed PASS.
+- Workspace document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5a-category-account-registry-readback-20260703.md`
+- Next: Design the real Telegram category/subcategory flow (Task 10.5B).
