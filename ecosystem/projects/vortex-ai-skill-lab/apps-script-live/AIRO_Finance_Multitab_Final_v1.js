@@ -60,14 +60,87 @@ function savePendingClarification_(chatId, pending) {
 
 function normalizeClarificationAccountAnswer_(text) {
   const t = String(text || '').toLowerCase().trim();
+  const accounts = getEligibleFundingSourceAccounts_();
 
-  if (/^(a|1)$/i.test(t) || /\b(bca|bank bca)\b/i.test(t)) return 'BCA';
-  if (/^(b|2)$/i.test(t) || /\b(blu|blu bca|blubca|pocket blu)\b/i.test(t)) return 'Blu';
-  if (/^(c|3)$/i.test(t) || /\b(cash|tunai)\b/i.test(t)) return 'Cash';
-  if (/^(d|4)$/i.test(t) || /\b(cc|credit card|kartu kredit|tokopedia cc|tokopedia card)\b/i.test(t)) return 'Credit Card';
-  if (/^(e|5)$/i.test(t) || /\b(lain|lainnya|manual)\b/i.test(t)) return 'manual';
+  // 1. Check if user replied with a letter shortcut (A, B, C...) or number (1, 2, 3...)
+  for (var i = 0; i < accounts.length; i++) {
+    const letter = String.fromCharCode(65 + i).toLowerCase();
+    const numStr = String(i + 1);
+    
+    if (t === letter || t === numStr) {
+      return accounts[i];
+    }
+  }
+
+  // 2. Check if user replied with "Lainnya / manual" shortcut
+  const manualLetter = String.fromCharCode(65 + accounts.length).toLowerCase();
+  const manualNumStr = String(accounts.length + 1);
+  if (t === manualLetter || t === manualNumStr || /^(lain|lainnya|manual)$/i.test(t)) {
+    return 'manual';
+  }
+
+  // 3. Check if user typed the account name or alias case-insensitively
+  for (var i = 0; i < accounts.length; i++) {
+    const accName = accounts[i];
+    const accNameLower = accName.toLowerCase();
+    
+    if (t === accNameLower || new RegExp('\\b' + escapeRegex_(accNameLower) + '\\b', 'i').test(t)) {
+      return accName;
+    }
+    
+    // Alias checks for backwards compatibility
+    if (accNameLower === 'bca' && /\b(bank bca)\b/i.test(t)) return 'BCA';
+    if (accNameLower === 'blu' && /\b(blu bca|blubca|pocket blu)\b/i.test(t)) return 'Blu';
+    if (accNameLower === 'cash' && /\b(tunai)\b/i.test(t)) return 'Cash';
+  }
+
+  // Fallback for Credit Card mapping if typed explicitly (not in options list)
+  if (/\b(cc|credit card|kartu kredit|tokopedia cc|tokopedia card)\b/i.test(t)) {
+    return 'Credit Card';
+  }
 
   return '';
+}
+
+function getEligibleFundingSourceAccounts_() {
+  try {
+    const registry = airoSprint7AccountContractGetRegistry_();
+    if (!registry || registry.length === 0) {
+      return getStaticEligibleFundingSourceAccounts_();
+    }
+    
+    const eligible = [];
+    for (var i = 0; i < registry.length; i++) {
+      const acc = registry[i];
+      const name = String(acc.account_name || '').trim();
+      const nameLower = name.toLowerCase();
+      const typeLower = String(acc.account_type || '').toLowerCase();
+      
+      if (!name || nameLower === 'unknown' || nameLower === 'credit card' || nameLower === 'cc') {
+        continue;
+      }
+      if (acc.is_credit === true || typeLower === 'credit' || typeLower === 'credit card') {
+        continue;
+      }
+      
+      eligible.push(name);
+    }
+    
+    if (eligible.length === 0) {
+      return getStaticEligibleFundingSourceAccounts_();
+    }
+    return eligible;
+  } catch (e) {
+    return getStaticEligibleFundingSourceAccounts_();
+  }
+}
+
+function getStaticEligibleFundingSourceAccounts_() {
+  return ['BCA', 'Blu', 'Cash'];
+}
+
+function escapeRegex_(string) {
+  return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
 function isClearlyNonFinanceOrTooUnclear_(parsed, rawText) {
@@ -742,6 +815,13 @@ function canAskMissingAccountClarification_(parsed, rawText) {
   const account = String(parsed.account || '').trim().toLowerCase();
   if (account && account !== 'unknown') return false;
 
+  // 6. Incoming transactions must not ask funding source.
+  const type = String(parsed.type || '').toLowerCase();
+  const explicitInflowTypes = ['income', 'transfer_in', 'cash_in'];
+  if (explicitInflowTypes.includes(type)) {
+    return false;
+  }
+
   const category = String(parsed.category || '').trim().toLowerCase();
   if (!category || category === 'lainnya') return false;
 
@@ -758,17 +838,19 @@ function canAskMissingAccountClarification_(parsed, rawText) {
 }
 
 function buildMissingAccountClarificationMessage_(parsed) {
-  return (
-    'Saya tangkap ini pengeluaran kategori ' + (parsed.category || '-') +
-    ' Rp' + (parsed.amount || 0) + '.\n\n' +
-    'Akun pembayarannya yang mana?\n' +
-    'A. BCA\n' +
-    'B. Blu\n' +
-    'C. Cash\n' +
-    'D. Credit Card\n' +
-    'E. Lainnya / tulis manual\n\n' +
-    'Balas dengan A/B/C/D/E, angka 1-5, atau teks seperti: pakai bca.'
-  );
+  const accounts = getEligibleFundingSourceAccounts_();
+  let msg = 'Saya tangkap ini pengeluaran kategori ' + (parsed.category || '-') +
+            ' Rp' + (parsed.amount || 0) + '.\n\n' +
+            'Akun pembayarannya yang mana?\n';
+  
+  for (var i = 0; i < accounts.length; i++) {
+    const letter = String.fromCharCode(65 + i); // A, B, C...
+    msg += letter + '. ' + accounts[i] + '\n';
+  }
+  const nextLetter = String.fromCharCode(65 + accounts.length);
+  msg += nextLetter + '. Lainnya / tulis manual\n\n';
+  msg += 'Balas dengan pilihan huruf/angka atau teks nama akun.';
+  return msg;
 }
 
 function sendClarificationFormatHelp_(chatId) {
