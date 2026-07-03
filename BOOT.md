@@ -80,6 +80,9 @@ Read in this order:
 6. Relevant project file under `projects/`
 7. Relevant current validation, review, runtime, or pending-job file when referenced by the files above
 
+> [!NOTE]
+> After reading BOOT.md, use CONTEXT_BRIEF.md for quick orientation, then continue with CURRENT.md, CONTEXT.md, ROADMAP_INDEX.md, PRD_INDEX.md, state/active-context.md, and relevant project evidence.
+
 Do not read `archive/` or `inbox/` unless explicitly requested or directly referenced by the current workflow.
 
 Use repository files and verified runtime evidence as the default knowledge.

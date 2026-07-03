@@ -750,3 +750,11 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - state/active-context.md remains legacy mixed history log.
 - Decision record path: decisions/approved/asb-gov-0c-owner-decisions-20260702.md
 - No runtime/source mutation.
+
+## 2026-07-02 — ASB-GOV-2 minimal indexes/context brief
+- Added CONTEXT_BRIEF.md, ROADMAP_INDEX.md, PRD_INDEX.md.
+- Updated BOOT.md/CURRENT.md pointers only.
+- No runtime/source mutation.
+- No AIRO Finance execution.
+- Next safe step requires owner approval.
+

@@ -1,8 +1,15 @@
+# ASB-GOV-2 MINIMAL INDEX CHECKPOINT
+- CONTEXT_BRIEF.md, ROADMAP_INDEX.md, PRD_INDEX.md added as pointer/reference files.
+- This does not normalize roadmap/PRD history.
+- This does not reconcile AIRO Finance.
+- Project-specific execution still requires latest project evidence and owner-approved project reconciliation.
+
 # ASB-GOV DECISION CHECKPOINT
 - ASB-GOV-0C owner decisions recorded at decisions/approved/asb-gov-0c-owner-decisions-20260702.md
 - This does not normalize roadmap/PRD yet.
 - Project folder classification and ASB PRD/CURRENT/active-context policy are now owner-approved.
-- Next: ASB-GOV-2 only with owner approval.
+- Next: ASB-GOV-2 minimal indexes completed.
+
 
 
 <!-- AIRO_TASK10_2_GATE11B_CHAT_ROADMAP_RULE_START -->
