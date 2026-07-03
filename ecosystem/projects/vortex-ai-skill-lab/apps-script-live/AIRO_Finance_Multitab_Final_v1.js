@@ -27818,6 +27818,69 @@ function airoSprint7HScheduledGmailPoller_() {
 // write_performed: false,
 // Sprint 7F-D: Route Preview Mode: no-write
 
+function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
+  var cases = [];
+  var passed = true;
+
+  // Case 1: exact_subcategory
+  var resBengkel = airoSprint7CategoryContractResolveAnswerText_("Bengkel");
+  var tc1 = (resBengkel.type === "resolved" && resBengkel.category === "Transport" && resBengkel.subcategory === "Bengkel");
+  cases.push({ name: "exact_subcategory", pass: tc1, details: JSON.stringify(resBengkel) });
+  if (!tc1) passed = false;
+
+  // Case 2: qualified_subcategory
+  var resQualified = airoSprint7CategoryContractResolveAnswerText_("Bengkel > Transport");
+  var tc2 = (resQualified.type === "resolved" && resQualified.category === "Transport" && resQualified.subcategory === "Bengkel");
+  cases.push({ name: "qualified_subcategory", pass: tc2, details: JSON.stringify(resQualified) });
+  if (!tc2) passed = false;
+
+  // Case 3: ambiguous_subcategory
+  var resMed = airoSprint7CategoryContractResolveAnswerText_("Medicine");
+  var tc3 = (resMed.type === "ambiguous" && resMed.candidates && resMed.candidates.length >= 2);
+  cases.push({ name: "ambiguous_subcategory", pass: tc3, details: JSON.stringify(resMed) });
+  if (!tc3) passed = false;
+
+  // Case 4: category_only
+  var resCat = airoSprint7CategoryContractResolveAnswerText_("Transport");
+  var tc4 = (resCat.type === "category_only" && resCat.category === "Transport");
+  cases.push({ name: "category_only", pass: tc4, details: JSON.stringify(resCat) });
+  if (!tc4) passed = false;
+
+  // Case 5: review_fallback
+  var resZeroSub = airoSprint7CategoryContractParseSubcategoryOption_("Transport", "0");
+  var tcZeroSub = (resZeroSub.action === "back");
+  cases.push({ name: "review_fallback_0_sub", pass: tcZeroSub, details: JSON.stringify(resZeroSub) });
+  if (!tcZeroSub) passed = false;
+
+  // Case 6: help_route
+  var resHelp = airoSprint7CategoryContractResolveAnswerText_("?");
+  var tcHelp = (resHelp.type === "unresolved");
+  cases.push({ name: "help_route_resolver", pass: tcHelp, details: JSON.stringify(resHelp) });
+  if (!tcHelp) passed = false;
+
+  // Case 7: add_flow_placeholder
+  var resAdd = airoSprint7CategoryContractResolveAnswerText_("+");
+  var tcAdd = (resAdd.type === "unresolved");
+  cases.push({ name: "add_flow_resolver", pass: tcAdd, details: JSON.stringify(resAdd) });
+  if (!tcAdd) passed = false;
+
+  var result = {
+    task: "AIRO Finance Task 10.5F",
+    status: passed ? "PASS" : "FAIL",
+    mutation_scope: "READ_ONLY_RUNTIME_SELFTEST",
+    workbook_mutation: "NO",
+    ledger_write: "NO",
+    category_registry_mutation: "NO",
+    dashboard_mutation: "NO",
+    gmail_read: "NO",
+    telegram_send: "NO",
+    cases: cases
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
 function runSprint7HRouteInferenceSelfTestFromEditor() {
   var pending = {
     provider: "Blu",
