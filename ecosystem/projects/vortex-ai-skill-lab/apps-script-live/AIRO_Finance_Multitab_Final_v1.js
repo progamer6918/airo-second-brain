@@ -20556,6 +20556,11 @@ function runSprint7FManualDryRunPollerFromEditor() {
       var classification = airoSprint7EClassifySubjectCandidate_(subject, provider);
       candidateCount++;
 
+      var textBody = "";
+      try {
+        textBody = (typeof message.getPlainBody === "function" ? message.getPlainBody() : "") || "";
+      } catch (errBody) {}
+
       candidates.push({
         candidate_id: "emc:" + airoSprint7FSubjectHashOnly_(typeof message.getId === "function" ? message.getId() : String(thread.getId ? thread.getId() : "")),
         message_id: typeof message.getId === "function" ? message.getId() : "",
@@ -20566,9 +20571,9 @@ function runSprint7FManualDryRunPollerFromEditor() {
         date: Utilities.formatDate(message.getDate(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         subject_hash: airoSprint7FSubjectHashOnly_(subject),
         display_amount: airoSprint7FExtractAmountFromSubject_(subject),
-        inferred_direction: airoSprint7FInferDirection_(subject, classification.candidate_type),
+        inferred_direction: airoSprint7FInferDirection_(subject, classification.candidate_type, textBody),
         display_time: Utilities.formatDate(message.getDate(), Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm"),
-        clarification_question_type: airoSprint7FClarificationQuestionType_(airoSprint7FInferDirection_(subject, classification.candidate_type)),
+        clarification_question_type: airoSprint7FClarificationQuestionType_(airoSprint7FInferDirection_(subject, classification.candidate_type, textBody)),
         received_at: Utilities.formatDate(message.getDate(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         parse_status: classification.parse_status,
         candidate_type: classification.candidate_type,
@@ -22292,35 +22297,76 @@ function airoSprint7FFormatRupiah_(amount) {
   return "Rp" + String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function airoSprint7FInferDirection_(subject, candidateType) {
-  var text = String(subject || "").toLowerCase();
+function airoSprint7FInferDirection_(subject, candidateType, bodyText) {
+  var subjText = String(subject || "").toLowerCase();
   var type = String(candidateType || "").toLowerCase();
+  var body = String(bodyText || "").toLowerCase();
 
   if (type.indexOf("transfer_masuk") >= 0) {
     return "pemasukan";
   }
 
+  // 1. Explicit inflow/masuk markers in subject
   if (
-    text.indexOf("masuk") >= 0 ||
-    text.indexOf("diterima") >= 0 ||
-    text.indexOf("received") >= 0 ||
-    text.indexOf("transfer masuk") >= 0
+    subjText.indexOf("masuk") >= 0 ||
+    subjText.indexOf("diterima") >= 0 ||
+    subjText.indexOf("received") >= 0 ||
+    subjText.indexOf("transfer masuk") >= 0
   ) {
     return "pemasukan";
   }
 
+  // 2. Inflow/masuk markers in body
   if (
-    text.indexOf("keluar") >= 0 ||
-    text.indexOf("pembayaran") >= 0 ||
-    text.indexOf("transaksimu berhasil") >= 0 ||
-    text.indexOf("debit") >= 0 ||
-    text.indexOf("purchase") >= 0
+    body.indexOf("masuk") >= 0 ||
+    body.indexOf("diterima") >= 0 ||
+    body.indexOf("received") >= 0 ||
+    body.indexOf("transfer masuk") >= 0 ||
+    body.indexOf("dana masuk") >= 0 ||
+    body.indexOf("penerimaan transfer") >= 0 ||
+    body.indexOf("incoming transfer") >= 0
+  ) {
+    return "pemasukan";
+  }
+
+  // 3. Explicit outflow/keluar markers in subject
+  if (
+    subjText.indexOf("keluar") >= 0 ||
+    subjText.indexOf("pembayaran") >= 0 ||
+    subjText.indexOf("debit") >= 0 ||
+    subjText.indexOf("purchase") >= 0 ||
+    subjText.indexOf("pembelian") >= 0 ||
+    subjText.indexOf("bayar") >= 0
   ) {
     return "pengeluaran";
   }
 
-  if (type.indexOf("blu_transaction") >= 0) {
+  // 4. Outflow/keluar markers in body
+  if (
+    body.indexOf("keluar") >= 0 ||
+    body.indexOf("pembayaran") >= 0 ||
+    body.indexOf("debit") >= 0 ||
+    body.indexOf("purchase") >= 0 ||
+    body.indexOf("pembelian") >= 0 ||
+    body.indexOf("bayar") >= 0
+  ) {
     return "pengeluaran";
+  }
+
+  // 5. Generic subject keywords check: generic subjects must not default to pengeluaran
+  var hasGenericSubjectPattern = (
+    subjText.indexOf("transaksimu berhasil") >= 0 ||
+    subjText.indexOf("transaksi berhasil") >= 0 ||
+    subjText.indexOf("notifikasi transaksi") >= 0
+  );
+
+  if (hasGenericSubjectPattern) {
+    return "ambigu";
+  }
+
+  // Old fallback check for candidate type, guarded against generic subjects
+  if (type.indexOf("blu_transaction") >= 0) {
+    return "ambigu";
   }
 
   return "ambigu";
@@ -27265,7 +27311,7 @@ function airoSprint7HScheduledGmailPoller_() {
       candidate.detected_amount = extractedAmt;
       candidate.amount_idr = extractedAmt;
 
-      var direction = airoSprint7FInferDirection_(subject, candidate.candidate_type);
+      var direction = airoSprint7FInferDirection_(subject, candidate.candidate_type, textBody);
       candidate.inferred_direction = direction;
       candidate.clarification_question_type = airoSprint7FClarificationQuestionType_(direction);
 
