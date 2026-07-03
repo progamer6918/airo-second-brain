@@ -482,4 +482,13 @@ docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.m
 - Next: Task 10.5B Telegram Category/Subcategory prompt design.
 <!-- AIRO_TASK_10_5A_READBACK_END -->
 
+<!-- AIRO_TASK_10_5C_RESOLVER_START -->
+## AIRO Finance Task 10.5C — Dynamic Category Prompt & Resolver Completed (2026-07-03)
+- Status: Dynamic Category Prompt & Resolver PASS (source patch & synthetic tests verified).
+- Target file: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Verification document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5c-dynamic-category-prompt-resolver-20260703.md`
+- Next: Deploy and verify live runtime (Task 10.5D).
+<!-- AIRO_TASK_10_5C_RESOLVER_END -->
+
+
 

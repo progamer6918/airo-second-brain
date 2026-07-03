@@ -507,12 +507,40 @@ function creditCardClarificationResolvedText_(pending, rawText) {
 }
 
 function normalizeMissingCategoryClarificationAnswer_(text) {
-  const t = String(text || '').toLowerCase().trim();
-  if (/^(a|1)$/i.test(t) || /\b(makan|minum|kopi|resto|warung|sarapan|lunch|dinner)\b/i.test(t)) return 'makan';
-  if (/^(b2|2)$/i.test(t) || /\b(transport|bensin|bbm|pertalite|pertamax|parkir|tol|grab|gojek)\b/i.test(t)) return 'transport';
-  if (/^(c|3)$/i.test(t) || /\b(tagihan|pdam|pln|listrik|air|wifi|internet)\b/i.test(t)) return 'tagihan';
-  if (/^(d|4)$/i.test(t) || /\b(belanja|shopping|tokopedia|shopee)\b/i.test(t)) return 'belanja';
-  if (/^(e|5)$/i.test(t) || /\b(lain|lainnya|manual)\b/i.test(t)) return 'manual';
+  var registry = airoSprint7CategoryContractGetRegistry_();
+  var categories = Object.keys(registry).filter(function(c) { return c !== "Other / Review"; });
+  var t = String(text || '').toLowerCase().trim();
+  if (!t) return '';
+
+  // 1. Handle exact matching or dynamic letter/number options
+  var alphabet = "abcdefghijklmnopqrstuvwxyz";
+  if (t.length === 1) {
+    var idx = alphabet.indexOf(t);
+    if (idx >= 0 && idx < categories.length) {
+      return categories[idx];
+    }
+  }
+  if (/^\d+$/.test(t)) {
+    var num = parseInt(t, 10);
+    if (num >= 1 && num <= categories.length) {
+      return categories[num - 1];
+    }
+  }
+
+  // 2. Case-insensitive exact name match
+  for (var i = 0; i < categories.length; i++) {
+    if (categories[i].toLowerCase() === t) {
+      return categories[i];
+    }
+  }
+
+  // 3. Fallback compatibility for old keywords
+  if (/\b(makan|minum|kopi|resto|warung|sarapan|lunch|dinner)\b/i.test(t)) return 'Food & Drink';
+  if (/\b(transport|bensin|bbm|pertalite|pertamax|parkir|tol|grab|gojek)\b/i.test(t)) return 'Transport';
+  if (/\b(tagihan|pdam|pln|listrik|air|wifi|internet)\b/i.test(t)) return 'Utilities';
+  if (/\b(belanja|shopping|tokopedia|shopee)\b/i.test(t)) return 'Groceries';
+  if (/\b(lain|lainnya|manual)\b/i.test(t)) return 'manual';
+
   return '';
 }
 
@@ -25627,6 +25655,107 @@ function airoSprint7CategoryContractKategoriCommandBuildReply_(query) {
   return "❌ Kategori/Subkategori \"" + query + "\" tidak ditemukan.\nKirim /kategori untuk melihat semua pilihan kategori.";
 }
 
+function airoSprint7CategoryContractResolveAnswerText_(rawText) {
+  var text = String(rawText || "").trim();
+  var t = text.toLowerCase();
+  if (!t) return { type: "invalid" };
+
+  var registry = airoSprint7CategoryContractGetRegistry_();
+  var catKeys = Object.keys(registry);
+
+  // 1. Check for category-qualified format like "Subcategory > Category" or "Category > Subcategory"
+  var parts = t.split(/>/);
+  if (parts.length === 2) {
+    var p1 = parts[0].trim();
+    var p2 = parts[1].trim();
+    
+    // Try p1 as category, p2 as subcategory
+    var catMatch = null;
+    for (var i = 0; i < catKeys.length; i++) {
+      if (catKeys[i].toLowerCase() === p1) {
+        catMatch = catKeys[i];
+        break;
+      }
+    }
+    if (catMatch) {
+      var subs = registry[catMatch].subcategories || [];
+      for (var j = 0; j < subs.length; j++) {
+        if (subs[j].toLowerCase() === p2) {
+          return { type: "resolved", category: catMatch, subcategory: subs[j] };
+        }
+      }
+    }
+    
+    // Try p2 as category, p1 as subcategory
+    catMatch = null;
+    for (var i = 0; i < catKeys.length; i++) {
+      if (catKeys[i].toLowerCase() === p2) {
+        catMatch = catKeys[i];
+        break;
+      }
+    }
+    if (catMatch) {
+      var subs = registry[catMatch].subcategories || [];
+      for (var j = 0; j < subs.length; j++) {
+        if (subs[j].toLowerCase() === p1) {
+          return { type: "resolved", category: catMatch, subcategory: subs[j] };
+        }
+      }
+    }
+  }
+
+  // 2. Check for exact category match
+  for (var i = 0; i < catKeys.length; i++) {
+    if (catKeys[i].toLowerCase() === t) {
+      return { type: "category_only", category: catKeys[i] };
+    }
+  }
+
+  // 3. Check for subcategory match (exact or via aliases)
+  var matchedCandidates = [];
+  for (var i = 0; i < catKeys.length; i++) {
+    var cat = catKeys[i];
+    var subs = registry[cat].subcategories || [];
+    var subinfo = registry[cat].subinfo || {};
+    for (var j = 0; j < subs.length; j++) {
+      var sub = subs[j];
+      var info = subinfo[sub] || {};
+      var aliases = info.aliases || [];
+      
+      var isMatch = (sub.toLowerCase() === t);
+      if (!isMatch) {
+        for (var k = 0; k < aliases.length; k++) {
+          if (aliases[k].toLowerCase() === t) {
+            isMatch = true;
+            break;
+          }
+        }
+      }
+      
+      if (isMatch) {
+        var duplicate = false;
+        for (var m = 0; m < matchedCandidates.length; m++) {
+          if (matchedCandidates[m].category === cat && matchedCandidates[m].subcategory === sub) {
+            duplicate = true;
+            break;
+          }
+        }
+        if (!duplicate) {
+          matchedCandidates.push({ category: cat, subcategory: sub });
+        }
+      }
+    }
+  }
+
+  if (matchedCandidates.length === 1) {
+    return { type: "resolved", category: matchedCandidates[0].category, subcategory: matchedCandidates[0].subcategory };
+  } else if (matchedCandidates.length > 1) {
+    return { type: "ambiguous", candidates: matchedCandidates };
+  }
+
+  return { type: "unresolved" };
+}
+
 function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending, rawText, failOrRetry_) {
   var registry = airoSprint7CategoryContractGetRegistry_();
   var categories = Object.keys(registry).filter(function(c) { return c !== "Other / Review"; });
@@ -25697,6 +25826,17 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
   }
 
   if (step === 1) {
+    if (text === "?") {
+      var categoriesList = categories.map(function(c) { return "- " + c; }).join("\n");
+      sendTelegram_(chatId, "Daftar kategori yang tersedia:\n" + categoriesList + "\n\nKetik salah satu kategori untuk melihat subkategorinya, atau gunakan format Kategori > Subkategori (misal: Transport > Bensin) untuk menentukan pilihan.");
+      return { handled: true, waiting: true };
+    }
+
+    if (text === "+") {
+      sendTelegram_(chatId, "Fitur menambah kategori/subkategori baru belum diaktifkan (OUT_OF_SCOPE untuk Task 10.5C). Silakan gunakan kategori yang sudah ada.");
+      return { handled: true, waiting: true };
+    }
+
     // Going back or cancel at step 1 acts as cancellation/review
     if (text === "0" || text === "back" || text === "kembali" || text === "0.") {
       clearPendingClarification_(chatId);
@@ -25753,6 +25893,28 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
 
       var subPrompt = airoSprint7CategoryContractBuildSubcategoryPrompt_(category);
       sendTelegram_(chatId, subPrompt);
+      return { handled: true, waiting: true };
+    }
+
+    // Dynamic resolution check
+    var resolvedAnswer = airoSprint7CategoryContractResolveAnswerText_(rawText);
+    if (resolvedAnswer.type === "resolved") {
+      pending.selected_category = resolvedAnswer.category;
+      // We must save the updated selected_category first so it is persisted!
+      savePendingClarification_(chatId, pending);
+      return airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, resolvedAnswer.subcategory);
+    } else if (resolvedAnswer.type === "category_only") {
+      pending.step = 2;
+      pending.selected_category = resolvedAnswer.category;
+      pending.attempts = 0;
+      savePendingClarification_(chatId, pending);
+      var subPrompt = airoSprint7CategoryContractBuildSubcategoryPrompt_(resolvedAnswer.category);
+      sendTelegram_(chatId, subPrompt);
+      return { handled: true, waiting: true };
+    } else if (resolvedAnswer.type === "ambiguous") {
+      var choicesMsg = "Pilihan subkategori '" + rawText + "' ambigu. Silakan ketik pilihan lengkap dengan kategori (Kategori > Subkategori), contoh:\n" +
+                        resolvedAnswer.candidates.map(function(c) { return "- " + c.category + " > " + c.subcategory; }).join("\n");
+      sendTelegram_(chatId, choicesMsg);
       return { handled: true, waiting: true };
     }
 
