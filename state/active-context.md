@@ -758,3 +758,10 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - No AIRO Finance execution.
 - Next safe step requires owner approval.
 
+## 2026-07-03 — AIRO Finance Task 10.4 Deployed Readback Checkpoint
+- status: Deployed and readback verified PASS.
+- Live runtime verification: PENDING (real transaction/channel proof pending).
+- Commits recorded: b066a68, d1afe81, 1c521be, 68ead59.
+- Target file: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Verification document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-4-deployed-readback-runtime-pending-20260703.md`
+- Next: Proceed to Telegram category/subcategory flow design and implementation (Task 10.5).

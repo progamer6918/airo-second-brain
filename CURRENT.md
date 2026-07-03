@@ -466,10 +466,12 @@ Evidence doc:
 docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.md
 <!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_END -->
 
-<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_START -->
-## AIRO_TASK_10_4_GATE1_PRD_LOCK
-Status: Gate 1 PRD/spec lock.
-Next: Gate 2 source design audit, no mutation.
-Note: No source code patch exists yet.
-<!-- AIRO_TASK_10_4_GATE1_PRD_LOCK_END -->
+<!-- AIRO_TASK_10_4_DEPLOYED_READBACK_START -->
+## AIRO Finance Task 10.4 — Outgoing Funding Source Resolver Deployed (2026-07-03)
+- Status: Deployed & readback verified PASS.
+- Live runtime verification: PENDING (no real transaction created).
+- Commits recorded: b066a68, d1afe81, 1c521be, 68ead59.
+- Target file: `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js`
+- Verification document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-4-deployed-readback-runtime-pending-20260703.md`
+<!-- AIRO_TASK_10_4_DEPLOYED_READBACK_END -->
 
