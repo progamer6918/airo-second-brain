@@ -812,8 +812,8 @@ function canAskMissingAccountClarification_(parsed, rawText) {
   if (!parsed) return false;
   if (!parsed.amount || Number(parsed.amount) <= 0) return false;
 
-  const account = String(parsed.account || '').trim().toLowerCase();
-  if (account && account !== 'unknown') return false;
+  // Ask if funding_source_account is missing
+  if (parsed.funding_source_account) return false;
 
   // 6. Incoming transactions must not ask funding source.
   const type = String(parsed.type || '').toLowerCase();
@@ -825,8 +825,9 @@ function canAskMissingAccountClarification_(parsed, rawText) {
   const category = String(parsed.category || '').trim().toLowerCase();
   if (!category || category === 'lainnya') return false;
 
-  // First implementation target: regular expense-like purchase, not debts/assets/cash movement/CC payment.
-  if (/\b(hutang|utang|pinjam|pinjaman|cicilan rumah|kpr|angsuran rumah|emas|gold|aset|transfer|tf|topup|tarik|cash|tunai|cc|credit card|kartu kredit)\b/i.test(text)) {
+  // First implementation target: regular expense-like purchase, not debts/assets/cash movement.
+  // Note: CC payment/purchase is allowed to ask for funding source, so we remove CC from this exclusion.
+  if (/\b(hutang|utang|pinjam|pinjaman|cicilan rumah|kpr|angsuran rumah|emas|gold|aset|transfer|tf|topup|tarik|cash|tunai)\b/i.test(text)) {
     return false;
   }
 
@@ -4520,6 +4521,61 @@ function reviewIssueReasonForParsed_(rawText, data) {
   return '';
 }
 
+function extractFundingSource_(text, parsedAccount) {
+  const t = String(text || '').toLowerCase();
+  const eligible = getEligibleFundingSourceAccounts_();
+
+  let lastFound = '';
+  let lastIdx = -1;
+  for (var i = 0; i < eligible.length; i++) {
+    const acc = eligible[i];
+    const accLower = acc.toLowerCase();
+    const idx = t.lastIndexOf(accLower);
+    if (idx > lastIdx) {
+      lastIdx = idx;
+      lastFound = acc;
+    }
+  }
+
+  return lastFound;
+}
+
+function resolvePostingModeAndFundingSource_(parsed, rawText) {
+  if (!parsed) return;
+
+  const type = String(parsed.type || '').toLowerCase();
+  const explicitInflowTypes = ['income', 'transfer_in', 'cash_in'];
+  const isIncoming = explicitInflowTypes.includes(type);
+
+  if (isIncoming) {
+    parsed.funding_source_account = '';
+    parsed.posting_mode = '';
+    return;
+  }
+
+  const eligible = getEligibleFundingSourceAccounts_();
+  const account = String(parsed.account || '').trim();
+  const fundingSource = extractFundingSource_(rawText, account);
+  parsed.funding_source_account = fundingSource;
+
+  if (!parsed.funding_source_account && account) {
+    const eligibleLower = eligible.map(v => v.toLowerCase());
+    if (eligibleLower.includes(account.toLowerCase())) {
+      parsed.funding_source_account = account;
+    }
+  }
+
+  if (parsed.funding_source_account && account) {
+    if (parsed.funding_source_account.toLowerCase() === account.toLowerCase()) {
+      parsed.posting_mode = 'SINGLE_OUTGOING';
+    } else {
+      parsed.posting_mode = 'FUNDED_PAYMENT_ACCOUNT_OUTGOING';
+    }
+  } else {
+    parsed.posting_mode = '';
+  }
+}
+
 function parseFinanceText_(rawText) {
   const text = String(rawText || '').toLowerCase();
   const gold = parseGoldAsset_(rawText);
@@ -4579,6 +4635,8 @@ function parseFinanceText_(rawText) {
 
   parsed.issue_reason = issueReason;
   parsed.needsReview = Boolean(issueReason);
+
+  resolvePostingModeAndFundingSource_(parsed, rawText);
 
   return parsed;
 }
