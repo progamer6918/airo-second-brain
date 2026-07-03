@@ -27823,14 +27823,14 @@ function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
   var passed = true;
 
   // Case 1: exact_subcategory
-  var resBengkel = airoSprint7CategoryContractResolveAnswerText_("Bengkel");
-  var tc1 = (resBengkel.type === "resolved" && resBengkel.category === "Transport" && resBengkel.subcategory === "Bengkel");
-  cases.push({ name: "exact_subcategory", pass: tc1, details: JSON.stringify(resBengkel) });
+  var resBensin = airoSprint7CategoryContractResolveAnswerText_("Bensin");
+  var tc1 = (resBensin.type === "resolved" && resBensin.category === "Transport" && resBensin.subcategory === "Bensin");
+  cases.push({ name: "exact_subcategory", pass: tc1, details: JSON.stringify(resBensin) });
   if (!tc1) passed = false;
 
   // Case 2: qualified_subcategory
-  var resQualified = airoSprint7CategoryContractResolveAnswerText_("Bengkel > Transport");
-  var tc2 = (resQualified.type === "resolved" && resQualified.category === "Transport" && resQualified.subcategory === "Bengkel");
+  var resQualified = airoSprint7CategoryContractResolveAnswerText_("Bensin > Transport");
+  var tc2 = (resQualified.type === "resolved" && resQualified.category === "Transport" && resQualified.subcategory === "Bensin");
   cases.push({ name: "qualified_subcategory", pass: tc2, details: JSON.stringify(resQualified) });
   if (!tc2) passed = false;
 
@@ -27865,7 +27865,7 @@ function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
   if (!tcAdd) passed = false;
 
   var result = {
-    task: "AIRO Finance Task 10.5F",
+    task: "AIRO Finance Task 10.5F2",
     status: passed ? "PASS" : "FAIL",
     mutation_scope: "READ_ONLY_RUNTIME_SELFTEST",
     workbook_mutation: "NO",
