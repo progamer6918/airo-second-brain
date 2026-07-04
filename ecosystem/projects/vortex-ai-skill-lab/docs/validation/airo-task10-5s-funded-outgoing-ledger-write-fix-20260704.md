@@ -85,3 +85,9 @@ Compiled and ran `runTask105OutgoingConfirmationGateSelfTestFromEditor()` in Nod
 ## 5. Security & Static Scan
 - **Forbidden API Scan**: PASS (No instances of `setValues` or other spreadsheet modification APIs inside prompt/handling helpers)
 - **Secrets/Credentials Check**: PASS (None detected or committed)
+
+## 6. Task Constraints Audited
+- Status: SOURCE_PATCH_AND_SYNTHETIC_TEST_ONLY
+- Scope: FORBIDDEN_API_SCAN, NO_DEPLOY, NO_CLASP_PUSH, NO_WORKBOOK_MUTATION, NO_LEDGER_WRITE, NO_TELEGRAM_SEND
+
+

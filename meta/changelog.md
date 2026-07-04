@@ -383,3 +383,10 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Verified visual fidelity using read-only dashboard style readback (PASS).
 - Confirmed headers, widths, legacy panels, and formula error counts (PASS).
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-1-gate9-visual-fidelity-audit-20260627.md`.
+
+## 2026-07-04 — AIRO Finance Task 10.5S Funded Outgoing Ledger Write Fix
+
+- Fixed validation checker in `normalizeValueForValidation_` to prevent valid account names (like "Blu Pocket") from being blanked to `''` when not matching range validation dropdowns.
+- Corrected subcategory confirmation prompt to display transaction account and funding source separately when they differ (printing "Akun transaksi: Cash Umum" and "Sumber dana: Blu Pocket").
+- Verified all changes using Node.js synthetic test suite; 17/17 test cases passed.
+- Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5s-funded-outgoing-ledger-write-fix-20260704.md`.
