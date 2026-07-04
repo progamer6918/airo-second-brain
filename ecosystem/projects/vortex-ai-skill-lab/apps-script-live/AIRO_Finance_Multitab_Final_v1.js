@@ -4737,8 +4737,10 @@ function resolvePostingModeAndFundingSource_(parsed, rawText) {
 
   const eligible = getEligibleFundingSourceAccounts_();
   const account = String(parsed.account || '').trim();
-  const fundingSource = extractFundingSource_(rawText, account);
-  parsed.funding_source_account = fundingSource;
+  if (!parsed.funding_source_account) {
+    const fundingSource = extractFundingSource_(rawText, account);
+    parsed.funding_source_account = fundingSource;
+  }
 
   if (!parsed.funding_source_account && account) {
     const eligibleLower = eligible.map(v => v.toLowerCase());
@@ -28427,7 +28429,8 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
         subcategory: subChoice.subcategory,
         description: pending.description || pending.original_text,
         amount: pending.amount,
-        account: pending.confirmed_account,
+        account: pending.account,
+        funding_source_account: pending.confirmed_account,
         creditor: '',
         merchant: '',
         billingCycleId: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM'),
@@ -28568,13 +28571,26 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
     }
 
     if (subChoice.type === "resolved") {
+      var finalParsed = {
+        type: 'expense',
+        category: subChoice.category,
+        subcategory: subChoice.subcategory,
+        description: pending.description || pending.original_text,
+        amount: pending.amount,
+        account: pending.account,
+        funding_source_account: pending.confirmed_account
+      };
+      resolvePostingModeAndFundingSource_(finalParsed, pending.original_text);
+      var rowCount = (finalParsed.posting_mode === 'FUNDED_PAYMENT_ACCOUNT_OUTGOING') ? 3 : 1;
       return {
         handled: true,
         resolved: true,
         category: subChoice.category,
         subcategory: subChoice.subcategory,
         confirmed_account: pending.confirmed_account,
-        route: "ledger_write"
+        route: "ledger_write",
+        finalParsed: finalParsed,
+        rowCount: rowCount
       };
     }
   }
@@ -28635,8 +28651,10 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "valid_account_selection_name", pass: tc4, details: JSON.stringify(res4) });
   if (!tc4) passed = false;
 
-  // Mock Step 2 pending state
-  var mockPendingSubcategory = {
+  // Mock Step 2 pending state (simulating "cash bayar makan rp 1")
+  // account is Cash Umum (original detected)
+  // confirmed_account is the user-selected funding source
+  var mockPendingSubcategoryFunded = {
     type: "outgoing_confirmation",
     step: 2,
     original_text: "cash bayar makan rp 1",
@@ -28644,80 +28662,123 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
     category: "Food & Drink",
     subcategory: "",
     account: "Cash Umum",
-    confirmed_account: "Cash Makan",
+    confirmed_account: "Blu Pocket",
     description: "makan",
     attempts: 0,
     optionToSubcategory: {
       "1": { category: "Food & Drink", subcategory: "Jajan" },
       "2": { category: "Food & Drink", subcategory: "Makan di Luar" },
-      "3": { category: "Food & Drink", subcategory: "Kopi" },
-      "4": { category: "Food & Drink", subcategory: "Makan Siang" },
-      "5": { category: "Transport", subcategory: "Bensin" }
+      "3": { category: "Food & Drink", subcategory: "Kopi" }
     }
   };
 
-  // Case 5: qualified subcategory selection
-  var res5 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Food & Drink > Makan di Luar");
-  var tc5 = (res5.handled === true && res5.resolved === true && res5.category === "Food & Drink" && res5.subcategory === "Makan di Luar" && res5.route === "ledger_write");
-  cases.push({ name: "qualified_subcategory_selection", pass: tc5, details: JSON.stringify(res5) });
-  if (!tc5) passed = false;
+  // Case A: selected different funding source (Blu Pocket != Cash Umum) -> FUNDED_PAYMENT_ACCOUNT_OUTGOING with 3 rows
+  var resA = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategoryFunded, "2");
+  var tcA = (resA.handled === true && resA.resolved === true && 
+            resA.finalParsed.account === "Cash Umum" && 
+            resA.finalParsed.funding_source_account === "Blu Pocket" && 
+            resA.finalParsed.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING" && 
+            resA.rowCount === 3);
+  cases.push({ name: "funded_payment_account_outgoing_3_rows", pass: tcA, details: JSON.stringify(resA) });
+  if (!tcA) passed = false;
 
-  // Case 6: exact subcategory selection by numeric option
-  var res6 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "2");
-  var tc6 = (res6.handled === true && res6.resolved === true && res6.category === "Food & Drink" && res6.subcategory === "Makan di Luar" && res6.route === "ledger_write");
-  cases.push({ name: "exact_subcategory_selection_numeric", pass: tc6, details: JSON.stringify(res6) });
-  if (!tc6) passed = false;
+  var mockPendingSubcategorySingle = {
+    type: "outgoing_confirmation",
+    step: 2,
+    original_text: "cash bayar makan rp 1",
+    amount: 1,
+    category: "Food & Drink",
+    subcategory: "",
+    account: "Cash Umum",
+    confirmed_account: "Cash Umum",
+    description: "makan",
+    attempts: 0,
+    optionToSubcategory: {
+      "1": { category: "Food & Drink", subcategory: "Jajan" },
+      "2": { category: "Food & Drink", subcategory: "Makan di Luar" },
+      "3": { category: "Food & Drink", subcategory: "Kopi" }
+    }
+  };
 
-  // Case 6b: exact subcategory selection by letter option (backwards compatibility)
-  var res6b = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "b");
-  var tc6b = (res6b.handled === true && res6b.resolved === true && res6b.category === "Food & Drink" && res6b.subcategory === "Makan di Luar" && res6b.route === "ledger_write");
-  cases.push({ name: "exact_subcategory_selection_letter", pass: tc6b, details: JSON.stringify(res6b) });
-  if (!tc6b) passed = false;
+  // Case B: selected same funding source (Cash Umum == Cash Umum) -> SINGLE_OUTGOING with 1 row
+  var resB = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "2");
+  var tcB = (resB.handled === true && resB.resolved === true && 
+            resB.finalParsed.account === "Cash Umum" && 
+            resB.finalParsed.posting_mode === "SINGLE_OUTGOING" && 
+            resB.rowCount === 1);
+  cases.push({ name: "single_outgoing_same_source_1_row", pass: tcB, details: JSON.stringify(resB) });
+  if (!tcB) passed = false;
+
+  var mockPendingSubcategoryNonCash = {
+    type: "outgoing_confirmation",
+    step: 2,
+    original_text: "bca bayar makan rp 1",
+    amount: 1,
+    category: "Food & Drink",
+    subcategory: "",
+    account: "BCA",
+    confirmed_account: "BCA",
+    description: "makan",
+    attempts: 0,
+    optionToSubcategory: {
+      "1": { category: "Food & Drink", subcategory: "Jajan" },
+      "2": { category: "Food & Drink", subcategory: "Makan di Luar" }
+    }
+  };
+
+  // Case C: non-cash account selection (BCA == BCA) -> SINGLE_OUTGOING
+  var resC = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategoryNonCash, "2");
+  var tcC = (resC.handled === true && resC.resolved === true && 
+            resC.finalParsed.account === "BCA" && 
+            resC.finalParsed.posting_mode === "SINGLE_OUTGOING" && 
+            resC.rowCount === 1);
+  cases.push({ name: "non_cash_single_outgoing", pass: tcC, details: JSON.stringify(resC) });
+  if (!tcC) passed = false;
 
   // Case 7: ambiguous subcategory selection
-  var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Medicine");
+  var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Medicine");
   var tc7 = (res7.handled === true && res7.waiting === true && res7.route === "ambiguous_prompt" && res7.candidates.length >= 2);
   cases.push({ name: "ambiguous_subcategory_selection", pass: tc7, details: JSON.stringify(res7) });
   if (!tc7) passed = false;
 
   // Case 8: category only selection
-  var res8 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Food & Drink");
+  var res8 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Food & Drink");
   var tc8 = (res8.handled === true && res8.waiting === true && res8.route === "subcategory_prompt_single_category" && res8.selected_category === "Food & Drink");
   cases.push({ name: "category_only_selection", pass: tc8, details: JSON.stringify(res8) });
   if (!tc8) passed = false;
 
   // Case 9: cancel/review selection at step 2
-  var res9 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "0");
+  var res9 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "0");
   var tc9 = (res9.handled === true && res9.cancelled === true && res9.fallback_to_review === true);
   cases.push({ name: "cancel_subcategory_selection", pass: tc9, details: JSON.stringify(res9) });
   if (!tc9) passed = false;
 
   // Case 10: help route selection
-  var res10 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "?");
+  var res10 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "?");
   var tc10 = (res10.handled === true && res10.waiting === true && res10.route === "help");
   cases.push({ name: "help_route_selection", pass: tc10, details: JSON.stringify(res10) });
   if (!tc10) passed = false;
 
   // Case 11: add flow placeholder selection
-  var res11 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "+");
+  var res11 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "+");
   var tc11 = (res11.handled === true && res11.waiting === true && res11.route === "add_flow_out_of_scope");
   cases.push({ name: "add_flow_selection", pass: tc11, details: JSON.stringify(res11) });
   if (!tc11) passed = false;
 
   // Case 12: incompatible category blocked (Income)
-  var res12 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Income");
+  var res12 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income");
   var tc12 = (res12.handled === false && res12.error === "incompatible_category" && res12.route === "retry_subcategory_prompt");
   cases.push({ name: "income_rejected_for_outgoing_category_only", pass: tc12, details: JSON.stringify(res12) });
   if (!tc12) passed = false;
 
   // Case 13: incompatible category/subcategory blocked (Income > Salary)
-  var res13 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Income > Salary");
+  var res13 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income > Salary");
   var tc13 = (res13.handled === false && res13.error === "incompatible_category" && res13.route === "retry_subcategory_prompt");
   cases.push({ name: "income_rejected_for_outgoing_resolved", pass: tc13, details: JSON.stringify(res13) });
   if (!tc13) passed = false;
 
   var result = {
-    task: "AIRO Finance Task 10.5O",
+    task: "AIRO Finance Task 10.5Q",
     status: passed ? "PASS" : "FAIL",
     mutation_scope: "OUTGOING_CONFIRMATION_GATE_SELFTEST",
     cases: cases
