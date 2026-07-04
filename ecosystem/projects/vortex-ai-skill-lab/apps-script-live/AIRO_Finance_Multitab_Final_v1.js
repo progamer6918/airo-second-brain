@@ -4258,6 +4258,15 @@ function normalizeValueForValidation_(value, validation, data) {
   const currentLower = current.toLowerCase();
   const allowedLower = allowed.map(v => v.toLowerCase());
 
+  if (!allowedLower.includes(currentLower)) {
+    try {
+      const eligible = getEligibleFundingSourceAccounts_().map(v => v.toLowerCase());
+      if (eligible.includes(currentLower)) {
+        return value;
+      }
+    } catch (e) {}
+  }
+
   function pick(name) {
     const idx = allowedLower.indexOf(String(name).toLowerCase());
     return idx >= 0 ? allowed[idx] : '';
@@ -28099,17 +28108,25 @@ function airoNormalizeNumericOrLetterChoice_(t) {
   return clean;
 }
 
-function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description, registry) {
+function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description, registry, paymentAccount) {
+  var accountLines = [];
+  if (paymentAccount && String(paymentAccount).toLowerCase() !== String(account).toLowerCase()) {
+    accountLines.push("Akun transaksi: " + paymentAccount);
+    accountLines.push("Sumber dana: " + account);
+  } else {
+    accountLines.push("Akun: " + account);
+  }
+
   var lines = [
     "❓ Konfirmasi subkategori",
     "",
     "Transaksi:",
-    "Rp" + amount + " keluar",
-    "Akun: " + account,
+    "Rp" + amount + " keluar"
+  ].concat(accountLines).concat([
     "Deskripsi: " + description,
     "",
     "Pilih subkategori:"
-  ];
+  ]);
 
   var optionIndex = 1;
   var optionToSubcategory = {}; // maps "1" to {category: "...", subcategory: "..."}
@@ -28313,7 +28330,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     pending.attempts = 0;
     
     var registry = airoSprint7CategoryContractGetRegistry_();
-    var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, chosenAccount, pending.description, registry);
+    var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, chosenAccount, pending.description, registry, pending.account);
     pending.optionToSubcategory = subPromptData.mapping;
 
     savePendingClarification_(chatId, pending);
@@ -28392,7 +28409,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     if (subChoice.type === "category_only") {
       var subs = registry[subChoice.category] ? registry[subChoice.category].subcategories : [];
       if (!subs || subs.length === 0) {
-        var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, registry);
+        var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, registry, pending.account);
         return failOrRetry_(
           "Kategori '" + subChoice.category + "' tidak memiliki subkategori untuk transaksi keluar.\n\n" +
           "Silakan pilih subkategori:\n\n" + subPromptData.text
@@ -28404,7 +28421,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
       var singleRegistry = {};
       singleRegistry[subChoice.category] = registry[subChoice.category];
       
-      var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, singleRegistry);
+      var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, singleRegistry, pending.account);
       pending.optionToSubcategory = subPromptData.mapping;
       
       savePendingClarification_(chatId, pending);
@@ -28735,6 +28752,15 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "non_cash_single_outgoing", pass: tcC, details: JSON.stringify(resC) });
   if (!tcC) passed = false;
 
+  // Case D: funded prompt display contains both account and source
+  var registryMock = {
+    "Food & Drink": { subcategories: ["Jajan"] }
+  };
+  var resD = airoBuildSubcategoryGroupedPromptMessage_(1, "Blu Pocket", "makan", registryMock, "Cash Umum");
+  var tcD = (resD.text.includes("Akun transaksi: Cash Umum") && resD.text.includes("Sumber dana: Blu Pocket"));
+  cases.push({ name: "funded_prompt_display", pass: tcD, details: JSON.stringify(resD) });
+  if (!tcD) passed = false;
+
   // Case 7: ambiguous subcategory selection
   var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Medicine");
   var tc7 = (res7.handled === true && res7.waiting === true && res7.route === "ambiguous_prompt" && res7.candidates.length >= 2);
@@ -28777,8 +28803,20 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "income_rejected_for_outgoing_resolved", pass: tc13, details: JSON.stringify(res13) });
   if (!tc13) passed = false;
 
+  // Extra case: verify Account validation bypass logic
+  var mockValRange = {
+    getCriteriaType: () => SpreadsheetApp.DataValidationCriteria.VALUE_IN_RANGE,
+    getCriteriaValues: () => [{
+      getValues: () => [["Cash Umum", "BCA", "Blu"]] // does NOT contain Blu Pocket
+    }]
+  };
+  var resVal = normalizeValueForValidation_("Blu Pocket", mockValRange, {});
+  var tcVal = (resVal === "Blu Pocket");
+  cases.push({ name: "normalize_validation_preserves_valid_account", pass: tcVal, details: "resVal=" + resVal });
+  if (!tcVal) passed = false;
+
   var result = {
-    task: "AIRO Finance Task 10.5Q",
+    task: "AIRO Finance Task 10.5S",
     status: passed ? "PASS" : "FAIL",
     mutation_scope: "OUTGOING_CONFIRMATION_GATE_SELFTEST",
     cases: cases
