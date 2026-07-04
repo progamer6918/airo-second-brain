@@ -503,3 +503,9 @@ docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.m
 
 
 
+
+## AIRO_CHAT_STABILITY_PROTOCOL_20260704
+
+Status: ACTIVE operating rule.
+
+When chat instability is reported, stop runtime/deploy/workbook mutation, summarize state compactly, checkpoint to ASB, and resume with smaller gates. Full protocol: `state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`.

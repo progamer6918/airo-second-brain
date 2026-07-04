@@ -503,3 +503,7 @@ Before committing/pushing, operators must:
 - Do not mix archived legacy content into `ecosystem/projects/`.
 - Follow the newest ASB evidence and project-specific docs when choosing paths.
 <!-- AIRO_SYNC_OPERATING_STYLE_END -->
+
+## AIRO_CHAT_STABILITY_PROTOCOL_20260704
+
+Before any long AIRO execution, follow `state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`: keep commands compact, paste only summary/tail logs, separate runtime gates, and checkpoint durable state into ASB.
