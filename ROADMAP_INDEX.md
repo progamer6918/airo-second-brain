@@ -24,3 +24,14 @@
 > - `ROADMAP_INDEX` is a pointer-only reference index.
 > - It does NOT supersede project-specific runtime evidence or commit histories.
 > - It does NOT normalize or restructure legacy project roadmaps.
+
+## AIRO Finance - Dashboard Lite Re-scope Pointer
+
+- Status: owner-approved working scope, docs-only canonicalization.
+- Current target: `AIRO Finance Dashboard Lite`.
+- Active workbook tab remains: `Dashboard`.
+- Previous dashboard baseline: `Dashboard v2 / Gate 11B Production Baseline`.
+- Canonical data contract: `ecosystem/projects/vortex-ai-skill-lab/docs/design/airo-finance-dashboard-lite-data-contract-20260704.md`.
+- Scheduler: parked/off unless the Owner explicitly approves Gate 12 scheduler work.
+- Next safe action: read-only Dashboard Lite mapping audit.
+

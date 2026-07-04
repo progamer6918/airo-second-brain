@@ -1964,3 +1964,62 @@ Required helper design:
 - No scheduler/trigger change.
 - No credit card/debt/asset balance output in `cek saldo`.
 - No write/update saldo implementation in this task unless explicitly opened as a later gate.
+
+## Owner Override - Dashboard Lite Re-scope - 2026-07-04
+
+The next dashboard target is `AIRO Finance Dashboard Lite`.
+
+This owner override supersedes the old complex dashboard target for future dashboard work only. It does not invalidate previous Gate 11B runtime evidence.
+
+Final naming:
+
+- active workbook tab: `Dashboard`;
+- product/design name: `AIRO Finance Dashboard Lite`;
+- previous dashboard baseline: `Dashboard v2 / Gate 11B Production Baseline`;
+- canonical data contract: `ecosystem/projects/vortex-ai-skill-lab/docs/design/airo-finance-dashboard-lite-data-contract-20260704.md`.
+
+Dashboard Lite scope:
+
+- sync timestamp;
+- month filter;
+- year filter;
+- spending top 5 category plus `Lainnya`, previous-month comparison, and contribution percentage;
+- spending top 10 subcategory plus `Lainnya`, previous-month comparison, and contribution percentage;
+- all active wallets, each balance, and total active wallet balance;
+- Credit Card due bill, current-period bill, and Blu Pocket CC balance/deposit value;
+- gold total grams and total value;
+- house installment count `x/120` and progress percentage.
+
+Spending source remains `Account Ledger`.
+
+Include only:
+
+- selected month/year;
+- `type = expense`;
+- `OUT > 0`.
+
+Exclude:
+
+- `transfer_in`;
+- `transfer_out`;
+- `cc_payment`;
+- `debt_payment`;
+- `asset_purchase`;
+- `income`;
+- `cash_in`;
+- `cash_out`;
+- category `Transfer`.
+
+Domain summaries should read final domain/projection values. Dashboard Lite must not rebuild complex domain logic inside the dashboard renderer.
+
+Anti-scope:
+
+- Smart Insight;
+- Executive Command Center;
+- complex Action Required;
+- large Data Quality Center;
+- wallet `LEVEL`;
+- wallet `STATUS`;
+- scheduler activation;
+- deploy/runtime/workbook mutation without explicit owner approval.
+

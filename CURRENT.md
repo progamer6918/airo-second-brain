@@ -1,3 +1,14 @@
+## AIRO Finance Dashboard Lite Re-scope - 2026-07-04
+
+- Owner direction: do not continue the old complex dashboard as the next target.
+- New target: `AIRO Finance Dashboard Lite`.
+- Active workbook tab naming remains `Dashboard`.
+- Current active dashboard before Lite runtime evidence: `Dashboard v2 / Gate 11B Production Baseline`.
+- Dashboard Lite canonical data contract: `ecosystem/projects/vortex-ai-skill-lab/docs/design/airo-finance-dashboard-lite-data-contract-20260704.md`.
+- Scheduler remains OFF / parked unless the Owner explicitly approves Gate 12 scheduler work.
+- Next safe action: read-only mapping audit for Dashboard Lite sources, ranges, and renderer location.
+- Runtime/deploy/workbook mutation is not approved by this docs-only update.
+
 # ASB-GOV-2 MINIMAL INDEX CHECKPOINT
 - CONTEXT_BRIEF.md, ROADMAP_INDEX.md, PRD_INDEX.md added as pointer/reference files.
 - This does not normalize roadmap/PRD history.
