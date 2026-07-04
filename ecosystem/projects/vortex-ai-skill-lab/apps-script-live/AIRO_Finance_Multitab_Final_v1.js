@@ -1324,6 +1324,11 @@ function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, ro
   var writtenTab = rResult.writtenTab || fTab || '';
   var amount = prs.amount || '';
   var category = prs.category || 'Lainnya';
+  var subcategory = prs.subcategory || '';
+  var categoryLine = category;
+  if (subcategory) {
+    categoryLine = category + " > " + subcategory;
+  }
 
   // Check if we wrote to the Account Ledger (and spreadsheet is available)
   var isLedgerWrite = false;
@@ -1396,11 +1401,12 @@ function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, ro
       if (details && details.balance !== '' && details.balance !== null && details.balance !== undefined) {
         return '✅ Transaksi dicatat.\n\n' +
           account + ' ' + directionText + ' ' + formattedAmt + '\n' +
-          'Kategori: ' + category + '\n\n' +
+          categoryLine + '\n\n' +
           'Saldo ' + account + ' sekarang: ' + formatBalanceRupiah_(details.balance);
       } else {
         return '✅ Transaksi dicatat.\n\n' +
           account + ' ' + directionText + ' ' + formattedAmt + '\n' +
+          categoryLine + '\n\n' +
           'Saldo terbaru belum bisa dibaca otomatis. Cek Account Ledger untuk verifikasi.';
       }
     }
@@ -1427,7 +1433,7 @@ function airoBuildFinanceWriteSuccessReply_(ss, plannedTab, finalTab, parsed, ro
     'Rencana tab: ' + pTab + '\n' +
     'Ditulis ke: ' + writtenTab + '\n' +
     'Akun: ' + prs.account + '\n' +
-    'Kategori: ' + category + '\n' +
+    'Kategori: ' + categoryLine + '\n' +
     'Nominal: Rp' + amount + '\n\n' +
     '🔗 Buka tab: ' + tLink;
 }
@@ -2420,12 +2426,10 @@ const pendingClarification = tryHandlePendingClarificationReply_(chatId, rawText
       var tempCategory = parsed.category || "Lainnya";
       var tempSubcategory = parsed.subcategory || "";
 
-      var alphabet = "abcdefghijklmnopqrstuvwxyz";
       var optionToAccount = {};
       accountsList.forEach(function(acc, idx) {
-        if (idx < alphabet.length) {
-          optionToAccount[alphabet.charAt(idx)] = acc;
-        }
+        var numStr = String(idx + 1);
+        optionToAccount[numStr] = acc;
       });
 
       savePendingClarification_(chatId, {
@@ -28063,20 +28067,34 @@ function airoBuildOutgoingAccountPromptMessage_(amount, description, tempAccount
     ""
   ];
 
-  var alphabet = "abcdefghijklmnopqrstuvwxyz";
   accountsList.forEach(function(acc, idx) {
-    if (idx < alphabet.length) {
-      var letter = alphabet.charAt(idx).toUpperCase();
-      lines.push(letter + ". " + acc);
-    }
+    var numStr = String(idx + 1);
+    lines.push(numStr + ". " + acc);
   });
 
   lines.push("");
   lines.push("0. Review / batalkan dulu");
   lines.push("");
-  lines.push("Balas huruf akun, atau tulis nama akun.");
+  lines.push("Balas angka akun, atau tulis nama akun.");
 
   return lines.join("\n");
+}
+
+function airoIsExpenseCompatibleCategory_(catName) {
+  var name = String(catName || "").trim().toLowerCase();
+  if (name === "income" || name === "transfer" || name === "cc payment" || name === "credit card payment") {
+    return false;
+  }
+  return true;
+}
+
+function airoNormalizeNumericOrLetterChoice_(t) {
+  var clean = String(t || "").trim().toLowerCase().replace(/\.$/, "");
+  if (/^[a-z]$/.test(clean)) {
+    var num = clean.charCodeAt(0) - 97 + 1; // 'a' is 97
+    return String(num);
+  }
+  return clean;
 }
 
 function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description, registry) {
@@ -28091,26 +28109,31 @@ function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description,
     "Pilih subkategori:"
   ];
 
-  var alphabet = "abcdefghijklmnopqrstuvwxyz";
-  var optionIndex = 0;
-  var optionToSubcategory = {}; // maps "a" to {category: "...", subcategory: "..."}
+  var optionIndex = 1;
+  var optionToSubcategory = {}; // maps "1" to {category: "...", subcategory: "..."}
   
   var categories = Object.keys(registry).filter(function(c) {
-    return c !== "Other / Review" && registry[c].subcategories && registry[c].subcategories.length > 0;
+    return c !== "Other / Review" && 
+           airoIsExpenseCompatibleCategory_(c) && 
+           registry[c].subcategories && 
+           registry[c].subcategories.length > 0;
   });
 
   categories.forEach(function(cat) {
-    lines.push("");
-    lines.push(cat);
+    var categoryLines = [];
     var subs = registry[cat].subcategories;
     subs.forEach(function(sub) {
-      if (optionIndex < alphabet.length) {
-        var letter = alphabet.charAt(optionIndex).toUpperCase();
-        lines.push(letter + ". " + sub);
-        optionToSubcategory[alphabet.charAt(optionIndex)] = { category: cat, subcategory: sub };
-        optionIndex++;
-      }
+      var numStr = String(optionIndex);
+      categoryLines.push(numStr + ". " + sub);
+      optionToSubcategory[numStr] = { category: cat, subcategory: sub };
+      optionIndex++;
     });
+
+    if (categoryLines.length > 0) {
+      lines.push("");
+      lines.push(cat);
+      lines = lines.concat(categoryLines);
+    }
   });
 
   lines.push("");
@@ -28118,7 +28141,7 @@ function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description,
   lines.push("? Cari kategori/subkategori lain");
   lines.push("+ Tambah kategori/subkategori baru");
   lines.push("");
-  lines.push("Balas huruf, atau tulis langsung:");
+  lines.push("Balas angka, atau tulis langsung:");
   lines.push("Makan di Luar");
   lines.push("Food & Drink > Makan di Luar");
 
@@ -28132,12 +28155,11 @@ function airoParseAccountChoice_(inputText, accountsList, optionMapping) {
   var t = String(inputText || "").trim().toLowerCase();
   if (!t) return null;
 
-  // Check if it's a letter in optionMapping
-  if (optionMapping && optionMapping[t]) {
-    return optionMapping[t];
+  var normChoice = airoNormalizeNumericOrLetterChoice_(t);
+  if (optionMapping && optionMapping[normChoice]) {
+    return optionMapping[normChoice];
   }
 
-  // Check if it's one of the values in optionMapping (case-insensitive, exact or substring)
   if (optionMapping) {
     var keys = Object.keys(optionMapping);
     for (var i = 0; i < keys.length; i++) {
@@ -28149,7 +28171,6 @@ function airoParseAccountChoice_(inputText, accountsList, optionMapping) {
     }
   }
 
-  // Check case-insensitive exact or substring match in accountsList
   for (var i = 0; i < accountsList.length; i++) {
     var acc = accountsList[i];
     var accLower = acc.toLowerCase();
@@ -28165,7 +28186,6 @@ function airoParseSubcategoryChoice_(inputText, optionMapping, registry) {
   var t = String(inputText || "").trim().toLowerCase();
   if (!t) return null;
 
-  // Check special cases
   if (t === "0" || t === "review" || t === "batal" || t === "cancel") {
     return { type: "review" };
   }
@@ -28176,29 +28196,45 @@ function airoParseSubcategoryChoice_(inputText, optionMapping, registry) {
     return { type: "add_flow" };
   }
 
-  // Check if it's a letter in optionMapping
-  if (optionMapping && optionMapping[t]) {
-    var mapped = optionMapping[t];
+  var normChoice = airoNormalizeNumericOrLetterChoice_(t);
+  if (optionMapping && optionMapping[normChoice]) {
+    var mapped = optionMapping[normChoice];
+    if (!airoIsExpenseCompatibleCategory_(mapped.category)) {
+      return { type: "incompatible_category", category: mapped.category };
+    }
     return { type: "resolved", category: mapped.category, subcategory: mapped.subcategory };
   }
 
-  // Check qualified format "Category > Subcategory" or "Subcategory > Category"
   var resolved = airoSprint7CategoryContractResolveAnswerText_(inputText);
   if (resolved.type === "resolved") {
+    if (!airoIsExpenseCompatibleCategory_(resolved.category)) {
+      return { type: "incompatible_category", category: resolved.category };
+    }
     return { type: "resolved", category: resolved.category, subcategory: resolved.subcategory };
   }
   if (resolved.type === "category_only") {
+    if (!airoIsExpenseCompatibleCategory_(resolved.category)) {
+      return { type: "incompatible_category", category: resolved.category };
+    }
     return { type: "category_only", category: resolved.category };
   }
   if (resolved.type === "ambiguous") {
-    return { type: "ambiguous", candidates: resolved.candidates };
+    var compCandidates = resolved.candidates.filter(function(cand) {
+      return airoIsExpenseCompatibleCategory_(cand.category);
+    });
+    if (compCandidates.length === 1) {
+      return { type: "resolved", category: compCandidates[0].category, subcategory: compCandidates[0].subcategory };
+    } else if (compCandidates.length > 1) {
+      return { type: "ambiguous", candidates: compCandidates };
+    }
+    return { type: "incompatible_category" };
   }
 
-  // Check raw string direct match in any subcategory in the registry
   var candidates = [];
   var catKeys = Object.keys(registry);
   for (var i = 0; i < catKeys.length; i++) {
     var cat = catKeys[i];
+    if (!airoIsExpenseCompatibleCategory_(cat)) continue;
     var subs = registry[cat].subcategories || [];
     for (var j = 0; j < subs.length; j++) {
       var sub = subs[j];
@@ -28230,7 +28266,6 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
   var step = pending.step || 1;
   var text = String(rawText || "").trim().toLowerCase();
 
-  // Cancel/Review option
   if (text === "0" || text === "review" || text === "batal" || text === "cancel") {
     clearPendingClarification_(chatId);
     try {
@@ -28301,6 +28336,15 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
       );
     }
 
+    if (subChoice.type === "incompatible_category") {
+      var currentAccount = pending.confirmed_account;
+      var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, currentAccount, pending.description, registry);
+      return failOrRetry_(
+        "Kategori '" + (subChoice.category || "tersebut") + "' tidak diizinkan untuk transaksi keluar (expense).\n\n" +
+        "Silakan pilih subkategori transaksi keluar:\n\n" + subPromptData.text
+      );
+    }
+
     if (subChoice.type === "review") {
       clearPendingClarification_(chatId);
       try {
@@ -28330,7 +28374,9 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     }
 
     if (subChoice.type === "help") {
-      var categories = Object.keys(registry).filter(function(c) { return c !== "Other / Review"; });
+      var categories = Object.keys(registry).filter(function(c) {
+        return c !== "Other / Review" && airoIsExpenseCompatibleCategory_(c);
+      });
       var categoriesList = categories.map(function(c) { return "- " + c; }).join("\n");
       sendTelegram_(chatId, "Daftar kategori yang tersedia:\n" + categoriesList + "\n\nKetik salah satu kategori untuk melihat subkategorinya, atau gunakan format Kategori > Subkategori (misal: Transport > Bensin) untuk menentukan pilihan.");
       return { handled: true, waiting: true };
@@ -28342,6 +28388,15 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     }
 
     if (subChoice.type === "category_only") {
+      var subs = registry[subChoice.category] ? registry[subChoice.category].subcategories : [];
+      if (!subs || subs.length === 0) {
+        var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, registry);
+        return failOrRetry_(
+          "Kategori '" + subChoice.category + "' tidak memiliki subkategori untuk transaksi keluar.\n\n" +
+          "Silakan pilih subkategori:\n\n" + subPromptData.text
+        );
+      }
+
       pending.selected_category = subChoice.category;
       
       var singleRegistry = {};
@@ -28476,6 +28531,15 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
       };
     }
 
+    if (subChoice.type === "incompatible_category") {
+      return {
+        handled: false,
+        error: "incompatible_category",
+        category: subChoice.category,
+        route: "retry_subcategory_prompt"
+      };
+    }
+
     if (subChoice.type === "review") {
       return {
         handled: true,
@@ -28533,11 +28597,11 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
     description: "makan",
     attempts: 0,
     optionToAccount: {
-      a: "Cash Umum",
-      b: "Cash Makan",
-      c: "Cash Bensin",
-      d: "BCA",
-      e: "Blu"
+      "1": "Cash Umum",
+      "2": "Cash Makan",
+      "3": "Cash Bensin",
+      "4": "BCA",
+      "5": "Blu"
     }
   };
 
@@ -28553,11 +28617,17 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "cancel_account_selection", pass: tc2, details: JSON.stringify(res2) });
   if (!tc2) passed = false;
 
-  // Case 3: valid account selection (by letter option)
-  var res3 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "b");
+  // Case 3: valid account selection (by numeric option)
+  var res3 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "2");
   var tc3 = (res3.handled === true && res3.waiting === true && res3.confirmed_account === "Cash Makan" && res3.next_step === 2);
-  cases.push({ name: "valid_account_selection_letter", pass: tc3, details: JSON.stringify(res3) });
+  cases.push({ name: "valid_account_selection_numeric", pass: tc3, details: JSON.stringify(res3) });
   if (!tc3) passed = false;
+
+  // Case 3b: valid account selection (by letter option - backwards compatibility)
+  var res3b = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "b");
+  var tc3b = (res3b.handled === true && res3b.waiting === true && res3b.confirmed_account === "Cash Makan" && res3b.next_step === 2);
+  cases.push({ name: "valid_account_selection_letter", pass: tc3b, details: JSON.stringify(res3b) });
+  if (!tc3b) passed = false;
 
   // Case 4: valid account selection (by exact name)
   var res4 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingAccount, "Cash Makan");
@@ -28578,11 +28648,11 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
     description: "makan",
     attempts: 0,
     optionToSubcategory: {
-      a: { category: "Food & Drink", subcategory: "Jajan" },
-      b: { category: "Food & Drink", subcategory: "Makan di Luar" },
-      c: { category: "Food & Drink", subcategory: "Kopi" },
-      d: { category: "Food & Drink", subcategory: "Makan Siang" },
-      e: { category: "Transport", subcategory: "Bensin" }
+      "1": { category: "Food & Drink", subcategory: "Jajan" },
+      "2": { category: "Food & Drink", subcategory: "Makan di Luar" },
+      "3": { category: "Food & Drink", subcategory: "Kopi" },
+      "4": { category: "Food & Drink", subcategory: "Makan Siang" },
+      "5": { category: "Transport", subcategory: "Bensin" }
     }
   };
 
@@ -28592,11 +28662,17 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "qualified_subcategory_selection", pass: tc5, details: JSON.stringify(res5) });
   if (!tc5) passed = false;
 
-  // Case 6: exact subcategory selection by letter
-  var res6 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "b");
+  // Case 6: exact subcategory selection by numeric option
+  var res6 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "2");
   var tc6 = (res6.handled === true && res6.resolved === true && res6.category === "Food & Drink" && res6.subcategory === "Makan di Luar" && res6.route === "ledger_write");
-  cases.push({ name: "exact_subcategory_selection_letter", pass: tc6, details: JSON.stringify(res6) });
+  cases.push({ name: "exact_subcategory_selection_numeric", pass: tc6, details: JSON.stringify(res6) });
   if (!tc6) passed = false;
+
+  // Case 6b: exact subcategory selection by letter option (backwards compatibility)
+  var res6b = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "b");
+  var tc6b = (res6b.handled === true && res6b.resolved === true && res6b.category === "Food & Drink" && res6b.subcategory === "Makan di Luar" && res6b.route === "ledger_write");
+  cases.push({ name: "exact_subcategory_selection_letter", pass: tc6b, details: JSON.stringify(res6b) });
+  if (!tc6b) passed = false;
 
   // Case 7: ambiguous subcategory selection
   var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Medicine");
@@ -28628,8 +28704,20 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "add_flow_selection", pass: tc11, details: JSON.stringify(res11) });
   if (!tc11) passed = false;
 
+  // Case 12: incompatible category blocked (Income)
+  var res12 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Income");
+  var tc12 = (res12.handled === false && res12.error === "incompatible_category" && res12.route === "retry_subcategory_prompt");
+  cases.push({ name: "income_rejected_for_outgoing_category_only", pass: tc12, details: JSON.stringify(res12) });
+  if (!tc12) passed = false;
+
+  // Case 13: incompatible category/subcategory blocked (Income > Salary)
+  var res13 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategory, "Income > Salary");
+  var tc13 = (res13.handled === false && res13.error === "incompatible_category" && res13.route === "retry_subcategory_prompt");
+  cases.push({ name: "income_rejected_for_outgoing_resolved", pass: tc13, details: JSON.stringify(res13) });
+  if (!tc13) passed = false;
+
   var result = {
-    task: "AIRO Finance Task 10.5L",
+    task: "AIRO Finance Task 10.5O",
     status: passed ? "PASS" : "FAIL",
     mutation_scope: "OUTGOING_CONFIRMATION_GATE_SELFTEST",
     cases: cases
