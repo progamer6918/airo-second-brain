@@ -34951,6 +34951,57 @@ function airoDashboardLiteStaticSelfTest_() {
     period: period.label
   };
 }
+
+function runDashboardLiteSpendingDiagnosticFromEditor() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  var month = dashboard ? airoDashboardLiteText_(dashboard.getRange('G2').getDisplayValue()) : '';
+  var year = dashboard ? airoDashboardLiteText_(dashboard.getRange('I2').getDisplayValue()) : '';
+  var period = airoDashboardLitePeriod_(month, year);
+  var ledger = airoDashboardLiteReadLedgerRows_(ss);
+
+  var typeCounts = {};
+  var currentExpense = 0;
+  var prevExpense = 0;
+  var dateReadable = 0;
+  var outPositive = 0;
+
+  for (var i = 0; i < ledger.rows.length; i++) {
+    var row = ledger.rows[i];
+    var type = ledger.typeCol >= 0 ? airoDashboardLiteText_(row[ledger.typeCol]).toLowerCase() : '';
+    typeCounts[type || '(blank)'] = (typeCounts[type || '(blank)'] || 0) + 1;
+    if (ledger.dateCol >= 0 && airoDashboardLiteDateOnly_(row[ledger.dateCol])) dateReadable++;
+    if (ledger.outCol >= 0 && airoDashboardLiteNumber_(row[ledger.outCol]) > 0) outPositive++;
+    if (type === 'expense' && ledger.outCol >= 0 && airoDashboardLiteNumber_(row[ledger.outCol]) > 0) {
+      if (airoDashboardLiteInPeriod_(row[ledger.dateCol], period.start, period.end)) currentExpense++;
+      if (airoDashboardLiteInPeriod_(row[ledger.dateCol], period.prev_start, period.prev_end)) prevExpense++;
+    }
+  }
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_SPENDING_DIAGNOSTIC',
+    period: period.label,
+    ledger_rows: ledger.rows.length,
+    headers: ledger.headers,
+    cols: {
+      dateCol: ledger.dateCol,
+      typeCol: ledger.typeCol,
+      outCol: ledger.outCol,
+      categoryCol: ledger.categoryCol,
+      subcategoryCol: ledger.subcategoryCol,
+      accountCol: ledger.accountCol,
+      balanceCol: ledger.balanceCol
+    },
+    type_counts: typeCounts,
+    date_readable_rows: dateReadable,
+    out_positive_rows: outPositive,
+    current_expense_rows: currentExpense,
+    prev_expense_rows: prevExpense
+  };
+}
+
+
 // AIRO_DASHBOARD_LITE_RENDERER_END
 
 
