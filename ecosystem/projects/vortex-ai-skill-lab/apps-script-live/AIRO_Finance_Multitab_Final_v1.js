@@ -35017,13 +35017,17 @@ function runDashboardLiteExpenseMonthDistributionFromEditor() {
     var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     counts[ym] = (counts[ym] || 0) + 1;
     if (samples.length < 20) {
+      var sample_expense_date_text =
+        d.getFullYear() + '-' +
+        ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+        ('0' + d.getDate()).slice(-2);
       samples.push({
         ym: ym,
-        date: d,
-        account: ledger.accountCol >= 0 ? row[ledger.accountCol] : '',
+        date: sample_expense_date_text,
+        account: ledger.accountCol >= 0 ? airoDashboardLiteText_(row[ledger.accountCol]) : '',
         amount_out: out,
-        category: ledger.categoryCol >= 0 ? row[ledger.categoryCol] : '',
-        subcategory: ledger.subcategoryCol >= 0 ? row[ledger.subcategoryCol] : ''
+        category: ledger.categoryCol >= 0 ? airoDashboardLiteText_(row[ledger.categoryCol]) : '',
+        subcategory: ledger.subcategoryCol >= 0 ? airoDashboardLiteText_(row[ledger.subcategoryCol]) : ''
       });
     }
   }
