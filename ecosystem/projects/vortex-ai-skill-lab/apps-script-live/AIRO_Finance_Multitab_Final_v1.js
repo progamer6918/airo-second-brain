@@ -35889,4 +35889,77 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
   };
 }
 
+function runDashboardLiteV2RangeStyleMapFromEditor() {
+  var ss = airoTask101GetSs_();
+  var template = airoTask102GetV2Template_(ss);
+  if (!template) {
+    return { ok: false, error: 'v2_template_missing' };
+  }
+
+  var inspectedRange = 'A1:K35';
+  var range = template.getRange(inspectedRange);
+  var values = range.getValues();
+  
+  var merges = range.getMergedRanges().map(function(r) { 
+    return r.getA1Notation(); 
+  }).sort();
+
+  var rowHeights = [];
+  for (var r = 1; r <= 35; r++) {
+    rowHeights.push(template.getRowHeight(r));
+  }
+
+  var colWidths = [];
+  for (var c = 1; c <= 11; c++) {
+    colWidths.push(template.getColumnWidth(c));
+  }
+
+  var non_empty_cells = [];
+  for (var r = 0; r < values.length; r++) {
+    for (var c = 0; c < values[r].length; c++) {
+      if (values[r][c] !== '' && values[r][c] !== null && values[r][c] !== undefined) {
+        var cellA1 = range.getCell(r + 1, c + 1).getA1Notation();
+        non_empty_cells.push({
+          a1: cellA1,
+          value: String(values[r][c])
+        });
+      }
+    }
+  }
+
+  var sampleA1s = [
+    'B1', 'B2', 'B4', 'B5', 'B17', 'B18', 'B31', 'G4', 'G5', 'G17', 'G18'
+  ];
+  var style_samples = sampleA1s.map(function(a1) {
+    var cell = template.getRange(a1);
+    return {
+      a1: a1,
+      background: cell.getBackground(),
+      font_color: cell.getFontColor(),
+      font_weight: cell.getFontWeight(),
+      font_size: cell.getFontSize(),
+      h_align: cell.getHorizontalAlignment(),
+      v_align: cell.getVerticalAlignment(),
+      format: cell.getNumberFormat()
+    };
+  });
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_V2_RANGE_STYLE_MAP',
+    template_tab_name: template.getName(),
+    inspected_range: inspectedRange,
+    merged_ranges: merges,
+    row_heights: rowHeights,
+    column_widths: colWidths,
+    non_empty_cells: non_empty_cells,
+    style_samples: style_samples,
+    active_dashboard_mutated: false,
+    candidate_mutated: false,
+    workbook_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
+}
+
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
