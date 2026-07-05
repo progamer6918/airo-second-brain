@@ -35857,6 +35857,30 @@ function airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate) {
   fmt('G17:J17', head, white, 'bold'); fmt('G18:J20', panel, text);
 }
 
+function airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate) {
+  var range = candidate.getRange('A1:K35');
+  var backgrounds = range.getBackgrounds();
+  var fallbackDark = String(candidate.getRange('B5').getBackground()).toLowerCase();
+  var darkBg = (fallbackDark && fallbackDark !== '#ffffff') ? fallbackDark : '#111827';
+  var lightFont = '#f8fafc';
+  var mutedBorder = '#334155';
+  var repaintCount = 0;
+
+  for (var r = 0; r < backgrounds.length; r++) {
+    for (var c = 0; c < backgrounds[r].length; c++) {
+      if (String(backgrounds[r][c]).toLowerCase() === '#ffffff') {
+        var cell = range.offset(r, c, 1, 1);
+        cell.setBackground(darkBg);
+        cell.setFontColor(lightFont);
+        cell.setBorder(true, true, true, true, false, false, mutedBorder, SpreadsheetApp.BorderStyle.SOLID);
+        repaintCount++;
+      }
+    }
+  }
+
+  return repaintCount ? 'REPAINTED:' + repaintCount : 'NO_WHITE_PANELS';
+}
+
 function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
   var bg = candidate.getRange('A1:K35').getBackgrounds();
   var n = 0;
@@ -35911,6 +35935,8 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
   candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
   SpreadsheetApp.flush();
   airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate);
+  var whitePanelGuardStatus = airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate);
+  SpreadsheetApp.flush();
 
   // Read back candidate-only ranges
   var categoryRows = candidate.getRange('B5:E15').getDisplayValues();
@@ -35952,6 +35978,7 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
     style_guard_status: 'APPLIED_V2_TEMPLATE_REPAIR',
     no_black_font_on_dark_status: 'PASS',
     no_loud_white_border_status: 'PASS',
+    white_panel_guard_repaint_status: whitePanelGuardStatus,
     no_blank_white_panel_status: airoDashboardLiteCandidateV2NoWhitePanel_(candidate)
   };
 }
