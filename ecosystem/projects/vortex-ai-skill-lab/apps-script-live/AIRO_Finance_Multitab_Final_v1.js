@@ -35895,6 +35895,20 @@ function airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate) {
   return repaintCount ? "REPAINTED_MATRIX:" + repaintCount : "NO_WHITE_PANELS";
 }
 
+function airoDashboardLiteCandidateV2WhitePanelCells_(candidate) {
+  var range = candidate.getRange("A1:K35");
+  var bg = range.getBackgrounds();
+  var cells = [];
+  for (var r = 0; r < bg.length; r++) {
+    for (var c = 0; c < bg[r].length; c++) {
+      if (String(bg[r][c]).toLowerCase() === "#ffffff") {
+        cells.push(range.offset(r, c, 1, 1).getA1Notation());
+      }
+    }
+  }
+  return cells;
+}
+
 function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
   var bg = candidate.getRange('A1:K35').getBackgrounds();
   var n = 0;
@@ -35993,6 +36007,7 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
     no_black_font_on_dark_status: 'PASS',
     no_loud_white_border_status: 'PASS',
     white_panel_guard_repaint_status: whitePanelGuardStatus,
+    white_panel_cells: airoDashboardLiteCandidateV2WhitePanelCells_(candidate),
     no_blank_white_panel_status: airoDashboardLiteCandidateV2NoWhitePanel_(candidate)
   };
 }
