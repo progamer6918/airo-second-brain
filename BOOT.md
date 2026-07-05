@@ -504,6 +504,10 @@ Before committing/pushing, operators must:
 - Follow the newest ASB evidence and project-specific docs when choosing paths.
 <!-- AIRO_SYNC_OPERATING_STYLE_END -->
 
+## AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705
+
+For low-limit/efficient execution sessions, load and follow `state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md` early to minimize token/limit usage.
+
 ## AIRO_CHAT_STABILITY_PROTOCOL_20260704
 
 Before any long AIRO execution, follow `state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`: keep commands compact, paste only summary/tail logs, separate runtime gates, and checkpoint durable state into ASB.

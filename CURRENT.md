@@ -504,6 +504,12 @@ docs/evidence/airo-finance/task-10-3-arfin-telegram-runtime-hardening-closeout.m
 
 
 
+## AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705
+
+Status: ACTIVE operating rule.
+
+When low-limit/efficient execution mode is active, follow the minimal planning and execution constraints to minimize token usage. Full protocol: `state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`.
+
 ## AIRO_CHAT_STABILITY_PROTOCOL_20260704
 
 Status: ACTIVE operating rule.
