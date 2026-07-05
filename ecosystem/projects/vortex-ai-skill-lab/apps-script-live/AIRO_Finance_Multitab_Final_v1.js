@@ -35909,11 +35909,37 @@ function airoDashboardLiteCandidateV2WhitePanelCells_(candidate) {
   return cells;
 }
 
+function airoDashboardLiteCandidateV2MergedHiddenCellMap_(candidate) {
+  var inspected = candidate.getRange("A1:K35");
+  var merges = inspected.getMergedRanges();
+  var hidden = {};
+  for (var i = 0; i < merges.length; i++) {
+    var row0 = merges[i].getRow();
+    var col0 = merges[i].getColumn();
+    var rows = merges[i].getNumRows();
+    var cols = merges[i].getNumColumns();
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        if (r === 0 && c === 0) continue;
+        hidden[candidate.getRange(row0 + r, col0 + c).getA1Notation()] = true;
+      }
+    }
+  }
+  return hidden;
+}
+
 function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
-  var bg = candidate.getRange('A1:K35').getBackgrounds();
+  var range = candidate.getRange("A1:K35");
+  var bg = range.getBackgrounds();
+  var hiddenMerged = airoDashboardLiteCandidateV2MergedHiddenCellMap_(candidate);
   var n = 0;
-  for (var r = 0; r < bg.length; r++) for (var c = 0; c < bg[r].length; c++) if (String(bg[r][c]).toLowerCase() === '#ffffff') n++;
-  return n ? 'FAIL:' + n : 'PASS';
+  for (var r = 0; r < bg.length; r++) {
+    for (var c = 0; c < bg[r].length; c++) {
+      var cell = range.offset(r, c, 1, 1).getA1Notation();
+      if (String(bg[r][c]).toLowerCase() === "#ffffff" && !hiddenMerged[cell]) n++;
+    }
+  }
+  return n ? "FAIL:" + n : "PASS";
 }
 
 function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() {
