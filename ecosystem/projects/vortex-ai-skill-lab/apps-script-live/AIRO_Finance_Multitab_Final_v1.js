@@ -35041,6 +35041,48 @@ function runDashboardLiteExpenseMonthDistributionFromEditor() {
 }
 
 
+
+function runDashboardLiteJuni2026RefreshReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  if (!dashboard) return { ok: false, error: 'Dashboard missing' };
+
+  dashboard.getRange('G2').setValue('Juni');
+  dashboard.getRange('I2').setValue('2026');
+  SpreadsheetApp.flush();
+
+  var refresh = airoTask11bPermanentDashboardRefresh_({
+    dryRun: false,
+    reason: 'dashboard_lite_juni_2026_readback',
+    ss: ss
+  });
+
+  var categoryRows = dashboard.getRange('B5:E15').getDisplayValues();
+  var subcategoryRows = dashboard.getRange('G5:J15').getDisplayValues();
+  var walletRows = dashboard.getRange('B18:C31').getDisplayValues();
+  var domainRows = dashboard.getRange('G18:J20').getDisplayValues();
+
+  return {
+    ok: !!(refresh && refresh.ok),
+    task: 'AIRO_DASHBOARD_LITE_JUNI_2026_REFRESH_READBACK',
+    refresh: refresh,
+    marker: dashboard.getRange('Z1').getDisplayValue(),
+    z3: dashboard.getRange('Z3').getDisplayValue(),
+    b1: dashboard.getRange('B1').getDisplayValue(),
+    b2: dashboard.getRange('B2').getDisplayValue(),
+    g2: dashboard.getRange('G2').getDisplayValue(),
+    i2: dashboard.getRange('I2').getDisplayValue(),
+    m2: dashboard.getRange('M2').getDisplayValue(),
+    m3: dashboard.getRange('M3').getDisplayValue(),
+    m4: dashboard.getRange('M4').getDisplayValue(),
+    category_rows: categoryRows,
+    subcategory_rows: subcategoryRows,
+    wallet_rows: walletRows,
+    domain_rows: domainRows
+  };
+}
+
+
 // AIRO_DASHBOARD_LITE_RENDERER_END
 
 
