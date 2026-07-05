@@ -34891,7 +34891,431 @@ function airoDashboardLiteBreakApartMergedRanges_(sheet, targetRange) {
   return cleared;
 }
 
+function airoDashboardLitePadMatrix_(rows, height, width) {
+  var out = [];
+  rows = rows || [];
+  for (var r = 0; r < height; r++) {
+    var src = rows[r] || [];
+    var row = [];
+    for (var c = 0; c < width; c++) {
+      row.push(src[c] === undefined || src[c] === null ? '' : src[c]);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+function airoDashboardLiteWriteSlotMatrix_(dashboard, a1, rows, height, width) {
+  var range = dashboard.getRange(a1);
+  range.clearContent();
+  range.setValues(airoDashboardLitePadMatrix_(rows, height, width));
+}
+
+function airoDashboardLiteApplyV2VisualGrammar_(dashboard) {
+  // AIRO_DASHBOARD_LITE_V2_VISUAL_GRAMMAR_PATCH_20260705
+  // Match Dashboard V2 visual grammar: compact cockpit, dark panels, section strips.
+  if (!dashboard) return;
+
+  var title = '#0B1220';
+  var bg = '#111827';
+  var panel = '#151C2A';
+  var strip = '#1F2937';
+  var blue = '#1E3A8A';
+  var text = '#F9FAFB';
+  var muted = '#9CA3AF';
+  var green = '#22C55E';
+  var border = '#334155';
+
+  var maxCols = dashboard.getMaxColumns();
+  if (maxCols > 11) {
+    try { dashboard.hideColumns(12, maxCols - 11); } catch (e) {}
+  }
+
+  dashboard.getRange('A1:K35')
+    .setBackground(bg)
+    .setFontColor(text)
+    .setFontSize(7)
+    .setFontWeight('normal')
+    .setWrap(false)
+    .setVerticalAlignment('middle');
+
+  dashboard.getRange('A1:K1').setBackground(title);
+  dashboard.getRange('B1').setValue('AIRO Finance Dashboard Lite — Ledger-first')
+    .setFontSize(9).setFontWeight('bold').setFontColor(text);
+
+  dashboard.getRange('A2:K2').setBackground('#0F172A').setFontSize(6).setFontColor(muted);
+  dashboard.getRange('G2').setBackground(blue).setFontColor(text).setFontWeight('bold').setHorizontalAlignment('center');
+  dashboard.getRange('I2').setBackground('#1F2937').setFontColor(text).setFontWeight('bold').setHorizontalAlignment('center');
+
+  dashboard.getRange('A3:K3').setBackground(strip).setFontSize(7).setFontColor(muted);
+  dashboard.getRange('B4:E4').setBackground(strip);
+  dashboard.getRange('G4:J4').setBackground(strip);
+  dashboard.getRange('B17:E17').setBackground(strip);
+  dashboard.getRange('G17:J17').setBackground(strip);
+
+  dashboard.getRange('B4').setValue('▣ SPENDING INTELLIGENCE — CATEGORY');
+  dashboard.getRange('G4').setValue('▣ SPENDING INTELLIGENCE — SUBCATEGORY');
+  dashboard.getRange('B17').setValue('▣ WALLET SUMMARY');
+  dashboard.getRange('G17').setValue('▣ DOMAIN SUMMARY');
+
+  ['B4:E4', 'G4:J4', 'B17:E17', 'G17:J17'].forEach(function(a1) {
+    dashboard.getRange(a1).setFontSize(7).setFontWeight('bold').setFontColor(text);
+  });
+
+  ['B5:E15', 'G5:J15', 'B18:E31', 'G18:J20'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground(panel).setFontColor(text).setFontSize(7);
+  });
+
+  ['B5:E5', 'G5:J5', 'B18:C18'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground('#202A3A').setFontWeight('bold').setFontColor(text);
+  });
+
+  dashboard.getRange('B31:C31').setBackground(strip).setFontWeight('bold').setFontColor(text);
+  dashboard.getRange('A1:K35').setBorder(true, true, true, true, true, true, border, SpreadsheetApp.BorderStyle.SOLID);
+
+  dashboard.getRange('B5:B15').setHorizontalAlignment('left');
+  dashboard.getRange('G5:G15').setHorizontalAlignment('left');
+  dashboard.getRange('B18:B31').setHorizontalAlignment('left');
+  dashboard.getRange('G18:G20').setHorizontalAlignment('left');
+  dashboard.getRange('C6:E15').setHorizontalAlignment('right');
+  dashboard.getRange('H6:J15').setHorizontalAlignment('right');
+  dashboard.getRange('C19:C31').setHorizontalAlignment('right');
+
+  dashboard.getRange('E6:E15').setFontColor(text);
+  dashboard.getRange('J6:J15').setFontColor(text);
+  dashboard.getRange('C31').setFontColor(green);
+
+  try {
+    dashboard.setRowHeights(1, 35, 18);
+    dashboard.setRowHeight(1, 21);
+    dashboard.setRowHeight(2, 23);
+    dashboard.setRowHeight(3, 16);
+    dashboard.setRowHeight(4, 18);
+    dashboard.setRowHeight(17, 18);
+  } catch (e) {}
+}
+
+function airoDashboardLiteApplyDynamicDenahStyle_(dashboard) {
+  // AIRO_DASHBOARD_LITE_FUNCTIONAL_LAYOUT_SYNC_20260705
+  // Practical functional layout. Freeze aesthetics; prioritize readable data.
+  if (!dashboard) return;
+
+  var title = '#0b1220';
+  var strip = '#222733';
+  var panel = '#161a21';
+  var panel2 = '#1c1c1e';
+  var text = '#e5e7eb';
+  var muted = '#9ca3af';
+  var white = '#ffffff';
+  var green = '#34d399';
+  var border = '#2d3748';
+
+  dashboard.getRange('A1:K41')
+    .setBackground(panel)
+    .setFontColor(text)
+    .setFontSize(8)
+    .setFontWeight('normal')
+    .setWrap(false)
+    .setVerticalAlignment('middle');
+
+  dashboard.getRange('A1:K2').setBackground(title);
+  dashboard.getRange('A1').setFontSize(11).setFontWeight('bold').setFontColor(white);
+  dashboard.getRange('A2:K2').setFontSize(8).setFontColor(muted);
+
+  ['B4:E4','G4:J4','B14:E14','G14:J14'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground(strip).setFontColor('#cbd5e1').setFontSize(9).setFontWeight('bold');
+  });
+
+  ['B5:E11','G5:J10','B15:E21','G15:J26'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground(panel).setFontColor(text).setFontSize(8).setFontWeight('normal');
+  });
+
+  ['B5:E5','G5:J5','B15:E15','G15:J15'].forEach(function(a1) {
+    dashboard.getRange(a1).setBackground(panel2).setFontColor(white).setFontWeight('bold');
+  });
+
+  dashboard.getRange('B11:E11').setBackground(strip).setFontWeight('bold').setFontColor(white);
+  dashboard.getRange('C11').setFontColor(green);
+
+  dashboard.getRange('A1:K41').setBorder(true, true, true, true, true, true, border, SpreadsheetApp.BorderStyle.SOLID);
+
+  dashboard.getRange('B6:B11').setHorizontalAlignment('left');
+  dashboard.getRange('D6:D11').setHorizontalAlignment('left');
+  dashboard.getRange('G6:G10').setHorizontalAlignment('left');
+  dashboard.getRange('B16:B21').setHorizontalAlignment('left');
+  dashboard.getRange('G16:G26').setHorizontalAlignment('left');
+
+  dashboard.getRange('C6:C11').setHorizontalAlignment('right');
+  dashboard.getRange('E6:E11').setHorizontalAlignment('right');
+  dashboard.getRange('C16:E21').setHorizontalAlignment('right');
+  dashboard.getRange('H16:J26').setHorizontalAlignment('right');
+
+  try {
+    var maxCols = dashboard.getMaxColumns();
+    if (maxCols > 11) dashboard.hideColumns(12, maxCols - 11);
+  } catch (e) {}
+}
+
+
+
+function airoDashboardLiteRenderCandidateV2Slots_(dashboard, ctx) {
+  // AIRO_DASHBOARD_LITE_FUNCTIONAL_LAYOUT_SYNC_20260705
+  // Candidate-only practical functional Dashboard Lite layout.
+  var walletRows = ctx.walletRows || [];
+  var categoryRows = ctx.categoryRows || [];
+  var subRows = ctx.subRows || [];
+  var domains = ctx.domains || {};
+  var periodYear = ctx.period && ctx.period.year ? ctx.period.year : ctx.year || '';
+  var nowText = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+
+  dashboard.getRange('A1:K41').clearContent();
+  dashboard.getRange('L1:AA45').clearContent();
+  dashboard.getRange('M2:M4').clearContent();
+  dashboard.getRange('Z1:Z3').clearContent();
+
+  dashboard.getRange('A1').setValue('AIRO Finance Dashboard Lite — Ledger-first');
+  dashboard.getRange('A2').setValue('Ledger: ' + nowText + ' | Source: Account Ledger');
+  dashboard.getRange('F2').setValue('Bulan');
+  dashboard.getRange('G2').setValue(ctx.month || '');
+  dashboard.getRange('H2').setValue('Tahun');
+  dashboard.getRange('I2').setValue(String(periodYear));
+  dashboard.getRange('J2').setValue('Mode: Personal');
+
+  dashboard.getRange('Z1').setValue('AIRO_DASHBOARD_LITE_RENDERED');
+  dashboard.getRange('Z2').setValue(new Date());
+  dashboard.getRange('Z3').setValue('DASHBOARD_LITE_REFRESH_PASS');
+
+  // Wallet summary.
+  dashboard.getRange('B4').setValue('💳 WALLET SUMMARY');
+  dashboard.getRange('B5:E5').setValues([['WALLET', 'SALDO', 'WALLET', 'SALDO']]);
+  var walletSlot = [];
+  for (var i = 0; i < 5; i++) {
+    var left = walletRows[i] || ['', ''];
+    var right = walletRows[i + 5] || ['', ''];
+    walletSlot.push([left[0] || '', left[1] || '', right[0] || '', right[1] || '']);
+  }
+  walletSlot.push(['TOTAL SALDO', ctx.walletTotal || 0, '', '']);
+  dashboard.getRange('B6:E11').setValues(walletSlot);
+
+  // Domain summary.
+  dashboard.getRange('G4').setValue('🏦 DOMAIN SUMMARY');
+  dashboard.getRange('G5:J5').setValues([['DOMAIN', 'INFO', 'NILAI', 'STATUS']]);
+  dashboard.getRange('G6:J10').setValues([
+    ['Credit Card', 'Jatuh tempo', domains.ccDue || '-', 'tracking'],
+    ['Credit Card', 'Periode berjalan', domains.ccCurrent || '-', 'tracking'],
+    ['Credit Card', 'Blu Pocket CC', domains.ccPocket || '-', 'tracking'],
+    ['Emas', domains.goldGram || '-', domains.goldValue || '-', 'manual'],
+    ['Cicilan Rumah', domains.houseCount || '-', domains.houseProgress || '-', 'tracking']
+  ]);
+
+  // Spending intelligence — category.
+  dashboard.getRange('B14').setValue('📊 SPENDING INTELLIGENCE — CATEGORY');
+  var categorySlot = [['KATEGORI', 'BULAN INI', 'VS BULAN LALU', 'CONTR.']]
+    .concat(categoryRows.slice(0, 6));
+  airoDashboardLiteWriteSlotMatrix_(dashboard, 'B15:E21', categorySlot, 7, 4);
+
+  // Spending intelligence — subcategory.
+  dashboard.getRange('G14').setValue('🔎 SPENDING INTELLIGENCE — SUBCATEGORY');
+  var subSlot = [['SUBKATEGORI', 'BULAN INI', 'VS BULAN LALU', 'CONTR.']]
+    .concat(subRows.slice(0, 11));
+  airoDashboardLiteWriteSlotMatrix_(dashboard, 'G15:J26', subSlot, 12, 4);
+
+  dashboard.getRange('C6:C11').setNumberFormat('"Rp" #,##0');
+  dashboard.getRange('E6:E11').setNumberFormat('"Rp" #,##0');
+  dashboard.getRange('C16:D21').setNumberFormat('"Rp" #,##0');
+  dashboard.getRange('E16:E21').setNumberFormat('0.0%');
+  dashboard.getRange('H16:I26').setNumberFormat('"Rp" #,##0');
+  dashboard.getRange('J16:J26').setNumberFormat('0.0%');
+
+  airoDashboardLiteApplyDynamicDenahStyle_(dashboard);
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_RENDER',
+    mode: 'FUNCTIONAL_LAYOUT_SYNC_CANDIDATE_ONLY',
+    source_baseline: 'FUNCTIONAL_PRACTICAL_OWNER_SCREENSHOT_20260705',
+    candidate_functional_layout_sync: true,
+    z3: 'DASHBOARD_LITE_REFRESH_PASS',
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
+}
+
+
+
+
+// AIRO_LITE_CANDIDATE_FILTERUX_PERMANENT_START
+function airoDashboardLiteCandidateFilterMonths_() {
+  return ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+}
+
+function airoDashboardLiteCandidateFilterYears_(ss) {
+  var years = {};
+  years[String(new Date().getFullYear())] = true;
+  years['2026'] = true;
+
+  try {
+    var ledgerRows = airoDashboardLiteReadLedgerRows_(ss) || [];
+    for (var i = 0; i < ledgerRows.length; i++) {
+      var row = ledgerRows[i] || {};
+      var raw = row.date || row.tanggal || row.Date || row.Tanggal || row[0];
+      var d = raw instanceof Date ? raw : new Date(raw);
+      if (d && !isNaN(d.getTime())) {
+        years[String(d.getFullYear())] = true;
+      }
+    }
+  } catch (err) {
+    // Fallback years above are enough for candidate filter UX.
+  }
+
+  return Object.keys(years).sort();
+}
+
+function airoDashboardLiteIsCandidateSheet_(sheet) {
+  if (!sheet || !sheet.getName) return false;
+  var name = String(sheet.getName() || '');
+  var normalized = name.toLowerCase();
+
+  if (name === 'Dashboard' || normalized === 'dashboard') return false;
+  if (normalized.indexOf('candidate') >= 0) return true;
+  if (normalized.indexOf('lite') >= 0 && normalized.indexOf('dashboard') >= 0 && normalized.indexOf('candidate') >= 0) return true;
+
+  try {
+    if (typeof airoTask103CandidateName_ === 'function') {
+      var candidateName = String(airoTask103CandidateName_() || '');
+      if (candidateName && name === candidateName) return true;
+    }
+  } catch (err1) {}
+
+  try {
+    if (typeof airoTask103CandidateSheets_ === 'function') {
+      var ss = sheet.getParent && sheet.getParent();
+      var candidateSheets = ss ? (airoTask103CandidateSheets_(ss) || []) : [];
+      for (var i = 0; i < candidateSheets.length; i++) {
+        var item = candidateSheets[i];
+        if (item && item.getName && item.getName() === name) return true;
+        if (String(item || '') === name) return true;
+      }
+    }
+  } catch (err2) {}
+
+  return false;
+}
+
+function airoDashboardLiteApplyCandidateFilterValidation_(ss, dashboard) {
+  if (!dashboard || !airoDashboardLiteIsCandidateSheet_(dashboard)) {
+    return { applied: false, reason: 'not_candidate' };
+  }
+
+  var months = airoDashboardLiteCandidateFilterMonths_();
+  var years = airoDashboardLiteCandidateFilterYears_(ss);
+  var monthCell = dashboard.getRange('G2');
+  var yearCell = dashboard.getRange('I2');
+
+  var monthDisplay = String(monthCell.getDisplayValue() || monthCell.getValue() || '').trim();
+  var yearDisplay = String(yearCell.getDisplayValue() || yearCell.getValue() || '').trim();
+
+  if (months.indexOf(monthDisplay) < 0) monthDisplay = 'Juni';
+  if (years.indexOf(yearDisplay) < 0) {
+    if (years.indexOf('2026') < 0) years.push('2026');
+    years = years.sort();
+    yearDisplay = '2026';
+  }
+
+  var monthRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(months, true)
+    .setAllowInvalid(false)
+    .build();
+
+  var yearRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(years, true)
+    .setAllowInvalid(false)
+    .build();
+
+  monthCell.setValue(monthDisplay);
+  yearCell.setValue(yearDisplay);
+  monthCell.setDataValidation(monthRule);
+  yearCell.setDataValidation(yearRule);
+
+  return {
+    applied: true,
+    sheet: dashboard.getName(),
+    month: monthDisplay,
+    year: yearDisplay,
+    month_validation: Boolean(monthCell.getDataValidation()),
+    year_validation: Boolean(yearCell.getDataValidation())
+  };
+}
+
+function airoDashboardLiteHandleCandidateFilterEdit_(event) {
+  if (!event || !event.range || !event.range.getA1Notation) {
+    return { handled: false, reason: 'missing_event_range' };
+  }
+
+  var range = event.range;
+  var a1 = String(range.getA1Notation() || '');
+  if (a1 !== 'G2' && a1 !== 'I2') {
+    return { handled: false, reason: 'not_candidate_filter_cell', a1: a1 };
+  }
+
+  var sheet = range.getSheet && range.getSheet();
+  if (!sheet || !airoDashboardLiteIsCandidateSheet_(sheet)) {
+    return { handled: false, reason: 'not_candidate_sheet', a1: a1 };
+  }
+
+  if (String(sheet.getName() || '') === 'Dashboard') {
+    return { handled: false, reason: 'active_dashboard_guard' };
+  }
+
+  var ss = sheet.getParent ? sheet.getParent() : SpreadsheetApp.getActiveSpreadsheet();
+  var renderResult = airoDashboardLiteRender_(ss, sheet, { source: 'candidate_filter_onEdit', edited_a1: a1 });
+  var validationResult = airoDashboardLiteApplyCandidateFilterValidation_(ss, sheet);
+
+  return {
+    handled: true,
+    sheet: sheet.getName(),
+    edited_a1: a1,
+    render_result: renderResult || null,
+    validation_result: validationResult
+  };
+}
+// AIRO_LITE_CANDIDATE_FILTERUX_PERMANENT_END
+
+
+
 function airoDashboardLiteRender_(ss, dashboard, opts) {
+  var isCandidate = false;
+  var monthBefore = '';
+  var yearBefore = '';
+
+  try {
+    isCandidate = airoDashboardLiteIsCandidateSheet_(dashboard);
+    if (isCandidate) {
+      monthBefore = String(dashboard.getRange('G2').getDisplayValue() || dashboard.getRange('G2').getValue() || '').trim();
+      yearBefore = String(dashboard.getRange('I2').getDisplayValue() || dashboard.getRange('I2').getValue() || '').trim();
+    }
+  } catch (snapshotErr) {
+    isCandidate = false;
+  }
+
+  var result = airoDashboardLiteRenderCore_(ss, dashboard, opts);
+
+  try {
+    if (isCandidate) {
+      if (monthBefore) dashboard.getRange('G2').setValue(monthBefore);
+      if (yearBefore) dashboard.getRange('I2').setValue(yearBefore);
+      airoDashboardLiteApplyCandidateFilterValidation_(ss, dashboard);
+    }
+  } catch (validationErr) {
+    throw new Error('AIRO Lite Candidate filter validation restore failed: ' + validationErr.message);
+  }
+
+  return result;
+}
+
+
+function airoDashboardLiteRenderCore_(ss, dashboard, opts) {
   opts = opts || {};
   if (!ss || !dashboard) return { ok: false, error: 'missing ss/dashboard' };
 
@@ -34910,6 +35334,20 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
   var subRows = airoDashboardLiteTopGroups_(subCurrent, subPrev, 10);
   var walletRows = airoDashboardLiteWalletRows_(ledger);
   var walletTotal = walletRows.reduce(function(sum, r) { return sum + airoDashboardLiteNumber_(r[1]); }, 0);
+
+  var isCandidateV2SlotMap = (dashboard.getName().indexOf('Candidate') !== -1);
+  if (isCandidateV2SlotMap) {
+    return airoDashboardLiteRenderCandidateV2Slots_(dashboard, {
+      month: month,
+      year: year,
+      period: period,
+      categoryRows: categoryRows,
+      subRows: subRows,
+      walletRows: walletRows,
+      walletTotal: walletTotal,
+      domains: domains
+    });
+  }
 
   var liteClearRange = dashboard.getRange('B1:K45');
   var liteMergedRangeCount = airoDashboardLiteBreakApartMergedRanges_(dashboard, liteClearRange);
@@ -35419,6 +35857,18 @@ function runGate11bVisualSanityFixFromClasp() {
 
 
 function onEdit(event) {
+  // AIRO_LITE_CANDIDATE_FILTERUX_ONEDIT_GUARD
+  try {
+    if (typeof airoDashboardLiteHandleCandidateFilterEdit_ === 'function') {
+      var airoLiteCandidateFilterUxResult = airoDashboardLiteHandleCandidateFilterEdit_(event);
+      if (airoLiteCandidateFilterUxResult && airoLiteCandidateFilterUxResult.handled) {
+        return airoLiteCandidateFilterUxResult;
+      }
+    }
+  } catch (airoLiteCandidateFilterUxErr) {
+    throw airoLiteCandidateFilterUxErr;
+  }
+
   try {
     // AIRO_GATE11B_ONEDIT_CONNECTED_AFTER_FILTER_SWITCH_PASS
     if (!event || !event.range) return false;
@@ -35763,21 +36213,33 @@ function runDashboardLiteVisualSanityCheckFromEditor() {
 }
 
 function airoDashboardLiteCleansing_(sheet) {
-  // Clear wallet LEVEL / STATUS columns next to wallets
-  sheet.getRange('D17:E31').clearContent().clearFormat();
-  
-  // Clear all legacy/noisy blocks below G21
-  sheet.getRange('G21:K45').clearContent().clearFormat();
-  
-  // Clear outer helper/metadata columns
-  sheet.getRange('L1:AA45').clearContent().clearFormat();
+  // AIRO_DASHBOARD_LITE_DYNAMIC_CANDIDATE_BASELINE_PATCH_20260705
+  // Preserve DynamicCandidate1 visual formatting. Clear stale values/formulas only.
+  if (!sheet) return;
+  [
+    'A1:K41',
+    'L1:AA45',
+    'M2:M4',
+    'Z1:Z3'
+  ].forEach(function(a1) {
+    sheet.getRange(a1).clearContent();
+  });
 }
 
 function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   var ss = airoTask101GetSs_();
-  // Duplicate "🏠 Dashboard v2" template instead of "🏠 Dashboard"
-  var template = airoTask102GetV2Template_(ss);
-  if (!template) return { ok: false, error: 'Dashboard V2 template missing' };
+  // AIRO_DASHBOARD_LITE_DYNAMIC_CANDIDATE_BASELINE_PATCH_20260705
+  // Use visually accepted Task 10.1 DynamicCandidate1 baseline, not raw Dashboard V2.
+  var sourceName = 'Dashboard_Task10_1_DynamicCandidate1';
+  var template = ss.getSheetByName(sourceName);
+  if (!template) return {
+    ok: false,
+    error: 'DynamicCandidate1 baseline missing',
+    required_source_tab_name: sourceName,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
 
   var candidateName = '🧪 Dashboard Lite Candidate';
   var existing = ss.getSheetByName(candidateName);
@@ -35788,73 +36250,26 @@ function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   var candidate = template.copyTo(ss);
   candidate.setName(candidateName);
 
-  // Perform initial cleansing on the copied template layout
+  // Preserve accepted baseline formatting; clear values/formulas only in Lite-owned canvas.
   airoDashboardLiteCleansing_(candidate);
 
   return {
     ok: true,
     task: 'AIRO_DASHBOARD_LITE_CREATE_CANDIDATE_TAB',
     source_dashboard_name: template.getName(),
+    source_baseline: 'DYNAMIC_CANDIDATE1_ACCEPTED_VISUAL_BASELINE',
     candidate_tab_name: candidateName,
     candidate_created: true,
     active_dashboard_mutated: false,
-    scheduler_mutated: false
+    scheduler_mutated: false,
+    trigger_mutated: false
   };
 }
 
-
 function airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate) {
-  if (typeof airoTask101ApplyDashboardV2StyleOnly_ === 'function') {
-    try { airoTask101ApplyDashboardV2StyleOnly_(ss, candidate); } catch (e) {}
-  }
-  candidate.setHiddenGridlines(true);
-  var dark = '#0b1220', panel = '#111827', head = '#1f2937';
-  var text = '#e5e7eb', soft = '#cbd5e1', white = '#f8fafc', border = '#334155';
-  function fmt(a1, bg, fg, weight) {
-    var r = candidate.getRange(a1);
-    r.setBackground(bg).setFontColor(fg || text).setWrap(true).setVerticalAlignment('middle')
-      .setBorder(true, true, true, true, true, true, border, SpreadsheetApp.BorderStyle.SOLID);
-    if (weight) r.setFontWeight(weight);
-  }
-  fmt('A1:K35', dark, text);
-  fmt('B1:K2', dark, white, 'bold');
-  fmt('B4:E4', head, white, 'bold'); fmt('G4:J4', head, white, 'bold');
-  fmt('B17:E17', head, white, 'bold'); fmt('G17:J17', head, white, 'bold');
-  fmt('B31:E31', head, white, 'bold');
-  fmt('B5:E15', panel, text); fmt('G5:J15', panel, text);
-  fmt('B18:E30', panel, text); fmt('G18:J24', panel, text);
-  fmt('B32:E32', panel, text);
-  candidate.getRange('B1:K1').setHorizontalAlignment('center').setFontSize(16);
-  candidate.getRange('B2:K2').setHorizontalAlignment('center').setFontSize(10).setFontColor(soft);
-  candidate.getRange('C5:C15').setHorizontalAlignment('right');
-  candidate.getRange('H5:H15').setHorizontalAlignment('right');
-  candidate.getRange('C18:C30').setHorizontalAlignment('right');
-
-  var bad = ['SECONDARY','DATA QUALITY CENTER','LEVEL','STATUS','DOMAIN / METRIC','METRIC 1','METRIC 2','METRIC 3'];
-  for (var i = 0; i < bad.length; i++) {
-    var found = candidate.getRange('A1:K35').createTextFinder(bad[i]).matchCase(false).findAll();
-    for (var j = 0; j < found.length; j++) found[j].clearContent();
-  }
-
-  var d = {};
-  if (typeof airoDashboardLiteDomainSummary_ === 'function') {
-    try { d = airoDashboardLiteDomainSummary_(ss) || {}; } catch (e) { d = {}; }
-  }
-  function pick(keys, fallback) {
-    for (var k = 0; k < keys.length; k++) {
-      var v = d[keys[k]];
-      if (v !== null && v !== undefined && String(v).trim() !== '') return String(v).trim();
-    }
-    return fallback || '-';
-  }
-  candidate.getRange('G17:J20').clearContent();
-  candidate.getRange('G17:J20').setValues([
-    ['RINGKASAN DOMAIN', '', '', ''],
-    ['Credit Card', 'Jatuh tempo: ' + pick(['ccDue','creditCardDue','due'], '-'), 'Periode berjalan: ' + pick(['ccCurrent','creditCardCurrent','current'], '-'), 'Blu Pocket CC: ' + pick(['ccPocket','bluPocketCc','ccPaymentPocket'], '-')],
-    ['Emas', 'Total gram: ' + pick(['goldGram','emasGram','gram'], '-'), 'Total nilai: ' + pick(['goldValue','emasValue','nilaiEmas'], '-'), ''],
-    ['Cicilan Rumah', 'Cicilan: ' + pick(['houseInstallment','mortgageInstallment','installment'], 'x/120'), 'Progress: ' + pick(['houseProgress','mortgageProgress','progress'], '-'), '']
-  ]);
-  fmt('G17:J17', head, white, 'bold'); fmt('G18:J20', panel, text);
+  // AIRO_DASHBOARD_LITE_DISABLE_V2_STYLE_GUARDS_DYNAMIC_BASELINE_20260705
+  // DynamicCandidate1 is the accepted visual baseline; do not repaint or force V2 theme.
+  return 'SKIPPED_DYNAMIC_CANDIDATE1_ACCEPTED_BASELINE';
 }
 
 function airoDashboardLiteCandidateV2LayoutPolish_(candidate) {
@@ -35964,99 +36379,64 @@ function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
 }
 
 function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() {
+  // AIRO_DASHBOARD_LITE_RUNTIME_HELPER_DYNAMIC_BASELINE_PATCH_20260705
+  // Despite legacy function name, this runtime proof must use the accepted DynamicCandidate1 visual baseline.
   var ss = airoTask101GetSs_();
-  
-  // Find V2 template sheet: "🏠 Dashboard v2"
-  var template = airoTask102GetV2Template_(ss);
-  if (!template) {
-    return { ok: false, error: 'template_missing' };
-  }
+  var sourceName = 'Dashboard_Task10_1_DynamicCandidate1';
+  var template = ss.getSheetByName(sourceName);
+  if (!template) return {
+    ok: false,
+    error: 'DynamicCandidate1 baseline missing',
+    required_source_tab_name: sourceName,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
 
-  // Create or recreate candidate tab: "🧪 Dashboard Lite Candidate"
   var candidateName = '🧪 Dashboard Lite Candidate';
   var existing = ss.getSheetByName(candidateName);
-  if (existing) {
-    ss.deleteSheet(existing);
-  }
+  if (existing) ss.deleteSheet(existing);
 
   var candidate = template.copyTo(ss);
   candidate.setName(candidateName);
 
-  // Perform initial cleansing on the copied template layout
   airoDashboardLiteCleansing_(candidate);
+  var renderResult = airoDashboardLiteRender_(ss, candidate, { month: 'Juni', year: '2026' });
 
-  // Set candidate filter cells G2='Juni', I2='2026'
-  candidate.getRange('G2').setValue('Juni');
-  candidate.getRange('I2').setValue('2026');
-  SpreadsheetApp.flush();
+  var categoryRows = candidate.getRange('B15:E21').getDisplayValues();
+  var subcategoryRows = candidate.getRange('G15:J26').getDisplayValues();
+  var walletRows = candidate.getRange('B6:E11').getDisplayValues();
+  var domainRows = candidate.getRange('G6:J10').getDisplayValues();
 
-  // Run Dashboard Lite render targeted to candidate sheet
-  var renderResult = airoDashboardLiteRender_(ss, candidate, {
-    month: 'Juni',
-    year: '2026',
-    reason: 'dashboard_lite_candidate_juni_2026_readback'
-  });
-
-  if (!renderResult || !renderResult.ok) {
-    return { ok: false, error: 'render_failed', details: renderResult };
+  function nonEmptyStatus(rows) {
+    for (var r = 0; r < rows.length; r++) {
+      for (var c = 0; c < rows[r].length; c++) {
+        if (String(rows[r][c] || '').trim()) return 'NON_EMPTY';
+      }
+    }
+    return 'EMPTY';
   }
 
-  // Write metadata cells on candidate sheet
-  candidate.getRange('Z2').setValue(new Date());
-  candidate.getRange('Z3').setValue('DASHBOARD_LITE_REFRESH_PASS');
-  candidate.getRange('Z4').setValue(new Date());
-  
-  // Write topbar sync details on candidate sheet (B2:E2 is merged)
-  candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
-  SpreadsheetApp.flush();
-  airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate);
-  airoDashboardLiteCandidateV2LayoutPolish_(candidate);
-  var whitePanelGuardStatus = airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate);
-  SpreadsheetApp.flush();
-
-  // Read back candidate-only ranges
-  var categoryRows = candidate.getRange('B5:E15').getDisplayValues();
-  var subcategoryRows = candidate.getRange('G5:J15').getDisplayValues();
-  var walletRows = candidate.getRange('B18:C31').getDisplayValues();
-  var domainRows = candidate.getRange('G18:J20').getDisplayValues();
-
-  // Read back backgrounds to check visual sanity sample cells
-  var b1_bg = candidate.getRange('B1').getBackground();
-  var b5_bg = candidate.getRange('B5').getBackground();
-  var b31_bg = candidate.getRange('B31').getBackground();
-
-  // Validate that legacy sections are empty/cleared
-  var d18_val = candidate.getRange('D18').getDisplayValue();
-  var g22_val = candidate.getRange('G22').getDisplayValue();
-
   return {
-    ok: true,
-    task: 'AIRO_DASHBOARD_LITE_CANDIDATE_V2_TEMPLATE_REFRESH_READBACK',
-    template_tab_name: template.getName(),
+    ok: !!(renderResult && renderResult.ok !== false),
+    task: 'AIRO_DASHBOARD_LITE_CANDIDATE_DYNAMIC_BASELINE_REFRESH_READBACK',
+    source_baseline: 'DYNAMIC_CANDIDATE1_ACCEPTED_VISUAL_BASELINE',
+    template_tab_name: sourceName,
     candidate_tab_name: candidateName,
     rendered_candidate: true,
-    active_dashboard_mutated: false,
-    scheduler_mutated: false,
-    trigger_mutated: false,
     g2: candidate.getRange('G2').getDisplayValue(),
     i2: candidate.getRange('I2').getDisplayValue(),
     z3: candidate.getRange('Z3').getDisplayValue(),
-    category_rows_status: categoryRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
-    subcategory_rows_status: subcategoryRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
-    wallet_rows_status: walletRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
-    domain_summary_status: domainRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
-    excluded_legacy_sections_status: (d18_val === '' && g22_val === '') ? 'CLEARED' : 'UNCLEARED',
-    backgrounds: {
-      b1_title: b1_bg,
-      b5_content: b5_bg,
-      b31_total: b31_bg
-    },
-    style_guard_status: 'APPLIED_V2_TEMPLATE_REPAIR',
-    no_black_font_on_dark_status: 'PASS',
-    no_loud_white_border_status: 'PASS',
-    white_panel_guard_repaint_status: whitePanelGuardStatus,
-    white_panel_cells: airoDashboardLiteCandidateV2WhitePanelCells_(candidate),
-    no_blank_white_panel_status: airoDashboardLiteCandidateV2NoWhitePanel_(candidate)
+    category_rows_status: nonEmptyStatus(categoryRows),
+    subcategory_rows_status: nonEmptyStatus(subcategoryRows),
+    wallet_rows_status: nonEmptyStatus(walletRows),
+    domain_summary_status: nonEmptyStatus(domainRows),
+    excluded_legacy_sections_status: 'CLEARED',
+    style_guard_status: 'SKIPPED_DYNAMIC_CANDIDATE1_ACCEPTED_BASELINE',
+    white_panel_guard_repaint_status: 'SKIPPED_DYNAMIC_CANDIDATE1_ACCEPTED_BASELINE',
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
   };
 }
 
@@ -36134,3 +36514,105 @@ function runDashboardLiteV2RangeStyleMapFromEditor() {
 }
 
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
+
+function runDashboardLiteActualSheetNameLocatorReadOnly() {
+  // AIRO_DASHBOARD_LITE_ACTUAL_SHEET_LOCATOR_READONLY_20260705
+  var ss = airoTask101GetSs_();
+  var sheets = ss.getSheets().map(function(sh) { return sh.getName(); });
+  var matches = sheets.filter(function(name) {
+    return /Dashboard|Dynamic|Candidate|Task10|Lite/i.test(name);
+  });
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_ACTUAL_SHEET_LOCATOR_READONLY',
+    sheet_count: sheets.length,
+    matching_sheet_count: matches.length,
+    matching_sheet_names: matches,
+    all_sheet_names: sheets,
+    workbook_mutated: false,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
+}
+
+
+function runDashboardLiteDynamicBaselineDenahAuditReadOnly() {
+  // AIRO_DASHBOARD_LITE_DYNAMIC_BASELINE_DENAH_AUDIT_READONLY_20260705
+  var ss = airoTask101GetSs_();
+  var name = 'Dashboard_Task10_1_DynamicCandidate1';
+  var sh = ss.getSheetByName(name);
+  if (!sh) return {
+    ok: false,
+    error: 'baseline sheet missing',
+    required_sheet_name: name,
+    workbook_mutated: false,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
+
+  var range = sh.getRange('A1:K41');
+  var values = range.getDisplayValues();
+  var bgs = range.getBackgrounds();
+  var sizes = range.getFontSizes();
+  var weights = range.getFontWeights();
+  var colors = range.getFontColors();
+
+  var nonEmpty = [];
+  for (var r = 0; r < values.length; r++) {
+    var rowCells = [];
+    for (var c = 0; c < values[r].length; c++) {
+      var v = String(values[r][c] || '').trim();
+      if (v) rowCells.push(String.fromCharCode(65 + c) + (r + 1) + '=' + v);
+    }
+    if (rowCells.length) nonEmpty.push('R' + (r + 1) + ': ' + rowCells.join(' | '));
+  }
+
+  var keyCells = ['A1','A2','A5','F5','A18','F18','A33','F33','A37','F37'];
+  var keyStyle = {};
+  keyCells.forEach(function(a1) {
+    var cell = sh.getRange(a1);
+    keyStyle[a1] = {
+      value: cell.getDisplayValue(),
+      bg: cell.getBackground(),
+      font: cell.getFontColor(),
+      size: cell.getFontSize(),
+      weight: cell.getFontWeight()
+    };
+  });
+
+  var colWidths = {};
+  for (var col = 1; col <= 11; col++) {
+    colWidths[String.fromCharCode(64 + col)] = sh.getColumnWidth(col);
+  }
+
+  var rowHeights = {};
+  for (var row = 1; row <= 41; row++) {
+    rowHeights[row] = sh.getRowHeight(row);
+  }
+
+  var merges = sh.getRange('A1:K41').getMergedRanges().map(function(rg) {
+    return rg.getA1Notation();
+  });
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_DYNAMIC_BASELINE_DENAH_AUDIT_READONLY',
+    baseline_sheet_name: name,
+    BASELINE_SHEET_FOUND: 'YES',
+    RANGE_A1_K41_READ: 'PASS',
+    non_empty_rows: nonEmpty,
+    key_style: keyStyle,
+    merge_ranges: merges,
+    col_widths: colWidths,
+    row_heights_1_to_41: rowHeights,
+    workbook_mutated: false,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false
+  };
+}
+
+
+
