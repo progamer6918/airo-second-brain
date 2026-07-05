@@ -35858,27 +35858,41 @@ function airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate) {
 }
 
 function airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate) {
-  var range = candidate.getRange('A1:K35');
+  var range = candidate.getRange(A1:K35);
   var backgrounds = range.getBackgrounds();
-  var fallbackDark = String(candidate.getRange('B5').getBackground()).toLowerCase();
-  var darkBg = (fallbackDark && fallbackDark !== '#ffffff') ? fallbackDark : '#111827';
-  var lightFont = '#f8fafc';
-  var mutedBorder = '#334155';
+  var fontColors = range.getFontColors();
+  var fallbackDark = String(candidate.getRange(B5).getBackground()).toLowerCase();
+  var darkBg = (fallbackDark && fallbackDark !== #ffffff) ? fallbackDark : #111827;
+  var lightFont = #f8fafc;
+  var mutedBorder = #334155;
   var repaintCount = 0;
 
   for (var r = 0; r < backgrounds.length; r++) {
     for (var c = 0; c < backgrounds[r].length; c++) {
-      if (String(backgrounds[r][c]).toLowerCase() === '#ffffff') {
-        var cell = range.offset(r, c, 1, 1);
-        cell.setBackground(darkBg);
-        cell.setFontColor(lightFont);
-        cell.setBorder(true, true, true, true, false, false, mutedBorder, SpreadsheetApp.BorderStyle.SOLID);
+      if (String(backgrounds[r][c]).toLowerCase() === #ffffff) {
+        backgrounds[r][c] = darkBg;
+        fontColors[r][c] = lightFont;
         repaintCount++;
       }
     }
   }
 
-  return repaintCount ? 'REPAINTED:' + repaintCount : 'NO_WHITE_PANELS';
+  if (repaintCount) {
+    range.setBackgrounds(backgrounds);
+    range.setFontColors(fontColors);
+    range.setBorder(true, true, true, true, true, true, mutedBorder, SpreadsheetApp.BorderStyle.SOLID);
+    var merges = range.getMergedRanges();
+    for (var i = 0; i < merges.length; i++) {
+      if (String(merges[i].getBackground()).toLowerCase() === #ffffff) {
+        merges[i].setBackground(darkBg);
+        merges[i].setFontColor(lightFont);
+        merges[i].setBorder(true, true, true, true, false, false, mutedBorder, SpreadsheetApp.BorderStyle.SOLID);
+      }
+    }
+    SpreadsheetApp.flush();
+  }
+
+  return repaintCount ? REPAINTED_MATRIX: + repaintCount : NO_WHITE_PANELS;
 }
 
 function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
