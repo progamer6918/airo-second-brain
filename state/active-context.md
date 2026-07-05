@@ -783,3 +783,9 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - Workspace document: `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5s-funded-outgoing-ledger-write-fix-20260704.md`
 - Next: Deploy and verify live runtime (Task 10.5T).
 
+## 2026-07-05 — AIRO Finance Dashboard Lite Owner Review Blocked
+- status: OWNER_REVIEW_BLOCKED.
+- findings: Visual quality too low, dark theme superficial, contains legacy/noisy blocks (LEVEL/STATUS, DATA QUALITY, SECONDARY, generic DOMAIN/METRIC, cramped text).
+- policy: redesign/layout updates must be done on a candidate/staging tab first, and promoted only after explicit Owner review and approval.
+- next: Create a planning document for Dashboard Lite Candidate Tab implementation.
+

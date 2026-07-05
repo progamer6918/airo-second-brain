@@ -32,6 +32,8 @@ Core rules:
 23. If workspace is dirty, stop and report unless prompt explicitly allows handling dirty state.
 24. If unsure, stop and ask for a smaller exact gate.
 25. If Owner says “hemat limit”, “no brainer”, “nyuapin Antigravity”, “efisien”, or similar, this mode applies.
+26. Dashboard visual redesigns or layout mutations must always use a duplicate candidate tab (staging) first. Promotion to the active `🏠 Dashboard` tab is permitted only after explicit Owner review and approval of the candidate.
+
 
 Default output format:
 RESULT=
