@@ -795,3 +795,8 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - requirement: Dashboard Lite must copy/adopt the visual structure of Dashboard V2 first, then fit simplified Lite content within it.
 - next: Perform a mapping audit for the V2 template structure.
 
+## 2026-07-05 — AIRO Finance Dashboard Lite Candidate Review Blocked (V2 Range/Style Mapping Wrong)
+- status: OWNER_CANDIDATE_REVIEW_BLOCKED.
+- findings: Candidate rejected because visual template properties (borders, fonts, heights, widths, spacing) were not preserved, content zones were written to incorrect cells, and default black text made text unreadable on dark backgrounds.
+- next: Perform a read-only workbook range/style mapping audit on the template.
+
