@@ -34917,6 +34917,83 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
   dashboard.getRange('C18:C31').setNumberFormat('"Rp" #,##0');
   dashboard.getRange('M3:M4').setNumberFormat('yyyy-mm-dd');
 
+  // Apply visual styling to match active Dashboard / Dashboard V2 look
+  dashboard.setFrozenRows(3);
+
+  // Column widths: A=9, B=111, C=90, D=167, E=90, F=9, G=125, H=69, I=83, J=97, K=9
+  var widths = [9, 111, 90, 167, 90, 9, 125, 69, 83, 97, 9];
+  for (var colIdx = 0; colIdx < widths.length; colIdx++) {
+    dashboard.setColumnWidth(colIdx + 1, widths[colIdx]);
+  }
+
+  // Row heights: rows 1 to 41
+  var heights = [6, 34, 8, 29, 34, 34, 10, 29, 26, 48, 10, 26, 40, 10, 29, 26, 34, 34, 34, 34, 34, 29, 10, 29, 26, 34, 34, 34, 34, 34, 34, 18, 10, 48, 48, 48, 10, 21, 21, 21, 21];
+  for (var rIdx = 0; rIdx < heights.length; rIdx++) {
+    dashboard.setRowHeight(rIdx + 1, heights[rIdx]);
+  }
+
+  // Set cockpit overall range styling (A1:K45)
+  var cockpitRange = dashboard.getRange('A1:K45');
+  cockpitRange.setBackground('#111827')
+              .setFontColor('#F9FAFB')
+              .setFontFamily('Arial')
+              .setFontSize(10);
+
+  // Title block styling: B1:K1
+  var titleCell = dashboard.getRange('B1:K1');
+  titleCell.setBackground('#0B1220')
+           .setFontColor('#FFFFFF')
+           .setFontWeight('bold')
+           .setFontSize(14)
+           .setHorizontalAlignment('center')
+           .setVerticalAlignment('middle');
+
+  // Subtitle/Period block styling: B2:K3
+  var subBar = dashboard.getRange('B2:K3');
+  subBar.setBackground('#172033')
+        .setFontColor('#F9FAFB')
+        .setVerticalAlignment('middle');
+
+  // Headers styling
+  var headerRanges = ['B4:E4', 'G4:J4', 'B17:C17', 'G17:J17'];
+  headerRanges.forEach(function(a1) {
+    dashboard.getRange(a1).setBackground('#1F2937')
+                          .setFontColor('#FFFFFF')
+                          .setFontWeight('bold')
+                          .setHorizontalAlignment('center')
+                          .setVerticalAlignment('middle');
+  });
+
+  // Content cards backgrounds
+  dashboard.getRange('B5:E15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+  dashboard.getRange('G5:J15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+  dashboard.getRange('B18:C30').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+  dashboard.getRange('B31:C31').setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold').setVerticalAlignment('middle');
+  dashboard.getRange('G18:J20').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+
+  // Alignments
+  // Left-aligned names:
+  dashboard.getRange('B5:B15').setHorizontalAlignment('left');
+  dashboard.getRange('G5:G15').setHorizontalAlignment('left');
+  dashboard.getRange('B18:B30').setHorizontalAlignment('left');
+  dashboard.getRange('G18:G20').setHorizontalAlignment('left');
+  dashboard.getRange('B31').setHorizontalAlignment('left');
+
+  // Right-aligned values/percentages:
+  dashboard.getRange('C5:E15').setHorizontalAlignment('right');
+  dashboard.getRange('H5:J15').setHorizontalAlignment('right');
+  dashboard.getRange('C18:C31').setHorizontalAlignment('right');
+  dashboard.getRange('H18:J20').setHorizontalAlignment('right');
+
+  // Centered filter indicators
+  dashboard.getRange('F2:I2').setHorizontalAlignment('center');
+
+  // Borders
+  var borderRanges = ['B4:E15', 'G4:J15', 'B17:C31', 'G17:J20'];
+  borderRanges.forEach(function(a1) {
+    dashboard.getRange(a1).setBorder(true, true, true, true, true, true, '#374151', SpreadsheetApp.BorderStyle.SOLID);
+  });
+
   SpreadsheetApp.flush();
 
   return {
@@ -35603,6 +35680,43 @@ function runGate11bOnEditBindingProofFromClasp() {
     b2_nonempty_juni: b2NonemptyJuni,
     b2_nonempty_mei: b2NonemptyMei,
     final_verdict: finalVerdict
+  };
+}
+
+function runDashboardLiteVisualSanityCheckFromEditor() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  if (!dashboard) return { ok: false, error: 'Dashboard missing' };
+
+  var b1_bg = dashboard.getRange('B1').getBackground();
+  var b2_bg = dashboard.getRange('B2').getBackground();
+  var b4_bg = dashboard.getRange('B4').getBackground();
+  var b5_bg = dashboard.getRange('B5').getBackground();
+  var b17_bg = dashboard.getRange('B17').getBackground();
+  var b18_bg = dashboard.getRange('B18').getBackground();
+  var b31_bg = dashboard.getRange('B31').getBackground();
+  var g18_bg = dashboard.getRange('G18').getBackground();
+
+  var b1_align = dashboard.getRange('B1').getHorizontalAlignment();
+  var c5_align = dashboard.getRange('C5').getHorizontalAlignment();
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_VISUAL_SANITY_CHECK',
+    backgrounds: {
+      b1_title: b1_bg,
+      b2_subbar: b2_bg,
+      b4_header: b4_bg,
+      b5_content: b5_bg,
+      b17_header: b17_bg,
+      b18_content: b18_bg,
+      b31_total: b31_bg,
+      g18_domain: g18_bg
+    },
+    alignments: {
+      b1_title: b1_align,
+      c5_value: c5_align
+    }
   };
 }
 
