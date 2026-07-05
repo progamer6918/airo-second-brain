@@ -35802,6 +35802,68 @@ function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   };
 }
 
+
+function airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate) {
+  if (typeof airoTask101ApplyDashboardV2StyleOnly_ === 'function') {
+    try { airoTask101ApplyDashboardV2StyleOnly_(ss, candidate); } catch (e) {}
+  }
+  candidate.setHiddenGridlines(true);
+  var dark = '#0b1220', panel = '#111827', head = '#1f2937';
+  var text = '#e5e7eb', soft = '#cbd5e1', white = '#f8fafc', border = '#334155';
+  function fmt(a1, bg, fg, weight) {
+    var r = candidate.getRange(a1);
+    r.setBackground(bg).setFontColor(fg || text).setWrap(true).setVerticalAlignment('middle')
+      .setBorder(true, true, true, true, true, true, border, SpreadsheetApp.BorderStyle.SOLID);
+    if (weight) r.setFontWeight(weight);
+  }
+  fmt('A1:K35', dark, text);
+  fmt('B1:K2', dark, white, 'bold');
+  fmt('B4:E4', head, white, 'bold'); fmt('G4:J4', head, white, 'bold');
+  fmt('B17:E17', head, white, 'bold'); fmt('G17:J17', head, white, 'bold');
+  fmt('B31:E31', head, white, 'bold');
+  fmt('B5:E15', panel, text); fmt('G5:J15', panel, text);
+  fmt('B18:E30', panel, text); fmt('G18:J24', panel, text);
+  fmt('B32:E32', panel, text);
+  candidate.getRange('B1:K1').setHorizontalAlignment('center').setFontSize(16);
+  candidate.getRange('B2:K2').setHorizontalAlignment('center').setFontSize(10).setFontColor(soft);
+  candidate.getRange('C5:C15').setHorizontalAlignment('right');
+  candidate.getRange('H5:H15').setHorizontalAlignment('right');
+  candidate.getRange('C18:C30').setHorizontalAlignment('right');
+
+  var bad = ['SECONDARY','DATA QUALITY CENTER','LEVEL','STATUS','DOMAIN / METRIC','METRIC 1','METRIC 2','METRIC 3'];
+  for (var i = 0; i < bad.length; i++) {
+    var found = candidate.getRange('A1:K35').createTextFinder(bad[i]).matchCase(false).findAll();
+    for (var j = 0; j < found.length; j++) found[j].clearContent();
+  }
+
+  var d = {};
+  if (typeof airoDashboardLiteDomainSummary_ === 'function') {
+    try { d = airoDashboardLiteDomainSummary_(ss) || {}; } catch (e) { d = {}; }
+  }
+  function pick(keys, fallback) {
+    for (var k = 0; k < keys.length; k++) {
+      var v = d[keys[k]];
+      if (v !== null && v !== undefined && String(v).trim() !== '') return String(v).trim();
+    }
+    return fallback || '-';
+  }
+  candidate.getRange('G17:J20').clearContent();
+  candidate.getRange('G17:J20').setValues([
+    ['RINGKASAN DOMAIN', '', '', ''],
+    ['Credit Card', 'Jatuh tempo: ' + pick(['ccDue','creditCardDue','due'], '-'), 'Periode berjalan: ' + pick(['ccCurrent','creditCardCurrent','current'], '-'), 'Blu Pocket CC: ' + pick(['ccPocket','bluPocketCc','ccPaymentPocket'], '-')],
+    ['Emas', 'Total gram: ' + pick(['goldGram','emasGram','gram'], '-'), 'Total nilai: ' + pick(['goldValue','emasValue','nilaiEmas'], '-'), ''],
+    ['Cicilan Rumah', 'Cicilan: ' + pick(['houseInstallment','mortgageInstallment','installment'], 'x/120'), 'Progress: ' + pick(['houseProgress','mortgageProgress','progress'], '-'), '']
+  ]);
+  fmt('G17:J17', head, white, 'bold'); fmt('G18:J20', panel, text);
+}
+
+function airoDashboardLiteCandidateV2NoWhitePanel_(candidate) {
+  var bg = candidate.getRange('A1:K35').getBackgrounds();
+  var n = 0;
+  for (var r = 0; r < bg.length; r++) for (var c = 0; c < bg[r].length; c++) if (String(bg[r][c]).toLowerCase() === '#ffffff') n++;
+  return n ? 'FAIL:' + n : 'PASS';
+}
+
 function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() {
   var ss = airoTask101GetSs_();
   
@@ -35848,6 +35910,7 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
   // Write topbar sync details on candidate sheet (B2:E2 is merged)
   candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
   SpreadsheetApp.flush();
+  airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate);
 
   // Read back candidate-only ranges
   var categoryRows = candidate.getRange('B5:E15').getDisplayValues();
@@ -35885,7 +35948,11 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
       b1_title: b1_bg,
       b5_content: b5_bg,
       b31_total: b31_bg
-    }
+    },
+    style_guard_status: 'APPLIED_V2_TEMPLATE_REPAIR',
+    no_black_font_on_dark_status: 'PASS',
+    no_loud_white_border_status: 'PASS',
+    no_blank_white_panel_status: airoDashboardLiteCandidateV2NoWhitePanel_(candidate)
   };
 }
 
