@@ -35857,6 +35857,27 @@ function airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate) {
   fmt('G17:J17', head, white, 'bold'); fmt('G18:J20', panel, text);
 }
 
+function airoDashboardLiteCandidateV2LayoutPolish_(candidate) {
+  var widths = {2:112,3:82,4:118,5:82,6:56,7:118,8:82,9:92,10:82,11:8};
+  for (var col in widths) candidate.setColumnWidth(Number(col), widths[col]);
+  var heights = {1:28,2:44,4:34,17:34,31:30};
+  for (var row in heights) candidate.setRowHeight(Number(row), heights[row]);
+
+  candidate.getRange("B1:K1").setFontSize(14).setWrap(false).setHorizontalAlignment("center");
+  candidate.getRange("B2:E2").setFontSize(8).setWrap(true).setHorizontalAlignment("left").setVerticalAlignment("middle");
+  candidate.getRange("F2:I2").setFontSize(9).setWrap(false).setHorizontalAlignment("center").setVerticalAlignment("middle");
+  candidate.getRange("F2").setFontWeight("bold");
+  candidate.getRange("H2").setFontWeight("bold");
+
+  candidate.getRange("B4:E4").setFontSize(8).setWrap(true).setHorizontalAlignment("center");
+  candidate.getRange("G4:J4").setFontSize(8).setWrap(true).setHorizontalAlignment("center");
+  candidate.getRange("B5:B15").setFontSize(8).setWrap(false);
+  candidate.getRange("G5:G15").setFontSize(8).setWrap(false);
+  candidate.getRange("B18:C30").setFontSize(8).setWrap(false);
+  candidate.getRange("G18:J20").setFontSize(8).setWrap(true);
+}
+
+
 function airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate) {
   var range = candidate.getRange("A1:K35");
   var backgrounds = range.getBackgrounds();
@@ -35989,6 +36010,7 @@ function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() 
   candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
   SpreadsheetApp.flush();
   airoDashboardLiteCandidateV2ThemeRepair_(ss, candidate);
+  airoDashboardLiteCandidateV2LayoutPolish_(candidate);
   var whitePanelGuardStatus = airoDashboardLiteCandidateV2RepaintWhitePanels_(candidate);
   SpreadsheetApp.flush();
 
