@@ -34833,6 +34833,29 @@ function airoDashboardLiteDomainSummary_(ss) {
   };
 }
 
+function airoDashboardLiteBreakApartMergedRanges_(sheet, targetRange) {
+  if (!sheet || !targetRange) return 0;
+  var tr1 = targetRange.getRow();
+  var tc1 = targetRange.getColumn();
+  var tr2 = tr1 + targetRange.getNumRows() - 1;
+  var tc2 = tc1 + targetRange.getNumColumns() - 1;
+  var merged = sheet.getDataRange().getMergedRanges();
+  var cleared = 0;
+  for (var i = 0; i < merged.length; i++) {
+    var r = merged[i];
+    var rr1 = r.getRow();
+    var cc1 = r.getColumn();
+    var rr2 = rr1 + r.getNumRows() - 1;
+    var cc2 = cc1 + r.getNumColumns() - 1;
+    var overlaps = !(rr2 < tr1 || rr1 > tr2 || cc2 < tc1 || cc1 > tc2);
+    if (overlaps) {
+      r.breakApart();
+      cleared++;
+    }
+  }
+  return cleared;
+}
+
 function airoDashboardLiteRender_(ss, dashboard, opts) {
   opts = opts || {};
   if (!ss || !dashboard) return { ok: false, error: 'missing ss/dashboard' };
@@ -34853,7 +34876,9 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
   var walletRows = airoDashboardLiteWalletRows_(ledger);
   var walletTotal = walletRows.reduce(function(sum, r) { return sum + airoDashboardLiteNumber_(r[1]); }, 0);
 
-  dashboard.getRange('B1:K45').breakApart().clear({ contentsOnly: false });
+  var liteClearRange = dashboard.getRange('B1:K45');
+  var liteMergedRangeCount = airoDashboardLiteBreakApartMergedRanges_(dashboard, liteClearRange);
+  liteClearRange.clear({ contentsOnly: false });
   dashboard.getRange('B1:K1').merge().setValue('AIRO Finance Dashboard Lite');
   dashboard.getRange('B2:E2').merge().setValue('Synced: ' + new Date() + ' | Period: ' + period.label + ' | Source: Account Ledger');
   dashboard.getRange('F2').setValue('Bulan');
@@ -34903,7 +34928,8 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
     category_rows: categoryRows.length,
     subcategory_rows: subRows.length,
     wallet_rows: walletRows.length,
-    wallet_total: walletTotal
+    wallet_total: walletTotal,
+    merged_ranges_cleared: liteMergedRangeCount
   };
 }
 
