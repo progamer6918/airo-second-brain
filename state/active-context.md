@@ -800,3 +800,8 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - findings: Candidate rejected because visual template properties (borders, fonts, heights, widths, spacing) were not preserved, content zones were written to incorrect cells, and default black text made text unreadable on dark backgrounds.
 - next: Perform a read-only workbook range/style mapping audit on the template.
 
+## 2026-07-05 — AIRO Finance Dashboard Lite V2 Range Style Map Analysis
+- status: OWNER_CANDIDATE_REVIEW_BLOCKED.
+- findings: Map analysis shows category spending is at B24:E31, subcategory is at G24:J31, wallets are at B16:C21, CC/emas/cicilan are in G17:J20 domain cards. Unwanted columns and panels mapped for clearing.
+- next: Patch template candidate renderer to write exact Lite placements and colors.
+

@@ -8,8 +8,9 @@
 - **V2 Template Blocker Doc:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-finance-dashboard-lite-candidate-review-blocked-v2-template-required-20260705.md`.
 - **V2 Template Mapping Audit:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-finance-dashboard-lite-v2-template-mapping-audit-20260705.md`.
 - **V2 Range/Style Blocker Doc:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-finance-dashboard-lite-candidate-review-blocked-v2-range-style-mapping-wrong-20260705.md`.
+- **V2 Range/Style Map Analysis:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-finance-dashboard-lite-v2-range-style-map-analysis-20260705.md`.
 - Active workbook tab naming remains `Dashboard`.
-- Next safe gate: `read_only_v2_range_style_map_from_workbook`.
+- Next safe gate: `v2_template_candidate_renderer_patch_from_map_only`.
 - Dashboard Lite canonical data contract: `ecosystem/projects/vortex-ai-skill-lab/docs/design/airo-finance-dashboard-lite-data-contract-20260704.md`.
 - Scheduler remains OFF / parked unless the Owner explicitly approves Gate 12 scheduler work.
 - Next safe action: read-only mapping audit for Dashboard Lite sources, ranges, and renderer location.
