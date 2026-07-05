@@ -35745,4 +35745,71 @@ function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   };
 }
 
+function runDashboardLiteCandidateJuni2026RefreshReadbackFromEditor() {
+  var ss = airoTask101GetSs_();
+  var candidateName = '🧪 Dashboard Lite Candidate';
+  var candidate = ss.getSheetByName(candidateName);
+  if (!candidate) {
+    return { ok: false, error: 'candidate_missing' };
+  }
+
+  // Set candidate filter cells G2='Juni', I2='2026'
+  candidate.getRange('G2').setValue('Juni');
+  candidate.getRange('I2').setValue('2026');
+  SpreadsheetApp.flush();
+
+  // Run Dashboard Lite render targeted to candidate sheet
+  var renderResult = airoDashboardLiteRender_(ss, candidate, {
+    month: 'Juni',
+    year: '2026',
+    reason: 'dashboard_lite_candidate_juni_2026_readback'
+  });
+
+  if (!renderResult || !renderResult.ok) {
+    return { ok: false, error: 'render_failed', details: renderResult };
+  }
+
+  // Set metadata cells on candidate sheet
+  candidate.getRange('Z2').setValue(new Date());
+  candidate.getRange('Z3').setValue('DASHBOARD_LITE_REFRESH_PASS');
+  candidate.getRange('Z4').setValue(new Date());
+  
+  // Set synced topbar on candidate sheet (B2:E2 is merged)
+  candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
+  SpreadsheetApp.flush();
+
+  // Read back candidate-only ranges
+  var categoryRows = candidate.getRange('B5:E15').getDisplayValues();
+  var subcategoryRows = candidate.getRange('G5:J15').getDisplayValues();
+  var walletRows = candidate.getRange('B18:C31').getDisplayValues();
+  var domainRows = candidate.getRange('G18:J20').getDisplayValues();
+
+  // Read back background colors to verify visual sanity sample cells
+  var b1_bg = candidate.getRange('B1').getBackground();
+  var b5_bg = candidate.getRange('B5').getBackground();
+  var b31_bg = candidate.getRange('B31').getBackground();
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_CANDIDATE_JUNI_2026_REFRESH_READBACK',
+    candidate_tab_name: candidateName,
+    rendered_candidate: true,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false,
+    trigger_mutated: false,
+    g2: candidate.getRange('G2').getDisplayValue(),
+    i2: candidate.getRange('I2').getDisplayValue(),
+    z3: candidate.getRange('Z3').getDisplayValue(),
+    category_rows: categoryRows,
+    subcategory_rows: subcategoryRows,
+    wallet_rows: walletRows,
+    domain_rows: domainRows,
+    backgrounds: {
+      b1_title: b1_bg,
+      b5_content: b5_bg,
+      b31_total: b31_bg
+    }
+  };
+}
+
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
