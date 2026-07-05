@@ -35720,4 +35720,29 @@ function runDashboardLiteVisualSanityCheckFromEditor() {
   };
 }
 
+function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
+  var ss = airoTask101GetSs_();
+  var dashboard = airoTask102GetActiveDashboard_(ss);
+  if (!dashboard) return { ok: false, error: 'Dashboard missing' };
+
+  var candidateName = '🧪 Dashboard Lite Candidate';
+  var existing = ss.getSheetByName(candidateName);
+  if (existing) {
+    ss.deleteSheet(existing);
+  }
+
+  var candidate = dashboard.copyTo(ss);
+  candidate.setName(candidateName);
+
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_CREATE_CANDIDATE_TAB',
+    source_dashboard_name: dashboard.getName(),
+    candidate_tab_name: candidateName,
+    candidate_created: true,
+    active_dashboard_mutated: false,
+    scheduler_mutated: false
+  };
+}
+
 // AIRO_TASK10_1_NATIVE_V2_SURGICAL_V4_2_END
