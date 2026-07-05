@@ -35002,6 +35002,41 @@ function runDashboardLiteSpendingDiagnosticFromEditor() {
 }
 
 
+
+function runDashboardLiteExpenseMonthDistributionFromEditor() {
+  var ss = airoTask101GetSs_();
+  var ledger = airoDashboardLiteReadLedgerRows_(ss);
+  var counts = {};
+  var samples = [];
+  for (var i = 0; i < ledger.rows.length; i++) {
+    var row = ledger.rows[i];
+    var type = ledger.typeCol >= 0 ? airoDashboardLiteText_(row[ledger.typeCol]).toLowerCase() : '';
+    var out = ledger.outCol >= 0 ? airoDashboardLiteNumber_(row[ledger.outCol]) : 0;
+    var d = ledger.dateCol >= 0 ? airoDashboardLiteDateOnly_(row[ledger.dateCol]) : null;
+    if (type !== 'expense' || out <= 0 || !d) continue;
+    var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    counts[ym] = (counts[ym] || 0) + 1;
+    if (samples.length < 20) {
+      samples.push({
+        ym: ym,
+        date: d,
+        account: ledger.accountCol >= 0 ? row[ledger.accountCol] : '',
+        amount_out: out,
+        category: ledger.categoryCol >= 0 ? row[ledger.categoryCol] : '',
+        subcategory: ledger.subcategoryCol >= 0 ? row[ledger.subcategoryCol] : ''
+      });
+    }
+  }
+  return {
+    ok: true,
+    task: 'AIRO_DASHBOARD_LITE_EXPENSE_MONTH_DISTRIBUTION',
+    ledger_rows: ledger.rows.length,
+    expense_month_counts: counts,
+    sample_expense_rows: samples
+  };
+}
+
+
 // AIRO_DASHBOARD_LITE_RENDERER_END
 
 
