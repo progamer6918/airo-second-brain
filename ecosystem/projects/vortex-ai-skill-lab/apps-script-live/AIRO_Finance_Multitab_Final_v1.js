@@ -34818,18 +34818,53 @@ function airoDashboardLiteFindAdjacentValue_(sheet, labels) {
   return '';
 }
 
+function airoDashboardLiteCleanCC_(val) {
+  if (!val || val === '-') return '-';
+  var parts = val.split('|');
+  if (parts.length >= 4) {
+    return parts[3].trim();
+  }
+  if (parts.length >= 3) {
+    return parts[2].trim();
+  }
+  return val.trim();
+}
+
 function airoDashboardLiteDomainSummary_(ss) {
   var cc = airoDashboardLiteGetSheet_(ss, 'creditCard', 'Credit Card');
   var aset = airoDashboardLiteGetSheet_(ss, 'aset', 'Aset');
   var cicilan = airoDashboardLiteGetSheet_(ss, 'cicilanRumah', 'Cicilan Rumah');
+  
+  var ccDueRaw = airoDashboardLiteFindAdjacentValue_(cc, ['tagihan jatuh tempo', 'due bill', 'payable']);
+  var ccCurrentRaw = airoDashboardLiteFindAdjacentValue_(cc, ['periode berjalan', 'current period', 'unbilled']);
+  var ccPocketRaw = airoDashboardLiteFindAdjacentValue_(cc, ['blu pocket cc', 'pocket cc', 'setoran']);
+  
+  var ccDueClean = airoDashboardLiteCleanCC_(ccDueRaw);
+  var ccCurrentClean = airoDashboardLiteCleanCC_(ccCurrentRaw);
+  var ccPocketClean = ccPocketRaw || '-';
+  
+  var goldGram = airoDashboardLiteFindAdjacentValue_(aset, ['total gram', 'gram emas', 'emas gram']);
+  var goldValue = airoDashboardLiteFindAdjacentValue_(aset, ['total nilai emas', 'nilai emas', 'market value']);
+  
+  var houseCount = airoDashboardLiteFindAdjacentValue_(cicilan, ['cicilan saat ini']);
+  var houseProgress = '-';
+  if (houseCount && houseCount.indexOf('/') !== -1) {
+    var parts = houseCount.split('/');
+    var current = parseFloat(parts[0].trim());
+    var total = parseFloat(parts[1].trim());
+    if (total > 0) {
+      houseProgress = ((current / total) * 100).toFixed(1) + '%';
+    }
+  }
+
   return {
-    ccDue: airoDashboardLiteFindAdjacentValue_(cc, ['tagihan jatuh tempo', 'due bill', 'payable']),
-    ccCurrent: airoDashboardLiteFindAdjacentValue_(cc, ['periode berjalan', 'current period', 'unbilled']),
-    ccPocket: airoDashboardLiteFindAdjacentValue_(cc, ['blu pocket cc', 'pocket cc', 'setoran']),
-    goldGram: airoDashboardLiteFindAdjacentValue_(aset, ['total gram', 'gram emas', 'emas gram']),
-    goldValue: airoDashboardLiteFindAdjacentValue_(aset, ['total nilai emas', 'nilai emas', 'market value']),
-    houseCount: airoDashboardLiteFindAdjacentValue_(cicilan, ['x/120', 'cicilan ke', 'installment']),
-    houseProgress: airoDashboardLiteFindAdjacentValue_(cicilan, ['progress', 'progress %'])
+    ccDue: ccDueClean,
+    ccCurrent: ccCurrentClean,
+    ccPocket: ccPocketClean,
+    goldGram: goldGram || '-',
+    goldValue: goldValue || '-',
+    houseCount: houseCount || '-',
+    houseProgress: houseProgress
   };
 }
 
@@ -34878,7 +34913,12 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
 
   var liteClearRange = dashboard.getRange('B1:K45');
   var liteMergedRangeCount = airoDashboardLiteBreakApartMergedRanges_(dashboard, liteClearRange);
-  liteClearRange.clear({ contentsOnly: false });
+  var isCandidate = (dashboard.getName().indexOf('Candidate') !== -1);
+  if (isCandidate) {
+    liteClearRange.clearContent();
+  } else {
+    liteClearRange.clear({ contentsOnly: false });
+  }
   dashboard.getRange('B1:K1').merge().setValue('AIRO Finance Dashboard Lite');
   dashboard.getRange('B2:E2').merge().setValue('Synced: ' + new Date() + ' | Period: ' + period.label + ' | Source: Account Ledger');
   dashboard.getRange('F2').setValue('Bulan');
@@ -34917,59 +34957,61 @@ function airoDashboardLiteRender_(ss, dashboard, opts) {
   dashboard.getRange('C18:C31').setNumberFormat('"Rp" #,##0');
   dashboard.getRange('M3:M4').setNumberFormat('yyyy-mm-dd');
 
-  // Apply visual styling to match active Dashboard / Dashboard V2 look
-  dashboard.setFrozenRows(3);
+  if (!isCandidate) {
+    // Apply visual styling to match active Dashboard / Dashboard V2 look
+    dashboard.setFrozenRows(3);
 
-  // Column widths: A=9, B=111, C=90, D=167, E=90, F=9, G=125, H=69, I=83, J=97, K=9
-  var widths = [9, 111, 90, 167, 90, 9, 125, 69, 83, 97, 9];
-  for (var colIdx = 0; colIdx < widths.length; colIdx++) {
-    dashboard.setColumnWidth(colIdx + 1, widths[colIdx]);
+    // Column widths: A=9, B=111, C=90, D=167, E=90, F=9, G=125, H=69, I=83, J=97, K=9
+    var widths = [9, 111, 90, 167, 90, 9, 125, 69, 83, 97, 9];
+    for (var colIdx = 0; colIdx < widths.length; colIdx++) {
+      dashboard.setColumnWidth(colIdx + 1, widths[colIdx]);
+    }
+
+    // Row heights: rows 1 to 41
+    var heights = [6, 34, 8, 29, 34, 34, 10, 29, 26, 48, 10, 26, 40, 10, 29, 26, 34, 34, 34, 34, 34, 29, 10, 29, 26, 34, 34, 34, 34, 34, 34, 18, 10, 48, 48, 48, 10, 21, 21, 21, 21];
+    for (var rIdx = 0; rIdx < heights.length; rIdx++) {
+      dashboard.setRowHeight(rIdx + 1, heights[rIdx]);
+    }
+
+    // Set cockpit overall range styling (A1:K45)
+    var cockpitRange = dashboard.getRange('A1:K45');
+    cockpitRange.setBackground('#111827')
+                .setFontColor('#F9FAFB')
+                .setFontFamily('Arial')
+                .setFontSize(10);
+
+    // Title block styling: B1:K1
+    var titleCell = dashboard.getRange('B1:K1');
+    titleCell.setBackground('#0B1220')
+             .setFontColor('#FFFFFF')
+             .setFontWeight('bold')
+             .setFontSize(14)
+             .setHorizontalAlignment('center')
+             .setVerticalAlignment('middle');
+
+    // Subtitle/Period block styling: B2:K3
+    var subBar = dashboard.getRange('B2:K3');
+    subBar.setBackground('#172033')
+          .setFontColor('#F9FAFB')
+          .setVerticalAlignment('middle');
+
+    // Headers styling
+    var headerRanges = ['B4:E4', 'G4:J4', 'B17:C17', 'G17:J17'];
+    headerRanges.forEach(function(a1) {
+      dashboard.getRange(a1).setBackground('#1F2937')
+                            .setFontColor('#FFFFFF')
+                            .setFontWeight('bold')
+                            .setHorizontalAlignment('center')
+                            .setVerticalAlignment('middle');
+    });
+
+    // Content cards backgrounds
+    dashboard.getRange('B5:E15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+    dashboard.getRange('G5:J15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+    dashboard.getRange('B18:C30').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
+    dashboard.getRange('B31:C31').setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold').setVerticalAlignment('middle');
+    dashboard.getRange('G18:J20').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
   }
-
-  // Row heights: rows 1 to 41
-  var heights = [6, 34, 8, 29, 34, 34, 10, 29, 26, 48, 10, 26, 40, 10, 29, 26, 34, 34, 34, 34, 34, 29, 10, 29, 26, 34, 34, 34, 34, 34, 34, 18, 10, 48, 48, 48, 10, 21, 21, 21, 21];
-  for (var rIdx = 0; rIdx < heights.length; rIdx++) {
-    dashboard.setRowHeight(rIdx + 1, heights[rIdx]);
-  }
-
-  // Set cockpit overall range styling (A1:K45)
-  var cockpitRange = dashboard.getRange('A1:K45');
-  cockpitRange.setBackground('#111827')
-              .setFontColor('#F9FAFB')
-              .setFontFamily('Arial')
-              .setFontSize(10);
-
-  // Title block styling: B1:K1
-  var titleCell = dashboard.getRange('B1:K1');
-  titleCell.setBackground('#0B1220')
-           .setFontColor('#FFFFFF')
-           .setFontWeight('bold')
-           .setFontSize(14)
-           .setHorizontalAlignment('center')
-           .setVerticalAlignment('middle');
-
-  // Subtitle/Period block styling: B2:K3
-  var subBar = dashboard.getRange('B2:K3');
-  subBar.setBackground('#172033')
-        .setFontColor('#F9FAFB')
-        .setVerticalAlignment('middle');
-
-  // Headers styling
-  var headerRanges = ['B4:E4', 'G4:J4', 'B17:C17', 'G17:J17'];
-  headerRanges.forEach(function(a1) {
-    dashboard.getRange(a1).setBackground('#1F2937')
-                          .setFontColor('#FFFFFF')
-                          .setFontWeight('bold')
-                          .setHorizontalAlignment('center')
-                          .setVerticalAlignment('middle');
-  });
-
-  // Content cards backgrounds
-  dashboard.getRange('B5:E15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
-  dashboard.getRange('G5:J15').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
-  dashboard.getRange('B18:C30').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
-  dashboard.getRange('B31:C31').setBackground('#1F2937').setFontColor('#FFFFFF').setFontWeight('bold').setVerticalAlignment('middle');
-  dashboard.getRange('G18:J20').setBackground('#182235').setFontColor('#F9FAFB').setVerticalAlignment('middle');
 
   // Alignments
   // Left-aligned names:
@@ -35720,10 +35762,22 @@ function runDashboardLiteVisualSanityCheckFromEditor() {
   };
 }
 
+function airoDashboardLiteCleansing_(sheet) {
+  // Clear wallet LEVEL / STATUS columns next to wallets
+  sheet.getRange('D17:E31').clearContent().clearFormat();
+  
+  // Clear all legacy/noisy blocks below G21
+  sheet.getRange('G21:K45').clearContent().clearFormat();
+  
+  // Clear outer helper/metadata columns
+  sheet.getRange('L1:AA45').clearContent().clearFormat();
+}
+
 function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   var ss = airoTask101GetSs_();
-  var dashboard = airoTask102GetActiveDashboard_(ss);
-  if (!dashboard) return { ok: false, error: 'Dashboard missing' };
+  // Duplicate "🏠 Dashboard v2" template instead of "🏠 Dashboard"
+  var template = airoTask102GetV2Template_(ss);
+  if (!template) return { ok: false, error: 'Dashboard V2 template missing' };
 
   var candidateName = '🧪 Dashboard Lite Candidate';
   var existing = ss.getSheetByName(candidateName);
@@ -35731,13 +35785,16 @@ function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
     ss.deleteSheet(existing);
   }
 
-  var candidate = dashboard.copyTo(ss);
+  var candidate = template.copyTo(ss);
   candidate.setName(candidateName);
+
+  // Perform initial cleansing on the copied template layout
+  airoDashboardLiteCleansing_(candidate);
 
   return {
     ok: true,
     task: 'AIRO_DASHBOARD_LITE_CREATE_CANDIDATE_TAB',
-    source_dashboard_name: dashboard.getName(),
+    source_dashboard_name: template.getName(),
     candidate_tab_name: candidateName,
     candidate_created: true,
     active_dashboard_mutated: false,
@@ -35745,13 +35802,27 @@ function runDashboardLiteCreateCandidateTabFromActiveDashboard() {
   };
 }
 
-function runDashboardLiteCandidateJuni2026RefreshReadbackFromEditor() {
+function runDashboardLiteV2TemplateCandidateJuni2026RefreshReadbackFromEditor() {
   var ss = airoTask101GetSs_();
-  var candidateName = '🧪 Dashboard Lite Candidate';
-  var candidate = ss.getSheetByName(candidateName);
-  if (!candidate) {
-    return { ok: false, error: 'candidate_missing' };
+  
+  // Find V2 template sheet: "🏠 Dashboard v2"
+  var template = airoTask102GetV2Template_(ss);
+  if (!template) {
+    return { ok: false, error: 'template_missing' };
   }
+
+  // Create or recreate candidate tab: "🧪 Dashboard Lite Candidate"
+  var candidateName = '🧪 Dashboard Lite Candidate';
+  var existing = ss.getSheetByName(candidateName);
+  if (existing) {
+    ss.deleteSheet(existing);
+  }
+
+  var candidate = template.copyTo(ss);
+  candidate.setName(candidateName);
+
+  // Perform initial cleansing on the copied template layout
+  airoDashboardLiteCleansing_(candidate);
 
   // Set candidate filter cells G2='Juni', I2='2026'
   candidate.getRange('G2').setValue('Juni');
@@ -35769,12 +35840,12 @@ function runDashboardLiteCandidateJuni2026RefreshReadbackFromEditor() {
     return { ok: false, error: 'render_failed', details: renderResult };
   }
 
-  // Set metadata cells on candidate sheet
+  // Write metadata cells on candidate sheet
   candidate.getRange('Z2').setValue(new Date());
   candidate.getRange('Z3').setValue('DASHBOARD_LITE_REFRESH_PASS');
   candidate.getRange('Z4').setValue(new Date());
   
-  // Set synced topbar on candidate sheet (B2:E2 is merged)
+  // Write topbar sync details on candidate sheet (B2:E2 is merged)
   candidate.getRange('B2').setValue('● Synced: ' + new Date() + ' | Period: Juni 2026 | Source: Account Ledger');
   SpreadsheetApp.flush();
 
@@ -35784,14 +35855,19 @@ function runDashboardLiteCandidateJuni2026RefreshReadbackFromEditor() {
   var walletRows = candidate.getRange('B18:C31').getDisplayValues();
   var domainRows = candidate.getRange('G18:J20').getDisplayValues();
 
-  // Read back background colors to verify visual sanity sample cells
+  // Read back backgrounds to check visual sanity sample cells
   var b1_bg = candidate.getRange('B1').getBackground();
   var b5_bg = candidate.getRange('B5').getBackground();
   var b31_bg = candidate.getRange('B31').getBackground();
 
+  // Validate that legacy sections are empty/cleared
+  var d18_val = candidate.getRange('D18').getDisplayValue();
+  var g22_val = candidate.getRange('G22').getDisplayValue();
+
   return {
     ok: true,
-    task: 'AIRO_DASHBOARD_LITE_CANDIDATE_JUNI_2026_REFRESH_READBACK',
+    task: 'AIRO_DASHBOARD_LITE_CANDIDATE_V2_TEMPLATE_REFRESH_READBACK',
+    template_tab_name: template.getName(),
     candidate_tab_name: candidateName,
     rendered_candidate: true,
     active_dashboard_mutated: false,
@@ -35800,10 +35876,11 @@ function runDashboardLiteCandidateJuni2026RefreshReadbackFromEditor() {
     g2: candidate.getRange('G2').getDisplayValue(),
     i2: candidate.getRange('I2').getDisplayValue(),
     z3: candidate.getRange('Z3').getDisplayValue(),
-    category_rows: categoryRows,
-    subcategory_rows: subcategoryRows,
-    wallet_rows: walletRows,
-    domain_rows: domainRows,
+    category_rows_status: categoryRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
+    subcategory_rows_status: subcategoryRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
+    wallet_rows_status: walletRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
+    domain_summary_status: domainRows.length > 0 ? 'NON_EMPTY' : 'EMPTY',
+    excluded_legacy_sections_status: (d18_val === '' && g22_val === '') ? 'CLEARED' : 'UNCLEARED',
     backgrounds: {
       b1_title: b1_bg,
       b5_content: b5_bg,
