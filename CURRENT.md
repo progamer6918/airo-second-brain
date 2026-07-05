@@ -1,11 +1,13 @@
 ## AIRO Finance Dashboard Lite Re-scope - 2026-07-05
 
 - **Status:** OWNER_REVIEW_BLOCKED
-- **Owner direction:** Dashboard Lite is not visually acceptable. Visual layout needs a complete redesign to match V2 visual standards and eliminate legacy/noisy sections (LEVEL/STATUS columns, DATA QUALITY, SECONDARY, generic DOMAIN/METRIC table, cramped text).
+- **Owner direction:** Dashboard Lite is not visually acceptable. It must copy/adopt the visual structure of Dashboard V2 first, then fit the simplified Dashboard Lite content (topbar, categories, subcategories, active wallets, CC, gold, housing progress) while removing legacy/noisy blocks.
 - **Redesign workflow policy:** Any dashboard visual changes must be done on a duplicate candidate tab first, and can only be promoted to the active `🏠 Dashboard` after explicit Owner review and approval.
 - **Recovery Plan:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/plans/airo-finance-dashboard-lite-recovery-candidate-plan-20260705.md`.
 - **Candidate Renderer Plan:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/plans/airo-finance-dashboard-lite-candidate-renderer-plan-20260705.md`.
+- **V2 Template Blocker Doc:** Locked at `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-finance-dashboard-lite-candidate-review-blocked-v2-template-required-20260705.md`.
 - Active workbook tab naming remains `Dashboard`.
+- Next safe gate: `v2_template_mapping_audit_only`.
 - Dashboard Lite canonical data contract: `ecosystem/projects/vortex-ai-skill-lab/docs/design/airo-finance-dashboard-lite-data-contract-20260704.md`.
 - Scheduler remains OFF / parked unless the Owner explicitly approves Gate 12 scheduler work.
 - Next safe action: read-only mapping audit for Dashboard Lite sources, ranges, and renderer location.

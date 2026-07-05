@@ -789,3 +789,9 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - policy: redesign/layout updates must be done on a candidate/staging tab first, and promoted only after explicit Owner review and approval.
 - next: Create a planning document for Dashboard Lite Candidate Tab implementation.
 
+## 2026-07-05 — AIRO Finance Dashboard Lite Candidate Review Blocked (V2 Template Required)
+- status: OWNER_CANDIDATE_REVIEW_BLOCKED.
+- findings: Candidate rejected because it still includes legacy/noisy blocks (LEVEL/STATUS, DATA QUALITY, SECONDARY, generic DOMAIN/METRIC table, cramped text).
+- requirement: Dashboard Lite must copy/adopt the visual structure of Dashboard V2 first, then fit simplified Lite content within it.
+- next: Perform a mapping audit for the V2 template structure.
+
