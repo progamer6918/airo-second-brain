@@ -805,3 +805,8 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - findings: Map analysis shows category spending is at B24:E31, subcategory is at G24:J31, wallets are at B16:C21, CC/emas/cicilan are in G17:J20 domain cards. Unwanted columns and panels mapped for clearing.
 - next: Patch template candidate renderer to write exact Lite placements and colors.
 
+## 2026-07-06 — AIRO Finance Arfin Telegram Regression Forensic Parity Completed
+- status: Forensic audit completed PASS.
+- findings: Verified local and remote @HEAD script, deployments inventory (version 334), Cloudflare Worker secrets, and webhook info. No code changes to Arfin core were introduced since acceptance. Stuck pending state (`missing_category`) identified as the primary suspect for the regression and hang.
+- log: `/tmp/airo_arfin_runtime_regression_forensic_parity_20260706_180827.txt`
+- next: Await owner instructions on resetting pending properties or modifying the timeout/reset logic.
