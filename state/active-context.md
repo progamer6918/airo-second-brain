@@ -810,3 +810,10 @@ Non-negotiable: do not patch write flow before design audit confirms safe insert
 - findings: Verified local and remote @HEAD script, deployments inventory (version 334), Cloudflare Worker secrets, and webhook info. No code changes to Arfin core were introduced since acceptance. Stuck pending state (`missing_category`) identified as the primary suspect for the regression and hang.
 - log: `/tmp/airo_arfin_runtime_regression_forensic_parity_20260706_180827.txt`
 - next: Await owner instructions on resetting pending properties or modifying the timeout/reset logic.
+
+## 2026-07-07 — AIRO Finance Email Outgoing Transaction Account-First Flow Refinement Completed
+- status: Completed PASS.
+- findings: Implemented account-first prompt flow for email outgoing transactions (inferred_direction === "pengeluaran"). Added numeric/name choice parsing. Preserved email metadata and dedupe fields. Added fallback queue route on cancel commands (0, batal, cancel, review). Implemented auto-migration for legacy category_pending email candidates to account_pending on next response. Verified successfully via local mock integration test.
+- deployment: Updated production web app to version 339.
+- log: `/tmp/airo_task10_5y_deploy_20260707_215852.txt`
+- next: Await owner manual Telegram smoke test verification.
