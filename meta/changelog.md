@@ -390,3 +390,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Corrected subcategory confirmation prompt to display transaction account and funding source separately when they differ (printing "Akun transaksi: Cash Umum" and "Sumber dana: Blu Pocket").
 - Verified all changes using Node.js synthetic test suite; 17/17 test cases passed.
 - Created validation record under `ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-5s-funded-outgoing-ledger-write-fix-20260704.md`.
+
+## 2026-07-07 — AIRO Finance Task 10.5y Email Outgoing Transaction Account-First Flow Refinement
+
+- Implemented account-first prompt flow for email outgoing transactions (inferred_direction === "pengeluaran").
+- Added support for numeric index options and account name options.
+- Added validation check and fallback route to Review Queue on cancel commands (0, batal, cancel, review).
+- Implemented automatic migration for legacy category_pending email candidates to the account_pending flow on next response.
+- Verified all changes using mock integration self-tests in Node.js; all cases passed.
+- Updated production deployment to version 339.
