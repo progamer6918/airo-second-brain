@@ -80,6 +80,8 @@ Read in this order:
 6. Relevant project file under `projects/`
 7. Relevant current validation, review, runtime, or pending-job file when referenced by the files above
 
+For AIRO Finance / Arfin work, read `ARFIN.md` immediately after `CURRENT.md` and before touching Apps Script, pending state, Telegram flow, Review Queue, Account Ledger, or approval logic.
+
 > [!NOTE]
 > After reading BOOT.md, use CONTEXT_BRIEF.md for quick orientation, then continue with CURRENT.md, CONTEXT.md, ROADMAP_INDEX.md, PRD_INDEX.md, state/active-context.md, and relevant project evidence.
 

@@ -1,3 +1,9 @@
+## Arfin Canonical Contract — 2026-07-09
+
+- Arfin runtime, Telegram UX, Review Queue, approval, and Account Ledger posting rules are locked in `ARFIN.md`.
+- For AIRO Finance / Arfin work, read `ARFIN.md` before Apps Script, pending-state, Telegram, Review Queue, Account Ledger, or approval changes.
+- This is a docs-only canonical contract update. Runtime patches still require separate evidence.
+
 ## AIRO Finance Dashboard Lite Re-scope - 2026-07-05
 
 - **Status:** OWNER_REVIEW_BLOCKED
