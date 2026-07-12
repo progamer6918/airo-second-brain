@@ -399,3 +399,14 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Implemented automatic migration for legacy category_pending email candidates to the account_pending flow on next response.
 - Verified all changes using mock integration self-tests in Node.js; all cases passed.
 - Updated production deployment to version 339.
+
+## 2026-07-12 — AIRO Finance AFPD Phase 2 — Migration Manifest & Authority Reconciliation
+
+- Created proposed unified AFPD skeleton structure under `docs/afpd/`.
+- Mapped all 69 headings of Final Kitab and 12 headings of ARFIN.md to exactly one target module in `docs/afpd/AFPD_SECTION_DESTINATION_MAP.tsv`.
+- Classified apparent orphan authority files and legacy `Kode.js` compatibility source in `docs/afpd/AFPD_DOCUMENT_CLASSIFICATION.tsv` and `docs/afpd/AFPD_AUTHORITY_MATRIX.md`.
+- Formulated plan to resolve 5 active contradiction gates in `docs/afpd/AFPD_CONTRADICTION_RESOLUTION_PLAN.md`.
+- Backfilled progress and incident logs for version history v371-v375 in `docs/afpd/AFPD_PROGRESS_AND_INCIDENT_BACKFILL_PLAN.md`.
+- Verified and resolved local target references for the 9 `file:///` URLs in `docs/afpd/AFPD_LINK_NORMALIZATION_PLAN.md`.
+- Created Phase 2 progress record under `docs/progress/AIRO_FINANCE_AFPD_PHASE2_MIGRATION_MANIFEST_20260712_095305.md`.
+- No Apps Script, deployment, trigger, workbook, or live runtime mutation executed.

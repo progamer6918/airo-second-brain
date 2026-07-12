@@ -1,0 +1,14 @@
+FILE_PATH	DOCUMENT_CLASS	AUTHORITY_STATUS	NOTES
+ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md	NORMATIVE_ARCHITECTURE_GOVERNANCE	ACTIVE	To be migrated to docs/afpd/
+ARFIN.md	NORMATIVE_RUNTIME_CONTRACT	ACTIVE	To be migrated to docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
+CURRENT.md	HANDOFF	ACTIVE	Continuous session handoff and active context
+ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_PRD_LIVING.md	ROADMAP_LIVING_PRD	ACTIVE	Main PRD roadmap
+state/active-context.md	ACTIVE_CONTEXT	ACTIVE	Session activity context log
+meta/changelog.md	CHANGELOG	ACTIVE	Ecosystem-wide changelog
+ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js	SOURCE_CODE	ACTIVE	Active Apps Script source code
+ecosystem/projects/vortex-ai-skill-lab/apps-script-live/Kode.js	SOURCE_CODE	ACTIVE	Legacy neutralized compatibility source code
+ecosystem/projects/vortex-ai-skill-lab/airo_finance_task9_readonly_preflight_20260620_214904.txt	EVIDENCE	HISTORICAL_SNAPSHOT	EVIDENCE_SNAPSHOT_WITH_EMBEDDED_DOCUMENTS; not independent authority
+ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_CANONICAL_ROADMAP_LOCK.md	ROADMAP_OR_PRD	SUPERSEDED	LEGACY_POINTER_TO_FINAL_KITAB
+ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_SPRINT_7_EMAIL_INGESTION_DECISION_GATE.md	DECISION_OR_ARCHITECTURE	HISTORICAL	HISTORICAL_DECISION_RECORD
+ecosystem/projects/vortex-ai-skill-lab/docs/personal-workflow/handoff/AIRO_FINANCE_V1_2_YOLO_CARRYOVER_2026_05_20.md	HANDOFF	HISTORICAL	HISTORICAL_HANDOFF; terminal output statement is evidence-precedence context
+ecosystem/projects/vortex-ai-skill-lab/docs/personal-workflow/phase-3/AIRO_PHASE_3_ROADMAP.md	ROADMAP_OR_PRD	HISTORICAL	DIFFERENT_PROJECT_SCOPE; not AIRO Finance documentation authority
