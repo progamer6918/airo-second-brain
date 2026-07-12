@@ -448,3 +448,5 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Deduplicated progress and incident log entries.
 - Invalidated synthetic Phase 4.2 rule map.
 - Semantic integration is not complete; Phase 4.7 is next.
+
+- AFPD boot enforcement (20260712_125135): generated the complete AFPD boot bundle and manifest; BOOT.md, AGENTS.md, and CURRENT.md now enforce the AFPD boot guard. AFPD remains proposed and evidence durability remains partial.

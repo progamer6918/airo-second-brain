@@ -513,3 +513,33 @@ For low-limit/efficient execution sessions, load and follow `state/operating-rul
 ## AIRO_CHAT_STABILITY_PROTOCOL_20260704
 
 Before any long AIRO execution, follow `state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`: keep commands compact, paste only summary/tail logs, separate runtime gates, and checkpoint durable state into ASB.
+
+<!-- BEGIN AIRO_FINANCE_AFPD_BOOT_GUARD -->
+## Mandatory AIRO Finance AFPD Boot Guard
+
+For every AIRO Finance or Arfin task:
+
+1. Read AFPD_BOOT_BUNDLE.md completely and in file order.
+2. Do not jump directly to CURRENT.md, progress records, chat history,
+   ARFIN.md, or the current handoff.
+3. The progress log and current handoff deliberately occur last.
+4. Do not provide commands, patches, mutations, or execution steps until
+   the following receipt can truthfully be produced:
+
+AFPD_BOOT_GUARD=PASS
+AFPD_BOOT_BUNDLE_READ=COMPLETE
+AFPD_MODULES_READ=14/14
+AFPD_BOOT_MANIFEST_READ=YES
+LATEST_PROGRESS_READ_LAST=YES
+CURRENT_HANDOFF_READ_LAST=YES
+AFPD_STATUS=PROPOSED_NOT_CANONICAL
+
+When the full bundle was not read:
+
+AFPD_BOOT_GUARD=FAIL
+MUTATION_ALLOWED=NO
+NEXT=COMPLETE_AFPD_BOOT_BUNDLE
+
+This repository-level reading guard does not declare AFPD the canonical
+replacement for Final Kitab or ARFIN.md.
+<!-- END AIRO_FINANCE_AFPD_BOOT_GUARD -->

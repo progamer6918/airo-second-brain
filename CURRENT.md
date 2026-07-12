@@ -534,3 +534,15 @@ When low-limit/efficient execution mode is active, follow the minimal planning a
 Status: ACTIVE operating rule.
 
 When chat instability is reported, stop runtime/deploy/workbook mutation, summarize state compactly, checkpoint to ASB, and resume with smaller gates. Full protocol: `state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`.
+
+<!-- BEGIN AIRO_FINANCE_AFPD_ENTRYPOINT -->
+## AIRO Finance
+
+Mandatory session entrypoint:
+
+AFPD_BOOT_BUNDLE.md
+
+Do not continue AIRO Finance from CURRENT.md. Complete
+AFPD_BOOT_GUARD=PASS first. Latest progress and current handoff must be read
+only in their assigned final positions in the generated bundle.
+<!-- END AIRO_FINANCE_AFPD_ENTRYPOINT -->
