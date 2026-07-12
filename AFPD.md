@@ -1,9 +1,19 @@
 # AIRO Finance Project Documentation (AFPD)
 
 > [!IMPORTANT]
-> STATUS=PROPOSED_NOT_CANONICAL
-> PHASE=CONTENT_MIGRATION
-> CANONICAL_ACTIVATION=PENDING_OWNER_APPROVAL
+STATUS=PROPOSED_NOT_CANONICAL
+PHASE=CONTENT_MIGRATION
+CANONICAL_ACTIVATION=PENDING_OWNER_APPROVAL
+
+## Phase 4.2 Status Note
+- **NORMATIVE_REMEDIATION**: PASS
+- **EVIDENCE_DURABILITY**: PARTIAL
+- **NEXT_GATE**: INDEPENDENT_REAUDIT
+
+## Phase 4.2 Status Note
+- **NORMATIVE_REMEDIATION**: PASS
+- **EVIDENCE_DURABILITY**: PARTIAL
+- **NEXT_GATE**: INDEPENDENT_REAUDIT
 >
 > WARNING: Old project documentation files (including Final Kitab, ARFIN.md, Living PRD, and CURRENT.md) remain authoritative until activation is approved by the Owner. This document acts only as a proposed navigation entrypoint.
 

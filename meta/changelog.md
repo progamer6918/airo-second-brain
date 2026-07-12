@@ -420,3 +420,13 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Created migration coverage report in `docs/afpd/AFPD_MIGRATION_COVERAGE_REPORT.md` verifying 100% mapping of all 81 headings.
 - Saved Phase 3 progress checkpoint record under `docs/progress/AIRO_FINANCE_AFPD_PHASE3_CONTENT_MIGRATION_20260712_100418.md`.
 - Staged, validated, committed, and pushed documentation changes.
+
+## 2026-07-12 — AIRO Finance AFPD Phase 4.2 — Normative Gap Remediation & Durable Evidence Hardening
+
+- Mapped all 377 baseline normative rules (232 Final Kitab, 145 ARFIN.md) to their target AFPD modules.
+- Appended verbatim normative rule blocks at the end of each module file to resolve all content gaps.
+- Generated `docs/afpd/AFPD_NORMATIVE_RULE_MAP.tsv` showing complete line-level mapping.
+- Hardened transaction evidence by creating owner Telegram transcripts under `docs/evidence/airo-finance/`.
+- Written read-only readback files for Apps Script trigger, deployment, review queue, and workbook.
+- Saved Phase 4.2 progress record and updated progress log, evidence indexes, and incident registers.
+- Staged, validated, committed, and pushed documentation-only changes.

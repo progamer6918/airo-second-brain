@@ -201,3 +201,61 @@ conflict_id: none
 The Review Queue sheet columns AE through AH MUST distinguish between:
 1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
 2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
+
+## Normative Rules
+The following rules from legacy source documents are traceably migrated and preserved here:
+
+- **NKTB_001** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L3): This Kitab is the 100% canonical AIRO Finance roadmap and project guidance source.
+- **NKTB_002** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L5): Technical implementation docs, V1.2 docs, phase docs, dashboard docs, write-preview docs, and PASS reports are evidence only. They do not define the current sprint.
+- **NKTB_003** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L7): If any project document conflicts with this Kitab, this Kitab wins.
+- **NKTB_008** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L21): AIRO Personal Finance is not a generic spreadsheet tracker. The target is:
+- **NKTB_011** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L25): + wallet/account ledger discipline
+- **NKTB_017** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L31): + premium dashboard command center
+- **NKTB_067** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L105): no automatic ledger write until parser is proven
+- **NKTB_073** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L115):  separate bank mutation dashboard
+- **NKTB_078** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L169):  Dashboard Data Status = Warning
+- **NKTB_081** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L190): Critical missing fields must not enter clean ledger/dashboard metrics.
+- **NKTB_082** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L196): Email ambiguity must not go directly to Review Queue if Telegram clarification can resolve it.
+- **NKTB_084** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L209):  Audit + Reconciliation
+- **NKTB_094** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L298): OTP/security content must not enter Review Queue.
+- **NKTB_098** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L348): Function: wallet/account movement ledger only.
+- **NKTB_101** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L411): Examples that do not directly enter Account Ledger:
+- **NKTB_103** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L496): price update  Aset update only, not Account Ledger
+- **NKTB_104** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L523): net worth must use home_value_mode to avoid double count
+- **NKTB_105** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L543): what is the reconciliation status?
+- **NKTB_107** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L616): Archived events must not enter active dashboard metrics.
+- **NKTB_110** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L624): 2. Write Account Ledger if wallet movement exists
+- **NKTB_111** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L625): 3. Write Domain Tab if domain detail exists
+- **NKTB_114** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L628): 6. Run light reconciliation
+- **NKTB_115** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L629): 7. Set reconciliation_status = clean/warning/dirty
+- **NKTB_116** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L638): Use Review Queue only when:
+- **NKTB_118** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L683): Review Queue approval
+- **NKTB_119** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L685): reconciliation fix
+- **NKTB_120** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L690): Manual Google Sheet edit audit can be added later. V1 only needs script/admin-level audit.
+- **NKTB_127** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L807): reconciliation_status = clean | warning | dirty
+- **NKTB_128** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L817): Dashboard topbar must show:
+- **NKTB_129** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L828): no critical reconciliation issue
+- **NKTB_132** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L860): Dashboard must not look clean when Data Status is Warning or Dirty.
+- **NKTB_135** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L875): Net Worth =
+- **NKTB_136** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L888): Net Worth =
+- **NKTB_138** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L921): Dashboard must answer:
+- **NKTB_151** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1063): Cash Umum and Cash Bensin must be read from Account Ledger.
+- **NKTB_155** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1117): Reconciliation
+- **NKTB_158** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1132): reconciliation status
+- **NKTB_168** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1194): Data status  Reconciliation + Data Quality rules
+- **NKTB_172** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1228): critical reconciliation issue
+- **NKTB_173** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1251): Info  dashboard only
+- **NARF_028** (ARFIN.md:L53): 5. save resolved item to Review Queue;
+- **NARF_029** (ARFIN.md:L54): 6. write Account Ledger only after approval.
+- **NARF_036** (ARFIN.md:L64): Incoming email transactions should ask income source/category and then go to Review Queue before ledger write.
+- **NARF_037** (ARFIN.md:L66): Transfer email transactions must ask source account and destination account, or fall back to Review Queue as `Transfer / Review` without direct ledger write.
+- **NARF_078** (ARFIN.md:L136): No Account Ledger write is allowed before approval.
+- **NARF_079** (ARFIN.md:L138): Review Queue item must preserve:
+- **NARF_090** (ARFIN.md:L153): `/approval` is the only normal path from Review Queue to Account Ledger.
+- **NARF_091** (ARFIN.md:L155): Approval must write ledger rows according to the stored posting plan.
+- **NARF_111** (ARFIN.md:L186): If funding account differs from execution account, Telegram and Review Queue must clearly explain the planned bridge transfer before approval.
+- **NARF_112** (ARFIN.md:L190): Account Ledger must reflect real balance movement.
+- **NARF_132** (ARFIN.md:L219): * Review Queue before ledger;
+- **NARF_133** (ARFIN.md:L220): * approval ledger posting plan;
+- **NARF_136** (ARFIN.md:L223): * no ledger write before approval.
+- **NARF_139** (ARFIN.md:L230): * write finance rows before Review Queue approval;

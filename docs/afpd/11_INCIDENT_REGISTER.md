@@ -89,3 +89,29 @@
 - **related_versions**: Phase 3
 - **related_evidence**: appsscript.json manifest
 - **remaining_risk**: Date conversion offsets in logs.
+
+### Incident 8 — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
+- **impact**: Canonical activation could have occurred with missing rules.
+- **root_cause**: Audit implementation used selected or hardcoded rules instead of the full dynamic baseline.
+- **repair**: Independent extraction and full normative remediation mapping 377 rules.
+- **verification**: Phase 4.2 post-remediation audit.
+- **status**: OPEN until Phase 4.3 PASS
+- **related_versions**: Phase 4/4.1/4.2
+- **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
+- **remaining_risk**: Gaps in newly appended sections.
+
+### Incident 8 — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
+- **impact**: Canonical activation could have occurred with missing rules.
+- **root_cause**: Audit implementation used selected or hardcoded rules instead of the full dynamic baseline.
+- **repair**: Independent extraction and full normative remediation mapping 377 rules.
+- **verification**: Phase 4.2 post-remediation audit.
+- **status**: OPEN until Phase 4.3 PASS
+- **related_versions**: Phase 4/4.1/4.2
+- **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
+- **remaining_risk**: Gaps in newly appended sections.

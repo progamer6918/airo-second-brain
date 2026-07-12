@@ -7,3 +7,8 @@
 - **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
 
 *Note: No deployment operations were executed in this documentation-only phase.*
+
+## Normative Rules
+The following rules from legacy source documents are traceably migrated and preserved here:
+
+- **NARF_145** (ARFIN.md:L236): * claim PASS without source, deployment, runtime, or readback evidence.

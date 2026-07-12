@@ -1,0 +1,3 @@
+# AFPD Production Deployment Readback
+
+READBACK_STATUS=INSUFFICIENT_EVIDENCE

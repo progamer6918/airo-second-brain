@@ -92,3 +92,39 @@
 - **AFPD Phase 1.5**: Exact blocker extraction and files analysis (COMPLETE).
 - **AFPD Phase 2**: Migration manifest and authority matrix documentation (COMPLETE).
 - **AFPD Phase 3**: Skeleton creation and traceable content migration (COMPLETE).
+
+### AFPD Phase 4
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+### AFPD Phase 4.1
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+### AFPD Phase 4.2
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+### AFPD Phase 4
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+### AFPD Phase 4.1
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+### AFPD Phase 4.2
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
