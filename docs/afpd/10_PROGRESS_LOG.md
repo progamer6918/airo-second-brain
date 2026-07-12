@@ -1,0 +1,94 @@
+# 10_PROGRESS_LOG.md
+
+## Version History Logs
+
+### Version v371 — Admin Preemption Behavior
+- **Timestamp**: 2026-07-10 12:49:50 UTC
+- **Problem**: Admin commands were swallowed by pending clarification handlers.
+- **Root Cause**: Reply checks ran before command preemption evaluations.
+- **Decision**: Inject command checks at top of text processors.
+- **Source SHA Before**: `2090aec170cfc0279996dee6e158a5b56f005aeb38fa436a4112e88e9d8a2e7f`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 366
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `tryHandlePendingClarificationReply_`
+- **Tests**: `airoArfinRuntimeAlignV1SelfTest_()`
+- **Live Proof**: Command `admin cek pending` succeeds during active prompt.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Added regex command bypass.
+- **Remaining Risk**: Command name updates.
+- **Next Step**: Document bypass checks.
+
+### Version v372 — Poller Window & Email Prompt Ownership
+- **Timestamp**: 2026-07-10 13:00:15 UTC
+- **Problem**: Duplicate email ingestion logs.
+- **Root Cause**: Greedy queries without caching processed threads.
+- **Decision**: Cache processed thread IDs in script properties.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 367
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `pollGmailNotifications_`
+- **Tests**: Dry-run Gmail checks.
+- **Live Proof**: Process times <500ms.
+- **Workbook Proof**: Ingestion log rows added correctly.
+- **Mutation Summary**: Property-based thread tracker.
+- **Remaining Risk**: Property size limits.
+- **Next Step**: Add thread key pruning.
+
+### Version v373 — Pending Ownership & Pointer Arbitration
+- **Timestamp**: 2026-07-10 13:10:17 UTC
+- **Problem**: Concurrent chats overwriting pending states.
+- **Root Cause**: Global property key instead of namespaced chat key.
+- **Decision**: Prefix chat-level states with chat IDs.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 368
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `savePendingClarification_`
+- **Tests**: Parallel simulator.
+- **Live Proof**: Verified independent chat flows.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Namespaced properties keys.
+- **Remaining Risk**: Cache cleanup delays.
+- **Next Step**: Add automatic sweeps.
+
+### Version v374 — Account Parser Repair & Exact Name Precedence
+- **Timestamp**: 2026-07-10 13:18:21 UTC
+- **Problem**: Custom names matching sub-strings of other accounts.
+- **Root Cause**: Index prefix matches ran before exact registry matches.
+- **Decision**: Validate exact matches first before calling substring checks.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 369
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `parseAccount_`
+- **Tests**: Exact name match cases.
+- **Live Proof**: Typed `Blu Pocket` resolves exactly to `Blu Pocket`, not substring `Blu`.
+- **Workbook Proof**: Staging records write correct exact name strings.
+- **Mutation Summary**: Exact-name comparison precedence check added.
+- **Remaining Risk**: Registry spelling errors.
+- **Next Step**: Standardize spelling errors warnings.
+
+### Version v375 — Category Expense Route, Matcher, Validator & Reask
+- **Timestamp**: 2026-07-10 13:22:09 UTC
+- **Problem**: Invalid category inputs resolving to Lainnya.
+- **Root Cause**: Parser accepted invalid category names without validation.
+- **Decision**: Implement category registry validation loop re-asking up to 3 times.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Apps Script Version**: 370
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `canAskMissingCategoryClarification_`
+- **Tests**: Selftest category validation.
+- **Live Proof**: Invalid category replies trigger re-prompt options list.
+- **Workbook Proof**: Failed categories block ledger writes.
+- **Mutation Summary**: Added category re-ask checker.
+- **Remaining Risk**: Prompt noise.
+- **Next Step**: Improve autocomplete matching.
+
+### AFPD Migration Phase Logs
+- **AFPD Phase 1**: Initial readiness audit and inventory creation (COMPLETE).
+- **AFPD Phase 1.5**: Exact blocker extraction and files analysis (COMPLETE).
+- **AFPD Phase 2**: Migration manifest and authority matrix documentation (COMPLETE).
+- **AFPD Phase 3**: Skeleton creation and traceable content migration (COMPLETE).
