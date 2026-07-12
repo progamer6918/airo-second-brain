@@ -34,7 +34,6 @@
 - `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
-### Phase 4.2 Hardened Evidence
 - `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
 - `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`

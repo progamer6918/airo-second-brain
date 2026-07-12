@@ -103,7 +103,6 @@
 - **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
 - **remaining_risk**: Gaps in newly appended sections.
 
-### Incident 8 — Undercounted Phase 4 Normative Extractor
 - **incident_id**: AFPD-INC-008
 - **detected_at**: 2026-07-12 10:12 WIB
 - **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
@@ -115,3 +114,8 @@
 - **related_versions**: Phase 4/4.1/4.2
 - **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
 - **remaining_risk**: Gaps in newly appended sections.
+
+### Incident 8 Update — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)

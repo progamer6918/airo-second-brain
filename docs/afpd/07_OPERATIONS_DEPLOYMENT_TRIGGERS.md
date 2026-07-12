@@ -8,7 +8,23 @@
 
 *Note: No deployment operations were executed in this documentation-only phase.*
 
-## Normative Rules
-The following rules from legacy source documents are traceably migrated and preserved here:
+### Integrated Operating Invariants
 
-- **NARF_145** (ARFIN.md:L236): * claim PASS without source, deployment, runtime, or readback evidence.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_073
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1106
+integration: EXACT
+-->
+- **NKTB_073**: They must enter Pending Category / Uncategorized and trigger Warning.
+
+### Integrated Operating Invariants
+
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_073
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1106
+integration: EXACT
+-->
+- **NKTB_073**: They must enter Pending Category / Uncategorized and trigger Warning.
+

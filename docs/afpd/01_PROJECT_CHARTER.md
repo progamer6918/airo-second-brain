@@ -34,16 +34,65 @@ The purpose of the AIRO Finance Project is to establish a secure, multi-tab tran
 - **Input Channels**: Telegram bot and Gmail poller.
 - **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
 
-## Normative Rules
-The following rules from legacy source documents are traceably migrated and preserved here:
+### Integrated Operating Invariants
 
-- **NKTB_032** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L53): 1. Preserve existing architecture unless a breaking change is explicitly approved.
-- **NKTB_033** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L54): 2. Clarification-first is mandatory for Telegram and future Email input.
-- **NKTB_034** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L55): 3. Missing category is ambiguity, not clean data.
-- **NKTB_035** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L56): 4. Missing critical fields must block clean write.
-- **NKTB_036** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L57): 5. OTP/security email must be hard-blocked before finance parsing.
-- **NKTB_037** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L58): 6. Data quality must affect dashboard trust status.
-- **NKTB_038** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L59): 7. Account Ledger records wallet movement only.
-- **NKTB_039** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L60): 8. Domain tabs keep domain-specific truth.
-- **NKTB_040** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L61): 9. Finance Events indexes cross-domain events.
-- **NKTB_041** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L62): 10. Dashboard must be actionable, data-trust aware, and visually disciplined.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_006
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 56
+integration: EXACT
+-->
+- **NKTB_006**: 4. Missing critical fields must block clean write.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_007
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 57
+integration: EXACT
+-->
+- **NKTB_007**: 5. OTP/security email must be hard-blocked before finance parsing.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_008
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 58
+integration: EXACT
+-->
+- **NKTB_008**: 6. Data quality must affect dashboard trust status.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_010
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 62
+integration: EXACT
+-->
+- **NKTB_010**: 10. Dashboard must be actionable, data-trust aware, and visually disciplined.
+
+### Integrated Operating Invariants
+
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_006
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 56
+integration: EXACT
+-->
+- **NKTB_006**: 4. Missing critical fields must block clean write.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_007
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 57
+integration: EXACT
+-->
+- **NKTB_007**: 5. OTP/security email must be hard-blocked before finance parsing.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_008
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 58
+integration: EXACT
+-->
+- **NKTB_008**: 6. Data quality must affect dashboard trust status.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_010
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 62
+integration: EXACT
+-->
+- **NKTB_010**: 10. Dashboard must be actionable, data-trust aware, and visually disciplined.
+

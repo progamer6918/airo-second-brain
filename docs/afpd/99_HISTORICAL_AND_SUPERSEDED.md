@@ -17,39 +17,230 @@
 ### Fallback-Only Review Queue Interpretation
 - The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
 
-## Normative Rules
-The following rules from legacy source documents are traceably migrated and preserved here:
+### Legacy Normative Rules
 
-- **NKTB_004** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L9): Current sprint must not advance beyond Sprint 0A until Sprint 0A Definition of Done is fully audited against this Kitab and committed as PASS.
-- **NKTB_026** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L42): Cash Ledger = transitional; delete after dependency removal
-- **NKTB_150** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1062): After Sprint 3, Wallet Board must not read Cash Ledger.
-- **NKTB_162** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1162): Only show after Sprint 7 is active.
-- **NKTB_164** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1175): Do not show empty placeholder panel in Sprint 6.
-- **NKTB_174** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1269): No large historical migration required.
-- **NKTB_175** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1280): New data after cutover must be clean in Account Ledger/Finance Events.
-- **NKTB_176** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1281): Old data does not require full backfill.
-- **NKTB_177** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1282): Cash Ledger only needs archive/export before deletion.
-- **NKTB_179** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1324): Focus: execute current pending ambiguity work.
-- **NKTB_180** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1350): Review Queue only after failure/timeout.
-- **NKTB_181** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1358): Focus: research/design only, parallel and non-blocking.
-- **NKTB_182** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1365): OTP/security hard-block policy
-- **NKTB_183** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1375): OTP/security hard-block policy is clear.
-- **NKTB_184** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1404): Internal transfer always has two sides.
-- **NKTB_185** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1450): No historical migration required.
-- **NKTB_186** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1498): light reconciliation after write
-- **NKTB_187** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1499): full reconciliation admin command/scheduled
-- **NKTB_188** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1509): Reconciliation outputs clean/warning/dirty.
-- **NKTB_189** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1511): Action Required appears for partial_failed.
-- **NKTB_190** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1524): Action Required
-- **NKTB_191** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1547): Action Required contains real to-dos.
-- **NKTB_192** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1563): Telegram alert for pending clarification timeout
-- **NKTB_193** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1576): Dashboard Action Required and Telegram alert are consistent.
-- **NKTB_194** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1588): read-only dry-run
-- **NKTB_195** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1591): negative keyword hard-block
-- **NKTB_196** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1592): metadata-only parsing
-- **NKTB_197** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1605): High-confidence routing only after parser is proven.
-- **NKTB_198** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1606): Email Ingestion Status appears only when enabled.
-- **NKTB_204** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1619): 6. Cash Ledger is deleted after dependency removal.
-- **NKTB_205** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1620): 7. No large historical migration for Cash Ledger.
-- **NKTB_228** (ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md:L1696): 5. Identifikasi next action paling tepat berdasarkan Sprint 0A.
-- **NARF_014** (ARFIN.md:L30): Legacy letter answers for subcategory may be accepted for backward compatibility, but prompts should not display A/B/C/D/E for category or subcategory.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_002
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 9
+integration: EXACT
+-->
+- **NKTB_002**: Current sprint must not advance beyond Sprint 0A until Sprint 0A Definition of Done is fully audited against this Kitab and committed as PASS.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_069
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1062
+integration: EXACT
+-->
+- **NKTB_069**: After Sprint 3, Wallet Board must not read Cash Ledger.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_079
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1162
+integration: EXACT
+-->
+- **NKTB_079**: Only show after Sprint 7 is active.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_081
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1175
+integration: EXACT
+-->
+- **NKTB_081**: Do not show empty placeholder panel in Sprint 6.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_091
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1269
+integration: EXACT
+-->
+- **NKTB_091**: No large historical migration required.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_092
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1280
+integration: EXACT
+-->
+- **NKTB_092**: New data after cutover must be clean in Account Ledger/Finance Events.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_093
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1281
+integration: EXACT
+-->
+- **NKTB_093**: Old data does not require full backfill.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_094
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1282
+integration: EXACT
+-->
+- **NKTB_094**: Cash Ledger only needs archive/export before deletion.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_096
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1324
+integration: EXACT
+-->
+- **NKTB_096**: Focus: execute current pending ambiguity work.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_097
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1350
+integration: EXACT
+-->
+- **NKTB_097**: Review Queue only after failure/timeout.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_098
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1358
+integration: EXACT
+-->
+- **NKTB_098**: Focus: research/design only, parallel and non-blocking.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_099
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1365
+integration: EXACT
+-->
+- **NKTB_099**: OTP/security hard-block policy
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_100
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1375
+integration: EXACT
+-->
+- **NKTB_100**: OTP/security hard-block policy is clear.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_101
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1404
+integration: EXACT
+-->
+- **NKTB_101**: Internal transfer always has two sides.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_102
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1450
+integration: EXACT
+-->
+- **NKTB_102**: No historical migration required.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_103
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1498
+integration: EXACT
+-->
+- **NKTB_103**: light reconciliation after write
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_104
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1499
+integration: EXACT
+-->
+- **NKTB_104**: full reconciliation admin command/scheduled
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_105
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1509
+integration: EXACT
+-->
+- **NKTB_105**: Reconciliation outputs clean/warning/dirty.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_106
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1511
+integration: EXACT
+-->
+- **NKTB_106**: Action Required appears for partial_failed.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_107
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1524
+integration: EXACT
+-->
+- **NKTB_107**: Action Required
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_108
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1547
+integration: EXACT
+-->
+- **NKTB_108**: Action Required contains real to-dos.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_109
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1563
+integration: EXACT
+-->
+- **NKTB_109**: Telegram alert for pending clarification timeout
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_110
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1576
+integration: EXACT
+-->
+- **NKTB_110**: Dashboard Action Required and Telegram alert are consistent.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_111
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1588
+integration: EXACT
+-->
+- **NKTB_111**: read-only dry-run
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_112
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1591
+integration: EXACT
+-->
+- **NKTB_112**: negative keyword hard-block
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_113
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1592
+integration: EXACT
+-->
+- **NKTB_113**: metadata-only parsing
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_114
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1605
+integration: EXACT
+-->
+- **NKTB_114**: High-confidence routing only after parser is proven.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_115
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1606
+integration: EXACT
+-->
+- **NKTB_115**: Email Ingestion Status appears only when enabled.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_138
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 42
+integration: EXACT
+-->
+- **NKTB_138**: Cash Ledger = transitional; delete after dependency removal
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_171
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1619
+integration: EXACT
+-->
+- **NKTB_171**: 6. Cash Ledger is deleted after dependency removal.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_172
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1620
+integration: EXACT
+-->
+- **NKTB_172**: 7. No large historical migration for Cash Ledger.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_183
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1696
+integration: EXACT
+-->
+- **NKTB_183**: 5. Identifikasi next action paling tepat berdasarkan Sprint 0A.
+
