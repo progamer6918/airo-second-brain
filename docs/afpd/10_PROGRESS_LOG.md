@@ -131,3 +131,9 @@
 - **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
 - **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
 - **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+### AFPD Phase 4.4
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.

@@ -28,3 +28,13 @@ integration: EXACT
 -->
 - **NKTB_073**: They must enter Pending Category / Uncategorized and trigger Warning.
 
+### Integrated Operating Invariants
+
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_073
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 1106
+integration: EXACT
+-->
+- **NKTB_073**: They must enter Pending Category / Uncategorized and trigger Warning.
+

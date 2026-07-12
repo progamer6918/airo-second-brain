@@ -119,3 +119,8 @@
 - **incident_id**: AFPD-INC-008
 - **detected_at**: 2026-07-12 10:12 WIB
 - **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)
+
+### Incident 8 Update — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)

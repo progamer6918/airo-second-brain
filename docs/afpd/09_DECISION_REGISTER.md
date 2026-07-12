@@ -13,3 +13,9 @@
 - **timestamp**: 2026-07-12 10:45 WIB
 - **status**: APPROVED
 - **rationale**: Integrate natural active rules verbatim inside main body sections of modules and cleanup appendices.
+
+### Decision 4 — Semantic Rule Integration
+- **decision_id**: AFPD-DEC-004
+- **timestamp**: 2026-07-12 10:45 WIB
+- **status**: APPROVED
+- **rationale**: Integrate natural active rules verbatim inside main body sections of modules and cleanup appendices.

@@ -84,3 +84,13 @@ integration: EXACT
 -->
 - **NKTB_015**: Do not mix this with Finance Events for the current personal finance command center.
 
+### Integrated Operating Invariants
+
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_015
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 118
+integration: EXACT
+-->
+- **NKTB_015**: Do not mix this with Finance Events for the current personal finance command center.
+

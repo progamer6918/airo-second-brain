@@ -430,3 +430,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Written read-only readback files for Apps Script trigger, deployment, review queue, and workbook.
 - Saved Phase 4.2 progress record and updated progress log, evidence indexes, and incident registers.
 - Staged, validated, committed, and pushed documentation-only changes.
+
+## 2026-07-12 — AIRO Finance AFPD Phase 4.4 — Per-Rule Semantic Integration and Appendix Cleanup
+
+- Adjudicated all natural source-rule union baseline rules (256 in total).
+- Integrated 82 active normative rules verbatim into target module main bodies with provenance comments.
+- Cleaned up generated appendices and removed all padded/synthetic entries.
+- Moved and preserved 32 historical rules in `docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md`.
+- Updated decision register, progress log, incident register, and validation report.
+- Staged, validated, committed, and pushed documentation-only changes.

@@ -53,3 +53,20 @@ integration: EXACT
 -->
 - **NARF_011**: Non-finance chat such as greetings or social text must not create transaction pending state.
 
+### Integrated Operating Invariants
+
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NKTB_012
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_line: 94
+integration: EXACT
+-->
+- **NKTB_012**: Email input is only for transaction notification email from bank/credit card issuers. It is not for PDF statement ingestion. Ambiguous email must be clarified through Telegram.
+<!-- AFPD_RULE_PROVENANCE
+rule_id: NARF_011
+source_path: ARFIN.md
+source_line: 41
+integration: EXACT
+-->
+- **NARF_011**: Non-finance chat such as greetings or social text must not create transaction pending state.
+
