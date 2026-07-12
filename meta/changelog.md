@@ -439,3 +439,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Moved and preserved 32 historical rules in `docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md`.
 - Updated decision register, progress log, incident register, and validation report.
 - Staged, validated, committed, and pushed documentation-only changes.
+
+## 2026-07-12 — AIRO Finance AFPD Phase 4.6 — Atomic Transaction and Duplication Repair
+
+- Applied reviewed clean-candidate patch atomically in an isolated clone.
+- Removed duplicate Phase 4.4 invariant blocks (3× duplication, 12 headings, 164 rule entries).
+- Restored content module bodies to clean Phase 3 skeleton state.
+- Deduplicated progress and incident log entries.
+- Invalidated synthetic Phase 4.2 rule map.
+- Semantic integration is not complete; Phase 4.7 is next.
