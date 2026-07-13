@@ -136,3 +136,22 @@
 - **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
 - **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
 - **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+### ARFIN Manual Approval Staging — Gate P1 Repository Integration
+
+- **Timestamp**: 2026-07-13 19:06:42 WIB
+- **Scope**: Repository integration and durable AFPD evidence only.
+- **Problem**: Resolved manual Telegram clarification could bypass Review Queue and mutate ledger state immediately.
+- **Decision**: Enforce `Review Queue -> /approval -> Account Ledger` for resolved manual Telegram transactions.
+- **Authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Patched source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Behavioral validation**: Same-account 1 row; funded payment 3 rows; second approval 0 extra rows; email flow preserved.
+- **AFPD incident**: `AFPD-INC-009`
+- **Durable evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.

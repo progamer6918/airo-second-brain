@@ -25,3 +25,20 @@
 ## Current Phase and Next Gate
 - **Current Phase**: AFPD Phase 3 — Traceable Content Migration
 - **Next Gate**: Owner Approval for AFPD Activation and old paths deprecation.
+
+## Gate P1 Handoff — Manual Approval Staging Repair
+
+- **Recorded at**: 2026-07-13 19:06:42 WIB
+- **Repository authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Integrated source commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Integrated source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Incident**: `AFPD-INC-009`
+- **Repository repair status**: INTEGRATED
+- **Production deployment status**: NOT DEPLOYED
+- **Production runtime proof**: NOT PERFORMED
+- **Workbook readback**: NOT PERFORMED
+- **AFPD status**: PROPOSED_NOT_CANONICAL
+- **Canonical activation**: PENDING_OWNER_APPROVAL
+- **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
+- **Do not mark incident resolved** until all Gate P2 production evidence passes.

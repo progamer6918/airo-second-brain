@@ -39,3 +39,17 @@
 - `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+
+### ARFIN Manual Approval Staging — Gate P1
+
+- **Incident**: `AFPD-INC-009`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Packet archive SHA-256**: `28440fe31df503959aca551382336ba962cea9eda41a22f0857db2122f52f6c7`
+- **Integration evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Independent semantic review**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_INDEPENDENT_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_EXECUTABLE_RESULTS.json`
+- **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
+- **Deployment evidence**: NOT YET AVAILABLE
+- **Workbook readback evidence**: NOT YET AVAILABLE

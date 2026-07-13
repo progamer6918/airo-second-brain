@@ -876,6 +876,24 @@ The current roadmap from the Living PRD defines active tasks:
 - **detected_at**: 2026-07-12 10:12 WIB
 - **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)
 
+### Incident 9 — Manual Telegram Resolution Bypassed Review Queue
+
+- **incident_id**: AFPD-INC-009
+- **detected_at**: 2026-07-12, Owner-reported Telegram transaction flow
+- **symptom**: After manual account and subcategory selection, Arfin reported success and changed ledger state without Review Queue approval.
+- **impact**: Premature ledger mutation, false-success messaging, and possible loss of execution-account versus funding-account semantics.
+- **root_cause**: `airoHandleOutgoingConfirmationReply_` called `writeRouted_` directly in the resolved-subcategory branch and cleared pending state before governed staging/readback.
+- **repair**: Replace direct ledger write with `telegram_manual` approval staging, source-scoped approval guards, deterministic dedupe identity, category-scoped prompts, and posting-plan metadata restoration.
+- **repository_source_commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **source_sha256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **stable_patch_id**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **verification**: Independent semantic review, content-equivalence audit, syntax validation, same-account 1-row test, funded-payment 3-row test, and repeat-approval zero-extra-row test.
+- **status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **production_resolution**: PENDING
+- **related_evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
+- **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
+
 <!-- END_AFPD_MODULE order=10 path=docs/afpd/11_INCIDENT_REGISTER.md -->
 
 ---
@@ -924,6 +942,20 @@ The current roadmap from the Living PRD defines active tasks:
 - `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
 - `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+
+### ARFIN Manual Approval Staging — Gate P1
+
+- **Incident**: `AFPD-INC-009`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Packet archive SHA-256**: `28440fe31df503959aca551382336ba962cea9eda41a22f0857db2122f52f6c7`
+- **Integration evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Independent semantic review**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_INDEPENDENT_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_EXECUTABLE_RESULTS.json`
+- **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
+- **Deployment evidence**: NOT YET AVAILABLE
+- **Workbook readback evidence**: NOT YET AVAILABLE
 
 <!-- END_AFPD_MODULE order=11 path=docs/afpd/12_EVIDENCE_INDEX.md -->
 
@@ -1097,6 +1129,25 @@ The current roadmap from the Living PRD defines active tasks:
 - **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
 - **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
 
+### ARFIN Manual Approval Staging — Gate P1 Repository Integration
+
+- **Timestamp**: 2026-07-13 19:06:42 WIB
+- **Scope**: Repository integration and durable AFPD evidence only.
+- **Problem**: Resolved manual Telegram clarification could bypass Review Queue and mutate ledger state immediately.
+- **Decision**: Enforce `Review Queue -> /approval -> Account Ledger` for resolved manual Telegram transactions.
+- **Authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Patched source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Behavioral validation**: Same-account 1 row; funded payment 3 rows; second approval 0 extra rows; email flow preserved.
+- **AFPD incident**: `AFPD-INC-009`
+- **Durable evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
+
 <!-- END_AFPD_MODULE order=13 path=docs/afpd/10_PROGRESS_LOG.md -->
 
 ---
@@ -1131,5 +1182,22 @@ The current roadmap from the Living PRD defines active tasks:
 ## Current Phase and Next Gate
 - **Current Phase**: AFPD Phase 3 — Traceable Content Migration
 - **Next Gate**: Owner Approval for AFPD Activation and old paths deprecation.
+
+## Gate P1 Handoff — Manual Approval Staging Repair
+
+- **Recorded at**: 2026-07-13 19:06:42 WIB
+- **Repository authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Integrated source commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Integrated source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Incident**: `AFPD-INC-009`
+- **Repository repair status**: INTEGRATED
+- **Production deployment status**: NOT DEPLOYED
+- **Production runtime proof**: NOT PERFORMED
+- **Workbook readback**: NOT PERFORMED
+- **AFPD status**: PROPOSED_NOT_CANONICAL
+- **Canonical activation**: PENDING_OWNER_APPROVAL
+- **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
+- **Do not mark incident resolved** until all Gate P2 production evidence passes.
 
 <!-- END_AFPD_MODULE order=14 path=docs/afpd/00_CURRENT_HANDOFF.md -->
