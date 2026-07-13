@@ -894,6 +894,18 @@ The current roadmap from the Living PRD defines active tasks:
 - **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
 - **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
 
+#### `AFPD-INC-009` Gate P1.1 update — self-test contract aligned
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Change**: Added `plannedPostingRowCount` to the resolved dry-run and replaced stale pre-approval `rowCount === 3/1` assertions.
+- **Runtime implementation changed**: NO
+- **Built-in self-test result**: PASS
+- **Deployment performed**: NO
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+
 <!-- END_AFPD_MODULE order=10 path=docs/afpd/11_INCIDENT_REGISTER.md -->
 
 ---
@@ -956,6 +968,17 @@ The current roadmap from the Living PRD defines active tasks:
 - **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
 - **Deployment evidence**: NOT YET AVAILABLE
 - **Workbook readback evidence**: NOT YET AVAILABLE
+
+### ARFIN Gate P1.1 — self-test contract repair
+
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Incident**: `AFPD-INC-009`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Summary**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+- **Static review**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_STATIC_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
+- **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
+- **Apps Script deployment evidence**: NOT YET AVAILABLE
 
 <!-- END_AFPD_MODULE order=11 path=docs/afpd/12_EVIDENCE_INDEX.md -->
 
@@ -1148,6 +1171,22 @@ The current roadmap from the Living PRD defines active tasks:
 - **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
 - **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
 
+### ARFIN Gate P1.1 — built-in self-test contract repair
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Authority parent**: `5b56f8ccf92387a6f65537cc34e8970dfb55007c`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Scope**: Dry-run reporting and editor self-test assertions only.
+- **Actual pre-approval ledger rows**: 0
+- **Planned post-approval rows**: 1 for same-account; 3 for funded payment.
+- **Built-in self-test**: PASS
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains open.
+- **Next**: Resume Gate P2 under existing Owner authorization.
+
 <!-- END_AFPD_MODULE order=13 path=docs/afpd/10_PROGRESS_LOG.md -->
 
 ---
@@ -1199,5 +1238,20 @@ The current roadmap from the Living PRD defines active tasks:
 - **Canonical activation**: PENDING_OWNER_APPROVAL
 - **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
 - **Do not mark incident resolved** until all Gate P2 production evidence passes.
+
+## Gate P1.1 Handoff — self-test contract aligned
+
+- **Recorded at**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Integrated source commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Source SHA-256**: `dcfc2ac0a88aadc3ee4f1b41d0ec5f3b35818eb6d388663bccb8bc7626af8f1b`
+- **Built-in outgoing confirmation self-test**: PASS
+- **Runtime staging implementation**: unchanged
+- **Repository status**: ready for Gate P2 pre-deployment checks
+- **Apps Script deployment**: NOT PERFORMED
+- **Production runtime proof**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
+- **AFPD status**: `PROPOSED_NOT_CANONICAL`
+- **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
 
 <!-- END_AFPD_MODULE order=14 path=docs/afpd/00_CURRENT_HANDOFF.md -->

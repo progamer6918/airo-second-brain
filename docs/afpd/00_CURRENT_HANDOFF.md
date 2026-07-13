@@ -42,3 +42,18 @@
 - **Canonical activation**: PENDING_OWNER_APPROVAL
 - **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
 - **Do not mark incident resolved** until all Gate P2 production evidence passes.
+
+## Gate P1.1 Handoff — self-test contract aligned
+
+- **Recorded at**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Integrated source commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Source SHA-256**: `dcfc2ac0a88aadc3ee4f1b41d0ec5f3b35818eb6d388663bccb8bc7626af8f1b`
+- **Built-in outgoing confirmation self-test**: PASS
+- **Runtime staging implementation**: unchanged
+- **Repository status**: ready for Gate P2 pre-deployment checks
+- **Apps Script deployment**: NOT PERFORMED
+- **Production runtime proof**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
+- **AFPD status**: `PROPOSED_NOT_CANONICAL`
+- **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.

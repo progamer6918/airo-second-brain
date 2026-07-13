@@ -125,3 +125,15 @@
 - **related_evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
 - **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
 - **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
+
+#### `AFPD-INC-009` Gate P1.1 update — self-test contract aligned
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Change**: Added `plannedPostingRowCount` to the resolved dry-run and replaced stale pre-approval `rowCount === 3/1` assertions.
+- **Runtime implementation changed**: NO
+- **Built-in self-test result**: PASS
+- **Deployment performed**: NO
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`

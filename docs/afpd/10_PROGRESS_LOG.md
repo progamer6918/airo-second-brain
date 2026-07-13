@@ -155,3 +155,19 @@
 - **Telegram production test**: NOT PERFORMED
 - **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
 - **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
+
+### ARFIN Gate P1.1 — built-in self-test contract repair
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Authority parent**: `5b56f8ccf92387a6f65537cc34e8970dfb55007c`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Scope**: Dry-run reporting and editor self-test assertions only.
+- **Actual pre-approval ledger rows**: 0
+- **Planned post-approval rows**: 1 for same-account; 3 for funded payment.
+- **Built-in self-test**: PASS
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains open.
+- **Next**: Resume Gate P2 under existing Owner authorization.

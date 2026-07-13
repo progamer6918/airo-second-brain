@@ -53,3 +53,14 @@
 - **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
 - **Deployment evidence**: NOT YET AVAILABLE
 - **Workbook readback evidence**: NOT YET AVAILABLE
+
+### ARFIN Gate P1.1 — self-test contract repair
+
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Incident**: `AFPD-INC-009`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Summary**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+- **Static review**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_STATIC_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
+- **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
+- **Apps Script deployment evidence**: NOT YET AVAILABLE
