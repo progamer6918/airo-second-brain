@@ -49,6 +49,12 @@ function getPendingClarification_(chatId) {
 
 function savePendingClarification_(chatId, pending) {
   if (!chatId || !pending) return;
+  if (!pending.created_at) {
+    pending.created_at = new Date().toISOString();
+  }
+  if (!pending.pending_id) {
+    pending.pending_id = "pending:" + new Date().getTime() + ":" + Math.floor(Math.random() * 1000000);
+  }
   PropertiesService.getScriptProperties().setProperty(
     clarificationPropKey_(chatId),
     JSON.stringify({
@@ -24609,6 +24615,14 @@ function airoTask614FindReviewItemByQueueId_(ss, queueId) {
           map,
           ["gmail_thread_id"]
         ) || ""
+      ).trim(),
+
+      notes: String(
+        getReviewValue_(
+          row,
+          map,
+          ["notes"]
+        ) || ""
       ).trim()
     };
   }
@@ -24847,10 +24861,12 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     }
   }
 
-  if (!item.email_candidate_id) return "Gagal: email_candidate_id kosong.";
-  if (item.source === "email") {
-    if (!item.gmail_message_id) return "Gagal: gmail_message_id kosong.";
-    if (!item.gmail_thread_id) return "Gagal: gmail_thread_id kosong.";
+  if (item.source === "email" || item.source === "import") {
+    if (!item.email_candidate_id) return "Gagal: email_candidate_id kosong.";
+    if (item.source === "email") {
+      if (!item.gmail_message_id) return "Gagal: gmail_message_id kosong.";
+      if (!item.gmail_thread_id) return "Gagal: gmail_thread_id kosong.";
+    }
   }
 
   var parsedDate = null;
@@ -24879,6 +24895,27 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     parsedDate = new Date();
   }
 
+  // H2, H4 Rework: Restore structured metadata from notes or item.rowData
+  var notesVal = item.notes || (item.rowData && getReviewValue_(item.rowData, map, ["notes"])) || "";
+  var fundingSourceAccount = "";
+  var paymentAccount = "";
+  var postingMode = "";
+  var metaIndex = notesVal.indexOf("[METADATA]");
+  if (metaIndex !== -1) {
+    try {
+      var metaJson = notesVal.substring(metaIndex + 10).trim();
+      var meta = JSON.parse(metaJson);
+      fundingSourceAccount = meta.funding_source_account || "";
+      paymentAccount = meta.payment_account || meta.execution_account || "";
+      postingMode = meta.posting_mode || "";
+    } catch (e) {
+      Logger.log("Error parsing metadata: " + e.toString());
+    }
+  }
+
+  var targetAccount = paymentAccount || item.parsed_account;
+  var targetFunding = fundingSourceAccount || targetAccount;
+
   var parsedObj = {
     date: parsedDate,
     type: item.parsed_type,
@@ -24886,13 +24923,19 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     subcategory: item.parsed_subcategory,
     description: item.raw_text,
     amount: item.parsed_amount,
-    account: item.parsed_account,
+    account: targetAccount,
+    funding_source_account: targetFunding,
+    posting_mode: postingMode,
     creditor: parseCreditor_(item.raw_text || ""),
     merchant: parseMerchant_(item.raw_text || ""),
     billingCycleId: Utilities.formatDate(parsedDate, Session.getScriptTimeZone(), "yyyy-MM"),
     assetSection: parseAssetSection_(item.raw_text || ""),
     needsReview: false
   };
+  
+  if (!parsedObj.posting_mode) {
+    resolvePostingModeAndFundingSource_(parsedObj, item.raw_text);
+  }
 
   var stagingResult = {
     rowId: "review:" + item.queue_id,
@@ -24920,9 +24963,16 @@ function airoSprint7HApprovalApprove_(ss, arg) {
   if (result && result.status === "written") {
     writePerformed = true;
 
+    var derivedEventSource = "email";
+    if (item.source === "telegram_manual" || item.source === "telegram") {
+      derivedEventSource = "telegram";
+    } else if (item.source) {
+      derivedEventSource = item.source;
+    }
+    
     var feResult = recordFinanceEventForWriteResult_(ss, result, stagingResult, parsedObj, item.raw_text, {
       event_type: "transaction_created",
-      event_source: "email",
+      event_source: derivedEventSource,
       source_tab: result.writtenTab || AIRO_CONFIG.tabs.accountLedger,
       source_row: result.row || "",
       linked_txn_id: stagingResult.linked_txn_id
@@ -28468,7 +28518,14 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     pending.attempts = 0;
     
     var registry = airoSprint7CategoryContractGetRegistry_();
-    var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, chosenAccount, pending.description, registry, pending.account);
+    var isKnownCategory = pending.category && registry[pending.category] && pending.category !== "Lainnya" && pending.category !== "Other / Review" && pending.category !== "Unknown";
+    var singleRegistry = {};
+    if (isKnownCategory) {
+      singleRegistry[pending.category] = registry[pending.category];
+    } else {
+      singleRegistry = registry;
+    }
+    var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, chosenAccount, pending.description, singleRegistry, pending.account);
     pending.optionToSubcategory = subPromptData.mapping;
 
     savePendingClarification_(chatId, pending);
@@ -28575,8 +28632,6 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     }
 
     if (subChoice.type === "resolved") {
-      clearPendingClarification_(chatId);
-
       var finalParsed = {
         date: pending.date || parseDate_(pending.original_text) || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'),
         type: 'expense',
@@ -28607,30 +28662,129 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
 
       try {
         var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
-        var finalTab = routePlannedTab_(finalParsed, pending.original_text);
-        var stagingResult = {
-          rowId: makeTxnId_({}, pending.original_text || ('clarification_resolved_' + String(new Date().getTime())))
+        
+        var qId = "review:telegram:" + (pending.pending_id || ("manual:" + new Date().getTime()));
+        
+        // H2, H4 Rework: separately preserve all posting metadata in [METADATA] JSON inside notes
+        var metadataPayload = {
+          execution_account: pending.account,
+          funding_source_account: pending.confirmed_account,
+          payment_account: pending.account,
+          posting_mode: finalParsed.posting_mode,
+          category: subChoice.category,
+          subcategory: subChoice.subcategory,
+          amount: pending.amount,
+          description: pending.description || pending.original_text,
+          raw_text: pending.original_text || pending.text || ""
         };
-        var routedResult = writeRouted_(ss, finalTab, finalParsed, pending.original_text, stagingResult);
-        var tabLink = routedResult.tabUrl || getSheetTabUrlByName_(ss, routedResult.writtenTab || finalTab);
-        var reply = airoBuildFinanceWriteSuccessReply_(ss, finalTab, finalTab, finalParsed, routedResult, tabLink);
-        sendTelegram_(chatId, reply);
-
-        return {
-          ok: true,
-          handled: true,
-          appended: true,
-          planned_tab: finalTab,
-          written_tab: routedResult.writtenTab || finalTab,
-          routed_status: routedResult.status,
-          row: routedResult.row || '',
-          row_id: routedResult.rowId || '',
-          write_verified: routedResult.writeVerified === true,
-          readback_raw_text: routedResult.readbackRawText || ''
+        
+        var rowData = {
+          queue_id: qId,
+          created_at: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss"),
+          source: "telegram_manual",
+          raw_text: pending.original_text || pending.text || "",
+          parsed_type: "expense",
+          parsed_category: subChoice.category,
+          parsed_subcategory: subChoice.subcategory,
+          parsed_amount: pending.amount,
+          parsed_currency: "IDR",
+          parsed_account: pending.account, // execution account (e.g. "Blu" or "Cash Umum")
+          email_candidate_id: "",
+          gmail_message_id: "",
+          gmail_thread_id: "",
+          email_provider: "",
+          email_log_ref: "",
+          duplicate_key: qId,
+          write_policy: "staging",
+          write_status: "pending",
+          review_status: "pending",
+          linked_event_id: "",
+          linked_account_ledger_entry_id: "",
+          
+          intent: "expense",
+          target_tab: "🧾 Review Queue",
+          reason: "telegram_manual_resolved_clarification",
+          amount: pending.amount,
+          account: pending.account, // execution account
+          category: subChoice.category === "Other / Review" ? "Other / Review" : (subChoice.category + " / " + subChoice.subcategory),
+          status: "pending",
+          notes: "Telegram manual resolved confirmation. Category: " + subChoice.category + ", Subcategory: " + subChoice.subcategory + ". [METADATA] " + JSON.stringify(metadataPayload),
+          parser: "telegram"
         };
+        
+        var appendRes = appendByHeader_(ss, AIRO_CONFIG.tabs.review, rowData, { createIfMissing: false });
+        
+        var targetRow = 0;
+        var readbackVerified = false;
+        if (appendRes && appendRes.status === "written") {
+          targetRow = appendRes.row;
+          var sheet = getSheetLoose_(ss, AIRO_CONFIG.tabs.review);
+          if (sheet) {
+            var header = findHeader_(sheet);
+            if (header) {
+              var readbackValues = sheet.getRange(targetRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+              var checkHeaders = header.headers;
+              var checkQueueIdCol = -1;
+              var checkAmountCol = -1;
+              var checkAccountCol = -1;
+              var checkStatusCol = -1;
+              for (var c = 0; c < checkHeaders.length; c++) {
+                var canonicalCheck = canonicalKey_(checkHeaders[c]);
+                var field = fieldForHeader_(checkHeaders[c]);
+                if (canonicalCheck === "queue_id" || canonicalCheck === "duplicate_key") checkQueueIdCol = c;
+                if (field === "amount" || canonicalCheck === "amount" || canonicalCheck === "parsed_amount") checkAmountCol = c;
+                if (field === "account" || canonicalCheck === "account" || canonicalCheck === "parsed_account") checkAccountCol = c;
+                if (field === "status" || canonicalCheck === "status" || canonicalCheck === "review_status" || canonicalCheck === "write_status") checkStatusCol = c;
+              }
+              
+              var readQueueId = checkQueueIdCol !== -1 ? String(readbackValues[checkQueueIdCol] || "").trim() : "";
+              var readAmountRaw = checkAmountCol !== -1 ? readbackValues[checkAmountCol] : 0;
+              var readAmount = airoSprint7GNormalizeAmountForReadback_(readAmountRaw);
+              var readAccount = checkAccountCol !== -1 ? String(readbackValues[checkAccountCol] || "").trim() : "";
+              var readStatus = checkStatusCol !== -1 ? String(readbackValues[checkStatusCol] || "").trim() : "";
+              
+              if (
+                readQueueId === qId &&
+                readAmount === pending.amount &&
+                readAccount === pending.account &&
+                readStatus === "pending"
+              ) {
+                readbackVerified = true;
+              }
+            }
+          }
+        }
+        
+        if (readbackVerified && targetRow > 0) {
+          airoTask614StoreDirectApproval_(chatId, qId, targetRow);
+          clearPendingClarification_(chatId);
+          
+          var replyText = "Transaksi siap ditinjau di Review Queue (belum dicatat ke ledger).\n\n" +
+                          "Nominal: Rp" + pending.amount.toLocaleString("id-ID") + "\n" +
+                          "Akun: " + pending.account + "\n" +
+                          "Kategori: " + subChoice.category + (subChoice.category === "Other / Review" ? "" : (" / " + subChoice.subcategory)) + "\n" +
+                          "Status: pending approval.\n" +
+                          "Gunakan perintah /approval untuk menyetujui transaksi ini.";
+          sendTelegram_(chatId, replyText);
+          
+          return {
+            ok: true,
+            handled: true,
+            appended: true,
+            planned_tab: AIRO_CONFIG.tabs.review,
+            written_tab: AIRO_CONFIG.tabs.review,
+            routed_status: "success",
+            row: targetRow,
+            row_id: qId,
+            write_verified: true,
+            readback_raw_text: pending.original_text || ""
+          };
+        } else {
+          throw new Error("Readback verification failed or row not written");
+        }
       } catch (err) {
-        Logger.log("Error writing resolved transaction: " + err.toString());
-        sendTelegram_(chatId, "Error saat menyimpan transaksi.");
+        Logger.log("Error writing resolved transaction to Review Queue: " + err.toString());
+        sendTelegram_(chatId, "Gagal menulis ke Review Queue. Transaksi belum dicatat.");
         return { handled: true, error: err.toString() };
       }
     }
@@ -28736,16 +28890,16 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
         funding_source_account: pending.confirmed_account
       };
       resolvePostingModeAndFundingSource_(finalParsed, pending.original_text);
-      var rowCount = (finalParsed.posting_mode === 'FUNDED_PAYMENT_ACCOUNT_OUTGOING') ? 3 : 1;
       return {
         handled: true,
         resolved: true,
         category: subChoice.category,
         subcategory: subChoice.subcategory,
         confirmed_account: pending.confirmed_account,
-        route: "ledger_write",
+        route: "review_queue_staging",
         finalParsed: finalParsed,
-        rowCount: rowCount
+        rowCount: 0,
+        ledgerWritePerformed: false
       };
     }
   }
