@@ -28896,10 +28896,7 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
         category: subChoice.category,
         subcategory: subChoice.subcategory,
         confirmed_account: pending.confirmed_account,
-        route: "review_queue_staging",
-        finalParsed: finalParsed,
-        rowCount: 0,
-        ledgerWritePerformed: false
+        route: "review_queue_staging", finalParsed: finalParsed, rowCount: 0, plannedPostingRowCount: (finalParsed.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING" ? 3 : 1), ledgerWritePerformed: false
       };
     }
   }
@@ -28986,9 +28983,8 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var tcA = (resA.handled === true && resA.resolved === true && 
             resA.finalParsed.account === "Cash Umum" && 
             resA.finalParsed.funding_source_account === "Blu Pocket" && 
-            resA.finalParsed.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING" && 
-            resA.rowCount === 3);
-  cases.push({ name: "funded_payment_account_outgoing_3_rows", pass: tcA, details: JSON.stringify(resA) });
+            resA.finalParsed.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING" && resA.route === "review_queue_staging" && resA.rowCount === 0 && resA.ledgerWritePerformed === false && resA.plannedPostingRowCount === 3);
+  cases.push({ name: "funded_payment_staging_zero_rows_planned_3", pass: tcA, details: JSON.stringify(resA) });
   if (!tcA) passed = false;
 
   var mockPendingSubcategorySingle = {
@@ -29013,9 +29009,8 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var resB = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "2");
   var tcB = (resB.handled === true && resB.resolved === true && 
             resB.finalParsed.account === "Cash Umum" && 
-            resB.finalParsed.posting_mode === "SINGLE_OUTGOING" && 
-            resB.rowCount === 1);
-  cases.push({ name: "single_outgoing_same_source_1_row", pass: tcB, details: JSON.stringify(resB) });
+            resB.finalParsed.posting_mode === "SINGLE_OUTGOING" && resB.route === "review_queue_staging" && resB.rowCount === 0 && resB.ledgerWritePerformed === false && resB.plannedPostingRowCount === 1);
+  cases.push({ name: "single_outgoing_staging_zero_rows_planned_1", pass: tcB, details: JSON.stringify(resB) });
   if (!tcB) passed = false;
 
   var mockPendingSubcategoryNonCash = {
@@ -29039,9 +29034,8 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var resC = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategoryNonCash, "2");
   var tcC = (resC.handled === true && resC.resolved === true && 
             resC.finalParsed.account === "BCA" && 
-            resC.finalParsed.posting_mode === "SINGLE_OUTGOING" && 
-            resC.rowCount === 1);
-  cases.push({ name: "non_cash_single_outgoing", pass: tcC, details: JSON.stringify(resC) });
+            resC.finalParsed.posting_mode === "SINGLE_OUTGOING" && resC.route === "review_queue_staging" && resC.rowCount === 0 && resC.ledgerWritePerformed === false && resC.plannedPostingRowCount === 1);
+  cases.push({ name: "non_cash_staging_zero_rows_planned_1", pass: tcC, details: JSON.stringify(resC) });
   if (!tcC) passed = false;
 
   // Case D: funded prompt display contains both account and source
