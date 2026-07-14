@@ -25908,13 +25908,13 @@ function airoSprint7CategoryContractKategoriCommandBuildReply_(query) {
   return "❌ Kategori/Subkategori \"" + query + "\" tidak ditemukan.\nKirim /kategori untuk melihat semua pilihan kategori.";
 }
 
-function airoSprint7CategoryContractResolveAnswerText_(rawText) {
+function airoSprint7CategoryContractResolveAnswerTextWithRegistry_(rawText, registry) {
   var text = String(rawText || "").trim();
   var t = text.toLowerCase();
   if (!t) return { type: "invalid" };
 
-  var registry = airoSprint7CategoryContractGetRegistry_();
-  var catKeys = Object.keys(registry);
+  var reg = registry || {};
+  var catKeys = Object.keys(reg);
 
   // 1. Check for category-qualified format like "Subcategory > Category" or "Category > Subcategory"
   var parts = t.split(/>/);
@@ -25931,7 +25931,7 @@ function airoSprint7CategoryContractResolveAnswerText_(rawText) {
       }
     }
     if (catMatch) {
-      var subs = registry[catMatch].subcategories || [];
+      var subs = reg[catMatch].subcategories || [];
       for (var j = 0; j < subs.length; j++) {
         if (subs[j].toLowerCase() === p2) {
           return { type: "resolved", category: catMatch, subcategory: subs[j] };
@@ -25948,7 +25948,7 @@ function airoSprint7CategoryContractResolveAnswerText_(rawText) {
       }
     }
     if (catMatch) {
-      var subs = registry[catMatch].subcategories || [];
+      var subs = reg[catMatch].subcategories || [];
       for (var j = 0; j < subs.length; j++) {
         if (subs[j].toLowerCase() === p1) {
           return { type: "resolved", category: catMatch, subcategory: subs[j] };
@@ -25968,8 +25968,8 @@ function airoSprint7CategoryContractResolveAnswerText_(rawText) {
   var matchedCandidates = [];
   for (var i = 0; i < catKeys.length; i++) {
     var cat = catKeys[i];
-    var subs = registry[cat].subcategories || [];
-    var subinfo = registry[cat].subinfo || {};
+    var subs = reg[cat].subcategories || [];
+    var subinfo = reg[cat].subinfo || {};
     for (var j = 0; j < subs.length; j++) {
       var sub = subs[j];
       var info = subinfo[sub] || {};
@@ -26007,6 +26007,13 @@ function airoSprint7CategoryContractResolveAnswerText_(rawText) {
   }
 
   return { type: "unresolved" };
+}
+
+function airoSprint7CategoryContractResolveAnswerText_(rawText) {
+  return airoSprint7CategoryContractResolveAnswerTextWithRegistry_(
+    rawText,
+    airoSprint7CategoryContractGetRegistry_()
+  );
 }
 
 function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending, rawText, failOrRetry_) {
@@ -28412,7 +28419,7 @@ function airoParseSubcategoryChoice_(inputText, optionMapping, registry) {
     return { type: "resolved", category: mapped.category, subcategory: mapped.subcategory };
   }
 
-  var resolved = airoSprint7CategoryContractResolveAnswerText_(inputText);
+  var resolved = airoSprint7CategoryContractResolveAnswerTextWithRegistry_(inputText, registry);
   if (resolved.type === "resolved") {
     if (!airoIsExpenseCompatibleCategory_(resolved.category)) {
       return { type: "incompatible_category", category: resolved.category };
@@ -28793,7 +28800,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
   return { handled: false };
 }
 
-function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
+function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText, registryOverride) {
   var step = pending.step || 1;
   var text = String(rawText || "").trim().toLowerCase();
 
@@ -28832,7 +28839,7 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
 
   if (step === 2) {
     var optionMapping = pending.optionToSubcategory || {};
-    var registry = airoSprint7CategoryContractGetRegistry_();
+    var registry = registryOverride || airoSprint7CategoryContractGetRegistry_();
     var subChoice = airoParseSubcategoryChoice_(rawText, optionMapping, registry);
 
     if (!subChoice) {
@@ -28904,8 +28911,56 @@ function airoHandleOutgoingConfirmationReplyDryRun_(pending, rawText) {
   return { handled: false };
 }
 
+function airoTask105BuildDeterministicCategoryRegistryForSelfTest_() {
+  return {
+    "Transport": {
+      subcategories: ["Bensin"],
+      cashflowClass: "expense",
+      domain: "Wallet",
+      subinfo: {
+        "Bensin": { aliases: ["bbm", "bensin", "pertamax", "pertalite", "solar", "shell", "spbu"] }
+      }
+    },
+    "Health": {
+      subcategories: ["Medicine"],
+      cashflowClass: "expense",
+      domain: "Wallet",
+      subinfo: {
+        "Medicine": { aliases: ["medicine", "obat", "apotek", "sakit", "vitamin", "dokter"] }
+      }
+    },
+    "Pets": {
+      subcategories: ["Medicine"],
+      cashflowClass: "expense",
+      domain: "Wallet",
+      subinfo: {
+        "Medicine": { aliases: ["medicine", "obat hewan", "vet"] }
+      }
+    },
+    "Income": {
+      subcategories: ["Salary"],
+      cashflowClass: "income_or_refund",
+      domain: "Wallet",
+      subinfo: {
+        "Salary": { aliases: ["salary", "gaji", "paycheck", "pemasukan", "gajian"] }
+      }
+    },
+    "Food & Drink": {
+      subcategories: ["Jajan", "Makan di Luar", "Kopi"],
+      cashflowClass: "expense",
+      domain: "Wallet",
+      subinfo: {
+        "Jajan": { aliases: ["jajan", "cemilan", "snack"] },
+        "Makan di Luar": { aliases: ["makan di luar", "warung", "resto", "restoran", "sarapan", "lunch", "dinner"] },
+        "Kopi": { aliases: ["kopi", "starbucks", "coffee", "cafe", "es teh"] }
+      }
+    }
+  };
+}
+
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var cases = [];
+  var syntheticRegistry = airoTask105BuildDeterministicCategoryRegistryForSelfTest_();
   var passed = true;
 
   var mockPendingAccount = {
@@ -29048,13 +29103,13 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   if (!tcD) passed = false;
 
   // Case 7: ambiguous subcategory selection
-  var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Medicine");
+  var res7 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Medicine", syntheticRegistry);
   var tc7 = (res7.handled === true && res7.waiting === true && res7.route === "ambiguous_prompt" && res7.candidates.length >= 2);
   cases.push({ name: "ambiguous_subcategory_selection", pass: tc7, details: JSON.stringify(res7) });
   if (!tc7) passed = false;
 
   // Case 8: category only selection
-  var res8 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Food & Drink");
+  var res8 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Food & Drink", syntheticRegistry);
   var tc8 = (res8.handled === true && res8.waiting === true && res8.route === "subcategory_prompt_single_category" && res8.selected_category === "Food & Drink");
   cases.push({ name: "category_only_selection", pass: tc8, details: JSON.stringify(res8) });
   if (!tc8) passed = false;
@@ -29078,13 +29133,13 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   if (!tc11) passed = false;
 
   // Case 12: incompatible category blocked (Income)
-  var res12 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income");
+  var res12 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income", syntheticRegistry);
   var tc12 = (res12.handled === false && res12.error === "incompatible_category" && res12.route === "retry_subcategory_prompt");
   cases.push({ name: "income_rejected_for_outgoing_category_only", pass: tc12, details: JSON.stringify(res12) });
   if (!tc12) passed = false;
 
   // Case 13: incompatible category/subcategory blocked (Income > Salary)
-  var res13 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income > Salary");
+  var res13 = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "Income > Salary", syntheticRegistry);
   var tc13 = (res13.handled === false && res13.error === "incompatible_category" && res13.route === "retry_subcategory_prompt");
   cases.push({ name: "income_rejected_for_outgoing_resolved", pass: tc13, details: JSON.stringify(res13) });
   if (!tc13) passed = false;
@@ -29114,28 +29169,29 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
 
 function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
   var cases = [];
+  var syntheticRegistry = airoTask105BuildDeterministicCategoryRegistryForSelfTest_();
   var passed = true;
 
   // Case 1: exact_subcategory
-  var resBensin = airoSprint7CategoryContractResolveAnswerText_("Bensin");
+  var resBensin = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("Bensin", syntheticRegistry);
   var tc1 = (resBensin.type === "resolved" && resBensin.category === "Transport" && resBensin.subcategory === "Bensin");
   cases.push({ name: "exact_subcategory", pass: tc1, details: JSON.stringify(resBensin) });
   if (!tc1) passed = false;
 
   // Case 2: qualified_subcategory
-  var resQualified = airoSprint7CategoryContractResolveAnswerText_("Bensin > Transport");
+  var resQualified = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("Bensin > Transport", syntheticRegistry);
   var tc2 = (resQualified.type === "resolved" && resQualified.category === "Transport" && resQualified.subcategory === "Bensin");
   cases.push({ name: "qualified_subcategory", pass: tc2, details: JSON.stringify(resQualified) });
   if (!tc2) passed = false;
 
   // Case 3: ambiguous_subcategory
-  var resMed = airoSprint7CategoryContractResolveAnswerText_("Medicine");
+  var resMed = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("Medicine", syntheticRegistry);
   var tc3 = (resMed.type === "ambiguous" && resMed.candidates && resMed.candidates.length >= 2);
   cases.push({ name: "ambiguous_subcategory", pass: tc3, details: JSON.stringify(resMed) });
   if (!tc3) passed = false;
 
   // Case 4: category_only
-  var resCat = airoSprint7CategoryContractResolveAnswerText_("Transport");
+  var resCat = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("Transport", syntheticRegistry);
   var tc4 = (resCat.type === "category_only" && resCat.category === "Transport");
   cases.push({ name: "category_only", pass: tc4, details: JSON.stringify(resCat) });
   if (!tc4) passed = false;
@@ -29147,13 +29203,13 @@ function runTask105CategoryResolverRuntimeSelfTestFromEditor() {
   if (!tcZeroSub) passed = false;
 
   // Case 6: help_route
-  var resHelp = airoSprint7CategoryContractResolveAnswerText_("?");
+  var resHelp = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("?", syntheticRegistry);
   var tcHelp = (resHelp.type === "unresolved");
   cases.push({ name: "help_route_resolver", pass: tcHelp, details: JSON.stringify(resHelp) });
   if (!tcHelp) passed = false;
 
   // Case 7: add_flow_placeholder
-  var resAdd = airoSprint7CategoryContractResolveAnswerText_("+");
+  var resAdd = airoSprint7CategoryContractResolveAnswerTextWithRegistry_("+", syntheticRegistry);
   var tcAdd = (resAdd.type === "unresolved");
   cases.push({ name: "add_flow_resolver", pass: tcAdd, details: JSON.stringify(resAdd) });
   if (!tcAdd) passed = false;
