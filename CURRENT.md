@@ -1,3 +1,14 @@
+## D-READY Project Registration — 2026-07-17
+
+- Status: `ACTIVE`
+- Stage: `PILOT_LOGIC_VALIDATION`
+- Current implementation: Excel logic/report prototype
+- Target platform: Power BI
+- Canonical entrypoint: `ecosystem/projects/d-ready/README.md`
+- PRD: `ecosystem/projects/d-ready/D_READY_PRD_LIVING.md`
+- Current blockers: Operational Stock Days, Estimated Needs, contribution fallback, product-color lifecycle, KPI definition
+- Public-safety rule: raw workbook, presentation, PBIX, dealer identities, and commercial values are not committed
+
 ## Arfin Canonical Contract — 2026-07-09
 
 - Arfin runtime, Telegram UX, Review Queue, approval, and Account Ledger posting rules are locked in `ARFIN.md`.

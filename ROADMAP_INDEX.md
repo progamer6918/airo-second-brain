@@ -16,6 +16,7 @@
 | **earnsai-telegram-gateway** | `PARKED_UNTIL_VERIFIED` | None | Folder contents | Parked until gateway operation is verified. |
 | **earnsai-pulse-trading** | `PARKED_HANDOVER` | None | Folder contents | Parked handover. |
 | **github-handover** | `ARCHIVE_HANDOVER` | None | Folder contents | Archive handover. |
+| **D-READY** | `ACTIVE` | `ecosystem/projects/d-ready/docs/roadmap/D_READY_ROADMAP.md` | `ecosystem/projects/d-ready/CURRENT_STATE.md` + latest validation evidence | Stage: `PILOT_LOGIC_VALIDATION`; Power BI implementation not yet proven. |
 | **Report Automation VBA** | `ACTIVE_REFERENCE_OR_PROJECT_NEEDS_CLASSIFICATION` | `docs/roadmap/report-automation-vba-rc4-self-service-onboarding-roadmap.md` | `CURRENT.md` + roadmap file | Not fully classified by ASB-GOV-1. Do not overclaim. |
 
 ---
