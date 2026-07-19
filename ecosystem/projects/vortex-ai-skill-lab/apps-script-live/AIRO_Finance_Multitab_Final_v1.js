@@ -22671,78 +22671,61 @@ function airoSprint7FFormatRupiah_(amount) {
   return "Rp" + String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-function airoSprint7FInferDirection_(subject, candidateType, bodyText) {
-  var subjText = String(subject || "").toLowerCase();
-  var type = String(candidateType || "").toLowerCase();
-  var body = String(bodyText || "").toLowerCase();
+function airoSprint7FNormalizeDirectionText_(text) {
+  if (!text) return "";
+  let norm = String(text).toLowerCase();
+  norm = norm.replace(/\s+/g, " ");
+  norm = norm.replace(/masuk ke aplikasi/g, "ui_app_access");
+  norm = norm.replace(/login ke aplikasi/g, "ui_app_access");
+  norm = norm.replace(/buka aplikasi/g, "ui_app_access");
+  norm = norm.replace(/lihat detail di aplikasi/g, "ui_app_access");
+  norm = norm.replace(/silakan masuk/g, "ui_app_access");
+  return norm;
+}
 
-  if (type.indexOf("transfer_masuk") >= 0) {
-    return "pemasukan";
+function airoSprint7FDirectionEvidence_(subject, candidateType, body) {
+  const normSubj = airoSprint7FNormalizeDirectionText_(subject || "");
+  const normBody = airoSprint7FNormalizeDirectionText_(body || "");
+  const normFull = normSubj + " " + normBody;
+
+  const inflowSignals = [];
+  const outflowSignals = [];
+
+  if (candidateType === "transfer_masuk") {
+    inflowSignals.push("candidate_type_transfer_masuk");
   }
 
-  // 1. Explicit inflow/masuk markers in subject
-  if (
-    subjText.indexOf("masuk") >= 0 ||
-    subjText.indexOf("diterima") >= 0 ||
-    subjText.indexOf("received") >= 0 ||
-    subjText.indexOf("transfer masuk") >= 0
-  ) {
-    return "pemasukan";
+  if (normFull.includes("transfer masuk")) inflowSignals.push("kw_transfer_masuk");
+  if (normFull.includes("dana masuk")) inflowSignals.push("kw_dana_masuk");
+  if (normFull.includes("penerimaan transfer")) inflowSignals.push("kw_penerimaan_transfer");
+  if (normFull.includes("incoming transfer")) inflowSignals.push("kw_incoming_transfer");
+  if (normFull.includes("diterima dari")) inflowSignals.push("kw_diterima_dari");
+  if (normFull.includes("pengembalian dana") || normFull.includes("refund")) inflowSignals.push("kw_refund");
+
+  if (normFull.includes("diterima") && !normFull.includes("diterima dari")) {
+    if (normFull.includes("transfer") || normFull.includes("dana") || normFull.includes("rp")) {
+      inflowSignals.push("kw_diterima_contextual");
+    }
   }
 
-  // 2. Inflow/masuk markers in body
-  if (
-    body.indexOf("masuk") >= 0 ||
-    body.indexOf("diterima") >= 0 ||
-    body.indexOf("received") >= 0 ||
-    body.indexOf("transfer masuk") >= 0 ||
-    body.indexOf("dana masuk") >= 0 ||
-    body.indexOf("penerimaan transfer") >= 0 ||
-    body.indexOf("incoming transfer") >= 0
-  ) {
-    return "pemasukan";
-  }
+  if (normFull.includes("pembayaran")) outflowSignals.push("kw_pembayaran");
+  if (normFull.includes("pembelian")) outflowSignals.push("kw_pembelian");
+  if (normFull.includes("debit")) outflowSignals.push("kw_debit");
+  if (normFull.includes("purchase")) outflowSignals.push("kw_purchase");
+  if (normFull.includes("transaksi keluar")) outflowSignals.push("kw_transaksi_keluar");
+  if (normFull.includes("dana keluar")) outflowSignals.push("kw_dana_keluar");
+  if (normFull.includes("bayar")) outflowSignals.push("kw_bayar");
 
-  // 3. Explicit outflow/keluar markers in subject
-  if (
-    subjText.indexOf("keluar") >= 0 ||
-    subjText.indexOf("pembayaran") >= 0 ||
-    subjText.indexOf("debit") >= 0 ||
-    subjText.indexOf("purchase") >= 0 ||
-    subjText.indexOf("pembelian") >= 0 ||
-    subjText.indexOf("bayar") >= 0
-  ) {
-    return "pengeluaran";
-  }
+  return { inflowSignals, outflowSignals };
+}
 
-  // 4. Outflow/keluar markers in body
-  if (
-    body.indexOf("keluar") >= 0 ||
-    body.indexOf("pembayaran") >= 0 ||
-    body.indexOf("debit") >= 0 ||
-    body.indexOf("purchase") >= 0 ||
-    body.indexOf("pembelian") >= 0 ||
-    body.indexOf("bayar") >= 0
-  ) {
-    return "pengeluaran";
-  }
+function airoSprint7FInferDirection_(subject, candidateType, body) {
+  const evidence = airoSprint7FDirectionEvidence_(subject, candidateType, body);
+  const hasInflow = evidence.inflowSignals.length > 0;
+  const hasOutflow = evidence.outflowSignals.length > 0;
 
-  // 5. Generic subject keywords check: generic subjects must not default to pengeluaran
-  var hasGenericSubjectPattern = (
-    subjText.indexOf("transaksimu berhasil") >= 0 ||
-    subjText.indexOf("transaksi berhasil") >= 0 ||
-    subjText.indexOf("notifikasi transaksi") >= 0
-  );
-
-  if (hasGenericSubjectPattern) {
-    return "ambigu";
-  }
-
-  // Old fallback check for candidate type, guarded against generic subjects
-  if (type.indexOf("blu_transaction") >= 0) {
-    return "ambigu";
-  }
-
+  if (hasInflow && !hasOutflow) return "pemasukan";
+  if (hasOutflow && !hasInflow) return "pengeluaran";
   return "ambigu";
 }
 
@@ -29234,6 +29217,55 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var ans24Legacy = airoSprint7FResolveAnswerLabel_("E", { clarification_question_type: "category_expense" });
   var tc24 = (ans24.ok === true && ans24.label === "Cari kategori / lihat bantuan" && ans24Legacy.ok === true && ans24Legacy.label === "Cari kategori / lihat bantuan");
   cases.push({ name: "email_expense_category_numeric_choice_help_option", pass: tc24, details: JSON.stringify({ num: ans24, legacy: ans24Legacy }) });
+
+    // Test Case 25: Direction - Pure expense payment
+    const dir25 = airoSprint7FInferDirection_("Transaksimu berhasil", "blu_transaction", "Pembayaran kartu berhasil dilakukan");
+    cases.push({ name: "email_direction_pure_expense_payment", pass: dir25 === "pengeluaran", actual: dir25, expected: "pengeluaran" });
+
+    // Test Case 26: Direction - Generic login token is neutral
+    const dir26 = airoSprint7FInferDirection_("", "blu_transaction", "Silakan masuk ke aplikasi untuk melihat detail");
+    cases.push({ name: "email_direction_generic_login_token_is_neutral", pass: dir26 === "ambigu", actual: dir26, expected: "ambigu" });
+
+    // Test Case 27: Direction - Expense plus login footer remains expense
+    const dir27 = airoSprint7FInferDirection_("Transaksimu berhasil", "blu_transaction", "Pembayaran kartu berhasil dilakukan. Silakan masuk ke aplikasi untuk melihat detail.");
+    cases.push({ name: "email_direction_expense_plus_login_footer_remains_expense", pass: dir27 === "pengeluaran", actual: dir27, expected: "pengeluaran" });
+
+    // Test Case 28: Direction - Expense subject overrides generic login footer
+    const dir28 = airoSprint7FInferDirection_("Pembayaran berhasil", "blu_transaction", "Silakan masuk ke aplikasi untuk melihat detail");
+    cases.push({ name: "email_direction_expense_subject_overrides_generic_login_footer", pass: dir28 === "pengeluaran", actual: dir28, expected: "pengeluaran" });
+
+    // Test Case 29: Direction - Explicit transfer masuk remains income
+    const dir29 = airoSprint7FInferDirection_("Transfer masuk diterima", "transfer_masuk", "Dana masuk ke rekening");
+    cases.push({ name: "email_direction_explicit_transfer_masuk_remains_income", pass: dir29 === "pemasukan", actual: dir29, expected: "pemasukan" });
+
+    // Test Case 30: Direction - Generic Blu notification remains ambiguous
+    const dir30 = airoSprint7FInferDirection_("Transaksimu berhasil", "blu_transaction", "Lihat detail transaksi pada aplikasi");
+    cases.push({ name: "email_direction_generic_blu_notification_remains_ambiguous", pass: dir30 === "ambigu", actual: dir30, expected: "ambigu" });
+
+    // Test Case 31: Direction - Conflicting strong signals become ambiguous
+    const dir31 = airoSprint7FInferDirection_("Transfer masuk diterima", "blu_transaction", "Pembayaran kartu di merchant");
+    cases.push({ name: "email_direction_conflicting_strong_signals_become_ambiguous", pass: dir31 === "ambigu", actual: dir31, expected: "ambigu" });
+
+    // Test Case 32: Direction - Transfer masuk candidate conflict becomes ambiguous
+    const dir32 = airoSprint7FInferDirection_("Pembayaran berhasil", "transfer_masuk", "Pembelian di merchant");
+    cases.push({ name: "email_direction_transfer_masuk_candidate_conflict_becomes_ambiguous", pass: dir32 === "ambigu", actual: dir32, expected: "ambigu" });
+
+    // Test Case 33: Direction - Transfer masuk candidate without conflict is income
+    const dir33 = airoSprint7FInferDirection_("", "transfer_masuk", "Dana masuk ke rekening");
+    cases.push({ name: "email_direction_transfer_masuk_candidate_without_conflict_is_income", pass: dir33 === "pemasukan", actual: dir33, expected: "pemasukan" });
+
+    // Test Case 34: Direction - Expense direction routes to numeric category prompt
+    const dir34 = airoSprint7FInferDirection_("Pembayaran berhasil", "blu_transaction", "Pembayaran kartu di merchant");
+    const qType34 = airoSprint7FClarificationQuestionType_(dir34);
+    const pass34 = (dir34 === "pengeluaran" && qType34 === "category_expense");
+    cases.push({ name: "email_expense_direction_routes_to_numeric_category_prompt", pass: pass34, actual: qType34, expected: "category_expense" });
+
+    // Test Case 35: Direction - Ambiguous direction does not route to income or expense write
+    const dir35 = airoSprint7FInferDirection_("Transaksimu berhasil", "blu_transaction", "Lihat detail transaksi pada aplikasi");
+    const qType35 = airoSprint7FClarificationQuestionType_(dir35);
+    const pass35 = (dir35 === "ambigu" && qType35 === "direction");
+    cases.push({ name: "email_ambiguous_direction_does_not_route_to_income_or_expense_write", pass: pass35, actual: qType35, expected: "direction" });
+
   if (!tc24) passed = false;
 
   // Extra case: verify Account validation bypass logic

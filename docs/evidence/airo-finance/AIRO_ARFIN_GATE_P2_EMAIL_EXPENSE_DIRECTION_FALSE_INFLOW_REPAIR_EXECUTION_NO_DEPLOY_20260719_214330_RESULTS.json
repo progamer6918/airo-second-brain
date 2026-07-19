@@ -1,0 +1,18 @@
+{
+  "marker": "AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY",
+  "timestamp": "20260719_214330",
+  "post_generic_login_token_result": "ambigu",
+  "post_expense_plus_login_result": "pengeluaran",
+  "post_expense_subject_plus_login_result": "pengeluaran",
+  "post_explicit_transfer_masuk_result": "pemasukan",
+  "post_generic_blu_result": "ambigu",
+  "post_conflicting_strong_signals_result": "ambigu",
+  "post_forced_transfer_masuk_conflict_result": "ambigu",
+  "post_transfer_masuk_without_conflict_result": "pemasukan",
+  "selftest_summary": {
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "status": "PASS"
+  }
+}
