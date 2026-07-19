@@ -94,3 +94,5 @@
 - 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
 
 - 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
