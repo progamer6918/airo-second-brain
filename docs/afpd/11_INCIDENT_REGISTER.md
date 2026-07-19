@@ -155,3 +155,5 @@
 - 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
 
 - 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).

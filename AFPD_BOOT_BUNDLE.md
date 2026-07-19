@@ -841,6 +841,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
 
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -925,6 +927,8 @@ The current roadmap from the Living PRD defines active tasks:
 - 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
 
 - 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1137,6 +1141,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
 
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
 # 00_CURRENT_HANDOFF.md
 
 ## Current Verified State
@@ -1294,3 +1300,17 @@ The current roadmap from the Living PRD defines active tasks:
 - **INCIDENT_RESOLVED**: NO
 - **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
 - **Marker**: `AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REMEDIATION_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: FAILED_SEMANTICS_REPAIR_REQUIRED
+- **AMOUNT_PARSE_STATUS**: RETEST_PASS_BUT_REGRESSION_GUARD_REQUIRED
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_REPAIR_REQUIRED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_REPAIR_REQUIRED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
