@@ -171,3 +171,5 @@
 - **Telegram production test**: NOT PERFORMED
 - **Incident**: `AFPD-INC-009` remains open.
 - **Next**: Resume Gate P2 under existing Owner authorization.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.

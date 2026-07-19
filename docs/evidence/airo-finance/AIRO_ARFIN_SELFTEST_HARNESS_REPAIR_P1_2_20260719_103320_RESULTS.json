@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "builtin_selftest_status": "PASS",
+  "test_case_total": 17,
+  "test_case_passed": 17,
+  "test_case_failed": 0,
+  "funded_actual_preapproval_rows": 0,
+  "funded_planned_postapproval_rows": 3,
+  "same_actual_preapproval_rows": 0,
+  "same_planned_postapproval_rows": 1,
+  "non_cash_actual_preapproval_rows": 0,
+  "non_cash_planned_postapproval_rows": 1,
+  "ledger_write_performed_preapproval": false,
+  "review_queue_staging_route": true,
+  "logs": [
+    "{\"task\":\"AIRO Finance Task 10.5S\",\"status\":\"PASS\",\"mutation_scope\":\"OUTGOING_CONFIRMATION_GATE_SELFTEST\",\"cases\":[{\"name\":\"invalid_account_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"invalid_account\\\",\\\"route\\\":\\\"retry_account_prompt\\\"}\"},{\"name\":\"cancel_account_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"cancelled\\\":true,\\\"fallback_to_review\\\":true,\\\"status\\\":\\\"review_queue_fallback_after_clarification_failed\\\",\\\"clarification_type\\\":\\\"outgoing_confirmation\\\",\\\"mock_write_tab\\\":\\\"🧾 Review Queue\\\"}\"},{\"name\":\"valid_account_selection_numeric\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"valid_account_selection_letter\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"valid_account_selection_name\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"funded_payment_staging_zero_rows_planned_3\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"Blu Pocket\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Blu Pocket\\\",\\\"posting_mode\\\":\\\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":3,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"single_outgoing_staging_zero_rows_planned_1\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"Cash Umum\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Cash Umum\\\",\\\"posting_mode\\\":\\\"SINGLE_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":1,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"non_cash_staging_zero_rows_planned_1\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"BCA\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"BCA\\\",\\\"funding_source_account\\\":\\\"BCA\\\",\\\"posting_mode\\\":\\\"SINGLE_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":1,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"funded_prompt_display\",\"pass\":true,\"details\":\"{\\\"text\\\":\\\"Akun transaksi: Cash Umum\\\\nSumber dana: Blu Pocket\\\\nNominal: 1\\\\nDeskripsi: makan\\\",\\\"mapping\\\":{}}\"},{\"name\":\"ambiguous_subcategory_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"ambiguous_prompt\\\",\\\"candidates\\\":[{\\\"category\\\":\\\"Health\\\",\\\"subcategory\\\":\\\"Medicine\\\"},{\\\"category\\\":\\\"Pets\\\",\\\"subcategory\\\":\\\"Medicine\\\"}]}\"},{\"name\":\"category_only_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"subcategory_prompt_single_category\\\",\\\"selected_category\\\":\\\"Food & Drink\\\"}\"},{\"name\":\"cancel_subcategory_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"cancelled\\\":true,\\\"fallback_to_review\\\":true,\\\"status\\\":\\\"review_queue_fallback_after_clarification_failed\\\",\\\"clarification_type\\\":\\\"outgoing_confirmation\\\",\\\"mock_write_tab\\\":\\\"🧾 Review Queue\\\"}\"},{\"name\":\"help_route_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"help\\\"}\"},{\"name\":\"add_flow_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"add_flow_out_of_scope\\\"}\"},{\"name\":\"income_rejected_for_outgoing_category_only\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"incompatible_category\\\",\\\"category\\\":\\\"Income\\\",\\\"route\\\":\\\"retry_subcategory_prompt\\\"}\"},{\"name\":\"income_rejected_for_outgoing_resolved\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"incompatible_category\\\",\\\"category\\\":\\\"Income\\\",\\\"route\\\":\\\"retry_subcategory_prompt\\\"}\"},{\"name\":\"normalize_validation_preserves_valid_account\",\"pass\":true,\"details\":\"resVal=Blu Pocket\"}]}"
+  ],
+  "cases": [
+    {
+      "name": "invalid_account_selection",
+      "pass": true,
+      "details": "{\"handled\":false,\"error\":\"invalid_account\",\"route\":\"retry_account_prompt\"}"
+    },
+    {
+      "name": "cancel_account_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"cancelled\":true,\"fallback_to_review\":true,\"status\":\"review_queue_fallback_after_clarification_failed\",\"clarification_type\":\"outgoing_confirmation\",\"mock_write_tab\":\"🧾 Review Queue\"}"
+    },
+    {
+      "name": "valid_account_selection_numeric",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+    },
+    {
+      "name": "valid_account_selection_letter",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+    },
+    {
+      "name": "valid_account_selection_name",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+    },
+    {
+      "name": "funded_payment_staging_zero_rows_planned_3",
+      "pass": true,
+      "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"Blu Pocket\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Blu Pocket\",\"posting_mode\":\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":3,\"ledgerWritePerformed\":false}"
+    },
+    {
+      "name": "single_outgoing_staging_zero_rows_planned_1",
+      "pass": true,
+      "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"Cash Umum\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Cash Umum\",\"posting_mode\":\"SINGLE_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":1,\"ledgerWritePerformed\":false}"
+    },
+    {
+      "name": "non_cash_staging_zero_rows_planned_1",
+      "pass": true,
+      "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"BCA\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"BCA\",\"funding_source_account\":\"BCA\",\"posting_mode\":\"SINGLE_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":1,\"ledgerWritePerformed\":false}"
+    },
+    {
+      "name": "funded_prompt_display",
+      "pass": true,
+      "details": "{\"text\":\"Akun transaksi: Cash Umum\\nSumber dana: Blu Pocket\\nNominal: 1\\nDeskripsi: makan\",\"mapping\":{}}"
+    },
+    {
+      "name": "ambiguous_subcategory_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"route\":\"ambiguous_prompt\",\"candidates\":[{\"category\":\"Health\",\"subcategory\":\"Medicine\"},{\"category\":\"Pets\",\"subcategory\":\"Medicine\"}]}"
+    },
+    {
+      "name": "category_only_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"route\":\"subcategory_prompt_single_category\",\"selected_category\":\"Food & Drink\"}"
+    },
+    {
+      "name": "cancel_subcategory_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"cancelled\":true,\"fallback_to_review\":true,\"status\":\"review_queue_fallback_after_clarification_failed\",\"clarification_type\":\"outgoing_confirmation\",\"mock_write_tab\":\"🧾 Review Queue\"}"
+    },
+    {
+      "name": "help_route_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"route\":\"help\"}"
+    },
+    {
+      "name": "add_flow_selection",
+      "pass": true,
+      "details": "{\"handled\":true,\"waiting\":true,\"route\":\"add_flow_out_of_scope\"}"
+    },
+    {
+      "name": "income_rejected_for_outgoing_category_only",
+      "pass": true,
+      "details": "{\"handled\":false,\"error\":\"incompatible_category\",\"category\":\"Income\",\"route\":\"retry_subcategory_prompt\"}"
+    },
+    {
+      "name": "income_rejected_for_outgoing_resolved",
+      "pass": true,
+      "details": "{\"handled\":false,\"error\":\"incompatible_category\",\"category\":\"Income\",\"route\":\"retry_subcategory_prompt\"}"
+    },
+    {
+      "name": "normalize_validation_preserves_valid_account",
+      "pass": true,
+      "details": "resVal=Blu Pocket"
+    }
+  ]
+}

@@ -1,23 +1,3 @@
-# AFPD Boot Bundle
-
-AFPD_BOOT_BUNDLE_VERSION=1
-AFPD_BOOT_MODE=FULL_CONTRACT_FIRST
-BOOT_ENTRYPOINT_STATUS=ACTIVE
-AFPD_STATUS=PROPOSED_NOT_CANONICAL
-CANONICAL_ACTIVATION=PENDING_OWNER_APPROVAL
-EVIDENCE_DURABILITY=PARTIAL
-AFPD_MODULES_REQUIRED=14
-LATEST_PROGRESS_READ_LAST=YES
-CURRENT_HANDOFF_READ_LAST=YES
-
-This file is the mandatory AIRO Finance session entrypoint.
-Every module must be read in order before continuing project work.
-
----
-
-<!-- BEGIN_AFPD_MODULE order=1 path=docs/afpd/01_PROJECT_CHARTER.md -->
-# Module 1: docs/afpd/01_PROJECT_CHARTER.md
-
 # 01_PROJECT_CHARTER.md
 
 <!-- AFPD_PROVENANCE
@@ -53,13 +33,6 @@ The purpose of the AIRO Finance Project is to establish a secure, multi-tab tran
 ## Product Boundary
 - **Input Channels**: Telegram bot and Gmail poller.
 - **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
-
-<!-- END_AFPD_MODULE order=1 path=docs/afpd/01_PROJECT_CHARTER.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=2 path=docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md -->
-# Module 2: docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md
 
 # 02_ARCHITECTURE_AND_GOVERNANCE.md
 
@@ -126,13 +99,6 @@ conflict_id: none
 - Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
 - Every completed session MUST update `00_CURRENT_HANDOFF.md`.
 - No task is considered closed until these records are fully updated.
-
-<!-- END_AFPD_MODULE order=2 path=docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=3 path=docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md -->
-# Module 3: docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
 
 # 03_ARFIN_RUNTIME_CONTRACT.md
 
@@ -340,13 +306,6 @@ conflict_id: none
 ### Timezone Discrepancy (SCRIPT_TIMEZONE_VS_POLLER_TIMEZONE)
 The script uses Asia/Jakarta timezone for business calendar dates while the manifest is configured to Asia/Bangkok. This discrepancy is currently an unresolved normalization issue documented under trigger topology.
 
-<!-- END_AFPD_MODULE order=3 path=docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=4 path=docs/afpd/04_RUNTIME_TOPOLOGY.md -->
-# Module 4: docs/afpd/04_RUNTIME_TOPOLOGY.md
-
 # 04_RUNTIME_TOPOLOGY.md
 
 <!-- AFPD_PROVENANCE
@@ -391,13 +350,6 @@ conflict_id: none
 ## Timezone Normalization Issue
 - The script manifest `appsscript.json` specifies `Asia/Bangkok`, while internal script logic calculates times using `Asia/Jakarta`. This remains a known discrepancy.
 
-<!-- END_AFPD_MODULE order=4 path=docs/afpd/04_RUNTIME_TOPOLOGY.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=5 path=docs/afpd/05_STATE_MACHINES.md -->
-# Module 5: docs/afpd/05_STATE_MACHINES.md
-
 # 05_STATE_MACHINES.md
 
 ## Intake Flow States
@@ -418,13 +370,6 @@ conflict_id: none
 - **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
 - **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
 - **Committed Transaction**: Transaction finalized in Account Ledger.
-
-<!-- END_AFPD_MODULE order=5 path=docs/afpd/05_STATE_MACHINES.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=6 path=docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md -->
-# Module 6: docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md
 
 # 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
@@ -630,13 +575,6 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
 2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
 
-<!-- END_AFPD_MODULE order=6 path=docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=7 path=docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md -->
-# Module 7: docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
-
 # 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
 
 ## Deployment Safety
@@ -646,13 +584,6 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 - **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
 
 *Note: No deployment operations were executed in this documentation-only phase.*
-
-<!-- END_AFPD_MODULE order=7 path=docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=8 path=docs/afpd/08_ROADMAP.md -->
-# Module 8: docs/afpd/08_ROADMAP.md
 
 # 08_ROADMAP.md
 
@@ -742,13 +673,6 @@ The current roadmap from the Living PRD defines active tasks:
 ## Historical Sprints
 - Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
 
-<!-- END_AFPD_MODULE order=8 path=docs/afpd/08_ROADMAP.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=9 path=docs/afpd/09_DECISION_REGISTER.md -->
-# Module 9: docs/afpd/09_DECISION_REGISTER.md
-
 # 09_DECISION_REGISTER.md
 
 ## Durable Decision Records
@@ -758,13 +682,6 @@ The current roadmap from the Living PRD defines active tasks:
 - **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
 - **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
 - **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
-
-<!-- END_AFPD_MODULE order=9 path=docs/afpd/09_DECISION_REGISTER.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=10 path=docs/afpd/11_INCIDENT_REGISTER.md -->
-# Module 10: docs/afpd/11_INCIDENT_REGISTER.md
 
 # 11_INCIDENT_REGISTER.md
 
@@ -906,12 +823,7 @@ The current roadmap from the Living PRD defines active tasks:
 - **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
 - **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
 
-<!-- END_AFPD_MODULE order=10 path=docs/afpd/11_INCIDENT_REGISTER.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=11 path=docs/afpd/12_EVIDENCE_INDEX.md -->
-# Module 11: docs/afpd/12_EVIDENCE_INDEX.md
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
 # 12_EVIDENCE_INDEX.md
 
@@ -980,12 +892,7 @@ The current roadmap from the Living PRD defines active tasks:
 - **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
 - **Apps Script deployment evidence**: NOT YET AVAILABLE
 
-<!-- END_AFPD_MODULE order=11 path=docs/afpd/12_EVIDENCE_INDEX.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=12 path=docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md -->
-# Module 12: docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1005,13 +912,6 @@ The current roadmap from the Living PRD defines active tasks:
 
 ### Fallback-Only Review Queue Interpretation
 - The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
-
-<!-- END_AFPD_MODULE order=12 path=docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=13 path=docs/afpd/10_PROGRESS_LOG.md -->
-# Module 13: docs/afpd/10_PROGRESS_LOG.md
 
 # 10_PROGRESS_LOG.md
 
@@ -1187,12 +1087,7 @@ The current roadmap from the Living PRD defines active tasks:
 - **Incident**: `AFPD-INC-009` remains open.
 - **Next**: Resume Gate P2 under existing Owner authorization.
 
-<!-- END_AFPD_MODULE order=13 path=docs/afpd/10_PROGRESS_LOG.md -->
-
----
-
-<!-- BEGIN_AFPD_MODULE order=14 path=docs/afpd/00_CURRENT_HANDOFF.md -->
-# Module 14: docs/afpd/00_CURRENT_HANDOFF.md
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
 # 00_CURRENT_HANDOFF.md
 
@@ -1254,4 +1149,4 @@ The current roadmap from the Living PRD defines active tasks:
 - **AFPD status**: `PROPOSED_NOT_CANONICAL`
 - **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
 
-<!-- END_AFPD_MODULE order=14 path=docs/afpd/00_CURRENT_HANDOFF.md -->
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.

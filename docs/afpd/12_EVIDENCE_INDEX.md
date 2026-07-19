@@ -64,3 +64,5 @@
 - **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
 - **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
 - **Apps Script deployment evidence**: NOT YET AVAILABLE
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.

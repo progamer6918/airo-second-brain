@@ -48,6 +48,11 @@ function functionInventory(text) {
 const functions = functionInventory(source);
 
 const requiredFunctions = [
+  "airoSprint7CategoryContractResolveAnswerTextWithRegistry_",
+  "airoIsExpenseCompatibleCategory_",
+  "airoNormalizeNumericOrLetterChoice_",
+  "airoParseSubcategoryChoice_",
+  "airoTask105BuildDeterministicCategoryRegistryForSelfTest_",
   "airoHandleOutgoingConfirmationReplyDryRun_",
   "runTask105OutgoingConfirmationGateSelfTestFromEditor",
 ];
@@ -239,6 +244,41 @@ const context = {
 };
 
 vm.createContext(context);
+
+vm.runInContext(
+  functions.get(
+    "airoSprint7CategoryContractResolveAnswerTextWithRegistry_"
+  ),
+  context
+);
+
+vm.runInContext(
+  functions.get(
+    "airoIsExpenseCompatibleCategory_"
+  ),
+  context
+);
+
+vm.runInContext(
+  functions.get(
+    "airoNormalizeNumericOrLetterChoice_"
+  ),
+  context
+);
+
+vm.runInContext(
+  functions.get(
+    "airoParseSubcategoryChoice_"
+  ),
+  context
+);
+
+vm.runInContext(
+  functions.get(
+    "airoTask105BuildDeterministicCategoryRegistryForSelfTest_"
+  ),
+  context
+);
 
 vm.runInContext(
   functions.get(

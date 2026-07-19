@@ -57,3 +57,5 @@
 - **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
 - **AFPD status**: `PROPOSED_NOT_CANONICAL`
 - **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
