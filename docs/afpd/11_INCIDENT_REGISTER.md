@@ -187,3 +187,5 @@
 - 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
 
 - 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
