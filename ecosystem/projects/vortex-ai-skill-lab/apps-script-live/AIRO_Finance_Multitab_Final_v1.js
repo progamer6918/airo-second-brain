@@ -4775,10 +4775,34 @@ function resolvePostingModeAndFundingSource_(parsed, rawText) {
   }
 }
 
+function parseContextualAccounts_(rawText) {
+  const t = String(rawText || '');
+  var result = { account: '', funding_source_account: '' };
+
+  var execMatch = /(?:akun|account)\s+(?:transaksi|pembayaran)\s+([a-z0-9\s]+?)(?=\s+(?:sumber|dana|afpd|$))/i.exec(t);
+  if (execMatch) {
+    var matchedAcc = parseAccount_(execMatch[1]);
+    if (matchedAcc && matchedAcc !== 'Unknown') {
+      result.account = matchedAcc;
+    }
+  }
+
+  var fundMatch = /(?:sumber\s+dana|dana\s+dari|funding\s+source)\s+([a-z0-9\s]+?)(?=\s+afpd|\s*$)/i.exec(t);
+  if (fundMatch) {
+    var matchedFund = parseAccount_(fundMatch[1]);
+    if (matchedFund && matchedFund !== 'Unknown') {
+      result.funding_source_account = matchedFund;
+    }
+  }
+
+  return result;
+}
+
 function parseFinanceText_(rawText) {
   const text = String(rawText || '').toLowerCase();
   const gold = parseGoldAsset_(rawText);
   const baseAmount = parseAmount_(text);
+  const contextualAccounts = parseContextualAccounts_(rawText);
 
   // AIRO_TASK6C_GOLD_EXPLICIT_AMOUNT_PRIORITY_V1
   // Explicit user-typed amount must win over market-estimated value.
@@ -4797,7 +4821,8 @@ function parseFinanceText_(rawText) {
     subcategory: parseSubcategory_(rawText),
     description: rawText,
     amount,
-    account: parseAccount_(text),
+    account: contextualAccounts.account || parseAccount_(text),
+    funding_source_account: contextualAccounts.funding_source_account || '',
     creditor: parseCreditor_(text),
     merchant: parseMerchant_(text),
     billingCycleId: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM'),
@@ -4842,12 +4867,21 @@ function parseFinanceText_(rawText) {
 
 function sanitizeAmountExtractionText_(text) {
   return String(text || '')
-    .replace(/\b(?:smk|qa|test)_[a-z0-9_]+/gi, ' ')
+    .replace(/\b(?:smk|qa|test|afpd)_[a-z0-9_]+/gi, ' ')
     .replace(/(?<=\d)\.(?=\d{3}(?:\D|$))/g, '');
 }
 
 function parseAmount_(text) {
   const amountText = sanitizeAmountExtractionText_(text);
+
+  const rpMatch = /\brp\s*([\d.,]+)\b/i.exec(amountText);
+  if (rpMatch) {
+    const cleanRp = rpMatch[1].replace(/\./g, '').replace(',', '.');
+    const rpVal = Math.round(Number(cleanRp));
+    if (!isNaN(rpVal) && rpVal > 0) {
+      return rpVal;
+    }
+  }
 
   const re = /(\d+(?:[.,]\d+)?)\s*(jt|juta|rb|ribu|k)?\b/gi;
   let m;
@@ -22766,13 +22800,13 @@ function airoSprint7FBuildFriendlyClarificationMessage_(candidateId, candidate) 
   } else if (direction === "pemasukan") {
     lines.push("Ini sumbernya apa?");
     lines.push("");
-    lines.push("A. Gaji / income");
-    lines.push("B. Refund");
-    lines.push("C. Transfer antar akun sendiri");
-    lines.push("D. Piutang dibayar");
-    lines.push("E. Lainnya");
+    lines.push("1. Gaji / income");
+    lines.push("2. Refund");
+    lines.push("3. Transfer antar akun sendiri");
+    lines.push("4. Piutang dibayar");
+    lines.push("5. Lainnya");
     lines.push("");
-    lines.push("Balas A/B/C/D/E.");
+    lines.push("Balas angka pilihan.");
   } else {
     lines.push("Ini maksudnya apa?");
     lines.push("");
@@ -23065,6 +23099,11 @@ function airoSprint7FResolveAnswerLabel_(answer, pending) {
       E: "Cari kategori / lihat bantuan"
     },
     category_income: {
+      "1": "Gaji / income",
+      "2": "Refund",
+      "3": "Transfer antar akun sendiri",
+      "4": "Piutang dibayar",
+      "5": "Lainnya",
       A: "Gaji / income",
       B: "Refund",
       C: "Transfer antar akun sendiri",
@@ -29143,6 +29182,30 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var tc13 = (res13.handled === false && res13.error === "incompatible_category" && res13.route === "retry_subcategory_prompt");
   cases.push({ name: "income_rejected_for_outgoing_resolved", pass: tc13, details: JSON.stringify(res13) });
   if (!tc13) passed = false;
+
+  // Case 18: contextual account & funding source parsing
+  var p18 = parseFinanceText_("tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPDLIVEFUNDINGFIRSTALPHA");
+  var tc18 = (p18.amount === 1 && p18.account === "Cash Umum" && p18.funding_source_account === "Blu Pocket" && p18.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING");
+  cases.push({ name: "contextual_account_funding_parse_cash_umum_blu_pocket", pass: tc18, details: JSON.stringify(p18) });
+  if (!tc18) passed = false;
+
+  // Case 19: digit marker does not override Rp1
+  var p19 = parseFinanceText_("tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPD_P2_LIVE_FUNDING_FIRST_20260719_150950");
+  var tc19 = (p19.amount === 1);
+  cases.push({ name: "digit_marker_does_not_override_rp1", pass: tc19, details: JSON.stringify(p19) });
+  if (!tc19) passed = false;
+
+  // Case 20: subcategory prompt displays execution and funding labels
+  var res20 = airoBuildSubcategoryGroupedPromptMessage_(1, "Blu Pocket", "makan", registryMock, "Cash Umum");
+  var tc20 = (res20.text.includes("Akun transaksi: Cash Umum") && res20.text.includes("Sumber dana: Blu Pocket"));
+  cases.push({ name: "subcategory_prompt_displays_execution_and_funding_labels", pass: tc20, details: JSON.stringify(res20) });
+  if (!tc20) passed = false;
+
+  // Case 21: email income prompt displays numeric options 1..5
+  var prompt21 = airoSprint7FBuildFriendlyClarificationMessage_("test", { inferred_direction: "pemasukan" });
+  var tc21 = (prompt21.includes("1. Gaji / income") && prompt21.includes("Balas angka pilihan.") && !prompt21.includes("A. Gaji / income") && !prompt21.includes("Balas A/B/C/D/E"));
+  cases.push({ name: "email_income_prompt_numeric_not_alpha", pass: tc21, details: JSON.stringify(prompt21) });
+  if (!tc21) passed = false;
 
   // Extra case: verify Account validation bypass logic
   var mockValRange = {

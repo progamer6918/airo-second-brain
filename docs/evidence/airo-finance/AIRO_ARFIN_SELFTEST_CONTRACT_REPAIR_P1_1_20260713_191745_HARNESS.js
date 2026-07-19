@@ -55,6 +55,37 @@ const requiredFunctions = [
   "airoTask105BuildDeterministicCategoryRegistryForSelfTest_",
   "airoHandleOutgoingConfirmationReplyDryRun_",
   "runTask105OutgoingConfirmationGateSelfTestFromEditor",
+  "parseFinanceText_",
+  "parseContextualAccounts_",
+  "airoSprint7FBuildFriendlyClarificationMessage_",
+  "airoSprint7FFormatRupiah_",
+  "parseAccount_",
+  "parseDate_",
+  "parseType_",
+  "parseCategory_",
+  "parseSubcategory_",
+  "parseCreditor_",
+  "parseMerchant_",
+  "parseAssetSection_",
+  "parseGoldAsset_",
+  "parseAmount_",
+  "sanitizeAmountExtractionText_",
+  "reviewIssueReasonForParsed_",
+  "isClearDebtBorrowIntentForDirectHutang_",
+  "detectInternalTransfer_",
+  "resolvePostingModeAndFundingSource_",
+  "extractFundingSource_",
+  "getEligibleFundingSourceAccounts_",
+  "getStaticEligibleFundingSourceAccounts_",
+  "isCashInflowText_",
+  "isCreditCardPaymentText_",
+  "isCreditCardPurchaseText_",
+  "isBorrowInText_",
+  "isDebtPaymentText_",
+  "airoSprint7AccountContractGetRegistry_",
+  "airoSprint7ParseCategoryAndSubcategoryFromText_",
+  "airoSprint7FEmailLogHeaders_",
+  "airoSprint7FEnsureEmailLogSheet_",
 ];
 
 for (const name of requiredFunctions) {
@@ -69,6 +100,12 @@ const context = {
   console,
   Logger: {
     log: (value) => logs.push(String(value)),
+  },
+  Utilities: {
+    formatDate: (date, tz, fmt) => "2026-07-19",
+  },
+  Session: {
+    getScriptTimeZone: () => "Asia/Jakarta",
   },
 
   SpreadsheetApp: {
@@ -287,12 +324,21 @@ vm.runInContext(
   context
 );
 
-vm.runInContext(
-  functions.get(
-    "runTask105OutgoingConfirmationGateSelfTestFromEditor"
-  ),
-  context
-);
+for (const [name, code] of functions.entries()) {
+  try {
+    vm.runInContext(code, context);
+  } catch (e) {
+    // ignore dependency order issues during initial load
+  }
+}
+// Second pass for functions that depend on other functions
+for (const [name, code] of functions.entries()) {
+  try {
+    vm.runInContext(code, context);
+  } catch (e) {
+    // ignore
+  }
+}
 
 const result = vm.runInContext(
   "runTask105OutgoingConfirmationGateSelfTestFromEditor()",
