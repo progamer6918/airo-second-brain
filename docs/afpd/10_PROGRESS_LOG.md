@@ -183,3 +183,5 @@
 - 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
 
 - 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.

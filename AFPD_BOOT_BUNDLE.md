@@ -835,6 +835,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
 
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -913,6 +915,8 @@ The current roadmap from the Living PRD defines active tasks:
 - 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
 
 - 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1119,6 +1123,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
 
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
 # 00_CURRENT_HANDOFF.md
 
 ## Current Verified State
@@ -1229,3 +1235,15 @@ The current roadmap from the Living PRD defines active tasks:
 - **INCIDENT_RESOLVED**: NO
 - **NEXT_SAFE_GATE**: GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
 - **Marker**: `AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_TELEGRAM_LIVE_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`

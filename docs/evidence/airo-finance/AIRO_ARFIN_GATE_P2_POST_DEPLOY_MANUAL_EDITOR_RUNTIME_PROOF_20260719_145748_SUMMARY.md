@@ -1,0 +1,33 @@
+# AIRO Finance Gate P2 Post-Deploy Manual Editor Runtime Proof
+
+- **Marker**: `AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`
+- **Timestamp**: `20260719_145748`
+- **Base Commit SHA**: `4fc60a3f7bf8e47a1273f8cc80cc5431334f8c96`
+- **Source SHA256**: `1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a`
+- **Active Deployment Version**: `379` (Readback PASS)
+- **Previous Active Deployment Version**: `377`
+- **Failed Historical Deployment Version**: `378`
+- **Target Deployment Suffix**: `ZYjuOA`
+- **Owner Post-Deploy Manual Editor Proof**: `PASS 17/17` (`runTask105OutgoingConfirmationGateSelfTestFromEditor` from editor at 14.44.09 - 14.44.14)
+- **Inherited Proof Method Decision**: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`
+- **Controlled CLI Clasp Run Status**: `BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT`
+- **Source / Harness Syntax**: PASS
+- **Local Harness Self-Test**: 17/17 PASS
+- **Funding Prompt Display Proof**: PASS (`Akun transaksi: Cash Umum`, `Sumber dana: Blu Pocket`)
+- **Review Queue Fallback Proof**: PASS
+- **Income Rejection Proof**: PASS (`incompatible_category`)
+- **Funded Payment Planned Rows**: 3 (actual: 0)
+- **Single Outgoing Planned Rows**: 1 (actual: 0)
+- **Non-Cash Planned Rows**: 1 (actual: 0)
+- **Ledger Write Preapproval**: false
+- **Deployment Performed in Evidence Gate**: NO
+- **Clasp Push / Version / Deploy / Run Performed**: NO
+- **Apps Script Runtime Executed in Evidence Gate**: NO
+- **Workbook Mutation**: NO
+- **Telegram Mutation**: NO
+- **Gmail Mutation**: NO
+- **Runtime Source Changed**: NO
+- **Telegram Live Proof**: NOT_YET_PERFORMED
+- **Workbook Readback**: NOT_YET_PERFORMED
+- **Incident Status**: `AFPD-INC-009=POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_TELEGRAM_LIVE_PROOF`
+- **Recommended Next Gate**: `GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_PREFLIGHT`
