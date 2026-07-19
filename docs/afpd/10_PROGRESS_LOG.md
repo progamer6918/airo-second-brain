@@ -207,3 +207,5 @@
 - 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
 
 - 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
