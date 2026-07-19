@@ -161,3 +161,5 @@
 - 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
 
 - 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
