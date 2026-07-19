@@ -1,0 +1,26 @@
+# AIRO Finance Gate P2 Runtime Failure Root Cause Analysis (NO DEPLOY)
+
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`
+- **Timestamp**: `20260719_115442`
+- **Base Commit SHA**: `a41c231aeca3b864e3946f800c593f4f1005165e`
+- **Source SHA256**: `1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a`
+- **Active Deployment Version**: `377` (Rollback confirmed)
+- **Failed Apps Script Version**: `378` (Rolled back)
+- **Target Deployment Suffix**: `ZYjuOA`
+- **Redacted Failure Reason**: `Unable to run script function. Please make sure you have permission to run the script function.`
+- **Clasp Auth Found**: YES (`~/.clasprc.json` present)
+- **Source Function Visible**: YES (`runTask105OutgoingConfirmationGateSelfTestFromEditor` declared at top level)
+- **Source / Harness Syntax**: PASS
+- **Local Harness Self-Test**: 17/17 PASS
+- **Appsscript Manifest**: `NO`
+- **RCA Classification**: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`
+- **RCA Confidence**: `HIGH`
+- **Analysis Details**: `npx clasp run` requires Google Apps Script Execution API authorization and OAuth scopes enabled for the CLI client in GCP Console. Function declaration and deployment payload are valid, but CLI execution context lacks Execution API permissions.
+- **Deployment Performed**: NO
+- **Clasp Push / Deploy / Run Performed**: NO
+- **Workbook Mutation**: NO
+- **Telegram Mutation**: NO
+- **Gmail Mutation**: NO
+- **Runtime Source Changed**: NO
+- **Incident Status**: `AFPD-INC-009=RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED_RCA_IN_PROGRESS`
+- **Recommended Next Gate**: `GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`

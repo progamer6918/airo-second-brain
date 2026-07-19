@@ -141,3 +141,5 @@
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
 - 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
