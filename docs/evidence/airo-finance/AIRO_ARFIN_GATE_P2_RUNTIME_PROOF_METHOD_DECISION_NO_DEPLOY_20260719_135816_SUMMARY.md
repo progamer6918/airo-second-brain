@@ -1,0 +1,28 @@
+# AIRO Finance Gate P2 Runtime Proof Method Decision (NO DEPLOY)
+
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`
+- **Timestamp**: `20260719_135816`
+- **Base Commit SHA**: `de6c667dc0c890aaed3a5b858ff4c1eff685c25e`
+- **Source SHA256**: `1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a`
+- **Owner Manual Runtime Proof**: `PASS 17/17` (`runTask105OutgoingConfirmationGateSelfTestFromEditor` from editor)
+- **Controlled CLI Clasp Run Status**: `FAIL` (`Unable to run script function. Please make sure you have permission to run the script function.`)
+- **Runtime Proof Method Decision**: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`
+- **Limitations**: `CLASP_RUN_BLOCKED_TELEGRAM_AND_WORKBOOK_UNPROVEN_INCIDENT_UNRESOLVED`
+- **Active Deployment Version**: `377`
+- **Failed Apps Script Version**: `378` (Rolled back)
+- **Funding Prompt Display Proof**: PASS (`Akun transaksi: Cash Umum`, `Sumber dana: Blu Pocket`)
+- **Funded Payment Planned Rows**: 3 (actual: 0)
+- **Single Outgoing Planned Rows**: 1 (actual: 0)
+- **Non-Cash Planned Rows**: 1 (actual: 0)
+- **Ledger Write Preapproval**: false
+- **Deployment Performed**: NO
+- **Clasp Run Performed in Gate**: NO
+- **Clasp Push / Deploy Performed**: NO
+- **Workbook Mutation**: NO
+- **Telegram Mutation**: NO
+- **Gmail Mutation**: NO
+- **Runtime Source Changed**: NO
+- **Telegram Live Proof**: NOT_YET_PERFORMED
+- **Workbook Readback**: NOT_YET_PERFORMED
+- **Incident Status**: `AFPD-INC-009=RUNTIME_PROOF_METHOD_DECIDED_MANUAL_EDITOR_SELFTEST_ACCEPTED_WITH_LIMITATIONS`
+- **Recommended Next Gate**: `GATE_P2_GUARDED_DEPLOYMENT_RETRY_PREFLIGHT_MANUAL_RUNTIME_PROOF_METHOD`
