@@ -185,3 +185,5 @@
 - 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
 
 - 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
