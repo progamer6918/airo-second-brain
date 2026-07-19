@@ -486,3 +486,5 @@ console.log(
       output.same_planned_postapproval_rows,
   })
 );
+
+// Gate P2 Email Expense Numeric Prompt Repair Integration: 24 tests total

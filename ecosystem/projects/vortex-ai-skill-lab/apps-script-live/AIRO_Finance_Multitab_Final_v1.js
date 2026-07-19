@@ -23092,6 +23092,11 @@ function airoSprint7FResolveAnswerLabel_(answer, pending) {
 
   var maps = {
     category_expense: {
+      "1": "Food & Drink",
+      "2": "Transport",
+      "3": "Groceries",
+      "4": "Utilities",
+      "5": "Cari kategori / lihat bantuan",
       A: "Food & Drink",
       B: "Transport",
       C: "Groceries",
@@ -23311,8 +23316,8 @@ function airoSprint7FDInferAction_(pending, resolved, answer) {
 
   // 1. Context-aware category mapping for category_expense
   if (questionType === "category_expense") {
-    if (choice === "E") return "manual_review";
-    if (choice === "A" || choice === "B" || choice === "C" || choice === "D") {
+    if (choice === "E" || choice === "5") return "manual_review";
+    if (choice === "A" || choice === "B" || choice === "C" || choice === "D" || choice === "1" || choice === "2" || choice === "3" || choice === "4") {
       return isCcCandidate ? "cc_purchase" : "wallet_expense";
     }
   }
@@ -23686,13 +23691,13 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
 
   if (state === "category_pending") {
     var answer = textRaw.toUpperCase();
-    if (!/^[A-E]$/.test(answer)) {
+    if (!/^[A-E1-5]$/.test(answer)) {
       return null;
     }
 
     var key = pending._property_key || ("AIRO_SPRINT7F_PENDING_EMAIL_" + String(parsed.chat_id));
 
-    if (answer === "E") {
+    if (answer === "E" || answer === "5") {
       pending.clarification_state = "category_search_pending";
       airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
 
@@ -23724,6 +23729,10 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
       });
     } else {
       var categoryMap = {
+        "1": "Food & Drink",
+        "2": "Transport",
+        "3": "Groceries",
+        "4": "Utilities",
         A: "Food & Drink",
         B: "Transport",
         C: "Groceries",
@@ -29206,6 +29215,26 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var tc21 = (prompt21.includes("1. Gaji / income") && prompt21.includes("Balas angka pilihan.") && !prompt21.includes("A. Gaji / income") && !prompt21.includes("Balas A/B/C/D/E"));
   cases.push({ name: "email_income_prompt_numeric_not_alpha", pass: tc21, details: JSON.stringify(prompt21) });
   if (!tc21) passed = false;
+
+  // Case 22: email expense category prompt displays numeric options 1..5
+  var prompt22 = airoSprint7FBuildFriendlyClarificationMessage_("test", { inferred_direction: "pengeluaran" });
+  var tc22 = (prompt22.includes("1.") && prompt22.includes("Balas angka akun, atau tulis nama akun.") && !prompt22.includes("A. Food & Drink") && !prompt22.includes("Balas A/B/C/D/E"));
+  cases.push({ name: "email_expense_category_prompt_numeric_not_alpha", pass: tc22, details: JSON.stringify(prompt22) });
+  if (!tc22) passed = false;
+
+  // Case 23: email expense category numeric choice maps Food & Drink
+  var ans23 = airoSprint7FResolveAnswerLabel_("1", { clarification_question_type: "category_expense" });
+  var ans23Legacy = airoSprint7FResolveAnswerLabel_("A", { clarification_question_type: "category_expense" });
+  var tc23 = (ans23.ok === true && ans23.label === "Food & Drink" && ans23Legacy.ok === true && ans23Legacy.label === "Food & Drink");
+  cases.push({ name: "email_expense_category_numeric_choice_maps_food_drink", pass: tc23, details: JSON.stringify({ num: ans23, legacy: ans23Legacy }) });
+  if (!tc23) passed = false;
+
+  // Case 24: email expense category numeric choice help option
+  var ans24 = airoSprint7FResolveAnswerLabel_("5", { clarification_question_type: "category_expense" });
+  var ans24Legacy = airoSprint7FResolveAnswerLabel_("E", { clarification_question_type: "category_expense" });
+  var tc24 = (ans24.ok === true && ans24.label === "Cari kategori / lihat bantuan" && ans24Legacy.ok === true && ans24Legacy.label === "Cari kategori / lihat bantuan");
+  cases.push({ name: "email_expense_category_numeric_choice_help_option", pass: tc24, details: JSON.stringify({ num: ans24, legacy: ans24Legacy }) });
+  if (!tc24) passed = false;
 
   // Extra case: verify Account validation bypass logic
   var mockValRange = {
