@@ -825,6 +825,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -893,6 +895,8 @@ The current roadmap from the Living PRD defines active tasks:
 - **Apps Script deployment evidence**: NOT YET AVAILABLE
 
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1089,6 +1093,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
 
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
 # 00_CURRENT_HANDOFF.md
 
 ## Current Verified State
@@ -1150,3 +1156,11 @@ The current roadmap from the Living PRD defines active tasks:
 - **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
 
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+## Gate P2 Rollback Confirmation
+- **AFPD-INC-009**: DEPLOYMENT_ATTEMPTED_RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL
+- **ROLLBACK_STATUS**: CONFIRMED_TO_VERSION_377
+- **NEXT_SAFE_GATE**: GATE_P2_RUNTIME_FAILURE_ROOT_CAUSE_ANALYSIS_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`

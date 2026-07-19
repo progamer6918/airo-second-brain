@@ -139,3 +139,5 @@
 - **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
 
 - 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.

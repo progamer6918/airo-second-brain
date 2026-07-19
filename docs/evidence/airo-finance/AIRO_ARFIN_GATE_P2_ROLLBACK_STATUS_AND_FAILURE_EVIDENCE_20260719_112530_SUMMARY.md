@@ -1,0 +1,26 @@
+# AIRO Finance Gate P2 Rollback Status & Failure Evidence
+
+- **Marker**: `AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`
+- **Timestamp**: `20260719_112530`
+- **Owner Approval**: `APPROVE GATE_P2_GUARDED_DEPLOYMENT_EXECUTION`
+- **Base Commit SHA**: `ffe5ea145e8928ada24b33a5f54911de31708e90`
+- **Source SHA256**: `1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a`
+- **Clasp Push Performed**: YES
+- **Failed Apps Script Version**: `378`
+- **Deployment Readback**: PASS (version 378 deployed)
+- **Post-Deploy Runtime Function**: `runTask105OutgoingConfirmationGateSelfTestFromEditor`
+- **Post-Deploy Runtime Status**: FAIL
+- **Redacted Failure Reason**: `Unable to run script function. Please make sure you have permission to run the script function.`
+- **Rollback Performed**: YES
+- **Rollback Result**: `SUCCESS_REPORTED`
+- **Rollback Readback**: `CONFIRMED_TO_VERSION_377`
+- **Active Deployment Version**: `377`
+- **Target Deployment Suffix**: `ZYjuOA`
+- **Previous Deployment Version**: `377`
+- **Workbook Mutation**: NO
+- **Telegram Mutation**: NO
+- **Gmail Mutation**: NO
+- **Runtime Source Changed**: NO
+- **Retry Deployment**: NO
+- **Incident Status**: `AFPD-INC-009=DEPLOYMENT_ATTEMPTED_RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED`
+- **Next Gate**: `GATE_P2_RUNTIME_FAILURE_ROOT_CAUSE_ANALYSIS_NO_DEPLOY`
