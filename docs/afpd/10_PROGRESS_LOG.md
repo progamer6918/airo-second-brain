@@ -247,3 +247,7 @@
 ## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
 
 RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source only, no deploy. Local selftest PASS 65/65. Source SHA after repair 1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c. Direction pending now runs before category pending and Food & Drink map. Incident unresolved pending post-repair preflight, guarded deployment, owner runtime proof, and fresh live retest.
+
+## 20260720_220143 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_GUARDED_DEPLOYMENT_RETRY_AFTER_VERSION_CLEANUP
+
+RESULT=PASS. After owner bulk cleanup of unused Apps Script versions, retry deployment completed. Active deployment suffix ZYjuOA updated to Apps Script version 385 with source SHA a8c35c1bb7acd0484c7f3fa455ca8ca20e01ef0351932448672883f871afceaf. Local selftest PASS 65/65. No clasp run, no Gmail, no poller, no Telegram, no workbook mutation, no approval. INCIDENT_RESOLVED=NO pending owner runtime proof and fresh live retest.

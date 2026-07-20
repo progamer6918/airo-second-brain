@@ -213,3 +213,7 @@
 ## 20260720_210710 — AFPD-INC-009 update
 
 STATUS=REPAIRED_LOCALLY_NO_DEPLOY. V384 live email alpha prompt regression and pending-state Food & Drink misroute repaired locally. Production deployment still v384 and not updated with this repair. INCIDENT_RESOLVED=NO.
+
+## 20260720_220143 — AFPD-INC-009 deployment retry update
+
+STATUS=DEPLOYED_V385_AWAITING_OWNER_RUNTIME_PROOF. Version-limit blocker cleared by owner cleanup. Active deployment ZYjuOA updated to version 385. INCIDENT_RESOLVED=NO until owner runtime proof and fresh live retest pass.
