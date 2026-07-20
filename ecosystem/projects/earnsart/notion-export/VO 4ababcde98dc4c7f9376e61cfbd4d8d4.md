@@ -1,0 +1,15 @@
+# VO
+
+Setelah mengeksplor "Dust & Neon", mari kita alihkan perhatian kita ke petualangan berikutnya dalam "Relic Hunter: Rebels". Dalam game ini, lo akan bergabung dengan Pinkyy, Jimmy, Raff, dan Ace, yang merupakan anggota pemburu relik yang berani melawan kekaisaran Ducan di luar angkasa. Mereka harus menemukan cara untuk mempersatukan suku-suku yang berseteru demi menghadapi ancaman bersama.
+
+Dalam "Relic Hunter: Rebels", lo akan memasuki dunia yang penuh dengan konflik, di mana empat suku yang berbeda berjuang untuk bertahan hidup dan kebebasan mereka di tengah-tengah ancaman yang dihadirkan oleh kekaisaran Ducan yang jahat. Cerita game ini menarik lo ke dalam narasi yang kompleks dan mendalam, di mana lo akan mengeksplor dinamika antara suku-suku ini, menemukan akar masalah konflik mereka, dan mengambil peran penting dalam upaya mereka untuk bersatu melawan musuh bersama.
+
+Setiap karakter Pemburu Relik memiliki latar belakang dan motivasi yang unik, dan lo akan melihat bagaimana perbedaan ini memengaruhi interaksi mereka satu sama lain dan dengan suku-suku lain di sekitar mereka. Melalui dialog-dialog yang menarik dan pembangunan karakter yang mendalam, lo akan merasa terhubung dengan dunia game ini dan menjadi lebih terlibat dalam perjalanan mereka.
+
+Fitur-fitur gameplay yang disediakan oleh "Relic Hunter: Rebels" menambahkan kedalaman dan kompleksitas pada pengalaman bermain lo. Dengan sistem penyesuaian senjata yang luas, lo memiliki kebebasan untuk merakit senjata yang sesuai dengan gaya bermain lo sendiri. Bukan hanya itu, lo juga bisa meningkatkan senjata yang sudah lo miliki dengan mengumpulkan berbagai cetak biru, bahan, dan sumber daya selama lo menjelajahi level-level yang berwarna-warni dan penuh tantangan.
+
+Tantangan utama lo adalah menghadapi pasukan kekaisaran Ducan yang kuat dan licik. Dengan menggunakan keterampilan lo dalam menembak dan menghindari serangan musuh, lo harus mempertahankan diri lo sendiri dan membantu suku-suku yang terpinggirkan untuk melawan penindasan yang mereka alami. Di sepanjang perjalanan lo, lo akan menemukan berbagai misi dan tujuan yang harus lo capai, menambah kedalaman dan keragaman pada pengalaman bermain lo.
+
+Dengan grafis yang memukau dan desain level yang rumit, "Relic Hunter: Rebels" membawa lo ke dalam dunia yang hidup dan menarik. Setiap level dirancang dengan cermat untuk memberikan tantangan yang unik dan memuaskan, sementara musik dan efek suara yang menarik menambahkan nuansa dan atmosfer yang mendalam pada setiap momen dalam game.
+
+Jadi, siapkan diri lo untuk merasakan petualangan yang mendebarkan, cerita yang mendalam, dan tantangan yang menantang dalam "Relic Hunter: Rebels". Bersiaplah untuk menjelajahi dunia yang penuh dengan misteri dan bahaya, dan bergabunglah dalam perjuangan para Pemburu Relik untuk membebaskan planet mereka dari cengkeraman kekaisaran Ducan yang jahat.
