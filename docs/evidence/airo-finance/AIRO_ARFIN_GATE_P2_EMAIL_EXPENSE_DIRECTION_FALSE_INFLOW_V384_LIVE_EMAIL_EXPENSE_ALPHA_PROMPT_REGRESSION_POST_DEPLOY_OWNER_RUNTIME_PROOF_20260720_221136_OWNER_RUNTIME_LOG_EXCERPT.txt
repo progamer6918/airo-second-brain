@@ -1,0 +1,11 @@
+Owner pasted Apps Script editor execution log:
+
+22.05.03 Peringatan Eksekusi dimulai
+22.05.17 Info Logging output too large. Truncating output. {"task":"AIRO Finance Task 10.5S","status":"PASS","mutation_scope":"OUTGOING_CONFIRMATION_GATE_SELFTEST","cases":[...truncated by Apps Script log output...]}
+22.05.17 Peringatan Eksekusi selesai
+
+Accepted with limitation:
+- Apps Script log output was truncated by platform.
+- Top-level runtime status PASS is visible.
+- mutation_scope OUTGOING_CONFIRMATION_GATE_SELFTEST is visible.
+- Deployed source v385 local selftest independently validated PASS 65/65.

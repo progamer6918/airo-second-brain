@@ -217,3 +217,7 @@ STATUS=REPAIRED_LOCALLY_NO_DEPLOY. V384 live email alpha prompt regression and p
 ## 20260720_220143 — AFPD-INC-009 deployment retry update
 
 STATUS=DEPLOYED_V385_AWAITING_OWNER_RUNTIME_PROOF. Version-limit blocker cleared by owner cleanup. Active deployment ZYjuOA updated to version 385. INCIDENT_RESOLVED=NO until owner runtime proof and fresh live retest pass.
+
+## 20260720_221136 — AFPD-INC-009 runtime proof update
+
+STATUS=V385_RUNTIME_PROOF_PASS_AWAITING_FRESH_LIVE_EMAIL_RETEST. Owner runtime proof PASS with Apps Script log truncation limitation. INCIDENT_RESOLVED=NO.

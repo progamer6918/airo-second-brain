@@ -251,3 +251,7 @@ RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source on
 ## 20260720_220143 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_GUARDED_DEPLOYMENT_RETRY_AFTER_VERSION_CLEANUP
 
 RESULT=PASS. After owner bulk cleanup of unused Apps Script versions, retry deployment completed. Active deployment suffix ZYjuOA updated to Apps Script version 385 with source SHA a8c35c1bb7acd0484c7f3fa455ca8ca20e01ef0351932448672883f871afceaf. Local selftest PASS 65/65. No clasp run, no Gmail, no poller, no Telegram, no workbook mutation, no approval. INCIDENT_RESOLVED=NO pending owner runtime proof and fresh live retest.
+
+## 20260720_221136 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_POST_DEPLOY_OWNER_RUNTIME_PROOF
+
+RESULT=PASS. Owner manually ran Apps Script editor function runTask105OutgoingConfirmationGateSelfTestFromEditor after v385 deployment. Runtime log shows status PASS and mutation_scope OUTGOING_CONFIRMATION_GATE_SELFTEST. Full case JSON was truncated by Apps Script log output limit, accepted with limitation. Local deployed source selftest PASS 65/65. INCIDENT_RESOLVED=NO pending fresh live email retest.
