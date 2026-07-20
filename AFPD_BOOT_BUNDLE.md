@@ -893,6 +893,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 - 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
 
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -1029,6 +1031,8 @@ The current roadmap from the Living PRD defines active tasks:
 - 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
 
 - 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1292,6 +1296,8 @@ The current roadmap from the Living PRD defines active tasks:
 - 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
 
 - 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2296,3 +2302,41 @@ The current roadmap from the Living PRD defines active tasks:
 - **INCIDENT_RESOLVED**: NO
 - **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_PREFLIGHT_NO_DEPLOY
 - **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression State Machine Remediation Plan Amendment Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_AMENDED_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_ADDENDUM_CLASSIFICATION**: LIVE_EMAIL_DIRECTION_PROMPT_RENDERER_AND_PENDING_STATE_MACHINE_ARE_INCONSISTENT_AMBIGUOUS_REPLY_IS_HANDLED_AS_EXPENSE_CATEGORY_SELECTION
+- **RCA_ADDENDUM_CONFIDENCE**: HIGH
+- **RENDERER_ONLY_REPAIR_CONTRACT_STATUS**: SUPERSEDED_INCOMPLETE
+- **STATE_MACHINE_REPAIR_REQUIRED**: YES
+- **AMENDED_REMEDIATION_PLAN_STATUS**: READY
+- **AMENDED_REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_PENDING_STATE_MACHINE_AND_NUMERIC_PROMPT_RENDERING
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **PLANNED_STATE_MACHINE_TESTS**: 8
+- **TOTAL_PLANNED_NEW_TESTS**: 19
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 65
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REVISED_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`
