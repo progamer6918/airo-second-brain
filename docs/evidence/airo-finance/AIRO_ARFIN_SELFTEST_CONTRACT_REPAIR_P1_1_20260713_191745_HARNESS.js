@@ -48,6 +48,13 @@ function functionInventory(text) {
 const functions = functionInventory(source);
 
 const requiredFunctions = [
+  "airoSprint7HHashSubject_",
+  "airoSprint7HClassifyEmailIngestionSkipReason_",
+  "airoSprint7HEmailPromptDispatchResult_",
+  "airoSprint7HShouldWriteProcessedMarker_",
+  "airoSprint7HBuildEmailIngestionDiagnostic_",
+  "normalizeValueForValidation_",
+
   "airoSprint7CategoryContractResolveAnswerTextWithRegistry_",
   "airoIsExpenseCompatibleCategory_",
   "airoNormalizeNumericOrLetterChoice_",
@@ -281,6 +288,8 @@ const context = {
 };
 
 vm.createContext(context);
+vm.runInContext("var normalizeValueForValidation_ = this.normalizeValueForValidation_;", context);
+
 
 vm.runInContext(
   functions.get(

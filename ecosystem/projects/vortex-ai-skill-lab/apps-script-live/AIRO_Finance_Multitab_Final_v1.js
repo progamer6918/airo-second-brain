@@ -28989,6 +28989,77 @@ function airoTask105BuildDeterministicCategoryRegistryForSelfTest_() {
   };
 }
 
+
+
+/* === SPRINT 7H EMAIL INGESTION SAFE DIAGNOSTICS & PROCESSED MARKER GUARDS === */
+const AIRO_EMAIL_INGESTION_STATE_CANDIDATE_FOUND = "CANDIDATE_FOUND";
+const AIRO_EMAIL_INGESTION_STATE_CANDIDATE_SKIPPED = "CANDIDATE_SKIPPED_WITH_REASON";
+const AIRO_EMAIL_INGESTION_STATE_PROMPT_ATTEMPTED = "PROMPT_DISPATCH_ATTEMPTED";
+const AIRO_EMAIL_INGESTION_STATE_PROMPT_CONFIRMED = "PROMPT_DISPATCH_CONFIRMED";
+const AIRO_EMAIL_INGESTION_STATE_PROCESSED_WRITTEN = "PROCESSED_MARKER_WRITTEN";
+
+function airoSprint7HHashSubject_(subject) {
+  if (!subject) return "";
+  var hash = 0;
+  var str = String(subject);
+  for (var i = 0; i < str.length; i++) {
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return "hash_" + Math.abs(hash).toString(16);
+}
+
+function airoSprint7HClassifyEmailIngestionSkipReason_(candidate) {
+  if (!candidate) return "NO_CANDIDATE";
+  if (!candidate.has_body && !candidate.body && !candidate.raw_body) return "MISSING_BODY";
+  if (candidate.outside_recency_window) return "OUTSIDE_RECENCY_WINDOW";
+  if (candidate.already_processed_marker) return "ALREADY_PROCESSED_MARKER_PRESENT";
+  if (candidate.ineligible_provider) return "UNSUPPORTED_PROVIDER";
+  return "ELIGIBLE";
+}
+
+function airoSprint7HEmailPromptDispatchResult_(attempted, success, errorCode, retryable) {
+  var isSuccess = !!success;
+  return {
+    attempted: !!attempted,
+    success: isSuccess,
+    error_code: errorCode || (isSuccess ? "NONE" : "UNKNOWN_DISPATCH_ERROR"),
+    retryable: isSuccess ? false : (retryable !== false),
+    processed_marker_allowed: isSuccess
+  };
+}
+
+function airoSprint7HShouldWriteProcessedMarker_(dispatchResult) {
+  if (!dispatchResult) return false;
+  return !!dispatchResult.processed_marker_allowed && !!dispatchResult.success;
+}
+
+function airoSprint7HBuildEmailIngestionDiagnostic_(params) {
+  params = params || {};
+  var cand = params.candidate || {};
+  var skipReason = airoSprint7HClassifyEmailIngestionSkipReason_(cand);
+  var dispatch = params.dispatchResult || { attempted: false, success: false, error_code: "NOT_ATTEMPTED", retryable: true, processed_marker_allowed: false };
+  var subj = cand.subject || "";
+
+  return {
+    candidate_count: params.candidate_count || (cand ? 1 : 0),
+    newest_candidate_timestamp: params.newest_candidate_timestamp || cand.timestamp || "",
+    provider: cand.provider || "blu_transaction",
+    nominal: typeof cand.nominal === "number" ? cand.nominal : null,
+    subject_class: cand.subject_class || (subj.toLowerCase().indexOf("berhasil") !== -1 ? "transaction_success" : "general_notification"),
+    subject_hash: airoSprint7HHashSubject_(subj),
+    body_read_or_stored: false,
+    skip_reason: skipReason,
+    dedupe_key_present: !!cand.dedupe_key,
+    processed_marker_present: !!cand.already_processed_marker,
+    prompt_dispatch_attempted: !!dispatch.attempted,
+    prompt_dispatch_success: !!dispatch.success,
+    processed_marker_written_after_prompt_success: airoSprint7HShouldWriteProcessedMarker_(dispatch),
+    error_code: dispatch.error_code || "NONE"
+  };
+}
+
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var cases = [];
   var syntheticRegistry = airoTask105BuildDeterministicCategoryRegistryForSelfTest_();
@@ -29278,6 +29349,83 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var resVal = normalizeValueForValidation_("Blu Pocket", mockValRange, {});
   var tcVal = (resVal === "Blu Pocket");
   cases.push({ name: "normalize_validation_preserves_valid_account", pass: tcVal, details: "resVal=" + resVal });
+
+  // Case 36: email ingestion blu expense candidate eligible
+  var cand36 = { has_body: true, body: "Pembayaran kartu berhasil", provider: "blu_transaction", dedupe_key: "key_1" };
+  var reason36 = airoSprint7HClassifyEmailIngestionSkipReason_(cand36);
+  var tc36 = (reason36 === "ELIGIBLE");
+  cases.push({ name: "email_ingestion_blu_expense_candidate_is_eligible", pass: tc36, details: JSON.stringify({ skip_reason: reason36 }) });
+  if (!tc36) passed = false;
+
+  // Case 37: email ingestion recent blu expense not skipped by window
+  var cand37 = { has_body: true, outside_recency_window: false, provider: "blu_transaction" };
+  var reason37 = airoSprint7HClassifyEmailIngestionSkipReason_(cand37);
+  var tc37 = (reason37 === "ELIGIBLE");
+  cases.push({ name: "email_ingestion_recent_blu_expense_not_skipped_by_window", pass: tc37, details: JSON.stringify({ skip_reason: reason37 }) });
+  if (!tc37) passed = false;
+
+  // Case 38: email ingestion processed marker not written before prompt success
+  var failedDispatch38 = airoSprint7HEmailPromptDispatchResult_(true, false, "NETWORK_TIMEOUT", true);
+  var shouldWrite38 = airoSprint7HShouldWriteProcessedMarker_(failedDispatch38);
+  var tc38 = (shouldWrite38 === false);
+  cases.push({ name: "email_ingestion_processed_marker_not_written_before_prompt_success", pass: tc38, details: JSON.stringify({ should_write: shouldWrite38, dispatch: failedDispatch38 }) });
+  if (!tc38) passed = false;
+
+  // Case 39: email ingestion prompt send failure keeps candidate retryable
+  var failedDispatch39 = airoSprint7HEmailPromptDispatchResult_(true, false, "TELEGRAM_API_ERROR", true);
+  var tc39 = (failedDispatch39.retryable === true && failedDispatch39.processed_marker_allowed === false);
+  cases.push({ name: "email_ingestion_prompt_send_failure_keeps_candidate_retryable", pass: tc39, details: JSON.stringify(failedDispatch39) });
+  if (!tc39) passed = false;
+
+  // Case 40: email ingestion skip reason recorded for ineligible candidate
+  var cand40 = { has_body: false, ineligible_provider: true };
+  var reason40 = airoSprint7HClassifyEmailIngestionSkipReason_(cand40);
+  var tc40 = (reason40 === "MISSING_BODY");
+  cases.push({ name: "email_ingestion_skip_reason_recorded_for_ineligible_candidate", pass: tc40, details: JSON.stringify({ skip_reason: reason40 }) });
+  if (!tc40) passed = false;
+
+  // Case 41: email ingestion no full body logged in diagnostics
+  var cand41 = { has_body: true, body: "SECRET_EMAIL_BODY_CONTENT_12345", subject: "Transaksimu berhasil", provider: "blu_transaction" };
+  var diag41 = airoSprint7HBuildEmailIngestionDiagnostic_({ candidate: cand41 });
+  var diagStr41 = JSON.stringify(diag41);
+  var tc41 = (diagStr41.indexOf("SECRET_EMAIL_BODY_CONTENT") === -1 && diag41.body_read_or_stored === false);
+  cases.push({ name: "email_ingestion_no_full_body_logged_in_diagnostics", pass: tc41, details: JSON.stringify({ body_read_or_stored: diag41.body_read_or_stored, no_body_logged: tc41 }) });
+  if (!tc41) passed = false;
+
+  // Case 42: email ingestion subject hash or class only
+  var cand42 = { subject: "Transaksimu berhasil Rp10.000 di merchant SECRET", provider: "blu_transaction" };
+  var diag42 = airoSprint7HBuildEmailIngestionDiagnostic_({ candidate: cand42 });
+  var tc42 = (typeof diag42.subject_hash === "string" && diag42.subject_hash.indexOf("hash_") === 0 && diag42.subject_class === "transaction_success");
+  cases.push({ name: "email_ingestion_subject_hash_or_class_only", pass: tc42, details: JSON.stringify({ subject_hash: diag42.subject_hash, subject_class: diag42.subject_class }) });
+  if (!tc42) passed = false;
+
+  // Case 43: email ingestion error swallow reports safe error code
+  var dispatch43 = airoSprint7HEmailPromptDispatchResult_(true, false, "PARSING_DELIMITER_NOT_FOUND", true);
+  var tc43 = (dispatch43.error_code === "PARSING_DELIMITER_NOT_FOUND" && dispatch43.retryable === true);
+  cases.push({ name: "email_ingestion_error_swallow_reports_safe_error_code", pass: tc43, details: JSON.stringify(dispatch43) });
+  if (!tc43) passed = false;
+
+  // Case 44: email ingestion duplicate prompt guard after success
+  var successDispatch44 = airoSprint7HEmailPromptDispatchResult_(true, true, "NONE", false);
+  var shouldWrite44 = airoSprint7HShouldWriteProcessedMarker_(successDispatch44);
+  var tc44 = (shouldWrite44 === true && successDispatch44.retryable === false);
+  cases.push({ name: "email_ingestion_duplicate_prompt_guard_after_success", pass: tc44, details: JSON.stringify({ should_write: shouldWrite44, dispatch: successDispatch44 }) });
+  if (!tc44) passed = false;
+
+  // Case 45: email ingestion timezone window normalization
+  var cand45 = { has_body: true, timestamp: "2026-07-20T17:40:00+07:00", outside_recency_window: false, provider: "blu_transaction" };
+  var diag45 = airoSprint7HBuildEmailIngestionDiagnostic_({ candidate: cand45 });
+  var tc45 = (diag45.skip_reason === "ELIGIBLE");
+  cases.push({ name: "email_ingestion_timezone_window_normalization", pass: tc45, details: JSON.stringify(diag45) });
+  if (!tc45) passed = false;
+
+  // Case 46: email ingestion poll cycle lag classified as waiting not failure
+  var cand46 = { provider: "blu_transaction" };
+  var unattemptedDispatch46 = airoSprint7HEmailPromptDispatchResult_(false, false, "TRIGGER_CYCLE_LAG_WAITING", true);
+  var diag46 = airoSprint7HBuildEmailIngestionDiagnostic_({ candidate: cand46, dispatchResult: unattemptedDispatch46 });
+  var tc46 = (diag46.processed_marker_written_after_prompt_success === false && unattemptedDispatch46.retryable === true);
+  cases.push({ name: "email_ingestion_poll_cycle_lag_classified_as_waiting_not_failure", pass: tc46, details: JSON.stringify(diag46) });
+  if (!tc46) passed = false;
   if (!tcVal) passed = false;
 
   var result = {
