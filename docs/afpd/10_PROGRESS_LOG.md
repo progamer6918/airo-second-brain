@@ -243,3 +243,7 @@
 - 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
 
 - 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source only, no deploy. Local selftest PASS 65/65. Source SHA after repair 1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c. Direction pending now runs before category pending and Food & Drink map. Incident unresolved pending post-repair preflight, guarded deployment, owner runtime proof, and fresh live retest.

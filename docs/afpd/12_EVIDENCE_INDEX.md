@@ -136,3 +136,12 @@
 - 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
 
 - 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+- Summary: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_SUMMARY.md`
+- Proof JSON: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_PROOF.json`
+- Source SHA before: `c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5`
+- Source SHA after: `1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c`
+- Local selftest: PASS 65/65
+- Deployment: not performed

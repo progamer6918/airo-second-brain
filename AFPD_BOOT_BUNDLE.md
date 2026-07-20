@@ -1,3 +1,7379 @@
+# AFPD Boot Bundle
+> Regenerated after AIRO Finance v384 revised alpha state-machine local repair.
+
+---
+
+## FILE: docs/afpd/01_PROJECT_CHARTER.md
+
+# 01_PROJECT_CHARTER.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 11-18
+source_heading: AIRO Finance Command Center - Final Kitab v2
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 19-50
+source_heading: 0. Executive Decision
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 51-65
+source_heading: 1. Core Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Project Purpose
+The purpose of the AIRO Finance Project is to establish a secure, multi-tab transaction intake system linked to Google Sheets via Telegram bot and Gmail poller, ensuring accurate ledger updates and transaction categorizations.
+
+## Owner-Approved Operating Principles
+1. **Financial Safety**: The system MUST NOT execute automated ledger writes without Owner approval for staged items.
+2. **Clarification-First Behavior**: Mismatched or ambiguous items MUST trigger clarification flows instead of writing default fallback data.
+3. **No Speculative Reset**: Developers/AI MUST NOT redesign the core architecture from zero without explicit Owner approval.
+
+## Product Boundary
+- **Input Channels**: Telegram bot and Gmail poller.
+- **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
+
+---
+
+## FILE: docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md
+
+# 02_ARCHITECTURE_AND_GOVERNANCE.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1-10
+source_heading: CANONICAL ROADMAP LOCK
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 66-67
+source_heading: 2. Final Layer Architecture
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1201-1214
+source_heading: 14. Dashboard Gating Rules
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1611-1639
+source_heading: 19. Rules for Future AI/Developer
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1640-1675
+source_heading: 20. New Chat Bootstrap
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1676-1712
+source_heading: 21. New Chat Execution Prompt
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Durable Architecture Overview
+- **Telegram Gateway**: Dispatches inbound events.
+- **Clarification Layer**: Prompts for direction, category, subcategory.
+- **Review Queue Staging**: Persists pending transactions.
+- **Ledger Posting**: Writes to Account Ledger after manual approval.
+
+## Proposed Future AFPD Authority Hierarchy
+- This hierarchy is proposed and not yet canonical:
+  1. `AFPD.md`
+  2. `00_CURRENT_HANDOFF.md`
+  3. `03_ARFIN_RUNTIME_CONTRACT.md`
+  4. `02_ARCHITECTURE_AND_GOVERNANCE.md`
+
+## Documentation Update Contract
+- Every substantive AIRO Finance task MUST produce a progress log entry in `10_PROGRESS_LOG.md`.
+- Every defect or repair MUST produce or update an incident entry in `11_INCIDENT_REGISTER.md`.
+- Every architecture decision MUST produce a decision entry in `09_DECISION_REGISTER.md`.
+- Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
+- Every completed session MUST update `00_CURRENT_HANDOFF.md`.
+- No task is considered closed until these records are fully updated.
+
+---
+
+## FILE: docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
+
+# 03_ARFIN_RUNTIME_CONTRACT.md
+
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 1-6
+source_heading: ARFIN
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 7-12
+source_heading: Read First
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 13-42
+source_heading: Telegram UX
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 43-67
+source_heading: Email Flow
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 68-103
+source_heading: Direction
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 104-117
+source_heading: Category
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 118-131
+source_heading: Admin
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 132-150
+source_heading: Review Queue
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 151-187
+source_heading: Approval
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 188-206
+source_heading: Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 207-224
+source_heading: Tests
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 225-236
+source_heading: Forbidden
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 122-141
+source_heading: 3. Clarification Layer
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 142-159
+source_heading: 3.1 Mandatory Ambiguity Types
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 160-174
+source_heading: 3.2 Missing Category Policy
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 175-193
+source_heading: 3.3 Critical Missing Fields
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 194-245
+source_heading: 4. Email-to-Telegram Clarification Bridge
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 246-249
+source_heading: 5. Email Security Policy
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 250-256
+source_heading: 5.1 Default Mode
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 257-270
+source_heading: 5.2 Allowed v1 Behavior
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 271-305
+source_heading: 5.3 Sensitive Email Hard-Block
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 306-343
+source_heading: 6. Router Policy
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 729-765
+source_heading: 8. Partial Write Recovery
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 766-767
+source_heading: 9. Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 768-782
+source_heading: 9.1 Light Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 783-814
+source_heading: 9.2 Full Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1215-1264
+source_heading: 15. Proactive Telegram Alert Engine
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Active Runtime Contract
+1. **Admin Preemption**: Admin commands MUST preempt any pending transaction clarification handler. Commands include:
+   - `admin cek pending`
+   - `admin clear pending clarification`
+   - `/approval`
+   - `/admin`
+2. **Clear Command**: `admin clear pending clarification` is the canonical command to reset pending clarification states without mutations to the ledger or Review Queue.
+3. **Ingestion Staging**: All resolved email transactions MUST be staged in the Review Queue under `APPROVAL_STAGING` and require explicit Owner approval via Telegram bot before any ledger posting.
+4. **Outgoing Email Flow**: Direction -> Funding Account -> Category -> Subcategory -> Review Queue Staging -> Approval -> Ledger.
+5. **Numeric Prompts**: Prompt menus and parsers MUST use numeric options (`1..N` for options and `0` for `Other / Review`). Letters A/B/C/D/E are legacy and MUST NOT be displayed in prompts.
+
+### Timezone Discrepancy (SCRIPT_TIMEZONE_VS_POLLER_TIMEZONE)
+The script uses Asia/Jakarta timezone for business calendar dates while the manifest is configured to Asia/Bangkok. This discrepancy is currently an unresolved normalization issue documented under trigger topology.
+
+---
+
+## FILE: docs/afpd/04_RUNTIME_TOPOLOGY.md
+
+# 04_RUNTIME_TOPOLOGY.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 68-75
+source_heading: Layer 1 - Input Sources
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 76-89
+source_heading: 2.1 Telegram Input
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 90-107
+source_heading: 2.2 Email Notification Input
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 108-121
+source_heading: 2.3 Future Bank Mutation Input
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Apps Script Source Inventory
+- **Active Handler File**: `AIRO_Finance_Multitab_Final_v1.js` is the sole entry point handling doPost.
+- **Neutralized Compatible Source**: `Kode.js` contains a neutralized legacy doPost redirecting to the active handler to maintain compatibility.
+- **Active doPost count in Kode.js**: 0.
+
+## Webhook and Poller Topology
+- **Telegram Webhook**: Registers bot tokens and dispatches user texts.
+- **Gmail Ingestion Poller**: Triggered hourly to query Gmail messages.
+- **State Storage**: Chat states are stored in properties with key prefix `AIRO_PENDING_CLARIFICATION_<chat_id>`.
+
+## Timezone Normalization Issue
+- The script manifest `appsscript.json` specifies `Asia/Bangkok`, while internal script logic calculates times using `Asia/Jakarta`. This remains a known discrepancy.
+
+---
+
+## FILE: docs/afpd/05_STATE_MACHINES.md
+
+# 05_STATE_MACHINES.md
+
+## Intake Flow States
+- **email_outgoing_account_pending**: Awaiting funding account selection.
+- **category_pending / category_expense**: Awaiting category mapping index.
+- **category_search_pending**: Resolving category queries.
+- **subcategory_pending**: Awaiting subcategory selection index.
+- **direction_pending**: Awaiting selection between Pemasukan, Pengeluaran, or Transfer.
+- **Review Queue Approval Staging**: Transaction parsed but awaiting manual approval.
+- **Manual-Review Fallback**: Clarification failed or timed out; awaits manual corrections.
+- **Approval Commit**: Staged transaction posted to ledger.
+- **Reject Flow**: Item marked discarded.
+- **Pending Removal**: Property state cleared.
+- **Last-Prompt Pointer Arbitration**: Disambiguation tracking.
+
+## Core Distinctions
+- **Clarification Pending**: Temporary state in Properties Service before write.
+- **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
+- **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
+- **Committed Transaction**: Transaction finalized in Account Ledger.
+
+---
+
+## FILE: docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+# 06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 344-345
+source_heading: 7. Data Tabs
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 346-422
+source_heading: 7.1 Account Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 423-451
+source_heading: 7.2 Credit Card
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 452-475
+source_heading: 7.3 Hutang
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 476-501
+source_heading: 7.4 Aset
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 502-527
+source_heading: 7.5 Cicilan Rumah
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 528-633
+source_heading: 7.6 Finance Events
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 634-654
+source_heading: 7.7 Review Queue
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 655-693
+source_heading: 7.8 Audit Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 694-728
+source_heading: 7.9 Email Ingestion Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 815-824
+source_heading: 10. Data Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 825-835
+source_heading: Trusted
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 836-846
+source_heading: Warning
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 847-863
+source_heading: Dirty
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 864-906
+source_heading: 11. Net Worth Policy
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 907-930
+source_heading: 12. Dashboard Final Vision
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 931-955
+source_heading: 12.1 Visual Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 956-969
+source_heading: 12.2 Dashboard Layout
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 970-990
+source_heading: 12.3 Topbar
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 991-1014
+source_heading: 12.4 Action Required
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1015-1042
+source_heading: 12.5 Executive Command Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1043-1066
+source_heading: 12.6 Wallet & Cashflow Board
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1067-1088
+source_heading: 12.7 Domain Health
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1089-1108
+source_heading: 12.8 Spending Intelligence
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1109-1138
+source_heading: 12.9 Data Quality Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1139-1153
+source_heading: 12.10 Smart Insight Panel
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1154-1178
+source_heading: 12.11 Conditional Email Ingestion Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1179-1200
+source_heading: 13. Metric Source of Truth
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Review Queue Semantic Statuses
+The Review Queue sheet columns AE through AH MUST distinguish between:
+1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
+2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
+
+---
+
+## FILE: docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+# 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+## Deployment Safety
+- **Source SHA Guards**: Verify file hashes locally before clasp push.
+- **Immutable Versioning**: Create version descriptions matching `AIRO_ARFIN_BRIDGE_PERSISTENCE_V1_<timestamp>`.
+- **Triggers Verification**: Checks if triggers like `processReviewQueueApprovedOnEdit` exist.
+- **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
+
+*Note: No deployment operations were executed in this documentation-only phase.*
+
+---
+
+## FILE: docs/afpd/08_ROADMAP.md
+
+# 08_ROADMAP.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1320-1321
+source_heading: 18. Final Roadmap
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1322-1355
+source_heading: Sprint 0A - Telegram Clarification Closure
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1356-1382
+source_heading: Sprint 0B - Email Ambiguity Research & Bridge Design
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1383-1410
+source_heading: Sprint 1 - Account Ledger Hardening
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1411-1434
+source_heading: Sprint 2 - Domain Tabs Maturation
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1435-1459
+source_heading: Sprint 3 - Cash Ledger Removal
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1460-1491
+source_heading: Sprint 4 - Finance Events v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1492-1517
+source_heading: Sprint 5 - Audit, Reconciliation, Partial Recovery
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1518-1554
+source_heading: Sprint 6 - Dashboard Final
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1555-1580
+source_heading: Sprint 6B - Proactive Telegram Alert Engine v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1581-1610
+source_heading: Sprint 7 - Email Ingestion v1, Outline Only
+migration_status: HISTORICAL
+conflict_id: none
+-->
+
+## Active Roadmap
+The current roadmap from the Living PRD defines active tasks:
+- **Task 10.1**: Documentation reconciliation (Gate 12) IN_PROGRESS.
+- **Task 10.2**: Deploy filter dropdown fix (Gate 11) PASS.
+
+## Historical Sprints
+- Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
+
+---
+
+## FILE: docs/afpd/09_DECISION_REGISTER.md
+
+# 09_DECISION_REGISTER.md
+
+## Durable Decision Records
+- **AFPD Proposed Authority Hierarchy**: Initiated Phase 3 skeleton creation to replace split authority between Final Kitab and ARFIN.md once canonical activation is granted.
+- **Final Kitab Preservation**: Final Kitab is preserved unchanged during documentation migrations to maintain historical stability.
+- **ARFIN Runtime Contract Integration**: Merged ARFIN.md behavior and Final Kitab rules in module 03.
+- **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
+- **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
+- **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
+
+---
+
+## FILE: docs/afpd/11_INCIDENT_REGISTER.md
+
+# 11_INCIDENT_REGISTER.md
+
+## Incidents Register
+
+### Incident 1 — Old A/B/C/D/E Email Prompt at 08:51
+- **incident_id**: INC_001
+- **detected_at**: 2026-07-12 08:51 UTC
+- **symptom**: Email expense prompts still displayed A/B/C/D/E letters instead of numeric options.
+- **impact**: Confused users expecting the numeric Arfin prompt interface.
+- **root_cause**: Legacy webhook endpoint connected to an unpatched development environment.
+- **repair**: Forensic isolation of the webhook, routing to active multitab handler.
+- **verification**: Check transaction triggers.
+- **status**: RESOLVED
+- **related_versions**: v370
+- **related_evidence**: 08:51 runtime log capture
+- **remaining_risk**: Inactive legacy endpoints.
+
+### Incident 2 — Account Reply "2" Not Routed
+- **incident_id**: INC_002
+- **detected_at**: 2026-07-10 12:50 UTC
+- **symptom**: Replying with numeric option "2" failed to resolve.
+- **impact**: Blocked account resolution for selected option.
+- **root_cause**: Parser checked string arrays instead of normal category strings.
+- **repair**: Convert replies to strings before registry array parsing.
+- **verification**: Selftest check cases.
+- **status**: RESOLVED
+- **related_versions**: v371
+- **related_evidence**: test case `numeric_account_ux`
+- **remaining_risk**: Array bounds check issues.
+
+### Incident 3 — Typed "Blu Pocket" Resolving as "Blu"
+- **incident_id**: INC_003
+- **detected_at**: 2026-07-10 13:12 UTC
+- **symptom**: User input "Blu Pocket" matched substring "Blu" instead of full name.
+- **impact**: Routed transaction funding from wrong account.
+- **root_cause**: Substring regex checked before exact match registry parser.
+- **repair**: Shift exact match checks to higher priority level.
+- **verification**: Selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v374
+- **related_evidence**: v374 diff
+- **remaining_risk**: Regex greedy matching.
+
+### Incident 4 — Expense Category "0" Fall-Through
+- **incident_id**: INC_004
+- **detected_at**: 2026-07-10 13:20 UTC
+- **symptom**: Expense category "0" falling through parser before v375 and posting to ledger.
+- **impact**: Data mapping pollution in Account Ledger.
+- **root_cause**: Category parser missing strict validation block for "0" review route.
+- **repair**: Direct category "0" explicitly to Review Queue fallback.
+- **verification**: Staging selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v375
+- **related_evidence**: v375 test logs
+- **remaining_risk**: Other fall-through keys.
+
+### Incident 5 — Split Authority (Final Kitab vs ARFIN.md)
+- **incident_id**: INC_005
+- **detected_at**: 2026-07-12 09:40 UTC
+- **symptom**: Split claims of canonical guidance between the two docs.
+- **impact**: Ambiguity for developers updating codebase.
+- **root_cause**: Reconciliations not unified in previous sessions.
+- **repair**: Create unified AFPD modules (docs/afpd/).
+- **status**: IN_PROGRESS
+- **related_versions**: Phase 2/3
+- **related_evidence**: Contradiction Matrix
+- **remaining_risk**: Inactive activation stubs.
+
+### Incident 6 — Missing Durable v371-v375 Documentation
+- **incident_id**: INC_006
+- **detected_at**: 2026-07-12 09:45 UTC
+- **symptom**: Version changes absent from main documentation files.
+- **impact**: Lack of traceability for past patches.
+- **root_cause**: Rapid hotfixing bypass of documentation updates.
+- **repair**: Backfill progress log entries in Phase 3.
+- **status**: RESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: Progress log backfill plan
+- **remaining_risk**: None.
+
+### Incident 7 — Manifest Timezone vs Business Timezone
+- **incident_id**: INC_007
+- **detected_at**: 2026-07-12 09:48 UTC
+- **symptom**: appsscript.json manifest timezone discrepancy.
+- **impact**: Deployed times in GCP mismatched with local Jakarta times.
+- **root_cause**: Manifest left at default Asia/Bangkok while code uses Asia/Jakarta.
+- **repair**: Documented unresolved discrepancy in trigger topology. Normalization deferred.
+- **status**: UNRESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: appsscript.json manifest
+- **remaining_risk**: Date conversion offsets in logs.
+
+### Incident 8 — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
+- **impact**: Canonical activation could have occurred with missing rules.
+- **root_cause**: Audit implementation used selected or hardcoded rules instead of the full dynamic baseline.
+- **repair**: Independent extraction and full normative remediation mapping 377 rules.
+- **verification**: Phase 4.2 post-remediation audit.
+- **status**: OPEN until Phase 4.3 PASS
+- **related_versions**: Phase 4/4.1/4.2
+- **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
+- **remaining_risk**: Gaps in newly appended sections.
+
+### Incident 8 Update — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)
+
+### Incident 9 — Manual Telegram Resolution Bypassed Review Queue
+
+- **incident_id**: AFPD-INC-009
+- **detected_at**: 2026-07-12, Owner-reported Telegram transaction flow
+- **symptom**: After manual account and subcategory selection, Arfin reported success and changed ledger state without Review Queue approval.
+- **impact**: Premature ledger mutation, false-success messaging, and possible loss of execution-account versus funding-account semantics.
+- **root_cause**: `airoHandleOutgoingConfirmationReply_` called `writeRouted_` directly in the resolved-subcategory branch and cleared pending state before governed staging/readback.
+- **repair**: Replace direct ledger write with `telegram_manual` approval staging, source-scoped approval guards, deterministic dedupe identity, category-scoped prompts, and posting-plan metadata restoration.
+- **repository_source_commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **source_sha256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **stable_patch_id**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **verification**: Independent semantic review, content-equivalence audit, syntax validation, same-account 1-row test, funded-payment 3-row test, and repeat-approval zero-extra-row test.
+- **status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **production_resolution**: PENDING
+- **related_evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
+- **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
+
+#### `AFPD-INC-009` Gate P1.1 update — self-test contract aligned
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Change**: Added `plannedPostingRowCount` to the resolved dry-run and replaced stale pre-approval `rowCount === 3/1` assertions.
+- **Runtime implementation changed**: NO
+- **Built-in self-test result**: PASS
+- **Deployment performed**: NO
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AFPD-INC-009 update
+
+STATUS=REPAIRED_LOCALLY_NO_DEPLOY. V384 live email alpha prompt regression and pending-state Food & Drink misroute repaired locally. Production deployment still v384 and not updated with this repair. INCIDENT_RESOLVED=NO.
+
+---
+
+## FILE: docs/afpd/12_EVIDENCE_INDEX.md
+
+# 12_EVIDENCE_INDEX.md
+
+## Phase Evidence Index
+
+### Phase 1 Audit Artifacts
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_READINESS_REPORT.md` (readiness)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_DOCUMENT_INVENTORY.csv` (inventory)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_CONTRADICTION_MATRIX.tsv` (contradictions)
+
+### Phase 1.5 Blocker Artifacts
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.txt` (blockers txt)
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.json` (blockers json)
+
+### Phase 2 Documents & Commit
+- `docs/afpd/AFPD_MIGRATION_MANIFEST.md`
+- `docs/afpd/AFPD_AUTHORITY_MATRIX.md`
+- `docs/afpd/AFPD_SECTION_DESTINATION_MAP.tsv`
+- Commit: `a675395` (push success)
+
+### v371-v375 Deployment & Runtime Evidence
+- **Source SHA**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Self-Test Result**: `LOCAL_SELFTEST=PASS` (8 cases passed)
+
+### Live Intake & Approval Proofs
+- **Live Rp1 Other / Review Staging Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Live Rp205.000 Utilities / Internet Approval Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Account Ledger Row 169 Dedupe PASS**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (deduplication check passed)
+### Phase 4.2 Hardened Evidence
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+
+### ARFIN Manual Approval Staging — Gate P1
+
+- **Incident**: `AFPD-INC-009`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Packet archive SHA-256**: `28440fe31df503959aca551382336ba962cea9eda41a22f0857db2122f52f6c7`
+- **Integration evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Independent semantic review**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_INDEPENDENT_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_EXECUTABLE_RESULTS.json`
+- **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
+- **Deployment evidence**: NOT YET AVAILABLE
+- **Workbook readback evidence**: NOT YET AVAILABLE
+
+### ARFIN Gate P1.1 — self-test contract repair
+
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Incident**: `AFPD-INC-009`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Summary**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+- **Static review**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_STATIC_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
+- **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
+- **Apps Script deployment evidence**: NOT YET AVAILABLE
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+- Summary: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_SUMMARY.md`
+- Proof JSON: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_PROOF.json`
+- Source SHA before: `c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5`
+- Source SHA after: `1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c`
+- Local selftest: PASS 65/65
+- Deployment: not performed
+
+---
+
+## FILE: docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md
+
+# 99_HISTORICAL_AND_SUPERSEDED.md
+
+## Superseded and Historical Materials
+
+### Legacy Canonical Roadmap Lock
+- Preserved historical lock metadata from Sprint 6/7.
+
+### Email Default-OFF Policy
+- Historical security modes specifying ingestion poller default de-activated.
+
+### Deprecated Cash Ledger and Transactions Tab
+- Specifications for the old `Cash Ledger` and `Transactions` sheets, which were removed/neutralized in Sprint 3 in favor of a single Account Ledger database.
+
+### Legacy A/B/C/D/E prompt layouts
+- Early prompts asking for direction, category, or subcategory options using letters instead of numeric options.
+
+### Fallback-Only Review Queue Interpretation
+- The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
+
+---
+
+## FILE: docs/afpd/10_PROGRESS_LOG.md
+
+# 10_PROGRESS_LOG.md
+
+## Version History Logs
+
+### Version v371 — Admin Preemption Behavior
+- **Timestamp**: 2026-07-10 12:49:50 UTC
+- **Problem**: Admin commands were swallowed by pending clarification handlers.
+- **Root Cause**: Reply checks ran before command preemption evaluations.
+- **Decision**: Inject command checks at top of text processors.
+- **Source SHA Before**: `2090aec170cfc0279996dee6e158a5b56f005aeb38fa436a4112e88e9d8a2e7f`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 366
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `tryHandlePendingClarificationReply_`
+- **Tests**: `airoArfinRuntimeAlignV1SelfTest_()`
+- **Live Proof**: Command `admin cek pending` succeeds during active prompt.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Added regex command bypass.
+- **Remaining Risk**: Command name updates.
+- **Next Step**: Document bypass checks.
+
+### Version v372 — Poller Window & Email Prompt Ownership
+- **Timestamp**: 2026-07-10 13:00:15 UTC
+- **Problem**: Duplicate email ingestion logs.
+- **Root Cause**: Greedy queries without caching processed threads.
+- **Decision**: Cache processed thread IDs in script properties.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 367
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `pollGmailNotifications_`
+- **Tests**: Dry-run Gmail checks.
+- **Live Proof**: Process times <500ms.
+- **Workbook Proof**: Ingestion log rows added correctly.
+- **Mutation Summary**: Property-based thread tracker.
+- **Remaining Risk**: Property size limits.
+- **Next Step**: Add thread key pruning.
+
+### Version v373 — Pending Ownership & Pointer Arbitration
+- **Timestamp**: 2026-07-10 13:10:17 UTC
+- **Problem**: Concurrent chats overwriting pending states.
+- **Root Cause**: Global property key instead of namespaced chat key.
+- **Decision**: Prefix chat-level states with chat IDs.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 368
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `savePendingClarification_`
+- **Tests**: Parallel simulator.
+- **Live Proof**: Verified independent chat flows.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Namespaced properties keys.
+- **Remaining Risk**: Cache cleanup delays.
+- **Next Step**: Add automatic sweeps.
+
+### Version v374 — Account Parser Repair & Exact Name Precedence
+- **Timestamp**: 2026-07-10 13:18:21 UTC
+- **Problem**: Custom names matching sub-strings of other accounts.
+- **Root Cause**: Index prefix matches ran before exact registry matches.
+- **Decision**: Validate exact matches first before calling substring checks.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 369
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `parseAccount_`
+- **Tests**: Exact name match cases.
+- **Live Proof**: Typed `Blu Pocket` resolves exactly to `Blu Pocket`, not substring `Blu`.
+- **Workbook Proof**: Staging records write correct exact name strings.
+- **Mutation Summary**: Exact-name comparison precedence check added.
+- **Remaining Risk**: Registry spelling errors.
+- **Next Step**: Standardize spelling errors warnings.
+
+### Version v375 — Category Expense Route, Matcher, Validator & Reask
+- **Timestamp**: 2026-07-10 13:22:09 UTC
+- **Problem**: Invalid category inputs resolving to Lainnya.
+- **Root Cause**: Parser accepted invalid category names without validation.
+- **Decision**: Implement category registry validation loop re-asking up to 3 times.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Apps Script Version**: 370
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `canAskMissingCategoryClarification_`
+- **Tests**: Selftest category validation.
+- **Live Proof**: Invalid category replies trigger re-prompt options list.
+- **Workbook Proof**: Failed categories block ledger writes.
+- **Mutation Summary**: Added category re-ask checker.
+- **Remaining Risk**: Prompt noise.
+- **Next Step**: Improve autocomplete matching.
+
+### AFPD Migration Phase Logs
+- **AFPD Phase 1**: Initial readiness audit and inventory creation (COMPLETE).
+- **AFPD Phase 1.5**: Exact blocker extraction and files analysis (COMPLETE).
+- **AFPD Phase 2**: Migration manifest and authority matrix documentation (COMPLETE).
+- **AFPD Phase 3**: Skeleton creation and traceable content migration (COMPLETE).
+
+### AFPD Phase 4
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+### AFPD Phase 4.1
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+### AFPD Phase 4.2
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+### AFPD Phase 4.4
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+### ARFIN Manual Approval Staging — Gate P1 Repository Integration
+
+- **Timestamp**: 2026-07-13 19:06:42 WIB
+- **Scope**: Repository integration and durable AFPD evidence only.
+- **Problem**: Resolved manual Telegram clarification could bypass Review Queue and mutate ledger state immediately.
+- **Decision**: Enforce `Review Queue -> /approval -> Account Ledger` for resolved manual Telegram transactions.
+- **Authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Patched source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Behavioral validation**: Same-account 1 row; funded payment 3 rows; second approval 0 extra rows; email flow preserved.
+- **AFPD incident**: `AFPD-INC-009`
+- **Durable evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
+
+### ARFIN Gate P1.1 — built-in self-test contract repair
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Authority parent**: `5b56f8ccf92387a6f65537cc34e8970dfb55007c`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Scope**: Dry-run reporting and editor self-test assertions only.
+- **Actual pre-approval ledger rows**: 0
+- **Planned post-approval rows**: 1 for same-account; 3 for funded payment.
+- **Built-in self-test**: PASS
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains open.
+- **Next**: Resume Gate P2 under existing Owner authorization.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source only, no deploy. Local selftest PASS 65/65. Source SHA after repair 1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c. Direction pending now runs before category pending and Food & Drink map. Incident unresolved pending post-repair preflight, guarded deployment, owner runtime proof, and fresh live retest.
+
+---
+
+## FILE: docs/afpd/00_CURRENT_HANDOFF.md
+
+# 00_CURRENT_HANDOFF.md
+
+## Current Verified State
+- **Apps Script Production Version**: 375
+- **Source Code SHA-256**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Latest Known Deployment ID**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Latest Known Deployment Fingerprint**: `497865e5f3c2345b`
+
+## Gmail Poller Window
+- **Active Ingestion Business Window**: 09:00 - 00:59 WIB (Asia/Jakarta)
+- **Inactive Cooldown Window**: 01:00 - 08:59 WIB (Asia/Jakarta)
+- **Timezone Note**: Manifest timezone in `appsscript.json` is `Asia/Bangkok` while the script runs in `Asia/Jakarta`.
+
+## Webhook Intake
+- **Telegram Webhook Route**: Runs independently from poller, active 24/7.
+
+## Repository State
+- **Pre-existing Dirty Files**:
+  - `.obsidian/app.json`
+  - `.obsidian/appearance.json`
+  - `.obsidian/core-plugins.json`
+  - `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js` (matches v375 baseline hash)
+  - `state/system-health.md`
+
+## Current Phase and Next Gate
+- **Current Phase**: AFPD Phase 3 — Traceable Content Migration
+- **Next Gate**: Owner Approval for AFPD Activation and old paths deprecation.
+
+## Gate P1 Handoff — Manual Approval Staging Repair
+
+- **Recorded at**: 2026-07-13 19:06:42 WIB
+- **Repository authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Integrated source commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Integrated source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Incident**: `AFPD-INC-009`
+- **Repository repair status**: INTEGRATED
+- **Production deployment status**: NOT DEPLOYED
+- **Production runtime proof**: NOT PERFORMED
+- **Workbook readback**: NOT PERFORMED
+- **AFPD status**: PROPOSED_NOT_CANONICAL
+- **Canonical activation**: PENDING_OWNER_APPROVAL
+- **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
+- **Do not mark incident resolved** until all Gate P2 production evidence passes.
+
+## Gate P1.1 Handoff — self-test contract aligned
+
+- **Recorded at**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Integrated source commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Source SHA-256**: `dcfc2ac0a88aadc3ee4f1b41d0ec5f3b35818eb6d388663bccb8bc7626af8f1b`
+- **Built-in outgoing confirmation self-test**: PASS
+- **Runtime staging implementation**: unchanged
+- **Repository status**: ready for Gate P2 pre-deployment checks
+- **Apps Script deployment**: NOT PERFORMED
+- **Production runtime proof**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
+- **AFPD status**: `PROPOSED_NOT_CANONICAL`
+- **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+## Gate P2 Rollback Confirmation
+- **AFPD-INC-009**: DEPLOYMENT_ATTEMPTED_RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL
+- **ROLLBACK_STATUS**: CONFIRMED_TO_VERSION_377
+- **NEXT_SAFE_GATE**: GATE_P2_RUNTIME_FAILURE_ROOT_CAUSE_ANALYSIS_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`
+
+## Gate P2 Root Cause Analysis
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED_RCA_IN_PROGRESS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **RCA_STATUS**: CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION
+- **NEXT_SAFE_GATE**: GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`
+
+## Gate P2 Remediation Plan Status
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_PERMISSION_REMEDIATION_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **REMEDIATION_STATUS**: OWNER_ACTION_REQUIRED
+- **NEXT_SAFE_GATE**: GATE_P2_OWNER_MANUAL_APPS_SCRIPT_PERMISSION_REMEDIATION
+- **Marker**: `AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`
+
+## Gate P2 Runtime Proof Method Decision Status
+- **AFPD-INC-009**: RUNTIME_PROOF_METHOD_DECIDED_MANUAL_EDITOR_SELFTEST_ACCEPTED_WITH_LIMITATIONS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_GUARDED_DEPLOYMENT_RETRY_PREFLIGHT_MANUAL_RUNTIME_PROOF_METHOD
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Retry Execution Status
+- **AFPD-INC-009**: DEPLOYMENT_RETRY_DEPLOYED_AWAITING_MANUAL_EDITOR_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **PREVIOUS_ACTIVE_DEPLOYMENT_VERSION**: 377
+- **FAILED_HISTORICAL_DEPLOYMENT_VERSION**: 378
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_TELEGRAM_LIVE_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`
+
+## Gate P2 Telegram Live Proof Partial Record & Retest Plan Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_PROOF_PARTIAL_PASS_WITH_BLOCKERS_RETEST_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: PARTIAL_PASS_WITH_BLOCKERS
+- **FUNDING_CLARIFICATION_BEFORE_CATEGORY**: YES
+- **CATEGORY_PROMPT_AFTER_FUNDING**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **AMOUNT_PARSE_STATUS**: FAIL_MARKER_DIGIT_CONTAMINATION
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_EXPECTED_CASH_UMUM_FUNDED_BY_BLU_POCKET_OBSERVED_REVERSED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_RETEST_OWNER_MANUAL_EXECUTION
+- **FALLBACK_IF_RETEST_FAILS**: GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`
+
+## Gate P2 Live Telegram Semantics & Email Prompt RCA Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **TELEGRAM_RETEST_STATUS**: FAIL
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: NO
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL
+- **RCA_CLASSIFICATION**: TELEGRAM_ACCOUNT_FUNDING_PARSER_GREEDY_MATCH_AND_DISPLAY_REVERSAL_PLUS_EMAIL_INCOME_LEGACY_ALPHA_PROMPT
+- **RCA_CONFIDENCE**: HIGH_100_PERCENT_PROVEN
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REMEDIATION_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: FAILED_SEMANTICS_REPAIR_REQUIRED
+- **AMOUNT_PARSE_STATUS**: RETEST_PASS_BUT_REGRESSION_GUARD_REQUIRED
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_REPAIR_REQUIRED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_REPAIR_REQUIRED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **PRE_DEPLOY_ACTIVE_VERSION**: 379
+- **POST_DEPLOY_ACTIVE_VERSION**: 380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_LIVE_TELEGRAM_RETEST_AND_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Live Telegram Retest Record Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_RETEST_PASS_AWAITING_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **BOT_STATED_NOT_RECORDED_TO_LEDGER**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_WORKBOOK_READBACK_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`
+
+## Gate P2 Email Expense Legacy Alpha Prompt Record Blocker Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_RETEST_PASS_EMAIL_EXPENSE_CATEGORY_PROMPT_BLOCKER_RECORDED
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **EMAIL_EXPENSE_FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_EXPENSE_CATEGORY_PROMPT_DISPLAY_AND_CHOICE_MAPPING
+- **EXPECTED_NEW_PROMPT_STYLE**: NUMERIC_1_TO_5_WITH_BALAS_ANGKA_PILIHAN
+- **BACKWARD_COMPAT_LEGACY_ALPHA_PARSE**: SILENT_ONLY_DO_NOT_DISPLAY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_INTEGRATED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256_BEFORE_EMAIL_EXPENSE_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **SOURCE_SHA256_AFTER_EMAIL_EXPENSE_PATCH**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21_PRE_EMAIL_EXPENSE_PATCH
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: PASS_LOCAL_NOT_DEPLOYED
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **DEPLOYMENT_PERFORMED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_REPAIR
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **PRE_DEPLOY_ACTIVE_VERSION**: 380
+- **NEW_APPS_SCRIPT_VERSION**: 381
+- **POST_DEPLOY_ACTIVE_VERSION**: 381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED_AFTER_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DEPLOY
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Category Numeric Prompt Post-Deploy Manual Editor Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_RUNTIME_PROOF_ACCEPTED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow Record Blocker Status
+- **AFPD-INC-009**: LIVE_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_BLOCKER_RECORDED_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **OWNER_CONFIRMED_SOURCE_TRANSACTION_DIRECTION**: PENGELUARAN
+- **ARFIN_DISPLAYED_DIRECTION**: PEMASUKAN
+- **EMAIL_DIRECTION_CLASSIFICATION_STATUS**: FAIL_FALSE_INFLOW
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **INCOME_NUMERIC_PROMPT_FORMAT**: PASS_BUT_WRONG_TRANSACTION_BRANCH
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_LIVE_STATUS**: NOT_REACHED_DUE_DIRECTION_MISCLASSIFICATION
+- **FINANCE_WRITE_FALSE**: YES
+- **EMAIL_PROMPT_REPLIED_BY_OWNER**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **FALSE_INFLOW_REPRODUCED_SYNTHETICALLY**: YES
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **SPECIFIC_LIVE_TRIGGER_CONFIDENCE**: UNKNOWN
+- **FINANCE_WRITE_FALSE**: YES
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **PROPOSED_DIRECTION_POLICY**: STRONG_EVIDENCE_ONLY_GENERIC_UI_TOKENS_NEUTRAL_CONFLICTS_AMBIGUOUS
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: 182c8187733f08895acb5b911a2d812959c0a3f9e37491716b08cd9d9502fc7e
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **PRE_DEPLOY_VERSION**: 381
+- **ROLLBACK_VERSION**: 381
+- **POST_DEPLOY_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **EXISTING_24_TESTS_PASSED**: YES
+- **NEW_DIRECTION_TESTS_PASSED**: YES
+- **FALSE_INFLOW_REPAIRED_LOCALLY**: YES
+- **CLASP_PUSH_PERFORMED**: YES
+- **CLASP_VERSION_PERFORMED**: YES
+- **CLASP_DEPLOY_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_DEPLOYMENT
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Blocker Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_LIVE_RETEST_BLOCKED_BY_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT**: READY
+- **FRESH_PROMPT_NOT_BEFORE**: 2026-07-19T22:09:38+07:00
+- **OWNER_REPORTED_EMAIL_NOT_PICKED_UP_AFTER_SEVERAL_MINUTES**: YES
+- **ARFIN_TELEGRAM_PROMPT_OBSERVED**: NO
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED_UNLESS_LIVE_PROMPT_PROVES_DIRECTION_REGRESSION
+- **CURRENT_TEST_COUNT**: 35
+- **PLANNED_INGESTION_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 46
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: 2a04e82bb2e3865fb7b77cf4077b5a314c637f4bb25b0cd39bfa8fbd4127774f
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **PRE_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 383
+- **POST_DEPLOY_VERSION**: 384
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_REQUIRED**: YES
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_DEPLOYMENT
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED_BY_THIS_GATE**: NO
+- **DEPLOYMENT_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **FULL_46_CASE_JSON_VISIBLE**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_RUNTIME_PROOF
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: YES
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **PROMPT_OBSERVED_AT**: 2026-07-20T19:03:00+07:00
+- **TRANSACTION_TIMESTAMP_VISIBLE**: 2026-07-20T18:55:12+07:00
+- **DIRECTION_DISPLAYED**: ambigu
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **DIRECTION_REPAIR_LIVE_RESULT**: AMBIGUOUS_SAFE_NOT_FALSE_INFLOW_BUT_NOT_EXPENSE_CONFIRMED
+- **LEGACY_ALPHA_DIRECTION_PROMPT_DISPLAYED**: YES
+- **LEGACY_ALPHA_SUBCATEGORY_PROMPT_DISPLAYED**: YES
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **OWNER_REPLIED_TO_DIRECTION_PROMPT**: YES
+- **OWNER_REPLIED_TO_SUBCATEGORY_PROMPT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **ROOT_CAUSE_DIRECTION_PROMPT**: airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802)
+- **ROOT_CAUSE_SUBCATEGORY_PROMPT**: airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363)
+- **SELFTEST_GAP**: Unit test suite 46/46 lacked assertions for numeric-only direction ambiguity and subcategory prompts.
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_AND_SUBCATEGORY_PROMPT_NUMERIC_RENDERING
+- **ALPHA_DISPLAY_ALLOWED**: NO
+- **ALPHA_PARSER_COMPATIBILITY_ALLOWED**: YES_INTERNAL_STALE_REPLY_COMPATIBILITY_ONLY
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 57
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression State Machine Remediation Plan Amendment Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_AMENDED_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_ADDENDUM_CLASSIFICATION**: LIVE_EMAIL_DIRECTION_PROMPT_RENDERER_AND_PENDING_STATE_MACHINE_ARE_INCONSISTENT_AMBIGUOUS_REPLY_IS_HANDLED_AS_EXPENSE_CATEGORY_SELECTION
+- **RCA_ADDENDUM_CONFIDENCE**: HIGH
+- **RENDERER_ONLY_REPAIR_CONTRACT_STATUS**: SUPERSEDED_INCOMPLETE
+- **STATE_MACHINE_REPAIR_REQUIRED**: YES
+- **AMENDED_REMEDIATION_PLAN_STATUS**: READY
+- **AMENDED_REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_PENDING_STATE_MACHINE_AND_NUMERIC_PROMPT_RENDERING
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **PLANNED_STATE_MACHINE_TESTS**: 8
+- **TOTAL_PLANNED_NEW_TESTS**: 19
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 65
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REVISED_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`
+
+## 20260720_210710 — Current handoff update
+
+AFPD-INC-009=EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_REPAIRED_LOCALLY_NO_DEPLOY_AWAITING_POST_REPAIR_PREFLIGHT
+APPS_SCRIPT_DEPLOYMENT=EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384_REVISED_ALPHA_STATE_MACHINE_REPAIR_NOT_DEPLOYED
+SOURCE_SHA256_BEFORE_REPAIR=c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+SOURCE_SHA256_AFTER_REPAIR=1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c
+POST_DEPLOY_VERSION=384
+ROLLBACK_VERSION=383
+TARGET_DEPLOYMENT_SUFFIX=ZYjuOA
+LOCAL_SELFTEST=PASS_65_OF_65
+EXISTING_46_TESTS_PASSED=YES
+NEW_ALPHA_PROMPT_TESTS_PASSED=YES
+NEW_STATE_MACHINE_TESTS_PASSED=YES
+NEW_19_TESTS_PASSED=YES
+PENDING_POINTER_PERSISTS_INFERRED_DIRECTION=YES
+PENDING_POINTER_PERSISTS_CLARIFICATION_QUESTION_TYPE=YES
+AMBIGUOUS_CANDIDATE_STATE=direction_pending
+DIRECTION_PENDING_HANDLER_IMPLEMENTED=YES
+DIRECTION_PENDING_BEFORE_CATEGORY_PENDING=YES
+FOOD_DRINK_MISROUTE_PREVENTED=YES
+DIRECTION_ALPHA_DISPLAY_REMOVED=YES
+DIRECTION_NUMERIC_DISPLAY_ADDED=YES
+SUBCATEGORY_ALPHA_DISPLAY_REMOVED=YES
+SUBCATEGORY_NUMERIC_DISPLAY_ADDED=YES
+HARNESS_PATCH_PERFORMED=NO_BY_DESIGN_DYNAMIC_HARNESS
+SOURCE_PATCH_PERFORMED=YES
+DEPLOYMENT_PERFORMED=NO
+WORKBOOK_READBACK=NOT_YET_PERFORMED
+INCIDENT_RESOLVED=NO
+NEXT_SAFE_GATE=GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+
+---
+
+## FILE: AFPD_BOOT_BUNDLE.md
+
+# AFPD Boot Bundle
+> Regenerated after AIRO Finance v384 revised alpha state-machine local repair cleanup.
+
+---
+
+## FILE: docs/afpd/01_PROJECT_CHARTER.md
+
+# 01_PROJECT_CHARTER.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 11-18
+source_heading: AIRO Finance Command Center - Final Kitab v2
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 19-50
+source_heading: 0. Executive Decision
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 51-65
+source_heading: 1. Core Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Project Purpose
+The purpose of the AIRO Finance Project is to establish a secure, multi-tab transaction intake system linked to Google Sheets via Telegram bot and Gmail poller, ensuring accurate ledger updates and transaction categorizations.
+
+## Owner-Approved Operating Principles
+1. **Financial Safety**: The system MUST NOT execute automated ledger writes without Owner approval for staged items.
+2. **Clarification-First Behavior**: Mismatched or ambiguous items MUST trigger clarification flows instead of writing default fallback data.
+3. **No Speculative Reset**: Developers/AI MUST NOT redesign the core architecture from zero without explicit Owner approval.
+
+## Product Boundary
+- **Input Channels**: Telegram bot and Gmail poller.
+- **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
+
+---
+
+## FILE: docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md
+
+# 02_ARCHITECTURE_AND_GOVERNANCE.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1-10
+source_heading: CANONICAL ROADMAP LOCK
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 66-67
+source_heading: 2. Final Layer Architecture
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1201-1214
+source_heading: 14. Dashboard Gating Rules
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1611-1639
+source_heading: 19. Rules for Future AI/Developer
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1640-1675
+source_heading: 20. New Chat Bootstrap
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1676-1712
+source_heading: 21. New Chat Execution Prompt
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Durable Architecture Overview
+- **Telegram Gateway**: Dispatches inbound events.
+- **Clarification Layer**: Prompts for direction, category, subcategory.
+- **Review Queue Staging**: Persists pending transactions.
+- **Ledger Posting**: Writes to Account Ledger after manual approval.
+
+## Proposed Future AFPD Authority Hierarchy
+- This hierarchy is proposed and not yet canonical:
+  1. `AFPD.md`
+  2. `00_CURRENT_HANDOFF.md`
+  3. `03_ARFIN_RUNTIME_CONTRACT.md`
+  4. `02_ARCHITECTURE_AND_GOVERNANCE.md`
+
+## Documentation Update Contract
+- Every substantive AIRO Finance task MUST produce a progress log entry in `10_PROGRESS_LOG.md`.
+- Every defect or repair MUST produce or update an incident entry in `11_INCIDENT_REGISTER.md`.
+- Every architecture decision MUST produce a decision entry in `09_DECISION_REGISTER.md`.
+- Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
+- Every completed session MUST update `00_CURRENT_HANDOFF.md`.
+- No task is considered closed until these records are fully updated.
+
+---
+
+## FILE: docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
+
+# 03_ARFIN_RUNTIME_CONTRACT.md
+
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 1-6
+source_heading: ARFIN
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 7-12
+source_heading: Read First
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 13-42
+source_heading: Telegram UX
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 43-67
+source_heading: Email Flow
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 68-103
+source_heading: Direction
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 104-117
+source_heading: Category
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 118-131
+source_heading: Admin
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 132-150
+source_heading: Review Queue
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 151-187
+source_heading: Approval
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 188-206
+source_heading: Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 207-224
+source_heading: Tests
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 225-236
+source_heading: Forbidden
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 122-141
+source_heading: 3. Clarification Layer
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 142-159
+source_heading: 3.1 Mandatory Ambiguity Types
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 160-174
+source_heading: 3.2 Missing Category Policy
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 175-193
+source_heading: 3.3 Critical Missing Fields
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 194-245
+source_heading: 4. Email-to-Telegram Clarification Bridge
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 246-249
+source_heading: 5. Email Security Policy
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 250-256
+source_heading: 5.1 Default Mode
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 257-270
+source_heading: 5.2 Allowed v1 Behavior
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 271-305
+source_heading: 5.3 Sensitive Email Hard-Block
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 306-343
+source_heading: 6. Router Policy
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 729-765
+source_heading: 8. Partial Write Recovery
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 766-767
+source_heading: 9. Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 768-782
+source_heading: 9.1 Light Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 783-814
+source_heading: 9.2 Full Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1215-1264
+source_heading: 15. Proactive Telegram Alert Engine
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Active Runtime Contract
+1. **Admin Preemption**: Admin commands MUST preempt any pending transaction clarification handler. Commands include:
+   - `admin cek pending`
+   - `admin clear pending clarification`
+   - `/approval`
+   - `/admin`
+2. **Clear Command**: `admin clear pending clarification` is the canonical command to reset pending clarification states without mutations to the ledger or Review Queue.
+3. **Ingestion Staging**: All resolved email transactions MUST be staged in the Review Queue under `APPROVAL_STAGING` and require explicit Owner approval via Telegram bot before any ledger posting.
+4. **Outgoing Email Flow**: Direction -> Funding Account -> Category -> Subcategory -> Review Queue Staging -> Approval -> Ledger.
+5. **Numeric Prompts**: Prompt menus and parsers MUST use numeric options (`1..N` for options and `0` for `Other / Review`). Letters A/B/C/D/E are legacy and MUST NOT be displayed in prompts.
+
+### Timezone Discrepancy (SCRIPT_TIMEZONE_VS_POLLER_TIMEZONE)
+The script uses Asia/Jakarta timezone for business calendar dates while the manifest is configured to Asia/Bangkok. This discrepancy is currently an unresolved normalization issue documented under trigger topology.
+
+---
+
+## FILE: docs/afpd/04_RUNTIME_TOPOLOGY.md
+
+# 04_RUNTIME_TOPOLOGY.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 68-75
+source_heading: Layer 1 - Input Sources
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 76-89
+source_heading: 2.1 Telegram Input
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 90-107
+source_heading: 2.2 Email Notification Input
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 108-121
+source_heading: 2.3 Future Bank Mutation Input
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Apps Script Source Inventory
+- **Active Handler File**: `AIRO_Finance_Multitab_Final_v1.js` is the sole entry point handling doPost.
+- **Neutralized Compatible Source**: `Kode.js` contains a neutralized legacy doPost redirecting to the active handler to maintain compatibility.
+- **Active doPost count in Kode.js**: 0.
+
+## Webhook and Poller Topology
+- **Telegram Webhook**: Registers bot tokens and dispatches user texts.
+- **Gmail Ingestion Poller**: Triggered hourly to query Gmail messages.
+- **State Storage**: Chat states are stored in properties with key prefix `AIRO_PENDING_CLARIFICATION_<chat_id>`.
+
+## Timezone Normalization Issue
+- The script manifest `appsscript.json` specifies `Asia/Bangkok`, while internal script logic calculates times using `Asia/Jakarta`. This remains a known discrepancy.
+
+---
+
+## FILE: docs/afpd/05_STATE_MACHINES.md
+
+# 05_STATE_MACHINES.md
+
+## Intake Flow States
+- **email_outgoing_account_pending**: Awaiting funding account selection.
+- **category_pending / category_expense**: Awaiting category mapping index.
+- **category_search_pending**: Resolving category queries.
+- **subcategory_pending**: Awaiting subcategory selection index.
+- **direction_pending**: Awaiting selection between Pemasukan, Pengeluaran, or Transfer.
+- **Review Queue Approval Staging**: Transaction parsed but awaiting manual approval.
+- **Manual-Review Fallback**: Clarification failed or timed out; awaits manual corrections.
+- **Approval Commit**: Staged transaction posted to ledger.
+- **Reject Flow**: Item marked discarded.
+- **Pending Removal**: Property state cleared.
+- **Last-Prompt Pointer Arbitration**: Disambiguation tracking.
+
+## Core Distinctions
+- **Clarification Pending**: Temporary state in Properties Service before write.
+- **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
+- **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
+- **Committed Transaction**: Transaction finalized in Account Ledger.
+
+---
+
+## FILE: docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+# 06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 344-345
+source_heading: 7. Data Tabs
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 346-422
+source_heading: 7.1 Account Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 423-451
+source_heading: 7.2 Credit Card
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 452-475
+source_heading: 7.3 Hutang
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 476-501
+source_heading: 7.4 Aset
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 502-527
+source_heading: 7.5 Cicilan Rumah
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 528-633
+source_heading: 7.6 Finance Events
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 634-654
+source_heading: 7.7 Review Queue
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 655-693
+source_heading: 7.8 Audit Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 694-728
+source_heading: 7.9 Email Ingestion Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 815-824
+source_heading: 10. Data Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 825-835
+source_heading: Trusted
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 836-846
+source_heading: Warning
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 847-863
+source_heading: Dirty
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 864-906
+source_heading: 11. Net Worth Policy
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 907-930
+source_heading: 12. Dashboard Final Vision
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 931-955
+source_heading: 12.1 Visual Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 956-969
+source_heading: 12.2 Dashboard Layout
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 970-990
+source_heading: 12.3 Topbar
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 991-1014
+source_heading: 12.4 Action Required
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1015-1042
+source_heading: 12.5 Executive Command Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1043-1066
+source_heading: 12.6 Wallet & Cashflow Board
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1067-1088
+source_heading: 12.7 Domain Health
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1089-1108
+source_heading: 12.8 Spending Intelligence
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1109-1138
+source_heading: 12.9 Data Quality Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1139-1153
+source_heading: 12.10 Smart Insight Panel
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1154-1178
+source_heading: 12.11 Conditional Email Ingestion Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1179-1200
+source_heading: 13. Metric Source of Truth
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Review Queue Semantic Statuses
+The Review Queue sheet columns AE through AH MUST distinguish between:
+1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
+2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
+
+---
+
+## FILE: docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+# 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+## Deployment Safety
+- **Source SHA Guards**: Verify file hashes locally before clasp push.
+- **Immutable Versioning**: Create version descriptions matching `AIRO_ARFIN_BRIDGE_PERSISTENCE_V1_<timestamp>`.
+- **Triggers Verification**: Checks if triggers like `processReviewQueueApprovedOnEdit` exist.
+- **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
+
+*Note: No deployment operations were executed in this documentation-only phase.*
+
+---
+
+## FILE: docs/afpd/08_ROADMAP.md
+
+# 08_ROADMAP.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1320-1321
+source_heading: 18. Final Roadmap
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1322-1355
+source_heading: Sprint 0A - Telegram Clarification Closure
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1356-1382
+source_heading: Sprint 0B - Email Ambiguity Research & Bridge Design
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1383-1410
+source_heading: Sprint 1 - Account Ledger Hardening
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1411-1434
+source_heading: Sprint 2 - Domain Tabs Maturation
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1435-1459
+source_heading: Sprint 3 - Cash Ledger Removal
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1460-1491
+source_heading: Sprint 4 - Finance Events v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1492-1517
+source_heading: Sprint 5 - Audit, Reconciliation, Partial Recovery
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1518-1554
+source_heading: Sprint 6 - Dashboard Final
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1555-1580
+source_heading: Sprint 6B - Proactive Telegram Alert Engine v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1581-1610
+source_heading: Sprint 7 - Email Ingestion v1, Outline Only
+migration_status: HISTORICAL
+conflict_id: none
+-->
+
+## Active Roadmap
+The current roadmap from the Living PRD defines active tasks:
+- **Task 10.1**: Documentation reconciliation (Gate 12) IN_PROGRESS.
+- **Task 10.2**: Deploy filter dropdown fix (Gate 11) PASS.
+
+## Historical Sprints
+- Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
+
+---
+
+## FILE: docs/afpd/09_DECISION_REGISTER.md
+
+# 09_DECISION_REGISTER.md
+
+## Durable Decision Records
+- **AFPD Proposed Authority Hierarchy**: Initiated Phase 3 skeleton creation to replace split authority between Final Kitab and ARFIN.md once canonical activation is granted.
+- **Final Kitab Preservation**: Final Kitab is preserved unchanged during documentation migrations to maintain historical stability.
+- **ARFIN Runtime Contract Integration**: Merged ARFIN.md behavior and Final Kitab rules in module 03.
+- **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
+- **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
+- **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
+
+---
+
+## FILE: docs/afpd/11_INCIDENT_REGISTER.md
+
+# 11_INCIDENT_REGISTER.md
+
+## Incidents Register
+
+### Incident 1 — Old A/B/C/D/E Email Prompt at 08:51
+- **incident_id**: INC_001
+- **detected_at**: 2026-07-12 08:51 UTC
+- **symptom**: Email expense prompts still displayed A/B/C/D/E letters instead of numeric options.
+- **impact**: Confused users expecting the numeric Arfin prompt interface.
+- **root_cause**: Legacy webhook endpoint connected to an unpatched development environment.
+- **repair**: Forensic isolation of the webhook, routing to active multitab handler.
+- **verification**: Check transaction triggers.
+- **status**: RESOLVED
+- **related_versions**: v370
+- **related_evidence**: 08:51 runtime log capture
+- **remaining_risk**: Inactive legacy endpoints.
+
+### Incident 2 — Account Reply "2" Not Routed
+- **incident_id**: INC_002
+- **detected_at**: 2026-07-10 12:50 UTC
+- **symptom**: Replying with numeric option "2" failed to resolve.
+- **impact**: Blocked account resolution for selected option.
+- **root_cause**: Parser checked string arrays instead of normal category strings.
+- **repair**: Convert replies to strings before registry array parsing.
+- **verification**: Selftest check cases.
+- **status**: RESOLVED
+- **related_versions**: v371
+- **related_evidence**: test case `numeric_account_ux`
+- **remaining_risk**: Array bounds check issues.
+
+### Incident 3 — Typed "Blu Pocket" Resolving as "Blu"
+- **incident_id**: INC_003
+- **detected_at**: 2026-07-10 13:12 UTC
+- **symptom**: User input "Blu Pocket" matched substring "Blu" instead of full name.
+- **impact**: Routed transaction funding from wrong account.
+- **root_cause**: Substring regex checked before exact match registry parser.
+- **repair**: Shift exact match checks to higher priority level.
+- **verification**: Selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v374
+- **related_evidence**: v374 diff
+- **remaining_risk**: Regex greedy matching.
+
+### Incident 4 — Expense Category "0" Fall-Through
+- **incident_id**: INC_004
+- **detected_at**: 2026-07-10 13:20 UTC
+- **symptom**: Expense category "0" falling through parser before v375 and posting to ledger.
+- **impact**: Data mapping pollution in Account Ledger.
+- **root_cause**: Category parser missing strict validation block for "0" review route.
+- **repair**: Direct category "0" explicitly to Review Queue fallback.
+- **verification**: Staging selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v375
+- **related_evidence**: v375 test logs
+- **remaining_risk**: Other fall-through keys.
+
+### Incident 5 — Split Authority (Final Kitab vs ARFIN.md)
+- **incident_id**: INC_005
+- **detected_at**: 2026-07-12 09:40 UTC
+- **symptom**: Split claims of canonical guidance between the two docs.
+- **impact**: Ambiguity for developers updating codebase.
+- **root_cause**: Reconciliations not unified in previous sessions.
+- **repair**: Create unified AFPD modules (docs/afpd/).
+- **status**: IN_PROGRESS
+- **related_versions**: Phase 2/3
+- **related_evidence**: Contradiction Matrix
+- **remaining_risk**: Inactive activation stubs.
+
+### Incident 6 — Missing Durable v371-v375 Documentation
+- **incident_id**: INC_006
+- **detected_at**: 2026-07-12 09:45 UTC
+- **symptom**: Version changes absent from main documentation files.
+- **impact**: Lack of traceability for past patches.
+- **root_cause**: Rapid hotfixing bypass of documentation updates.
+- **repair**: Backfill progress log entries in Phase 3.
+- **status**: RESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: Progress log backfill plan
+- **remaining_risk**: None.
+
+### Incident 7 — Manifest Timezone vs Business Timezone
+- **incident_id**: INC_007
+- **detected_at**: 2026-07-12 09:48 UTC
+- **symptom**: appsscript.json manifest timezone discrepancy.
+- **impact**: Deployed times in GCP mismatched with local Jakarta times.
+- **root_cause**: Manifest left at default Asia/Bangkok while code uses Asia/Jakarta.
+- **repair**: Documented unresolved discrepancy in trigger topology. Normalization deferred.
+- **status**: UNRESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: appsscript.json manifest
+- **remaining_risk**: Date conversion offsets in logs.
+
+### Incident 8 — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
+- **impact**: Canonical activation could have occurred with missing rules.
+- **root_cause**: Audit implementation used selected or hardcoded rules instead of the full dynamic baseline.
+- **repair**: Independent extraction and full normative remediation mapping 377 rules.
+- **verification**: Phase 4.2 post-remediation audit.
+- **status**: OPEN until Phase 4.3 PASS
+- **related_versions**: Phase 4/4.1/4.2
+- **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
+- **remaining_risk**: Gaps in newly appended sections.
+
+### Incident 8 Update — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)
+
+### Incident 9 — Manual Telegram Resolution Bypassed Review Queue
+
+- **incident_id**: AFPD-INC-009
+- **detected_at**: 2026-07-12, Owner-reported Telegram transaction flow
+- **symptom**: After manual account and subcategory selection, Arfin reported success and changed ledger state without Review Queue approval.
+- **impact**: Premature ledger mutation, false-success messaging, and possible loss of execution-account versus funding-account semantics.
+- **root_cause**: `airoHandleOutgoingConfirmationReply_` called `writeRouted_` directly in the resolved-subcategory branch and cleared pending state before governed staging/readback.
+- **repair**: Replace direct ledger write with `telegram_manual` approval staging, source-scoped approval guards, deterministic dedupe identity, category-scoped prompts, and posting-plan metadata restoration.
+- **repository_source_commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **source_sha256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **stable_patch_id**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **verification**: Independent semantic review, content-equivalence audit, syntax validation, same-account 1-row test, funded-payment 3-row test, and repeat-approval zero-extra-row test.
+- **status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **production_resolution**: PENDING
+- **related_evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
+- **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
+
+#### `AFPD-INC-009` Gate P1.1 update — self-test contract aligned
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Change**: Added `plannedPostingRowCount` to the resolved dry-run and replaced stale pre-approval `rowCount === 3/1` assertions.
+- **Runtime implementation changed**: NO
+- **Built-in self-test result**: PASS
+- **Deployment performed**: NO
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AFPD-INC-009 update
+
+STATUS=REPAIRED_LOCALLY_NO_DEPLOY. V384 live email alpha prompt regression and pending-state Food & Drink misroute repaired locally. Production deployment still v384 and not updated with this repair. INCIDENT_RESOLVED=NO.
+
+---
+
+## FILE: docs/afpd/12_EVIDENCE_INDEX.md
+
+# 12_EVIDENCE_INDEX.md
+
+## Phase Evidence Index
+
+### Phase 1 Audit Artifacts
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_READINESS_REPORT.md` (readiness)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_DOCUMENT_INVENTORY.csv` (inventory)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_CONTRADICTION_MATRIX.tsv` (contradictions)
+
+### Phase 1.5 Blocker Artifacts
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.txt` (blockers txt)
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.json` (blockers json)
+
+### Phase 2 Documents & Commit
+- `docs/afpd/AFPD_MIGRATION_MANIFEST.md`
+- `docs/afpd/AFPD_AUTHORITY_MATRIX.md`
+- `docs/afpd/AFPD_SECTION_DESTINATION_MAP.tsv`
+- Commit: `a675395` (push success)
+
+### v371-v375 Deployment & Runtime Evidence
+- **Source SHA**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Self-Test Result**: `LOCAL_SELFTEST=PASS` (8 cases passed)
+
+### Live Intake & Approval Proofs
+- **Live Rp1 Other / Review Staging Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Live Rp205.000 Utilities / Internet Approval Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Account Ledger Row 169 Dedupe PASS**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (deduplication check passed)
+### Phase 4.2 Hardened Evidence
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+
+### ARFIN Manual Approval Staging — Gate P1
+
+- **Incident**: `AFPD-INC-009`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Packet archive SHA-256**: `28440fe31df503959aca551382336ba962cea9eda41a22f0857db2122f52f6c7`
+- **Integration evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Independent semantic review**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_INDEPENDENT_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_EXECUTABLE_RESULTS.json`
+- **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
+- **Deployment evidence**: NOT YET AVAILABLE
+- **Workbook readback evidence**: NOT YET AVAILABLE
+
+### ARFIN Gate P1.1 — self-test contract repair
+
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Incident**: `AFPD-INC-009`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Summary**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+- **Static review**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_STATIC_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
+- **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
+- **Apps Script deployment evidence**: NOT YET AVAILABLE
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+- Summary: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_SUMMARY.md`
+- Proof JSON: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_PROOF.json`
+- Source SHA before: `c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5`
+- Source SHA after: `1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c`
+- Local selftest: PASS 65/65
+- Deployment: not performed
+
+---
+
+## FILE: docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md
+
+# 99_HISTORICAL_AND_SUPERSEDED.md
+
+## Superseded and Historical Materials
+
+### Legacy Canonical Roadmap Lock
+- Preserved historical lock metadata from Sprint 6/7.
+
+### Email Default-OFF Policy
+- Historical security modes specifying ingestion poller default de-activated.
+
+### Deprecated Cash Ledger and Transactions Tab
+- Specifications for the old `Cash Ledger` and `Transactions` sheets, which were removed/neutralized in Sprint 3 in favor of a single Account Ledger database.
+
+### Legacy A/B/C/D/E prompt layouts
+- Early prompts asking for direction, category, or subcategory options using letters instead of numeric options.
+
+### Fallback-Only Review Queue Interpretation
+- The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
+
+---
+
+## FILE: docs/afpd/10_PROGRESS_LOG.md
+
+# 10_PROGRESS_LOG.md
+
+## Version History Logs
+
+### Version v371 — Admin Preemption Behavior
+- **Timestamp**: 2026-07-10 12:49:50 UTC
+- **Problem**: Admin commands were swallowed by pending clarification handlers.
+- **Root Cause**: Reply checks ran before command preemption evaluations.
+- **Decision**: Inject command checks at top of text processors.
+- **Source SHA Before**: `2090aec170cfc0279996dee6e158a5b56f005aeb38fa436a4112e88e9d8a2e7f`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 366
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `tryHandlePendingClarificationReply_`
+- **Tests**: `airoArfinRuntimeAlignV1SelfTest_()`
+- **Live Proof**: Command `admin cek pending` succeeds during active prompt.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Added regex command bypass.
+- **Remaining Risk**: Command name updates.
+- **Next Step**: Document bypass checks.
+
+### Version v372 — Poller Window & Email Prompt Ownership
+- **Timestamp**: 2026-07-10 13:00:15 UTC
+- **Problem**: Duplicate email ingestion logs.
+- **Root Cause**: Greedy queries without caching processed threads.
+- **Decision**: Cache processed thread IDs in script properties.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 367
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `pollGmailNotifications_`
+- **Tests**: Dry-run Gmail checks.
+- **Live Proof**: Process times <500ms.
+- **Workbook Proof**: Ingestion log rows added correctly.
+- **Mutation Summary**: Property-based thread tracker.
+- **Remaining Risk**: Property size limits.
+- **Next Step**: Add thread key pruning.
+
+### Version v373 — Pending Ownership & Pointer Arbitration
+- **Timestamp**: 2026-07-10 13:10:17 UTC
+- **Problem**: Concurrent chats overwriting pending states.
+- **Root Cause**: Global property key instead of namespaced chat key.
+- **Decision**: Prefix chat-level states with chat IDs.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 368
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `savePendingClarification_`
+- **Tests**: Parallel simulator.
+- **Live Proof**: Verified independent chat flows.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Namespaced properties keys.
+- **Remaining Risk**: Cache cleanup delays.
+- **Next Step**: Add automatic sweeps.
+
+### Version v374 — Account Parser Repair & Exact Name Precedence
+- **Timestamp**: 2026-07-10 13:18:21 UTC
+- **Problem**: Custom names matching sub-strings of other accounts.
+- **Root Cause**: Index prefix matches ran before exact registry matches.
+- **Decision**: Validate exact matches first before calling substring checks.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 369
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `parseAccount_`
+- **Tests**: Exact name match cases.
+- **Live Proof**: Typed `Blu Pocket` resolves exactly to `Blu Pocket`, not substring `Blu`.
+- **Workbook Proof**: Staging records write correct exact name strings.
+- **Mutation Summary**: Exact-name comparison precedence check added.
+- **Remaining Risk**: Registry spelling errors.
+- **Next Step**: Standardize spelling errors warnings.
+
+### Version v375 — Category Expense Route, Matcher, Validator & Reask
+- **Timestamp**: 2026-07-10 13:22:09 UTC
+- **Problem**: Invalid category inputs resolving to Lainnya.
+- **Root Cause**: Parser accepted invalid category names without validation.
+- **Decision**: Implement category registry validation loop re-asking up to 3 times.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Apps Script Version**: 370
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `canAskMissingCategoryClarification_`
+- **Tests**: Selftest category validation.
+- **Live Proof**: Invalid category replies trigger re-prompt options list.
+- **Workbook Proof**: Failed categories block ledger writes.
+- **Mutation Summary**: Added category re-ask checker.
+- **Remaining Risk**: Prompt noise.
+- **Next Step**: Improve autocomplete matching.
+
+### AFPD Migration Phase Logs
+- **AFPD Phase 1**: Initial readiness audit and inventory creation (COMPLETE).
+- **AFPD Phase 1.5**: Exact blocker extraction and files analysis (COMPLETE).
+- **AFPD Phase 2**: Migration manifest and authority matrix documentation (COMPLETE).
+- **AFPD Phase 3**: Skeleton creation and traceable content migration (COMPLETE).
+
+### AFPD Phase 4
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+### AFPD Phase 4.1
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+### AFPD Phase 4.2
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+### AFPD Phase 4.4
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+### ARFIN Manual Approval Staging — Gate P1 Repository Integration
+
+- **Timestamp**: 2026-07-13 19:06:42 WIB
+- **Scope**: Repository integration and durable AFPD evidence only.
+- **Problem**: Resolved manual Telegram clarification could bypass Review Queue and mutate ledger state immediately.
+- **Decision**: Enforce `Review Queue -> /approval -> Account Ledger` for resolved manual Telegram transactions.
+- **Authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Patched source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Behavioral validation**: Same-account 1 row; funded payment 3 rows; second approval 0 extra rows; email flow preserved.
+- **AFPD incident**: `AFPD-INC-009`
+- **Durable evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
+
+### ARFIN Gate P1.1 — built-in self-test contract repair
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Authority parent**: `5b56f8ccf92387a6f65537cc34e8970dfb55007c`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Scope**: Dry-run reporting and editor self-test assertions only.
+- **Actual pre-approval ledger rows**: 0
+- **Planned post-approval rows**: 1 for same-account; 3 for funded payment.
+- **Built-in self-test**: PASS
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains open.
+- **Next**: Resume Gate P2 under existing Owner authorization.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source only, no deploy. Local selftest PASS 65/65. Source SHA after repair 1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c. Direction pending now runs before category pending and Food & Drink map. Incident unresolved pending post-repair preflight, guarded deployment, owner runtime proof, and fresh live retest.
+
+---
+
+## FILE: docs/afpd/00_CURRENT_HANDOFF.md
+
+# 00_CURRENT_HANDOFF.md
+
+## Current Verified State
+- **Apps Script Production Version**: 375
+- **Source Code SHA-256**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Latest Known Deployment ID**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Latest Known Deployment Fingerprint**: `497865e5f3c2345b`
+
+## Gmail Poller Window
+- **Active Ingestion Business Window**: 09:00 - 00:59 WIB (Asia/Jakarta)
+- **Inactive Cooldown Window**: 01:00 - 08:59 WIB (Asia/Jakarta)
+- **Timezone Note**: Manifest timezone in `appsscript.json` is `Asia/Bangkok` while the script runs in `Asia/Jakarta`.
+
+## Webhook Intake
+- **Telegram Webhook Route**: Runs independently from poller, active 24/7.
+
+## Repository State
+- **Pre-existing Dirty Files**:
+  - `.obsidian/app.json`
+  - `.obsidian/appearance.json`
+  - `.obsidian/core-plugins.json`
+  - `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js` (matches v375 baseline hash)
+  - `state/system-health.md`
+
+## Current Phase and Next Gate
+- **Current Phase**: AFPD Phase 3 — Traceable Content Migration
+- **Next Gate**: Owner Approval for AFPD Activation and old paths deprecation.
+
+## Gate P1 Handoff — Manual Approval Staging Repair
+
+- **Recorded at**: 2026-07-13 19:06:42 WIB
+- **Repository authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Integrated source commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Integrated source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Incident**: `AFPD-INC-009`
+- **Repository repair status**: INTEGRATED
+- **Production deployment status**: NOT DEPLOYED
+- **Production runtime proof**: NOT PERFORMED
+- **Workbook readback**: NOT PERFORMED
+- **AFPD status**: PROPOSED_NOT_CANONICAL
+- **Canonical activation**: PENDING_OWNER_APPROVAL
+- **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
+- **Do not mark incident resolved** until all Gate P2 production evidence passes.
+
+## Gate P1.1 Handoff — self-test contract aligned
+
+- **Recorded at**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Integrated source commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Source SHA-256**: `dcfc2ac0a88aadc3ee4f1b41d0ec5f3b35818eb6d388663bccb8bc7626af8f1b`
+- **Built-in outgoing confirmation self-test**: PASS
+- **Runtime staging implementation**: unchanged
+- **Repository status**: ready for Gate P2 pre-deployment checks
+- **Apps Script deployment**: NOT PERFORMED
+- **Production runtime proof**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
+- **AFPD status**: `PROPOSED_NOT_CANONICAL`
+- **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+## Gate P2 Rollback Confirmation
+- **AFPD-INC-009**: DEPLOYMENT_ATTEMPTED_RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL
+- **ROLLBACK_STATUS**: CONFIRMED_TO_VERSION_377
+- **NEXT_SAFE_GATE**: GATE_P2_RUNTIME_FAILURE_ROOT_CAUSE_ANALYSIS_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`
+
+## Gate P2 Root Cause Analysis
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED_RCA_IN_PROGRESS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **RCA_STATUS**: CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION
+- **NEXT_SAFE_GATE**: GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`
+
+## Gate P2 Remediation Plan Status
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_PERMISSION_REMEDIATION_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **REMEDIATION_STATUS**: OWNER_ACTION_REQUIRED
+- **NEXT_SAFE_GATE**: GATE_P2_OWNER_MANUAL_APPS_SCRIPT_PERMISSION_REMEDIATION
+- **Marker**: `AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`
+
+## Gate P2 Runtime Proof Method Decision Status
+- **AFPD-INC-009**: RUNTIME_PROOF_METHOD_DECIDED_MANUAL_EDITOR_SELFTEST_ACCEPTED_WITH_LIMITATIONS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_GUARDED_DEPLOYMENT_RETRY_PREFLIGHT_MANUAL_RUNTIME_PROOF_METHOD
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Retry Execution Status
+- **AFPD-INC-009**: DEPLOYMENT_RETRY_DEPLOYED_AWAITING_MANUAL_EDITOR_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **PREVIOUS_ACTIVE_DEPLOYMENT_VERSION**: 377
+- **FAILED_HISTORICAL_DEPLOYMENT_VERSION**: 378
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_TELEGRAM_LIVE_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`
+
+## Gate P2 Telegram Live Proof Partial Record & Retest Plan Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_PROOF_PARTIAL_PASS_WITH_BLOCKERS_RETEST_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: PARTIAL_PASS_WITH_BLOCKERS
+- **FUNDING_CLARIFICATION_BEFORE_CATEGORY**: YES
+- **CATEGORY_PROMPT_AFTER_FUNDING**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **AMOUNT_PARSE_STATUS**: FAIL_MARKER_DIGIT_CONTAMINATION
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_EXPECTED_CASH_UMUM_FUNDED_BY_BLU_POCKET_OBSERVED_REVERSED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_RETEST_OWNER_MANUAL_EXECUTION
+- **FALLBACK_IF_RETEST_FAILS**: GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`
+
+## Gate P2 Live Telegram Semantics & Email Prompt RCA Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **TELEGRAM_RETEST_STATUS**: FAIL
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: NO
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL
+- **RCA_CLASSIFICATION**: TELEGRAM_ACCOUNT_FUNDING_PARSER_GREEDY_MATCH_AND_DISPLAY_REVERSAL_PLUS_EMAIL_INCOME_LEGACY_ALPHA_PROMPT
+- **RCA_CONFIDENCE**: HIGH_100_PERCENT_PROVEN
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REMEDIATION_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: FAILED_SEMANTICS_REPAIR_REQUIRED
+- **AMOUNT_PARSE_STATUS**: RETEST_PASS_BUT_REGRESSION_GUARD_REQUIRED
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_REPAIR_REQUIRED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_REPAIR_REQUIRED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **PRE_DEPLOY_ACTIVE_VERSION**: 379
+- **POST_DEPLOY_ACTIVE_VERSION**: 380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_LIVE_TELEGRAM_RETEST_AND_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Live Telegram Retest Record Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_RETEST_PASS_AWAITING_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **BOT_STATED_NOT_RECORDED_TO_LEDGER**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_WORKBOOK_READBACK_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`
+
+## Gate P2 Email Expense Legacy Alpha Prompt Record Blocker Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_RETEST_PASS_EMAIL_EXPENSE_CATEGORY_PROMPT_BLOCKER_RECORDED
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **EMAIL_EXPENSE_FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_EXPENSE_CATEGORY_PROMPT_DISPLAY_AND_CHOICE_MAPPING
+- **EXPECTED_NEW_PROMPT_STYLE**: NUMERIC_1_TO_5_WITH_BALAS_ANGKA_PILIHAN
+- **BACKWARD_COMPAT_LEGACY_ALPHA_PARSE**: SILENT_ONLY_DO_NOT_DISPLAY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_INTEGRATED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256_BEFORE_EMAIL_EXPENSE_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **SOURCE_SHA256_AFTER_EMAIL_EXPENSE_PATCH**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21_PRE_EMAIL_EXPENSE_PATCH
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: PASS_LOCAL_NOT_DEPLOYED
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **DEPLOYMENT_PERFORMED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_REPAIR
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **PRE_DEPLOY_ACTIVE_VERSION**: 380
+- **NEW_APPS_SCRIPT_VERSION**: 381
+- **POST_DEPLOY_ACTIVE_VERSION**: 381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED_AFTER_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DEPLOY
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Category Numeric Prompt Post-Deploy Manual Editor Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_RUNTIME_PROOF_ACCEPTED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow Record Blocker Status
+- **AFPD-INC-009**: LIVE_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_BLOCKER_RECORDED_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **OWNER_CONFIRMED_SOURCE_TRANSACTION_DIRECTION**: PENGELUARAN
+- **ARFIN_DISPLAYED_DIRECTION**: PEMASUKAN
+- **EMAIL_DIRECTION_CLASSIFICATION_STATUS**: FAIL_FALSE_INFLOW
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **INCOME_NUMERIC_PROMPT_FORMAT**: PASS_BUT_WRONG_TRANSACTION_BRANCH
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_LIVE_STATUS**: NOT_REACHED_DUE_DIRECTION_MISCLASSIFICATION
+- **FINANCE_WRITE_FALSE**: YES
+- **EMAIL_PROMPT_REPLIED_BY_OWNER**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **FALSE_INFLOW_REPRODUCED_SYNTHETICALLY**: YES
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **SPECIFIC_LIVE_TRIGGER_CONFIDENCE**: UNKNOWN
+- **FINANCE_WRITE_FALSE**: YES
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **PROPOSED_DIRECTION_POLICY**: STRONG_EVIDENCE_ONLY_GENERIC_UI_TOKENS_NEUTRAL_CONFLICTS_AMBIGUOUS
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: 182c8187733f08895acb5b911a2d812959c0a3f9e37491716b08cd9d9502fc7e
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **PRE_DEPLOY_VERSION**: 381
+- **ROLLBACK_VERSION**: 381
+- **POST_DEPLOY_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **EXISTING_24_TESTS_PASSED**: YES
+- **NEW_DIRECTION_TESTS_PASSED**: YES
+- **FALSE_INFLOW_REPAIRED_LOCALLY**: YES
+- **CLASP_PUSH_PERFORMED**: YES
+- **CLASP_VERSION_PERFORMED**: YES
+- **CLASP_DEPLOY_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_DEPLOYMENT
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Blocker Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_LIVE_RETEST_BLOCKED_BY_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT**: READY
+- **FRESH_PROMPT_NOT_BEFORE**: 2026-07-19T22:09:38+07:00
+- **OWNER_REPORTED_EMAIL_NOT_PICKED_UP_AFTER_SEVERAL_MINUTES**: YES
+- **ARFIN_TELEGRAM_PROMPT_OBSERVED**: NO
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED_UNLESS_LIVE_PROMPT_PROVES_DIRECTION_REGRESSION
+- **CURRENT_TEST_COUNT**: 35
+- **PLANNED_INGESTION_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 46
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: 2a04e82bb2e3865fb7b77cf4077b5a314c637f4bb25b0cd39bfa8fbd4127774f
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **PRE_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 383
+- **POST_DEPLOY_VERSION**: 384
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_REQUIRED**: YES
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_DEPLOYMENT
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED_BY_THIS_GATE**: NO
+- **DEPLOYMENT_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **FULL_46_CASE_JSON_VISIBLE**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_RUNTIME_PROOF
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: YES
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **PROMPT_OBSERVED_AT**: 2026-07-20T19:03:00+07:00
+- **TRANSACTION_TIMESTAMP_VISIBLE**: 2026-07-20T18:55:12+07:00
+- **DIRECTION_DISPLAYED**: ambigu
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **DIRECTION_REPAIR_LIVE_RESULT**: AMBIGUOUS_SAFE_NOT_FALSE_INFLOW_BUT_NOT_EXPENSE_CONFIRMED
+- **LEGACY_ALPHA_DIRECTION_PROMPT_DISPLAYED**: YES
+- **LEGACY_ALPHA_SUBCATEGORY_PROMPT_DISPLAYED**: YES
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **OWNER_REPLIED_TO_DIRECTION_PROMPT**: YES
+- **OWNER_REPLIED_TO_SUBCATEGORY_PROMPT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **ROOT_CAUSE_DIRECTION_PROMPT**: airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802)
+- **ROOT_CAUSE_SUBCATEGORY_PROMPT**: airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363)
+- **SELFTEST_GAP**: Unit test suite 46/46 lacked assertions for numeric-only direction ambiguity and subcategory prompts.
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_AND_SUBCATEGORY_PROMPT_NUMERIC_RENDERING
+- **ALPHA_DISPLAY_ALLOWED**: NO
+- **ALPHA_PARSER_COMPATIBILITY_ALLOWED**: YES_INTERNAL_STALE_REPLY_COMPATIBILITY_ONLY
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 57
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression State Machine Remediation Plan Amendment Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_AMENDED_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_ADDENDUM_CLASSIFICATION**: LIVE_EMAIL_DIRECTION_PROMPT_RENDERER_AND_PENDING_STATE_MACHINE_ARE_INCONSISTENT_AMBIGUOUS_REPLY_IS_HANDLED_AS_EXPENSE_CATEGORY_SELECTION
+- **RCA_ADDENDUM_CONFIDENCE**: HIGH
+- **RENDERER_ONLY_REPAIR_CONTRACT_STATUS**: SUPERSEDED_INCOMPLETE
+- **STATE_MACHINE_REPAIR_REQUIRED**: YES
+- **AMENDED_REMEDIATION_PLAN_STATUS**: READY
+- **AMENDED_REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_PENDING_STATE_MACHINE_AND_NUMERIC_PROMPT_RENDERING
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **PLANNED_STATE_MACHINE_TESTS**: 8
+- **TOTAL_PLANNED_NEW_TESTS**: 19
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 65
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REVISED_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`
+
+## 20260720_210710 — Current handoff update
+
+AFPD-INC-009=EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_REPAIRED_LOCALLY_NO_DEPLOY_AWAITING_POST_REPAIR_PREFLIGHT
+APPS_SCRIPT_DEPLOYMENT=EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384_REVISED_ALPHA_STATE_MACHINE_REPAIR_NOT_DEPLOYED
+SOURCE_SHA256_BEFORE_REPAIR=c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+SOURCE_SHA256_AFTER_REPAIR=1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c
+POST_DEPLOY_VERSION=384
+ROLLBACK_VERSION=383
+TARGET_DEPLOYMENT_SUFFIX=ZYjuOA
+LOCAL_SELFTEST=PASS_65_OF_65
+EXISTING_46_TESTS_PASSED=YES
+NEW_ALPHA_PROMPT_TESTS_PASSED=YES
+NEW_STATE_MACHINE_TESTS_PASSED=YES
+NEW_19_TESTS_PASSED=YES
+PENDING_POINTER_PERSISTS_INFERRED_DIRECTION=YES
+PENDING_POINTER_PERSISTS_CLARIFICATION_QUESTION_TYPE=YES
+AMBIGUOUS_CANDIDATE_STATE=direction_pending
+DIRECTION_PENDING_HANDLER_IMPLEMENTED=YES
+DIRECTION_PENDING_BEFORE_CATEGORY_PENDING=YES
+FOOD_DRINK_MISROUTE_PREVENTED=YES
+DIRECTION_ALPHA_DISPLAY_REMOVED=YES
+DIRECTION_NUMERIC_DISPLAY_ADDED=YES
+SUBCATEGORY_ALPHA_DISPLAY_REMOVED=YES
+SUBCATEGORY_NUMERIC_DISPLAY_ADDED=YES
+HARNESS_PATCH_PERFORMED=NO_BY_DESIGN_DYNAMIC_HARNESS
+SOURCE_PATCH_PERFORMED=YES
+DEPLOYMENT_PERFORMED=NO
+WORKBOOK_READBACK=NOT_YET_PERFORMED
+INCIDENT_RESOLVED=NO
+NEXT_SAFE_GATE=GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+
+---
+
+## FILE: AFPD_BOOT_BUNDLE.md
+
+# AFPD Boot Bundle
+> Regenerated after AIRO Finance v384 revised alpha state-machine local repair.
+
+---
+
+## FILE: docs/afpd/01_PROJECT_CHARTER.md
+
+# 01_PROJECT_CHARTER.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 11-18
+source_heading: AIRO Finance Command Center - Final Kitab v2
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 19-50
+source_heading: 0. Executive Decision
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 51-65
+source_heading: 1. Core Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Project Purpose
+The purpose of the AIRO Finance Project is to establish a secure, multi-tab transaction intake system linked to Google Sheets via Telegram bot and Gmail poller, ensuring accurate ledger updates and transaction categorizations.
+
+## Owner-Approved Operating Principles
+1. **Financial Safety**: The system MUST NOT execute automated ledger writes without Owner approval for staged items.
+2. **Clarification-First Behavior**: Mismatched or ambiguous items MUST trigger clarification flows instead of writing default fallback data.
+3. **No Speculative Reset**: Developers/AI MUST NOT redesign the core architecture from zero without explicit Owner approval.
+
+## Product Boundary
+- **Input Channels**: Telegram bot and Gmail poller.
+- **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
+
+
+---
+
+## FILE: docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md
+
+# 02_ARCHITECTURE_AND_GOVERNANCE.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1-10
+source_heading: CANONICAL ROADMAP LOCK
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 66-67
+source_heading: 2. Final Layer Architecture
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1201-1214
+source_heading: 14. Dashboard Gating Rules
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1611-1639
+source_heading: 19. Rules for Future AI/Developer
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1640-1675
+source_heading: 20. New Chat Bootstrap
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1676-1712
+source_heading: 21. New Chat Execution Prompt
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Durable Architecture Overview
+- **Telegram Gateway**: Dispatches inbound events.
+- **Clarification Layer**: Prompts for direction, category, subcategory.
+- **Review Queue Staging**: Persists pending transactions.
+- **Ledger Posting**: Writes to Account Ledger after manual approval.
+
+## Proposed Future AFPD Authority Hierarchy
+- This hierarchy is proposed and not yet canonical:
+  1. `AFPD.md`
+  2. `00_CURRENT_HANDOFF.md`
+  3. `03_ARFIN_RUNTIME_CONTRACT.md`
+  4. `02_ARCHITECTURE_AND_GOVERNANCE.md`
+
+## Documentation Update Contract
+- Every substantive AIRO Finance task MUST produce a progress log entry in `10_PROGRESS_LOG.md`.
+- Every defect or repair MUST produce or update an incident entry in `11_INCIDENT_REGISTER.md`.
+- Every architecture decision MUST produce a decision entry in `09_DECISION_REGISTER.md`.
+- Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
+- Every completed session MUST update `00_CURRENT_HANDOFF.md`.
+- No task is considered closed until these records are fully updated.
+
+
+---
+
+## FILE: docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
+
+# 03_ARFIN_RUNTIME_CONTRACT.md
+
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 1-6
+source_heading: ARFIN
+migration_status: CURRENT
+conflict_id: AUTHORITY_FINAL_KITAB_VS_ARFIN
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 7-12
+source_heading: Read First
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 13-42
+source_heading: Telegram UX
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 43-67
+source_heading: Email Flow
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 68-103
+source_heading: Direction
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 104-117
+source_heading: Category
+migration_status: CURRENT
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 118-131
+source_heading: Admin
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 132-150
+source_heading: Review Queue
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 151-187
+source_heading: Approval
+migration_status: CURRENT
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 188-206
+source_heading: Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 207-224
+source_heading: Tests
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ARFIN.md
+source_lines: 225-236
+source_heading: Forbidden
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 122-141
+source_heading: 3. Clarification Layer
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 142-159
+source_heading: 3.1 Mandatory Ambiguity Types
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 160-174
+source_heading: 3.2 Missing Category Policy
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 175-193
+source_heading: 3.3 Critical Missing Fields
+migration_status: MERGED
+conflict_id: LEGACY_ALPHA_UX_VS_NUMERIC_UX
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 194-245
+source_heading: 4. Email-to-Telegram Clarification Bridge
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 246-249
+source_heading: 5. Email Security Policy
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 250-256
+source_heading: 5.1 Default Mode
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 257-270
+source_heading: 5.2 Allowed v1 Behavior
+migration_status: MERGED
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 271-305
+source_heading: 5.3 Sensitive Email Hard-Block
+migration_status: MERGED
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 306-343
+source_heading: 6. Router Policy
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 729-765
+source_heading: 8. Partial Write Recovery
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 766-767
+source_heading: 9. Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 768-782
+source_heading: 9.1 Light Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 783-814
+source_heading: 9.2 Full Reconciliation
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1215-1264
+source_heading: 15. Proactive Telegram Alert Engine
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Active Runtime Contract
+1. **Admin Preemption**: Admin commands MUST preempt any pending transaction clarification handler. Commands include:
+   - `admin cek pending`
+   - `admin clear pending clarification`
+   - `/approval`
+   - `/admin`
+2. **Clear Command**: `admin clear pending clarification` is the canonical command to reset pending clarification states without mutations to the ledger or Review Queue.
+3. **Ingestion Staging**: All resolved email transactions MUST be staged in the Review Queue under `APPROVAL_STAGING` and require explicit Owner approval via Telegram bot before any ledger posting.
+4. **Outgoing Email Flow**: Direction -> Funding Account -> Category -> Subcategory -> Review Queue Staging -> Approval -> Ledger.
+5. **Numeric Prompts**: Prompt menus and parsers MUST use numeric options (`1..N` for options and `0` for `Other / Review`). Letters A/B/C/D/E are legacy and MUST NOT be displayed in prompts.
+
+### Timezone Discrepancy (SCRIPT_TIMEZONE_VS_POLLER_TIMEZONE)
+The script uses Asia/Jakarta timezone for business calendar dates while the manifest is configured to Asia/Bangkok. This discrepancy is currently an unresolved normalization issue documented under trigger topology.
+
+
+---
+
+## FILE: docs/afpd/04_RUNTIME_TOPOLOGY.md
+
+# 04_RUNTIME_TOPOLOGY.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 68-75
+source_heading: Layer 1 - Input Sources
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 76-89
+source_heading: 2.1 Telegram Input
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 90-107
+source_heading: 2.2 Email Notification Input
+migration_status: CURRENT
+conflict_id: EMAIL_DEFAULT_OFF_VS_ACTIVE_RUNTIME
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 108-121
+source_heading: 2.3 Future Bank Mutation Input
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Apps Script Source Inventory
+- **Active Handler File**: `AIRO_Finance_Multitab_Final_v1.js` is the sole entry point handling doPost.
+- **Neutralized Compatible Source**: `Kode.js` contains a neutralized legacy doPost redirecting to the active handler to maintain compatibility.
+- **Active doPost count in Kode.js**: 0.
+
+## Webhook and Poller Topology
+- **Telegram Webhook**: Registers bot tokens and dispatches user texts.
+- **Gmail Ingestion Poller**: Triggered hourly to query Gmail messages.
+- **State Storage**: Chat states are stored in properties with key prefix `AIRO_PENDING_CLARIFICATION_<chat_id>`.
+
+## Timezone Normalization Issue
+- The script manifest `appsscript.json` specifies `Asia/Bangkok`, while internal script logic calculates times using `Asia/Jakarta`. This remains a known discrepancy.
+
+
+---
+
+## FILE: docs/afpd/05_STATE_MACHINES.md
+
+# 05_STATE_MACHINES.md
+
+## Intake Flow States
+- **email_outgoing_account_pending**: Awaiting funding account selection.
+- **category_pending / category_expense**: Awaiting category mapping index.
+- **category_search_pending**: Resolving category queries.
+- **subcategory_pending**: Awaiting subcategory selection index.
+- **direction_pending**: Awaiting selection between Pemasukan, Pengeluaran, or Transfer.
+- **Review Queue Approval Staging**: Transaction parsed but awaiting manual approval.
+- **Manual-Review Fallback**: Clarification failed or timed out; awaits manual corrections.
+- **Approval Commit**: Staged transaction posted to ledger.
+- **Reject Flow**: Item marked discarded.
+- **Pending Removal**: Property state cleared.
+- **Last-Prompt Pointer Arbitration**: Disambiguation tracking.
+
+## Core Distinctions
+- **Clarification Pending**: Temporary state in Properties Service before write.
+- **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
+- **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
+- **Committed Transaction**: Transaction finalized in Account Ledger.
+
+
+---
+
+## FILE: docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+# 06_DATA_AND_WORKBOOK_CONTRACTS.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 344-345
+source_heading: 7. Data Tabs
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 346-422
+source_heading: 7.1 Account Ledger
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 423-451
+source_heading: 7.2 Credit Card
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 452-475
+source_heading: 7.3 Hutang
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 476-501
+source_heading: 7.4 Aset
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 502-527
+source_heading: 7.5 Cicilan Rumah
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 528-633
+source_heading: 7.6 Finance Events
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 634-654
+source_heading: 7.7 Review Queue
+migration_status: MERGED
+conflict_id: REVIEW_QUEUE_FALLBACK_VS_APPROVAL_STAGING
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 655-693
+source_heading: 7.8 Audit Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 694-728
+source_heading: 7.9 Email Ingestion Log
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 815-824
+source_heading: 10. Data Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 825-835
+source_heading: Trusted
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 836-846
+source_heading: Warning
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 847-863
+source_heading: Dirty
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 864-906
+source_heading: 11. Net Worth Policy
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 907-930
+source_heading: 12. Dashboard Final Vision
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 931-955
+source_heading: 12.1 Visual Principles
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 956-969
+source_heading: 12.2 Dashboard Layout
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 970-990
+source_heading: 12.3 Topbar
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 991-1014
+source_heading: 12.4 Action Required
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1015-1042
+source_heading: 12.5 Executive Command Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1043-1066
+source_heading: 12.6 Wallet & Cashflow Board
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1067-1088
+source_heading: 12.7 Domain Health
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1089-1108
+source_heading: 12.8 Spending Intelligence
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1109-1138
+source_heading: 12.9 Data Quality Center
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1139-1153
+source_heading: 12.10 Smart Insight Panel
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1154-1178
+source_heading: 12.11 Conditional Email Ingestion Status
+migration_status: CURRENT
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1179-1200
+source_heading: 13. Metric Source of Truth
+migration_status: CURRENT
+conflict_id: none
+-->
+
+## Review Queue Semantic Statuses
+The Review Queue sheet columns AE through AH MUST distinguish between:
+1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
+2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
+
+
+---
+
+## FILE: docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+# 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
+## Deployment Safety
+- **Source SHA Guards**: Verify file hashes locally before clasp push.
+- **Immutable Versioning**: Create version descriptions matching `AIRO_ARFIN_BRIDGE_PERSISTENCE_V1_<timestamp>`.
+- **Triggers Verification**: Checks if triggers like `processReviewQueueApprovedOnEdit` exist.
+- **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
+
+*Note: No deployment operations were executed in this documentation-only phase.*
+
+
+---
+
+## FILE: docs/afpd/08_ROADMAP.md
+
+# 08_ROADMAP.md
+
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1320-1321
+source_heading: 18. Final Roadmap
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1322-1355
+source_heading: Sprint 0A - Telegram Clarification Closure
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1356-1382
+source_heading: Sprint 0B - Email Ambiguity Research & Bridge Design
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1383-1410
+source_heading: Sprint 1 - Account Ledger Hardening
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1411-1434
+source_heading: Sprint 2 - Domain Tabs Maturation
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1435-1459
+source_heading: Sprint 3 - Cash Ledger Removal
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1460-1491
+source_heading: Sprint 4 - Finance Events v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1492-1517
+source_heading: Sprint 5 - Audit, Reconciliation, Partial Recovery
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1518-1554
+source_heading: Sprint 6 - Dashboard Final
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1555-1580
+source_heading: Sprint 6B - Proactive Telegram Alert Engine v1
+migration_status: HISTORICAL
+conflict_id: none
+-->
+<!-- AFPD_PROVENANCE
+source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
+source_lines: 1581-1610
+source_heading: Sprint 7 - Email Ingestion v1, Outline Only
+migration_status: HISTORICAL
+conflict_id: none
+-->
+
+## Active Roadmap
+The current roadmap from the Living PRD defines active tasks:
+- **Task 10.1**: Documentation reconciliation (Gate 12) IN_PROGRESS.
+- **Task 10.2**: Deploy filter dropdown fix (Gate 11) PASS.
+
+## Historical Sprints
+- Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
+
+
+---
+
+## FILE: docs/afpd/09_DECISION_REGISTER.md
+
+# 09_DECISION_REGISTER.md
+
+## Durable Decision Records
+- **AFPD Proposed Authority Hierarchy**: Initiated Phase 3 skeleton creation to replace split authority between Final Kitab and ARFIN.md once canonical activation is granted.
+- **Final Kitab Preservation**: Final Kitab is preserved unchanged during documentation migrations to maintain historical stability.
+- **ARFIN Runtime Contract Integration**: Merged ARFIN.md behavior and Final Kitab rules in module 03.
+- **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
+- **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
+- **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
+
+
+---
+
+## FILE: docs/afpd/11_INCIDENT_REGISTER.md
+
+# 11_INCIDENT_REGISTER.md
+
+## Incidents Register
+
+### Incident 1 — Old A/B/C/D/E Email Prompt at 08:51
+- **incident_id**: INC_001
+- **detected_at**: 2026-07-12 08:51 UTC
+- **symptom**: Email expense prompts still displayed A/B/C/D/E letters instead of numeric options.
+- **impact**: Confused users expecting the numeric Arfin prompt interface.
+- **root_cause**: Legacy webhook endpoint connected to an unpatched development environment.
+- **repair**: Forensic isolation of the webhook, routing to active multitab handler.
+- **verification**: Check transaction triggers.
+- **status**: RESOLVED
+- **related_versions**: v370
+- **related_evidence**: 08:51 runtime log capture
+- **remaining_risk**: Inactive legacy endpoints.
+
+### Incident 2 — Account Reply "2" Not Routed
+- **incident_id**: INC_002
+- **detected_at**: 2026-07-10 12:50 UTC
+- **symptom**: Replying with numeric option "2" failed to resolve.
+- **impact**: Blocked account resolution for selected option.
+- **root_cause**: Parser checked string arrays instead of normal category strings.
+- **repair**: Convert replies to strings before registry array parsing.
+- **verification**: Selftest check cases.
+- **status**: RESOLVED
+- **related_versions**: v371
+- **related_evidence**: test case `numeric_account_ux`
+- **remaining_risk**: Array bounds check issues.
+
+### Incident 3 — Typed "Blu Pocket" Resolving as "Blu"
+- **incident_id**: INC_003
+- **detected_at**: 2026-07-10 13:12 UTC
+- **symptom**: User input "Blu Pocket" matched substring "Blu" instead of full name.
+- **impact**: Routed transaction funding from wrong account.
+- **root_cause**: Substring regex checked before exact match registry parser.
+- **repair**: Shift exact match checks to higher priority level.
+- **verification**: Selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v374
+- **related_evidence**: v374 diff
+- **remaining_risk**: Regex greedy matching.
+
+### Incident 4 — Expense Category "0" Fall-Through
+- **incident_id**: INC_004
+- **detected_at**: 2026-07-10 13:20 UTC
+- **symptom**: Expense category "0" falling through parser before v375 and posting to ledger.
+- **impact**: Data mapping pollution in Account Ledger.
+- **root_cause**: Category parser missing strict validation block for "0" review route.
+- **repair**: Direct category "0" explicitly to Review Queue fallback.
+- **verification**: Staging selftest validation.
+- **status**: RESOLVED
+- **related_versions**: v375
+- **related_evidence**: v375 test logs
+- **remaining_risk**: Other fall-through keys.
+
+### Incident 5 — Split Authority (Final Kitab vs ARFIN.md)
+- **incident_id**: INC_005
+- **detected_at**: 2026-07-12 09:40 UTC
+- **symptom**: Split claims of canonical guidance between the two docs.
+- **impact**: Ambiguity for developers updating codebase.
+- **root_cause**: Reconciliations not unified in previous sessions.
+- **repair**: Create unified AFPD modules (docs/afpd/).
+- **status**: IN_PROGRESS
+- **related_versions**: Phase 2/3
+- **related_evidence**: Contradiction Matrix
+- **remaining_risk**: Inactive activation stubs.
+
+### Incident 6 — Missing Durable v371-v375 Documentation
+- **incident_id**: INC_006
+- **detected_at**: 2026-07-12 09:45 UTC
+- **symptom**: Version changes absent from main documentation files.
+- **impact**: Lack of traceability for past patches.
+- **root_cause**: Rapid hotfixing bypass of documentation updates.
+- **repair**: Backfill progress log entries in Phase 3.
+- **status**: RESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: Progress log backfill plan
+- **remaining_risk**: None.
+
+### Incident 7 — Manifest Timezone vs Business Timezone
+- **incident_id**: INC_007
+- **detected_at**: 2026-07-12 09:48 UTC
+- **symptom**: appsscript.json manifest timezone discrepancy.
+- **impact**: Deployed times in GCP mismatched with local Jakarta times.
+- **root_cause**: Manifest left at default Asia/Bangkok while code uses Asia/Jakarta.
+- **repair**: Documented unresolved discrepancy in trigger topology. Normalization deferred.
+- **status**: UNRESOLVED
+- **related_versions**: Phase 3
+- **related_evidence**: appsscript.json manifest
+- **remaining_risk**: Date conversion offsets in logs.
+
+### Incident 8 — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **symptom**: Phase 4 declared readiness using an undercounted normative extractor.
+- **impact**: Canonical activation could have occurred with missing rules.
+- **root_cause**: Audit implementation used selected or hardcoded rules instead of the full dynamic baseline.
+- **repair**: Independent extraction and full normative remediation mapping 377 rules.
+- **verification**: Phase 4.2 post-remediation audit.
+- **status**: OPEN until Phase 4.3 PASS
+- **related_versions**: Phase 4/4.1/4.2
+- **related_evidence**: /tmp/airo_afpd_phase4_1_20260712_101527
+- **remaining_risk**: Gaps in newly appended sections.
+
+### Incident 8 Update — Undercounted Phase 4 Normative Extractor
+- **incident_id**: AFPD-INC-008
+- **detected_at**: 2026-07-12 10:12 WIB
+- **status**: OPEN (Pending Phase 4.5 independent semantic re-audit)
+
+### Incident 9 — Manual Telegram Resolution Bypassed Review Queue
+
+- **incident_id**: AFPD-INC-009
+- **detected_at**: 2026-07-12, Owner-reported Telegram transaction flow
+- **symptom**: After manual account and subcategory selection, Arfin reported success and changed ledger state without Review Queue approval.
+- **impact**: Premature ledger mutation, false-success messaging, and possible loss of execution-account versus funding-account semantics.
+- **root_cause**: `airoHandleOutgoingConfirmationReply_` called `writeRouted_` directly in the resolved-subcategory branch and cleared pending state before governed staging/readback.
+- **repair**: Replace direct ledger write with `telegram_manual` approval staging, source-scoped approval guards, deterministic dedupe identity, category-scoped prompts, and posting-plan metadata restoration.
+- **repository_source_commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **source_sha256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **stable_patch_id**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **verification**: Independent semantic review, content-equivalence audit, syntax validation, same-account 1-row test, funded-payment 3-row test, and repeat-approval zero-extra-row test.
+- **status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **production_resolution**: PENDING
+- **related_evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **remaining_risk**: Apps Script deployment parity and live Telegram/workbook behavior remain unproven.
+- **next_gate**: Owner-authorized Gate P2 deployment and production runtime/readback proof.
+
+#### `AFPD-INC-009` Gate P1.1 update — self-test contract aligned
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Change**: Added `plannedPostingRowCount` to the resolved dry-run and replaced stale pre-approval `rowCount === 3/1` assertions.
+- **Runtime implementation changed**: NO
+- **Built-in self-test result**: PASS
+- **Deployment performed**: NO
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AFPD-INC-009 update
+
+STATUS=REPAIRED_LOCALLY_NO_DEPLOY. V384 live email alpha prompt regression and pending-state Food & Drink misroute repaired locally. Production deployment still v384 and not updated with this repair. INCIDENT_RESOLVED=NO.
+
+
+---
+
+## FILE: docs/afpd/12_EVIDENCE_INDEX.md
+
+# 12_EVIDENCE_INDEX.md
+
+## Phase Evidence Index
+
+### Phase 1 Audit Artifacts
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_READINESS_REPORT.md` (readiness)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_DOCUMENT_INVENTORY.csv` (inventory)
+- `/tmp/airo_afpd_phase1_20260712_094619/AFPD_CONTRADICTION_MATRIX.tsv` (contradictions)
+
+### Phase 1.5 Blocker Artifacts
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.txt` (blockers txt)
+- `/tmp/airo_afpd_phase1_5_20260712_094937/AFPD_PHASE1_5_EXACT_BLOCKERS.json` (blockers json)
+
+### Phase 2 Documents & Commit
+- `docs/afpd/AFPD_MIGRATION_MANIFEST.md`
+- `docs/afpd/AFPD_AUTHORITY_MATRIX.md`
+- `docs/afpd/AFPD_SECTION_DESTINATION_MAP.tsv`
+- Commit: `a675395` (push success)
+
+### v371-v375 Deployment & Runtime Evidence
+- **Source SHA**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Self-Test Result**: `LOCAL_SELFTEST=PASS` (8 cases passed)
+
+### Live Intake & Approval Proofs
+- **Live Rp1 Other / Review Staging Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Live Rp205.000 Utilities / Internet Approval Proof**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (exists in session stdout)
+- **Account Ledger Row 169 Dedupe PASS**:
+  - `SESSION_EVIDENCE_NEEDS_DURABLE_CAPTURE` (deduplication check passed)
+### Phase 4.2 Hardened Evidence
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_OWNER_PROVIDED_TELEGRAM_TRANSCRIPTS_20260712.md`
+- `docs/evidence/airo-finance/AFPD_PRODUCTION_DEPLOYMENT_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_TRIGGER_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_WORKBOOK_ROW169_READBACK_20260712_102116.md`
+- `docs/evidence/airo-finance/AFPD_REVIEW_QUEUE_RP1_READBACK_20260712_102116.md`
+
+### ARFIN Manual Approval Staging — Gate P1
+
+- **Incident**: `AFPD-INC-009`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Packet archive SHA-256**: `28440fe31df503959aca551382336ba962cea9eda41a22f0857db2122f52f6c7`
+- **Integration evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Independent semantic review**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_INDEPENDENT_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_EXECUTABLE_RESULTS.json`
+- **Fresh/content verification**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642_FRESH_VERIFICATION.txt`
+- **Deployment evidence**: NOT YET AVAILABLE
+- **Workbook readback evidence**: NOT YET AVAILABLE
+
+### ARFIN Gate P1.1 — self-test contract repair
+
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Incident**: `AFPD-INC-009`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Summary**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745.md`
+- **Static review**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_STATIC_REVIEW.md`
+- **Executable results**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_EXECUTABLE_RESULTS.json`
+- **Executable harness**: `docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js`
+- **Apps Script deployment evidence**: NOT YET AVAILABLE
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+- Summary: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_SUMMARY.md`
+- Proof JSON: `docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY_20260720_210710_PROOF.json`
+- Source SHA before: `c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5`
+- Source SHA after: `1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c`
+- Local selftest: PASS 65/65
+- Deployment: not performed
+
+
+---
+
+## FILE: docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md
+
+# 99_HISTORICAL_AND_SUPERSEDED.md
+
+## Superseded and Historical Materials
+
+### Legacy Canonical Roadmap Lock
+- Preserved historical lock metadata from Sprint 6/7.
+
+### Email Default-OFF Policy
+- Historical security modes specifying ingestion poller default de-activated.
+
+### Deprecated Cash Ledger and Transactions Tab
+- Specifications for the old `Cash Ledger` and `Transactions` sheets, which were removed/neutralized in Sprint 3 in favor of a single Account Ledger database.
+
+### Legacy A/B/C/D/E prompt layouts
+- Early prompts asking for direction, category, or subcategory options using letters instead of numeric options.
+
+### Fallback-Only Review Queue Interpretation
+- The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
+
+
+---
+
+## FILE: docs/afpd/10_PROGRESS_LOG.md
+
+# 10_PROGRESS_LOG.md
+
+## Version History Logs
+
+### Version v371 — Admin Preemption Behavior
+- **Timestamp**: 2026-07-10 12:49:50 UTC
+- **Problem**: Admin commands were swallowed by pending clarification handlers.
+- **Root Cause**: Reply checks ran before command preemption evaluations.
+- **Decision**: Inject command checks at top of text processors.
+- **Source SHA Before**: `2090aec170cfc0279996dee6e158a5b56f005aeb38fa436a4112e88e9d8a2e7f`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 366
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `tryHandlePendingClarificationReply_`
+- **Tests**: `airoArfinRuntimeAlignV1SelfTest_()`
+- **Live Proof**: Command `admin cek pending` succeeds during active prompt.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Added regex command bypass.
+- **Remaining Risk**: Command name updates.
+- **Next Step**: Document bypass checks.
+
+### Version v372 — Poller Window & Email Prompt Ownership
+- **Timestamp**: 2026-07-10 13:00:15 UTC
+- **Problem**: Duplicate email ingestion logs.
+- **Root Cause**: Greedy queries without caching processed threads.
+- **Decision**: Cache processed thread IDs in script properties.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 367
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `pollGmailNotifications_`
+- **Tests**: Dry-run Gmail checks.
+- **Live Proof**: Process times <500ms.
+- **Workbook Proof**: Ingestion log rows added correctly.
+- **Mutation Summary**: Property-based thread tracker.
+- **Remaining Risk**: Property size limits.
+- **Next Step**: Add thread key pruning.
+
+### Version v373 — Pending Ownership & Pointer Arbitration
+- **Timestamp**: 2026-07-10 13:10:17 UTC
+- **Problem**: Concurrent chats overwriting pending states.
+- **Root Cause**: Global property key instead of namespaced chat key.
+- **Decision**: Prefix chat-level states with chat IDs.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 368
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `savePendingClarification_`
+- **Tests**: Parallel simulator.
+- **Live Proof**: Verified independent chat flows.
+- **Workbook Proof**: No workbook writes.
+- **Mutation Summary**: Namespaced properties keys.
+- **Remaining Risk**: Cache cleanup delays.
+- **Next Step**: Add automatic sweeps.
+
+### Version v374 — Account Parser Repair & Exact Name Precedence
+- **Timestamp**: 2026-07-10 13:18:21 UTC
+- **Problem**: Custom names matching sub-strings of other accounts.
+- **Root Cause**: Index prefix matches ran before exact registry matches.
+- **Decision**: Validate exact matches first before calling substring checks.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Apps Script Version**: 369
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `parseAccount_`
+- **Tests**: Exact name match cases.
+- **Live Proof**: Typed `Blu Pocket` resolves exactly to `Blu Pocket`, not substring `Blu`.
+- **Workbook Proof**: Staging records write correct exact name strings.
+- **Mutation Summary**: Exact-name comparison precedence check added.
+- **Remaining Risk**: Registry spelling errors.
+- **Next Step**: Standardize spelling errors warnings.
+
+### Version v375 — Category Expense Route, Matcher, Validator & Reask
+- **Timestamp**: 2026-07-10 13:22:09 UTC
+- **Problem**: Invalid category inputs resolving to Lainnya.
+- **Root Cause**: Parser accepted invalid category names without validation.
+- **Decision**: Implement category registry validation loop re-asking up to 3 times.
+- **Source SHA Before**: `e15babca4c22908c6cd17834485702de785871a55e410e1c07f5ea79b89b366a`
+- **Source SHA After**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Apps Script Version**: 370
+- **Deployment Fingerprint**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Functions Changed**: `canAskMissingCategoryClarification_`
+- **Tests**: Selftest category validation.
+- **Live Proof**: Invalid category replies trigger re-prompt options list.
+- **Workbook Proof**: Failed categories block ledger writes.
+- **Mutation Summary**: Added category re-ask checker.
+- **Remaining Risk**: Prompt noise.
+- **Next Step**: Improve autocomplete matching.
+
+### AFPD Migration Phase Logs
+- **AFPD Phase 1**: Initial readiness audit and inventory creation (COMPLETE).
+- **AFPD Phase 1.5**: Exact blocker extraction and files analysis (COMPLETE).
+- **AFPD Phase 2**: Migration manifest and authority matrix documentation (COMPLETE).
+- **AFPD Phase 3**: Skeleton creation and traceable content migration (COMPLETE).
+
+### AFPD Phase 4
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+### AFPD Phase 4.1
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+### AFPD Phase 4.2
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+- **Timestamp**: 2026-07-12 10:12:00 WIB
+- **Problem**: Original audit produced a false readiness PASS.
+- **Root Cause**: Normative extractor inspected only 5 Final Kitab rules and 3 ARFIN rules using hardcoded validator scripts instead of dynamic extraction.
+- **Decision**: Reject Phase 4 PASS and initiate full independent challenge.
+
+- **Timestamp**: 2026-07-12 10:16:00 WIB
+- **Problem**: Independent challenge identified undercounted rules and evidence gaps.
+- **Root Cause**: dynamic extractors verified 232 Final Kitab rules and 145 ARFIN rules, highlighting 177 normative gaps, 2 commands, 5 enums, 1 exception, and partial evidence durability.
+- **Decision**: Declare RESULT=NOT_READY_AFPD_ACTIVATION and proceed to Phase 4.2 gap remediation.
+
+- **Timestamp**: 2026-07-12 10:22:00 WIB
+- **Problem**: Gaps between baseline source rules and target documentation modules.
+- **Root Cause**: Gaps left over from initial skeleton migration.
+- **Decision**: Map all 377 baseline rules to modules, append verbatim normative blocks, and harden durability via owner transcripts.
+
+### AFPD Phase 4.4
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+- **Timestamp**: 2026-07-12 10:45:00 WIB
+- **Problem**: Gaps between baseline and main body text; generated appendices created fragmentation.
+- **Root Cause**: Verbatim rules dumped in generated appendices instead of main body text.
+- **Decision**: Integrate active rules into main bodies and completely remove generated appendices.
+
+### ARFIN Manual Approval Staging — Gate P1 Repository Integration
+
+- **Timestamp**: 2026-07-13 19:06:42 WIB
+- **Scope**: Repository integration and durable AFPD evidence only.
+- **Problem**: Resolved manual Telegram clarification could bypass Review Queue and mutate ledger state immediately.
+- **Decision**: Enforce `Review Queue -> /approval -> Account Ledger` for resolved manual Telegram transactions.
+- **Authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Source integration commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Patched source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Behavioral validation**: Same-account 1 row; funded payment 3 rows; second approval 0 extra rows; email flow preserved.
+- **AFPD incident**: `AFPD-INC-009`
+- **Durable evidence**: `docs/evidence/airo-finance/AIRO_ARFIN_MANUAL_APPROVAL_STAGING_GATE_P1_20260713_190642.md`
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident status**: REPAIR_INTEGRATED_NOT_DEPLOYED
+- **Next step**: Gate P2 requires separate Owner authorization for deployment and production proof.
+
+### ARFIN Gate P1.1 — built-in self-test contract repair
+
+- **Timestamp**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Authority parent**: `5b56f8ccf92387a6f65537cc34e8970dfb55007c`
+- **Source repair commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Scope**: Dry-run reporting and editor self-test assertions only.
+- **Actual pre-approval ledger rows**: 0
+- **Planned post-approval rows**: 1 for same-account; 3 for funded payment.
+- **Built-in self-test**: PASS
+- **Apps Script deployment**: NOT PERFORMED
+- **Workbook mutation**: NOT PERFORMED
+- **Telegram production test**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains open.
+- **Next**: Resume Gate P2 under existing Owner authorization.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+- 2026-07-19: Documented Gate P2 rollback status and runtime failure evidence (`AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`). Rollback confirmed to version 377.
+
+- 2026-07-19: Documented Gate P2 runtime failure RCA (`AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`). Classification: `CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION`.
+
+- 2026-07-19: Formulated Gate P2 clasp runtime permission remediation plan (`AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`). Route: `OWNER_ENABLE_APPS_SCRIPT_API_AND_EXECUTION_API_CONTEXT`.
+
+- 2026-07-19: Documented Gate P2 runtime proof method decision (`AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`). Decision: `MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS`.
+
+- 2026-07-19: Executed Gate P2 guarded deployment retry to version `379` (`AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`). Awaiting post-deploy manual editor runtime proof.
+
+- 2026-07-19: Documented post-deploy manual editor runtime proof for version 379 (`AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`). Status: PASS 17/17.
+
+- 2026-07-19: Documented partial Telegram live proof and formulated retest plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`). Status: `PARTIAL_PASS_WITH_BLOCKERS`.
+
+- 2026-07-19: Documented root cause analysis for live Telegram semantics reversal and email legacy alpha prompt (`AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated Telegram semantics and email numeric prompt remediation plan (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for Telegram semantics and email numeric prompt (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`). Local self-test PASS 21/21.
+
+- 2026-07-19: Deployed Telegram semantics repair (version 380) via `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`. Readback PASS.
+
+- 2026-07-19: Recorded post-deploy manual Apps Script editor runtime proof PASS 21/21 for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded live Telegram retest PASS for version 380 (`AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`). Staged to Review Queue.
+
+- 2026-07-19: Recorded email expense category prompt legacy alpha blocker for version 380 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Completed RCA for email expense category prompt legacy alpha display (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Formulated remediation plan for email expense category numeric prompt repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Integrated source repair for email expense category numeric prompt (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Deployed email expense category numeric prompt repair to Apps Script version 381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded manual Apps Script editor runtime proof for v381 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-19: Recorded email expense false inflow blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow RCA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`).
+
+- 2026-07-19: Recorded email expense false inflow remediation plan (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-19: Executed local repair for email direction false inflow defect (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-19: Executed guarded deployment for email direction false inflow repair to Apps Script version v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Applied local source repair for v383 email ingestion pickup safety and expanded tests 35->46 PASS (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`).
+
+- 2026-07-20: Deployed email ingestion pickup safety repair to Apps Script version v384 on deployment suffix ZYjuOA (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
+
+- 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
+
+- 2026-07-20: Formulated remediation plan for live v384 alpha prompt regression: update direction ambiguity and subcategory prompt renderers to numeric-only (1..N, 0), expand test suite from 46 to 57 cases (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-20: Amended remediation plan for live v384 alpha prompt regression: proved pending state machine saves ambiguous candidate in category_pending mapping reply to Food & Drink; expanded repair scope to include direction_pending state machine and 19 new tests (expected total 65 cases, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`).
+
+## 20260720_210710 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_EVIDENCE_RECORD_AND_COMMIT_NO_DEPLOY
+
+RESULT=PASS. V384 alpha prompt state-machine repair patched locally in source only, no deploy. Local selftest PASS 65/65. Source SHA after repair 1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c. Direction pending now runs before category pending and Food & Drink map. Incident unresolved pending post-repair preflight, guarded deployment, owner runtime proof, and fresh live retest.
+
+
+---
+
+## FILE: docs/afpd/00_CURRENT_HANDOFF.md
+
+# 00_CURRENT_HANDOFF.md
+
+## Current Verified State
+- **Apps Script Production Version**: 375
+- **Source Code SHA-256**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Latest Known Deployment ID**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
+- **Latest Known Deployment Fingerprint**: `497865e5f3c2345b`
+
+## Gmail Poller Window
+- **Active Ingestion Business Window**: 09:00 - 00:59 WIB (Asia/Jakarta)
+- **Inactive Cooldown Window**: 01:00 - 08:59 WIB (Asia/Jakarta)
+- **Timezone Note**: Manifest timezone in `appsscript.json` is `Asia/Bangkok` while the script runs in `Asia/Jakarta`.
+
+## Webhook Intake
+- **Telegram Webhook Route**: Runs independently from poller, active 24/7.
+
+## Repository State
+- **Pre-existing Dirty Files**:
+  - `.obsidian/app.json`
+  - `.obsidian/appearance.json`
+  - `.obsidian/core-plugins.json`
+  - `ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js` (matches v375 baseline hash)
+  - `state/system-health.md`
+
+## Current Phase and Next Gate
+- **Current Phase**: AFPD Phase 3 — Traceable Content Migration
+- **Next Gate**: Owner Approval for AFPD Activation and old paths deprecation.
+
+## Gate P1 Handoff — Manual Approval Staging Repair
+
+- **Recorded at**: 2026-07-13 19:06:42 WIB
+- **Repository authority parent**: `308a7086154dbaed9c141daad04a43ba3179056b`
+- **Integrated source commit**: `22caa64774977fdedcd5ae8555e3c805b20feac8`
+- **Integrated source SHA-256**: `aca69b3750ce63ce2015ce416880d9b225e704166f8b030a9783623056a93b52`
+- **Stable patch ID**: `1d3c4a7f0a88efc4ccce2bb22fa3d0351e3baea5`
+- **Incident**: `AFPD-INC-009`
+- **Repository repair status**: INTEGRATED
+- **Production deployment status**: NOT DEPLOYED
+- **Production runtime proof**: NOT PERFORMED
+- **Workbook readback**: NOT PERFORMED
+- **AFPD status**: PROPOSED_NOT_CANONICAL
+- **Canonical activation**: PENDING_OWNER_APPROVAL
+- **Next gate**: Owner-authorized Gate P2 deployment, Telegram runtime proof, approval commit proof, and workbook readback.
+- **Do not mark incident resolved** until all Gate P2 production evidence passes.
+
+## Gate P1.1 Handoff — self-test contract aligned
+
+- **Recorded at**: 2026-07-13 19:17:45 WIB
+- **Marker**: `AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1`
+- **Integrated source commit**: `36bb37c228999efedaeb3ee305e03354f54cbf1a`
+- **Source SHA-256**: `dcfc2ac0a88aadc3ee4f1b41d0ec5f3b35818eb6d388663bccb8bc7626af8f1b`
+- **Built-in outgoing confirmation self-test**: PASS
+- **Runtime staging implementation**: unchanged
+- **Repository status**: ready for Gate P2 pre-deployment checks
+- **Apps Script deployment**: NOT PERFORMED
+- **Production runtime proof**: NOT PERFORMED
+- **Incident**: `AFPD-INC-009` remains `REPAIR_INTEGRATED_NOT_DEPLOYED`
+- **AFPD status**: `PROPOSED_NOT_CANONICAL`
+- **Next gate**: Resume Owner-authorized Gate P2 deployment and runtime proof.
+
+- 2026-07-19: Repaired Gate P1.2 self-test harness dependency alignment (`AIRO_ARFIN_SELFTEST_HARNESS_REPAIR_P1_2`). Self-test pass rate: 17/17.
+
+## Gate P2 Rollback Confirmation
+- **AFPD-INC-009**: DEPLOYMENT_ATTEMPTED_RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL
+- **ROLLBACK_STATUS**: CONFIRMED_TO_VERSION_377
+- **NEXT_SAFE_GATE**: GATE_P2_RUNTIME_FAILURE_ROOT_CAUSE_ANALYSIS_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_ROLLBACK_STATUS_AND_FAILURE_EVIDENCE`
+
+## Gate P2 Root Cause Analysis
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_ROLLBACK_CONFIRMED_RCA_IN_PROGRESS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **RCA_STATUS**: CLASP_RUN_CONTEXT_NOT_AUTHORIZED_FOR_SCRIPT_FUNCTION
+- **NEXT_SAFE_GATE**: GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_FAILURE_RCA_NO_DEPLOY`
+
+## Gate P2 Remediation Plan Status
+- **AFPD-INC-009**: RUNTIME_PROOF_FAILED_PERMISSION_REMEDIATION_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF**: FAIL_PERMISSION_OR_AUTH_CONTEXT
+- **REMEDIATION_STATUS**: OWNER_ACTION_REQUIRED
+- **NEXT_SAFE_GATE**: GATE_P2_OWNER_MANUAL_APPS_SCRIPT_PERMISSION_REMEDIATION
+- **Marker**: `AIRO_ARFIN_GATE_P2_CLASP_RUNTIME_PERMISSION_REMEDIATION_NO_DEPLOY`
+
+## Gate P2 Runtime Proof Method Decision Status
+- **AFPD-INC-009**: RUNTIME_PROOF_METHOD_DECIDED_MANUAL_EDITOR_SELFTEST_ACCEPTED_WITH_LIMITATIONS
+- **APPS_SCRIPT_DEPLOYMENT**: ATTEMPTED_VERSION_378_ROLLED_BACK_TO_377
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_GUARDED_DEPLOYMENT_RETRY_PREFLIGHT_MANUAL_RUNTIME_PROOF_METHOD
+- **Marker**: `AIRO_ARFIN_GATE_P2_RUNTIME_PROOF_METHOD_DECISION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Retry Execution Status
+- **AFPD-INC-009**: DEPLOYMENT_RETRY_DEPLOYED_AWAITING_MANUAL_EDITOR_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **PREVIOUS_ACTIVE_DEPLOYMENT_VERSION**: 377
+- **FAILED_HISTORICAL_DEPLOYMENT_VERSION**: 378
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_GUARDED_DEPLOYMENT_RETRY_EXECUTION_MANUAL_RUNTIME_PROOF_METHOD`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_TELEGRAM_LIVE_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF`
+
+## Gate P2 Telegram Live Proof Partial Record & Retest Plan Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_PROOF_PARTIAL_PASS_WITH_BLOCKERS_RETEST_REQUIRED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: PARTIAL_PASS_WITH_BLOCKERS
+- **FUNDING_CLARIFICATION_BEFORE_CATEGORY**: YES
+- **CATEGORY_PROMPT_AFTER_FUNDING**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **AMOUNT_PARSE_STATUS**: FAIL_MARKER_DIGIT_CONTAMINATION
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_EXPECTED_CASH_UMUM_FUNDED_BY_BLU_POCKET_OBSERVED_REVERSED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_RETEST_OWNER_MANUAL_EXECUTION
+- **FALLBACK_IF_RETEST_FAILS**: GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_FUNDING_FIRST_LIVE_PROOF_RECORD_PARTIAL_AND_RETEST_PLAN`
+
+## Gate P2 Live Telegram Semantics & Email Prompt RCA Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **TELEGRAM_RETEST_STATUS**: FAIL
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: NO
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL
+- **RCA_CLASSIFICATION**: TELEGRAM_ACCOUNT_FUNDING_PARSER_GREEDY_MATCH_AND_DISPLAY_REVERSAL_PLUS_EMAIL_INCOME_LEGACY_ALPHA_PROMPT
+- **RCA_CONFIDENCE**: HIGH_100_PERCENT_PROVEN
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REMEDIATION_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_17_OF_17
+- **TELEGRAM_LIVE_PROOF**: FAILED_SEMANTICS_REPAIR_REQUIRED
+- **AMOUNT_PARSE_STATUS**: RETEST_PASS_BUT_REGRESSION_GUARD_REQUIRED
+- **ACCOUNT_FUNDING_SEMANTICS_STATUS**: FAIL_REPAIR_REQUIRED
+- **EMAIL_INCOME_NUMERIC_PROMPT_STATUS**: FAIL_REPAIR_REQUIRED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Telegram Semantics & Email Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_SOURCE_REPAIR_INTEGRATED_NOT_DEPLOYED
+- **APPS_SCRIPT_DEPLOYMENT**: RETRY_DEPLOYED_VERSION_379_STILL_ACTIVE
+- **SOURCE_REPAIR_STATUS**: INTEGRATED_NO_DEPLOY
+- **SOURCE_SHA256_BEFORE_PATCH**: 1853e4a8c8ff8b4a1d3b49e163cc62e10983b801ed62af9d5cdb4eb3f930be6a
+- **SOURCE_SHA256_AFTER_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_LIVE_PROOF**: FAILED_PREVIOUS_RETEST_REPAIR_NOT_DEPLOYED
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Guarded Deployment Execution Status
+- **AFPD-INC-009**: TELEGRAM_SEMANTICS_AND_EMAIL_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **PRE_DEPLOY_ACTIVE_VERSION**: 379
+- **POST_DEPLOY_ACTIVE_VERSION**: 380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **LOCAL_SELFTEST**: PASS_21_OF_21
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_PASS_AWAITING_LIVE_TELEGRAM_RETEST_AND_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **RUNTIME_PROOF_METHOD**: MANUAL_APPS_SCRIPT_EDITOR_RUNTIME_PROOF_ACCEPTED_FOR_SELFTEST_VERIFICATION_WITH_LIMITATIONS
+- **CONTEXTUAL_ACCOUNT_FUNDING_PARSE**: PASS
+- **DIGIT_MARKER_AMOUNT_GUARD**: PASS
+- **SUBCATEGORY_PROMPT_LABELS**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **CLASP_RUN_STATUS**: BLOCKED_PERMISSION_OR_EXECUTION_API_CONTEXT_NOT_RETESTED
+- **TELEGRAM_LIVE_PROOF**: NOT_YET_PERFORMED_AFTER_REPAIR_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Live Telegram Retest Record Status
+- **AFPD-INC-009**: LIVE_TELEGRAM_RETEST_PASS_AWAITING_WORKBOOK_READBACK
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **AMOUNT_PARSE_CORRECT**: YES
+- **ACCOUNT_FUNDING_SEMANTICS_CORRECT**: YES
+- **REVIEW_QUEUE_STAGING_REACHED**: YES
+- **BOT_STATED_NOT_RECORDED_TO_LEDGER**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_WORKBOOK_READBACK_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_TELEGRAM_SEMANTICS_AND_EMAIL_NUMERIC_PROMPT_LIVE_TELEGRAM_RETEST_RECORD`
+
+## Gate P2 Email Expense Legacy Alpha Prompt Record Blocker Status
+- **AFPD-INC-009**: TELEGRAM_LIVE_RETEST_PASS_EMAIL_EXPENSE_CATEGORY_PROMPT_BLOCKER_RECORDED
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **EMAIL_EXPENSE_FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_LEGACY_ALPHA_PROMPT_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: FAIL_LEGACY_A_B_C_D_E_DISPLAYED
+- **RCA_CLASSIFICATION**: EMAIL_EXPENSE_CATEGORY_PROMPT_LEGACY_ALPHA_DISPLAY_PATH_NOT_INCLUDED_IN_PREVIOUS_EMAIL_INCOME_NUMERIC_REPAIR
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_EXPENSE_CATEGORY_PROMPT_DISPLAY_AND_CHOICE_MAPPING
+- **EXPECTED_NEW_PROMPT_STYLE**: NUMERIC_1_TO_5_WITH_BALAS_ANGKA_PILIHAN
+- **BACKWARD_COMPAT_LEGACY_ALPHA_PARSE**: SILENT_ONLY_DO_NOT_DISPLAY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_INTEGRATED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: TELEGRAM_SEMANTICS_EMAIL_NUMERIC_REPAIR_DEPLOYED_VERSION_380
+- **SOURCE_SHA256_BEFORE_EMAIL_EXPENSE_PATCH**: 13aee22cc75cfa5c2d01c821bd048481adf63393e0c88caa204eefcd94074e4c
+- **SOURCE_SHA256_AFTER_EMAIL_EXPENSE_PATCH**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_21_OF_21_PRE_EMAIL_EXPENSE_PATCH
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT**: PASS_LOCAL_NOT_DEPLOYED
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **DEPLOYMENT_PERFORMED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_REPAIR
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Category Numeric Prompt Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **PRE_DEPLOY_ACTIVE_VERSION**: 380
+- **NEW_APPS_SCRIPT_VERSION**: 381
+- **POST_DEPLOY_ACTIVE_VERSION**: 381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED_AFTER_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DEPLOY
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Category Numeric Prompt Post-Deploy Manual Editor Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_RUNTIME_PROOF_ACCEPTED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_24_OF_24
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_NUMERIC_NOT_ALPHA**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_MAPS_FOOD_DRINK**: PASS
+- **EMAIL_EXPENSE_CATEGORY_NUMERIC_CHOICE_HELP_OPTION**: PASS
+- **EMAIL_INCOME_NUMERIC_PROMPT**: PASS
+- **TELEGRAM_LIVE_PROOF**: PASS_WORKBOOK_READBACK_PENDING_PRE_EMAIL_EXPENSE_DEPLOY
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow Record Blocker Status
+- **AFPD-INC-009**: LIVE_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_BLOCKER_RECORDED_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **OWNER_CONFIRMED_SOURCE_TRANSACTION_DIRECTION**: PENGELUARAN
+- **ARFIN_DISPLAYED_DIRECTION**: PEMASUKAN
+- **EMAIL_DIRECTION_CLASSIFICATION_STATUS**: FAIL_FALSE_INFLOW
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **INCOME_NUMERIC_PROMPT_FORMAT**: PASS_BUT_WRONG_TRANSACTION_BRANCH
+- **EMAIL_EXPENSE_CATEGORY_PROMPT_LIVE_STATUS**: NOT_REACHED_DUE_DIRECTION_MISCLASSIFICATION
+- **FINANCE_WRITE_FALSE**: YES
+- **EMAIL_PROMPT_REPLIED_BY_OWNER**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RECORD_BLOCKER_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_COMPLETED_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **FALSE_INFLOW_REPRODUCED_SYNTHETICALLY**: YES
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **SPECIFIC_LIVE_TRIGGER_CONFIDENCE**: UNKNOWN
+- **FINANCE_WRITE_FALSE**: YES
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_READY_NO_DEPLOY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **RCA_ARCHITECTURAL_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **PROPOSED_DIRECTION_POLICY**: STRONG_EVIDENCE_ONLY_GENERIC_UI_TOKENS_NEUTRAL_CONFLICTS_AMBIGUOUS
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **SPECIFIC_LIVE_TRIGGER_STATUS**: UNPROVEN_WITHOUT_SANITIZED_SUBJECT_BODY_OR_CANDIDATE_TYPE
+- **FINANCE_WRITE_FALSE**: YES
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: 182c8187733f08895acb5b911a2d812959c0a3f9e37491716b08cd9d9502fc7e
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_CATEGORY_NUMERIC_PROMPT_REPAIR_DEPLOYED_VERSION_381
+- **SOURCE_SHA256_BEFORE**: 3070c37f412ced711ebdfe88688a46dd6315af34eb8f94a1cddde1fbf38e2b9a
+- **SOURCE_SHA256_AFTER**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **DEPLOYMENT_READBACK**: PASS
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_24_OF_24_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_DIRECTION_MISCLASSIFIED_AS_INCOME_PRE_REPAIR
+- **RCA_CLASSIFICATION**: EMAIL_DIRECTION_INFERENCE_BROAD_INFLOW_SUBSTRING_WITH_INFLOW_FIRST_PRECEDENCE_CAN_OVERRIDE_OUTFLOW_SIGNALS
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_EXECUTION_STATUS**: PASS_LOCAL_35_OF_35_NO_DEPLOY
+- **REPAIR_SCOPE**: EMAIL_DIRECTION_EVIDENCE_COLLECTION_CONTEXTUAL_MATCHING_AND_CONFLICT_RESOLUTION
+- **GENERIC_STANDALONE_MASUK_DIRECTIONAL**: NO
+- **TRANSFER_MASUK_CANDIDATE_UNCONDITIONAL_OVERRIDE**: NO
+- **CONFLICTING_STRONG_SIGNALS_RESULT**: ambigu
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 35
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **DEPLOYMENT_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **PRE_DEPLOY_VERSION**: 381
+- **ROLLBACK_VERSION**: 381
+- **POST_DEPLOY_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **EXISTING_24_TESTS_PASSED**: YES
+- **NEW_DIRECTION_TESTS_PASSED**: YES
+- **FALSE_INFLOW_REPAIRED_LOCALLY**: YES
+- **CLASP_PUSH_PERFORMED**: YES
+- **CLASP_VERSION_PERFORMED**: YES
+- **CLASP_DEPLOY_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_DEPLOYMENT
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_DIRECTION_REPAIR_RUNTIME_PROOF
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **APPROVAL_PERFORMED**: NO
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Blocker Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_LIVE_RETEST_BLOCKED_BY_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT**: READY
+- **FRESH_PROMPT_NOT_BEFORE**: 2026-07-19T22:09:38+07:00
+- **OWNER_REPORTED_EMAIL_NOT_PICKED_UP_AFTER_SEVERAL_MINUTES**: YES
+- **ARFIN_TELEGRAM_PROMPT_OBSERVED**: NO
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Lag Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_DEPLOYED**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_35_OF_35
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_35_OF_35_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: BLOCKED_WAITING_FOR_EMAIL_INGESTION_PROMPT
+- **RCA_CLASSIFICATION**: EMAIL_INGESTION_PICKUP_PATH_HAS_SOURCE_LEVEL_LAG_OR_SKIP_RISK_AWAITING_SAFE_REMEDIATION_PLAN
+- **RCA_CONFIDENCE**: MEDIUM_HIGH_SOURCE_TOPOLOGY_CONFIRMED
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED_UNLESS_LIVE_PROMPT_PROVES_DIRECTION_REGRESSION
+- **CURRENT_TEST_COUNT**: 35
+- **PLANNED_INGESTION_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 46
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **EXACT_LIVE_EMAIL_REASON_STATUS**: UNPROVEN_WITHOUT_GMAIL_OR_TRIGGER_LOG_EVIDENCE
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: 2a04e82bb2e3865fb7b77cf4077b5a314c637f4bb25b0cd39bfa8fbd4127774f
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Repair Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIRED_LOCALLY_AWAITING_POST_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_REPAIR_DEPLOYED_VERSION_383
+- **SOURCE_SHA256_BEFORE_INGESTION_REPAIR**: a02aeafa8f689d6a6f2c1bf62f3259d950fdb70aea612806fd0cf828287dc620
+- **SOURCE_SHA256_AFTER_INGESTION_REPAIR**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 381
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST_BEFORE**: PASS_35_OF_35
+- **LOCAL_SELFTEST_AFTER**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_ADDED**: 11
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **REPAIR_SCOPE**: EMAIL_INGESTION_SAFE_DIAGNOSTICS_PROCESSED_MARKER_GUARD_AND_PROMPT_DISPATCH_CONFIRMATION
+- **PROCESSED_MARKER_BEFORE_PROMPT_SUCCESS_ALLOWED**: NO
+- **PROMPT_SEND_FAILURE_RETRYABLE**: YES
+- **DIAGNOSTIC_FULL_BODY_LOGGED**: NO
+- **DIAGNOSTIC_FULL_SUBJECT_LOGGED**: NO
+- **DIRECTION_REPAIR_SCOPE**: UNCHANGED
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_REPAIR_EXECUTION_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Guarded Deployment Execution Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_AWAITING_POST_DEPLOY_RUNTIME_PROOF
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **PRE_DEPLOY_VERSION**: 383
+- **ROLLBACK_VERSION**: 383
+- **POST_DEPLOY_VERSION**: 384
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **EXISTING_35_TESTS_PASSED**: YES
+- **NEW_INGESTION_TESTS_PASSED**: YES
+- **DIRECTION_REPAIR_TESTS_PASSED**: YES
+- **NUMERIC_PROMPT_TESTS_PASSED**: YES
+- **LEDGER_WRITE_PREAPPROVAL**: false
+- **POST_DEPLOY_RUNTIME_PROOF**: NOT_YET_PERFORMED
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_REQUIRED**: YES
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_DEPLOYMENT
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED_BY_THIS_GATE**: NO
+- **DEPLOYMENT_PERFORMED**: YES
+- **CLASP_RUN_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_GUARDED_DEPLOYMENT_EXECUTION`
+
+## Gate P2 Email Expense Direction False Inflow v383 Email Ingestion Post-Deploy Manual Editor Runtime Proof Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_REPAIR_DEPLOYED_RUNTIME_PROOF_RECORDED_AWAITING_LIVE_EMAIL_EXPENSE_RETEST
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **RUNTIME_LOG_TRUNCATED**: YES
+- **FULL_RAW_JSON_CAPTURED**: NO
+- **FULL_46_CASE_JSON_VISIBLE**: NO
+- **OWNER_MANUAL_EDITOR_RUNTIME_PROOF_ACCEPTED**: YES_WITH_LIMITATION
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_OWNER**: YES
+- **APPS_SCRIPT_RUNTIME_EXECUTED_BY_AGENT**: NO
+- **LIVE_EMAIL_EXPENSE_RETEST**: NOT_YET_PERFORMED_AFTER_INGESTION_REPAIR_RUNTIME_PROOF
+- **LIVE_MAILBOX_STATE_VERIFIED**: NO
+- **DIRECTION_REPAIR_LIVE_RESULT**: NOT_YET_DETERMINED
+- **FALSE_INFLOW_STILL_LIVE_ON_V383**: NOT_OBSERVED
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LIVE_EMAIL_EXPENSE_RETEST_PREFLIGHT
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Record Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_AWAITING_RCA
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PROMPT_OBSERVED**: YES
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **PROMPT_OBSERVED_AT**: 2026-07-20T19:03:00+07:00
+- **TRANSACTION_TIMESTAMP_VISIBLE**: 2026-07-20T18:55:12+07:00
+- **DIRECTION_DISPLAYED**: ambigu
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **DIRECTION_REPAIR_LIVE_RESULT**: AMBIGUOUS_SAFE_NOT_FALSE_INFLOW_BUT_NOT_EXPENSE_CONFIRMED
+- **LEGACY_ALPHA_DIRECTION_PROMPT_DISPLAYED**: YES
+- **LEGACY_ALPHA_SUBCATEGORY_PROMPT_DISPLAYED**: YES
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **OWNER_REPLIED_TO_DIRECTION_PROMPT**: YES
+- **OWNER_REPLIED_TO_SUBCATEGORY_PROMPT**: NO
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression RCA Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_RCA_COMPLETED_AWAITING_REMEDIATION_PLAN
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **ROOT_CAUSE_DIRECTION_PROMPT**: airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802)
+- **ROOT_CAUSE_SUBCATEGORY_PROMPT**: airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363)
+- **SELFTEST_GAP**: Unit test suite 46/46 lacked assertions for numeric-only direction ambiguity and subcategory prompts.
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression Remediation Plan Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_LEGACY_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_READY_AWAITING_REPAIR_PREFLIGHT
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_CLASSIFICATION**: LIVE_EMAIL_AMBIGUOUS_DIRECTION_AND_SUBCATEGORY_PROMPT_PATHS_STILL_USE_LEGACY_ALPHA_RENDERERS_NOT_COVERED_BY_V384_SELFTEST
+- **RCA_CONFIDENCE**: HIGH
+- **REMEDIATION_PLAN_STATUS**: READY
+- **REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_AND_SUBCATEGORY_PROMPT_NUMERIC_RENDERING
+- **ALPHA_DISPLAY_ALLOWED**: NO
+- **ALPHA_PARSER_COMPATIBILITY_ALLOWED**: YES_INTERNAL_STALE_REPLY_COMPATIBILITY_ONLY
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 57
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REMEDIATION_PLAN_NO_DEPLOY`
+
+## Gate P2 Email Expense Direction False Inflow v384 Live Email Expense Alpha Prompt Regression State Machine Remediation Plan Amendment Status
+- **AFPD-INC-009**: EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_AMENDED_PLAN_READY
+- **APPS_SCRIPT_DEPLOYMENT**: EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384
+- **SOURCE_SHA256_DEPLOYED**: c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+- **POST_DEPLOY_VERSION**: 384
+- **ROLLBACK_VERSION**: 383
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_46_OF_46
+- **POST_DEPLOY_RUNTIME_PROOF**: PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION
+- **LIVE_EMAIL_EXPENSE_RETEST**: FAIL_LEGACY_ALPHA_PROMPT_REGRESSION
+- **EMAIL_INGESTION_PICKUP_LIVE**: PASS_PROMPT_OBSERVED
+- **FALSE_INFLOW_STILL_LIVE_ON_V384**: NOT_OBSERVED
+- **NUMERIC_PROMPT_CONTRACT**: FAIL
+- **RCA_ADDENDUM_CLASSIFICATION**: LIVE_EMAIL_DIRECTION_PROMPT_RENDERER_AND_PENDING_STATE_MACHINE_ARE_INCONSISTENT_AMBIGUOUS_REPLY_IS_HANDLED_AS_EXPENSE_CATEGORY_SELECTION
+- **RCA_ADDENDUM_CONFIDENCE**: HIGH
+- **RENDERER_ONLY_REPAIR_CONTRACT_STATUS**: SUPERSEDED_INCOMPLETE
+- **STATE_MACHINE_REPAIR_REQUIRED**: YES
+- **AMENDED_REMEDIATION_PLAN_STATUS**: READY
+- **AMENDED_REPAIR_SCOPE**: V384_EMAIL_LIVE_DIRECTION_AMBIGUITY_PENDING_STATE_MACHINE_AND_NUMERIC_PROMPT_RENDERING
+- **CURRENT_TEST_COUNT**: 46
+- **PLANNED_ALPHA_PROMPT_TESTS**: 11
+- **PLANNED_STATE_MACHINE_TESTS**: 8
+- **TOTAL_PLANNED_NEW_TESTS**: 19
+- **EXPECTED_TEST_COUNT_AFTER_REPAIR**: 65
+- **GMAIL_ACCESSED_BY_AGENT**: NO
+- **POLLER_EXECUTED_BY_AGENT**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **TELEGRAM_SENT_BY_AGENT**: NO
+- **EMAIL_PROMPT_REPLIED_BY_AGENT**: NO
+- **WORKBOOK_MUTATION**: NO
+- **APPROVAL_PERFORMED**: NO
+- **WORKBOOK_READBACK**: NOT_YET_PERFORMED
+- **INCIDENT_RESOLVED**: NO
+- **NEXT_SAFE_GATE**: GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_REVISED_REPAIR_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_STATE_MACHINE_REMEDIATION_PLAN_AMENDMENT_NO_DEPLOY`
+
+## 20260720_210710 — Current handoff update
+
+AFPD-INC-009=EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT_REPAIRED_LOCALLY_NO_DEPLOY_AWAITING_POST_REPAIR_PREFLIGHT
+APPS_SCRIPT_DEPLOYMENT=EMAIL_INGESTION_PICKUP_SAFETY_REPAIR_DEPLOYED_VERSION_384_REVISED_ALPHA_STATE_MACHINE_REPAIR_NOT_DEPLOYED
+SOURCE_SHA256_BEFORE_REPAIR=c16ae1addcc99fc583e436f7449dde4b6c834ae333ee361ecb02c8ca1c3576d5
+SOURCE_SHA256_AFTER_REPAIR=1f2bba55472501821f623165c7d2fc61fd4f86ddfc271f87eaf9eb5f4c94ad4c
+POST_DEPLOY_VERSION=384
+ROLLBACK_VERSION=383
+TARGET_DEPLOYMENT_SUFFIX=ZYjuOA
+LOCAL_SELFTEST=PASS_65_OF_65
+EXISTING_46_TESTS_PASSED=YES
+NEW_ALPHA_PROMPT_TESTS_PASSED=YES
+NEW_STATE_MACHINE_TESTS_PASSED=YES
+NEW_19_TESTS_PASSED=YES
+PENDING_POINTER_PERSISTS_INFERRED_DIRECTION=YES
+PENDING_POINTER_PERSISTS_CLARIFICATION_QUESTION_TYPE=YES
+AMBIGUOUS_CANDIDATE_STATE=direction_pending
+DIRECTION_PENDING_HANDLER_IMPLEMENTED=YES
+DIRECTION_PENDING_BEFORE_CATEGORY_PENDING=YES
+FOOD_DRINK_MISROUTE_PREVENTED=YES
+DIRECTION_ALPHA_DISPLAY_REMOVED=YES
+DIRECTION_NUMERIC_DISPLAY_ADDED=YES
+SUBCATEGORY_ALPHA_DISPLAY_REMOVED=YES
+SUBCATEGORY_NUMERIC_DISPLAY_ADDED=YES
+HARNESS_PATCH_PERFORMED=NO_BY_DESIGN_DYNAMIC_HARNESS
+SOURCE_PATCH_PERFORMED=YES
+DEPLOYMENT_PERFORMED=NO
+WORKBOOK_READBACK=NOT_YET_PERFORMED
+INCIDENT_RESOLVED=NO
+NEXT_SAFE_GATE=GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_POST_REPAIR_PREFLIGHT_NO_DEPLOY
+
+
+---
+
+## FILE: AFPD_BOOT_BUNDLE.md
+
 # 01_PROJECT_CHARTER.md
 
 <!-- AFPD_PROVENANCE

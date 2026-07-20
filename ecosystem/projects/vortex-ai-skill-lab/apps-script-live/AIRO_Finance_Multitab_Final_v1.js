@@ -72,7 +72,7 @@ function normalizeClarificationAccountAnswer_(text) {
   for (var i = 0; i < accounts.length; i++) {
     const letter = String.fromCharCode(65 + i).toLowerCase();
     const numStr = String(i + 1);
-    
+
     if (t === letter || t === numStr) {
       return accounts[i];
     }
@@ -89,11 +89,11 @@ function normalizeClarificationAccountAnswer_(text) {
   for (var i = 0; i < accounts.length; i++) {
     const accName = accounts[i];
     const accNameLower = accName.toLowerCase();
-    
+
     if (t === accNameLower || new RegExp('\\b' + escapeRegex_(accNameLower) + '\\b', 'i').test(t)) {
       return accName;
     }
-    
+
     // Alias checks for backwards compatibility
     if (accNameLower === 'bca' && /\b(bank bca)\b/i.test(t)) return 'BCA';
     if (accNameLower === 'blu' && /\b(blu bca|blubca|pocket blu)\b/i.test(t)) return 'Blu';
@@ -114,24 +114,24 @@ function getEligibleFundingSourceAccounts_() {
     if (!registry || registry.length === 0) {
       return getStaticEligibleFundingSourceAccounts_();
     }
-    
+
     const eligible = [];
     for (var i = 0; i < registry.length; i++) {
       const acc = registry[i];
       const name = String(acc.account_name || '').trim();
       const nameLower = name.toLowerCase();
       const typeLower = String(acc.account_type || '').toLowerCase();
-      
+
       if (!name || nameLower === 'unknown' || nameLower === 'credit card' || nameLower === 'cc') {
         continue;
       }
       if (acc.is_credit === true || typeLower === 'credit' || typeLower === 'credit card') {
         continue;
       }
-      
+
       eligible.push(name);
     }
-    
+
     if (eligible.length === 0) {
       return getStaticEligibleFundingSourceAccounts_();
     }
@@ -877,7 +877,7 @@ function buildMissingAccountClarificationMessage_(parsed) {
   let msg = 'Saya tangkap ini pengeluaran kategori ' + (parsed.category || '-') +
             ' Rp' + (parsed.amount || 0) + '.\n\n' +
             'Akun pembayarannya yang mana?\n';
-  
+
   for (var i = 0; i < accounts.length; i++) {
     const letter = String.fromCharCode(65 + i); // A, B, C...
     msg += letter + '. ' + accounts[i] + '\n';
@@ -2428,7 +2428,7 @@ const pendingClarification = tryHandlePendingClarificationReply_(chatId, rawText
       } catch (e) {
         accountsList = getStaticEligibleFundingSourceAccounts_();
       }
-      
+
       var tempCategory = parsed.category || "Lainnya";
       var tempSubcategory = parsed.subcategory || "";
 
@@ -3280,7 +3280,7 @@ function writeAccountLedgerMirror_(ss, parsed, rawText, common, sourceTab) {
 
   if (parsed.posting_mode === 'FUNDED_PAYMENT_ACCOUNT_OUTGOING') {
     try { ensureAccountLedgerSheet_(ss); } catch (e) {}
-    
+
     // Row 1: Funding source OUT
     const row1 = {
       entry_id: entryId + ':src',
@@ -21571,10 +21571,86 @@ function airoSprint7FDStableCandidateAmount_(candidate, logResult) {
   return normalized > 0 ? normalized : 0;
 }
 
-function airoSprint7FSavePendingPointer_(chatId, candidate, logResult) {
+function airoSprint7FNormalizePendingDirection_(value) {
+  var t = String(value || "").toLowerCase().trim();
+  if (!t || t === "undefined" || t === "null" || t === "ambigu" || t === "ambiguous" || t === "unknown" || t === "unclear") return "ambigu";
+  if (/^(pengeluaran|expense|out|keluar|debit)$/.test(t)) return "pengeluaran";
+  if (/^(pemasukan|income|in|masuk|credit)$/.test(t)) return "pemasukan";
+  if (/^(transfer|internal_transfer|transfer_antar_akun_sendiri|antar_akun|antar akun)$/.test(t)) return "transfer";
+  return t;
+}
+
+function airoSprint7FDirectionPendingChoice_(text) {
+  var t = String(text || "").toLowerCase().trim();
+
+  if (/^(0|d)(\b|[\s.:-]|$)/i.test(t) || /\b(abaikan|ignore|batal|cancel|review)\b/i.test(t)) {
+    return { ok: true, direction: "ignore", action: "ignore", route: "safe_no_write_cancel" };
+  }
+
+  if (/^(1|a)(\b|[\s.:-]|$)/i.test(t) || /\b(keluar|pengeluaran|expense|bayar|beli|pakai)\b/i.test(t)) {
+    return { ok: true, direction: "pengeluaran", action: "expense", route: "account_pending" };
+  }
+
+  if (/^(2|b)(\b|[\s.:-]|$)/i.test(t) || /\b(masuk|pemasukan|income|terima|diterima|refund|gaji)\b/i.test(t)) {
+    return { ok: true, direction: "pemasukan", action: "income", route: "income_safe_pending" };
+  }
+
+  if (/^(3|c)(\b|[\s.:-]|$)/i.test(t) || /\b(transfer|tf|pindah|antar akun|antar rekening)\b/i.test(t)) {
+    return { ok: true, direction: "transfer", action: "transfer", route: "transfer_safe_pending" };
+  }
+
+  return { ok: false, direction: "", action: "invalid", route: "invalid_direction_choice" };
+}
+
+function airoSprint7FBuildPendingPayload_(candidate, logResult) {
+  candidate = candidate || {};
   logResult = logResult || {};
-  var key = "AIRO_SPRINT7F_PENDING_EMAIL_" + String(chatId);
-  var payload = {
+
+  var normalizedDirection = airoSprint7FNormalizePendingDirection_(candidate.inferred_direction || logResult.inferred_direction || "");
+  var questionType = String(candidate.clarification_question_type || logResult.clarification_question_type || "").toLowerCase().trim();
+
+  if (!questionType) {
+    if (normalizedDirection === "ambigu") {
+      questionType = "direction";
+    } else if (normalizedDirection === "pengeluaran") {
+      questionType = "account";
+    } else if (normalizedDirection === "pemasukan") {
+      questionType = "category_income";
+    } else if (normalizedDirection === "transfer") {
+      questionType = "transfer";
+    } else {
+      questionType = "category_expense";
+    }
+  }
+
+  var clarificationState = String(candidate.clarification_state || "").toLowerCase().trim();
+  if (normalizedDirection === "ambigu" || questionType === "direction") {
+    clarificationState = "direction_pending";
+    questionType = "direction";
+  } else if (normalizedDirection === "pengeluaran") {
+    clarificationState = "account_pending";
+  } else if (!clarificationState) {
+    clarificationState = "category_pending";
+  }
+
+  var stableAmount = 0;
+  if (typeof airoSprint7FDStableCandidateAmount_ === "function") {
+    stableAmount = airoSprint7FDStableCandidateAmount_(candidate, logResult);
+  } else {
+    stableAmount = candidate.display_amount || candidate.detected_amount || candidate.amount_idr || candidate.amount || 0;
+  }
+
+  var createdAt = logResult.created_at || "";
+  if (!createdAt) {
+    try {
+      if (typeof Utilities !== "undefined" && typeof Session !== "undefined") {
+        createdAt = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+      }
+    } catch (err) {}
+  }
+  if (!createdAt) createdAt = new Date().toISOString();
+
+  return {
     type: "email_candidate_7f",
     candidate_id: logResult.candidate_id || candidate.candidate_id || "",
     message_id: candidate.message_id || "",
@@ -21586,16 +21662,101 @@ function airoSprint7FSavePendingPointer_(chatId, candidate, logResult) {
     parse_status: candidate.parse_status || "",
     subject_hash: candidate.subject_hash || "",
     received_at: candidate.received_at || "",
-    display_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
-    detected_amount: airoSprint7FDStableCandidateAmount_(candidate, logResult),
-    amount_idr: airoSprint7FDStableCandidateAmount_(candidate, logResult),
+    display_amount: stableAmount,
+    detected_amount: stableAmount,
+    amount_idr: stableAmount,
     amount_source: candidate.amount_source || logResult.amount_source || "",
+    inferred_direction: normalizedDirection,
+    clarification_question_type: questionType,
     clarification_status: "pending",
-    clarification_state: String(candidate.inferred_direction).toLowerCase() === "pengeluaran" ? "account_pending" : "category_pending",
+    clarification_state: clarificationState,
     write_allowed: false,
     email_log_ref: logResult.row_number || "",
-    created_at: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ssXXX")
+    created_at: createdAt
   };
+}
+
+function airoSprint7FApplyDirectionPendingChoiceDryRun_(pending, rawText) {
+  pending = pending || {};
+  var choice = airoSprint7FDirectionPendingChoice_(rawText);
+  var nextPending = JSON.parse(JSON.stringify(pending || {}));
+  nextPending.write_allowed = false;
+
+  if (!choice.ok) {
+    return { handled: true, waiting: true, ok: false, status: "sprint7h_email_direction_invalid", route: "invalid_direction_choice", next_pending: nextPending, finance_write_performed: false, account_ledger_write_performed: false, finance_events_write_performed: false, review_queue_write_performed: false };
+  }
+
+  if (choice.action === "expense") {
+    nextPending.inferred_direction = "pengeluaran";
+    nextPending.clarification_question_type = "account";
+    nextPending.clarification_state = "account_pending";
+    nextPending.selected_category = "";
+    nextPending.selected_subcategory = "";
+    return { handled: true, waiting: true, ok: true, status: "sprint7h_email_direction_expense_account_pending", route: "account_pending", next_pending: nextPending, finance_write_performed: false, account_ledger_write_performed: false, finance_events_write_performed: false, review_queue_write_performed: false };
+  }
+
+  if (choice.action === "income") {
+    nextPending.inferred_direction = "pemasukan";
+    nextPending.clarification_question_type = "income_source";
+    nextPending.clarification_state = "income_source_pending";
+    nextPending.selected_category = "";
+    nextPending.selected_subcategory = "";
+    return { handled: true, waiting: true, ok: true, status: "sprint7h_email_direction_income_safe_pending", route: "income_safe_pending", next_pending: nextPending, finance_write_performed: false, account_ledger_write_performed: false, finance_events_write_performed: false, review_queue_write_performed: false };
+  }
+
+  if (choice.action === "transfer") {
+    nextPending.inferred_direction = "transfer";
+    nextPending.clarification_question_type = "transfer";
+    nextPending.clarification_state = "transfer_pending";
+    nextPending.selected_category = "";
+    nextPending.selected_subcategory = "";
+    return { handled: true, waiting: true, ok: true, status: "sprint7h_email_direction_transfer_safe_pending", route: "transfer_safe_pending", next_pending: nextPending, finance_write_performed: false, account_ledger_write_performed: false, finance_events_write_performed: false, review_queue_write_performed: false };
+  }
+
+  nextPending.inferred_direction = "ignored";
+  nextPending.clarification_question_type = "direction";
+  nextPending.clarification_state = "ignored";
+  return { handled: true, waiting: false, ok: true, status: "sprint7h_email_direction_ignored_safe_no_write", route: "ignored_safe_no_write", next_pending: nextPending, remove_pending: true, finance_write_performed: false, account_ledger_write_performed: false, finance_events_write_performed: false, review_queue_write_performed: false };
+}
+
+function airoSprint7FBuildEmailAccountSelectionPrompt_(pending, prefix) {
+  pending = pending || {};
+  var amountText = airoSprint7FFormatRupiah_(pending.display_amount || pending.detected_amount || pending.amount_idr || 0);
+  var provider = String(pending.provider || "Email");
+  var accountsList = [];
+  try {
+    accountsList = getEligibleFundingSourceAccounts_();
+  } catch (err) {
+    accountsList = ["BCA", "Blu", "Cash"];
+  }
+
+  var lines = [
+    prefix || "✅ Arah transaksi: Pengeluaran",
+    "",
+    "Terdeteksi:",
+    "Nominal: " + amountText,
+    "Deskripsi: " + (pending.subject || "Transaksi keluar"),
+    "Sumber notifikasi: email " + provider + " / provider terkait",
+    "",
+    "Sumber dana dari akun mana?",
+    ""
+  ];
+
+  accountsList.forEach(function(acc, idx) {
+    lines.push((idx + 1) + ". " + acc);
+  });
+  lines.push("");
+  lines.push("0. Review / batalkan dulu");
+  lines.push("");
+  lines.push("Balas angka akun, atau tulis nama akun.");
+  return lines.join("\n");
+}
+
+
+function airoSprint7FSavePendingPointer_(chatId, candidate, logResult) {
+  logResult = logResult || {};
+  var key = "AIRO_SPRINT7F_PENDING_EMAIL_" + String(chatId);
+  var payload = airoSprint7FBuildPendingPayload_(candidate, logResult);
 
   PropertiesService.getScriptProperties().setProperty(key, JSON.stringify(payload));
 
@@ -22793,12 +22954,12 @@ function airoSprint7FBuildFriendlyClarificationMessage_(candidateId, candidate) 
   } else {
     lines.push("Ini maksudnya apa?");
     lines.push("");
-    lines.push("A. Pengeluaran");
-    lines.push("B. Pemasukan");
-    lines.push("C. Transfer antar akun sendiri");
-    lines.push("D. Abaikan");
+    lines.push("1. Pengeluaran");
+    lines.push("2. Pemasukan");
+    lines.push("3. Transfer antar akun sendiri");
+    lines.push("0. Abaikan / batalkan dulu");
     lines.push("");
-    lines.push("Balas A/B/C/D.");
+    lines.push("Balas angka pilihan.");
   }
 
   lines.push("");
@@ -23546,6 +23707,107 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
 
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
   var direction = String(pending.inferred_direction || "ambigu").toLowerCase();
+
+  var questionType = String(pending.clarification_question_type || "").toLowerCase();
+
+  if (state === "direction_pending" || questionType === "direction") {
+    var directionResult = airoSprint7FApplyDirectionPendingChoiceDryRun_(pending, textRaw);
+
+    if (!directionResult.ok && directionResult.route === "invalid_direction_choice") {
+      var promptCandidate = {};
+      for (var pk in pending) {
+        if (Object.prototype.hasOwnProperty.call(pending, pk)) promptCandidate[pk] = pending[pk];
+      }
+      promptCandidate.inferred_direction = "ambigu";
+
+      sendTelegram_(parsed.chat_id, "Pilihan belum valid.\n\n" + airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || "", promptCandidate));
+
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_direction_invalid",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+
+    if (directionResult.route === "account_pending") {
+      airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, directionResult.next_pending);
+      sendTelegram_(parsed.chat_id, airoSprint7FBuildEmailAccountSelectionPrompt_(directionResult.next_pending));
+
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_direction_expense_account_pending",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+
+    if (directionResult.route === "income_safe_pending") {
+      airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, directionResult.next_pending);
+      sendTelegram_(parsed.chat_id, "✅ Arah transaksi: Pemasukan\n\nMode: klarifikasi dulu\nFinance write: false\n\nPemasukan tidak diarahkan ke kategori pengeluaran.");
+
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_direction_income_safe_pending",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+
+    if (directionResult.route === "transfer_safe_pending") {
+      airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, directionResult.next_pending);
+      sendTelegram_(parsed.chat_id, "✅ Arah transaksi: Transfer antar akun sendiri\n\nMode: klarifikasi dulu\nFinance write: false\n\nTransfer tidak diarahkan ke kategori pengeluaran.");
+
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_direction_transfer_safe_pending",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+
+    if (directionResult.route === "ignored_safe_no_write") {
+      try {
+        if (typeof airoSprint7FRemovePendingEmailCandidate_ === "function") {
+          airoSprint7FRemovePendingEmailCandidate_(parsed.chat_id, pending);
+        }
+      } catch (err) {}
+
+      sendTelegram_(parsed.chat_id, "Transaksi email diabaikan.\n\nFinance write: false");
+
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_direction_ignored_safe_no_write",
+        handled: true,
+        waiting: false,
+        finance_write_performed: false,
+        account_ledger_write_performed: false,
+        finance_events_write_performed: false,
+        review_queue_write_performed: false
+      });
+    }
+  }
 
   // Legacy email pending migration: if expense and no chosen account and state is not account_pending
   if (direction === "pengeluaran" && !pending.selected_account && state !== "account_pending") {
@@ -24963,7 +25225,7 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     assetSection: parseAssetSection_(item.raw_text || ""),
     needsReview: false
   };
-  
+
   if (!parsedObj.posting_mode) {
     resolvePostingModeAndFundingSource_(parsedObj, item.raw_text);
   }
@@ -25000,7 +25262,7 @@ function airoSprint7HApprovalApprove_(ss, arg) {
     } else if (item.source) {
       derivedEventSource = item.source;
     }
-    
+
     var feResult = recordFinanceEventForWriteResult_(ss, result, stagingResult, parsedObj, item.raw_text, {
       event_type: "transaction_created",
       event_source: derivedEventSource,
@@ -25952,7 +26214,7 @@ function airoSprint7CategoryContractResolveAnswerTextWithRegistry_(rawText, regi
   if (parts.length === 2) {
     var p1 = parts[0].trim();
     var p2 = parts[1].trim();
-    
+
     // Try p1 as category, p2 as subcategory
     var catMatch = null;
     for (var i = 0; i < catKeys.length; i++) {
@@ -25969,7 +26231,7 @@ function airoSprint7CategoryContractResolveAnswerTextWithRegistry_(rawText, regi
         }
       }
     }
-    
+
     // Try p2 as category, p1 as subcategory
     catMatch = null;
     for (var i = 0; i < catKeys.length; i++) {
@@ -26005,7 +26267,7 @@ function airoSprint7CategoryContractResolveAnswerTextWithRegistry_(rawText, regi
       var sub = subs[j];
       var info = subinfo[sub] || {};
       var aliases = info.aliases || [];
-      
+
       var isMatch = (sub.toLowerCase() === t);
       if (!isMatch) {
         for (var k = 0; k < aliases.length; k++) {
@@ -26015,7 +26277,7 @@ function airoSprint7CategoryContractResolveAnswerTextWithRegistry_(rawText, regi
           }
         }
       }
-      
+
       if (isMatch) {
         var duplicate = false;
         for (var m = 0; m < matchedCandidates.length; m++) {
@@ -26343,25 +26605,26 @@ function airoSprint7CategoryContractMissingCategoryHandleReply_(chatId, pending,
   return failOrRetry_("Klarifikasi error, silakan tulis ulang transaksi.");
 }
 
-function airoSprint7CategoryContractBuildFundingSourcePrompt_() { return "Sumber dana transaksi ini dari mana?\\n\\nPilih salah satu:\\nA. BCA\\nB. Blu\\nC. Cash\\nD. Credit Card\\nE. Manual / lainnya"; } function airoSprint7CategoryContractNormalizeFundingSourceAnswer_(text) { var normalized = normalizeClarificationAccountAnswer_(text); if (normalized === "manual") return "Manual"; return normalized || ""; } function airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, matchedSub) { pending.step = 3; pending.clarification_state = "funding_source_pending"; pending.selected_subcategory = matchedSub; pending.attempts = 0; savePendingClarification_(chatId, pending); sendTelegram_(chatId, airoSprint7CategoryContractBuildFundingSourcePrompt_()); return { handled: true, waiting: true, funding_source_pending: true, finance_write_performed: false, workbook_write_performed: false }; } function airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_) { var fundingSource = airoSprint7CategoryContractNormalizeFundingSourceAnswer_(rawText); if (!fundingSource) { return failOrRetry_("Sumber dana belum valid.\\n\\n" + airoSprint7CategoryContractBuildFundingSourcePrompt_()); } pending.funding_source = fundingSource; pending.clarification_state = "funding_source_pending_resolved"; savePendingClarification_(chatId, pending); return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, pending.selected_subcategory || "Lainnya"); } function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
+function airoSprint7CategoryContractBuildFundingSourcePrompt_() { return "Sumber dana transaksi ini dari mana?\\n\\nPilih salah satu:\\nA. BCA\\nB. Blu\\nC. Cash\\nD. Credit Card\\nE. Manual / lainnya"; } function airoSprint7CategoryContractNormalizeFundingSourceAnswer_(text) { var normalized = normalizeClarificationAccountAnswer_(text); if (normalized === "manual") return "Manual"; return normalized || ""; } function airoSprint7CategoryContractStartFundingSourcePending_(chatId, pending, matchedSub) { pending.step = 3; pending.clarification_state = "funding_source_pending"; pending.selected_subcategory = matchedSub; pending.attempts = 0; savePendingClarification_(chatId, pending); sendTelegram_(chatId, airoSprint7CategoryContractBuildFundingSourcePrompt_()); return { handled: true, waiting: true, funding_source_pending: true, finance_write_performed: false, workbook_write_performed: false }; } function airoSprint7CategoryContractResolveFundingSourcePending_(chatId, pending, rawText, failOrRetry_) { var fundingSource = airoSprint7CategoryContractNormalizeFundingSourceAnswer_(rawText); if (!fundingSource) { return failOrRetry_("Sumber dana belum valid.\\n\\n" + airoSprint7CategoryContractBuildFundingSourcePrompt_()); } pending.funding_source = fundingSource; pending.clarification_state = "funding_source_pending_resolved"; savePendingClarification_(chatId, pending); return airoSprint7CategoryContractResolveMissingCategoryFlow_(chatId, pending, pending.selected_subcategory || "Lainnya"); }
+function airoSprint7CategoryContractBuildSubcategoryPrompt_(category) {
   var registry = airoSprint7CategoryContractGetRegistry_();
   var catData = registry[category];
   if (!catData) return "Pilih subkategori untuk " + category;
 
-  var subs = catData.subcategories;
+  var subs = catData.subcategories || [];
   var lines = ["Pilih subkategori untuk " + category + ":"];
-  var alphabet = "abcdefghijklmnopqrstuvwxyz";
 
   for (var i = 0; i < subs.length; i++) {
-    var letter = alphabet.charAt(i).toUpperCase();
-    lines.push(letter + ". " + subs[i]);
+    lines.push((i + 1) + ". " + subs[i]);
   }
 
-  var manualLetter = alphabet.charAt(subs.length).toUpperCase();
-  lines.push(manualLetter + ". Tulis manual / lainnya");
+  lines.push((subs.length + 1) + ". Tulis manual / lainnya");
+  lines.push("");
+  lines.push("Balas angka pilihan.");
 
   return lines.join("\n");
 }
+
 
 
 function airoSprint7CategoryContractParseSubcategoryOption_(category, text) {
@@ -26373,37 +26636,29 @@ function airoSprint7CategoryContractParseSubcategoryOption_(category, text) {
   var cleanText = String(text || "").trim().toLowerCase();
   if (!cleanText) return { action: "invalid" };
 
-  // Back actions
-  if (cleanText === "0" || cleanText === "back" || cleanText === "kembali" || cleanText === "0.") {
-    return { action: "back" };
-  }
+  if (cleanText === "0" || cleanText === "back" || cleanText === "kembali" || cleanText === "0.") return { action: "back" };
+  if (cleanText === "review" || cleanText === "batal" || cleanText === "cancel") return { action: "review" };
 
-  // Review/cancel actions
-  if (cleanText === "review" || cleanText === "batal" || cleanText === "cancel") {
-    return { action: "review" };
-  }
-
-  // Alphabet letter index for manual
   var alphabet = "abcdefghijklmnopqrstuvwxyz";
   var manualLetter = alphabet.charAt(subs.length);
   var manualNumStr = String(subs.length + 1);
 
-  // Match manual
-  if (cleanText === manualLetter || cleanText === manualNumStr || cleanText === "manual" || cleanText === "tulis manual" || cleanText === "other" || cleanText === "lainnya" || cleanText === "tulis manual / lainnya") {
-    return { action: "manual" };
+  if (cleanText === manualLetter || cleanText === manualNumStr || cleanText === "manual" || cleanText === "tulis manual" || cleanText === "other" || cleanText === "lainnya" || cleanText === "tulis manual / lainnya") return { action: "manual" };
+
+  if (/^\d+$/.test(cleanText)) {
+    var idx = parseInt(cleanText, 10);
+    if (idx >= 1 && idx <= subs.length) return { action: "select", subcategory: subs[idx - 1] };
   }
 
-  // Match existing subcategories using match subcategory helper
+  for (var li = 0; li < subs.length; li++) {
+    if (cleanText === alphabet.charAt(li)) return { action: "select", subcategory: subs[li] };
+  }
+
   var matchedSub = airoSprint7CategoryContractMatchSubcategory_(category, cleanText, subs);
-  if (matchedSub) {
-    return { action: "select", subcategory: matchedSub };
-  }
+  if (matchedSub) return { action: "select", subcategory: matchedSub };
 
-  // Case-insensitive exact match fallback
   for (var i = 0; i < subs.length; i++) {
-    if (subs[i].toLowerCase() === cleanText) {
-      return { action: "select", subcategory: subs[i] };
-    }
+    if (subs[i].toLowerCase() === cleanText) return { action: "select", subcategory: subs[i] };
   }
 
   return { action: "invalid" };
@@ -28356,11 +28611,11 @@ function airoBuildSubcategoryGroupedPromptMessage_(amount, account, description,
 
   var optionIndex = 1;
   var optionToSubcategory = {}; // maps "1" to {category: "...", subcategory: "..."}
-  
+
   var categories = Object.keys(registry).filter(function(c) {
-    return c !== "Other / Review" && 
-           airoIsExpenseCompatibleCategory_(c) && 
-           registry[c].subcategories && 
+    return c !== "Other / Review" &&
+           airoIsExpenseCompatibleCategory_(c) &&
+           registry[c].subcategories &&
            registry[c].subcategories.length > 0;
   });
 
@@ -28554,7 +28809,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
     pending.confirmed_account = chosenAccount;
     pending.step = 2;
     pending.attempts = 0;
-    
+
     var registry = airoSprint7CategoryContractGetRegistry_();
     var isKnownCategory = pending.category && registry[pending.category] && pending.category !== "Lainnya" && pending.category !== "Other / Review" && pending.category !== "Unknown";
     var singleRegistry = {};
@@ -28650,13 +28905,13 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
       }
 
       pending.selected_category = subChoice.category;
-      
+
       var singleRegistry = {};
       singleRegistry[subChoice.category] = registry[subChoice.category];
-      
+
       var subPromptData = airoBuildSubcategoryGroupedPromptMessage_(pending.amount, pending.confirmed_account, pending.description, singleRegistry, pending.account);
       pending.optionToSubcategory = subPromptData.mapping;
-      
+
       savePendingClarification_(chatId, pending);
       sendTelegram_(chatId, "Kategori terpilih: " + subChoice.category + "\nSilakan pilih subkategori:\n\n" + subPromptData.text);
       return { handled: true, waiting: true };
@@ -28700,9 +28955,9 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
 
       try {
         var ss = SpreadsheetApp.openById(getProp_('SPREADSHEET_ID'));
-        
+
         var qId = "review:telegram:" + (pending.pending_id || ("manual:" + new Date().getTime()));
-        
+
         // H2, H4 Rework: separately preserve all posting metadata in [METADATA] JSON inside notes
         var metadataPayload = {
           execution_account: pending.account,
@@ -28715,7 +28970,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
           description: pending.description || pending.original_text,
           raw_text: pending.original_text || pending.text || ""
         };
-        
+
         var rowData = {
           queue_id: qId,
           created_at: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss"),
@@ -28738,7 +28993,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
           review_status: "pending",
           linked_event_id: "",
           linked_account_ledger_entry_id: "",
-          
+
           intent: "expense",
           target_tab: "🧾 Review Queue",
           reason: "telegram_manual_resolved_clarification",
@@ -28749,9 +29004,9 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
           notes: "Telegram manual resolved confirmation. Category: " + subChoice.category + ", Subcategory: " + subChoice.subcategory + ". [METADATA] " + JSON.stringify(metadataPayload),
           parser: "telegram"
         };
-        
+
         var appendRes = appendByHeader_(ss, AIRO_CONFIG.tabs.review, rowData, { createIfMissing: false });
-        
+
         var targetRow = 0;
         var readbackVerified = false;
         if (appendRes && appendRes.status === "written") {
@@ -28774,13 +29029,13 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
                 if (field === "account" || canonicalCheck === "account" || canonicalCheck === "parsed_account") checkAccountCol = c;
                 if (field === "status" || canonicalCheck === "status" || canonicalCheck === "review_status" || canonicalCheck === "write_status") checkStatusCol = c;
               }
-              
+
               var readQueueId = checkQueueIdCol !== -1 ? String(readbackValues[checkQueueIdCol] || "").trim() : "";
               var readAmountRaw = checkAmountCol !== -1 ? readbackValues[checkAmountCol] : 0;
               var readAmount = airoSprint7GNormalizeAmountForReadback_(readAmountRaw);
               var readAccount = checkAccountCol !== -1 ? String(readbackValues[checkAccountCol] || "").trim() : "";
               var readStatus = checkStatusCol !== -1 ? String(readbackValues[checkStatusCol] || "").trim() : "";
-              
+
               if (
                 readQueueId === qId &&
                 readAmount === pending.amount &&
@@ -28792,11 +29047,11 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
             }
           }
         }
-        
+
         if (readbackVerified && targetRow > 0) {
           airoTask614StoreDirectApproval_(chatId, qId, targetRow);
           clearPendingClarification_(chatId);
-          
+
           var replyText = "Transaksi siap ditinjau di Review Queue (belum dicatat ke ledger).\n\n" +
                           "Nominal: Rp" + pending.amount.toLocaleString("id-ID") + "\n" +
                           "Akun: " + pending.account + "\n" +
@@ -28804,7 +29059,7 @@ function airoHandleOutgoingConfirmationReply_(chatId, pending, rawText, failOrRe
                           "Status: pending approval.\n" +
                           "Gunakan perintah /approval untuk menyetujui transaksi ini.";
           sendTelegram_(chatId, replyText);
-          
+
           return {
             ok: true,
             handled: true,
@@ -29137,9 +29392,9 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
 
   // Case A: selected different funding source (Blu Pocket != Cash Umum) -> FUNDED_PAYMENT_ACCOUNT_OUTGOING with 3 rows
   var resA = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategoryFunded, "2");
-  var tcA = (resA.handled === true && resA.resolved === true && 
-            resA.finalParsed.account === "Cash Umum" && 
-            resA.finalParsed.funding_source_account === "Blu Pocket" && 
+  var tcA = (resA.handled === true && resA.resolved === true &&
+            resA.finalParsed.account === "Cash Umum" &&
+            resA.finalParsed.funding_source_account === "Blu Pocket" &&
             resA.finalParsed.posting_mode === "FUNDED_PAYMENT_ACCOUNT_OUTGOING" && resA.route === "review_queue_staging" && resA.rowCount === 0 && resA.ledgerWritePerformed === false && resA.plannedPostingRowCount === 3);
   cases.push({ name: "funded_payment_staging_zero_rows_planned_3", pass: tcA, details: JSON.stringify(resA) });
   if (!tcA) passed = false;
@@ -29164,8 +29419,8 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
 
   // Case B: selected same funding source (Cash Umum == Cash Umum) -> SINGLE_OUTGOING with 1 row
   var resB = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategorySingle, "2");
-  var tcB = (resB.handled === true && resB.resolved === true && 
-            resB.finalParsed.account === "Cash Umum" && 
+  var tcB = (resB.handled === true && resB.resolved === true &&
+            resB.finalParsed.account === "Cash Umum" &&
             resB.finalParsed.posting_mode === "SINGLE_OUTGOING" && resB.route === "review_queue_staging" && resB.rowCount === 0 && resB.ledgerWritePerformed === false && resB.plannedPostingRowCount === 1);
   cases.push({ name: "single_outgoing_staging_zero_rows_planned_1", pass: tcB, details: JSON.stringify(resB) });
   if (!tcB) passed = false;
@@ -29189,8 +29444,8 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
 
   // Case C: non-cash account selection (BCA == BCA) -> SINGLE_OUTGOING
   var resC = airoHandleOutgoingConfirmationReplyDryRun_(mockPendingSubcategoryNonCash, "2");
-  var tcC = (resC.handled === true && resC.resolved === true && 
-            resC.finalParsed.account === "BCA" && 
+  var tcC = (resC.handled === true && resC.resolved === true &&
+            resC.finalParsed.account === "BCA" &&
             resC.finalParsed.posting_mode === "SINGLE_OUTGOING" && resC.route === "review_queue_staging" && resC.rowCount === 0 && resC.ledgerWritePerformed === false && resC.plannedPostingRowCount === 1);
   cases.push({ name: "non_cash_staging_zero_rows_planned_1", pass: tcC, details: JSON.stringify(resC) });
   if (!tcC) passed = false;
@@ -29427,6 +29682,103 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   cases.push({ name: "email_ingestion_poll_cycle_lag_classified_as_waiting_not_failure", pass: tc46, details: JSON.stringify(diag46) });
   if (!tc46) passed = false;
   if (!tcVal) passed = false;
+
+
+  // Case 47: email ambiguous direction prompt numeric, not alpha
+  var prompt47 = airoSprint7FBuildFriendlyClarificationMessage_("ambiguous_numeric", { inferred_direction: "ambigu", provider: "Blu", display_amount: 1, received_at: "2026-07-20 18:55:12" });
+  var tc47 = (prompt47.indexOf("1. Pengeluaran") !== -1 && prompt47.indexOf("2. Pemasukan") !== -1 && prompt47.indexOf("3. Transfer antar akun sendiri") !== -1 && prompt47.indexOf("0. Abaikan / batalkan dulu") !== -1 && prompt47.indexOf("Balas angka pilihan.") !== -1 && prompt47.indexOf("A. Pengeluaran") === -1 && prompt47.indexOf("Balas A/B/C/D.") === -1);
+  cases.push({ name: "email_ambiguous_direction_prompt_numeric_not_alpha", pass: tc47, details: JSON.stringify(prompt47) });
+  if (!tc47) passed = false;
+
+  var res48 = airoSprint7FDirectionPendingChoice_("1");
+  var tc48 = (res48.ok === true && res48.direction === "pengeluaran" && res48.route === "account_pending");
+  cases.push({ name: "email_ambiguous_direction_numeric_choice_maps_expense", pass: tc48, details: JSON.stringify(res48) });
+  if (!tc48) passed = false;
+
+  var res49 = airoSprint7FDirectionPendingChoice_("2");
+  var tc49 = (res49.ok === true && res49.direction === "pemasukan" && res49.route === "income_safe_pending");
+  cases.push({ name: "email_ambiguous_direction_numeric_choice_maps_income", pass: tc49, details: JSON.stringify(res49) });
+  if (!tc49) passed = false;
+
+  var res50 = airoSprint7FDirectionPendingChoice_("3");
+  var tc50 = (res50.ok === true && res50.direction === "transfer" && res50.route === "transfer_safe_pending");
+  cases.push({ name: "email_ambiguous_direction_numeric_choice_maps_transfer", pass: tc50, details: JSON.stringify(res50) });
+  if (!tc50) passed = false;
+
+  var res51 = airoSprint7FDirectionPendingChoice_("0");
+  var tc51 = (res51.ok === true && res51.direction === "ignore" && res51.route === "safe_no_write_cancel");
+  cases.push({ name: "email_ambiguous_direction_numeric_choice_zero_ignore_or_review", pass: tc51, details: JSON.stringify(res51) });
+  if (!tc51) passed = false;
+
+  var tc52 = (prompt47.indexOf("A. Pengeluaran") === -1 && prompt47.indexOf("B. Pemasukan") === -1 && prompt47.indexOf("C. Transfer antar akun sendiri") === -1 && prompt47.indexOf("D. Abaikan") === -1 && prompt47.indexOf("Balas A/B/C/D.") === -1);
+  cases.push({ name: "email_direction_prompt_no_A_B_C_D_display", pass: tc52, details: JSON.stringify(prompt47) });
+  if (!tc52) passed = false;
+
+  var subPrompt53 = airoSprint7CategoryContractBuildSubcategoryPrompt_("Food & Drink");
+  var tc53 = (subPrompt53.indexOf("Pilih subkategori untuk Food & Drink:") !== -1 && subPrompt53.indexOf("1. Jajan") !== -1 && subPrompt53.indexOf("2. Makan di Luar") !== -1 && subPrompt53.indexOf("3. Kopi") !== -1 && subPrompt53.indexOf("Balas angka pilihan.") !== -1 && subPrompt53.indexOf("A. Jajan") === -1);
+  cases.push({ name: "email_subcategory_prompt_numeric_not_alpha_after_direction_resolution", pass: tc53, details: JSON.stringify(subPrompt53) });
+  if (!tc53) passed = false;
+
+  var res54 = airoSprint7CategoryContractParseSubcategoryOption_("Food & Drink", "1");
+  var tc54 = (res54.action === "select" && res54.subcategory === "Jajan");
+  cases.push({ name: "email_subcategory_numeric_choice_maps_food_drink_jajan", pass: tc54, details: JSON.stringify(res54) });
+  if (!tc54) passed = false;
+
+  var reg55 = airoSprint7CategoryContractGetRegistry_();
+  var subs55 = reg55["Food & Drink"].subcategories || [];
+  var res55 = airoSprint7CategoryContractParseSubcategoryOption_("Food & Drink", String(subs55.length + 1));
+  var tc55 = (res55.action === "manual");
+  cases.push({ name: "email_subcategory_manual_option_numeric", pass: tc55, details: JSON.stringify(res55) });
+  if (!tc55) passed = false;
+
+  var tc56 = (subPrompt53.indexOf("A. Jajan") === -1 && subPrompt53.indexOf("B. Makan di Luar") === -1 && subPrompt53.indexOf("C. Kopi") === -1 && subPrompt53.indexOf("E. Tulis manual / lainnya") === -1);
+  cases.push({ name: "email_subcategory_prompt_no_A_B_C_D_E_display", pass: tc56, details: JSON.stringify(subPrompt53) });
+  if (!tc56) passed = false;
+
+  var res57a = airoSprint7FDirectionPendingChoice_("a");
+  var res57b = airoSprint7CategoryContractParseSubcategoryOption_("Food & Drink", "a");
+  var tc57 = (res57a.ok === true && res57a.direction === "pengeluaran" && res57b.action === "select" && res57b.subcategory === "Jajan" && prompt47.indexOf("A. Pengeluaran") === -1 && subPrompt53.indexOf("A. Jajan") === -1);
+  cases.push({ name: "legacy_alpha_reply_supported_only_as_stale_compatibility_if_kept", pass: tc57, details: JSON.stringify({ direction: res57a, subcategory: res57b }) });
+  if (!tc57) passed = false;
+
+  var payload58 = airoSprint7FBuildPendingPayload_({ candidate_id: "amb_1", inferred_direction: "ambigu", provider: "Blu", display_amount: 1 }, { created_at: "2026-07-20T20:00:00+07:00" });
+  var tc58 = (payload58.inferred_direction === "ambigu");
+  cases.push({ name: "email_ambiguous_pending_pointer_preserves_inferred_direction", pass: tc58, details: JSON.stringify(payload58) });
+  if (!tc58) passed = false;
+
+  var tc59 = (payload58.clarification_question_type === "direction");
+  cases.push({ name: "email_ambiguous_pending_pointer_preserves_question_type", pass: tc59, details: JSON.stringify(payload58) });
+  if (!tc59) passed = false;
+
+  var tc60 = (payload58.clarification_state === "direction_pending");
+  cases.push({ name: "email_ambiguous_candidate_saved_as_direction_pending", pass: tc60, details: JSON.stringify(payload58) });
+  if (!tc60) passed = false;
+
+  var pending61 = { type: "email_candidate_7f", candidate_id: "amb_1", inferred_direction: "ambigu", clarification_question_type: "direction", clarification_state: "direction_pending", provider: "Blu", display_amount: 1 };
+  var res61 = airoSprint7FApplyDirectionPendingChoiceDryRun_(pending61, "1");
+  var tc61 = (res61.route === "account_pending" && res61.next_pending.clarification_state === "account_pending" && res61.next_pending.inferred_direction === "pengeluaran" && res61.finance_write_performed === false);
+  cases.push({ name: "email_direction_pending_numeric_expense_transitions_to_account_pending", pass: tc61, details: JSON.stringify(res61) });
+  if (!tc61) passed = false;
+
+  var tc62 = (res61.next_pending.selected_category !== "Food & Drink" && res61.next_pending.clarification_state !== "subcategory_pending");
+  cases.push({ name: "email_direction_pending_numeric_expense_does_not_select_food_drink", pass: tc62, details: JSON.stringify(res61) });
+  if (!tc62) passed = false;
+
+  var res63 = airoSprint7FApplyDirectionPendingChoiceDryRun_(pending61, "2");
+  var tc63 = (res63.route === "income_safe_pending" && res63.next_pending.clarification_state !== "category_pending" && res63.next_pending.selected_category !== "Food & Drink" && res63.finance_write_performed === false);
+  cases.push({ name: "email_direction_pending_numeric_income_does_not_enter_expense_category_pending", pass: tc63, details: JSON.stringify(res63) });
+  if (!tc63) passed = false;
+
+  var res64 = airoSprint7FApplyDirectionPendingChoiceDryRun_(pending61, "3");
+  var tc64 = (res64.route === "transfer_safe_pending" && res64.next_pending.clarification_state !== "category_pending" && res64.next_pending.selected_category !== "Food & Drink" && res64.finance_write_performed === false);
+  cases.push({ name: "email_direction_pending_numeric_transfer_does_not_enter_expense_category_pending", pass: tc64, details: JSON.stringify(res64) });
+  if (!tc64) passed = false;
+
+  var res65 = airoSprint7FApplyDirectionPendingChoiceDryRun_(pending61, "0");
+  var tc65 = (res65.route === "ignored_safe_no_write" && res65.remove_pending === true && res65.finance_write_performed === false && res65.account_ledger_write_performed === false && res65.review_queue_write_performed === false);
+  cases.push({ name: "email_direction_pending_zero_is_safe_no_write_cancel", pass: tc65, details: JSON.stringify(res65) });
+  if (!tc65) passed = false;
+
 
   var result = {
     task: "AIRO Finance Task 10.5S",
@@ -35460,18 +35812,18 @@ function airoDashboardLiteDomainSummary_(ss) {
   var cc = airoDashboardLiteGetSheet_(ss, 'creditCard', 'Credit Card');
   var aset = airoDashboardLiteGetSheet_(ss, 'aset', 'Aset');
   var cicilan = airoDashboardLiteGetSheet_(ss, 'cicilanRumah', 'Cicilan Rumah');
-  
+
   var ccDueRaw = airoDashboardLiteFindAdjacentValue_(cc, ['tagihan jatuh tempo', 'due bill', 'payable']);
   var ccCurrentRaw = airoDashboardLiteFindAdjacentValue_(cc, ['periode berjalan', 'current period', 'unbilled']);
   var ccPocketRaw = airoDashboardLiteFindAdjacentValue_(cc, ['blu pocket cc', 'pocket cc', 'setoran']);
-  
+
   var ccDueClean = airoDashboardLiteCleanCC_(ccDueRaw);
   var ccCurrentClean = airoDashboardLiteCleanCC_(ccCurrentRaw);
   var ccPocketClean = ccPocketRaw || '-';
-  
+
   var goldGram = airoDashboardLiteFindAdjacentValue_(aset, ['total gram', 'gram emas', 'emas gram']);
   var goldValue = airoDashboardLiteFindAdjacentValue_(aset, ['total nilai emas', 'nilai emas', 'market value']);
-  
+
   var houseCount = airoDashboardLiteFindAdjacentValue_(cicilan, ['cicilan saat ini']);
   var houseProgress = '-';
   if (houseCount && houseCount.indexOf('/') !== -1) {
@@ -37083,7 +37435,7 @@ function airoGate11bWriteVisibleTopbarB2_(dashboard, reason) {
   var i2 = String(dashboard.getRange("I2").getDisplayValue() || "").trim();
   var m11 = String(dashboard.getRange("M11").getDisplayValue() || "").trim();
   var z2 = String(dashboard.getRange("Z2").getDisplayValue() || "").trim();
-  
+
   var text = "● Synced: " + z2 + " | Period: " + g2 + " " + i2 + " | Ledger rows: " + m11 + " | Source: Account Ledger";
   dashboard.getRange("A2").setValue(text);
   dashboard.getRange("B2").setValue(text);
@@ -37462,9 +37814,9 @@ function runDashboardLiteV2RangeStyleMapFromEditor() {
   var inspectedRange = 'A1:K35';
   var range = template.getRange(inspectedRange);
   var values = range.getValues();
-  
-  var merges = range.getMergedRanges().map(function(r) { 
-    return r.getA1Notation(); 
+
+  var merges = range.getMergedRanges().map(function(r) {
+    return r.getA1Notation();
   }).sort();
 
   var rowHeights = [];
@@ -37658,7 +38010,7 @@ function runTask105EmailAccountFirstSelfTestFromEditor() {
   };
 
   var results = {};
-  
+
   try {
     // 1. expense_email_starts_account_first
     var expenseCandidate = {
@@ -37777,6 +38129,3 @@ function runTask105EmailAccountFirstSelfTestFromEditor() {
 
   return results;
 }
-
-
-
