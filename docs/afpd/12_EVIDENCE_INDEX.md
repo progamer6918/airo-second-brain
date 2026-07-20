@@ -118,3 +118,5 @@
 - 2026-07-19: Recorded Owner manual Apps Script editor runtime proof for v383 false inflow direction repair (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
 
 - 2026-07-20: Recorded live retest blocker: fresh Blu expense email not picked up by Arfin after several minutes on v383 (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed static source/topology RCA for v383 email ingestion lag blocker (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_LAG_OR_MISSED_CANDIDATE_RCA_NO_DEPLOY`).
