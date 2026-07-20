@@ -237,3 +237,5 @@
 - 2026-07-20: Recorded Owner manual Apps Script editor runtime proof for v384 email ingestion pickup safety repair (`PASS_46_OF_46_ACCEPTED_WITH_APPS_SCRIPT_LOG_TRUNCATION_LIMITATION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V383_EMAIL_INGESTION_POST_DEPLOY_MANUAL_EDITOR_RUNTIME_PROOF_RECORD`).
 
 - 2026-07-20: Recorded live v384 retest blocker: email ingestion pickup live observed PASS at 19:03 WIB, but direction/subcategory prompts displayed legacy alpha options A/B/C/D and A/B/C/D/E (`FAIL_LEGACY_ALPHA_PROMPT_REGRESSION`, `AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RECORD_NO_DEPLOY`).
+
+- 2026-07-20: Completed RCA for live v384 alpha prompt regression: identified direction ambiguity prompt in airoSprint7FBuildFriendlyClarificationMessage_ (L22794-L22802) and subcategory prompt in airoSprint7CategoryContractBuildSubcategoryPrompt_ (L26352-L26363) as hardcoded alpha renderers (`AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_RCA_NO_DEPLOY`).
