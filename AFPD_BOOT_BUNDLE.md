@@ -1122,6 +1122,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 - 2026-07-21: Created canonical Web Dashboard Read-Only HtmlService Integration Plan (docs/afpd/14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md, established ?view=dashboard route gating, protected v385 doGet/doPost, and set PRIVATE_OWNER_ONLY access mode, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY`).
 
+- 2026-07-21: Integrated read-only Web Dashboard HtmlService route (?view=dashboard) and created AIRO_Finance_WebDashboard.html locally with 85/85 selftest PASS and preserved v385 doPost/doGet default behaviors, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION_NO_DEPLOY`.
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1418,6 +1420,8 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Created self-contained Web Dashboard Read-Only Static HTML Prototype artifact (docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html, demonstrated period filtering, KPI cards, Spending Intelligence growth badges, and sample Account Ledger row 172, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY`).
 
 - 2026-07-21: Created canonical Web Dashboard Read-Only HtmlService Integration Plan (docs/afpd/14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md, established ?view=dashboard route gating, protected v385 doGet/doPost, and set PRIVATE_OWNER_ONLY access mode, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY`).
+
+- 2026-07-21: Integrated read-only Web Dashboard HtmlService route (?view=dashboard) and created AIRO_Finance_WebDashboard.html locally with 85/85 selftest PASS and preserved v385 doPost/doGet default behaviors, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION_NO_DEPLOY`.
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2680,6 +2684,25 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **RECOMMENDATION**: GO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION_NO_DEPLOY
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY`
+
+## AIRO Finance Web Dashboard Read-Only HtmlService Local Integration Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION**: PASS
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **HTMLSERVICE_INTRODUCED**: YES
+- **RECOMMENDED_ROUTE**: ?view=dashboard
+- **DOGET_CHANGED**: YES_DASHBOARD_ROUTE_ONLY
+- **DOPOST_CHANGED**: NO
+- **DOGET_DEFAULT_BEHAVIOR_PRESERVED**: YES
+- **SOURCE_OF_TRUTH_MVP**: ACCOUNT_LEDGER_APPROVED_FINAL_ROWS
+- **SPENDING_INTELLIGENCE_SCOPE**: BASIC_ONLY
+- **APPROVAL_ENABLED**: NO
+- **EDIT_ENABLED**: NO
+- **WORKBOOK_MUTATION**: NO
+- **SOURCE_PATCH_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: NO
+- **LOCAL_SELFTEST**: PASS_85_OF_85
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION_NO_DEPLOY`
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md

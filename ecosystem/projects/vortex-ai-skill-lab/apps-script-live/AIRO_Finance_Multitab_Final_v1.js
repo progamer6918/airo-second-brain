@@ -18215,6 +18215,11 @@ return airoOriginalDoPostForSprint7GmailLabelFilter_(e);
 }
 
 function doGet(e) {
+  var viewParam = e && e.parameter && (e.parameter.view || e.parameter.page);
+  if (viewParam === 'dashboard') {
+    return airoWebDashboardRenderPage_(e);
+  }
+
   var probe = e && e.parameter && e.parameter.airo_probe;
   if (probe === 'task9_access_gate') {
     var response = {
@@ -29518,6 +29523,38 @@ function airoWebDashboardGetSnapshot_(input, options) {
   };
 }
 
+
+/**
+ * AIRO Finance Web Dashboard Read-Only Render Handler & Client RPC Bridge
+ */
+function airoWebDashboardRenderPage_(e) {
+  var template = HtmlService.createTemplateFromFile("AIRO_Finance_WebDashboard");
+  var output = template.evaluate();
+  output.setTitle("AIRO Finance Dashboard");
+  output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
+  return output;
+}
+
+function airoWebDashboardSanitizeInput_(input) {
+  input = input || {};
+  var now = new Date();
+  var y = Number(input.year || input.selected_year || now.getFullYear());
+  var m = Number(input.month || input.selected_month || (now.getMonth() + 1));
+  
+  if (isNaN(y) || y < 2000 || y > 2100) return { ok: false, error: "Tahun tidak valid (harus 2000..2100)" };
+  if (isNaN(m) || m < 1 || m > 12) return { ok: false, error: "Bulan tidak valid (harus 1..12)" };
+  
+  return { ok: true, year: y, month: m };
+}
+
+function airoWebDashboardGetClientSnapshot(input) {
+  var sanitized = airoWebDashboardSanitizeInput_(input);
+  if (!sanitized.ok) {
+    return { ok: false, error: sanitized.error };
+  }
+  return airoWebDashboardGetSnapshot_({ year: sanitized.year, month: sanitized.month });
+}
+
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var cases = [];
   var syntheticRegistry = airoTask105BuildDeterministicCategoryRegistryForSelfTest_();
@@ -30063,6 +30100,41 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var tc80 = (tc1 && tc46 && tc65);
   cases.push({ name: "web_dashboard_snapshot_existing_65_selftests_remain_pass", pass: tc80, details: JSON.stringify({ tc1: tc1, tc46: tc46, tc65: tc65 }) });
   if (!tc80) passed = false;
+
+  // === NEW TESTS: Web Dashboard HtmlService Integration (tc81..tc85) ===
+  var san81 = airoWebDashboardSanitizeInput_({ year: 2026, month: 7 });
+  var tc81 = (san81.ok === true && san81.year === 2026 && san81.month === 7);
+  cases.push({ name: "web_dashboard_sanitize_input_valid", pass: tc81, details: JSON.stringify(san81) });
+  if (!tc81) passed = false;
+
+  var san82 = airoWebDashboardSanitizeInput_({ year: 2026, month: 13 });
+  var tc82 = (san82.ok === false && typeof san82.error === "string");
+  cases.push({ name: "web_dashboard_sanitize_input_invalid_month", pass: tc82, details: JSON.stringify(san82) });
+  if (!tc82) passed = false;
+
+  var snap83 = airoWebDashboardGetClientSnapshot({ year: 2026, month: 7 });
+  var tc83 = (snap83.ok === true && snap83.period === "2026-07");
+  cases.push({ name: "web_dashboard_client_snapshot_bridge", pass: tc83, details: JSON.stringify({ period: snap83.period }) });
+  if (!tc83) passed = false;
+
+  var mockContentService84 = typeof ContentService !== "undefined" ? ContentService : {
+    MimeType: { JSON: "JSON" },
+    createTextOutput: function(str) { return { getContent: function() { return str; }, setMimeType: function() { return this; } }; }
+  };
+  var origContentService84 = typeof ContentService !== "undefined" ? ContentService : undefined;
+  if (typeof ContentService === "undefined") ContentService = mockContentService84;
+  var probeRes84 = doGet({ parameter: { airo_probe: "task9_access_gate" } });
+  var probeStr84 = probeRes84 ? probeRes84.getContent() : "";
+  var tc84 = (probeStr84.indexOf("task9_access_gate") !== -1 && probeStr84.indexOf("airo-finance") !== -1);
+  if (origContentService84 === undefined) delete ContentService;
+  cases.push({ name: "web_dashboard_doget_route_preservation", pass: tc84, details: probeStr84 });
+  if (!tc84) passed = false;
+
+  var doPostFnStr85 = doPost.toString();
+  var tc85 = (doPostFnStr85.indexOf("airoTask103BalanceCommandMaybeHandleRoute_") !== -1 && doPostFnStr85.indexOf("airoSprint7HApprovalCommandMaybeHandleRoute_") !== -1);
+  cases.push({ name: "web_dashboard_dopost_unchanged_guard", pass: tc85, details: JSON.stringify({ length: doPostFnStr85.length }) });
+  if (!tc85) passed = false;
+
 
 
 
