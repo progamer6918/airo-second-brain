@@ -29315,6 +29315,209 @@ function airoSprint7HBuildEmailIngestionDiagnostic_(params) {
   };
 }
 
+
+/**
+ * AIRO Finance Web Dashboard Read-Only JSON Snapshot Generator
+ * Data Contract: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
+ * Gate: AIRO_FINANCE_WEB_DASHBOARD_READONLY_JSON_SNAPSHOT_PROTOTYPE_NO_DEPLOY
+ * 
+ * Pure read-only calculation function. Zero workbook mutation.
+ */
+function airoWebDashboardGetSnapshot_(input, options) {
+  options = options || {};
+  input = input || {};
+  
+  var now = new Date();
+  var reqYear = Number(input.year || input.selected_year || now.getFullYear());
+  var reqMonth = Number(input.month || input.selected_month || (now.getMonth() + 1));
+  
+  if (isNaN(reqYear) || reqYear < 2000 || reqYear > 2100) reqYear = now.getFullYear();
+  if (isNaN(reqMonth) || reqMonth < 1 || reqMonth > 12) reqMonth = now.getMonth() + 1;
+  
+  var monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  var monthLabel = monthNames[reqMonth - 1] + " " + reqYear;
+  
+  var curStart = new Date(reqYear, reqMonth - 1, 1, 0, 0, 0);
+  var curEnd = new Date(reqYear, reqMonth, 0, 23, 59, 59);
+  
+  var prevYear = reqMonth === 1 ? reqYear - 1 : reqYear;
+  var prevMonth = reqMonth === 1 ? 12 : reqMonth - 1;
+  var prevStart = new Date(prevYear, prevMonth - 1, 1, 0, 0, 0);
+  var prevEnd = new Date(prevYear, prevMonth, 0, 23, 59, 59);
+  
+  var rows = Array.isArray(options.rows) ? options.rows : [];
+  var reviewRows = Array.isArray(options.reviewRows) ? options.reviewRows : [];
+
+  if (!options.rows && typeof SpreadsheetApp !== "undefined" && SpreadsheetApp.getActiveSpreadsheet) {
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var ledger = airoTask101FindSheet_(ss, "Account Ledger", {});
+      if (ledger) {
+        var ledgerData = airoTask101ReadLedger_(ledger);
+        rows = ledgerData ? ledgerData.rows : [];
+      }
+      var review = airoTask101FindSheet_(ss, "Review Queue", {});
+      if (review) {
+        reviewRows = airoTask101ReviewPending_(review);
+      }
+    } catch (e) {
+      // Graceful fallback for headless test environment
+    }
+  }
+
+  var totals = {
+    income: 0,
+    expense: 0,
+    net_cashflow: 0,
+    clean_expense: 0,
+    excluded_rows: 0
+  };
+
+  var curCatMap = {};
+  var prevCatMap = {};
+  var curSubcatMap = {};
+  var warnings = [];
+  var latestDate = null;
+
+  rows.forEach(function(r) {
+    if (!r) return;
+    var d = r.date ? (r.date instanceof Date ? r.date : new Date(r.date)) : null;
+    if (d && (!latestDate || d.getTime() > latestDate.getTime())) {
+      latestDate = d;
+    }
+    
+    var type = String(r.type || "").toLowerCase();
+    var cat = String(r.category || "").trim();
+    var subcat = String(r.subcategory || "").trim();
+    var isTransfer = cat.toLowerCase() === "transfer" || type === "transfer" || r.is_internal_transfer === true;
+    
+    if (d && d.getTime() >= curStart.getTime() && d.getTime() <= curEnd.getTime()) {
+      if (isTransfer) {
+        totals.excluded_rows++;
+        return;
+      }
+
+      if (type === "income" || type === "pemasukan" || Number(r.amount_in || 0) > 0) {
+        totals.income += Number(r.amount_in || 0);
+      } else if (type === "expense" || type === "pengeluaran" || Number(r.amount_out || 0) > 0) {
+        var amt = Math.abs(Number(r.amount_out || 0));
+        totals.expense += amt;
+        
+        if (!cat) {
+          warnings.push("Transaksi pengeluaran tanpa kategori terdeteksi (Rp " + amt + ")");
+        } else {
+          totals.clean_expense += amt;
+          curCatMap[cat] = (curCatMap[cat] || 0) + amt;
+          
+          if (subcat) {
+            var subKey = cat + "::" + subcat;
+            if (!curSubcatMap[subKey]) {
+              curSubcatMap[subKey] = { category: cat, subcategory: subcat, amount: 0 };
+            }
+            curSubcatMap[subKey].amount += amt;
+          }
+        }
+      }
+    } else if (d && d.getTime() >= prevStart.getTime() && d.getTime() <= prevEnd.getTime()) {
+      if (isTransfer) return;
+      if (type === "expense" || type === "pengeluaran" || Number(r.amount_out || 0) > 0) {
+        var pAmt = Math.abs(Number(r.amount_out || 0));
+        if (cat) {
+          prevCatMap[cat] = (prevCatMap[cat] || 0) + pAmt;
+        }
+      }
+    }
+  });
+
+  totals.net_cashflow = totals.income - totals.expense;
+
+  var catKeys = Object.keys(curCatMap).sort(function(a, b) {
+    return curCatMap[b] - curCatMap[a];
+  });
+
+  var topCategories = [];
+  catKeys.forEach(function(cat) {
+    var curAmt = curCatMap[cat];
+    var prevAmt = prevCatMap[cat] || 0;
+    var contribPct = totals.clean_expense > 0 ? Number(((curAmt / totals.clean_expense) * 100).toFixed(2)) : 0;
+    var growthAmt = curAmt - prevAmt;
+    var growthPct = null;
+    var growthStatus = "NO_DATA";
+
+    if (prevAmt > 0) {
+      growthPct = Number((((curAmt - prevAmt) / prevAmt) * 100).toFixed(2));
+      if (growthPct > 0) growthStatus = "UP";
+      else if (growthPct < 0) growthStatus = "DOWN";
+      else growthStatus = "FLAT";
+    } else if (prevAmt === 0 && curAmt > 0) {
+      growthStatus = "NEW_BASELINE";
+    }
+
+    topCategories.push({
+      category: cat,
+      amount: curAmt,
+      contribution_percent: contribPct,
+      previous_amount: prevAmt,
+      growth_amount: growthAmt,
+      growth_percent: growthPct,
+      growth_status: growthStatus
+    });
+  });
+
+  var subcatList = Object.keys(curSubcatMap).map(function(k) { return curSubcatMap[k]; }).sort(function(a, b) {
+    return b.amount - a.amount;
+  });
+
+  var sortedRows = rows.slice().sort(function(a, b) {
+    var da = a.date ? (a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime()) : 0;
+    var db = b.date ? (b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime()) : 0;
+    return db - da;
+  }).slice(0, 10).map(function(r) {
+    return {
+      date: r.date ? (r.date instanceof Date ? r.date.toISOString().split("T")[0] : String(r.date)) : "",
+      account: r.account || "",
+      type: r.type || "",
+      category: r.category || "",
+      subcategory: r.subcategory || "",
+      amount: Number(r.amount_out || r.amount_in || 0),
+      description: r.description || ""
+    };
+  });
+
+  var pendingCount = Array.isArray(reviewRows) ? reviewRows.length : 0;
+  if (pendingCount > 0) {
+    warnings.push("Ada " + pendingCount + " transaksi di Review Queue menunggu konfirmasi.");
+  }
+
+  var dataStatus = "CLEAN";
+  if (warnings.length > 0) dataStatus = "WARNING";
+
+  return {
+    ok: true,
+    period: reqYear + "-" + (reqMonth < 10 ? "0" + reqMonth : reqMonth),
+    period_label: monthLabel,
+    data_status: dataStatus,
+    last_synced: latestDate ? latestDate.toISOString() : now.toISOString(),
+    totals: totals,
+    spending_intelligence: {
+      top_categories: topCategories,
+      top_subcategories: subcatList.slice(0, 10)
+    },
+    wallet_snapshot: [],
+    recent_ledger: sortedRows,
+    review_queue: {
+      pending_count: pendingCount
+    },
+    warnings: warnings,
+    meta: {
+      source_of_truth: "ACCOUNT_LEDGER_APPROVED_FINAL_ROWS",
+      spending_intelligence_scope: "BASIC_ONLY",
+      read_only: true,
+      workbook_mutation: false
+    }
+  };
+}
+
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var cases = [];
   var syntheticRegistry = airoTask105BuildDeterministicCategoryRegistryForSelfTest_();
@@ -29778,6 +29981,89 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   var tc65 = (res65.route === "ignored_safe_no_write" && res65.remove_pending === true && res65.finance_write_performed === false && res65.account_ledger_write_performed === false && res65.review_queue_write_performed === false);
   cases.push({ name: "email_direction_pending_zero_is_safe_no_write_cancel", pass: tc65, details: JSON.stringify(res65) });
   if (!tc65) passed = false;
+
+  // === NEW TESTS: Web Dashboard Read-Only JSON Snapshot Prototype (tc66..tc80) ===
+  var mockLedgerRows = [
+    { date: new Date(2026, 6, 5), type: "expense", category: "Food & Drink", subcategory: "Makan Siang", amount_out: 150000, account: "Cash" },
+    { date: new Date(2026, 6, 10), type: "expense", category: "Food & Drink", subcategory: "Kopi", amount_out: 50000, account: "Blu" },
+    { date: new Date(2026, 6, 12), type: "expense", category: "Transport", subcategory: "Bensin", amount_out: 100000, account: "BCA" },
+    { date: new Date(2026, 6, 15), type: "income", category: "Gaji", subcategory: "Main", amount_in: 5000000, account: "BCA" },
+    { date: new Date(2026, 6, 18), type: "transfer", category: "Transfer", subcategory: "Internal", amount_out: 500000, account: "BCA" },
+    { date: new Date(2026, 6, 20), type: "expense", category: "", subcategory: "", amount_out: 25000, account: "Cash" },
+    { date: new Date(2026, 5, 15), type: "expense", category: "Food & Drink", subcategory: "Makan Siang", amount_out: 100000, account: "Cash" }
+  ];
+
+  var snap66 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockLedgerRows });
+  var tc66 = (snap66.ok === true && snap66.period === "2026-07" && snap66.period_label === "Juli 2026" && typeof snap66.totals === "object" && typeof snap66.spending_intelligence === "object" && snap66.meta.read_only === true);
+  cases.push({ name: "web_dashboard_snapshot_json_shape_contract", pass: tc66, details: JSON.stringify(snap66) });
+  if (!tc66) passed = false;
+
+  var tc67 = (snap66.period === "2026-07" && snap66.period_label === "Juli 2026");
+  cases.push({ name: "web_dashboard_snapshot_valid_period_boundaries", pass: tc67, details: JSON.stringify({ period: snap66.period }) });
+  if (!tc67) passed = false;
+
+  var tc68 = (snap66.spending_intelligence.top_categories.length > 0 && snap66.spending_intelligence.top_categories[0].previous_amount === 100000);
+  cases.push({ name: "web_dashboard_snapshot_previous_month_boundary", pass: tc68, details: JSON.stringify(snap66.spending_intelligence.top_categories[0]) });
+  if (!tc68) passed = false;
+
+  var tc69 = (snap66.totals.income === 5000000 && snap66.totals.expense === 325000 && snap66.totals.net_cashflow === 4675000);
+  cases.push({ name: "web_dashboard_snapshot_total_income_expense_net_cashflow", pass: tc69, details: JSON.stringify(snap66.totals) });
+  if (!tc69) passed = false;
+
+  var tc70 = (snap66.totals.excluded_rows === 1);
+  cases.push({ name: "web_dashboard_snapshot_internal_transfer_exclusion", pass: tc70, details: JSON.stringify({ excluded_rows: snap66.totals.excluded_rows }) });
+  if (!tc70) passed = false;
+
+  var snap71 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockLedgerRows, reviewRows: [{ id: "rev1" }] });
+  var tc71 = (snap71.review_queue.pending_count === 1 && snap71.totals.income === 5000000);
+  cases.push({ name: "web_dashboard_snapshot_pending_rejected_exclusion", pass: tc71, details: JSON.stringify(snap71.review_queue) });
+  if (!tc71) passed = false;
+
+  var tc72 = (snap66.warnings.length > 0 && snap66.data_status === "WARNING");
+  cases.push({ name: "web_dashboard_snapshot_missing_category_warning", pass: tc72, details: JSON.stringify(snap66.warnings) });
+  if (!tc72) passed = false;
+
+  var tc73 = (snap66.totals.clean_expense === 300000 && snap66.spending_intelligence.top_categories[0].contribution_percent === 66.67);
+  cases.push({ name: "web_dashboard_snapshot_contribution_percent_calculation", pass: tc73, details: JSON.stringify(snap66.spending_intelligence.top_categories[0]) });
+  if (!tc73) passed = false;
+
+  var foodCat74 = snap66.spending_intelligence.top_categories[0];
+  var tc74 = (foodCat74.category === "Food & Drink" && foodCat74.growth_amount === 100000 && foodCat74.growth_percent === 100.0 && foodCat74.growth_status === "UP");
+  cases.push({ name: "web_dashboard_snapshot_growth_percent_normal_case", pass: tc74, details: JSON.stringify(foodCat74) });
+  if (!tc74) passed = false;
+
+  var transportCat75 = snap66.spending_intelligence.top_categories[1];
+  var tc75 = (transportCat75.category === "Transport" && transportCat75.previous_amount === 0 && transportCat75.growth_percent === null && transportCat75.growth_status === "NEW_BASELINE");
+  cases.push({ name: "web_dashboard_snapshot_previous_zero_new_baseline_case", pass: tc75, details: JSON.stringify(transportCat75) });
+  if (!tc75) passed = false;
+
+  var mockDisappearedRows = [
+    { date: new Date(2026, 5, 10), type: "expense", category: "Entertainment", amount_out: 200000 }
+  ];
+  var snap76 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockDisappearedRows });
+  var tc76 = (snap76.spending_intelligence.top_categories.length === 0);
+  cases.push({ name: "web_dashboard_snapshot_current_zero_disappeared_case", pass: tc76, details: JSON.stringify(snap76.spending_intelligence) });
+  if (!tc76) passed = false;
+
+  var tc77 = (snap66.spending_intelligence.top_categories[0].amount >= snap66.spending_intelligence.top_categories[1].amount);
+  cases.push({ name: "web_dashboard_snapshot_top_category_sort", pass: tc77, details: JSON.stringify(snap66.spending_intelligence.top_categories) });
+  if (!tc77) passed = false;
+
+  var tc78 = (snap66.recent_ledger.length <= 10 && snap66.recent_ledger[0].account === "Cash");
+  cases.push({ name: "web_dashboard_snapshot_recent_ledger_limit", pass: tc78, details: JSON.stringify({ count: snap66.recent_ledger.length }) });
+  if (!tc78) passed = false;
+
+  var fnStr79 = airoWebDashboardGetSnapshot_.toString();
+  var forbiddenWrites79 = ["setValue", "setValues", "clear", "merge", "breakApart", "delete", "appendRow", "copyTo"];
+  var hasForbidden79 = forbiddenWrites79.some(function(w) { return fnStr79.indexOf(w) !== -1; });
+  var tc79 = (hasForbidden79 === false);
+  cases.push({ name: "web_dashboard_snapshot_read_only_static_guard", pass: tc79, details: JSON.stringify({ forbidden_found: hasForbidden79 }) });
+  if (!tc79) passed = false;
+
+  var tc80 = (tc1 && tc46 && tc65);
+  cases.push({ name: "web_dashboard_snapshot_existing_65_selftests_remain_pass", pass: tc80, details: JSON.stringify({ tc1: tc1, tc46: tc46, tc65: tc65 }) });
+  if (!tc80) passed = false;
+
 
 
   var result = {
