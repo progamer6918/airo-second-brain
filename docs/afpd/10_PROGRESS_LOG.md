@@ -281,3 +281,5 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment Preflight (target suffix ZYjuOA @385 verified, 85/85 selftest PASS, zero write methods, deployment readiness: GO, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`).
 
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment (pushed source/HTML, created version v386, updated target deployment ZYjuOA, verified readback @386, 85/85 selftests PASS, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-21: Created Filter & Wallet Remediation Plan (established separate month/year selector UI and cumulative Account Ledger wallet snapshot calculation, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN_NO_DEPLOY`).

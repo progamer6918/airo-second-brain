@@ -1128,6 +1128,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment (pushed source/HTML, created version v386, updated target deployment ZYjuOA, verified readback @386, 85/85 selftests PASS, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`).
 
+- 2026-07-21: Created Filter & Wallet Remediation Plan (established separate month/year selector UI and cumulative Account Ledger wallet snapshot calculation, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN_NO_DEPLOY`).
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1430,6 +1432,8 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment Preflight (target suffix ZYjuOA @385 verified, 85/85 selftest PASS, zero write methods, deployment readiness: GO, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`).
 
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment (pushed source/HTML, created version v386, updated target deployment ZYjuOA, verified readback @386, 85/85 selftests PASS, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-21: Created Filter & Wallet Remediation Plan (established separate month/year selector UI and cumulative Account Ledger wallet snapshot calculation, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN_NO_DEPLOY`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2749,6 +2753,28 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **OWNER_BROWSER_PROOF**: NOT_YET_PERFORMED
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_POST_DEPLOY_OWNER_BROWSER_PROOF
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`
+
+## AIRO Finance Web Dashboard Read-Only Filter & Wallet Remediation Plan Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN**: PASS
+- **OWNER_BROWSER_PROOF**: PASS_WITH_PRODUCT_GAPS
+- **APPS_SCRIPT_VERSION_ACTIVE**: 386
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **FILTER_CONTRACT_FOUND**: YES
+- **FILTER_EXPECTED_SHAPE**: SEPARATE_MONTH_YEAR
+- **V386_FILTER_UI_MATCHES_CONTRACT**: NO
+- **FILTER_FIX_SCOPE**: SMALL_FIX
+- **WALLET_CONTRACT_FOUND**: YES
+- **ACTIVE_ACCOUNT_BALANCE_SOURCE_FOUND**: YES
+- **BALANCE_SOURCE_OF_TRUTH**: ACCOUNT_LEDGER_CUMULATIVE_NET_PLUS_ACCOUNT_REGISTRY_ACTIVE_ACCOUNTS
+- **V386_MISSING_BALANCE_IS_GAP**: YES
+- **WALLET_FIX_SCOPE**: SMALL_FIX
+- **APPROVAL_ENABLED**: NO
+- **EDIT_ENABLED**: NO
+- **WORKBOOK_MUTATION**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_LOCAL_REPAIR_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN_NO_DEPLOY`
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md

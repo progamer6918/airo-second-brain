@@ -1,0 +1,20 @@
+{
+  "gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_REMEDIATION_PLAN_NO_DEPLOY",
+  "timestamp": "20260721_222919",
+  "active_apps_script_version": "386",
+  "mode": "DOCS_ONLY_REMEDIATION_PLAN_NO_DEPLOY_NO_PATCH",
+  "source_patch_performed": false,
+  "deployment_performed": false,
+  "owner_browser_proof_result": "PASS_WITH_PRODUCT_GAPS",
+  "existing_filter_contract": true,
+  "filter_expected_shape": "SEPARATE_MONTH_YEAR",
+  "filter_remediation": "SMALL_FIX",
+  "existing_wallet_contract": true,
+  "active_account_balance_source_found": true,
+  "balance_source_of_truth": "Account Ledger cumulative net inflow Col D Income minus Col E Expense per Account up to period end + Account Registry active accounts",
+  "wallet_remediation": "SMALL_FIX",
+  "workbook_mutation": false,
+  "approval_enabled": false,
+  "edit_enabled": false,
+  "next_safe_gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_LOCAL_REPAIR_NO_DEPLOY"
+}
