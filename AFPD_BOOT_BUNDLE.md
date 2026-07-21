@@ -1126,6 +1126,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment Preflight (target suffix ZYjuOA @385 verified, 85/85 selftest PASS, zero write methods, deployment readiness: GO, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`).
 
+- 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment (pushed source/HTML, created version v386, updated target deployment ZYjuOA, verified readback @386, 85/85 selftests PASS, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`).
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1426,6 +1428,8 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Integrated read-only Web Dashboard HtmlService route (?view=dashboard) and created AIRO_Finance_WebDashboard.html locally with 85/85 selftest PASS and preserved v385 doPost/doGet default behaviors, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_LOCAL_INTEGRATION_NO_DEPLOY`.
 
 - 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment Preflight (target suffix ZYjuOA @385 verified, 85/85 selftest PASS, zero write methods, deployment readiness: GO, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`).
+
+- 2026-07-21: Executed Read-Only Web Dashboard Guarded Deployment (pushed source/HTML, created version v386, updated target deployment ZYjuOA, verified readback @386, 85/85 selftests PASS, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2725,6 +2729,26 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **DEPLOYMENT_READINESS**: GO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`
+
+## AIRO Finance Web Dashboard Read-Only Guarded Deployment Execution Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT**: PASS
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **APPS_SCRIPT_VERSION_ACTIVE**: 386
+- **ROLLBACK_VERSION**: 385
+- **TARGET_DEPLOYMENT_SUFFIX**: ZYjuOA
+- **TARGET_DEPLOYMENT_ID**: AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA
+- **CLASP_PUSH_PERFORMED**: YES
+- **CLASP_VERSION_PERFORMED**: YES
+- **DEPLOYMENT_PERFORMED**: YES
+- **DEPLOYMENT_READBACK**: PASS
+- **LOCAL_SELFTEST**: PASS_85_OF_85
+- **DOGET_CHANGED**: YES_DASHBOARD_ROUTE_ONLY
+- **DOPOST_CHANGED**: NO
+- **HTMLSERVICE_INTRODUCED**: YES
+- **WORKBOOK_MUTATION**: NO
+- **OWNER_BROWSER_PROOF**: NOT_YET_PERFORMED
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_POST_DEPLOY_OWNER_BROWSER_PROOF
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_GUARDED_DEPLOYMENT_EXECUTION`
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
