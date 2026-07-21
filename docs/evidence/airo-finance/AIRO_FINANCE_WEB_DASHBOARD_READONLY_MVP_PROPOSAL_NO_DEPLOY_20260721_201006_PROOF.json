@@ -1,0 +1,23 @@
+{
+  "gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY",
+  "timestamp": "20260721_201006",
+  "baseline_commit": "84050f9d2cd2e76f6bdf66bc17779e6325e89e0b",
+  "baseline_apps_script_version": "385",
+  "afpd_inc_009_status": "RESOLVED",
+  "mode": "DOCS_ONLY_NO_DEPLOY_NO_PATCH",
+  "airo_finance_web_dashboard_readonly_mvp": "PROPOSED",
+  "dashboard_old_sheet_approach": "FROZEN_REFERENCE_ONLY",
+  "web_dashboard_mode": "READ_ONLY",
+  "approval_enabled": false,
+  "edit_enabled": false,
+  "workbook_mutation": false,
+  "spending_intelligence_scope": "BASIC_ONLY",
+  "owner_decision": "GO_FOR_DISCOVERY_ONLY",
+  "next_safe_gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY",
+  "deployment_performed": false,
+  "source_patch_performed": false,
+  "clasp_run_performed": false,
+  "apps_script_runtime_executed": false,
+  "gmail_accessed": false,
+  "telegram_sent": false
+}

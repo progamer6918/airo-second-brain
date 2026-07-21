@@ -85,3 +85,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 ## Historical Sprints
 - Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
+
+## Proposed Track: AIRO Finance Web Dashboard Read-Only MVP (2026-07-21)
+- Status: PROPOSED (Owner Decision: GO_FOR_DISCOVERY_ONLY)
+- Gate: AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY
+- Scope: Read-Only HtmlService Web App Candidate, Account Ledger approved rows data source

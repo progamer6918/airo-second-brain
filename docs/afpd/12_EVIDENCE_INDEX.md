@@ -187,3 +187,5 @@
 - Account Ledger row: 172
 - Workbook readback: PASS
 - Incident resolved: YES
+
+- 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).

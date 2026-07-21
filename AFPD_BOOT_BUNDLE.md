@@ -1,10 +1,3 @@
-# AFPD Boot Bundle
-> Regenerated after AFPD-INC-009 final resolution.
-
----
-
-## FILE: docs/afpd/01_PROJECT_CHARTER.md
-
 # 01_PROJECT_CHARTER.md
 
 <!-- AFPD_PROVENANCE
@@ -40,10 +33,6 @@ The purpose of the AIRO Finance Project is to establish a secure, multi-tab tran
 ## Product Boundary
 - **Input Channels**: Telegram bot and Gmail poller.
 - **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
-
----
-
-## FILE: docs/afpd/02_ARCHITECTURE_AND_GOVERNANCE.md
 
 # 02_ARCHITECTURE_AND_GOVERNANCE.md
 
@@ -110,10 +99,6 @@ conflict_id: none
 - Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
 - Every completed session MUST update `00_CURRENT_HANDOFF.md`.
 - No task is considered closed until these records are fully updated.
-
----
-
-## FILE: docs/afpd/03_ARFIN_RUNTIME_CONTRACT.md
 
 # 03_ARFIN_RUNTIME_CONTRACT.md
 
@@ -321,10 +306,6 @@ conflict_id: none
 ### Timezone Discrepancy (SCRIPT_TIMEZONE_VS_POLLER_TIMEZONE)
 The script uses Asia/Jakarta timezone for business calendar dates while the manifest is configured to Asia/Bangkok. This discrepancy is currently an unresolved normalization issue documented under trigger topology.
 
----
-
-## FILE: docs/afpd/04_RUNTIME_TOPOLOGY.md
-
 # 04_RUNTIME_TOPOLOGY.md
 
 <!-- AFPD_PROVENANCE
@@ -369,10 +350,6 @@ conflict_id: none
 ## Timezone Normalization Issue
 - The script manifest `appsscript.json` specifies `Asia/Bangkok`, while internal script logic calculates times using `Asia/Jakarta`. This remains a known discrepancy.
 
----
-
-## FILE: docs/afpd/05_STATE_MACHINES.md
-
 # 05_STATE_MACHINES.md
 
 ## Intake Flow States
@@ -393,10 +370,6 @@ conflict_id: none
 - **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
 - **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
 - **Committed Transaction**: Transaction finalized in Account Ledger.
-
----
-
-## FILE: docs/afpd/06_DATA_AND_WORKBOOK_CONTRACTS.md
 
 # 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
@@ -602,10 +575,6 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 1. `MANUAL_REVIEW_FALLBACK`: Written when a parser fails, category is missing, or clarification times out. Marked with specific error tags in `issue_reason`.
 2. `APPROVAL_STAGING`: Normal resolved flow (e.g., from email notifications) staging transactions with complete properties awaiting Owner approval.
 
----
-
-## FILE: docs/afpd/07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
-
 # 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
 
 ## Deployment Safety
@@ -615,10 +584,6 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 - **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
 
 *Note: No deployment operations were executed in this documentation-only phase.*
-
----
-
-## FILE: docs/afpd/08_ROADMAP.md
 
 # 08_ROADMAP.md
 
@@ -708,9 +673,10 @@ The current roadmap from the Living PRD defines active tasks:
 ## Historical Sprints
 - Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
 
----
-
-## FILE: docs/afpd/09_DECISION_REGISTER.md
+## Proposed Track: AIRO Finance Web Dashboard Read-Only MVP (2026-07-21)
+- Status: PROPOSED (Owner Decision: GO_FOR_DISCOVERY_ONLY)
+- Gate: AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY
+- Scope: Read-Only HtmlService Web App Candidate, Account Ledger approved rows data source
 
 # 09_DECISION_REGISTER.md
 
@@ -721,10 +687,6 @@ The current roadmap from the Living PRD defines active tasks:
 - **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
 - **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
 - **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
-
----
-
-## FILE: docs/afpd/11_INCIDENT_REGISTER.md
 
 # 11_INCIDENT_REGISTER.md
 
@@ -958,10 +920,6 @@ STATUS=LIVE_RETEST_PASS_AWAITING_APPROVAL_AND_WORKBOOK_READBACK. Fresh post-v385
 
 STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression. Fresh post-v385 live retest showed numeric direction prompt, reply 1 routed to account prompt, Food & Drink misroute did not reproduce, subcategory prompt was numeric, Review Queue readback PASS, approval PASS, Account Ledger readback PASS at row 172. INCIDENT_RESOLVED=YES.
 
----
-
-## FILE: docs/afpd/12_EVIDENCE_INDEX.md
-
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -1152,9 +1110,7 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - Workbook readback: PASS
 - Incident resolved: YES
 
----
-
-## FILE: docs/afpd/99_HISTORICAL_AND_SUPERSEDED.md
+- 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1174,10 +1130,6 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 ### Fallback-Only Review Queue Interpretation
 - The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
-
----
-
-## FILE: docs/afpd/10_PROGRESS_LOG.md
 
 # 10_PROGRESS_LOG.md
 
@@ -1445,9 +1397,7 @@ RESULT=PASS. Fresh post-v385 live Blu email prompt observed at 2026-07-21T17:48:
 
 RESULT=PASS. Owner approved the pending v385 live retest transaction via /approval at 2026-07-21T18:41:00+07:00. Arfin confirmed transaction approved with Account Ledger:172 and Readback PASS for Rp80.000, Blu Pocket, Personal Care / Haircut. This completes repaired deployment, owner runtime proof, fresh live numeric prompt retest, Review Queue readback, approval, and workbook readback. INCIDENT_RESOLVED=YES.
 
----
-
-## FILE: docs/afpd/00_CURRENT_HANDOFF.md
+- 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2592,3 +2542,18 @@ ACCOUNT_LEDGER_ROW=172
 WORKBOOK_FINAL_LEDGER_READBACK=PASS
 INCIDENT_RESOLVED=YES
 NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
+
+## AIRO Finance Web Dashboard Read-Only MVP Track Proposal Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP**: PROPOSED
+- **BASELINE_APPS_SCRIPT_VERSION**: 385
+- **BASELINE_COMMIT**: 84050f9d2cd2e76f6bdf66bc17779e6325e89e0b
+- **AFPD_INC_009**: RESOLVED
+- **DASHBOARD_OLD_SHEET_APPROACH**: FROZEN_REFERENCE_ONLY
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **APPROVAL_ENABLED**: NO
+- **EDIT_ENABLED**: NO
+- **WORKBOOK_MUTATION**: NO
+- **SPENDING_INTELLIGENCE_SCOPE**: BASIC_ONLY
+- **OWNER_DECISION**: GO_FOR_DISCOVERY_ONLY
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`
