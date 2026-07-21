@@ -255,3 +255,7 @@ RESULT=PASS. After owner bulk cleanup of unused Apps Script versions, retry depl
 ## 20260720_221136 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_POST_DEPLOY_OWNER_RUNTIME_PROOF
 
 RESULT=PASS. Owner manually ran Apps Script editor function runTask105OutgoingConfirmationGateSelfTestFromEditor after v385 deployment. Runtime log shows status PASS and mutation_scope OUTGOING_CONFIRMATION_GATE_SELFTEST. Full case JSON was truncated by Apps Script log output limit, accepted with limitation. Local deployed source selftest PASS 65/65. INCIDENT_RESOLVED=NO pending fresh live email retest.
+
+## 20260721_184019 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_FRESH_LIVE_EMAIL_RETEST
+
+RESULT=PASS. Fresh post-v385 live Blu email prompt observed at 2026-07-21T17:48:00+07:00. Direction prompt is numeric 1/2/3/0 with Finance write false. Owner replied 1 and Arfin routed to account prompt, not Food & Drink subcategory. Account/category/subcategory prompts were numeric. Resolution stored to Review Queue with Readback PASS as Blu Pocket / Personal Care / Haircut. APPROVAL_PERFORMED=NO. INCIDENT_RESOLVED=NO pending approval and workbook readback.

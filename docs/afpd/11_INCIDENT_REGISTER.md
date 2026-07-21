@@ -221,3 +221,7 @@ STATUS=DEPLOYED_V385_AWAITING_OWNER_RUNTIME_PROOF. Version-limit blocker cleared
 ## 20260720_221136 — AFPD-INC-009 runtime proof update
 
 STATUS=V385_RUNTIME_PROOF_PASS_AWAITING_FRESH_LIVE_EMAIL_RETEST. Owner runtime proof PASS with Apps Script log truncation limitation. INCIDENT_RESOLVED=NO.
+
+## 20260721_184019 — AFPD-INC-009 fresh live retest update
+
+STATUS=LIVE_RETEST_PASS_AWAITING_APPROVAL_AND_WORKBOOK_READBACK. Fresh post-v385 Telegram prompt numeric, Food & Drink misroute not reproduced, Review Queue readback PASS. INCIDENT_RESOLVED=NO until approval and workbook readback pass.
