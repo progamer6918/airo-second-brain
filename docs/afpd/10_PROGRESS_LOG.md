@@ -267,3 +267,5 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).
 
 - 2026-07-21: Completed read-only web dashboard discovery (identified old sheet dashboard failure modes and reusable data math, confirmed HIGH realism for HtmlService read-only MVP, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY`).
+
+- 2026-07-21: Created canonical Web Dashboard Read-Only MVP Data Contract (docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md, established Account Ledger source-of-truth priority, period math, internal transfer exclusions, and snapshot schema, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DATA_CONTRACT_NO_DEPLOY`).
