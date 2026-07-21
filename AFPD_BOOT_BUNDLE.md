@@ -1112,6 +1112,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 - 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).
 
+- 2026-07-21: Completed read-only web dashboard discovery (identified old sheet dashboard failure modes and reusable data math, confirmed HIGH realism for HtmlService read-only MVP, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY`).
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1398,6 +1400,8 @@ RESULT=PASS. Fresh post-v385 live Blu email prompt observed at 2026-07-21T17:48:
 RESULT=PASS. Owner approved the pending v385 live retest transaction via /approval at 2026-07-21T18:41:00+07:00. Arfin confirmed transaction approved with Account Ledger:172 and Readback PASS for Rp80.000, Blu Pocket, Personal Care / Haircut. This completes repaired deployment, owner runtime proof, fresh live numeric prompt retest, Review Queue readback, approval, and workbook readback. INCIDENT_RESOLVED=YES.
 
 - 2026-07-21: Proposed AIRO Finance Web Dashboard Read-Only MVP track (AFPD-INC-009 resolved on v385, old sheet dashboard frozen reference, web dashboard read-only mode proposed for discovery, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`).
+
+- 2026-07-21: Completed read-only web dashboard discovery (identified old sheet dashboard failure modes and reusable data math, confirmed HIGH realism for HtmlService read-only MVP, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2557,3 +2561,19 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **OWNER_DECISION**: GO_FOR_DISCOVERY_ONLY
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY`
+
+## AIRO Finance Web Dashboard Read-Only Discovery Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY**: PASS
+- **DASHBOARD_OLD_SHEET_APPROACH**: FROZEN_REFERENCE_ONLY
+- **OLD_DASHBOARD_FAILURE_MODE**: CELL_GRID_FRAGILITY_AND_ONEDIT_TRIGGER_LAG
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **APPROVAL_ENABLED**: NO
+- **EDIT_ENABLED**: NO
+- **WORKBOOK_MUTATION**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **MVP_REALISM**: HIGH_FOR_SMALL_MVP
+- **RISK_LEVEL**: MEDIUM_LOW
+- **RECOMMENDATION**: GO_TO_DATA_CONTRACT
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_DATA_CONTRACT_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DISCOVERY_NO_DEPLOY`
