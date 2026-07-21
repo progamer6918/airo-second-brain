@@ -1118,6 +1118,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 - 2026-07-21: Implemented read-only Web Dashboard JSON Snapshot Prototype `airoWebDashboardGetSnapshot_` locally with 80/80 selftest PASS and zero workbook write methods, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_JSON_SNAPSHOT_PROTOTYPE_NO_DEPLOY`.
 
+- 2026-07-21: Created self-contained Web Dashboard Read-Only Static HTML Prototype artifact (docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html, demonstrated period filtering, KPI cards, Spending Intelligence growth badges, and sample Account Ledger row 172, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY`).
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1410,6 +1412,8 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Created canonical Web Dashboard Read-Only MVP Data Contract (docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md, established Account Ledger source-of-truth priority, period math, internal transfer exclusions, and snapshot schema, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_DATA_CONTRACT_NO_DEPLOY`).
 
 - 2026-07-21: Implemented read-only Web Dashboard JSON Snapshot Prototype `airoWebDashboardGetSnapshot_` locally with 80/80 selftest PASS and zero workbook write methods, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_JSON_SNAPSHOT_PROTOTYPE_NO_DEPLOY`.
+
+- 2026-07-21: Created self-contained Web Dashboard Read-Only Static HTML Prototype artifact (docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html, demonstrated period filtering, KPI cards, Spending Intelligence growth badges, and sample Account Ledger row 172, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY`).
 
 # 00_CURRENT_HANDOFF.md
 
@@ -2636,6 +2640,26 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **LOCAL_SELFTEST**: PASS_80_OF_80
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_JSON_SNAPSHOT_PROTOTYPE_NO_DEPLOY`
+
+## AIRO Finance Web Dashboard Read-Only Static HTML Prototype Status
+- **AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE**: PASS
+- **STATIC_HTML_PROTOTYPE_CREATED**: YES
+- **PROTOTYPE_FILE**: docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html
+- **WEB_DASHBOARD_MODE**: READ_ONLY
+- **SOURCE_OF_TRUTH_MVP**: ACCOUNT_LEDGER_APPROVED_FINAL_ROWS
+- **SPENDING_INTELLIGENCE_SCOPE**: BASIC_ONLY
+- **APPROVAL_ENABLED**: NO
+- **EDIT_ENABLED**: NO
+- **WORKBOOK_MUTATION**: NO
+- **HTMLSERVICE_INTRODUCED**: NO
+- **DOGET_CHANGED**: NO
+- **DOPOST_CHANGED**: NO
+- **SOURCE_PATCH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **LOCAL_SELFTEST**: PASS_80_OF_80
+- **STATIC_HTML_VALIDATION**: PASS
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY`
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md

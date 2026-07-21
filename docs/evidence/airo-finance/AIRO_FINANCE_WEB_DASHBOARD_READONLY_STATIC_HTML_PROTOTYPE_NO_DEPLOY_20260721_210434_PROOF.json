@@ -1,0 +1,23 @@
+{
+  "gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY",
+  "timestamp": "20260721_210434",
+  "baseline_apps_script_version": "385",
+  "mode": "STATIC_HTML_PROTOTYPE_NO_DEPLOY_NO_ROUTE_INTEGRATION",
+  "static_html_prototype_created": true,
+  "prototype_path": "docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html",
+  "source_patch_performed": false,
+  "deployment_performed": false,
+  "clasp_push_performed": false,
+  "clasp_version_performed": false,
+  "doget_changed": false,
+  "dopost_changed": false,
+  "htmlservice_introduced": false,
+  "workbook_mutation": false,
+  "local_selftest_status": "PASS",
+  "test_case_total": 80,
+  "test_case_passed": 80,
+  "test_case_failed": 0,
+  "static_html_validation": "PASS",
+  "sample_row_172_included": true,
+  "next_safe_gate": "AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY"
+}

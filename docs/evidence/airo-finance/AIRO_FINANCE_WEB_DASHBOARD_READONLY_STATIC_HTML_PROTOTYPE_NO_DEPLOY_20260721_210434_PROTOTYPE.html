@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIRO Finance — Read-Only Web Dashboard MVP Prototype</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --accent: #a78bfa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.5; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .read-only-banner {
+      background: linear-gradient(90deg, #1e1b4b, #311b92);
+      border: 1px solid #6366f1;
+      color: #e0e7ff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .title-area h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
+    .title-area p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .filter-area { display: flex; align-items: center; gap: 12px; }
+    .filter-area label { color: var(--text-muted); font-weight: 500; }
+    select {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    select:focus { outline: none; border-color: var(--primary); }
+
+    .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 16px; }
+    .kpi-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
+    .kpi-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+    .grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .grid-main { grid-template-columns: 1fr; } }
+
+    .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th { color: var(--text-muted); border-bottom: 1px solid var(--card-border); padding: 10px 12px; font-weight: 600; }
+    td { padding: 12px; border-bottom: 1px solid #243347; }
+    tr:last-child td { border-bottom: none; }
+
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .badge-up { background-color: rgba(74, 222, 128, 0.15); color: var(--success); }
+    .badge-down { background-color: rgba(248, 113, 113, 0.15); color: var(--danger); }
+    .badge-flat { background-color: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .badge-new { background-color: rgba(56, 189, 248, 0.15); color: var(--primary); }
+    .badge-warning { background-color: rgba(251, 191, 36, 0.15); color: var(--warning); }
+
+    .warning-list { list-style: none; }
+    .warning-item { background-color: rgba(251, 191, 36, 0.08); border-left: 3px solid var(--warning); padding: 10px 14px; margin-bottom: 10px; border-radius: 0 6px 6px 0; font-size: 0.85rem; color: #fef08a; }
+
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; font-size: 0.8rem; color: var(--text-muted); }
+    .meta-item span { font-weight: 600; color: var(--text-main); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="read-only-banner">
+      READ-ONLY MVP PROTOTYPE — no approval, no edit, no workbook mutation
+    </div>
+
+    <div class="header-row">
+      <div class="title-area">
+        <h1>AIRO Finance Web Dashboard</h1>
+        <p>Source of Truth: Account Ledger Approved Rows</p>
+      </div>
+      <div class="filter-area">
+        <label for="period-select">Periode Laporan:</label>
+        <select id="period-select" onchange="renderPeriod(this.value)">
+          <option value="2026-07">Juli 2026</option>
+          <option value="2026-06">Juni 2026</option>
+          <option value="2026-05">Mei 2026</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-kpi">
+      <div class="kpi-card">
+        <div class="kpi-label">Pemasukan (Income)</div>
+        <div class="kpi-value" id="kpi-income" style="color: var(--success);">Rp 0</div>
+        <div class="kpi-sub">Total disetujui</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pengeluaran (Expense)</div>
+        <div class="kpi-value" id="kpi-expense" style="color: var(--danger);">Rp 0</div>
+        <div class="kpi-sub">Termasuk uncategorized</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Net Cashflow</div>
+        <div class="kpi-value" id="kpi-cashflow">Rp 0</div>
+        <div class="kpi-sub">Income - Expense</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Clean Expense</div>
+        <div class="kpi-value" id="kpi-clean">Rp 0</div>
+        <div class="kpi-sub">Terkategori bersih</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Review Queue Pending</div>
+        <div class="kpi-value" id="kpi-review">0</div>
+        <div class="kpi-sub">Pending konfirmasi</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Status Data</div>
+        <div class="kpi-value" id="kpi-status" style="font-size: 1.1rem; padding-top: 4px;">CLEAN</div>
+        <div class="kpi-sub">Kualitas data audit</div>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>Spending Intelligence (Pengeluaran per Kategori)</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Urutan berdasarkan nominal terbesar</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Kategori</th>
+                <th>Nominal</th>
+                <th>MoM Prev</th>
+                <th>Pertumbuhan</th>
+                <th>Kontribusi</th>
+              </tr>
+            </thead>
+            <tbody id="table-categories"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recent Account Ledger (Aktivitas Terakhir)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Akun</th>
+                <th>Tipe</th>
+                <th>Kategori / Subkategori</th>
+                <th>Nominal</th>
+                <th>Status / Readback</th>
+              </tr>
+            </thead>
+            <tbody id="table-recent"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Data Quality & Warnings</div>
+          <div id="data-quality-content"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Subkategori Populer</div>
+          <table style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th>Subkategori</th>
+                <th>Nominal</th>
+              </tr>
+            </thead>
+            <tbody id="table-subcategories"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">System & Contract Metadata</div>
+          <div class="meta-grid">
+            <div class="meta-item">Source of Truth: <br><span id="meta-sot">-</span></div>
+            <div class="meta-item">Intelligence Scope: <br><span id="meta-scope">-</span></div>
+            <div class="meta-item">Read-Only Mode: <br><span id="meta-readonly">-</span></div>
+            <div class="meta-item">Workbook Mutation: <br><span id="meta-mutation">-</span></div>
+            <div class="meta-item">Last Synced: <br><span id="meta-synced">-</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DATASETS = {
+      "2026-07": {
+        "ok": true,
+        "period": "2026-07",
+        "period_label": "Juli 2026",
+        "data_status": "WARNING",
+        "last_synced": "2026-07-21T20:50:00+07:00",
+        "totals": { "income": 15000000, "expense": 4830000, "net_cashflow": 10170000, "clean_expense": 4805000, "excluded_rows": 2 },
+        "spending_intelligence": {
+          "top_categories": [
+            { "category": "Food & Drink", "amount": 2500000, "contribution_percent": 52.03, "previous_amount": 2000000, "growth_amount": 500000, "growth_percent": 25.0, "growth_status": "UP" },
+            { "category": "Transport", "amount": 1200000, "contribution_percent": 24.97, "previous_amount": 1500000, "growth_amount": -300000, "growth_percent": -20.0, "growth_status": "DOWN" },
+            { "category": "Personal Care", "amount": 800000, "contribution_percent": 16.65, "previous_amount": 0, "growth_amount": 800000, "growth_percent": null, "growth_status": "NEW_BASELINE" },
+            { "category": "Utilities", "amount": 305000, "contribution_percent": 6.35, "previous_amount": 305000, "growth_amount": 0, "growth_percent": 0.0, "growth_status": "FLAT" }
+          ],
+          "top_subcategories": [
+            { "category": "Food & Drink", "subcategory": "Jajan", "amount": 1500000 },
+            { "category": "Food & Drink", "subcategory": "Makan Siang", "amount": 1000000 },
+            { "category": "Transport", "subcategory": "Bensin", "amount": 800000 },
+            { "category": "Personal Care", "subcategory": "Haircut", "amount": 80000 }
+          ]
+        },
+        "recent_ledger": [
+          { "date": "2026-07-20", "account": "Blu Pocket", "type": "expense", "category": "Personal Care", "subcategory": "Haircut", "amount": 80000, "description": "Potong rambut barbershop (Row 172)", "status": "Readback PASS" },
+          { "date": "2026-07-18", "account": "BCA Utama", "type": "expense", "category": "Food & Drink", "subcategory": "Jajan", "amount": 150000, "description": "Kopi & snack kantor", "status": "Readback PASS" },
+          { "date": "2026-07-15", "account": "BCA Utama", "type": "income", "category": "Gaji", "subcategory": "Main Salary", "amount": 15000000, "description": "Gaji bulanan", "status": "Readback PASS" },
+          { "date": "2026-07-12", "account": "Cash", "type": "expense", "category": "Transport", "subcategory": "Bensin", "amount": 100000, "description": "Isi bensin motor", "status": "Readback PASS" },
+          { "date": "2026-07-10", "account": "Cash", "type": "expense", "category": "", "subcategory": "", "amount": 25000, "description": "Parkir tanpa kategori", "status": "WARNING: Missing Category" }
+        ],
+        "review_queue": { "pending_count": 1 },
+        "warnings": [
+          "Transaksi pengeluaran tanggal 2026-07-10 (Rp 25.000) tidak memiliki kategori.",
+          "Ada 1 transaksi di Review Queue yang belum dikonfirmasi."
+        ],
+        "meta": { "source_of_truth": "ACCOUNT_LEDGER_APPROVED_FINAL_ROWS", "spending_intelligence_scope": "BASIC_ONLY", "read_only": true, "workbook_mutation": false }
+      },
+      "2026-06": {
+        "ok": true,
+        "period": "2026-06",
+        "period_label": "Juni 2026",
+        "data_status": "CLEAN",
+        "last_synced": "2026-06-30T23:59:59+07:00",
+        "totals": { "income": 15000000, "expense": 4305000, "net_cashflow": 10695000, "clean_expense": 4305000, "excluded_rows": 1 },
+        "spending_intelligence": {
+          "top_categories": [
+            { "category": "Food & Drink", "amount": 2000000, "contribution_percent": 46.46, "previous_amount": 1800000, "growth_amount": 200000, "growth_percent": 11.11, "growth_status": "UP" },
+            { "category": "Transport", "amount": 1500000, "contribution_percent": 34.84, "previous_amount": 1200000, "growth_amount": 300000, "growth_percent": 25.0, "growth_status": "UP" },
+            { "category": "Entertainment", "amount": 500000, "contribution_percent": 11.61, "previous_amount": 600000, "growth_amount": -100000, "growth_percent": -16.67, "growth_status": "DOWN" },
+            { "category": "Utilities", "amount": 305000, "contribution_percent": 7.08, "previous_amount": 300000, "growth_amount": 5000, "growth_percent": 1.67, "growth_status": "UP" }
+          ],
+          "top_subcategories": [
+            { "category": "Food & Drink", "subcategory": "Makan Siang", "amount": 1200000 },
+            { "category": "Transport", "subcategory": "Bensin", "amount": 1000000 }
+          ]
+        },
+        "recent_ledger": [
+          { "date": "2026-06-28", "account": "BCA Utama", "type": "expense", "category": "Food & Drink", "subcategory": "Makan Malam", "amount": 250000, "description": "Dinner akhir bulan", "status": "Readback PASS" }
+        ],
+        "review_queue": { "pending_count": 0 },
+        "warnings": [],
+        "meta": { "source_of_truth": "ACCOUNT_LEDGER_APPROVED_FINAL_ROWS", "spending_intelligence_scope": "BASIC_ONLY", "read_only": true, "workbook_mutation": false }
+      },
+      "2026-05": {
+        "ok": true,
+        "period": "2026-05",
+        "period_label": "Mei 2026",
+        "data_status": "CLEAN",
+        "last_synced": "2026-05-31T23:59:59+07:00",
+        "totals": { "income": 15000000, "expense": 3900000, "net_cashflow": 11100000, "clean_expense": 3900000, "excluded_rows": 0 },
+        "spending_intelligence": {
+          "top_categories": [
+            { "category": "Food & Drink", "amount": 1800000, "contribution_percent": 46.15, "previous_amount": 0, "growth_amount": 1800000, "growth_percent": null, "growth_status": "NEW_BASELINE" },
+            { "category": "Transport", "amount": 1200000, "contribution_percent": 30.77, "previous_amount": 0, "growth_amount": 1200000, "growth_percent": null, "growth_status": "NEW_BASELINE" },
+            { "category": "Entertainment", "amount": 600000, "contribution_percent": 15.38, "previous_amount": 0, "growth_amount": 600000, "growth_percent": null, "growth_status": "NEW_BASELINE" },
+            { "category": "Utilities", "amount": 300000, "contribution_percent": 7.69, "previous_amount": 0, "growth_amount": 300000, "growth_percent": null, "growth_status": "NEW_BASELINE" }
+          ],
+          "top_subcategories": [],
+        },
+        "recent_ledger": [],
+        "review_queue": { "pending_count": 0 },
+        "warnings": [],
+        "meta": { "source_of_truth": "ACCOUNT_LEDGER_APPROVED_FINAL_ROWS", "spending_intelligence_scope": "BASIC_ONLY", "read_only": true, "workbook_mutation": false }
+      }
+    };
+
+    function fmtRupiah(num) {
+      return "Rp " + Number(num || 0).toLocaleString("id-ID");
+    }
+
+    function renderPeriod(periodKey) {
+      const data = DATASETS[periodKey] || DATASETS["2026-07"];
+
+      document.getElementById("kpi-income").innerText = fmtRupiah(data.totals.income);
+      document.getElementById("kpi-expense").innerText = fmtRupiah(data.totals.expense);
+      document.getElementById("kpi-cashflow").innerText = fmtRupiah(data.totals.net_cashflow);
+      document.getElementById("kpi-clean").innerText = fmtRupiah(data.totals.clean_expense);
+      document.getElementById("kpi-review").innerText = data.review_queue.pending_count;
+
+      const statusEl = document.getElementById("kpi-status");
+      statusEl.innerText = data.data_status;
+      if (data.data_status === "CLEAN") statusEl.style.color = "var(--success)";
+      else if (data.data_status === "WARNING") statusEl.style.color = "var(--warning)";
+      else statusEl.style.color = "var(--danger)";
+
+      // Table categories
+      const catBody = document.getElementById("table-categories");
+      catBody.innerHTML = "";
+      data.spending_intelligence.top_categories.forEach(c => {
+        let badgeHtml = "";
+        if (c.growth_status === "UP") badgeHtml = `<span class="badge badge-up">▲ +${c.growth_percent}%</span>`;
+        else if (c.growth_status === "DOWN") badgeHtml = `<span class="badge badge-down">▼ ${c.growth_percent}%</span>`;
+        else if (c.growth_status === "FLAT") badgeHtml = `<span class="badge badge-flat">— 0%</span>`;
+        else if (c.growth_status === "NEW_BASELINE") badgeHtml = `<span class="badge badge-new">Baru Bulan Ini</span>`;
+        else if (c.growth_status === "DISAPPEARED") badgeHtml = `<span class="badge badge-down">▼ -100%</span>`;
+
+        catBody.innerHTML += `
+          <tr>
+            <td><strong>${c.category}</strong></td>
+            <td>${fmtRupiah(c.amount)}</td>
+            <td style="color: var(--text-muted);">${fmtRupiah(c.previous_amount)}</td>
+            <td>${badgeHtml}</td>
+            <td>${c.contribution_percent}%</td>
+          </tr>
+        `;
+      });
+
+      // Table recent
+      const recBody = document.getElementById("table-recent");
+      recBody.innerHTML = "";
+      if (data.recent_ledger.length === 0) {
+        recBody.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted); text-align: center;">Tidak ada data aktivitas di periode ini</td></tr>`;
+      } else {
+        data.recent_ledger.forEach(r => {
+          recBody.innerHTML += `
+            <tr>
+              <td>${r.date}</td>
+              <td>${r.account}</td>
+              <td><span class="badge ${r.type === 'income' ? 'badge-up' : 'badge-flat'}">${r.type}</span></td>
+              <td>${r.category ? r.category + ' / ' + (r.subcategory || '-') : '<span style="color: var(--warning);">Uncategorized</span>'}</td>
+              <td style="font-weight: 600;">${fmtRupiah(r.amount)}</td>
+              <td><span class="badge ${r.status.includes('PASS') ? 'badge-new' : 'badge-warning'}">${r.status}</span></td>
+            </tr>
+          `;
+        });
+      }
+
+      // Data quality
+      const dqEl = document.getElementById("data-quality-content");
+      if (data.warnings.length === 0) {
+        dqEl.innerHTML = `<div style="color: var(--success); font-weight: 500;">✓ Data bersih. Semua transaksi terkategori & terverifikasi.</div>`;
+      } else {
+        let wHtml = `<ul class="warning-list">`;
+        data.warnings.forEach(w => { wHtml += `<li class="warning-item">${w}</li>`; });
+        wHtml += `</ul>`;
+        if (data.totals.excluded_rows > 0) {
+          wHtml += `<p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">Dikeluarkan dari pengeluaran: ${data.totals.excluded_rows} transaksi internal transfer.</p>`;
+        }
+        dqEl.innerHTML = wHtml;
+      }
+
+      // Subcategories
+      const subBody = document.getElementById("table-subcategories");
+      subBody.innerHTML = "";
+      if (data.spending_intelligence.top_subcategories.length === 0) {
+        subBody.innerHTML = `<tr><td colspan="2" style="color: var(--text-muted);">Tidak ada data subkategori</td></tr>`;
+      } else {
+        data.spending_intelligence.top_subcategories.forEach(s => {
+          subBody.innerHTML += `
+            <tr>
+              <td>${s.category} — <strong>${s.subcategory}</strong></td>
+              <td>${fmtRupiah(s.amount)}</td>
+            </tr>
+          `;
+        });
+      }
+
+      // Metadata
+      document.getElementById("meta-sot").innerText = data.meta.source_of_truth;
+      document.getElementById("meta-scope").innerText = data.meta.spending_intelligence_scope;
+      document.getElementById("meta-readonly").innerText = data.meta.read_only ? "true (YES)" : "false";
+      document.getElementById("meta-mutation").innerText = data.meta.workbook_mutation ? "true" : "false (NO)";
+      document.getElementById("meta-synced").innerText = data.last_synced;
+    }
+
+    renderPeriod("2026-07");
+  </script>
+</body>
+</html>
