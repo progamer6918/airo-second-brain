@@ -197,3 +197,5 @@
 - 2026-07-21: Implemented read-only Web Dashboard JSON Snapshot Prototype `airoWebDashboardGetSnapshot_` locally with 80/80 selftest PASS and zero workbook write methods, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_JSON_SNAPSHOT_PROTOTYPE_NO_DEPLOY`.
 
 - 2026-07-21: Created self-contained Web Dashboard Read-Only Static HTML Prototype artifact (docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY_20260721_210434_PROTOTYPE.html, demonstrated period filtering, KPI cards, Spending Intelligence growth badges, and sample Account Ledger row 172, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_STATIC_HTML_PROTOTYPE_NO_DEPLOY`).
+
+- 2026-07-21: Created canonical Web Dashboard Read-Only HtmlService Integration Plan (docs/afpd/14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md, established ?view=dashboard route gating, protected v385 doGet/doPost, and set PRIVATE_OWNER_ONLY access mode, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN_NO_DEPLOY`).
