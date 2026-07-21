@@ -259,3 +259,7 @@ RESULT=PASS. Owner manually ran Apps Script editor function runTask105OutgoingCo
 ## 20260721_184019 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_EMAIL_EXPENSE_ALPHA_PROMPT_REGRESSION_FRESH_LIVE_EMAIL_RETEST
 
 RESULT=PASS. Fresh post-v385 live Blu email prompt observed at 2026-07-21T17:48:00+07:00. Direction prompt is numeric 1/2/3/0 with Finance write false. Owner replied 1 and Arfin routed to account prompt, not Food & Drink subcategory. Account/category/subcategory prompts were numeric. Resolution stored to Review Queue with Readback PASS as Blu Pocket / Personal Care / Haircut. APPROVAL_PERFORMED=NO. INCIDENT_RESOLVED=NO pending approval and workbook readback.
+
+## 20260721_184341 — AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V385_REVIEW_QUEUE_APPROVAL_AND_WORKBOOK_READBACK
+
+RESULT=PASS. Owner approved the pending v385 live retest transaction via /approval at 2026-07-21T18:41:00+07:00. Arfin confirmed transaction approved with Account Ledger:172 and Readback PASS for Rp80.000, Blu Pocket, Personal Care / Haircut. This completes repaired deployment, owner runtime proof, fresh live numeric prompt retest, Review Queue readback, approval, and workbook readback. INCIDENT_RESOLVED=YES.

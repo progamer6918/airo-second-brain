@@ -225,3 +225,7 @@ STATUS=V385_RUNTIME_PROOF_PASS_AWAITING_FRESH_LIVE_EMAIL_RETEST. Owner runtime p
 ## 20260721_184019 — AFPD-INC-009 fresh live retest update
 
 STATUS=LIVE_RETEST_PASS_AWAITING_APPROVAL_AND_WORKBOOK_READBACK. Fresh post-v385 Telegram prompt numeric, Food & Drink misroute not reproduced, Review Queue readback PASS. INCIDENT_RESOLVED=NO until approval and workbook readback pass.
+
+## 20260721_184341 — AFPD-INC-009 resolved
+
+STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression. Fresh post-v385 live retest showed numeric direction prompt, reply 1 routed to account prompt, Food & Drink misroute did not reproduce, subcategory prompt was numeric, Review Queue readback PASS, approval PASS, Account Ledger readback PASS at row 172. INCIDENT_RESOLVED=YES.

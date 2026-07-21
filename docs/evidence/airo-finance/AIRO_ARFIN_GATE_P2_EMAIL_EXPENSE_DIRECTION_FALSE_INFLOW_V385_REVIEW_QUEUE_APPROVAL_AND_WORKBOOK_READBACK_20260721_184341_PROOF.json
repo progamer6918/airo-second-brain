@@ -1,0 +1,428 @@
+{
+  "gate": "AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V385_REVIEW_QUEUE_APPROVAL_AND_WORKBOOK_READBACK",
+  "result": "PASS",
+  "timestamp_utc": "2026-07-21T11:43:50+00:00",
+  "base_head": "f490014800a5dc33e78d97ab759da5cbb326318c",
+  "source_sha256_deployed": "a8c35c1bb7acd0484c7f3fa455ca8ca20e01ef0351932448672883f871afceaf",
+  "apps_script_version_active": 385,
+  "target_deployment_suffix": "ZYjuOA",
+  "deployment_readback": "PASS",
+  "approval_and_workbook_readback": {
+    "owner_approval_source": "OWNER_PASTED_TELEGRAM_TRANSCRIPT",
+    "approval_performed": true,
+    "approval_command": "/approval",
+    "approval_observed_at": "2026-07-21T18:41:00+07:00",
+    "amount": "Rp80.000",
+    "account": "Blu Pocket",
+    "category": "Personal Care",
+    "subcategory": "Haircut",
+    "ledger_entry_id": "Account Ledger:172",
+    "finance_event_row": "-",
+    "workbook_mutation": true,
+    "account_ledger_write": true,
+    "account_ledger_readback": "PASS",
+    "workbook_final_ledger_readback": "PASS",
+    "readback": "PASS",
+    "transcript_path": "docs/evidence/airo-finance/AIRO_ARFIN_GATE_P2_EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V385_REVIEW_QUEUE_APPROVAL_AND_WORKBOOK_READBACK_20260721_184341_OWNER_TELEGRAM_APPROVAL_TRANSCRIPT.txt"
+  },
+  "resolution_criteria": {
+    "repaired_deploy_completed": true,
+    "owner_runtime_proof_pass": true,
+    "fresh_live_numeric_prompt_pass": true,
+    "food_drink_misroute_not_reproduced": true,
+    "review_queue_readback_pass": true,
+    "approval_readback_pass": true,
+    "workbook_readback_pass": true
+  },
+  "local_selftest": {
+    "status": "PASS",
+    "test_case_total": 65,
+    "test_case_failed": 0
+  },
+  "incident_resolved": true,
+  "next_safe_gate": "AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP",
+  "selftest": {
+    "status": "PASS",
+    "builtin_selftest_status": "PASS",
+    "test_case_total": 65,
+    "test_case_passed": 65,
+    "test_case_failed": 0,
+    "funded_actual_preapproval_rows": 0,
+    "funded_planned_postapproval_rows": 3,
+    "same_actual_preapproval_rows": 0,
+    "same_planned_postapproval_rows": 1,
+    "non_cash_actual_preapproval_rows": 0,
+    "non_cash_planned_postapproval_rows": 1,
+    "ledger_write_performed_preapproval": false,
+    "review_queue_staging_route": true,
+    "logs": [
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error in account registry load: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "Error loading dynamic category registry: TypeError: SpreadsheetApp.getActiveSpreadsheet is not a function",
+      "{\"task\":\"AIRO Finance Task 10.5S\",\"status\":\"PASS\",\"mutation_scope\":\"OUTGOING_CONFIRMATION_GATE_SELFTEST\",\"cases\":[{\"name\":\"invalid_account_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"invalid_account\\\",\\\"route\\\":\\\"retry_account_prompt\\\"}\"},{\"name\":\"cancel_account_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"cancelled\\\":true,\\\"fallback_to_review\\\":true,\\\"status\\\":\\\"review_queue_fallback_after_clarification_failed\\\",\\\"clarification_type\\\":\\\"outgoing_confirmation\\\",\\\"mock_write_tab\\\":\\\"🧾 Review Queue\\\"}\"},{\"name\":\"valid_account_selection_numeric\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"valid_account_selection_letter\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"valid_account_selection_name\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"confirmed_account\\\":\\\"Cash Makan\\\",\\\"next_step\\\":2,\\\"route\\\":\\\"subcategory_prompt\\\"}\"},{\"name\":\"funded_payment_staging_zero_rows_planned_3\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"Blu Pocket\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Blu Pocket\\\",\\\"posting_mode\\\":\\\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":3,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"single_outgoing_staging_zero_rows_planned_1\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"Cash Umum\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Cash Umum\\\",\\\"posting_mode\\\":\\\"SINGLE_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":1,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"non_cash_staging_zero_rows_planned_1\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"resolved\\\":true,\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"confirmed_account\\\":\\\"BCA\\\",\\\"route\\\":\\\"review_queue_staging\\\",\\\"finalParsed\\\":{\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"makan\\\",\\\"amount\\\":1,\\\"account\\\":\\\"BCA\\\",\\\"funding_source_account\\\":\\\"BCA\\\",\\\"posting_mode\\\":\\\"SINGLE_OUTGOING\\\"},\\\"rowCount\\\":0,\\\"plannedPostingRowCount\\\":1,\\\"ledgerWritePerformed\\\":false}\"},{\"name\":\"funded_prompt_display\",\"pass\":true,\"details\":\"{\\\"text\\\":\\\"❓ Konfirmasi subkategori\\\\n\\\\nTransaksi:\\\\nRp1 keluar\\\\nAkun transaksi: Cash Umum\\\\nSumber dana: Blu Pocket\\\\nDeskripsi: makan\\\\n\\\\nPilih subkategori:\\\\n\\\\nFood & Drink\\\\n1. Jajan\\\\n\\\\n0. Review\\\\n? Cari kategori/subkategori lain\\\\n+ Tambah kategori/subkategori baru\\\\n\\\\nBalas angka, atau tulis langsung:\\\\nMakan di Luar\\\\nFood & Drink > Makan di Luar\\\",\\\"mapping\\\":{\\\"1\\\":{\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Jajan\\\"}}}\"},{\"name\":\"ambiguous_subcategory_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"ambiguous_prompt\\\",\\\"candidates\\\":[{\\\"category\\\":\\\"Health\\\",\\\"subcategory\\\":\\\"Medicine\\\"},{\\\"category\\\":\\\"Pets\\\",\\\"subcategory\\\":\\\"Medicine\\\"}]}\"},{\"name\":\"category_only_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"subcategory_prompt_single_category\\\",\\\"selected_category\\\":\\\"Food & Drink\\\"}\"},{\"name\":\"cancel_subcategory_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"cancelled\\\":true,\\\"fallback_to_review\\\":true,\\\"status\\\":\\\"review_queue_fallback_after_clarification_failed\\\",\\\"clarification_type\\\":\\\"outgoing_confirmation\\\",\\\"mock_write_tab\\\":\\\"🧾 Review Queue\\\"}\"},{\"name\":\"help_route_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"help\\\"}\"},{\"name\":\"add_flow_selection\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"route\\\":\\\"add_flow_out_of_scope\\\"}\"},{\"name\":\"income_rejected_for_outgoing_category_only\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"incompatible_category\\\",\\\"category\\\":\\\"Income\\\",\\\"route\\\":\\\"retry_subcategory_prompt\\\"}\"},{\"name\":\"income_rejected_for_outgoing_resolved\",\"pass\":true,\"details\":\"{\\\"handled\\\":false,\\\"error\\\":\\\"incompatible_category\\\",\\\"category\\\":\\\"Income\\\",\\\"route\\\":\\\"retry_subcategory_prompt\\\"}\"},{\"name\":\"contextual_account_funding_parse_cash_umum_blu_pocket\",\"pass\":true,\"details\":\"{\\\"date\\\":\\\"2026-07-19\\\",\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPDLIVEFUNDINGFIRSTALPHA\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Blu Pocket\\\",\\\"creditor\\\":\\\"\\\",\\\"merchant\\\":\\\"\\\",\\\"billingCycleId\\\":\\\"2026-07-19\\\",\\\"assetSection\\\":\\\"\\\",\\\"goldAction\\\":\\\"\\\",\\\"goldKarat\\\":\\\"\\\",\\\"goldWeightGram\\\":\\\"\\\",\\\"goldPureGram\\\":\\\"\\\",\\\"goldPurchasePrice\\\":\\\"\\\",\\\"goldPurchaseDate\\\":\\\"\\\",\\\"goldNotes\\\":\\\"\\\",\\\"goldEstimatedValue\\\":\\\"\\\",\\\"goldMarketPrice24k\\\":\\\"\\\",\\\"issue_reason\\\":\\\"\\\",\\\"needsReview\\\":false,\\\"posting_mode\\\":\\\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\\\"}\"},{\"name\":\"digit_marker_does_not_override_rp1\",\"pass\":true,\"details\":\"{\\\"date\\\":\\\"2026-07-19\\\",\\\"type\\\":\\\"expense\\\",\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Makan di Luar\\\",\\\"description\\\":\\\"tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPD_P2_LIVE_FUNDING_FIRST_20260719_150950\\\",\\\"amount\\\":1,\\\"account\\\":\\\"Cash Umum\\\",\\\"funding_source_account\\\":\\\"Blu Pocket\\\",\\\"creditor\\\":\\\"\\\",\\\"merchant\\\":\\\"\\\",\\\"billingCycleId\\\":\\\"2026-07-19\\\",\\\"assetSection\\\":\\\"\\\",\\\"goldAction\\\":\\\"\\\",\\\"goldKarat\\\":\\\"\\\",\\\"goldWeightGram\\\":\\\"\\\",\\\"goldPureGram\\\":\\\"\\\",\\\"goldPurchasePrice\\\":\\\"\\\",\\\"goldPurchaseDate\\\":\\\"\\\",\\\"goldNotes\\\":\\\"\\\",\\\"goldEstimatedValue\\\":\\\"\\\",\\\"goldMarketPrice24k\\\":\\\"\\\",\\\"issue_reason\\\":\\\"\\\",\\\"needsReview\\\":false,\\\"posting_mode\\\":\\\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\\\"}\"},{\"name\":\"subcategory_prompt_displays_execution_and_funding_labels\",\"pass\":true,\"details\":\"{\\\"text\\\":\\\"❓ Konfirmasi subkategori\\\\n\\\\nTransaksi:\\\\nRp1 keluar\\\\nAkun transaksi: Cash Umum\\\\nSumber dana: Blu Pocket\\\\nDeskripsi: makan\\\\n\\\\nPilih subkategori:\\\\n\\\\nFood & Drink\\\\n1. Jajan\\\\n\\\\n0. Review\\\\n? Cari kategori/subkategori lain\\\\n+ Tambah kategori/subkategori baru\\\\n\\\\nBalas angka, atau tulis langsung:\\\\nMakan di Luar\\\\nFood & Drink > Makan di Luar\\\",\\\"mapping\\\":{\\\"1\\\":{\\\"category\\\":\\\"Food & Drink\\\",\\\"subcategory\\\":\\\"Jajan\\\"}}}\"},{\"name\":\"email_income_prompt_numeric_not_alpha\",\"pass\":true,\"details\":\"\\\"🧾 Transaksi Email terdeteksi\\\\n\\\\nNominal belum terbaca\\\\n-\\\\nTipe: pemasukan\\\\n\\\\nIni sumbernya apa?\\\\n\\\\n1. Gaji / income\\\\n2. Refund\\\\n3. Transfer antar akun sendiri\\\\n4. Piutang dibayar\\\\n5. Lainnya\\\\n\\\\nBalas angka pilihan.\\\\n\\\\nMode: klarifikasi dulu\\\\nFinance write: false\\\"\"},{\"name\":\"email_expense_category_prompt_numeric_not_alpha\",\"pass\":true,\"details\":\"\\\"❓ Konfirmasi transaksi keluar\\\\n\\\\nTerdeteksi:\\\\nNominal: Nominal belum terbaca\\\\nDeskripsi: Transaksi keluar\\\\nSumber notifikasi: email Email / provider terkait\\\\n\\\\nSumber dana dari akun mana?\\\\n\\\\n1. Blu\\\\n2. Blu Pocket\\\\n3. Blu Pocket CC\\\\n4. BCA\\\\n5. BCA Pocket\\\\n6. Cash Umum\\\\n7. Cash Bensin\\\\n\\\\n0. Review / batalkan dulu\\\\n\\\\nBalas angka akun, atau tulis nama akun.\\\"\"},{\"name\":\"email_expense_category_numeric_choice_maps_food_drink\",\"pass\":true,\"details\":\"{\\\"num\\\":{\\\"ok\\\":true,\\\"answer\\\":\\\"1\\\",\\\"label\\\":\\\"Food & Drink\\\",\\\"question_type\\\":\\\"category_expense\\\"},\\\"legacy\\\":{\\\"ok\\\":true,\\\"answer\\\":\\\"A\\\",\\\"label\\\":\\\"Food & Drink\\\",\\\"question_type\\\":\\\"category_expense\\\"}}\"},{\"name\":\"email_expense_category_numeric_choice_help_option\",\"pass\":true,\"details\":\"{\\\"num\\\":{\\\"ok\\\":true,\\\"answer\\\":\\\"5\\\",\\\"label\\\":\\\"Cari kategori / lihat bantuan\\\",\\\"question_type\\\":\\\"category_expense\\\"},\\\"legacy\\\":{\\\"ok\\\":true,\\\"answer\\\":\\\"E\\\",\\\"label\\\":\\\"Cari kategori / lihat bantuan\\\",\\\"question_type\\\":\\\"category_expense\\\"}}\"},{\"name\":\"email_direction_pure_expense_payment\",\"pass\":true,\"actual\":\"pengeluaran\",\"expected\":\"pengeluaran\"},{\"name\":\"email_direction_generic_login_token_is_neutral\",\"pass\":true,\"actual\":\"ambigu\",\"expected\":\"ambigu\"},{\"name\":\"email_direction_expense_plus_login_footer_remains_expense\",\"pass\":true,\"actual\":\"pengeluaran\",\"expected\":\"pengeluaran\"},{\"name\":\"email_direction_expense_subject_overrides_generic_login_footer\",\"pass\":true,\"actual\":\"pengeluaran\",\"expected\":\"pengeluaran\"},{\"name\":\"email_direction_explicit_transfer_masuk_remains_income\",\"pass\":true,\"actual\":\"pemasukan\",\"expected\":\"pemasukan\"},{\"name\":\"email_direction_generic_blu_notification_remains_ambiguous\",\"pass\":true,\"actual\":\"ambigu\",\"expected\":\"ambigu\"},{\"name\":\"email_direction_conflicting_strong_signals_become_ambiguous\",\"pass\":true,\"actual\":\"ambigu\",\"expected\":\"ambigu\"},{\"name\":\"email_direction_transfer_masuk_candidate_conflict_becomes_ambiguous\",\"pass\":true,\"actual\":\"ambigu\",\"expected\":\"ambigu\"},{\"name\":\"email_direction_transfer_masuk_candidate_without_conflict_is_income\",\"pass\":true,\"actual\":\"pemasukan\",\"expected\":\"pemasukan\"},{\"name\":\"email_expense_direction_routes_to_numeric_category_prompt\",\"pass\":true,\"actual\":\"category_expense\",\"expected\":\"category_expense\"},{\"name\":\"email_ambiguous_direction_does_not_route_to_income_or_expense_write\",\"pass\":true,\"actual\":\"direction\",\"expected\":\"direction\"},{\"name\":\"normalize_validation_preserves_valid_account\",\"pass\":true,\"details\":\"resVal=Blu Pocket\"},{\"name\":\"email_ingestion_blu_expense_candidate_is_eligible\",\"pass\":true,\"details\":\"{\\\"skip_reason\\\":\\\"ELIGIBLE\\\"}\"},{\"name\":\"email_ingestion_recent_blu_expense_not_skipped_by_window\",\"pass\":true,\"details\":\"{\\\"skip_reason\\\":\\\"ELIGIBLE\\\"}\"},{\"name\":\"email_ingestion_processed_marker_not_written_before_prompt_success\",\"pass\":true,\"details\":\"{\\\"should_write\\\":false,\\\"dispatch\\\":{\\\"attempted\\\":true,\\\"success\\\":false,\\\"error_code\\\":\\\"NETWORK_TIMEOUT\\\",\\\"retryable\\\":true,\\\"processed_marker_allowed\\\":false}}\"},{\"name\":\"email_ingestion_prompt_send_failure_keeps_candidate_retryable\",\"pass\":true,\"details\":\"{\\\"attempted\\\":true,\\\"success\\\":false,\\\"error_code\\\":\\\"TELEGRAM_API_ERROR\\\",\\\"retryable\\\":true,\\\"processed_marker_allowed\\\":false}\"},{\"name\":\"email_ingestion_skip_reason_recorded_for_ineligible_candidate\",\"pass\":true,\"details\":\"{\\\"skip_reason\\\":\\\"MISSING_BODY\\\"}\"},{\"name\":\"email_ingestion_no_full_body_logged_in_diagnostics\",\"pass\":true,\"details\":\"{\\\"body_read_or_stored\\\":false,\\\"no_body_logged\\\":true}\"},{\"name\":\"email_ingestion_subject_hash_or_class_only\",\"pass\":true,\"details\":\"{\\\"subject_hash\\\":\\\"hash_6dcbb8b4\\\",\\\"subject_class\\\":\\\"transaction_success\\\"}\"},{\"name\":\"email_ingestion_error_swallow_reports_safe_error_code\",\"pass\":true,\"details\":\"{\\\"attempted\\\":true,\\\"success\\\":false,\\\"error_code\\\":\\\"PARSING_DELIMITER_NOT_FOUND\\\",\\\"retryable\\\":true,\\\"processed_marker_allowed\\\":false}\"},{\"name\":\"email_ingestion_duplicate_prompt_guard_after_success\",\"pass\":true,\"details\":\"{\\\"should_write\\\":true,\\\"dispatch\\\":{\\\"attempted\\\":true,\\\"success\\\":true,\\\"error_code\\\":\\\"NONE\\\",\\\"retryable\\\":false,\\\"processed_marker_allowed\\\":true}}\"},{\"name\":\"email_ingestion_timezone_window_normalization\",\"pass\":true,\"details\":\"{\\\"candidate_count\\\":1,\\\"newest_candidate_timestamp\\\":\\\"2026-07-20T17:40:00+07:00\\\",\\\"provider\\\":\\\"blu_transaction\\\",\\\"nominal\\\":null,\\\"subject_class\\\":\\\"general_notification\\\",\\\"subject_hash\\\":\\\"\\\",\\\"body_read_or_stored\\\":false,\\\"skip_reason\\\":\\\"ELIGIBLE\\\",\\\"dedupe_key_present\\\":false,\\\"processed_marker_present\\\":false,\\\"prompt_dispatch_attempted\\\":false,\\\"prompt_dispatch_success\\\":false,\\\"processed_marker_written_after_prompt_success\\\":false,\\\"error_code\\\":\\\"NOT_ATTEMPTED\\\"}\"},{\"name\":\"email_ingestion_poll_cycle_lag_classified_as_waiting_not_failure\",\"pass\":true,\"details\":\"{\\\"candidate_count\\\":1,\\\"newest_candidate_timestamp\\\":\\\"\\\",\\\"provider\\\":\\\"blu_transaction\\\",\\\"nominal\\\":null,\\\"subject_class\\\":\\\"general_notification\\\",\\\"subject_hash\\\":\\\"\\\",\\\"body_read_or_stored\\\":false,\\\"skip_reason\\\":\\\"MISSING_BODY\\\",\\\"dedupe_key_present\\\":false,\\\"processed_marker_present\\\":false,\\\"prompt_dispatch_attempted\\\":false,\\\"prompt_dispatch_success\\\":false,\\\"processed_marker_written_after_prompt_success\\\":false,\\\"error_code\\\":\\\"TRIGGER_CYCLE_LAG_WAITING\\\"}\"},{\"name\":\"email_ambiguous_direction_prompt_numeric_not_alpha\",\"pass\":true,\"details\":\"\\\"🧾 Transaksi Blu terdeteksi\\\\n\\\\nRp1\\\\n2026-07-20 18:55:12\\\\nTipe: ambigu\\\\n\\\\nIni maksudnya apa?\\\\n\\\\n1. Pengeluaran\\\\n2. Pemasukan\\\\n3. Transfer antar akun sendiri\\\\n0. Abaikan / batalkan dulu\\\\n\\\\nBalas angka pilihan.\\\\n\\\\nMode: klarifikasi dulu\\\\nFinance write: false\\\"\"},{\"name\":\"email_ambiguous_direction_numeric_choice_maps_expense\",\"pass\":true,\"details\":\"{\\\"ok\\\":true,\\\"direction\\\":\\\"pengeluaran\\\",\\\"action\\\":\\\"expense\\\",\\\"route\\\":\\\"account_pending\\\"}\"},{\"name\":\"email_ambiguous_direction_numeric_choice_maps_income\",\"pass\":true,\"details\":\"{\\\"ok\\\":true,\\\"direction\\\":\\\"pemasukan\\\",\\\"action\\\":\\\"income\\\",\\\"route\\\":\\\"income_safe_pending\\\"}\"},{\"name\":\"email_ambiguous_direction_numeric_choice_maps_transfer\",\"pass\":true,\"details\":\"{\\\"ok\\\":true,\\\"direction\\\":\\\"transfer\\\",\\\"action\\\":\\\"transfer\\\",\\\"route\\\":\\\"transfer_safe_pending\\\"}\"},{\"name\":\"email_ambiguous_direction_numeric_choice_zero_ignore_or_review\",\"pass\":true,\"details\":\"{\\\"ok\\\":true,\\\"direction\\\":\\\"ignore\\\",\\\"action\\\":\\\"ignore\\\",\\\"route\\\":\\\"safe_no_write_cancel\\\"}\"},{\"name\":\"email_direction_prompt_no_A_B_C_D_display\",\"pass\":true,\"details\":\"\\\"🧾 Transaksi Blu terdeteksi\\\\n\\\\nRp1\\\\n2026-07-20 18:55:12\\\\nTipe: ambigu\\\\n\\\\nIni maksudnya apa?\\\\n\\\\n1. Pengeluaran\\\\n2. Pemasukan\\\\n3. Transfer antar akun sendiri\\\\n0. Abaikan / batalkan dulu\\\\n\\\\nBalas angka pilihan.\\\\n\\\\nMode: klarifikasi dulu\\\\nFinance write: false\\\"\"},{\"name\":\"email_subcategory_prompt_numeric_not_alpha_after_direction_resolution\",\"pass\":true,\"details\":\"\\\"Pilih subkategori untuk Food & Drink:\\\\n1. Jajan\\\\n2. Makan di Luar\\\\n3. Kopi\\\\n4. Tulis manual / lainnya\\\\n\\\\nBalas angka pilihan.\\\"\"},{\"name\":\"email_subcategory_numeric_choice_maps_food_drink_jajan\",\"pass\":true,\"details\":\"{\\\"action\\\":\\\"select\\\",\\\"subcategory\\\":\\\"Jajan\\\"}\"},{\"name\":\"email_subcategory_manual_option_numeric\",\"pass\":true,\"details\":\"{\\\"action\\\":\\\"manual\\\"}\"},{\"name\":\"email_subcategory_prompt_no_A_B_C_D_E_display\",\"pass\":true,\"details\":\"\\\"Pilih subkategori untuk Food & Drink:\\\\n1. Jajan\\\\n2. Makan di Luar\\\\n3. Kopi\\\\n4. Tulis manual / lainnya\\\\n\\\\nBalas angka pilihan.\\\"\"},{\"name\":\"legacy_alpha_reply_supported_only_as_stale_compatibility_if_kept\",\"pass\":true,\"details\":\"{\\\"direction\\\":{\\\"ok\\\":true,\\\"direction\\\":\\\"pengeluaran\\\",\\\"action\\\":\\\"expense\\\",\\\"route\\\":\\\"account_pending\\\"},\\\"subcategory\\\":{\\\"action\\\":\\\"select\\\",\\\"subcategory\\\":\\\"Jajan\\\"}}\"},{\"name\":\"email_ambiguous_pending_pointer_preserves_inferred_direction\",\"pass\":true,\"details\":\"{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"message_id\\\":\\\"\\\",\\\"thread_id\\\":\\\"\\\",\\\"provider\\\":\\\"Blu\\\",\\\"sender\\\":\\\"\\\",\\\"subject\\\":\\\"\\\",\\\"candidate_type\\\":\\\"\\\",\\\"parse_status\\\":\\\"\\\",\\\"subject_hash\\\":\\\"\\\",\\\"received_at\\\":\\\"\\\",\\\"display_amount\\\":1,\\\"detected_amount\\\":1,\\\"amount_idr\\\":1,\\\"amount_source\\\":\\\"\\\",\\\"inferred_direction\\\":\\\"ambigu\\\",\\\"clarification_question_type\\\":\\\"direction\\\",\\\"clarification_status\\\":\\\"pending\\\",\\\"clarification_state\\\":\\\"direction_pending\\\",\\\"write_allowed\\\":false,\\\"email_log_ref\\\":\\\"\\\",\\\"created_at\\\":\\\"2026-07-20T20:00:00+07:00\\\"}\"},{\"name\":\"email_ambiguous_pending_pointer_preserves_question_type\",\"pass\":true,\"details\":\"{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"message_id\\\":\\\"\\\",\\\"thread_id\\\":\\\"\\\",\\\"provider\\\":\\\"Blu\\\",\\\"sender\\\":\\\"\\\",\\\"subject\\\":\\\"\\\",\\\"candidate_type\\\":\\\"\\\",\\\"parse_status\\\":\\\"\\\",\\\"subject_hash\\\":\\\"\\\",\\\"received_at\\\":\\\"\\\",\\\"display_amount\\\":1,\\\"detected_amount\\\":1,\\\"amount_idr\\\":1,\\\"amount_source\\\":\\\"\\\",\\\"inferred_direction\\\":\\\"ambigu\\\",\\\"clarification_question_type\\\":\\\"direction\\\",\\\"clarification_status\\\":\\\"pending\\\",\\\"clarification_state\\\":\\\"direction_pending\\\",\\\"write_allowed\\\":false,\\\"email_log_ref\\\":\\\"\\\",\\\"created_at\\\":\\\"2026-07-20T20:00:00+07:00\\\"}\"},{\"name\":\"email_ambiguous_candidate_saved_as_direction_pending\",\"pass\":true,\"details\":\"{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"message_id\\\":\\\"\\\",\\\"thread_id\\\":\\\"\\\",\\\"provider\\\":\\\"Blu\\\",\\\"sender\\\":\\\"\\\",\\\"subject\\\":\\\"\\\",\\\"candidate_type\\\":\\\"\\\",\\\"parse_status\\\":\\\"\\\",\\\"subject_hash\\\":\\\"\\\",\\\"received_at\\\":\\\"\\\",\\\"display_amount\\\":1,\\\"detected_amount\\\":1,\\\"amount_idr\\\":1,\\\"amount_source\\\":\\\"\\\",\\\"inferred_direction\\\":\\\"ambigu\\\",\\\"clarification_question_type\\\":\\\"direction\\\",\\\"clarification_status\\\":\\\"pending\\\",\\\"clarification_state\\\":\\\"direction_pending\\\",\\\"write_allowed\\\":false,\\\"email_log_ref\\\":\\\"\\\",\\\"created_at\\\":\\\"2026-07-20T20:00:00+07:00\\\"}\"},{\"name\":\"email_direction_pending_numeric_expense_transitions_to_account_pending\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"ok\\\":true,\\\"status\\\":\\\"sprint7h_email_direction_expense_account_pending\\\",\\\"route\\\":\\\"account_pending\\\",\\\"next_pending\\\":{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"inferred_direction\\\":\\\"pengeluaran\\\",\\\"clarification_question_type\\\":\\\"account\\\",\\\"clarification_state\\\":\\\"account_pending\\\",\\\"provider\\\":\\\"Blu\\\",\\\"display_amount\\\":1,\\\"write_allowed\\\":false,\\\"selected_category\\\":\\\"\\\",\\\"selected_subcategory\\\":\\\"\\\"},\\\"finance_write_performed\\\":false,\\\"account_ledger_write_performed\\\":false,\\\"finance_events_write_performed\\\":false,\\\"review_queue_write_performed\\\":false}\"},{\"name\":\"email_direction_pending_numeric_expense_does_not_select_food_drink\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"ok\\\":true,\\\"status\\\":\\\"sprint7h_email_direction_expense_account_pending\\\",\\\"route\\\":\\\"account_pending\\\",\\\"next_pending\\\":{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"inferred_direction\\\":\\\"pengeluaran\\\",\\\"clarification_question_type\\\":\\\"account\\\",\\\"clarification_state\\\":\\\"account_pending\\\",\\\"provider\\\":\\\"Blu\\\",\\\"display_amount\\\":1,\\\"write_allowed\\\":false,\\\"selected_category\\\":\\\"\\\",\\\"selected_subcategory\\\":\\\"\\\"},\\\"finance_write_performed\\\":false,\\\"account_ledger_write_performed\\\":false,\\\"finance_events_write_performed\\\":false,\\\"review_queue_write_performed\\\":false}\"},{\"name\":\"email_direction_pending_numeric_income_does_not_enter_expense_category_pending\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"ok\\\":true,\\\"status\\\":\\\"sprint7h_email_direction_income_safe_pending\\\",\\\"route\\\":\\\"income_safe_pending\\\",\\\"next_pending\\\":{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"inferred_direction\\\":\\\"pemasukan\\\",\\\"clarification_question_type\\\":\\\"income_source\\\",\\\"clarification_state\\\":\\\"income_source_pending\\\",\\\"provider\\\":\\\"Blu\\\",\\\"display_amount\\\":1,\\\"write_allowed\\\":false,\\\"selected_category\\\":\\\"\\\",\\\"selected_subcategory\\\":\\\"\\\"},\\\"finance_write_performed\\\":false,\\\"account_ledger_write_performed\\\":false,\\\"finance_events_write_performed\\\":false,\\\"review_queue_write_performed\\\":false}\"},{\"name\":\"email_direction_pending_numeric_transfer_does_not_enter_expense_category_pending\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":true,\\\"ok\\\":true,\\\"status\\\":\\\"sprint7h_email_direction_transfer_safe_pending\\\",\\\"route\\\":\\\"transfer_safe_pending\\\",\\\"next_pending\\\":{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"inferred_direction\\\":\\\"transfer\\\",\\\"clarification_question_type\\\":\\\"transfer\\\",\\\"clarification_state\\\":\\\"transfer_pending\\\",\\\"provider\\\":\\\"Blu\\\",\\\"display_amount\\\":1,\\\"write_allowed\\\":false,\\\"selected_category\\\":\\\"\\\",\\\"selected_subcategory\\\":\\\"\\\"},\\\"finance_write_performed\\\":false,\\\"account_ledger_write_performed\\\":false,\\\"finance_events_write_performed\\\":false,\\\"review_queue_write_performed\\\":false}\"},{\"name\":\"email_direction_pending_zero_is_safe_no_write_cancel\",\"pass\":true,\"details\":\"{\\\"handled\\\":true,\\\"waiting\\\":false,\\\"ok\\\":true,\\\"status\\\":\\\"sprint7h_email_direction_ignored_safe_no_write\\\",\\\"route\\\":\\\"ignored_safe_no_write\\\",\\\"next_pending\\\":{\\\"type\\\":\\\"email_candidate_7f\\\",\\\"candidate_id\\\":\\\"amb_1\\\",\\\"inferred_direction\\\":\\\"ignored\\\",\\\"clarification_question_type\\\":\\\"direction\\\",\\\"clarification_state\\\":\\\"ignored\\\",\\\"provider\\\":\\\"Blu\\\",\\\"display_amount\\\":1,\\\"write_allowed\\\":false},\\\"remove_pending\\\":true,\\\"finance_write_performed\\\":false,\\\"account_ledger_write_performed\\\":false,\\\"finance_events_write_performed\\\":false,\\\"review_queue_write_performed\\\":false}\"}]}"
+    ],
+    "cases": [
+      {
+        "name": "invalid_account_selection",
+        "pass": true,
+        "details": "{\"handled\":false,\"error\":\"invalid_account\",\"route\":\"retry_account_prompt\"}"
+      },
+      {
+        "name": "cancel_account_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"cancelled\":true,\"fallback_to_review\":true,\"status\":\"review_queue_fallback_after_clarification_failed\",\"clarification_type\":\"outgoing_confirmation\",\"mock_write_tab\":\"🧾 Review Queue\"}"
+      },
+      {
+        "name": "valid_account_selection_numeric",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+      },
+      {
+        "name": "valid_account_selection_letter",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+      },
+      {
+        "name": "valid_account_selection_name",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"confirmed_account\":\"Cash Makan\",\"next_step\":2,\"route\":\"subcategory_prompt\"}"
+      },
+      {
+        "name": "funded_payment_staging_zero_rows_planned_3",
+        "pass": true,
+        "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"Blu Pocket\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Blu Pocket\",\"posting_mode\":\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":3,\"ledgerWritePerformed\":false}"
+      },
+      {
+        "name": "single_outgoing_staging_zero_rows_planned_1",
+        "pass": true,
+        "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"Cash Umum\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Cash Umum\",\"posting_mode\":\"SINGLE_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":1,\"ledgerWritePerformed\":false}"
+      },
+      {
+        "name": "non_cash_staging_zero_rows_planned_1",
+        "pass": true,
+        "details": "{\"handled\":true,\"resolved\":true,\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"confirmed_account\":\"BCA\",\"route\":\"review_queue_staging\",\"finalParsed\":{\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"makan\",\"amount\":1,\"account\":\"BCA\",\"funding_source_account\":\"BCA\",\"posting_mode\":\"SINGLE_OUTGOING\"},\"rowCount\":0,\"plannedPostingRowCount\":1,\"ledgerWritePerformed\":false}"
+      },
+      {
+        "name": "funded_prompt_display",
+        "pass": true,
+        "details": "{\"text\":\"❓ Konfirmasi subkategori\\n\\nTransaksi:\\nRp1 keluar\\nAkun transaksi: Cash Umum\\nSumber dana: Blu Pocket\\nDeskripsi: makan\\n\\nPilih subkategori:\\n\\nFood & Drink\\n1. Jajan\\n\\n0. Review\\n? Cari kategori/subkategori lain\\n+ Tambah kategori/subkategori baru\\n\\nBalas angka, atau tulis langsung:\\nMakan di Luar\\nFood & Drink > Makan di Luar\",\"mapping\":{\"1\":{\"category\":\"Food & Drink\",\"subcategory\":\"Jajan\"}}}"
+      },
+      {
+        "name": "ambiguous_subcategory_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"route\":\"ambiguous_prompt\",\"candidates\":[{\"category\":\"Health\",\"subcategory\":\"Medicine\"},{\"category\":\"Pets\",\"subcategory\":\"Medicine\"}]}"
+      },
+      {
+        "name": "category_only_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"route\":\"subcategory_prompt_single_category\",\"selected_category\":\"Food & Drink\"}"
+      },
+      {
+        "name": "cancel_subcategory_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"cancelled\":true,\"fallback_to_review\":true,\"status\":\"review_queue_fallback_after_clarification_failed\",\"clarification_type\":\"outgoing_confirmation\",\"mock_write_tab\":\"🧾 Review Queue\"}"
+      },
+      {
+        "name": "help_route_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"route\":\"help\"}"
+      },
+      {
+        "name": "add_flow_selection",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"route\":\"add_flow_out_of_scope\"}"
+      },
+      {
+        "name": "income_rejected_for_outgoing_category_only",
+        "pass": true,
+        "details": "{\"handled\":false,\"error\":\"incompatible_category\",\"category\":\"Income\",\"route\":\"retry_subcategory_prompt\"}"
+      },
+      {
+        "name": "income_rejected_for_outgoing_resolved",
+        "pass": true,
+        "details": "{\"handled\":false,\"error\":\"incompatible_category\",\"category\":\"Income\",\"route\":\"retry_subcategory_prompt\"}"
+      },
+      {
+        "name": "contextual_account_funding_parse_cash_umum_blu_pocket",
+        "pass": true,
+        "details": "{\"date\":\"2026-07-19\",\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPDLIVEFUNDINGFIRSTALPHA\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Blu Pocket\",\"creditor\":\"\",\"merchant\":\"\",\"billingCycleId\":\"2026-07-19\",\"assetSection\":\"\",\"goldAction\":\"\",\"goldKarat\":\"\",\"goldWeightGram\":\"\",\"goldPureGram\":\"\",\"goldPurchasePrice\":\"\",\"goldPurchaseDate\":\"\",\"goldNotes\":\"\",\"goldEstimatedValue\":\"\",\"goldMarketPrice24k\":\"\",\"issue_reason\":\"\",\"needsReview\":false,\"posting_mode\":\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\"}"
+      },
+      {
+        "name": "digit_marker_does_not_override_rp1",
+        "pass": true,
+        "details": "{\"date\":\"2026-07-19\",\"type\":\"expense\",\"category\":\"Food & Drink\",\"subcategory\":\"Makan di Luar\",\"description\":\"tes keluar Rp1 makan akun transaksi cash umum sumber dana blu pocket AFPD_P2_LIVE_FUNDING_FIRST_20260719_150950\",\"amount\":1,\"account\":\"Cash Umum\",\"funding_source_account\":\"Blu Pocket\",\"creditor\":\"\",\"merchant\":\"\",\"billingCycleId\":\"2026-07-19\",\"assetSection\":\"\",\"goldAction\":\"\",\"goldKarat\":\"\",\"goldWeightGram\":\"\",\"goldPureGram\":\"\",\"goldPurchasePrice\":\"\",\"goldPurchaseDate\":\"\",\"goldNotes\":\"\",\"goldEstimatedValue\":\"\",\"goldMarketPrice24k\":\"\",\"issue_reason\":\"\",\"needsReview\":false,\"posting_mode\":\"FUNDED_PAYMENT_ACCOUNT_OUTGOING\"}"
+      },
+      {
+        "name": "subcategory_prompt_displays_execution_and_funding_labels",
+        "pass": true,
+        "details": "{\"text\":\"❓ Konfirmasi subkategori\\n\\nTransaksi:\\nRp1 keluar\\nAkun transaksi: Cash Umum\\nSumber dana: Blu Pocket\\nDeskripsi: makan\\n\\nPilih subkategori:\\n\\nFood & Drink\\n1. Jajan\\n\\n0. Review\\n? Cari kategori/subkategori lain\\n+ Tambah kategori/subkategori baru\\n\\nBalas angka, atau tulis langsung:\\nMakan di Luar\\nFood & Drink > Makan di Luar\",\"mapping\":{\"1\":{\"category\":\"Food & Drink\",\"subcategory\":\"Jajan\"}}}"
+      },
+      {
+        "name": "email_income_prompt_numeric_not_alpha",
+        "pass": true,
+        "details": "\"🧾 Transaksi Email terdeteksi\\n\\nNominal belum terbaca\\n-\\nTipe: pemasukan\\n\\nIni sumbernya apa?\\n\\n1. Gaji / income\\n2. Refund\\n3. Transfer antar akun sendiri\\n4. Piutang dibayar\\n5. Lainnya\\n\\nBalas angka pilihan.\\n\\nMode: klarifikasi dulu\\nFinance write: false\""
+      },
+      {
+        "name": "email_expense_category_prompt_numeric_not_alpha",
+        "pass": true,
+        "details": "\"❓ Konfirmasi transaksi keluar\\n\\nTerdeteksi:\\nNominal: Nominal belum terbaca\\nDeskripsi: Transaksi keluar\\nSumber notifikasi: email Email / provider terkait\\n\\nSumber dana dari akun mana?\\n\\n1. Blu\\n2. Blu Pocket\\n3. Blu Pocket CC\\n4. BCA\\n5. BCA Pocket\\n6. Cash Umum\\n7. Cash Bensin\\n\\n0. Review / batalkan dulu\\n\\nBalas angka akun, atau tulis nama akun.\""
+      },
+      {
+        "name": "email_expense_category_numeric_choice_maps_food_drink",
+        "pass": true,
+        "details": "{\"num\":{\"ok\":true,\"answer\":\"1\",\"label\":\"Food & Drink\",\"question_type\":\"category_expense\"},\"legacy\":{\"ok\":true,\"answer\":\"A\",\"label\":\"Food & Drink\",\"question_type\":\"category_expense\"}}"
+      },
+      {
+        "name": "email_expense_category_numeric_choice_help_option",
+        "pass": true,
+        "details": "{\"num\":{\"ok\":true,\"answer\":\"5\",\"label\":\"Cari kategori / lihat bantuan\",\"question_type\":\"category_expense\"},\"legacy\":{\"ok\":true,\"answer\":\"E\",\"label\":\"Cari kategori / lihat bantuan\",\"question_type\":\"category_expense\"}}"
+      },
+      {
+        "name": "email_direction_pure_expense_payment",
+        "pass": true,
+        "actual": "pengeluaran",
+        "expected": "pengeluaran"
+      },
+      {
+        "name": "email_direction_generic_login_token_is_neutral",
+        "pass": true,
+        "actual": "ambigu",
+        "expected": "ambigu"
+      },
+      {
+        "name": "email_direction_expense_plus_login_footer_remains_expense",
+        "pass": true,
+        "actual": "pengeluaran",
+        "expected": "pengeluaran"
+      },
+      {
+        "name": "email_direction_expense_subject_overrides_generic_login_footer",
+        "pass": true,
+        "actual": "pengeluaran",
+        "expected": "pengeluaran"
+      },
+      {
+        "name": "email_direction_explicit_transfer_masuk_remains_income",
+        "pass": true,
+        "actual": "pemasukan",
+        "expected": "pemasukan"
+      },
+      {
+        "name": "email_direction_generic_blu_notification_remains_ambiguous",
+        "pass": true,
+        "actual": "ambigu",
+        "expected": "ambigu"
+      },
+      {
+        "name": "email_direction_conflicting_strong_signals_become_ambiguous",
+        "pass": true,
+        "actual": "ambigu",
+        "expected": "ambigu"
+      },
+      {
+        "name": "email_direction_transfer_masuk_candidate_conflict_becomes_ambiguous",
+        "pass": true,
+        "actual": "ambigu",
+        "expected": "ambigu"
+      },
+      {
+        "name": "email_direction_transfer_masuk_candidate_without_conflict_is_income",
+        "pass": true,
+        "actual": "pemasukan",
+        "expected": "pemasukan"
+      },
+      {
+        "name": "email_expense_direction_routes_to_numeric_category_prompt",
+        "pass": true,
+        "actual": "category_expense",
+        "expected": "category_expense"
+      },
+      {
+        "name": "email_ambiguous_direction_does_not_route_to_income_or_expense_write",
+        "pass": true,
+        "actual": "direction",
+        "expected": "direction"
+      },
+      {
+        "name": "normalize_validation_preserves_valid_account",
+        "pass": true,
+        "details": "resVal=Blu Pocket"
+      },
+      {
+        "name": "email_ingestion_blu_expense_candidate_is_eligible",
+        "pass": true,
+        "details": "{\"skip_reason\":\"ELIGIBLE\"}"
+      },
+      {
+        "name": "email_ingestion_recent_blu_expense_not_skipped_by_window",
+        "pass": true,
+        "details": "{\"skip_reason\":\"ELIGIBLE\"}"
+      },
+      {
+        "name": "email_ingestion_processed_marker_not_written_before_prompt_success",
+        "pass": true,
+        "details": "{\"should_write\":false,\"dispatch\":{\"attempted\":true,\"success\":false,\"error_code\":\"NETWORK_TIMEOUT\",\"retryable\":true,\"processed_marker_allowed\":false}}"
+      },
+      {
+        "name": "email_ingestion_prompt_send_failure_keeps_candidate_retryable",
+        "pass": true,
+        "details": "{\"attempted\":true,\"success\":false,\"error_code\":\"TELEGRAM_API_ERROR\",\"retryable\":true,\"processed_marker_allowed\":false}"
+      },
+      {
+        "name": "email_ingestion_skip_reason_recorded_for_ineligible_candidate",
+        "pass": true,
+        "details": "{\"skip_reason\":\"MISSING_BODY\"}"
+      },
+      {
+        "name": "email_ingestion_no_full_body_logged_in_diagnostics",
+        "pass": true,
+        "details": "{\"body_read_or_stored\":false,\"no_body_logged\":true}"
+      },
+      {
+        "name": "email_ingestion_subject_hash_or_class_only",
+        "pass": true,
+        "details": "{\"subject_hash\":\"hash_6dcbb8b4\",\"subject_class\":\"transaction_success\"}"
+      },
+      {
+        "name": "email_ingestion_error_swallow_reports_safe_error_code",
+        "pass": true,
+        "details": "{\"attempted\":true,\"success\":false,\"error_code\":\"PARSING_DELIMITER_NOT_FOUND\",\"retryable\":true,\"processed_marker_allowed\":false}"
+      },
+      {
+        "name": "email_ingestion_duplicate_prompt_guard_after_success",
+        "pass": true,
+        "details": "{\"should_write\":true,\"dispatch\":{\"attempted\":true,\"success\":true,\"error_code\":\"NONE\",\"retryable\":false,\"processed_marker_allowed\":true}}"
+      },
+      {
+        "name": "email_ingestion_timezone_window_normalization",
+        "pass": true,
+        "details": "{\"candidate_count\":1,\"newest_candidate_timestamp\":\"2026-07-20T17:40:00+07:00\",\"provider\":\"blu_transaction\",\"nominal\":null,\"subject_class\":\"general_notification\",\"subject_hash\":\"\",\"body_read_or_stored\":false,\"skip_reason\":\"ELIGIBLE\",\"dedupe_key_present\":false,\"processed_marker_present\":false,\"prompt_dispatch_attempted\":false,\"prompt_dispatch_success\":false,\"processed_marker_written_after_prompt_success\":false,\"error_code\":\"NOT_ATTEMPTED\"}"
+      },
+      {
+        "name": "email_ingestion_poll_cycle_lag_classified_as_waiting_not_failure",
+        "pass": true,
+        "details": "{\"candidate_count\":1,\"newest_candidate_timestamp\":\"\",\"provider\":\"blu_transaction\",\"nominal\":null,\"subject_class\":\"general_notification\",\"subject_hash\":\"\",\"body_read_or_stored\":false,\"skip_reason\":\"MISSING_BODY\",\"dedupe_key_present\":false,\"processed_marker_present\":false,\"prompt_dispatch_attempted\":false,\"prompt_dispatch_success\":false,\"processed_marker_written_after_prompt_success\":false,\"error_code\":\"TRIGGER_CYCLE_LAG_WAITING\"}"
+      },
+      {
+        "name": "email_ambiguous_direction_prompt_numeric_not_alpha",
+        "pass": true,
+        "details": "\"🧾 Transaksi Blu terdeteksi\\n\\nRp1\\n2026-07-20 18:55:12\\nTipe: ambigu\\n\\nIni maksudnya apa?\\n\\n1. Pengeluaran\\n2. Pemasukan\\n3. Transfer antar akun sendiri\\n0. Abaikan / batalkan dulu\\n\\nBalas angka pilihan.\\n\\nMode: klarifikasi dulu\\nFinance write: false\""
+      },
+      {
+        "name": "email_ambiguous_direction_numeric_choice_maps_expense",
+        "pass": true,
+        "details": "{\"ok\":true,\"direction\":\"pengeluaran\",\"action\":\"expense\",\"route\":\"account_pending\"}"
+      },
+      {
+        "name": "email_ambiguous_direction_numeric_choice_maps_income",
+        "pass": true,
+        "details": "{\"ok\":true,\"direction\":\"pemasukan\",\"action\":\"income\",\"route\":\"income_safe_pending\"}"
+      },
+      {
+        "name": "email_ambiguous_direction_numeric_choice_maps_transfer",
+        "pass": true,
+        "details": "{\"ok\":true,\"direction\":\"transfer\",\"action\":\"transfer\",\"route\":\"transfer_safe_pending\"}"
+      },
+      {
+        "name": "email_ambiguous_direction_numeric_choice_zero_ignore_or_review",
+        "pass": true,
+        "details": "{\"ok\":true,\"direction\":\"ignore\",\"action\":\"ignore\",\"route\":\"safe_no_write_cancel\"}"
+      },
+      {
+        "name": "email_direction_prompt_no_A_B_C_D_display",
+        "pass": true,
+        "details": "\"🧾 Transaksi Blu terdeteksi\\n\\nRp1\\n2026-07-20 18:55:12\\nTipe: ambigu\\n\\nIni maksudnya apa?\\n\\n1. Pengeluaran\\n2. Pemasukan\\n3. Transfer antar akun sendiri\\n0. Abaikan / batalkan dulu\\n\\nBalas angka pilihan.\\n\\nMode: klarifikasi dulu\\nFinance write: false\""
+      },
+      {
+        "name": "email_subcategory_prompt_numeric_not_alpha_after_direction_resolution",
+        "pass": true,
+        "details": "\"Pilih subkategori untuk Food & Drink:\\n1. Jajan\\n2. Makan di Luar\\n3. Kopi\\n4. Tulis manual / lainnya\\n\\nBalas angka pilihan.\""
+      },
+      {
+        "name": "email_subcategory_numeric_choice_maps_food_drink_jajan",
+        "pass": true,
+        "details": "{\"action\":\"select\",\"subcategory\":\"Jajan\"}"
+      },
+      {
+        "name": "email_subcategory_manual_option_numeric",
+        "pass": true,
+        "details": "{\"action\":\"manual\"}"
+      },
+      {
+        "name": "email_subcategory_prompt_no_A_B_C_D_E_display",
+        "pass": true,
+        "details": "\"Pilih subkategori untuk Food & Drink:\\n1. Jajan\\n2. Makan di Luar\\n3. Kopi\\n4. Tulis manual / lainnya\\n\\nBalas angka pilihan.\""
+      },
+      {
+        "name": "legacy_alpha_reply_supported_only_as_stale_compatibility_if_kept",
+        "pass": true,
+        "details": "{\"direction\":{\"ok\":true,\"direction\":\"pengeluaran\",\"action\":\"expense\",\"route\":\"account_pending\"},\"subcategory\":{\"action\":\"select\",\"subcategory\":\"Jajan\"}}"
+      },
+      {
+        "name": "email_ambiguous_pending_pointer_preserves_inferred_direction",
+        "pass": true,
+        "details": "{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"message_id\":\"\",\"thread_id\":\"\",\"provider\":\"Blu\",\"sender\":\"\",\"subject\":\"\",\"candidate_type\":\"\",\"parse_status\":\"\",\"subject_hash\":\"\",\"received_at\":\"\",\"display_amount\":1,\"detected_amount\":1,\"amount_idr\":1,\"amount_source\":\"\",\"inferred_direction\":\"ambigu\",\"clarification_question_type\":\"direction\",\"clarification_status\":\"pending\",\"clarification_state\":\"direction_pending\",\"write_allowed\":false,\"email_log_ref\":\"\",\"created_at\":\"2026-07-20T20:00:00+07:00\"}"
+      },
+      {
+        "name": "email_ambiguous_pending_pointer_preserves_question_type",
+        "pass": true,
+        "details": "{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"message_id\":\"\",\"thread_id\":\"\",\"provider\":\"Blu\",\"sender\":\"\",\"subject\":\"\",\"candidate_type\":\"\",\"parse_status\":\"\",\"subject_hash\":\"\",\"received_at\":\"\",\"display_amount\":1,\"detected_amount\":1,\"amount_idr\":1,\"amount_source\":\"\",\"inferred_direction\":\"ambigu\",\"clarification_question_type\":\"direction\",\"clarification_status\":\"pending\",\"clarification_state\":\"direction_pending\",\"write_allowed\":false,\"email_log_ref\":\"\",\"created_at\":\"2026-07-20T20:00:00+07:00\"}"
+      },
+      {
+        "name": "email_ambiguous_candidate_saved_as_direction_pending",
+        "pass": true,
+        "details": "{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"message_id\":\"\",\"thread_id\":\"\",\"provider\":\"Blu\",\"sender\":\"\",\"subject\":\"\",\"candidate_type\":\"\",\"parse_status\":\"\",\"subject_hash\":\"\",\"received_at\":\"\",\"display_amount\":1,\"detected_amount\":1,\"amount_idr\":1,\"amount_source\":\"\",\"inferred_direction\":\"ambigu\",\"clarification_question_type\":\"direction\",\"clarification_status\":\"pending\",\"clarification_state\":\"direction_pending\",\"write_allowed\":false,\"email_log_ref\":\"\",\"created_at\":\"2026-07-20T20:00:00+07:00\"}"
+      },
+      {
+        "name": "email_direction_pending_numeric_expense_transitions_to_account_pending",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"ok\":true,\"status\":\"sprint7h_email_direction_expense_account_pending\",\"route\":\"account_pending\",\"next_pending\":{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"inferred_direction\":\"pengeluaran\",\"clarification_question_type\":\"account\",\"clarification_state\":\"account_pending\",\"provider\":\"Blu\",\"display_amount\":1,\"write_allowed\":false,\"selected_category\":\"\",\"selected_subcategory\":\"\"},\"finance_write_performed\":false,\"account_ledger_write_performed\":false,\"finance_events_write_performed\":false,\"review_queue_write_performed\":false}"
+      },
+      {
+        "name": "email_direction_pending_numeric_expense_does_not_select_food_drink",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"ok\":true,\"status\":\"sprint7h_email_direction_expense_account_pending\",\"route\":\"account_pending\",\"next_pending\":{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"inferred_direction\":\"pengeluaran\",\"clarification_question_type\":\"account\",\"clarification_state\":\"account_pending\",\"provider\":\"Blu\",\"display_amount\":1,\"write_allowed\":false,\"selected_category\":\"\",\"selected_subcategory\":\"\"},\"finance_write_performed\":false,\"account_ledger_write_performed\":false,\"finance_events_write_performed\":false,\"review_queue_write_performed\":false}"
+      },
+      {
+        "name": "email_direction_pending_numeric_income_does_not_enter_expense_category_pending",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"ok\":true,\"status\":\"sprint7h_email_direction_income_safe_pending\",\"route\":\"income_safe_pending\",\"next_pending\":{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"inferred_direction\":\"pemasukan\",\"clarification_question_type\":\"income_source\",\"clarification_state\":\"income_source_pending\",\"provider\":\"Blu\",\"display_amount\":1,\"write_allowed\":false,\"selected_category\":\"\",\"selected_subcategory\":\"\"},\"finance_write_performed\":false,\"account_ledger_write_performed\":false,\"finance_events_write_performed\":false,\"review_queue_write_performed\":false}"
+      },
+      {
+        "name": "email_direction_pending_numeric_transfer_does_not_enter_expense_category_pending",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":true,\"ok\":true,\"status\":\"sprint7h_email_direction_transfer_safe_pending\",\"route\":\"transfer_safe_pending\",\"next_pending\":{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"inferred_direction\":\"transfer\",\"clarification_question_type\":\"transfer\",\"clarification_state\":\"transfer_pending\",\"provider\":\"Blu\",\"display_amount\":1,\"write_allowed\":false,\"selected_category\":\"\",\"selected_subcategory\":\"\"},\"finance_write_performed\":false,\"account_ledger_write_performed\":false,\"finance_events_write_performed\":false,\"review_queue_write_performed\":false}"
+      },
+      {
+        "name": "email_direction_pending_zero_is_safe_no_write_cancel",
+        "pass": true,
+        "details": "{\"handled\":true,\"waiting\":false,\"ok\":true,\"status\":\"sprint7h_email_direction_ignored_safe_no_write\",\"route\":\"ignored_safe_no_write\",\"next_pending\":{\"type\":\"email_candidate_7f\",\"candidate_id\":\"amb_1\",\"inferred_direction\":\"ignored\",\"clarification_question_type\":\"direction\",\"clarification_state\":\"ignored\",\"provider\":\"Blu\",\"display_amount\":1,\"write_allowed\":false},\"remove_pending\":true,\"finance_write_performed\":false,\"account_ledger_write_performed\":false,\"finance_events_write_performed\":false,\"review_queue_write_performed\":false}"
+      }
+    ]
+  }
+}
