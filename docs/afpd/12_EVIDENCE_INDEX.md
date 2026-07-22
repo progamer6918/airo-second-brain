@@ -217,3 +217,5 @@
 - 2026-07-22: Repaired Web Dashboard Wallet Balance semantics locally to use latest Account Ledger balance per active account as of period end (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_LOCAL_REPAIR_NO_DEPLOY`).
 
 - 2026-07-22: Executed Web Dashboard Latest Ledger Balance Guarded Deployment Preflight (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`). Status: GO.
+
+- 2026-07-22: Executed Web Dashboard Latest Ledger Balance Guarded Deployment (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_GUARDED_DEPLOYMENT_EXECUTION`). New version: 388.
