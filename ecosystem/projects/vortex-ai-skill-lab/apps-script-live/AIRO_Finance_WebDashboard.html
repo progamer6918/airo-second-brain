@@ -180,7 +180,12 @@
       }
     }
 
-    function formatRp(val) {
+    function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function formatRp(val) {
       return "Rp " + Number(val || 0).toLocaleString("id-ID");
     }
 
@@ -226,17 +231,32 @@
 
       // Spending Intelligence Section
       var topCats = (data.spending_intelligence && data.spending_intelligence.top_categories) || data.top_categories || [];
+      var topSubcats = (data.spending_intelligence && data.spending_intelligence.top_subcategories) || [];
+
       html += '  <div class="card">';
-      html += '    <h2>📊 Spending Intelligence</h2>';
+      html += '    <h2>📊 Top Category</h2>';
       if (topCats && topCats.length > 0) {
         html += '    <table><thead><tr><th>Kategori</th><th style="text-align:right;">Jumlah</th><th style="text-align:right;">Kontribusi</th></tr></thead><tbody>';
         topCats.slice(0, 5).forEach(function(c) {
           var pct = c.contribution_percent !== undefined ? c.contribution_percent : (c.contrib_pct || 0);
-          html += '      <tr><td>' + c.category + '</td><td style="text-align:right;">' + formatRp(c.amount) + '</td><td style="text-align:right;">' + pct + '%</td></tr>';
+          html += '      <tr><td>' + escapeHtml(c.category) + '</td><td style="text-align:right;">' + formatRp(c.amount) + '</td><td style="text-align:right;">' + pct + '%</td></tr>';
         });
         html += '    </tbody></table>';
       } else {
         html += '    <div class="empty-state">Belum ada data pengeluaran berkategori</div>';
+      }
+      html += '  </div>';
+
+      html += '  <div class="card">';
+      html += '    <h2>🏷️ Top Subcategory</h2>';
+      if (topSubcats && topSubcats.length > 0) {
+        html += '    <table><thead><tr><th>Kategori</th><th>Subkategori</th><th style="text-align:right;">Jumlah</th></tr></thead><tbody>';
+        topSubcats.slice(0, 5).forEach(function(sc) {
+          html += '      <tr><td>' + escapeHtml(sc.category) + '</td><td>' + escapeHtml(sc.subcategory) + '</td><td style="text-align:right;">' + formatRp(sc.amount) + '</td></tr>';
+        });
+        html += '    </tbody></table>';
+      } else {
+        html += '    <div class="empty-state">Belum ada data pengeluaran bersubkategori</div>';
       }
       html += '  </div>';
 

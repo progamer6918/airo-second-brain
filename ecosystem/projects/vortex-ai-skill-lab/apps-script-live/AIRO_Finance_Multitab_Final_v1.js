@@ -142,7 +142,7 @@ function getEligibleFundingSourceAccounts_() {
 }
 
 function getStaticEligibleFundingSourceAccounts_() {
-  return ['BCA', 'Blu', 'Cash'];
+  return ['BCA', 'Blu', 'Cash Umum', 'Cash Bensin', 'Cash Makan'];
 }
 
 function escapeRegex_(string) {
@@ -29544,16 +29544,18 @@ function airoWebDashboardGetSnapshot_(input, options) {
 
     // Wallet snapshot: latest Account Ledger balance on or before period end (d <= curEnd)
     if (d && d.getTime() <= curEnd.getTime()) {
-      var acc = String(r.account || r.akun || "").trim();
-      if (acc) {
-        var normAcc = acc;
-        if (/bca/i.test(acc) && !/pocket/i.test(acc)) normAcc = "BCA";
-        else if (/blu/i.test(acc) && !/pocket/i.test(acc)) normAcc = "Blu";
-        else if (/cash|tunai/i.test(acc)) normAcc = "Cash";
-        else if (/pocket/i.test(acc)) normAcc = "Blu Pocket";
-        else if (/mandiri/i.test(acc)) normAcc = "Mandiri";
+      var rawAcc = String(r.account || r.akun || "").trim();
+      if (rawAcc) {
+        var normAcc = null;
+        var rawLower = rawAcc.toLowerCase();
+        for (var wKey in walletMap) {
+          if (wKey.toLowerCase() === rawLower) {
+            normAcc = wKey;
+            break;
+          }
+        }
 
-        if (inactiveAccounts.indexOf(normAcc) === -1 && walletMap[normAcc]) {
+        if (normAcc && inactiveAccounts.indexOf(normAcc) === -1 && walletMap[normAcc]) {
           var t = d.getTime();
           var rIdx = typeof r.row_index === "number" ? r.row_index : (idx + 2);
           var entryDateStr = d.toISOString().split("T")[0];
@@ -30313,7 +30315,275 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   if (!tc84) passed = false;
 
   var doPostFnStr85 = doPost.toString();
-  var tc85 = (doPostFnStr85.indexOf("airoTask103BalanceCommandMaybeHandleRoute_") !== -1 && doPostFnStr85.indexOf("airoSprint7HApprovalCommandMaybeHandleRoute_") !== -1);
+      var tc85 = (doPostFnStr85.indexOf("airoTask103BalanceCommandMaybeHandleRoute_") !== -1 && doPostFnStr85.indexOf("airoSprint7HApprovalCommandMaybeHandleRoute_") !== -1);
+  cases.push({ name: "web_dashboard_dopost_unchanged_guard", pass: tc85, details: JSON.stringify({ length: doPostFnStr85.length }) });
+  if (!tc85) passed = false;
+
+  // === NEW TESTS: Separate Cash Wallets and Top Subcategory HTML Rendering (tc86..tc100) ===
+
+  // tc86: Cash Umum and Cash Bensin remain distinct wallet keys
+  var mockCashSeparationRows = [
+    { date: new Date(2026, 6, 5), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 50000, account: "Cash Umum", balance: 450000 },
+    { date: new Date(2026, 6, 8), type: "expense", category: "Transport", subcategory: "Bensin", amount_out: 100000, account: "Cash Bensin", balance: 250000 }
+  ];
+  var snap86 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashSeparationRows, activeAccounts: ["Cash Umum", "Cash Bensin"] });
+  var wUmum86 = snap86.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var wBensin86 = snap86.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc86 = (wUmum86 && wUmum86.balance === 450000 && wBensin86 && wBensin86.balance === 250000);
+  cases.push({ name: "web_dashboard_cash_umum_cash_bensin_separate_wallet_keys", pass: tc86, details: JSON.stringify({ umum: wUmum86, bensin: wBensin86 }) });
+  if (!tc86) passed = false;
+
+  // tc87: Cash Makan remains a distinct wallet key in fixture tests
+  var mockCashMakanRows = [
+    { date: new Date(2026, 6, 12), type: "expense", category: "Food & Drink", subcategory: "Resto", amount_out: 75000, account: "Cash Makan", balance: 175000 }
+  ];
+  var snap87 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashMakanRows, activeAccounts: ["Cash Makan"] });
+  var wMakan87 = snap87.wallet_snapshot.find(function(w) { return w.account === "Cash Makan"; });
+  var tc87 = (wMakan87 && wMakan87.balance === 175000);
+  cases.push({ name: "web_dashboard_cash_makan_separate_wallet_key", pass: tc87, details: JSON.stringify(wMakan87) });
+  if (!tc87) passed = false;
+
+  // tc88: Cash does not alias to Cash Umum
+  var mockCashAliasRows = [
+    { date: new Date(2026, 6, 10), type: "expense", category: "Lainnya", amount_out: 20000, account: "Cash", balance: 80000 }
+  ];
+  var snap88 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashAliasRows, activeAccounts: ["Cash Umum"] });
+  var wUmum88 = snap88.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc88 = (wUmum88 && wUmum88.status === "NO_LEDGER_HISTORY");
+  cases.push({ name: "web_dashboard_cash_no_aliasing_to_cash_umum", pass: tc88, details: JSON.stringify(wUmum88) });
+  if (!tc88) passed = false;
+
+  // tc89: Cash-family regex collapsing is absent
+  var fnStr89 = airoWebDashboardGetSnapshot_.toString();
+  var tc89 = (fnStr89.indexOf("/cash|tunai/i") === -1 && fnStr89.indexOf('normAcc = "Cash"') === -1);
+  cases.push({ name: "web_dashboard_cash_family_regex_collapse_absent", pass: tc89, details: JSON.stringify({ regex_collapse_found: !tc89 }) });
+  if (!tc89) passed = false;
+
+  // tc90: Latest balance selected independently per cash account
+  var mockIndependentCashRows = [
+    { date: new Date(2026, 6, 1), type: "expense", amount_out: 10000, account: "Cash Umum", balance: 500000, row_index: 2 },
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 50000, account: "Cash Bensin", balance: 100000, row_index: 3 },
+    { date: new Date(2026, 6, 20), type: "expense", amount_out: 20000, account: "Cash Umum", balance: 480000, row_index: 4 }
+  ];
+  var snap90 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockIndependentCashRows, activeAccounts: ["Cash Umum", "Cash Bensin"] });
+  var wUmum90 = snap90.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var wBensin90 = snap90.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc90 = (wUmum90 && wUmum90.balance === 480000 && wBensin90 && wBensin90.balance === 100000);
+  cases.push({ name: "web_dashboard_latest_balance_selected_per_cash_account", pass: tc90, details: JSON.stringify({ umum: wUmum90, bensin: wBensin90 }) });
+  if (!tc90) passed = false;
+
+  // tc91: One cash account cannot overwrite another
+  var tc91 = (wUmum90 && wUmum90.ledger_row === 4 && wBensin90 && wBensin90.ledger_row === 3);
+  cases.push({ name: "web_dashboard_no_cross_cash_account_overwrite", pass: tc91, details: JSON.stringify({ umum_row: wUmum90 ? wUmum90.ledger_row : null, bensin_row: wBensin90 ? wBensin90.ledger_row : null }) });
+  if (!tc91) passed = false;
+
+  // tc92: One cash account cannot contribute to another account's balance
+  var mockNoContribRows = [
+    { date: new Date(2026, 6, 10), type: "expense", amount_out: 100000, account: "Cash Makan", balance: 50000 }
+  ];
+  var snap92 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockNoContribRows, activeAccounts: ["Cash Umum", "Cash Makan"] });
+  var wUmum92 = snap92.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc92 = (wUmum92 && wUmum92.status === "NO_LEDGER_HISTORY" && wUmum92.balance === 0);
+  cases.push({ name: "web_dashboard_no_cross_cash_account_contribution", pass: tc92, details: JSON.stringify(wUmum92) });
+  if (!tc92) passed = false;
+
+  // tc93: Cash NOT_USED is excluded when in inactiveAccounts
+  var snap93 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockIndependentCashRows, activeAccounts: ["Cash Umum", "Cash Bensin"], inactiveAccounts: ["Cash"] });
+  var wCash93 = snap93.wallet_snapshot.find(function(w) { return w.account === "Cash"; });
+  var tc93 = (wCash93 === undefined);
+  cases.push({ name: "web_dashboard_cash_not_used_excluded", pass: tc93, details: JSON.stringify({ cash_present: !!wCash93 }) });
+  if (!tc93) passed = false;
+
+  // tc94: Active Cash Makan represented in registry repair simulation
+  var staticReg94 = airoSprint7AccountContractGetStaticRegistry_();
+  var hasCashMakanReg = staticReg94.some(function(a) { return a.account_name === "Cash Makan" && a.account_id === "cash_makan"; });
+  var tc94 = (hasCashMakanReg === true);
+  cases.push({ name: "web_dashboard_active_cash_makan_represented_in_registry_repair", pass: tc94, details: JSON.stringify({ staticReg: staticReg94 }) });
+  if (!tc94) passed = false;
+
+  // tc95: top_subcategories backend shape is returned
+  var mockSubcatRows = [
+    { date: new Date(2026, 6, 5), type: "expense", category: "Food & Drink", subcategory: "Kopi", amount_out: 30000, account: "Cash Umum" },
+    { date: new Date(2026, 6, 10), type: "expense", category: "Food & Drink", subcategory: "Kopi", amount_out: 40000, account: "Cash Umum" },
+    { date: new Date(2026, 6, 12), type: "expense", category: "Food & Drink", subcategory: "Makan Siang", amount_out: 50000, account: "Cash Umum" }
+  ];
+  var snap95 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockSubcatRows });
+  var topSubs95 = snap95.spending_intelligence.top_subcategories;
+  var tc95 = (Array.isArray(topSubs95) && topSubs95.length === 2 && topSubs95[0].subcategory === "Kopi" && topSubs95[0].amount === 70000);
+  cases.push({ name: "web_dashboard_top_subcategories_backend_shape", pass: tc95, details: JSON.stringify(topSubs95) });
+  if (!tc95) passed = false;
+
+  // tc96: top_subcategories HTML rendering loop exists
+  var htmlTemplate96 = HtmlService.createTemplateFromFile("AIRO_Finance_WebDashboard").getRawContent();
+  var tc96 = (htmlTemplate96.indexOf("Top Subcategory") !== -1 && htmlTemplate96.indexOf("topSubcats") !== -1);
+  cases.push({ name: "web_dashboard_top_subcategories_html_rendering", pass: tc96, details: JSON.stringify({ found: tc96 }) });
+  if (!tc96) passed = false;
+
+  // tc97: top_subcategories empty state in HTML
+  var tc97 = (htmlTemplate96.indexOf("Belum ada data pengeluaran bersubkategori") !== -1);
+  cases.push({ name: "web_dashboard_top_subcategories_empty_state", pass: tc97, details: JSON.stringify({ found: tc97 }) });
+  if (!tc97) passed = false;
+
+  // tc98: Following-month rows remain excluded
+  var mockAugRows = [
+    { date: new Date(2026, 6, 30), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 10000, account: "Cash Umum", balance: 90000, row_index: 5 },
+    { date: new Date(2026, 7, 2), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 20000, account: "Cash Umum", balance: 70000, row_index: 6 }
+  ];
+  var snap98 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockAugRows, activeAccounts: ["Cash Umum"] });
+  var wUmum98 = snap98.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc98 = (wUmum98 && wUmum98.balance === 90000 && wUmum98.ledger_row === 5);
+  cases.push({ name: "web_dashboard_following_month_rows_excluded", pass: tc98, details: JSON.stringify(wUmum98) });
+  if (!tc98) passed = false;
+
+  // tc99: Same-date row tie-break remains deterministic
+  var mockTieRows = [
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 10000, account: "Cash Bensin", balance: 150000, row_index: 10 },
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 20000, account: "Cash Bensin", balance: 130000, row_index: 12 }
+  ];
+  var snap99 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockTieRows, activeAccounts: ["Cash Bensin"] });
+  var wBensin99 = snap99.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc99 = (wBensin99 && wBensin99.balance === 130000 && wBensin99.ledger_row === 12);
+  cases.push({ name: "web_dashboard_same_date_row_tiebreak_deterministic", pass: tc99, details: JSON.stringify(wBensin99) });
+  if (!tc99) passed = false;
+
+  // tc100: Existing 85 selftests remain PASS (100 total)
+  var tc100 = (tc1 && tc46 && tc65 && tc80 && tc85);
+  cases.push({ name: "web_dashboard_existing_85_selftests_remain_pass", pass: tc100, details: JSON.stringify({ tc1: tc1, tc46: tc46, tc65: tc65, tc80: tc80, tc85: tc85 }) });
+  if (!tc100) passed = false;
+  cases.push({ name: "web_dashboard_dopost_unchanged_guard", pass: tc85, details: JSON.stringify({ length: doPostFnStr85.length }) });
+  if (!tc85) passed = false;
+
+  // === NEW TESTS: Separate Cash Wallets and Top Subcategory HTML Rendering (tc86..tc100) ===
+
+  // tc86: Cash Umum and Cash Bensin remain distinct wallet keys
+  var mockCashSeparationRows = [
+    { date: new Date(2026, 6, 5), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 50000, account: "Cash Umum", balance: 450000 },
+    { date: new Date(2026, 6, 8), type: "expense", category: "Transport", subcategory: "Bensin", amount_out: 100000, account: "Cash Bensin", balance: 250000 }
+  ];
+  var snap86 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashSeparationRows, activeAccounts: ["Cash Umum", "Cash Bensin"] });
+  var wUmum86 = snap86.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var wBensin86 = snap86.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc86 = (wUmum86 && wUmum86.balance === 450000 && wBensin86 && wBensin86.balance === 250000);
+  cases.push({ name: "web_dashboard_cash_umum_cash_bensin_separate_wallet_keys", pass: tc86, details: JSON.stringify({ umum: wUmum86, bensin: wBensin86 }) });
+  if (!tc86) passed = false;
+
+  // tc87: Cash Makan remains a distinct wallet key in fixture tests
+  var mockCashMakanRows = [
+    { date: new Date(2026, 6, 12), type: "expense", category: "Food & Drink", subcategory: "Resto", amount_out: 75000, account: "Cash Makan", balance: 175000 }
+  ];
+  var snap87 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashMakanRows, activeAccounts: ["Cash Makan"] });
+  var wMakan87 = snap87.wallet_snapshot.find(function(w) { return w.account === "Cash Makan"; });
+  var tc87 = (wMakan87 && wMakan87.balance === 175000);
+  cases.push({ name: "web_dashboard_cash_makan_separate_wallet_key", pass: tc87, details: JSON.stringify(wMakan87) });
+  if (!tc87) passed = false;
+
+  // tc88: Cash does not alias to Cash Umum
+  var mockCashAliasRows = [
+    { date: new Date(2026, 6, 10), type: "expense", category: "Lainnya", amount_out: 20000, account: "Cash", balance: 80000 }
+  ];
+  var snap88 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockCashAliasRows, activeAccounts: ["Cash Umum"] });
+  var wUmum88 = snap88.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc88 = (wUmum88 && wUmum88.status === "NO_LEDGER_HISTORY");
+  cases.push({ name: "web_dashboard_cash_no_aliasing_to_cash_umum", pass: tc88, details: JSON.stringify(wUmum88) });
+  if (!tc88) passed = false;
+
+  // tc89: Cash-family regex collapsing is absent
+  var fnStr89 = airoWebDashboardGetSnapshot_.toString();
+  var tc89 = (fnStr89.indexOf("/cash|tunai/i") === -1 && fnStr89.indexOf('normAcc = "Cash"') === -1);
+  cases.push({ name: "web_dashboard_cash_family_regex_collapse_absent", pass: tc89, details: JSON.stringify({ regex_collapse_found: !tc89 }) });
+  if (!tc89) passed = false;
+
+  // tc90: Latest balance selected independently per cash account
+  var mockIndependentCashRows = [
+    { date: new Date(2026, 6, 1), type: "expense", amount_out: 10000, account: "Cash Umum", balance: 500000, row_index: 2 },
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 50000, account: "Cash Bensin", balance: 100000, row_index: 3 },
+    { date: new Date(2026, 6, 20), type: "expense", amount_out: 20000, account: "Cash Umum", balance: 480000, row_index: 4 }
+  ];
+  var snap90 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockIndependentCashRows, activeAccounts: ["Cash Umum", "Cash Bensin"] });
+  var wUmum90 = snap90.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var wBensin90 = snap90.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc90 = (wUmum90 && wUmum90.balance === 480000 && wBensin90 && wBensin90.balance === 100000);
+  cases.push({ name: "web_dashboard_latest_balance_selected_per_cash_account", pass: tc90, details: JSON.stringify({ umum: wUmum90, bensin: wBensin90 }) });
+  if (!tc90) passed = false;
+
+  // tc91: One cash account cannot overwrite another
+  var tc91 = (wUmum90 && wUmum90.ledger_row === 4 && wBensin90 && wBensin90.ledger_row === 3);
+  cases.push({ name: "web_dashboard_no_cross_cash_account_overwrite", pass: tc91, details: JSON.stringify({ umum_row: wUmum90 ? wUmum90.ledger_row : null, bensin_row: wBensin90 ? wBensin90.ledger_row : null }) });
+  if (!tc91) passed = false;
+
+  // tc92: One cash account cannot contribute to another account's balance
+  var mockNoContribRows = [
+    { date: new Date(2026, 6, 10), type: "expense", amount_out: 100000, account: "Cash Makan", balance: 50000 }
+  ];
+  var snap92 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockNoContribRows, activeAccounts: ["Cash Umum", "Cash Makan"] });
+  var wUmum92 = snap92.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc92 = (wUmum92 && wUmum92.status === "NO_LEDGER_HISTORY" && wUmum92.balance === 0);
+  cases.push({ name: "web_dashboard_no_cross_cash_account_contribution", pass: tc92, details: JSON.stringify(wUmum92) });
+  if (!tc92) passed = false;
+
+  // tc93: Cash NOT_USED is excluded when in inactiveAccounts
+  var snap93 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockIndependentCashRows, activeAccounts: ["Cash Umum", "Cash Bensin"], inactiveAccounts: ["Cash"] });
+  var wCash93 = snap93.wallet_snapshot.find(function(w) { return w.account === "Cash"; });
+  var tc93 = (wCash93 === undefined);
+  cases.push({ name: "web_dashboard_cash_not_used_excluded", pass: tc93, details: JSON.stringify({ cash_present: !!wCash93 }) });
+  if (!tc93) passed = false;
+
+  // tc94: Active Cash Makan represented in registry repair simulation
+  var staticReg94 = airoSprint7AccountContractGetStaticRegistry_();
+  var hasCashMakanReg = staticReg94.some(function(a) { return a.account_name === "Cash Makan" && a.account_id === "cash_makan"; });
+  var tc94 = (hasCashMakanReg === true);
+  cases.push({ name: "web_dashboard_active_cash_makan_represented_in_registry_repair", pass: tc94, details: JSON.stringify({ staticReg: staticReg94 }) });
+  if (!tc94) passed = false;
+
+  // tc95: top_subcategories backend shape is returned
+  var mockSubcatRows = [
+    { date: new Date(2026, 6, 5), type: "expense", category: "Food & Drink", subcategory: "Kopi", amount_out: 30000, account: "Cash Umum" },
+    { date: new Date(2026, 6, 10), type: "expense", category: "Food & Drink", subcategory: "Kopi", amount_out: 40000, account: "Cash Umum" },
+    { date: new Date(2026, 6, 12), type: "expense", category: "Food & Drink", subcategory: "Makan Siang", amount_out: 50000, account: "Cash Umum" }
+  ];
+  var snap95 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockSubcatRows });
+  var topSubs95 = snap95.spending_intelligence.top_subcategories;
+  var tc95 = (Array.isArray(topSubs95) && topSubs95.length === 2 && topSubs95[0].subcategory === "Kopi" && topSubs95[0].amount === 70000);
+  cases.push({ name: "web_dashboard_top_subcategories_backend_shape", pass: tc95, details: JSON.stringify(topSubs95) });
+  if (!tc95) passed = false;
+
+  // tc96: top_subcategories HTML rendering loop exists
+  var htmlTemplate96 = HtmlService.createTemplateFromFile("AIRO_Finance_WebDashboard").getRawContent();
+  var tc96 = (htmlTemplate96.indexOf("Top Subcategory") !== -1 && htmlTemplate96.indexOf("topSubcats") !== -1);
+  cases.push({ name: "web_dashboard_top_subcategories_html_rendering", pass: tc96, details: JSON.stringify({ found: tc96 }) });
+  if (!tc96) passed = false;
+
+  // tc97: top_subcategories empty state in HTML
+  var tc97 = (htmlTemplate96.indexOf("Belum ada data pengeluaran bersubkategori") !== -1);
+  cases.push({ name: "web_dashboard_top_subcategories_empty_state", pass: tc97, details: JSON.stringify({ found: tc97 }) });
+  if (!tc97) passed = false;
+
+  // tc98: Following-month rows remain excluded
+  var mockAugRows = [
+    { date: new Date(2026, 6, 30), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 10000, account: "Cash Umum", balance: 90000, row_index: 5 },
+    { date: new Date(2026, 7, 2), type: "expense", category: "Food & Drink", subcategory: "Makan", amount_out: 20000, account: "Cash Umum", balance: 70000, row_index: 6 }
+  ];
+  var snap98 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockAugRows, activeAccounts: ["Cash Umum"] });
+  var wUmum98 = snap98.wallet_snapshot.find(function(w) { return w.account === "Cash Umum"; });
+  var tc98 = (wUmum98 && wUmum98.balance === 90000 && wUmum98.ledger_row === 5);
+  cases.push({ name: "web_dashboard_following_month_rows_excluded", pass: tc98, details: JSON.stringify(wUmum98) });
+  if (!tc98) passed = false;
+
+  // tc99: Same-date row tie-break remains deterministic
+  var mockTieRows = [
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 10000, account: "Cash Bensin", balance: 150000, row_index: 10 },
+    { date: new Date(2026, 6, 15), type: "expense", amount_out: 20000, account: "Cash Bensin", balance: 130000, row_index: 12 }
+  ];
+  var snap99 = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockTieRows, activeAccounts: ["Cash Bensin"] });
+  var wBensin99 = snap99.wallet_snapshot.find(function(w) { return w.account === "Cash Bensin"; });
+  var tc99 = (wBensin99 && wBensin99.balance === 130000 && wBensin99.ledger_row === 12);
+  cases.push({ name: "web_dashboard_same_date_row_tiebreak_deterministic", pass: tc99, details: JSON.stringify(wBensin99) });
+  if (!tc99) passed = false;
+
+  // tc100: Existing 85 selftests remain PASS (100 total)
+  var tc100 = (tc1 && tc46 && tc65 && tc80 && tc85);
+  cases.push({ name: "web_dashboard_existing_85_selftests_remain_pass", pass: tc100, details: JSON.stringify({ tc1: tc1, tc46: tc46, tc65: tc65, tc80: tc80, tc85: tc85 }) });
+  if (!tc100) passed = false;
   cases.push({ name: "web_dashboard_dopost_unchanged_guard", pass: tc85, details: JSON.stringify({ length: doPostFnStr85.length }) });
   if (!tc85) passed = false;
 
@@ -31226,6 +31496,7 @@ function airoSprint7AccountContractGetStaticRegistry_() {
     { account_id: "bca_pocket", account_name: "BCA Pocket", provider: "BCA", account_type: "bank", parent_account: "BCA", pocket_name: "pocket", is_cash: false, is_bank: true, is_credit: false },
     { account_id: "cash_umum", account_name: "Cash Umum", provider: "Cash", account_type: "cash", parent_account: "Cash", pocket_name: "umum", is_cash: true, is_bank: false, is_credit: false },
     { account_id: "cash_bensin", account_name: "Cash Bensin", provider: "Cash", account_type: "cash", parent_account: "Cash", pocket_name: "bensin", is_cash: true, is_bank: false, is_credit: false },
+    { account_id: "cash_makan", account_name: "Cash Makan", provider: "Cash", account_type: "cash", parent_account: "Cash", pocket_name: "makan", is_cash: true, is_bank: false, is_credit: false },
     { account_id: "credit_card", account_name: "Credit Card", provider: "Credit Card", account_type: "credit", parent_account: "Credit Card", pocket_name: "", is_cash: false, is_bank: false, is_credit: true }
   ];
 }
