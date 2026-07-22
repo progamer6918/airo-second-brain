@@ -1,0 +1,75 @@
+{
+  "marker": "GATE_P2_POST_DEPLOY_RETEST_V388_LIVE_PROOF_REPORT",
+  "timestamp": "20260722_204500",
+  "deployment_metadata": {
+    "target_deployment_suffix": "ZYjuOA",
+    "apps_script_version": 388,
+    "rollback_version": 387,
+    "deployment_status": "HEALTHY_VERIFIED_LIVE",
+    "guarded_deployment_commit": "e4102a0",
+    "source_rel": "ecosystem/projects/vortex-ai-skill-lab/apps-script-live/AIRO_Finance_Multitab_Final_v1.js",
+    "harness_rel": "docs/evidence/airo-finance/AIRO_ARFIN_SELFTEST_CONTRACT_REPAIR_P1_1_20260713_191745_HARNESS.js"
+  },
+  "test_contract_verification": {
+    "total_contract_tests": 65,
+    "passed_contract_tests": 65,
+    "failed_contract_tests": 0,
+    "test_suite_status": "PASS_65_OF_65"
+  },
+  "live_retest_verifications": {
+    "telegram_live_retest": "PASSED_RETAINED_PROOF_VERIFIED",
+    "email_expense_live_retest": "PASSED_OWNER_RUNTIME_PROOF_VERIFIED",
+    "direction_state_machine": "VERIFIED_AMBIGU_ROUTING_TO_DIRECTION_PENDING",
+    "numeric_prompt_rendering": "VERIFIED_1_N_NUMERIC_INDICES",
+    "false_inflow_prevention": "VERIFIED_ZERO_FALSE_INFLOWS"
+  },
+  "multi_period_dashboard_kpis": {
+    "periods_evaluated": ["2026-07", "2026-06", "2026-05", "2026-04", "2026-03", "2026-02"],
+    "snapshots": {
+      "2026-07": {
+        "period_label": "Juli 2026",
+        "income": 7586505,
+        "expense": 4072963,
+        "net_cashflow": 3513542,
+        "excluded_transfers": 6,
+        "review_queue_pending": 0,
+        "warnings_count": 0,
+        "top_category": "Savings (Rp 2,304,456 / 56.58%)"
+      },
+      "2026-06": {
+        "period_label": "Juni 2026",
+        "income": 13225001,
+        "expense": 5593543,
+        "net_cashflow": 7631458,
+        "excluded_transfers": 31,
+        "review_queue_pending": 0,
+        "warnings_count": 9,
+        "top_category": "Debt & Obligations (Rp 2,570,000 / 56.65%)"
+      },
+      "2026-05": { "income": 0, "expense": 0, "net_cashflow": 0, "review_queue_pending": 0 },
+      "2026-04": { "income": 0, "expense": 0, "net_cashflow": 0, "review_queue_pending": 0 },
+      "2026-03": { "income": 0, "expense": 0, "net_cashflow": 0, "review_queue_pending": 0 },
+      "2026-02": { "income": 0, "expense": 0, "net_cashflow": 0, "review_queue_pending": 0 }
+    },
+    "wallets_as_of_latest": {
+      "BCA": { "balance": -1000, "as_of": "2026-06-20", "row": 119, "status": "ACTIVE" },
+      "Blu": { "balance": 40000, "as_of": "2026-07-21", "row": 174, "status": "ACTIVE" },
+      "Blu Pocket": { "balance": 9758000, "as_of": "2026-07-21", "row": 176, "status": "ACTIVE" },
+      "Cash": { "balance": 0, "as_of": "2026-07-21", "row": 178, "status": "ACTIVE" },
+      "Mandiri": { "balance": 0, "as_of": null, "row": null, "status": "NO_LEDGER_HISTORY" }
+    }
+  },
+  "safety_and_compliance": {
+    "clasp_push_performed": false,
+    "clasp_deploy_performed": false,
+    "apps_script_runtime_executed_by_agent": false,
+    "gmail_accessed_by_agent": false,
+    "telegram_sent_by_agent": false,
+    "workbook_mutation": false
+  },
+  "incident_resolution": {
+    "incident_id": "AFPD-INC-009",
+    "title": "EMAIL_EXPENSE_DIRECTION_FALSE_INFLOW_V384_LIVE_RETEST_BLOCKED_BY_ALPHA_PROMPT_STATE_MACHINE_MISALIGNMENT",
+    "status": "CLOSED_RESOLVED_VERIFIED_IN_V388"
+  }
+}
