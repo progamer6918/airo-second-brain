@@ -28558,18 +28558,18 @@ function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
     }
   })();
 
-  // tc87: web_dashboard_wallet_snapshot_cumulative_balance_contract
+  // tc87: web_dashboard_wallet_snapshot_latest_ledger_balance_contract
   (function tc87() {
-    var testName = "web_dashboard_wallet_snapshot_cumulative_balance_contract";
+    var testName = "web_dashboard_wallet_snapshot_latest_ledger_balance_contract";
     try {
       var mockRows = [
-        { date: new Date(2026, 5, 15), account: "BCA", amount_in: 1000000, type: "income" },
-        { date: new Date(2026, 6, 10), account: "BCA", amount_out: 300000, type: "expense" }
+        { date: new Date(2026, 5, 15), account: "BCA", amount_in: 1000000, balance: 1000000, row_index: 2 },
+        { date: new Date(2026, 6, 10), account: "BCA", amount_out: 300000, balance: 700000, row_index: 3 }
       ];
       var snapshot = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockRows });
       var bca = snapshot.wallet_snapshot ? snapshot.wallet_snapshot.find(function(w) { return w.account === "BCA"; }) : null;
-      if (bca && bca.balance === 700000 && bca.income_cumulative === 1000000 && bca.expense_cumulative === 300000) {
-        cases.push({ name: testName, pass: true, detail: "wallet_snapshot cumulative balance correctly calculated (700000)" });
+      if (bca && bca.balance === 700000 && bca.balance_source === "LATEST_ACCOUNT_LEDGER_BALANCE" && bca.balance_as_of === "2026-07-10" && bca.ledger_row === 3) {
+        cases.push({ name: testName, pass: true, detail: "wallet_snapshot latest ledger balance correctly resolved (700000, row 3)" });
       } else {
         cases.push({ name: testName, pass: false, detail: "wallet_snapshot balance mismatch: " + JSON.stringify(bca) });
         passed = false;
@@ -28580,20 +28580,21 @@ function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
     }
   })();
 
-  // tc88: web_dashboard_wallet_snapshot_cumulative_vs_month_movement_guard
+  // tc88: web_dashboard_wallet_snapshot_period_exclusion_and_same_date_precedence_guard
   (function tc88() {
-    var testName = "web_dashboard_wallet_snapshot_cumulative_vs_month_movement_guard";
+    var testName = "web_dashboard_wallet_snapshot_period_exclusion_and_same_date_precedence_guard";
     try {
       var mockRows = [
-        { date: new Date(2026, 4, 1), account: "Blu", amount_in: 5000000, type: "income" },
-        { date: new Date(2026, 6, 5), account: "Blu", amount_out: 1000000, type: "expense" }
+        { date: new Date(2026, 6, 5), account: "Blu Pocket", balance: 4000000, row_index: 10 },
+        { date: new Date(2026, 6, 5), account: "Blu Pocket", balance: 4200000, row_index: 12 },
+        { date: new Date(2026, 7, 2), account: "Blu Pocket", balance: 5000000, row_index: 15 }
       ];
       var snapshot = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockRows });
-      var blu = snapshot.wallet_snapshot ? snapshot.wallet_snapshot.find(function(w) { return w.account === "Blu"; }) : null;
-      if (blu && blu.balance === 4000000) {
-        cases.push({ name: testName, pass: true, detail: "Prior month rows included in cumulative wallet balance for July (4000000)" });
+      var pocket = snapshot.wallet_snapshot ? snapshot.wallet_snapshot.find(function(w) { return w.account === "Blu Pocket"; }) : null;
+      if (pocket && pocket.balance === 4200000 && pocket.ledger_row === 12 && pocket.balance_as_of === "2026-07-05") {
+        cases.push({ name: testName, pass: true, detail: "Same-date greatest row index resolved and August row excluded from July (4200000)" });
       } else {
-        cases.push({ name: testName, pass: false, detail: "Prior month rows omitted from wallet cumulative balance: " + JSON.stringify(blu) });
+        cases.push({ name: testName, pass: false, detail: "Period exclusion or same-date precedence failed: " + JSON.stringify(pocket) });
         passed = false;
       }
     } catch (e) {
@@ -28607,8 +28608,8 @@ function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
     var testName = "web_dashboard_wallet_snapshot_inactive_account_exclusion";
     try {
       var mockRows = [
-        { date: new Date(2026, 6, 1), account: "BCA", amount_in: 1000000, type: "income" },
-        { date: new Date(2026, 6, 1), account: "OldBank", amount_in: 500000, type: "income" }
+        { date: new Date(2026, 6, 1), account: "BCA", balance: 1000000, row_index: 2 },
+        { date: new Date(2026, 6, 1), account: "OldBank", balance: 500000, row_index: 3 }
       ];
       var snapshot = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: mockRows, inactiveAccounts: ["OldBank"] });
       var oldBank = snapshot.wallet_snapshot ? snapshot.wallet_snapshot.find(function(w) { return w.account === "OldBank"; }) : null;
@@ -28628,11 +28629,13 @@ function runTask105TelegramCategoryDryRunIntegrationSelfTestFromEditor() {
   (function tc90() {
     var testName = "web_dashboard_wallet_snapshot_empty_state_guard";
     try {
-      var snapshot = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: [], activeAccounts: [] });
-      if (snapshot.wallet_snapshot && snapshot.wallet_snapshot.length === 0) {
-        cases.push({ name: testName, pass: true, detail: "Empty wallet snapshot array produced for 0 accounts" });
+      var snapshotNoHistory = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: [], activeAccounts: ["BCA"] });
+      var bca = snapshotNoHistory.wallet_snapshot ? snapshotNoHistory.wallet_snapshot.find(function(w) { return w.account === "BCA"; }) : null;
+      var emptySnapshot = airoWebDashboardGetSnapshot_({ year: 2026, month: 7 }, { rows: [], activeAccounts: [] });
+      if (bca && bca.status === "NO_LEDGER_HISTORY" && bca.balance === 0 && emptySnapshot.wallet_snapshot && emptySnapshot.wallet_snapshot.length === 0) {
+        cases.push({ name: testName, pass: true, detail: "NO_LEDGER_HISTORY status returned for accounts without rows, empty array for 0 accounts" });
       } else {
-        cases.push({ name: testName, pass: false, detail: "Unexpected wallet snapshot for 0 accounts: " + JSON.stringify(snapshot.wallet_snapshot) });
+        cases.push({ name: testName, pass: false, detail: "Unexpected wallet snapshot for empty state: " + JSON.stringify(bca) });
         passed = false;
       }
     } catch (e) {
@@ -29504,26 +29507,30 @@ function airoWebDashboardGetSnapshot_(input, options) {
   var warnings = [];
   var latestDate = null;
 
-  // Active accounts tracking for wallet snapshot (cumulative up to curEnd)
+  // Active accounts tracking for wallet snapshot (latest Account Ledger balance as of period end)
   var defaultActiveAccounts = ["BCA", "Blu", "Cash", "Blu Pocket", "Mandiri"];
   var activeAccounts = Array.isArray(options.activeAccounts) ? options.activeAccounts : defaultActiveAccounts;
   var inactiveAccounts = Array.isArray(options.inactiveAccounts) ? options.inactiveAccounts : [];
 
   var walletMap = {};
+  var latestDateMap = {};
+  var latestRowMap = {};
   activeAccounts.forEach(function(acc) {
     if (inactiveAccounts.indexOf(acc) === -1) {
       walletMap[acc] = {
         account: acc,
         balance: 0,
-        income_cumulative: 0,
-        expense_cumulative: 0,
-        status: "ACTIVE",
-        period_end: endStr
+        status: "NO_LEDGER_HISTORY",
+        balance_source: "NO_LEDGER_HISTORY",
+        balance_as_of: null,
+        ledger_row: null
       };
+      latestDateMap[acc] = 0;
+      latestRowMap[acc] = -1;
     }
   });
 
-  rows.forEach(function(r) {
+  rows.forEach(function(r, idx) {
     if (!r) return;
     var d = r.date ? (r.date instanceof Date ? r.date : new Date(r.date)) : null;
     if (d && (!latestDate || d.getTime() > latestDate.getTime())) {
@@ -29535,7 +29542,7 @@ function airoWebDashboardGetSnapshot_(input, options) {
     var subcat = String(r.subcategory || "").trim();
     var isTransfer = cat.toLowerCase() === "transfer" || type === "transfer" || r.is_internal_transfer === true;
 
-    // Wallet cumulative net balance calculation (date <= curEnd)
+    // Wallet snapshot: latest Account Ledger balance on or before period end (d <= curEnd)
     if (d && d.getTime() <= curEnd.getTime()) {
       var acc = String(r.account || r.akun || "").trim();
       if (acc) {
@@ -29546,28 +29553,23 @@ function airoWebDashboardGetSnapshot_(input, options) {
         else if (/pocket/i.test(acc)) normAcc = "Blu Pocket";
         else if (/mandiri/i.test(acc)) normAcc = "Mandiri";
 
-        if (inactiveAccounts.indexOf(normAcc) === -1) {
-          if (!walletMap[normAcc]) {
-            walletMap[normAcc] = {
-              account: normAcc,
-              balance: 0,
-              income_cumulative: 0,
-              expense_cumulative: 0,
-              status: "ACTIVE",
-              period_end: endStr
-            };
-          }
+        if (inactiveAccounts.indexOf(normAcc) === -1 && walletMap[normAcc]) {
+          var t = d.getTime();
+          var rIdx = typeof r.row_index === "number" ? r.row_index : (idx + 2);
+          var entryDateStr = d.toISOString().split("T")[0];
 
-          var inc = Number(r.amount_in || 0);
-          var exp = Number(r.amount_out || 0);
-          if (inc === 0 && exp === 0 && r.amount) {
-            if (type === "income" || type === "pemasukan") inc = Number(r.amount);
-            else if (type === "expense" || type === "pengeluaran") exp = Number(r.amount);
+          var prevDate = latestDateMap[normAcc] || 0;
+          var prevRow = latestRowMap[normAcc] !== undefined ? latestRowMap[normAcc] : -1;
+          if (t > prevDate || (t === prevDate && rIdx > prevRow)) {
+            latestDateMap[normAcc] = t;
+            latestRowMap[normAcc] = rIdx;
+            var item = walletMap[normAcc];
+            item.balance = Number(r.balance || 0);
+            item.status = "ACTIVE";
+            item.balance_source = "LATEST_ACCOUNT_LEDGER_BALANCE";
+            item.balance_as_of = entryDateStr;
+            item.ledger_row = rIdx;
           }
-
-          walletMap[normAcc].income_cumulative += inc;
-          walletMap[normAcc].expense_cumulative += exp;
-          walletMap[normAcc].balance = walletMap[normAcc].income_cumulative - walletMap[normAcc].expense_cumulative;
         }
       }
     }

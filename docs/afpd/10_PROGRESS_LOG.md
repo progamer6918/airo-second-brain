@@ -289,3 +289,5 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-21: Verified Web Dashboard Filter & Wallet Repair Guarded Deployment Preflight (all safety and functional guards PASS, GO for deployment execution, `AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`).
 
 - 2026-07-21: Deployed Web Dashboard Filter & Wallet Repair to Google Apps Script live deployment `ZYjuOA` as version `v387` (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_FILTER_AND_WALLET_GUARDED_DEPLOYMENT_EXECUTION`).
+
+- 2026-07-22: Repaired Web Dashboard Wallet Balance semantics locally to use latest Account Ledger balance per active account as of period end (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_LOCAL_REPAIR_NO_DEPLOY`).
