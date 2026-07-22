@@ -295,3 +295,5 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-22: Executed Web Dashboard Latest Ledger Balance Guarded Deployment Preflight (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`). Status: GO.
 
 - 2026-07-22: Executed Web Dashboard Latest Ledger Balance Guarded Deployment (`AIRO_FINANCE_WEB_DASHBOARD_READONLY_LATEST_LEDGER_BALANCE_GUARDED_DEPLOYMENT_EXECUTION`). New version: 388.
+
+- 2026-07-22: Executed Cash Account and Top Subcategory Forensic (`AIRO_FINANCE_WEB_DASHBOARD_CASH_ACCOUNT_AND_TOP_SUBCATEGORY_FORENSIC_NO_DEPLOY`). Root causes identified.
