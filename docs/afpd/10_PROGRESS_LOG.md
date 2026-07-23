@@ -333,3 +333,15 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - Production v390 unchanged.
 - Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
+## 2026-07-23 — Telegram Cross-Project Runtime Incident ASB Checkpoint
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Baseline source commit:** `e12d92a7e315259129704c62b8985624555eeadf`
+- **Owner decisions recorded:** Report Automation VBA frozen; Earesmes live test failed; EarnsAI runtime classified degraded/parked.
+- **Arfin incident:** `AFPD-INC-011` opened for foreign Telegram message ingestion as a zero-amount expense clarification.
+- **Evidence:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **Apps Script mutation:** `NO`.
+- **Telegram runtime mutation:** `NO`.
+- **Token/webhook mutation:** `NO`.
+- **Deployment:** `NO`.
+- **Next gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.

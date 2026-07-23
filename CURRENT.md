@@ -1,3 +1,14 @@
+## P0 Telegram Cross-Project Runtime-Isolation Incident — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Baseline source commit:** `e12d92a7e315259129704c62b8985624555eeadf`
+- **VBA:** `FROZEN_BY_OWNER`.
+- **Earesmes:** Owner live test failed; natural-language message received no Earesmes response.
+- **Arfin:** the Earesmes-targeted message was interpreted as a zero-amount outgoing transaction and opened account clarification.
+- **EarnsAI:** repeated paper-control startup banners observed on 2026-07-19 through 2026-07-23; engine continuity is `NOT_YET_PROVEN`.
+- **Root cause:** `NOT_YET_PROVEN`; token, webhook, route mapping, consumer ownership, and scheduler topology require read-only forensic proof.
+- **Containment:** `AIRO Second Brain Runtime Sync` is disabled while the original local `main` remains materially diverged. No Telegram, Apps Script, token, webhook, or scheduler repair was performed by this checkpoint.
+- **Next exact gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
 ## D-READY Project Registration — 2026-07-17
 
 - Status: `ACTIVE`

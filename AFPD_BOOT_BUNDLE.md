@@ -1020,6 +1020,19 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - **CASH_MAKAN_NOT_INVENTED**: PASS
 - **RESOLVED_AT**: 20260723_200948
 
+## [AFPD-INC-011] Foreign Telegram Message Ingested as Zero-Amount Expense — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **INCIDENT_ID:** `AFPD-INC-011`
+- **INCIDENT:** `FOREIGN_TELEGRAM_MESSAGE_INGESTED_AS_ZERO_AMOUNT_EXPENSE`
+- **SYMPTOM:** A message sent to Earesmes was handled by Arfin as an outgoing transaction with nominal `Rp0` and entered funding-account clarification.
+- **IMPACT:** Cross-project runtime isolation is not proven; unrelated messages can create Arfin clarification state and may be advanced accidentally.
+- **ROOT_CAUSE:** `NOT_YET_PROVEN`.
+- **STATUS:** `OPEN_OWNER_REPORTED_AWAITING_TOPOLOGY_FORENSIC`.
+- **RUNTIME_MUTATION:** `NO`.
+- **RELATED_EVIDENCE:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **REMAINING_RISK:** token/webhook collision, incorrect route fallback, duplicate consumer ownership, or stale scheduled runtime may still exist.
+- **NEXT_GATE:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
@@ -1275,6 +1288,13 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - Result: `PASS`
 - Deployment: `NO`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
+## Telegram Cross-Project Routing Owner Report — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Evidence:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`
+- **Class:** `OWNER_REPORTED_RUNTIME_EVIDENCE`
+- **Incident:** `AFPD-INC-011`
+- **Status:** `OPEN_AWAITING_READ_ONLY_TOPOLOGY_FORENSIC`
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1630,6 +1650,29 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - Production v390 unchanged.
 - Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
+## 2026-07-23 — Telegram Cross-Project Runtime Incident ASB Checkpoint
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Baseline source commit:** `e12d92a7e315259129704c62b8985624555eeadf`
+- **Owner decisions recorded:** Report Automation VBA frozen; Earesmes live test failed; EarnsAI runtime classified degraded/parked.
+- **Arfin incident:** `AFPD-INC-011` opened for foreign Telegram message ingestion as a zero-amount expense clarification.
+- **Evidence:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **Apps Script mutation:** `NO`.
+- **Telegram runtime mutation:** `NO`.
+- **Token/webhook mutation:** `NO`.
+- **Deployment:** `NO`.
+- **Next gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
+## Latest Handoff — Telegram Cross-Project Runtime Isolation Incident — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **AIRO Finance production baseline:** version `390`; no Apps Script deployment or source mutation in this gate.
+- **Incident:** `AFPD-INC-011` is `OPEN_OWNER_REPORTED_AWAITING_TOPOLOGY_FORENSIC`.
+- **Observed:** Earesmes-targeted message was handled by Arfin as a zero-amount outgoing transaction clarification.
+- **EarnsAI:** `PARKED_RUNTIME_DEGRADED`; repeated startup banners observed, continuity not proven.
+- **VBA:** `FROZEN_BY_OWNER`.
+- **ASB operational containment:** `AIRO Second Brain Runtime Sync` disabled while the original local `main` remains diverged; this does not alter Telegram runtime.
+- **Evidence:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **Next exact gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
 
 # 00_CURRENT_HANDOFF.md
 

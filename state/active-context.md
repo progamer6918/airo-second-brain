@@ -1,3 +1,12 @@
+## Active Incident — Telegram Cross-Project Runtime Isolation — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Evidence class:** `OWNER_REPORTED_RUNTIME_EVIDENCE`.
+- **Observed:** message `bro` sent to Earesmes produced no Earesmes response; Arfin returned a zero-amount outgoing-transaction account-selection prompt.
+- **Observed:** EarnsAI paper-control startup banner repeated at 2026-07-19 08:55, 2026-07-19 16:52, 2026-07-20 17:14, 2026-07-21 18:02, 2026-07-22 17:25, and 2026-07-23 17:11 WIB.
+- **Not proven:** token collision, webhook collision, duplicate `getUpdates` consumer, incorrect route fallback, process crash loop, or scheduler relaunch.
+- **Owner decision:** Report Automation VBA is frozen.
+- **Runtime mutation:** none.
+- **Next:** read-only topology, scheduler, process, route, webhook, and token-fingerprint forensic.
 
 last_updated: 2026-06-10
 updated_by: owner-confirmed-design

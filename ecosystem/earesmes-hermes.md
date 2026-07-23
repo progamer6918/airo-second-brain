@@ -70,3 +70,12 @@ SECURITY.md
 - evidence:
   `docs/validation/AIRO_EARESMES_GATEWAY_DURABILITY_20260618.md`.
 - next: PRD v0.5.1 Phase 0A READ_ONLY_AUDIT.
+
+## Runtime Incident Update — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **Status:** `INCIDENT_OPEN_RUNTIME_FAILED`.
+- **Owner live test:** Earesmes did not provide a natural-language response to `bro`.
+- **Cross-project symptom:** Arfin processed that message as an outgoing transaction with nominal `Rp0` and requested a funding account.
+- **Prior durability evidence:** historical only; superseded for current runtime-health classification by this newer Owner live test.
+- **Root cause:** `NOT_YET_PROVEN`.
+- **Next gate:** read-only multi-bot routing and consumer-ownership forensic; no restart or configuration repair in this checkpoint.

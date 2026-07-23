@@ -1,3 +1,14 @@
+## Latest Handoff — Telegram Cross-Project Runtime Isolation Incident — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **AIRO Finance production baseline:** version `390`; no Apps Script deployment or source mutation in this gate.
+- **Incident:** `AFPD-INC-011` is `OPEN_OWNER_REPORTED_AWAITING_TOPOLOGY_FORENSIC`.
+- **Observed:** Earesmes-targeted message was handled by Arfin as a zero-amount outgoing transaction clarification.
+- **EarnsAI:** `PARKED_RUNTIME_DEGRADED`; repeated startup banners observed, continuity not proven.
+- **VBA:** `FROZEN_BY_OWNER`.
+- **ASB operational containment:** `AIRO Second Brain Runtime Sync` disabled while the original local `main` remains diverged; this does not alter Telegram runtime.
+- **Evidence:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **Next exact gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
 # 00_CURRENT_HANDOFF.md
 
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->

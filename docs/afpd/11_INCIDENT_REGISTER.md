@@ -265,3 +265,16 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - **GENERIC_CASH_ABSENT**: PASS
 - **CASH_MAKAN_NOT_INVENTED**: PASS
 - **RESOLVED_AT**: 20260723_200948
+
+## [AFPD-INC-011] Foreign Telegram Message Ingested as Zero-Amount Expense — 2026-07-23
+- **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
+- **INCIDENT_ID:** `AFPD-INC-011`
+- **INCIDENT:** `FOREIGN_TELEGRAM_MESSAGE_INGESTED_AS_ZERO_AMOUNT_EXPENSE`
+- **SYMPTOM:** A message sent to Earesmes was handled by Arfin as an outgoing transaction with nominal `Rp0` and entered funding-account clarification.
+- **IMPACT:** Cross-project runtime isolation is not proven; unrelated messages can create Arfin clarification state and may be advanced accidentally.
+- **ROOT_CAUSE:** `NOT_YET_PROVEN`.
+- **STATUS:** `OPEN_OWNER_REPORTED_AWAITING_TOPOLOGY_FORENSIC`.
+- **RUNTIME_MUTATION:** `NO`.
+- **RELATED_EVIDENCE:** `docs/evidence/airo-runtime/AIRO_TELEGRAM_CROSS_PROJECT_ROUTING_AND_EARNSAI_RELAUNCH_OWNER_REPORT_20260723.md`.
+- **REMAINING_RISK:** token/webhook collision, incorrect route fallback, duplicate consumer ownership, or stale scheduled runtime may still exist.
+- **NEXT_GATE:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.

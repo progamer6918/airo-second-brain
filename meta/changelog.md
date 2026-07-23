@@ -450,3 +450,12 @@ Promoted R8.11 to frozen stable baseline, synchronized verified runtime and pers
 - Semantic integration is not complete; Phase 4.7 is next.
 
 - AFPD boot enforcement (20260712_125135): generated the complete AFPD boot bundle and manifest; BOOT.md, AGENTS.md, and CURRENT.md now enforce the AFPD boot guard. AFPD remains proposed and evidence durability remains partial.
+
+## 2026-07-23 — Telegram Runtime Isolation Incident Checkpoint
+- Recorded Owner freeze decision for Report Automation VBA.
+- Reclassified Earesmes / Hermes as `INCIDENT_OPEN_RUNTIME_FAILED`.
+- Reclassified EarnsAI Pulse Trading as `PARKED_RUNTIME_DEGRADED`.
+- Opened Arfin incident `AFPD-INC-011`.
+- Added sanitized Owner runtime evidence and updated durable ASB pointers.
+- No Telegram, Apps Script, token, webhook, scheduler-repair, or finance-ledger mutation was performed.
+- Marker: `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`.
