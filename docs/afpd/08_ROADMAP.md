@@ -99,3 +99,5 @@ conflict_id: none
 - Status: PROPOSED (Owner Decision: GO_FOR_DISCOVERY_ONLY)
 - Gate: AIRO_FINANCE_WEB_DASHBOARD_READONLY_MVP_PROPOSAL_NO_DEPLOY
 - Scope: Read-Only HtmlService Web App Candidate, Account Ledger approved rows data source
+
+- **2026-07-23 (Phase 1 Local Repair)**: Repaired live client RPC wrapper `airoWebDashboardGetClientSnapshot` to supply Account Registry-derived wallet boundaries. Added read-only helper `airoWebDashboardGetAccountEligibilityReadOnly_`, removed generic `"Cash"` fallback from default list, and added 7 new selftests (124/124 PASS). Next safe gate: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.

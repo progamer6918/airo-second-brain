@@ -229,3 +229,12 @@ STATUS=LIVE_RETEST_PASS_AWAITING_APPROVAL_AND_WORKBOOK_READBACK. Fresh post-v385
 ## 20260721_184341 — AFPD-INC-009 resolved
 
 STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression. Fresh post-v385 live retest showed numeric direction prompt, reply 1 routed to account prompt, Food & Drink misroute did not reproduce, subcategory prompt was numeric, Review Queue readback PASS, approval PASS, Account Ledger readback PASS at row 172. INCIDENT_RESOLVED=YES.
+
+## [AFPD-INC-010] WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GAP — 2026-07-23
+- **INCIDENT_ID**: AFPD-INC-010
+- **INCIDENT**: WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GAP
+- **SYMPTOM**: OWNER_SEES_GENERIC_CASH_AND_NOT_DISTINCT_CASH_UMUM_CASH_BENSIN
+- **ROOT_CAUSE**: LIVE_CLIENT_WRAPPER_DID_NOT_PASS_ACCOUNT_REGISTRY_ELIGIBILITY
+- **TEST_GAP**: INTERNAL_FUNCTION_TESTED_WITH_INJECTED_OPTIONS_BUT_PUBLIC_RPC_WRAPPER_NOT_TESTED
+- **STATUS**: REPAIRED_LOCALLY_NOT_DEPLOYED
+- **DESCRIPTION**: Production v389 live UI rendered generic "Cash" instead of distinct "Cash Umum" and "Cash Bensin" because public RPC wrapper `airoWebDashboardGetClientSnapshot` did not pass Account Registry-derived active accounts into internal snapshot function. Repaired locally via `airoWebDashboardGetAccountEligibilityReadOnly_` and added 7 wrapper-level unit test cases.

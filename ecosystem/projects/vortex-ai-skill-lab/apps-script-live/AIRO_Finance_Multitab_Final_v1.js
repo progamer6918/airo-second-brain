@@ -29508,7 +29508,7 @@ function airoWebDashboardGetSnapshot_(input, options) {
   var latestDate = null;
 
   // Active accounts tracking for wallet snapshot (latest Account Ledger balance as of period end)
-  var defaultActiveAccounts = ["BCA", "Blu", "Cash", "Blu Pocket", "Mandiri"];
+  var defaultActiveAccounts = [];
   var activeAccounts = Array.isArray(options.activeAccounts) ? options.activeAccounts : defaultActiveAccounts;
   var inactiveAccounts = Array.isArray(options.inactiveAccounts) ? options.inactiveAccounts : [];
 
@@ -29731,12 +29731,85 @@ function airoWebDashboardSanitizeInput_(input) {
   return { ok: true, year: y, month: m };
 }
 
-function airoWebDashboardGetClientSnapshot(input) {
+
+function airoWebDashboardGetAccountEligibilityReadOnly_(ss) {
+  if (!ss && typeof SpreadsheetApp !== "undefined" && SpreadsheetApp.getActiveSpreadsheet) {
+    try {
+      ss = SpreadsheetApp.getActiveSpreadsheet();
+    } catch (e) {}
+  }
+  if (!ss) {
+    return { ok: false, error: "spreadsheet_unavailable", activeAccounts: [], inactiveAccounts: [] };
+  }
+
+  var regRes = airoTask103ReadAccountRegistryReadOnly_(ss);
+  if (!regRes || !regRes.ok || !Array.isArray(regRes.accounts)) {
+    return { ok: false, error: (regRes && regRes.error) || "account_registry_read_failed", activeAccounts: [], inactiveAccounts: [] };
+  }
+
+  var activeAccounts = [];
+  var inactiveAccounts = [];
+
+  regRes.accounts.forEach(function(acc) {
+    var name = String(acc.account_name || acc.name || "").trim();
+    if (!name) return;
+    var type = String(acc.type || acc.account_type || acc.group || "").toLowerCase().trim();
+
+    if (/credit|kartu kredit|cc|hutang|debt|pinjaman|cicilan|aset|asset|investasi/i.test(name + " " + type)) {
+      return;
+    }
+
+    var isActive = (acc.active !== undefined) ? (acc.active === true) : (acc.is_active !== false);
+
+    if (isActive) {
+      if (activeAccounts.indexOf(name) === -1) activeAccounts.push(name);
+    } else {
+      if (inactiveAccounts.indexOf(name) === -1) inactiveAccounts.push(name);
+    }
+  });
+
+  return { ok: true, activeAccounts: activeAccounts, inactiveAccounts: inactiveAccounts };
+}
+
+
+function airoWebDashboardGetClientSnapshot(input, options) {
   var sanitized = airoWebDashboardSanitizeInput_(input);
   if (!sanitized.ok) {
     return { ok: false, error: sanitized.error };
   }
-  return airoWebDashboardGetSnapshot_({ year: sanitized.year, month: sanitized.month });
+
+  options = options || {};
+  var ss = options.ss;
+
+  var eligibility = airoWebDashboardGetAccountEligibilityReadOnly_(ss);
+  var activeAccounts = eligibility.ok ? eligibility.activeAccounts : [];
+  var inactiveAccounts = eligibility.ok ? eligibility.inactiveAccounts : [];
+
+  var snapOpts = {
+    activeAccounts: activeAccounts,
+    inactiveAccounts: inactiveAccounts,
+    rows: options.rows,
+    reviewRows: options.reviewRows
+  };
+
+  var snap = airoWebDashboardGetSnapshot_({ year: sanitized.year, month: sanitized.month }, snapOpts);
+  if (!snap) snap = { ok: false, error: "snapshot_failed" };
+
+  if (!eligibility.ok) {
+    snap.data_status = "WARNING";
+    if (!snap.warnings) snap.warnings = [];
+    var warnMsg = "Account Registry Gagal Dibaca: " + (eligibility.error || "ACCOUNT_REGISTRY_READ_FAILED");
+    if (snap.warnings.indexOf(warnMsg) === -1) snap.warnings.push(warnMsg);
+    if (!snap.data_quality) snap.data_quality = { warnings: [] };
+    if (!snap.data_quality.warnings) snap.data_quality.warnings = [];
+    if (snap.data_quality.warnings.indexOf(warnMsg) === -1) snap.data_quality.warnings.push(warnMsg);
+    snap.account_registry_error = eligibility.error || "ACCOUNT_REGISTRY_READ_FAILED";
+  }
+
+  if (!snap.meta) snap.meta = {};
+  snap.meta.wallet_account_source = "ACCOUNT_REGISTRY_READ_ONLY";
+
+  return snap;
 }
 
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
@@ -30588,6 +30661,105 @@ function runTask105OutgoingConfirmationGateSelfTestFromEditor() {
   if (!tc85) passed = false;
 
 
+
+
+
+  // tc101: web_dashboard_client_wrapper_uses_registry_active_accounts
+  var mockSheet101 = {
+    getName: function() { return 'Account Registry'; },
+    getLastRow: function() { return 4; },
+    getLastColumn: function() { return 3; },
+    getRange: function() {
+      return {
+        getDisplayValues: function() {
+          return [['account_name', 'status', 'type']];
+        },
+        getValues: function() {
+          return [
+            ['Cash Umum', 'active', 'Cash'],
+            ['Cash Bensin', 'active', 'Cash'],
+            ['BCA', 'active', 'Bank']
+          ];
+        }
+      };
+    }
+  };
+  var mockSs101 = {
+    getSheets: function() { return [mockSheet101]; },
+    getSheetByName: function(name) {
+      if (name === 'Account Registry') return mockSheet101;
+      return null;
+    }
+  };
+  var snap101 = airoWebDashboardGetClientSnapshot({ year: 2026, month: 7 }, { ss: mockSs101 });
+  var walletNames101 = (snap101.wallet_snapshot || []).map(function(w) { return w.account; });
+  var tc101 = (snap101.ok === true && walletNames101.indexOf('Cash Umum') !== -1 && walletNames101.indexOf('Cash Bensin') !== -1 && walletNames101.indexOf('BCA') !== -1);
+  cases.push({ name: "web_dashboard_client_wrapper_uses_registry_active_accounts", pass: tc101, details: JSON.stringify(walletNames101) });
+  if (!tc101) passed = false;
+
+  // tc102: web_dashboard_client_wrapper_cash_umum_cash_bensin_distinct
+  var wUmum102 = (snap101.wallet_snapshot || []).find(function(w) { return w.account === 'Cash Umum'; });
+  var wBensin102 = (snap101.wallet_snapshot || []).find(function(w) { return w.account === 'Cash Bensin'; });
+  var tc102 = (!!wUmum102 && !!wBensin102 && wUmum102.account !== wBensin102.account);
+  cases.push({ name: "web_dashboard_client_wrapper_cash_umum_cash_bensin_distinct", pass: tc102, details: JSON.stringify({ umum: wUmum102, bensin: wBensin102 }) });
+  if (!tc102) passed = false;
+
+  // tc103: web_dashboard_client_wrapper_generic_cash_absent
+  var wCash103 = (snap101.wallet_snapshot || []).find(function(w) { return w.account === 'Cash'; });
+  var tc103 = (wCash103 === undefined);
+  cases.push({ name: "web_dashboard_client_wrapper_generic_cash_absent", pass: tc103, details: JSON.stringify({ generic_cash_present: !!wCash103 }) });
+  if (!tc103) passed = false;
+
+  // tc104: web_dashboard_client_wrapper_cash_makan_not_invented_when_registry_absent
+  var wMakan104 = (snap101.wallet_snapshot || []).find(function(w) { return w.account === 'Cash Makan'; });
+  var tc104 = (wMakan104 === undefined);
+  cases.push({ name: "web_dashboard_client_wrapper_cash_makan_not_invented_when_registry_absent", pass: tc104, details: JSON.stringify({ cash_makan_present: !!wMakan104 }) });
+  if (!tc104) passed = false;
+
+  // tc105: web_dashboard_client_wrapper_registry_failure_empty_wallet_no_generic_fallback
+  var snap105 = airoWebDashboardGetClientSnapshot({ year: 2026, month: 7 });
+  var tc105 = (snap105.ok === true && snap105.data_status === 'WARNING' && Array.isArray(snap105.wallet_snapshot) && snap105.wallet_snapshot.length === 0);
+  cases.push({ name: "web_dashboard_client_wrapper_registry_failure_empty_wallet_no_generic_fallback", pass: tc105, details: JSON.stringify({ data_status: snap105.data_status, wallet_count: snap105.wallet_snapshot ? snap105.wallet_snapshot.length : 0 }) });
+  if (!tc105) passed = false;
+
+  // tc106: web_dashboard_client_wrapper_registry_bridge_read_only
+  var origSs106 = JSON.stringify(mockSs101);
+  var bridge106 = airoWebDashboardGetAccountEligibilityReadOnly_(mockSs101);
+  var tc106 = (bridge106.ok === true && Array.isArray(bridge106.activeAccounts) && bridge106.activeAccounts.indexOf('Cash Umum') !== -1 && JSON.stringify(mockSs101) === origSs106);
+  cases.push({ name: "web_dashboard_client_wrapper_registry_bridge_read_only", pass: tc106, details: JSON.stringify(bridge106) });
+  if (!tc106) passed = false;
+
+  // tc107: web_dashboard_client_wrapper_excludes_inactive_cash_row
+  var mockSheet107 = {
+    getName: function() { return 'Account Registry'; },
+    getLastRow: function() { return 3; },
+    getLastColumn: function() { return 3; },
+    getRange: function() {
+      return {
+        getDisplayValues: function() {
+          return [['account_name', 'status', 'type']];
+        },
+        getValues: function() {
+          return [
+            ['Cash Umum', 'active', 'Cash'],
+            ['Cash Lama', 'inactive', 'Cash']
+          ];
+        }
+      };
+    }
+  };
+  var mockSs107 = {
+    getSheets: function() { return [mockSheet107]; },
+    getSheetByName: function(name) {
+      if (name === 'Account Registry') return mockSheet107;
+      return null;
+    }
+  };
+  var snap107 = airoWebDashboardGetClientSnapshot({ year: 2026, month: 7 }, { ss: mockSs107 });
+  var walletNames107 = (snap107.wallet_snapshot || []).map(function(w) { return w.account; });
+  var tc107 = (snap107.ok === true && walletNames107.indexOf('Cash Umum') !== -1 && walletNames107.indexOf('Cash Lama') === -1);
+  cases.push({ name: "web_dashboard_client_wrapper_excludes_inactive_cash_row", pass: tc107, details: JSON.stringify(walletNames107) });
+  if (!tc107) passed = false;
 
 
   var result = {
