@@ -1,5 +1,7 @@
 # 01_PROJECT_CHARTER.md
 
+# 01_PROJECT_CHARTER.md
+
 <!-- AFPD_PROVENANCE
 source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
 source_lines: 11-18
@@ -33,6 +35,8 @@ The purpose of the AIRO Finance Project is to establish a secure, multi-tab tran
 ## Product Boundary
 - **Input Channels**: Telegram bot and Gmail poller.
 - **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
+
+# 02_ARCHITECTURE_AND_GOVERNANCE.md
 
 # 02_ARCHITECTURE_AND_GOVERNANCE.md
 
@@ -99,6 +103,8 @@ conflict_id: none
 - Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
 - Every completed session MUST update `00_CURRENT_HANDOFF.md`.
 - No task is considered closed until these records are fully updated.
+
+# 03_ARFIN_RUNTIME_CONTRACT.md
 
 # 03_ARFIN_RUNTIME_CONTRACT.md
 
@@ -308,6 +314,8 @@ The script uses Asia/Jakarta timezone for business calendar dates while the mani
 
 # 04_RUNTIME_TOPOLOGY.md
 
+# 04_RUNTIME_TOPOLOGY.md
+
 <!-- AFPD_PROVENANCE
 source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
 source_lines: 68-75
@@ -352,6 +360,8 @@ conflict_id: none
 
 # 05_STATE_MACHINES.md
 
+# 05_STATE_MACHINES.md
+
 ## Intake Flow States
 - **email_outgoing_account_pending**: Awaiting funding account selection.
 - **category_pending / category_expense**: Awaiting category mapping index.
@@ -370,6 +380,8 @@ conflict_id: none
 - **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
 - **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
 - **Committed Transaction**: Transaction finalized in Account Ledger.
+
+# 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
 # 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
@@ -577,6 +589,8 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
 
+# 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
+
 ## Deployment Safety
 - **Source SHA Guards**: Verify file hashes locally before clasp push.
 - **Immutable Versioning**: Create version descriptions matching `AIRO_ARFIN_BRIDGE_PERSISTENCE_V1_<timestamp>`.
@@ -584,6 +598,8 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 - **Rollback Routine**: Restores version to previous stable version (e.g., 365) if self-test fails.
 
 *Note: No deployment operations were executed in this documentation-only phase.*
+
+# 08_ROADMAP.md
 
 # 08_ROADMAP.md
 
@@ -665,10 +681,19 @@ migration_status: HISTORICAL
 conflict_id: none
 -->
 
-## Active Roadmap
-The current roadmap from the Living PRD defines active tasks:
-- **Task 10.1**: Documentation reconciliation (Gate 12) IN_PROGRESS.
-- **Task 10.2**: Deploy filter dropdown fix (Gate 11) PASS.
+## Active Roadmap: AIRO Finance Web App V2 Track (2026-07-23)
+- **Status:** OWNER_APPROVED
+- **Execution Plan Pointer:** `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md`
+- **Phase 0 (Canonicalization):** PASS (this docs-only gate)
+- **Phase 1 (Stabilize MVP):** Separate Cash matching, Top Subcategory, split filters, Cash Makan post-deploy.
+- **Phase 2 (V2 Shell):** Responsive 4-domain shell, loading/empty/stale states, Category/Subcategory comparisons.
+- **Phase 3 (Adapter Foundation):** Lazy-loading RPC boundary (`getDashboardOverviewSnapshot`, `getDashboardDomainSnapshot`).
+- **Phase 4 (Cicilan Rumah):** First complex domain vertical slice.
+- **Phase 5 (Credit Card):** Credit card vertical slice.
+- **Phase 6 (Hutang):** Hutang vertical slice.
+- **Phase 7 (Aset / Emas):** Assets vertical slice.
+- **Phase 8 (Unified Activity & Hardening):** Cross-domain activity log and final production hardening.
+- **Immediate Next Gate:** `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`
 
 ## Historical Sprints
 - Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
@@ -680,6 +705,8 @@ The current roadmap from the Living PRD defines active tasks:
 
 # 09_DECISION_REGISTER.md
 
+# 09_DECISION_REGISTER.md
+
 ## Durable Decision Records
 - **AFPD Proposed Authority Hierarchy**: Initiated Phase 3 skeleton creation to replace split authority between Final Kitab and ARFIN.md once canonical activation is granted.
 - **Final Kitab Preservation**: Final Kitab is preserved unchanged during documentation migrations to maintain historical stability.
@@ -687,6 +714,17 @@ The current roadmap from the Living PRD defines active tasks:
 - **Review Queue Dual Semantics**: Separate status mappings for Manual-Review Fallback and Approval Staging.
 - **Numeric UX Prompts**: Prompts upgraded to numeric indexes (`1..N`, `0`). Alpha A-E remains legacy/unresolved.
 - **Timezone Normalization Deferred**: Jakarta business timezone is active in script; Bangkok manifest timezone normalization is deferred.
+## AIRO Finance Web App V2 Direction & Architecture Decisions (2026-07-23)
+- **Web App V2 Product Model:** Read-only finance cockpit. Source of truth remains Google Sheets. Backend remains Google Apps Script. Web App must not approve, edit, delete, save, post, or mutate financial data. No external DB or SaaS migration.
+- **Information Architecture:** 7 core domains (Ringkasan, Pengeluaran, Akun & Saldo, Kewajiban [Credit Card, Hutang, Cicilan Rumah], Aset [Emas, future assets], Aktivitas, Data Quality).
+- **Global UI Contract:** Month and Year selectors must remain separate (combined month-year selector is forbidden). Responsive navigation (sidebar on Desktop, compact/bottom nav on Mobile). Visible read-only indicator. Safe DOM insertion.
+- **Spending Contract:** Top Category & Top Subcategory available with previous-period comparison (`new`, `increase`, `decrease`, `disappeared`, `no_comparison`). Backend adapters supply canonical values; browser does not calculate domain truth.
+- **Account Contract:** `CASH_ACCOUNT_MODEL=SEPARATE`, `CASH=NOT_USED`, `CASH_UMUM=ACTIVE`, `CASH_BENSIN=ACTIVE`, `CASH_MAKAN=ACTIVE`, `CASH_AND_CASH_UMUM_ARE_SAME_ACCOUNT=NO`, `CASH_GROUP_AGGREGATION=DISABLED`, `CASH_REGEX_COLLAPSE=FORBIDDEN`, `WALLET_MATCHING=EXACT_CANONICAL_ACCOUNT`.
+- **Deployment-Before-Registry Sequence:** Deployment of separate cash matching and Top Subcategory rendering occurs BEFORE Account Registry mutation. Cash Makan registry insertion is deferred until post-deploy. No inactive `Cash` tombstone row insertion.
+- **Domain Execution Order:** Cicilan Rumah is established as the first complex domain vertical slice following Phase 3 foundation.
+- **Anti-Freeze Rules:** Enforced 12 anti-freeze execution rules including 1-gate-1-deliverable, max 1-2 days without visible artifact, and mandatory bounded forensic gates for >2hr investigations.
+
+# 11_INCIDENT_REGISTER.md
 
 # 11_INCIDENT_REGISTER.md
 
@@ -922,6 +960,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 # 12_EVIDENCE_INDEX.md
 
+# 12_EVIDENCE_INDEX.md
+
 ## Phase Evidence Index
 
 ### Phase 1 Audit Artifacts
@@ -1145,6 +1185,9 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - 2026-07-22: Executed Cash Account and Top Subcategory Forensic (`AIRO_FINANCE_WEB_DASHBOARD_CASH_ACCOUNT_AND_TOP_SUBCATEGORY_FORENSIC_NO_DEPLOY`). Root causes identified.
 
 - 2026-07-22: Executed Separate Cash Wallets and Top Subcategory Repair (`AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_LOCAL_REPAIR_NO_DEPLOY`). 117/117 selftests PASS.
+- 2026-07-23: Recorded Web App V2 PRD addendum (`ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_WEB_APP_V2_PRD_ADDENDUM.md`), execution slice plan (`ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md`), prototype direction review (`ecosystem/projects/vortex-ai-skill-lab/docs/validation/AIRO_FINANCE_WEB_APP_V2_PROTOTYPE_DIRECTION_REVIEW_PUBLIC_SAFE_20260722.md`), and docs-only evidence summary/proof (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_CANONICALIZATION_AND_SLICE_ROADMAP_DOCS_ONLY_NO_PATCH_NO_DEPLOY_20260723_173941_SUMMARY.md`), `AIRO_FINANCE_WEB_APP_V2_CANONICALIZATION_AND_SLICE_ROADMAP_DOCS_ONLY_NO_PATCH_NO_DEPLOY`.
+
+# 99_HISTORICAL_AND_SUPERSEDED.md
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1164,6 +1207,8 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 ### Fallback-Only Review Queue Interpretation
 - The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
+
+# 10_PROGRESS_LOG.md
 
 # 10_PROGRESS_LOG.md
 
@@ -1466,14 +1511,19 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-22: Executed Cash Account and Top Subcategory Forensic (`AIRO_FINANCE_WEB_DASHBOARD_CASH_ACCOUNT_AND_TOP_SUBCATEGORY_FORENSIC_NO_DEPLOY`). Root causes identified.
 
 - 2026-07-22: Executed Separate Cash Wallets and Top Subcategory Repair (`AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_LOCAL_REPAIR_NO_DEPLOY`). 117/117 selftests PASS.
+- 2026-07-23: Canonicalized AIRO Finance Web App V2 direction, prototype review, phased vertical-slice execution roadmap (Phases 0–8), anti-freeze execution rules, and recorded immediate next gate (`AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`), `AIRO_FINANCE_WEB_APP_V2_CANONICALIZATION_AND_SLICE_ROADMAP_DOCS_ONLY_NO_PATCH_NO_DEPLOY`.
+
+# 00_CURRENT_HANDOFF.md
 
 # 00_CURRENT_HANDOFF.md
 
 ## Current Verified State
-- **Apps Script Production Version**: 375
-- **Source Code SHA-256**: `dde3e8cec69ef45d33e7e54a6a4e16ee07084a3016f73c7b02d6d169eee4947d`
+- **Apps Script Production Version**: 388
+- **Rollback Version**: 387
+- **Source Code SHA-256**: `7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8`
+- **Active Web Dashboard HTML SHA-256**: `b427db9f0fbeec6bf4b68152c8c5eaa37c664584a33fde60d8f86259b4b67934`
 - **Latest Known Deployment ID**: `AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA`
-- **Latest Known Deployment Fingerprint**: `497865e5f3c2345b`
+- **Local Separate-Cash & Top-Subcategory Repair Status**: PASS (117/117 selftests, not deployed)
 
 ## Gmail Poller Window
 - **Active Ingestion Business Window**: 09:00 - 00:59 WIB (Asia/Jakarta)
@@ -3039,6 +3089,23 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **DEPLOYMENT_PERFORMED**: NO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_ACCOUNT_REGISTRY_SEPARATE_CASH_ACCOUNTS_GUARDED_MUTATION_PREFLIGHT_NO_MUTATION
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_LOCAL_REPAIR_NO_DEPLOY`
+## AIRO Finance Web App V2 Direction & Execution Slice Roadmap Handoff — 2026-07-23
+- **WEB_APP_V2_DIRECTION**: OWNER_APPROVED
+- **WEB_APP_V2_IMPLEMENTATION**: NOT_STARTED
+- **REAL_DATA_PROTOTYPE**: LOCAL_ONLY_OWNER_REFERENCE
+- **PROTOTYPE_DIRECTION_REVIEW**: ACCEPTED_WITH_FEEDBACK
+- **MONTH_YEAR_FILTER**: SEPARATE_REQUIRED
+- **CATEGORY_PREVIOUS_PERIOD_COMPARISON**: REQUIRED
+- **SUBCATEGORY_PREVIOUS_PERIOD_COMPARISON**: REQUIRED
+- **WEB_APP_MODE**: READ_ONLY
+- **PRODUCTION_ACTIVE_VERSION**: 388
+- **SEPARATE_CASH_TOP_SUBCATEGORY_REPAIR**: LOCAL_PASS_117_OF_117_NOT_DEPLOYED
+- **CASH_ROW_INSERT_REQUIRED**: NO
+- **CASH_MAKAN_REGISTRY_INSERT**: DEFERRED_UNTIL_POST_DEPLOY
+- **IMMEDIATE_NEXT_GATE**: AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY
+- **Marker**: `AIRO_FINANCE_WEB_APP_V2_CANONICALIZATION_AND_SLICE_ROADMAP_DOCS_ONLY_NO_PATCH_NO_DEPLOY`
+
+# 13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
@@ -3219,6 +3286,8 @@ Before writing UI component code, prototype JSON generators MUST verify:
   }
 }
 ```
+
+# 14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md

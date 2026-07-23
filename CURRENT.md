@@ -15,6 +15,17 @@
 - For AIRO Finance / Arfin work, read `ARFIN.md` before Apps Script, pending-state, Telegram, Review Queue, Account Ledger, or approval changes.
 - This is a docs-only canonical contract update. Runtime patches still require separate evidence.
 
+## AIRO Finance Web App V2 Canonical Direction & Execution Slice Roadmap — 2026-07-23
+
+- **Status:** OWNER_APPROVED
+- **PRD Addendum:** `ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_WEB_APP_V2_PRD_ADDENDUM.md` (OWNER_APPROVED_ACTIVE_PROJECT_ADDENDUM)
+- **Execution Slice Plan:** `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md`
+- **Prototype Direction Review:** `ecosystem/projects/vortex-ai-skill-lab/docs/validation/AIRO_FINANCE_WEB_APP_V2_PROTOTYPE_DIRECTION_REVIEW_PUBLIC_SAFE_20260722.md`
+- **Current Track:** Web App V2 read-only cockpit with 7 core domains, separate Month/Year filters, Subcategory growth comparison, exact-account wallet matching (`CASH_UMUM`, `CASH_BENSIN`), and lazy-loaded domain RPC boundary.
+- **Legacy Dashboard Lite Status:** Superseded for current Web App execution direction, preserved as historical reference.
+- **Immediate Next Gate:** `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
+- **Runtime/Deploy Note:** Docs-only update. Apps Script source code and live deployment unmutated in this gate.
+
 ## AIRO Finance Dashboard Lite Re-scope - 2026-07-05
 
 - **Status:** OWNER_REVIEW_BLOCKED

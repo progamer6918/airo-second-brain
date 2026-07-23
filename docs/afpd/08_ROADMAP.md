@@ -78,10 +78,19 @@ migration_status: HISTORICAL
 conflict_id: none
 -->
 
-## Active Roadmap
-The current roadmap from the Living PRD defines active tasks:
-- **Task 10.1**: Documentation reconciliation (Gate 12) IN_PROGRESS.
-- **Task 10.2**: Deploy filter dropdown fix (Gate 11) PASS.
+## Active Roadmap: AIRO Finance Web App V2 Track (2026-07-23)
+- **Status:** OWNER_APPROVED
+- **Execution Plan Pointer:** `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md`
+- **Phase 0 (Canonicalization):** PASS (this docs-only gate)
+- **Phase 1 (Stabilize MVP):** Separate Cash matching, Top Subcategory, split filters, Cash Makan post-deploy.
+- **Phase 2 (V2 Shell):** Responsive 4-domain shell, loading/empty/stale states, Category/Subcategory comparisons.
+- **Phase 3 (Adapter Foundation):** Lazy-loading RPC boundary (`getDashboardOverviewSnapshot`, `getDashboardDomainSnapshot`).
+- **Phase 4 (Cicilan Rumah):** First complex domain vertical slice.
+- **Phase 5 (Credit Card):** Credit card vertical slice.
+- **Phase 6 (Hutang):** Hutang vertical slice.
+- **Phase 7 (Aset / Emas):** Assets vertical slice.
+- **Phase 8 (Unified Activity & Hardening):** Cross-domain activity log and final production hardening.
+- **Immediate Next Gate:** `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`
 
 ## Historical Sprints
 - Sprint 0A through Sprint 7 are legacy records of completed features and MUST NOT be used for active task sequences.
