@@ -16,3 +16,15 @@
 - **Deployment-Before-Registry Sequence:** Deployment of separate cash matching and Top Subcategory rendering occurs BEFORE Account Registry mutation. Cash Makan registry insertion is deferred until post-deploy. No inactive `Cash` tombstone row insertion.
 - **Domain Execution Order:** Cicilan Rumah is established as the first complex domain vertical slice following Phase 3 foundation.
 - **Anti-Freeze Rules:** Enforced 12 anti-freeze execution rules including 1-gate-1-deliverable, max 1-2 days without visible artifact, and mandatory bounded forensic gates for >2hr investigations.
+
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## Decision — Close Phase 1 and open Phase 2
+
+Recorded at: 2026-07-23T13:53:12+00:00
+Decision: Phase 1 is closed as PASS.
+Production remains version 390.
+Cash Makan already exists exactly once, is active, aligned, and rendered.
+No Cash Makan insertion, activation, or registry remediation is required.
+Phase 2 begins with a separate local shell candidate and no deployment.
+The prior audit is functionally PASS with process limitations recorded.
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->

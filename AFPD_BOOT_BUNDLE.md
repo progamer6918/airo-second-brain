@@ -1,7 +1,5 @@
 # 01_PROJECT_CHARTER.md
 
-# 01_PROJECT_CHARTER.md
-
 <!-- AFPD_PROVENANCE
 source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
 source_lines: 11-18
@@ -35,8 +33,6 @@ The purpose of the AIRO Finance Project is to establish a secure, multi-tab tran
 ## Product Boundary
 - **Input Channels**: Telegram bot and Gmail poller.
 - **Output Target**: Reconciled workbook (`Account Ledger`, `Credit Card`, `Hutang`, `Aset`, `Cicilan Rumah`).
-
-# 02_ARCHITECTURE_AND_GOVERNANCE.md
 
 # 02_ARCHITECTURE_AND_GOVERNANCE.md
 
@@ -103,8 +99,6 @@ conflict_id: none
 - Every deployment MUST record source SHA, version, deployment ID, and self-test verification.
 - Every completed session MUST update `00_CURRENT_HANDOFF.md`.
 - No task is considered closed until these records are fully updated.
-
-# 03_ARFIN_RUNTIME_CONTRACT.md
 
 # 03_ARFIN_RUNTIME_CONTRACT.md
 
@@ -314,8 +308,6 @@ The script uses Asia/Jakarta timezone for business calendar dates while the mani
 
 # 04_RUNTIME_TOPOLOGY.md
 
-# 04_RUNTIME_TOPOLOGY.md
-
 <!-- AFPD_PROVENANCE
 source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
 source_lines: 68-75
@@ -360,8 +352,6 @@ conflict_id: none
 
 # 05_STATE_MACHINES.md
 
-# 05_STATE_MACHINES.md
-
 ## Intake Flow States
 - **email_outgoing_account_pending**: Awaiting funding account selection.
 - **category_pending / category_expense**: Awaiting category mapping index.
@@ -380,8 +370,6 @@ conflict_id: none
 - **Manual-Review Fallback**: Review Queue row marked with `issue_reason` fallback status.
 - **Approval Staging**: Review Queue row with `pending` status awaiting `/approval`.
 - **Committed Transaction**: Transaction finalized in Account Ledger.
-
-# 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
 # 06_DATA_AND_WORKBOOK_CONTRACTS.md
 
@@ -589,8 +577,6 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
 
-# 07_OPERATIONS_DEPLOYMENT_TRIGGERS.md
-
 ## Deployment Safety
 - **Source SHA Guards**: Verify file hashes locally before clasp push.
 - **Immutable Versioning**: Create version descriptions matching `AIRO_ARFIN_BRIDGE_PERSISTENCE_V1_<timestamp>`.
@@ -601,7 +587,16 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 08_ROADMAP.md
 
-# 08_ROADMAP.md
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## Phase Entry — 2026-07-23T13:53:12+00:00
+
+Phase 0 canonicalization: PASS
+Phase 1 MVP stabilization: PASS
+Phase 2 Web App V2 Shell: READY_TO_START
+Phase 3-8: PLANNED
+Immediate next gate: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
+
 
 <!-- AFPD_PROVENANCE
 source_path: ecosystem/projects/vortex-ai-skill-lab/docs/AIRO_FINANCE_COMMAND_CENTER_FINAL_KITAB.md
@@ -715,8 +710,6 @@ conflict_id: none
 
 # 09_DECISION_REGISTER.md
 
-# 09_DECISION_REGISTER.md
-
 ## Durable Decision Records
 - **AFPD Proposed Authority Hierarchy**: Initiated Phase 3 skeleton creation to replace split authority between Final Kitab and ARFIN.md once canonical activation is granted.
 - **Final Kitab Preservation**: Final Kitab is preserved unchanged during documentation migrations to maintain historical stability.
@@ -734,7 +727,17 @@ conflict_id: none
 - **Domain Execution Order:** Cicilan Rumah is established as the first complex domain vertical slice following Phase 3 foundation.
 - **Anti-Freeze Rules:** Enforced 12 anti-freeze execution rules including 1-gate-1-deliverable, max 1-2 days without visible artifact, and mandatory bounded forensic gates for >2hr investigations.
 
-# 11_INCIDENT_REGISTER.md
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## Decision — Close Phase 1 and open Phase 2
+
+Recorded at: 2026-07-23T13:53:12+00:00
+Decision: Phase 1 is closed as PASS.
+Production remains version 390.
+Cash Makan already exists exactly once, is active, aligned, and rendered.
+No Cash Makan insertion, activation, or registry remediation is required.
+Phase 2 begins with a separate local shell candidate and no deployment.
+The prior audit is functionally PASS with process limitations recorded.
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
 
 # 11_INCIDENT_REGISTER.md
 
@@ -1006,8 +1009,6 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 # 12_EVIDENCE_INDEX.md
 
-# 12_EVIDENCE_INDEX.md
-
 ## Phase Evidence Index
 
 ### Phase 1 Audit Artifacts
@@ -1240,7 +1241,16 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - 2026-07-23: Recorded Owner live production acceptance summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION_20260723_200948_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION_20260723_200948_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION`.
 - 2026-07-23: Recorded Cash Makan Account Registry read-only audit summary (`docs/evidence/airo-finance/AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION_20260723_202044_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION_20260723_202044_PROOF.json`). Marker: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`.
 
-# 99_HISTORICAL_AND_SUPERSEDED.md
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## Phase 1 Closeout / Phase 2 Entry — 2026-07-23T13:53:12+00:00
+
+Summary: docs/evidence/airo-finance/AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION_20260723_205259_SUMMARY.md
+Proof: docs/evidence/airo-finance/AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION_20260723_205259_PROOF.json
+Result: PASS
+Runtime mutation: NO
+Production: v390
+Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1260,8 +1270,6 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 
 ### Fallback-Only Review Queue Interpretation
 - The earlier interpretation that Review Queue was only used as a fallback error pool rather than a normal staging pool.
-
-# 10_PROGRESS_LOG.md
 
 # 10_PROGRESS_LOG.md
 
@@ -1573,9 +1581,35 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-23: Recorded Owner live production acceptance for version 390. Owner confirmed live rendering PASS (Cash Umum distinct, Cash Bensin distinct, generic Cash absent, Cash Makan not invented, Top Subcategory PASS). AFPD-INC-010 marked RESOLVED. Production version remains 390 (no deploy). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION`.
 - 2026-07-23: Executed read-only Account Registry audit for Cash Makan. Verified Cash Makan exists exactly once, active, aligned, and rendered in live v390 dashboard. No workbook mutation. Phase 1 closeout ready. Marker: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`.
 
-# 00_CURRENT_HANDOFF.md
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## 2026-07-23T13:53:12+00:00 — Phase 1 closeout
+
+PHASE_1_FULL_CLOSEOUT=PASS
+CASH_MAKAN_MUTATION_REQUIRED=NO
+PHASE_2_WEB_APP_V2_SHELL_STATUS=READY_TO_START
+PRODUCTION_REMAINS_VERSION=390
+NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
 
 # 00_CURRENT_HANDOFF.md
+
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
+## Verified Phase State — 2026-07-23T13:53:12+00:00
+
+PRODUCTION_ACTIVE_VERSION=390
+IMMEDIATE_ROLLBACK_VERSION=389
+SECONDARY_ROLLBACK_VERSION=388
+SOURCE_SHA256=91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940
+ACTIVE_HTML_SHA256=b427db9f0fbeec6bf4b68152c8c5eaa37c664584a33fde60d8f86259b4b67934
+LOCAL_SELFTEST=124_OF_124
+OWNER_LIVE_ACCEPTANCE=PASS
+AFPD_INC_010=RESOLVED
+PHASE_1_FULL_CLOSEOUT=PASS
+CASH_MAKAN_MUTATION_REQUIRED=NO
+PHASE_2_STATUS=READY_TO_START
+NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
+<!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
+
 
 ## Current Verified State
 - **Apps Script Production Version**: 389
@@ -3301,8 +3335,6 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION
 - **Marker**: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`
 
-# 13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
-
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
 source_lines: 1-200
@@ -3482,8 +3514,6 @@ Before writing UI component code, prototype JSON generators MUST verify:
   }
 }
 ```
-
-# 14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/14_WEB_DASHBOARD_READONLY_HTMLSERVICE_INTEGRATION_PLAN.md
