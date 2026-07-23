@@ -272,3 +272,15 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - Contract test: `30/30 PASS`
 - Deployment: `NO`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Owner Visual Acceptance — 2026-07-23T15:20:46+00:00
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_20260723_222040_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_20260723_222040_PROOF.json`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- Result: `PASS`
+- Visual direction: `ACCEPTED`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->

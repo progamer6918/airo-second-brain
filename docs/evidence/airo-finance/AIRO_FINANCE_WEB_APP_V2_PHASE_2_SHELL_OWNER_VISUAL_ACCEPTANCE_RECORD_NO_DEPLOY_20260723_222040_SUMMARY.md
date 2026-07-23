@@ -1,0 +1,36 @@
+# AIRO Finance Web App V2 Phase 2 Shell Owner Visual Acceptance
+
+- Gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY`
+- Recorded at: `2026-07-23T15:20:46+00:00`
+- Owner statement: `PASS ALL`
+- Owner visual review: `PASS`
+- Ringkasan render: `PASS`
+- Pengeluaran render: `PASS`
+- Akun & Saldo render: `PASS`
+- Data Quality render: `PASS`
+- Navigation runtime: `PASS`
+- Desktop sidebar: `PASS`
+- Mobile navigation: `PASS`
+- Separate Month and Year filters: `PASS`
+- Loading state: `PASS`
+- Empty state: `PASS`
+- Warning state: `PASS`
+- Error state: `PASS`
+- Cash account presentation: `PASS`
+- Top Category presentation: `PASS`
+- Top Subcategory presentation: `PASS`
+- Read-Only presentation: `PASS`
+- Visual direction: `ACCEPTED`
+- Notes: `NONE`
+- Candidate SHA-256: `99340e80ac57f92fc67c46bde6a60dd416755b5c53c8aecf4f78183070093906`
+- Contract test SHA-256: `155f81cb26e59518c161fac3a5f829488da3fe0ce2411613343b2c430d6af1d7`
+- JavaScript syntax: `PASS`
+- Contract test: `30/30 PASS`
+- Candidate data mode: `PUBLIC_SAFE_SAMPLE_DATA`
+- Source changed: `NO`
+- Active dashboard changed: `NO`
+- Backend RPC changed: `NO`
+- Workbook mutation: `NO`
+- Deployment performed: `NO`
+- Production remains version: `390`
+- Next safe gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`

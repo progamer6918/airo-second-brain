@@ -358,3 +358,20 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - Production v390 and active Apps Script files remain unchanged.
 - Next: Owner visual re-review of the refreshed local candidate.
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## 2026-07-23T15:20:46+00:00 — Phase 2 shell Owner visual acceptance
+
+- Owner result: `PASS ALL`
+- Runtime navigation: `PASS`
+- Primary page rendering: `PASS`
+- Accounts rendering: `PASS`
+- Demo state rendering: `PASS`
+- Mobile navigation: `PASS`
+- Visual direction: `ACCEPTED`
+- Candidate JavaScript syntax: `PASS`
+- Contract test: `30/30 PASS`
+- Production remains version `390`.
+- Deployment performed: `NO`
+- Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->

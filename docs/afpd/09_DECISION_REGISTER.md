@@ -28,3 +28,19 @@ No Cash Makan insertion, activation, or registry remediation is required.
 Phase 2 begins with a separate local shell candidate and no deployment.
 The prior audit is functionally PASS with process limitations recorded.
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Decision — Accept Web App V2 Phase 2 Shell
+
+- Recorded: `2026-07-23T15:20:46+00:00`
+- Owner acceptance: `PASS ALL`
+- The responsive shell direction is accepted.
+- Ringkasan, Pengeluaran, Akun & Saldo and Data Quality render correctly.
+- Desktop and mobile navigation are accepted.
+- Month and Year controls are accepted.
+- Loading, Empty, Warning and Error states are accepted.
+- Cash account separation and read-only presentation are accepted.
+- The candidate remains local and uses public-safe sample data.
+- No production deployment is authorized by this decision.
+- Next work begins with a local read-only snapshot adapter candidate.
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->

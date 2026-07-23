@@ -587,6 +587,21 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 08_ROADMAP.md
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Phase 2 Web App V2 Shell Acceptance — 2026-07-23T15:20:46+00:00
+
+- Local shell candidate build: `PASS`
+- JavaScript runtime repair: `PASS`
+- Contract test: `30/30 PASS`
+- Owner visual review: `PASS`
+- Visual direction: `ACCEPTED`
+- Phase 2 shell status: `OWNER_ACCEPTED`
+- Production deployment: `NO`
+- Production remains: `v390`
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
+
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
 ## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
 
@@ -765,6 +780,22 @@ No Cash Makan insertion, activation, or registry remediation is required.
 Phase 2 begins with a separate local shell candidate and no deployment.
 The prior audit is functionally PASS with process limitations recorded.
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Decision — Accept Web App V2 Phase 2 Shell
+
+- Recorded: `2026-07-23T15:20:46+00:00`
+- Owner acceptance: `PASS ALL`
+- The responsive shell direction is accepted.
+- Ringkasan, Pengeluaran, Akun & Saldo and Data Quality render correctly.
+- Desktop and mobile navigation are accepted.
+- Month and Year controls are accepted.
+- Loading, Empty, Warning and Error states are accepted.
+- Cash account separation and read-only presentation are accepted.
+- The candidate remains local and uses public-safe sample data.
+- No production deployment is authorized by this decision.
+- Next work begins with a local read-only snapshot adapter candidate.
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
 
 # 11_INCIDENT_REGISTER.md
 
@@ -1322,6 +1353,18 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - Deployment: `NO`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Owner Visual Acceptance — 2026-07-23T15:20:46+00:00
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_20260723_222040_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_20260723_222040_PROOF.json`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- Result: `PASS`
+- Visual direction: `ACCEPTED`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1702,6 +1745,23 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - Next: Owner visual re-review of the refreshed local candidate.
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## 2026-07-23T15:20:46+00:00 — Phase 2 shell Owner visual acceptance
+
+- Owner result: `PASS ALL`
+- Runtime navigation: `PASS`
+- Primary page rendering: `PASS`
+- Accounts rendering: `PASS`
+- Demo state rendering: `PASS`
+- Mobile navigation: `PASS`
+- Visual direction: `ACCEPTED`
+- Candidate JavaScript syntax: `PASS`
+- Contract test: `30/30 PASS`
+- Production remains version `390`.
+- Deployment performed: `NO`
+- Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
 ## Latest Handoff — Telegram Cross-Project Runtime Isolation Incident — 2026-07-23
 - **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
 - **AIRO Finance production baseline:** version `390`; no Apps Script deployment or source mutation in this gate.
@@ -1714,6 +1774,36 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - **Next exact gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
 
 # 00_CURRENT_HANDOFF.md
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Owner Visual Acceptance — 2026-07-23T15:20:46+00:00
+
+OWNER_VISUAL_REVIEW=PASS
+OWNER_STATEMENT=PASS_ALL
+RINGKASAN_RENDER=PASS
+PENGELUARAN_RENDER=PASS
+ACCOUNTS_RENDER=PASS
+DATA_QUALITY_RENDER=PASS
+NAVIGATION_RUNTIME=PASS
+DESKTOP_SIDEBAR=PASS
+MOBILE_NAVIGATION=PASS
+MONTH_YEAR_FILTERS=PASS
+LOADING_STATE=PASS
+EMPTY_STATE=PASS
+WARNING_STATE=PASS
+ERROR_STATE=PASS
+CASH_ACCOUNTS_PRESENTATION=PASS
+TOP_CATEGORY_PRESENTATION=PASS
+TOP_SUBCATEGORY_PRESENTATION=PASS
+READ_ONLY_PRESENTATION=PASS
+VISUAL_DIRECTION=ACCEPTED
+NOTES=NONE
+PHASE_2_SHELL_STATUS=OWNER_ACCEPTED
+DEPLOYMENT_PERFORMED=NO
+PRODUCTION_REMAINS_VERSION=390
+NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
 
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
 ## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
