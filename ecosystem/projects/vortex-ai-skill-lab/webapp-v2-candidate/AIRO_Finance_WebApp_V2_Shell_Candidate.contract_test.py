@@ -1,14 +1,58 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import re
+import subprocess
 import sys
+import tempfile
 
 candidate = Path(__file__).with_name(
     "AIRO_Finance_WebApp_V2_Shell_Candidate.html"
 )
 text = candidate.read_text(encoding="utf-8")
 
+scripts = re.findall(
+    r"<script(?:\s[^>]*)?>(.*?)</script\s*>",
+    text,
+    flags=re.IGNORECASE | re.DOTALL,
+)
+
+javascript_syntax_ok = False
+javascript_syntax_detail = "inline_script_count_invalid"
+
+if len(scripts) == 1:
+    temporary_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            suffix=".js",
+            encoding="utf-8",
+            delete=False,
+        ) as handle:
+            handle.write(scripts[0].strip() + "\n")
+            temporary_path = Path(handle.name)
+
+        result = subprocess.run(
+            ["node", "--check", str(temporary_path)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        javascript_syntax_ok = result.returncode == 0
+        javascript_syntax_detail = (
+            result.stderr.strip()
+            or result.stdout.strip()
+            or "node_check_completed"
+        )
+    except FileNotFoundError:
+        javascript_syntax_detail = "node_not_found"
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
 checks = {
+    "javascript_syntax": javascript_syntax_ok,
     "doctype": "<!doctype html>" in text.lower(),
     "ringkasan": "Ringkasan" in text,
     "pengeluaran": "Pengeluaran" in text,
@@ -43,6 +87,12 @@ checks = {
 }
 
 failed = [name for name, passed in checks.items() if not passed]
+
+if not javascript_syntax_ok:
+    print(
+        "JAVASCRIPT_SYNTAX_DETAIL="
+        + javascript_syntax_detail.replace("\n", " | ")
+    )
 
 for name, passed in checks.items():
     print(f"TEST={name} RESULT={'PASS' if passed else 'FAIL'}")

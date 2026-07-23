@@ -587,6 +587,20 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 08_ROADMAP.md
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
+
+- Local shell candidate build: `PASS`
+- Initial visual runtime check: `FAIL`
+- Exact JavaScript runtime repair: `PASS`
+- Strengthened contract test: `30/30 PASS`
+- Owner visual re-review: `READY`
+- Deployment: `NO`
+- Production: `v390`
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
+
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
 ## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00
 
@@ -1296,6 +1310,18 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - **Incident:** `AFPD-INC-011`
 - **Status:** `OPEN_AWAITING_READ_ONLY_TOPOLOGY_FORENSIC`
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_20260723_212918_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_20260723_212918_PROOF.json`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- JavaScript syntax: `PASS`
+- Contract test: `30/30 PASS`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1663,6 +1689,19 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - **Deployment:** `NO`.
 - **Next gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## 2026-07-23T14:29:26+00:00 — Phase 2 shell runtime repaired
+
+- Root cause confirmed at candidate JavaScript lines 217–218.
+- A duplicated nested `querySelectorAll().forEach()` opened one extra parenthesis and brace.
+- Exact duplicate statement removed.
+- Candidate JavaScript now passes `node --check`.
+- Contract test strengthened from 29 to 30 checks.
+- New JavaScript-syntax regression check passes.
+- Production v390 and active Apps Script files remain unchanged.
+- Next: Owner visual re-review of the refreshed local candidate.
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
 ## Latest Handoff — Telegram Cross-Project Runtime Isolation Incident — 2026-07-23
 - **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
 - **AIRO Finance production baseline:** version `390`; no Apps Script deployment or source mutation in this gate.
@@ -1675,6 +1714,24 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - **Next exact gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
 
 # 00_CURRENT_HANDOFF.md
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
+
+PHASE_2_WEB_APP_V2_SHELL_STATUS=RUNTIME_REPAIRED
+RUNTIME_ROOT_CAUSE=DUPLICATED_NESTED_QUERY_SELECTOR_FOREACH
+JAVASCRIPT_SYNTAX=PASS
+CONTRACT_TEST=30_OF_30_PASS
+RUNTIME_REGRESSION_PROTECTION_ADDED=YES
+OWNER_VISUAL_REVIEW=REVIEW_REQUIRED_AFTER_REOPEN
+SOURCE_CHANGED=NO
+ACTIVE_HTML_CHANGED=NO
+BACKEND_RPC_CHANGED=NO
+DEPLOYMENT_PERFORMED=NO
+PRODUCTION_REMAINS_VERSION=390
+NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
+
 
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
 ## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00

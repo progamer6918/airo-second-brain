@@ -260,3 +260,15 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - **Class:** `OWNER_REPORTED_RUNTIME_EVIDENCE`
 - **Incident:** `AFPD-INC-011`
 - **Status:** `OPEN_AWAITING_READ_ONLY_TOPOLOGY_FORENSIC`
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Runtime Repair — 2026-07-23T14:29:26+00:00
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_20260723_212918_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_20260723_212918_PROOF.json`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- JavaScript syntax: `PASS`
+- Contract test: `30/30 PASS`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->

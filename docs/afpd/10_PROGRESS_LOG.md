@@ -345,3 +345,16 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - **Token/webhook mutation:** `NO`.
 - **Deployment:** `NO`.
 - **Next gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_BEGIN -->
+## 2026-07-23T14:29:26+00:00 — Phase 2 shell runtime repaired
+
+- Root cause confirmed at candidate JavaScript lines 217–218.
+- A duplicated nested `querySelectorAll().forEach()` opened one extra parenthesis and brace.
+- Exact duplicate statement removed.
+- Candidate JavaScript now passes `node --check`.
+- Contract test strengthened from 29 to 30 checks.
+- New JavaScript-syntax regression check passes.
+- Production v390 and active Apps Script files remain unchanged.
+- Next: Owner visual re-review of the refreshed local candidate.
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_RUNTIME_REPAIR_NO_DEPLOY_END -->
