@@ -711,6 +711,8 @@ conflict_id: none
 
 - **2026-07-23 (Owner Live Acceptance v390)**: Recorded Owner live production acceptance PASS for dashboard version 390. Generic Cash incident AFPD-INC-010 is RESOLVED. Active production version: 390. Rollback target: 389. Next safe gate: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`.
 
+- **2026-07-23 (Cash Makan Audit)**: Completed read-only Account Registry schema audit for `Cash Makan`. Classification: `EXACT_ONE_ACTIVE_ALIGNED`. Live dashboard renders Cash Makan as active registry-driven wallet. Mutation required: NO. Phase 1 full closeout ready: YES. Next safe gate: `AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION`.
+
 # 09_DECISION_REGISTER.md
 
 # 09_DECISION_REGISTER.md
@@ -1236,6 +1238,7 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - 2026-07-23: Recorded generic Cash live wrapper deployment preflight summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_192141_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_192141_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 - 2026-07-23: Recorded generic Cash live wrapper guarded deployment execution summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_20260723_194924_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_20260723_194924_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_V390`.
 - 2026-07-23: Recorded Owner live production acceptance summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION_20260723_200948_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION_20260723_200948_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION`.
+- 2026-07-23: Recorded Cash Makan Account Registry read-only audit summary (`docs/evidence/airo-finance/AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION_20260723_202044_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION_20260723_202044_PROOF.json`). Marker: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`.
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1568,6 +1571,7 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-23: Executed deployment preflight for generic Cash live RPC wrapper registry handoff fix. Remote HEAD baseline verified against production v389 (7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8), candidate source SHA verified (91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940), selftest 124/124 PASS. DEPLOYMENT_READINESS=GO. Production remains v389 (no deploy). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 - 2026-07-23: Executed guarded deployment for version 390. Clasp push PASS, version 390 created, target deployment `ZYjuOA` updated to v390. Real headless Chrome browser proof PASS. Production active version is now 390. Rollback target: v389. Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_V390`.
 - 2026-07-23: Recorded Owner live production acceptance for version 390. Owner confirmed live rendering PASS (Cash Umum distinct, Cash Bensin distinct, generic Cash absent, Cash Makan not invented, Top Subcategory PASS). AFPD-INC-010 marked RESOLVED. Production version remains 390 (no deploy). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION`.
+- 2026-07-23: Executed read-only Account Registry audit for Cash Makan. Verified Cash Makan exists exactly once, active, aligned, and rendered in live v390 dashboard. No workbook mutation. Phase 1 closeout ready. Marker: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`.
 
 # 00_CURRENT_HANDOFF.md
 
@@ -3282,6 +3286,20 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **WORKBOOK_MUTATION**: NO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_V390_POST_DEPLOY_OWNER_LIVE_ACCEPTANCE_RECORD_NO_MUTATION`
+
+## AIRO Finance Cash Makan Account Registry Read-Only Audit Handoff — 2026-07-23
+- **PRODUCTION_ACTIVE_VERSION**: 390
+- **OWNER_LIVE_ACCEPTANCE**: PASS
+- **AFPD_INC_010**: RESOLVED
+- **CASH_MAKAN_REGISTRY_CLASSIFICATION**: EXACT_ONE_ACTIVE_ALIGNED
+- **CASH_MAKAN_MUTATION_REQUIRED**: NO
+- **LIVE_CASH_MAKAN_RENDERED**: YES
+- **LIVE_REGISTRY_CONSISTENCY**: PASS
+- **PHASE_1_FULL_CLOSEOUT_READY**: YES
+- **ACCOUNT_REGISTRY_MUTATION**: NO
+- **WORKBOOK_MUTATION**: NO
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION
+- **Marker**: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`
 
 # 13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
 
