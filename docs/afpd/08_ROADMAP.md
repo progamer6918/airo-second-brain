@@ -1,5 +1,18 @@
 # 08_ROADMAP.md
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00
+
+- Phase 0 canonicalization: `PASS`
+- Phase 1 MVP stabilization: `PASS`
+- Phase 2 Web App V2 Shell: `LOCAL_CANDIDATE_BUILT`
+- Primary visible artifact: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Backend integration: `NOT_STARTED`
+- Production deployment: `NO`
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
+
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
 ## Phase Entry — 2026-07-23T13:53:12+00:00
 

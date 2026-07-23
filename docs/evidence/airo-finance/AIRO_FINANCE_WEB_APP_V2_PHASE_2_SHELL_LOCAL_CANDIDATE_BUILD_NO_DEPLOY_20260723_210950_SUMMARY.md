@@ -1,0 +1,24 @@
+# AIRO Finance Web App V2 Phase 2 Shell Local Candidate
+
+- Gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`
+- Recorded at: `2026-07-23T14:09:56+00:00`
+- Result: `PASS`
+- Primary visible deliverable: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- Candidate SHA-256: `48ade929a55792246e57c6a5da591eb02c219168553b2b64c0fff214d8bc9cb6`
+- Candidate data: `PUBLIC_SAFE_SAMPLE_DATA`
+- Stable domains represented: Ringkasan, Pengeluaran, Akun & Saldo, Data Quality
+- Desktop sidebar: `YES`
+- Mobile navigation: `YES`
+- Separate Month and Year controls: `YES`
+- Read-Only indicator: `YES`
+- Loading, Empty, Warning and Error states: `YES`
+- Stale-response protection: `YES`
+- Safe DOM text rendering: `YES`
+- Exact Cash Umum, Cash Bensin and Cash Makan presentation: `YES`
+- Generic Cash presentation: `NO`
+- Backend RPC change: `NO`
+- Active dashboard HTML replacement: `NO`
+- Deployment: `NO`
+- Production remains: `v390`
+- Next safe gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`

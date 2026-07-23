@@ -587,6 +587,19 @@ The Review Queue sheet columns AE through AH MUST distinguish between:
 
 # 08_ROADMAP.md
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00
+
+- Phase 0 canonicalization: `PASS`
+- Phase 1 MVP stabilization: `PASS`
+- Phase 2 Web App V2 Shell: `LOCAL_CANDIDATE_BUILT`
+- Primary visible artifact: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Backend integration: `NOT_STARTED`
+- Production deployment: `NO`
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
+
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
 ## Phase Entry — 2026-07-23T13:53:12+00:00
 
@@ -1252,6 +1265,17 @@ Production: v390
 Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_20260723_210950_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_20260723_210950_PROOF.json`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.contract_test.py`
+- Result: `PASS`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1591,7 +1615,40 @@ PRODUCTION_REMAINS_VERSION=390
 NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_END -->
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
+## 2026-07-23T14:09:56+00:00 — Web App V2 Phase 2 shell candidate
+
+- Result: `PASS`
+- Candidate: `ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html`
+- Contract test: `PASS`
+- Candidate SHA-256: `48ade929a55792246e57c6a5da591eb02c219168553b2b64c0fff214d8bc9cb6`
+- Four stable domains represented.
+- Responsive desktop and mobile navigation represented.
+- Separate Month and Year controls represented.
+- Loading, Empty, Warning, Error and stale-response behavior represented.
+- Safe DOM rendering represented.
+- Production v390 unchanged.
+- Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
 # 00_CURRENT_HANDOFF.md
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_BEGIN -->
+## Phase 2 Shell Candidate — 2026-07-23T14:09:56+00:00
+
+PHASE_1_FULL_CLOSEOUT=PASS
+PHASE_2_WEB_APP_V2_SHELL_STATUS=LOCAL_CANDIDATE_BUILT
+PHASE_2_PRIMARY_VISIBLE_DELIVERABLE=ecosystem/projects/vortex-ai-skill-lab/webapp-v2-candidate/AIRO_Finance_WebApp_V2_Shell_Candidate.html
+PHASE_2_CANDIDATE_SHA256=48ade929a55792246e57c6a5da591eb02c219168553b2b64c0fff214d8bc9cb6
+PHASE_2_CANDIDATE_DATA=PUBLIC_SAFE_SAMPLE_DATA
+PHASE_2_CONTRACT_TEST=PASS
+ACTIVE_DASHBOARD_HTML_CHANGED=NO
+BACKEND_RPC_CHANGED=NO
+DEPLOYMENT_PERFORMED=NO
+PRODUCTION_REMAINS_VERSION=390
+NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_REVIEW_NO_DEPLOY
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY_END -->
+
 
 <!-- AIRO_PHASE_1_CLOSEOUT_PHASE_2_ENTRY_BEGIN -->
 ## Verified Phase State — 2026-07-23T13:53:12+00:00
