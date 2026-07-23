@@ -101,3 +101,5 @@ conflict_id: none
 - Scope: Read-Only HtmlService Web App Candidate, Account Ledger approved rows data source
 
 - **2026-07-23 (Phase 1 Local Repair)**: Repaired live client RPC wrapper `airoWebDashboardGetClientSnapshot` to supply Account Registry-derived wallet boundaries. Added read-only helper `airoWebDashboardGetAccountEligibilityReadOnly_`, removed generic `"Cash"` fallback from default list, and added 7 new selftests (124/124 PASS). Next safe gate: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
+
+- **2026-07-23 (Phase 1 Deployment Preflight)**: Validated preflight readiness for generic Cash live wrapper registry handoff fix. Selftest 124/124 PASS, remote HEAD baseline matched v389 source SHA (7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8), candidate diff isolated to 1 source file. DEPLOYMENT_READINESS=GO. Target version expected: 390. Rollback version: 389. Next safe gate: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_V390`.

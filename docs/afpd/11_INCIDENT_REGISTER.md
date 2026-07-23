@@ -238,3 +238,9 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - **TEST_GAP**: INTERNAL_FUNCTION_TESTED_WITH_INJECTED_OPTIONS_BUT_PUBLIC_RPC_WRAPPER_NOT_TESTED
 - **STATUS**: REPAIRED_LOCALLY_NOT_DEPLOYED
 - **DESCRIPTION**: Production v389 live UI rendered generic "Cash" instead of distinct "Cash Umum" and "Cash Bensin" because public RPC wrapper `airoWebDashboardGetClientSnapshot` did not pass Account Registry-derived active accounts into internal snapshot function. Repaired locally via `airoWebDashboardGetAccountEligibilityReadOnly_` and added 7 wrapper-level unit test cases.
+
+- **PREFLIGHT_STATUS**: PREFLIGHT_PASS_READY_FOR_V390_NOT_DEPLOYED
+- **PRODUCTION_VERSION**: 389
+- **LOCAL_CANDIDATE_SOURCE_SHA256**: 91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940
+- **LOCAL_SELFTEST**: 124_OF_124
+- **DEPLOYMENT_READINESS**: GO

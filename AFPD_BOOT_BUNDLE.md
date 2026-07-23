@@ -705,6 +705,8 @@ conflict_id: none
 
 - **2026-07-23 (Phase 1 Local Repair)**: Repaired live client RPC wrapper `airoWebDashboardGetClientSnapshot` to supply Account Registry-derived wallet boundaries. Added read-only helper `airoWebDashboardGetAccountEligibilityReadOnly_`, removed generic `"Cash"` fallback from default list, and added 7 new selftests (124/124 PASS). Next safe gate: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 
+- **2026-07-23 (Phase 1 Deployment Preflight)**: Validated preflight readiness for generic Cash live wrapper registry handoff fix. Selftest 124/124 PASS, remote HEAD baseline matched v389 source SHA (7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8), candidate diff isolated to 1 source file. DEPLOYMENT_READINESS=GO. Target version expected: 390. Rollback version: 389. Next safe gate: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_V390`.
+
 # 09_DECISION_REGISTER.md
 
 # 09_DECISION_REGISTER.md
@@ -969,6 +971,12 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - **STATUS**: REPAIRED_LOCALLY_NOT_DEPLOYED
 - **DESCRIPTION**: Production v389 live UI rendered generic "Cash" instead of distinct "Cash Umum" and "Cash Bensin" because public RPC wrapper `airoWebDashboardGetClientSnapshot` did not pass Account Registry-derived active accounts into internal snapshot function. Repaired locally via `airoWebDashboardGetAccountEligibilityReadOnly_` and added 7 wrapper-level unit test cases.
 
+- **PREFLIGHT_STATUS**: PREFLIGHT_PASS_READY_FOR_V390_NOT_DEPLOYED
+- **PRODUCTION_VERSION**: 389
+- **LOCAL_CANDIDATE_SOURCE_SHA256**: 91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940
+- **LOCAL_SELFTEST**: 124_OF_124
+- **DEPLOYMENT_READINESS**: GO
+
 # 12_EVIDENCE_INDEX.md
 
 # 12_EVIDENCE_INDEX.md
@@ -1200,6 +1208,7 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - 2026-07-23: Recorded separate Cash accounts & Top Subcategory deployment preflight evidence summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_182129_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_182129_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 - 2026-07-23: Recorded separate Cash accounts & Top Subcategory deployment execution summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_EXECUTION_20260723_183042_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_EXECUTION_20260723_183042_PROOF.json`). Target deployment ZYjuOA updated to v389. Marker: `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_EXECUTION`.
 - 2026-07-23: Recorded generic Cash live wrapper local repair summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_LOCAL_REPAIR_NO_DEPLOY_20260723_190859_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_LOCAL_REPAIR_NO_DEPLOY_20260723_190859_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_LOCAL_REPAIR_NO_DEPLOY`.
+- 2026-07-23: Recorded generic Cash live wrapper deployment preflight summary (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_192141_SUMMARY.md`) and proof JSON (`docs/evidence/airo-finance/AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY_20260723_192141_PROOF.json`). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
@@ -1529,6 +1538,7 @@ RESULT=PASS. Owner approved the pending v385 live retest transaction via /approv
 - 2026-07-23: Executed read-only deployment preflight for separate Cash accounts matching, Top Subcategory rendering, and split Month/Year filter dashboard MVP repair. Confirmed active version 388, rollback 387, 117/117 selftests PASS, 0 source/HTML diffs. Deployment readiness: GO. Marker: `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 - 2026-07-23: Successfully executed guarded Apps Script deployment of separate Cash accounts matching, Top Subcategory rendering, and split Month/Year filter dashboard MVP repair. Pushed source and HTML, created immutable version 389, updated target deployment AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA (ZYjuOA) to v389. Confirmed 117/117 selftests PASS, live runtime proof PASS, 0 source/HTML repo diffs. Marker: `AIRO_FINANCE_WEB_DASHBOARD_SEPARATE_CASH_ACCOUNTS_AND_TOP_SUBCATEGORY_GUARDED_DEPLOYMENT_EXECUTION`.
 - 2026-07-23: Implemented local source repair for `airoWebDashboardGetClientSnapshot` to route wallet accounts through read-only Account Registry helper `airoWebDashboardGetAccountEligibilityReadOnly_`. Added 7 new selftests (124/124 PASS). Production remains v389 (no deploy). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_LOCAL_REPAIR_NO_DEPLOY`.
+- 2026-07-23: Executed deployment preflight for generic Cash live RPC wrapper registry handoff fix. Remote HEAD baseline verified against production v389 (7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8), candidate source SHA verified (91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940), selftest 124/124 PASS. DEPLOYMENT_READINESS=GO. Production remains v389 (no deploy). Marker: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`.
 
 # 00_CURRENT_HANDOFF.md
 
@@ -3174,6 +3184,26 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **DEPLOYMENT_PERFORMED**: NO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY
 - **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_LOCAL_REPAIR_NO_DEPLOY`
+
+## AIRO Finance Generic Cash Live Wrapper Registry Handoff Deployment Preflight Handoff — 2026-07-23
+- **PHASE_0_WEB_APP_V2_CANONICALIZATION**: PASS
+- **PHASE_1_LOCAL_REPAIR**: PASS
+- **PRODUCTION_ACTIVE_VERSION**: 389
+- **PRODUCTION_DEPLOYED_SOURCE_SHA256**: 7ee00e69c790de00d9489c9a10624d650454b2944d9db3b8ce4331c65b91afe8
+- **REPOSITORY_CANDIDATE_SOURCE_SHA256**: 91d745f754d56d28be42b5ba5943423005b36f4bb12a814800ef56931b8e5940
+- **ACTIVE_HTML_SHA256**: b427db9f0fbeec6bf4b68152c8c5eaa37c664584a33fde60d8f86259b4b67934
+- **OWNER_GENERAL_UI_ACCEPTANCE**: PASS
+- **OWNER_CASH_CONTRACT_ACCEPTANCE**: FAIL
+- **GENERIC_CASH_REPAIR**: LOCAL_PASS_124_OF_124_NOT_DEPLOYED
+- **DEPLOYMENT_READINESS**: GO
+- **TARGET_VERSION_EXPECTED**: 390
+- **IMMEDIATE_ROLLBACK_VERSION**: 389
+- **CASH_MAKAN_REGISTRY_INSERT**: FORBIDDEN_UNTIL_V390_OWNER_ACCEPTANCE
+- **INCIDENT_STATUS**: PREFLIGHT_PASS_READY_FOR_V390_NOT_DEPLOYED
+- **CLASP_PUSH_PERFORMED**: NO
+- **DEPLOYMENT_PERFORMED**: NO
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_EXECUTION_V390
+- **Marker**: `AIRO_FINANCE_WEB_DASHBOARD_V389_GENERIC_CASH_LIVE_WRAPPER_REGISTRY_HANDOFF_GUARDED_DEPLOYMENT_PREFLIGHT_NO_DEPLOY`
 
 # 13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
 
