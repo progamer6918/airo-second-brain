@@ -341,9 +341,49 @@
       }
     }
 
+    class AppsScriptSnapshotProvider {
+      loadDashboardSnapshot(request) {
+        return new Promise((resolve, reject) => {
+          if (typeof google === "undefined" || !google.script || !google.script.run || typeof google.script.run.airoWebDashboardGetClientSnapshot !== "function") {
+            reject(new Error("google.script.run API tidak tersedia"));
+            return;
+          }
+
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              reject(new Error("Request ke Apps Script timeout setelah 15 detik"));
+            }
+          }, 15000);
+
+          google.script.run
+            .withSuccessHandler((response) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(response);
+              }
+            })
+            .withFailureHandler((error) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                const errMsg = (error && error.message) ? error.message : "Terjadi kesalahan saat memanggil Apps Script";
+                reject(new Error(errMsg));
+              }
+            })
+            .airoWebDashboardGetClientSnapshot(request);
+        });
+      }
+    }
+
     const localSnapshotProvider = new LocalSnapshotProvider();
 
     function getDashboardProvider() {
+      if (typeof google !== "undefined" && google.script && google.script.run && typeof google.script.run.airoWebDashboardGetClientSnapshot === "function") {
+        return new AppsScriptSnapshotProvider();
+      }
       return localSnapshotProvider;
     }
     window.getDashboardProvider = getDashboardProvider;

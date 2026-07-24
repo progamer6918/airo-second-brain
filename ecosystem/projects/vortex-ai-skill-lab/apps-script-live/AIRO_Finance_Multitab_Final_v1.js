@@ -29774,8 +29774,16 @@ function airoWebDashboardGetAccountEligibilityReadOnly_(ss) {
 
 function airoWebDashboardGetClientSnapshot(input, options) {
   var sanitized = airoWebDashboardSanitizeInput_(input);
+  var reqId = (input && typeof input.requestId === "number") ? input.requestId : 0;
   if (!sanitized.ok) {
-    return { ok: false, error: sanitized.error };
+    return {
+      ok: false,
+      requestId: reqId,
+      error: {
+        code: "INVALID_INPUT",
+        message: sanitized.error || "Input tidak valid"
+      }
+    };
   }
 
   options = options || {};
@@ -29793,7 +29801,16 @@ function airoWebDashboardGetClientSnapshot(input, options) {
   };
 
   var snap = airoWebDashboardGetSnapshot_({ year: sanitized.year, month: sanitized.month }, snapOpts);
-  if (!snap) snap = { ok: false, error: "snapshot_failed" };
+  if (!snap || !snap.ok) {
+    return {
+      ok: false,
+      requestId: reqId,
+      error: {
+        code: "SNAPSHOT_FAILED",
+        message: (snap && snap.error) || "Gagal membuat snapshot"
+      }
+    };
+  }
 
   if (!eligibility.ok) {
     snap.data_status = "WARNING";
@@ -29809,7 +29826,51 @@ function airoWebDashboardGetClientSnapshot(input, options) {
   if (!snap.meta) snap.meta = {};
   snap.meta.wallet_account_source = "ACCOUNT_REGISTRY_READ_ONLY";
 
-  return snap;
+  var nowIso = new Date().toISOString();
+  var mStr = sanitized.month < 10 ? "0" + sanitized.month : String(sanitized.month);
+  var yStr = String(sanitized.year);
+
+  var status = "ready";
+  if (snap.totals && snap.totals.income === 0 && snap.totals.expense === 0) {
+    status = "empty";
+  } else if (snap.data_status === "WARNING" || (snap.warnings && snap.warnings.length > 0)) {
+    status = "warning";
+  }
+
+  var warningObj = null;
+  if (snap.warnings && snap.warnings.length > 0) {
+    warningObj = {
+      code: "QUALITY_WARNING",
+      message: snap.warnings.join("; ")
+    };
+  }
+
+  return {
+    ok: true,
+    requestId: reqId,
+    generatedAt: snap.last_synced || nowIso,
+    filters: {
+      month: mStr,
+      year: yStr
+    },
+    status: status,
+    warning: warningObj,
+    overview: {
+      metrics: {
+        income: (snap.totals && snap.totals.income) || 0,
+        expense: (snap.totals && snap.totals.expense) || 0,
+        net_cashflow: (snap.totals && snap.totals.net_cashflow) || 0,
+        clean_expense: (snap.totals && snap.totals.clean_expense) || 0
+      },
+      summary: {
+        period_label: snap.period_label || "",
+        data_status: snap.data_status || "CLEAN"
+      }
+    },
+    spending: snap.spending_intelligence || { top_categories: [], top_subcategories: [] },
+    accounts: snap.wallet_snapshot || [],
+    quality: snap.data_quality || { uncategorized_count: 0, pending_review_count: 0, warnings: [] }
+  };
 }
 
 function runTask105OutgoingConfirmationGateSelfTestFromEditor() {

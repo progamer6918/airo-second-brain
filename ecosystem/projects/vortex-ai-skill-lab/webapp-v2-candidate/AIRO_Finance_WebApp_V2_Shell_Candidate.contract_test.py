@@ -9,6 +9,8 @@ candidate = Path(__file__).with_name(
     "AIRO_Finance_WebApp_V2_Shell_Candidate.html"
 )
 text = candidate.read_text(encoding="utf-8")
+apps_script_path = candidate.parents[1] / "apps-script-live" / "AIRO_Finance_Multitab_Final_v1.js"
+app_script_code = apps_script_path.read_text(encoding="utf-8") if apps_script_path.exists() else ""
 
 scripts = re.findall(
     r"<script(?:\s[^>]*)?>(.*?)</script\s*>",
@@ -77,7 +79,7 @@ checks = {
     "cash_bensin": '"Cash Bensin"' in text,
     "cash_makan": '"Cash Makan"' in text,
     "generic_cash_fixture_absent": re.search(r'"Cash"', text) is None,
-    "backend_rpc_absent": "google.script.run" not in text,
+    "backend_rpc_absent": "google.script.run" in text,
     "fetch_absent": "fetch(" not in text,
     "write_method_absent": not re.search(
         r"\b(setValue|setValues|appendRow|insertRow|deleteRow)\b", text
@@ -115,6 +117,29 @@ checks = {
     "remediation_loading_status_before_await": "Memuat kandidat snapshot" in text and "loadDashboardSnapshot" in text,
     "remediation_empty_warning_error_handling": "empty" in text and "warning" in text and "error" in text,
     "remediation_listener_counts": text.count('document.getElementById("month-filter").addEventListener') == 1 and text.count('document.getElementById("year-filter").addEventListener') == 1 and text.count('document.getElementById("state-filter").addEventListener') == 1,
+    "gate32_public_callable_exists": len(re.findall(r'function\s+airoWebDashboardGetClientSnapshot\s*\(', app_script_code)) == 1,
+    "gate32_no_duplicate_public_callable": len(re.findall(r'function\s+getAiroFinanceDashboardSnapshot\s*\(', app_script_code)) == 0,
+    "gate32_sanitizer_used": "airoWebDashboardSanitizeInput_" in app_script_code,
+    "gate32_month_validation": "Bulan tidak valid" in app_script_code or "reqMonth < 1" in app_script_code,
+    "gate32_year_validation": "Tahun tidak valid" in app_script_code or "reqYear < 2000" in app_script_code,
+    "gate32_request_id_echo": "requestId: reqId" in app_script_code,
+    "gate32_top_level_response_keys": "generatedAt:" in app_script_code and "overview:" in app_script_code and "spending:" in app_script_code and "accounts:" in app_script_code and "quality:" in app_script_code,
+    "gate32_exact_failure_shape": 'code: "INVALID_INPUT"' in app_script_code and 'code: "SNAPSHOT_FAILED"' in app_script_code,
+    "gate32_generated_at_iso": "toISOString()" in app_script_code,
+    "gate32_filters_month_year_echo": "filters: {" in app_script_code and "month: mStr" in app_script_code,
+    "gate32_overview_metrics_mapping": "metrics: {" in app_script_code and "income:" in app_script_code and "clean_expense:" in app_script_code,
+    "gate32_overview_summary_mapping": "summary: {" in app_script_code and "period_label:" in app_script_code,
+    "gate32_spending_backend_mapping": "spending: snap.spending_intelligence" in app_script_code,
+    "gate32_accounts_backend_mapping": "accounts: snap.wallet_snapshot" in app_script_code,
+    "gate32_quality_backend_mapping": "quality: snap.data_quality" in app_script_code,
+    "gate32_apps_script_provider_class": "class AppsScriptSnapshotProvider" in text,
+    "gate32_with_success_handler": ".withSuccessHandler(" in text,
+    "gate32_with_failure_handler": ".withFailureHandler(" in text,
+    "gate32_resolver_capability_detection": 'typeof google !== "undefined" && google.script && google.script.run' in text,
+    "gate32_local_provider_retained": "class LocalSnapshotProvider" in text,
+    "gate32_stale_guards_retained": "sequence !== requestSequence" in text and "response.requestId !== sequence" in text,
+    "gate32_reachable_backend_write_count_zero": not any(re.search(r'\b' + fw + r'\b', app_script_code[app_script_code.find('function airoWebDashboardGetClientSnapshot'):app_script_code.find('function airoWebDashboardGetClientSnapshot')+1500]) for fw in ['setValue', 'setValues', 'appendRow', 'clearContent', 'deleteRow', 'insertRow', 'setProperty', 'createTrigger', 'sendEmail', 'UrlFetchApp']),
+    "gate32_cash_account_separation": "Cash Umum" in text and "Cash Bensin" in text and "Cash Makan" in text,
 }
 
 failed = [name for name, passed in checks.items() if not passed]
