@@ -308,6 +308,46 @@
       ]
     });
 
+    class LocalSnapshotProvider {
+      async loadDashboardSnapshot(request) {
+        const seq = request.requestId || 0;
+        await new Promise(r => setTimeout(r, 10));
+        if (!fixture || !fixture.metrics) {
+          return {
+            ok: false,
+            requestId: seq,
+            error: { code: "NO_DATA", message: "Snapshot data tidak ditemukan" }
+          };
+        }
+        return {
+          ok: true,
+          requestId: seq,
+          generatedAt: new Date().toISOString(),
+          filters: { month: request.month, year: request.year },
+          status: "ready",
+          warning: null,
+          overview: {
+            metrics: fixture.metrics,
+            categories: fixture.categories,
+            subcategories: fixture.subcategories
+          },
+          spending: {
+            categories: fixture.categories,
+            subcategories: fixture.subcategories
+          },
+          accounts: fixture.accounts,
+          quality: fixture.quality
+        };
+      }
+    }
+
+    const localSnapshotProvider = new LocalSnapshotProvider();
+
+    function getDashboardProvider() {
+      return localSnapshotProvider;
+    }
+    window.getDashboardProvider = getDashboardProvider;
+
     const titles = Object.freeze({
       overview: "Ringkasan",
       spending: "Pengeluaran",
@@ -317,6 +357,7 @@
 
     let currentView = "overview";
     let requestSequence = 0;
+    let activeSnapshot = null;
 
     const content = document.getElementById("content");
     const statusBox = document.getElementById("status");
@@ -372,10 +413,12 @@
     }
 
     function renderOverview() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.overview) return element("div");
       const wrapper = element("div");
 
       const metrics = element("div", "grid metrics");
-      fixture.metrics.forEach(function (item) {
+      (snap.overview.metrics || []).forEach(function (item) {
         const box = card(item.label);
         box.appendChild(element("div", "metric-value", item.value));
         box.appendChild(element("small", "", item.note));
@@ -383,8 +426,8 @@
       });
 
       const detail = element("div", "grid two");
-      detail.appendChild(comparisonList("Top Category", fixture.categories));
-      detail.appendChild(comparisonList("Top Subcategory", fixture.subcategories));
+      detail.appendChild(comparisonList("Top Category", snap.overview.categories || []));
+      detail.appendChild(comparisonList("Top Subcategory", snap.overview.subcategories || []));
 
       wrapper.appendChild(metrics);
       wrapper.appendChild(detail);
@@ -392,16 +435,20 @@
     }
 
     function renderSpending() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.spending) return element("div", "grid two");
       const grid = element("div", "grid two");
-      grid.appendChild(comparisonList("Category Comparison", fixture.categories));
-      grid.appendChild(comparisonList("Subcategory Comparison", fixture.subcategories));
+      grid.appendChild(comparisonList("Category Comparison", snap.spending.categories || []));
+      grid.appendChild(comparisonList("Subcategory Comparison", snap.spending.subcategories || []));
       return grid;
     }
 
     function renderAccounts() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.accounts) return element("div", "grid wallets");
       const grid = element("div", "grid wallets");
 
-      fixture.accounts.forEach(function (account) {
+      snap.accounts.forEach(function (account) {
         const box = card("Wallet");
         box.appendChild(element("div", "wallet-name", account.name));
         box.appendChild(element("div", "metric-value", account.value));
@@ -413,10 +460,12 @@
     }
 
     function renderQuality() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.quality) return card("System Health");
       const box = card("System Health");
       const list = element("div", "list");
 
-      fixture.quality.forEach(function (item) {
+      snap.quality.forEach(function (item) {
         const row = element("div", "row");
         const labels = element("div", "label-group");
         labels.appendChild(element("strong", "", item.name));
@@ -437,8 +486,10 @@
       return renderOverview();
     }
 
-    function runRender() {
+    async function runRender() {
       const sequence = ++requestSequence;
+      const month = document.getElementById("month-filter").value;
+      const year = document.getElementById("year-filter").value;
       const state = document.getElementById("state-filter").value;
 
       clearNode(content);
@@ -454,31 +505,36 @@
         return;
       }
 
-      window.setTimeout(function () {
-        if (sequence !== requestSequence) {
+      try {
+        const provider = getDashboardProvider();
+        const response = await provider.loadDashboardSnapshot({ month, year, requestId: sequence });
+        if (sequence !== requestSequence || response.requestId !== sequence) {
           setStatus("Respons lama diabaikan dengan aman.", "warning");
           return;
         }
+        if (!response.ok || state === "error") {
+          setStatus(response.error ? response.error.message : "Snapshot gagal dimuat. Data production tidak berubah.", "error");
+          content.appendChild(element("div", "empty", "Coba refresh kandidat lokal."));
+          return;
+        }
+        activeSnapshot = response;
 
         clearNode(content);
 
-        if (state === "empty") {
+        if (state === "empty" || response.status === "empty") {
           content.appendChild(element("div", "empty", "Belum ada data untuk periode terpilih."));
           return;
         }
 
-        if (state === "error") {
-          setStatus("Snapshot gagal dimuat. Data production tidak berubah.", "error");
-          content.appendChild(element("div", "empty", "Coba refresh kandidat lokal."));
-          return;
-        }
-
-        if (state === "warning") {
-          setStatus("Ada peringatan data quality pada sample fixture.", "warning");
+        if (state === "warning" || response.status === "warning") {
+          setStatus((response.warning && response.warning.message) || "Ada peringatan data quality pada sample fixture.", "warning");
         }
 
         content.appendChild(renderReady());
-      }, 120);
+      } catch (err) {
+        if (sequence !== requestSequence) return;
+        setStatus("Snapshot gagal dimuat: " + err.message, "error");
+      }
     }
 
     function switchView(view) {
