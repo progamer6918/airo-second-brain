@@ -665,6 +665,7 @@ only in their assigned final positions in the generated bundle.
 
 
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+Marker: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916`
 ## 2026-07-24 Phase 2 Local Snapshot Adapter Owner Acceptance
 - Status: OWNER_ACCEPTED
 - Integration commit: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`

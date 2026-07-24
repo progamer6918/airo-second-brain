@@ -47,6 +47,7 @@ The prior audit is functionally PASS with process limitations recorded.
 
 
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+Marker: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916`
 ## Decision — Accept Web App V2 Phase 2 Local Read-Only Snapshot Adapter Candidate
 
 - Recorded: `2026-07-24 Asia/Jakarta`
