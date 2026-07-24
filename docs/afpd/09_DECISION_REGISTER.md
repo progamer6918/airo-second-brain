@@ -44,3 +44,20 @@ The prior audit is functionally PASS with process limitations recorded.
 - No production deployment is authorized by this decision.
 - Next work begins with a local read-only snapshot adapter candidate.
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+## Decision — Accept Web App V2 Phase 2 Local Read-Only Snapshot Adapter Candidate
+
+- Recorded: `2026-07-24 Asia/Jakarta`
+- Owner acceptance: `PASS ALL`
+- Integration commit: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`
+- Technical contract: `61/61 PASS`
+- Provider runtime harness: `PASS`
+- Active snapshot data flow: `PASS`
+- Stale-request guards: `PASS`
+- Separate Cash accounts: `PASS` (`Cash Umum`, `Cash Bensin`, `Cash Makan`)
+- Candidate remains local and uses public-safe sample data.
+- Production version remains `390`. No production deployment is authorized by this decision.
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LIVE_READ_ONLY_SNAPSHOT_CONTRACT_ATTRIBUTION_AND_PLAN_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->

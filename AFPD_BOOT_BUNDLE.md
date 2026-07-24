@@ -750,6 +750,10 @@ conflict_id: none
 
 - **2026-07-23 (Cash Makan Audit)**: Completed read-only Account Registry schema audit for `Cash Makan`. Classification: `EXACT_ONE_ACTIVE_ALIGNED`. Live dashboard renders Cash Makan as active registry-driven wallet. Mutation required: NO. Phase 1 full closeout ready: YES. Next safe gate: `AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION`.
 
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+- **2026-07-24 (Phase 2 Local Snapshot Adapter Owner Acceptance)**: Recorded Owner PASS_ALL acceptance for local snapshot adapter candidate. Integration commit `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`, technical contract 61/61 PASS, isolated provider harness PASS. Candidate remains local/public-safe. Production version 390 unchanged. Deployment performed: NO. Next safe gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LIVE_READ_ONLY_SNAPSHOT_CONTRACT_ATTRIBUTION_AND_PLAN_NO_DEPLOY`.
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->
+
 # 09_DECISION_REGISTER.md
 
 ## Durable Decision Records
@@ -796,6 +800,23 @@ The prior audit is functionally PASS with process limitations recorded.
 - No production deployment is authorized by this decision.
 - Next work begins with a local read-only snapshot adapter candidate.
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+## Decision — Accept Web App V2 Phase 2 Local Read-Only Snapshot Adapter Candidate
+
+- Recorded: `2026-07-24 Asia/Jakarta`
+- Owner acceptance: `PASS ALL`
+- Integration commit: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`
+- Technical contract: `61/61 PASS`
+- Provider runtime harness: `PASS`
+- Active snapshot data flow: `PASS`
+- Stale-request guards: `PASS`
+- Separate Cash accounts: `PASS` (`Cash Umum`, `Cash Bensin`, `Cash Makan`)
+- Candidate remains local and uses public-safe sample data.
+- Production version remains `390`. No production deployment is authorized by this decision.
+- Next gate: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LIVE_READ_ONLY_SNAPSHOT_CONTRACT_ATTRIBUTION_AND_PLAN_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->
 
 # 11_INCIDENT_REGISTER.md
 
@@ -1365,6 +1386,21 @@ Next: AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DEPLOY
 - Deployment: `NO`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
 
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+## Phase 2 Local Snapshot Adapter Owner Acceptance — 2026-07-24
+
+- Summary: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_SUMMARY.md`
+- Proof: `docs/evidence/airo-finance/AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_PROOF.json`
+- Integration commit: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`
+- Candidate HTML SHA256: `88e308660286bf0bc3a3fb2bd238f068bdff369c3b425a04fd9975f7b16d5809`
+- Contract test SHA256: `dd6dd10e846b08655f0a2680f4977042fbc6c346e025636cb7678e8ae31fdb48`
+- Technical result: `61/61 PASS`
+- Provider harness: `PASS`
+- Visual direction: `ACCEPTED`
+- Deployment: `NO`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->
+
 # 99_HISTORICAL_AND_SUPERSEDED.md
 
 ## Superseded and Historical Materials
@@ -1761,6 +1797,22 @@ NEXT_SAFE_GATE=AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_LOCAL_CANDIDATE_BUILD_NO_DE
 - Deployment performed: `NO`
 - Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_READ_ONLY_SNAPSHOT_ADAPTER_LOCAL_CANDIDATE_BUILD_NO_DEPLOY`
 <!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_SHELL_OWNER_VISUAL_ACCEPTANCE_RECORD_NO_DEPLOY_END -->
+
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+## 2026-07-24 — Phase 2 local snapshot adapter Owner acceptance
+
+- Owner result: `PASS ALL`
+- Integration commit: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`
+- Technical contract: `61/61 PASS`
+- Isolated provider harness: `PASS`
+- Renderer activeSnapshot routing: `PASS`
+- Dual stale-request guards: `PASS`
+- Cash account separation: `PASS`
+- Production remains version `390`.
+- Deployment performed: `NO`
+- Next: `AIRO_FINANCE_WEB_APP_V2_PHASE_2_LIVE_READ_ONLY_SNAPSHOT_CONTRACT_ATTRIBUTION_AND_PLAN_NO_DEPLOY`
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->
 
 ## Latest Handoff — Telegram Cross-Project Runtime Isolation Incident — 2026-07-23
 - **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
@@ -3581,6 +3633,20 @@ NEXT_SAFE_GATE=AFPD_INC_009_CLOSED_RETURN_TO_AIRO_FINANCE_ROADMAP
 - **WORKBOOK_MUTATION**: NO
 - **NEXT_SAFE_GATE**: AIRO_FINANCE_PHASE_1_MVP_STABILIZATION_CLOSEOUT_AND_PHASE_2_ENTRY_RECORD_NO_RUNTIME_MUTATION
 - **Marker**: `AIRO_FINANCE_CASH_MAKAN_ACCOUNT_REGISTRY_READ_ONLY_AUDIT_NO_MUTATION`
+
+
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_BEGIN -->
+## AIRO Finance Web App V2 Phase 2 Local Snapshot Adapter Owner Acceptance Handoff — 2026-07-24
+- **PHASE_2_LOCAL_SNAPSHOT_ADAPTER_STATUS**: OWNER_ACCEPTED
+- **INTEGRATION_COMMIT**: `f79be1e6fc6f1aa5aef1a8e9f0518e1d13ca23c6`
+- **TECHNICAL_CONTRACT**: `61_OF_61_PASS`
+- **PROVIDER_RUNTIME_HARNESS**: PASS
+- **OWNER_VISUAL_REVIEW**: PASS_ALL
+- **DEPLOYMENT_PERFORMED**: NO
+- **PRODUCTION_LAST_KNOWN_VERSION**: 390
+- **LIVE_APPS_SCRIPT_RPC_CREATED**: NO
+- **NEXT_SAFE_GATE**: AIRO_FINANCE_WEB_APP_V2_PHASE_2_LIVE_READ_ONLY_SNAPSHOT_CONTRACT_ATTRIBUTION_AND_PLAN_NO_DEPLOY
+<!-- AIRO_FINANCE_WEB_APP_V2_PHASE_2_LOCAL_SNAPSHOT_ADAPTER_OWNER_ACCEPTANCE_RECORD_NO_DEPLOY_20260724_194916_END -->
 
 <!-- AFPD_PROVENANCE
 source_path: docs/afpd/13_WEB_DASHBOARD_READONLY_DATA_CONTRACT.md
