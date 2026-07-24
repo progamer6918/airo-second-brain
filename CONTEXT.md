@@ -195,3 +195,18 @@ Ketentuan:
 - Cetak `CLIPBOARD_COPY=SKIPPED` jika `clip.exe` absen.
 - Anda dapat memanfaatkan helper `scripts/airo-run-and-copy` untuk kenyamanan eksekusi.
 
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_BEGIN -->
+## Telegram Identity Task Router
+
+All Telegram bot identity, token, webhook, getUpdates, Earesmes, Hermes,
+Arfin, EarnsAI, and cross-project routing tasks must first read:
+
+`systems/telegram-agent-identity-contract.md`
+
+Canonical baseline:
+
+- Earesmes has its existing dedicated bot and runs on Hermes/WSL.
+- Arfin has its existing dedicated finance bot and remains independent.
+- EarnsAI has its existing dedicated bot.
+- Local token absence is not ecosystem-wide nonexistence.
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_END -->

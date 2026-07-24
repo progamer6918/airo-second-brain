@@ -34,3 +34,15 @@ Akses: Windows Terminal → WSL2 Ubuntu
 
 Semua output yang Egit lihat sehari-hari (via Telegram) ditulis dalam **Bahasa Indonesia**.
 Semua dokumentasi teknis, PRD, dan konfigurasi sistem ditulis dalam **English**.
+
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_BEGIN -->
+## Telegram Identity Boundary
+
+- Earesmes, Arfin, and EarnsAI use distinct existing Telegram bot identities.
+- Earesmes is backed by Hermes/WSL.
+- Arfin is the direct and independent AIRO Finance interface.
+- A cross-project webhook binding is an incident, not intentional shared-bot
+  architecture.
+- Identity and evidence-scope rules are canonical in
+  `telegram-agent-identity-contract.md`.
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_END -->

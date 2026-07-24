@@ -543,3 +543,25 @@ NEXT=COMPLETE_AFPD_BOOT_BUNDLE
 This repository-level reading guard does not declare AFPD the canonical
 replacement for Final Kitab or ARFIN.md.
 <!-- END AIRO_FINANCE_AFPD_BOOT_GUARD -->
+
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_BEGIN -->
+## Mandatory Telegram Agent Identity Guard
+
+For every task involving Telegram bot identity, tokens, webhooks, getUpdates,
+Earesmes, Hermes, Arfin, AIRO Finance, EarnsAI, or cross-project Telegram
+routing:
+
+1. Read `systems/telegram-agent-identity-contract.md`.
+2. Resolve which existing bot belongs to which agent.
+3. Declare the exact evidence scope inspected.
+4. Never treat absence from local WSL files as global nonexistence.
+5. Fail closed before recommending bot creation, token rotation, webhook
+   deletion, webhook reassignment, or ownership changes.
+6. Require explicit Owner approval for every bot-identity architecture change.
+
+Every substantive response within this scope must visibly emit the PASS or FAIL
+identity receipt defined in `systems/telegram-agent-identity-contract.md`
+before giving a technical recommendation, command, or mutation plan.
+
+This guard applies to all AI operators and every new chat.
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_END -->

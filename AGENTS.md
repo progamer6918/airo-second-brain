@@ -207,3 +207,16 @@ NEXT=COMPLETE_AFPD_BOOT_BUNDLE
 This repository-level reading guard does not declare AFPD the canonical
 replacement for Final Kitab or ARFIN.md.
 <!-- END AIRO_FINANCE_AFPD_BOOT_GUARD -->
+
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_BEGIN -->
+## Telegram Identity Fail-Closed Guard
+
+Before any Telegram identity, bot, token, webhook, polling, or routing
+recommendation, read `systems/telegram-agent-identity-contract.md`.
+
+Earesmes and Arfin already have distinct dedicated bot identities. A local WSL
+scan is not a complete ecosystem secret inventory.
+
+Do not recommend a new bot, token rotation, webhook deletion, or ownership
+change without complete identity attribution and explicit Owner approval.
+<!-- AIRO_TELEGRAM_IDENTITY_GUARD_END -->

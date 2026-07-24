@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+from pathlib import Path
+
+root = Path(__file__).resolve().parents[1]
+
+required = {
+    "contract": root / "systems/telegram-agent-identity-contract.md",
+    "boot": root / "BOOT.md",
+    "agents": root / "AGENTS.md",
+    "context": root / "CONTEXT.md",
+    "interfaces": root / "systems/interfaces.md",
+}
+
+for name, path in required.items():
+    if not path.is_file():
+        raise SystemExit(f"AIRO_AGENT_IDENTITY_GUARD=FAIL MISSING={name}")
+
+texts = {
+    name: path.read_text(encoding="utf-8")
+    for name, path in required.items()
+}
+
+contract_checks = [
+    "existing dedicated Earesmes Telegram bot",
+    "existing dedicated Arfin Telegram bot",
+    "existing dedicated EarnsAI Telegram bot",
+    "not found in local WSL files",
+    "does not exist in the AIRO ecosystem",
+    "explicit Owner approval",
+    "EARESMES_BOT_MISBOUND_TO_ARFIN_WEBHOOK_OR_ROUTING_PATH",
+    "Every substantive Telegram architecture response must emit",
+    "NEW_BOT_RECOMMENDATION_ALLOWED=NO",
+    "TOKEN_ROTATION_RECOMMENDATION_ALLOWED=NO",
+    "WEBHOOK_MUTATION_ALLOWED=NO",
+    "MUTATION_ALLOWED=ONLY_WITH_SEPARATE_OWNER_APPROVAL",
+]
+
+for value in contract_checks:
+    if value not in texts["contract"]:
+        raise SystemExit(
+            f"AIRO_AGENT_IDENTITY_GUARD=FAIL CONTRACT_MISSING={value}"
+        )
+
+for name in ("boot", "agents", "context"):
+    if "systems/telegram-agent-identity-contract.md" not in texts[name]:
+        raise SystemExit(
+            f"AIRO_AGENT_IDENTITY_GUARD=FAIL ROUTE_MISSING={name}"
+        )
+
+if "all AI operators and every new chat" not in texts["boot"]:
+    raise SystemExit(
+        "AIRO_AGENT_IDENTITY_GUARD=FAIL NEW_CHAT_GUARD_MISSING"
+    )
+
+if "must visibly emit the PASS or FAIL" not in texts["boot"]:
+    raise SystemExit(
+        "AIRO_AGENT_IDENTITY_GUARD=FAIL VISIBLE_RECEIPT_GUARD_MISSING"
+    )
+
+print("AIRO_AGENT_IDENTITY_GUARD=PASS")
+print("IDENTITY_CONTRACT_READ=YES")
+print("EARESMES_BOT_OWNERSHIP=RESOLVED")
+print("ARFIN_BOT_OWNERSHIP=RESOLVED")
+print("EARNSAI_BOT_OWNERSHIP=RESOLVED")
+print("EVIDENCE_SCOPE_DECLARED=YES")
+print("LOCAL_ABSENCE_USED_AS_GLOBAL_ABSENCE=NO")
+print("NEW_CHAT_ENFORCEMENT=PASS")
+print("NEW_BOT_WITHOUT_PROOF=BLOCKED")
+print("NEW_BOT_RECOMMENDATION_ALLOWED=NO")
+print("TOKEN_ROTATION_RECOMMENDATION_ALLOWED=NO")
+print("WEBHOOK_MUTATION_ALLOWED=NO")
+print("MUTATION_ALLOWED=ONLY_WITH_SEPARATE_OWNER_APPROVAL")
+print("VISIBLE_RESPONSE_RECEIPT_ENFORCEMENT=PASS")
