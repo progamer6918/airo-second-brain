@@ -18216,6 +18216,9 @@ return airoOriginalDoPostForSprint7GmailLabelFilter_(e);
 
 function doGet(e) {
   var viewParam = e && e.parameter && (e.parameter.view || e.parameter.page);
+  if (viewParam === 'dashboard-v2-test') {
+    return HtmlService.createHtmlOutputFromFile("AIRO_Finance_WebDashboard_V2");
+  }
   if (viewParam === 'dashboard') {
     return airoWebDashboardRenderPage_(e);
   }

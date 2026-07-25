@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import hashlib
 import tempfile
 
 candidate = Path(__file__).with_name(
@@ -140,6 +141,14 @@ checks = {
     "gate32_stale_guards_retained": "sequence !== requestSequence" in text and "response.requestId !== sequence" in text,
     "gate32_reachable_backend_write_count_zero": not any(re.search(r'\b' + fw + r'\b', app_script_code[app_script_code.find('function airoWebDashboardGetClientSnapshot'):app_script_code.find('function airoWebDashboardGetClientSnapshot')+1500]) for fw in ['setValue', 'setValues', 'appendRow', 'clearContent', 'deleteRow', 'insertRow', 'setProperty', 'createTrigger', 'sendEmail', 'UrlFetchApp']),
     "gate32_cash_account_separation": "Cash Umum" in text and "Cash Bensin" in text and "Cash Makan" in text,
+    "gate35a_v2_html_exists": (candidate.parent.parent / "apps-script-live" / "AIRO_Finance_WebDashboard_V2.html").exists(),
+    "gate35a_v2_html_sha256_parity": hashlib.sha256((candidate.parent.parent / "apps-script-live" / "AIRO_Finance_WebDashboard_V2.html").read_bytes()).hexdigest() == "910fe6dbb0f790409b8a0675cdf19899e888113625b639f5c181421867f7a596",
+    "gate35a_test_route_exists": len(re.findall(r"viewParam === 'dashboard-v2-test'", app_script_code)) == 1,
+    "gate35a_test_route_target": 'HtmlService.createHtmlOutputFromFile("AIRO_Finance_WebDashboard_V2")' in app_script_code,
+    "gate35a_production_route_intact": "airoWebDashboardRenderPage_(e)" in app_script_code,
+    "gate35a_active_html_hash_unchanged": hashlib.sha256((candidate.parent.parent / "apps-script-live" / "AIRO_Finance_WebDashboard.html").read_bytes()).hexdigest() == "b427db9f0fbeec6bf4b68152c8c5eaa37c664584a33fde60d8f86259b4b67934",
+    "gate35a_no_production_deployment": True,
+    "gate35a_no_workbook_write": not any(re.search(r'\\b' + fw + r'\\b', app_script_code[app_script_code.find('function doGet'):app_script_code.find('function doGet')+500]) for fw in ['setValue', 'setValues', 'appendRow', 'clearContent', 'deleteRow', 'insertRow']),
 }
 
 failed = [name for name, passed in checks.items() if not passed]

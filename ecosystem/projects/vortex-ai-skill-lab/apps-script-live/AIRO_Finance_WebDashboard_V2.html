@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AIRO Finance Web App V2 Shell Candidate</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #091018;
+      --surface: #111c28;
+      --surface-2: #172536;
+      --line: #26384c;
+      --text: #eef4fb;
+      --muted: #9fb0c3;
+      --accent: #75d6ff;
+      --good: #65e6a5;
+      --warn: #ffd166;
+      --bad: #ff7b8a;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #071019, #0d1722 55%, #101b26);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    }
+    button, select { font: inherit; }
+    button { color: inherit; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 250px 1fr; }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      background: rgba(8, 16, 24, .92);
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+    .brand { margin: 0 8px 26px; }
+    .brand strong { display: block; font-size: 21px; }
+    .brand span { color: var(--muted); font-size: 13px; }
+    .nav { display: grid; gap: 8px; }
+    .nav-button {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      padding: 13px 14px;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav-button:hover, .nav-button.active {
+      background: var(--surface-2);
+      border-color: var(--line);
+    }
+    .main { min-width: 0; padding: 28px; }
+    .topbar {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .topbar h1 { margin: 0; font-size: clamp(22px, 4vw, 34px); }
+    .subheading { margin-top: 5px; color: var(--muted); }
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; }
+    .field {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    select {
+      min-width: 120px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px 12px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    .badge {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 20;
+      border: 1px solid rgba(101, 230, 165, .45);
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(8, 28, 23, .94);
+      color: var(--good);
+      font-size: 12px;
+      font-weight: 750;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, .28);
+    }
+    .status {
+      display: none;
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 13px 15px;
+      background: var(--surface);
+    }
+    .status.visible { display: block; }
+    .status.warning { border-color: rgba(255, 209, 102, .55); color: var(--warn); }
+    .status.error { border-color: rgba(255, 123, 138, .55); color: var(--bad); }
+    .grid { display: grid; gap: 16px; }
+    .grid.metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 16px; }
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: rgba(17, 28, 40, .86);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, .16);
+    }
+    .card h2, .card h3 { margin: 0 0 14px; }
+    .card small { color: var(--muted); }
+    .metric-value { margin-top: 7px; font-size: 25px; font-weight: 760; }
+    .list { display: grid; gap: 10px; }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid rgba(38, 56, 76, .72);
+      padding: 9px 0;
+    }
+    .row:last-child { border-bottom: 0; }
+    .label-group { min-width: 0; }
+    .label-group strong { display: block; }
+    .label-group span { color: var(--muted); font-size: 12px; }
+    .value { white-space: nowrap; font-weight: 700; }
+    .pill {
+      display: inline-flex;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .pill.increase { color: var(--bad); }
+    .pill.decrease { color: var(--good); }
+    .pill.new { color: var(--accent); }
+    .wallets { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wallet-name { color: var(--accent); font-size: 14px; }
+    .quality-good { color: var(--good); }
+    .empty {
+      padding: 54px 20px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+    }
+    .mobile-nav { display: none; }
+    .skeleton {
+      height: 92px;
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, var(--surface), var(--surface-2), var(--surface));
+      background-size: 200% 100%;
+      animation: pulse 1.2s linear infinite;
+    }
+    @keyframes pulse { to { background-position: -200% 0; } }
+    @media (max-width: 860px) {
+      .app { display: block; padding-bottom: 78px; }
+      .sidebar { display: none; }
+      .main { padding: 20px 16px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .grid.metrics, .grid.two, .wallets { grid-template-columns: 1fr; }
+      .mobile-nav {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        z-index: 15;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 7px;
+        background: rgba(8, 16, 24, .96);
+        backdrop-filter: blur(18px);
+      }
+      .mobile-nav .nav-button {
+        padding: 9px 4px;
+        font-size: 11px;
+        text-align: center;
+      }
+      .badge { right: 12px; bottom: 88px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>AIRO Finance</strong>
+        <span>Web App V2 Shell Candidate</span>
+      </div>
+      <nav class="nav" aria-label="Navigasi desktop">
+        <button class="nav-button active" data-view="overview">Ringkasan</button>
+        <button class="nav-button" data-view="spending">Pengeluaran</button>
+        <button class="nav-button" data-view="accounts">Akun &amp; Saldo</button>
+        <button class="nav-button" data-view="quality">Data Quality</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="page-title">Ringkasan</h1>
+          <div class="subheading">PUBLIC_SAFE_SAMPLE_DATA · kandidat lokal · belum terhubung RPC</div>
+        </div>
+        <div class="filters">
+          <label class="field">
+            Bulan
+            <select id="month-filter" aria-label="Bulan">
+              <option value="1">Januari</option>
+              <option value="2">Februari</option>
+              <option value="3">Maret</option>
+              <option value="4">April</option>
+              <option value="5">Mei</option>
+              <option value="6">Juni</option>
+              <option value="7" selected>Juli</option>
+              <option value="8">Agustus</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+          </label>
+          <label class="field">
+            Tahun
+            <select id="year-filter" aria-label="Tahun">
+              <option>2025</option>
+              <option selected>2026</option>
+              <option>2027</option>
+            </select>
+          </label>
+          <label class="field">
+            Demo state
+            <select id="state-filter" aria-label="Demo state">
+              <option value="ready">Ready</option>
+              <option value="loading">Loading</option>
+              <option value="empty">Empty</option>
+              <option value="warning">Warning</option>
+              <option value="error">Error</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <section id="content" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navigasi mobile">
+    <button class="nav-button active" data-view="overview">Ringkasan</button>
+    <button class="nav-button" data-view="spending">Pengeluaran</button>
+    <button class="nav-button" data-view="accounts">Akun</button>
+    <button class="nav-button" data-view="quality">Quality</button>
+  </nav>
+
+  <div class="badge">Read-Only Cockpit</div>
+
+  <script>
+    "use strict";
+
+    window.AIRO_PHASE2_SHELL_CONTRACT = Object.freeze({
+      mode: "PUBLIC_SAFE_SAMPLE_DATA",
+      views: ["overview", "spending", "accounts", "quality"],
+      separateMonthYear: true,
+      readOnly: true,
+      backendConnected: false,
+      productionReplacement: false
+    });
+
+    const fixture = Object.freeze({
+      metrics: [
+        { label: "Pemasukan", value: "Rp 12.500.000", note: "Sample" },
+        { label: "Pengeluaran", value: "Rp 7.250.000", note: "Sample" },
+        { label: "Arus Kas", value: "Rp 5.250.000", note: "Sample" }
+      ],
+      categories: [
+        { name: "Kebutuhan Harian", value: "Rp 2.450.000", status: "increase", comparison: "Naik 8%" },
+        { name: "Transportasi", value: "Rp 1.350.000", status: "decrease", comparison: "Turun 5%" },
+        { name: "Tagihan", value: "Rp 980.000", status: "new", comparison: "Baru bulan ini" }
+      ],
+      subcategories: [
+        { name: "Belanja Bulanan", parent: "Kebutuhan Harian", value: "Rp 1.400.000", status: "increase", comparison: "Naik 4%" },
+        { name: "Bensin", parent: "Transportasi", value: "Rp 750.000", status: "decrease", comparison: "Turun 7%" },
+        { name: "Internet", parent: "Tagihan", value: "Rp 480.000", status: "new", comparison: "Baru bulan ini" }
+      ],
+      accounts: [
+        { name: "Cash Umum", value: "Rp 1.250.000" },
+        { name: "Cash Bensin", value: "Rp 600.000" },
+        { name: "Cash Makan", value: "Rp 850.000" }
+      ],
+      quality: [
+        { name: "Account matching", value: "Exact", status: "PASS" },
+        { name: "Generic Cash", value: "Absent", status: "PASS" },
+        { name: "Read-only boundary", value: "Protected", status: "PASS" }
+      ]
+    });
+
+    class LocalSnapshotProvider {
+      async loadDashboardSnapshot(request) {
+        const seq = request.requestId || 0;
+        await new Promise(r => setTimeout(r, 10));
+        if (!fixture || !fixture.metrics) {
+          return {
+            ok: false,
+            requestId: seq,
+            error: { code: "NO_DATA", message: "Snapshot data tidak ditemukan" }
+          };
+        }
+        return {
+          ok: true,
+          requestId: seq,
+          generatedAt: new Date().toISOString(),
+          filters: { month: request.month, year: request.year },
+          status: "ready",
+          warning: null,
+          overview: {
+            metrics: fixture.metrics,
+            categories: fixture.categories,
+            subcategories: fixture.subcategories
+          },
+          spending: {
+            categories: fixture.categories,
+            subcategories: fixture.subcategories
+          },
+          accounts: fixture.accounts,
+          quality: fixture.quality
+        };
+      }
+    }
+
+    class AppsScriptSnapshotProvider {
+      loadDashboardSnapshot(request) {
+        return new Promise((resolve, reject) => {
+          if (typeof google === "undefined" || !google.script || !google.script.run || typeof google.script.run.airoWebDashboardGetClientSnapshot !== "function") {
+            reject(new Error("google.script.run API tidak tersedia"));
+            return;
+          }
+
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              reject(new Error("Request ke Apps Script timeout setelah 15 detik"));
+            }
+          }, 15000);
+
+          google.script.run
+            .withSuccessHandler((response) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(response);
+              }
+            })
+            .withFailureHandler((error) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                const errMsg = (error && error.message) ? error.message : "Terjadi kesalahan saat memanggil Apps Script";
+                reject(new Error(errMsg));
+              }
+            })
+            .airoWebDashboardGetClientSnapshot(request);
+        });
+      }
+    }
+
+    const localSnapshotProvider = new LocalSnapshotProvider();
+
+    function getDashboardProvider() {
+      if (typeof google !== "undefined" && google.script && google.script.run && typeof google.script.run.airoWebDashboardGetClientSnapshot === "function") {
+        return new AppsScriptSnapshotProvider();
+      }
+      return localSnapshotProvider;
+    }
+    window.getDashboardProvider = getDashboardProvider;
+
+    const titles = Object.freeze({
+      overview: "Ringkasan",
+      spending: "Pengeluaran",
+      accounts: "Akun & Saldo",
+      quality: "Data Quality"
+    });
+
+    let currentView = "overview";
+    let requestSequence = 0;
+    let activeSnapshot = null;
+
+    const content = document.getElementById("content");
+    const statusBox = document.getElementById("status");
+    const pageTitle = document.getElementById("page-title");
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (typeof text === "string") node.textContent = text;
+      return node;
+    }
+
+    function clearNode(node) {
+      while (node.firstChild) node.removeChild(node.firstChild);
+    }
+
+    function setStatus(message, type) {
+      statusBox.className = "status";
+      statusBox.textContent = "";
+      if (!message) return;
+      statusBox.textContent = message;
+      statusBox.classList.add("visible");
+      if (type) statusBox.classList.add(type);
+    }
+
+    function card(title) {
+      const node = element("article", "card");
+      node.appendChild(element("h2", "", title));
+      return node;
+    }
+
+    function comparisonList(title, rows) {
+      const box = card(title);
+      const list = element("div", "list");
+
+      rows.forEach(function (item) {
+        const row = element("div", "row");
+        const labels = element("div", "label-group");
+        labels.appendChild(element("strong", "", item.name));
+
+        if (item.parent) labels.appendChild(element("span", "", item.parent));
+
+        const pill = element("span", "pill " + item.status, item.comparison);
+        labels.appendChild(pill);
+
+        row.appendChild(labels);
+        row.appendChild(element("div", "value", item.value));
+        list.appendChild(row);
+      });
+
+      box.appendChild(list);
+      return box;
+    }
+
+    function renderOverview() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.overview) return element("div");
+      const wrapper = element("div");
+
+      const metrics = element("div", "grid metrics");
+      (snap.overview.metrics || []).forEach(function (item) {
+        const box = card(item.label);
+        box.appendChild(element("div", "metric-value", item.value));
+        box.appendChild(element("small", "", item.note));
+        metrics.appendChild(box);
+      });
+
+      const detail = element("div", "grid two");
+      detail.appendChild(comparisonList("Top Category", snap.overview.categories || []));
+      detail.appendChild(comparisonList("Top Subcategory", snap.overview.subcategories || []));
+
+      wrapper.appendChild(metrics);
+      wrapper.appendChild(detail);
+      return wrapper;
+    }
+
+    function renderSpending() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.spending) return element("div", "grid two");
+      const grid = element("div", "grid two");
+      grid.appendChild(comparisonList("Category Comparison", snap.spending.categories || []));
+      grid.appendChild(comparisonList("Subcategory Comparison", snap.spending.subcategories || []));
+      return grid;
+    }
+
+    function renderAccounts() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.accounts) return element("div", "grid wallets");
+      const grid = element("div", "grid wallets");
+
+      snap.accounts.forEach(function (account) {
+        const box = card("Wallet");
+        box.appendChild(element("div", "wallet-name", account.name));
+        box.appendChild(element("div", "metric-value", account.value));
+        box.appendChild(element("small", "", "Exact canonical account"));
+        grid.appendChild(box);
+      });
+
+      return grid;
+    }
+
+    function renderQuality() {
+      const snap = activeSnapshot;
+      if (!snap || !snap.quality) return card("System Health");
+      const box = card("System Health");
+      const list = element("div", "list");
+
+      snap.quality.forEach(function (item) {
+        const row = element("div", "row");
+        const labels = element("div", "label-group");
+        labels.appendChild(element("strong", "", item.name));
+        labels.appendChild(element("span", "", item.value));
+        row.appendChild(labels);
+        row.appendChild(element("div", "value quality-good", item.status));
+        list.appendChild(row);
+      });
+
+      box.appendChild(list);
+      return box;
+    }
+
+    function renderReady() {
+      if (currentView === "spending") return renderSpending();
+      if (currentView === "accounts") return renderAccounts();
+      if (currentView === "quality") return renderQuality();
+      return renderOverview();
+    }
+
+    async function runRender() {
+      const sequence = ++requestSequence;
+      const month = document.getElementById("month-filter").value;
+      const year = document.getElementById("year-filter").value;
+      const state = document.getElementById("state-filter").value;
+
+      clearNode(content);
+      setStatus("");
+
+      if (state === "loading") {
+        const loading = element("div", "grid metrics");
+        loading.appendChild(element("div", "skeleton"));
+        loading.appendChild(element("div", "skeleton"));
+        loading.appendChild(element("div", "skeleton"));
+        content.appendChild(loading);
+        setStatus("Memuat kandidat snapshot...", "");
+        return;
+      }
+
+      try {
+        const provider = getDashboardProvider();
+        const response = await provider.loadDashboardSnapshot({ month, year, requestId: sequence });
+        if (sequence !== requestSequence || response.requestId !== sequence) {
+          setStatus("Respons lama diabaikan dengan aman.", "warning");
+          return;
+        }
+        if (!response.ok || state === "error") {
+          setStatus(response.error ? response.error.message : "Snapshot gagal dimuat. Data production tidak berubah.", "error");
+          content.appendChild(element("div", "empty", "Coba refresh kandidat lokal."));
+          return;
+        }
+        activeSnapshot = response;
+
+        clearNode(content);
+
+        if (state === "empty" || response.status === "empty") {
+          content.appendChild(element("div", "empty", "Belum ada data untuk periode terpilih."));
+          return;
+        }
+
+        if (state === "warning" || response.status === "warning") {
+          setStatus((response.warning && response.warning.message) || "Ada peringatan data quality pada sample fixture.", "warning");
+        }
+
+        content.appendChild(renderReady());
+      } catch (err) {
+        if (sequence !== requestSequence) return;
+        setStatus("Snapshot gagal dimuat: " + err.message, "error");
+      }
+    }
+
+    function switchView(view) {
+      currentView = view;
+      pageTitle.textContent = titles[view];
+
+      document.querySelectorAll("[data-view]").forEach(function (button) {
+        button.classList.toggle("active", button.getAttribute("data-view") === view);
+      });
+
+      runRender();
+    }
+
+    document.querySelectorAll("[data-view]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        switchView(button.getAttribute("data-view"));
+      });
+    });
+
+    document.getElementById("month-filter").addEventListener("change", runRender);
+    document.getElementById("year-filter").addEventListener("change", runRender);
+    document.getElementById("state-filter").addEventListener("change", runRender);
+
+    runRender();
+  </script>
+</body>
+</html>
