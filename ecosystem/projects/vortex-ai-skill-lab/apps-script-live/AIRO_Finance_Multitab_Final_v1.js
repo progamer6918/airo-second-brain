@@ -29895,15 +29895,21 @@ function airoWebDashboardGetClientSnapshot(input, options) {
   });
 
   var rawAccounts = snap.wallet_snapshot || [];
+  var unresolvedAccountCount = 0;
   var formattedAccounts = rawAccounts.map(function(acc) {
-    var accName = acc.name || acc.account || "Wallet";
+    var rawName = (acc.name || acc.account || "").toString().trim();
+    var isUnresolved = !rawName || rawName.toLowerCase() === "unknown";
+    if (isUnresolved) unresolvedAccountCount++;
+    var accName = isUnresolved ? "Unresolved account" : rawName;
+    var identityStatus = isUnresolved ? "UNRESOLVED" : "RESOLVED";
     var balNum = typeof acc.balance === "number" ? acc.balance : (typeof acc.value === "number" ? acc.value : 0);
     var balStr = typeof acc.value === "string" ? acc.value : formatIDR_(balNum);
     return {
       name: accName,
       value: balStr,
       type: acc.type || "Account",
-      status: acc.status || "ACTIVE"
+      status: acc.status || "ACTIVE",
+      identity_status: identityStatus
     };
   });
 
@@ -29915,6 +29921,10 @@ function airoWebDashboardGetClientSnapshot(input, options) {
     { name: "Uncategorized Rows", value: String(qualityObj.uncategorized_count || 0), status: (qualityObj.uncategorized_count > 0 ? "WARN" : "PASS") },
     { name: "Pending Review", value: String(qualityObj.pending_review_count || 0), status: (qualityObj.pending_review_count > 0 ? "WARN" : "PASS") }
   ];
+  if (unresolvedAccountCount > 0) {
+    qualityArray.push({ name: "Unresolved Accounts", value: unresolvedAccountCount + " pending", status: "WARN" });
+  }
+
   if (Array.isArray(qualityObj.warnings)) {
     qualityObj.warnings.forEach(function(w) {
       qualityArray.push({ name: "Quality Warning", value: String(w), status: "WARN" });
@@ -29933,6 +29943,8 @@ function airoWebDashboardGetClientSnapshot(input, options) {
     warning: warningObj,
     overview: {
       metrics: metricsArray,
+      categories: formattedCats,
+      subcategories: formattedSubcats,
       summary: {
         period_label: snap.period_label || "",
         data_status: snap.data_status || "CLEAN"

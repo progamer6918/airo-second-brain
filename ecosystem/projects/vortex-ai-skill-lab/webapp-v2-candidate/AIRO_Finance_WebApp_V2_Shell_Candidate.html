@@ -433,6 +433,19 @@
       const box = card(title);
       const list = element("div", "list");
 
+      if (!rows || rows.length === 0) {
+        const titleLower = title.toLowerCase();
+        const isCat = titleLower.indexOf("subcategory") === -1 && (titleLower.indexOf("kategori") !== -1 || titleLower.indexOf("category") !== -1);
+        const emptyMsg = isCat
+          ? "Belum ada data kategori untuk periode ini."
+          : "Belum ada data subkategori untuk periode ini.";
+        const emptyRow = element("div", "row");
+        emptyRow.appendChild(element("small", "", emptyMsg));
+        list.appendChild(emptyRow);
+        box.appendChild(list);
+        return box;
+      }
+
       rows.forEach(function (item) {
         const row = element("div", "row");
         const labels = element("div", "label-group");
@@ -491,10 +504,19 @@
       const grid = element("div", "grid wallets");
 
       snap.accounts.forEach(function (account) {
-        const box = card("Wallet");
-        box.appendChild(element("div", "wallet-name", account.name));
+        const isUnresolved = account.identity_status === "UNRESOLVED" || account.name === "Unresolved account";
+        const cardTitle = isUnresolved ? "Unresolved account" : (account.name || "Account");
+        const box = card(cardTitle);
+
+        box.appendChild(element("div", "wallet-name", account.name || "Account"));
         box.appendChild(element("div", "metric-value", account.value));
-        box.appendChild(element("small", "", "Exact canonical account"));
+
+        if (isUnresolved) {
+          box.appendChild(element("small", "warning-text", "Perlu perbaikan Account Registry"));
+        } else {
+          box.appendChild(element("small", "", (account.type || "Account") + " · " + (account.status || "ACTIVE")));
+        }
+
         grid.appendChild(box);
       });
 
