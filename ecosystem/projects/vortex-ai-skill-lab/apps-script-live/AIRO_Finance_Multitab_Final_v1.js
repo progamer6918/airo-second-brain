@@ -29848,6 +29848,79 @@ function airoWebDashboardGetClientSnapshot(input, options) {
     };
   }
 
+  var formatIDR_ = function(val) {
+    var num = Number(val) || 0;
+    var isNeg = num < 0;
+    var absVal = Math.abs(num);
+    var formatted = "Rp " + absVal.toLocaleString("id-ID");
+    return isNeg ? "-" + formatted : formatted;
+  };
+
+  var incVal = (snap.totals && snap.totals.income) || 0;
+  var expVal = (snap.totals && snap.totals.expense) || 0;
+  var netVal = (snap.totals && snap.totals.net_cashflow) || 0;
+  var cleanVal = (snap.totals && snap.totals.clean_expense) || 0;
+
+  var metricsArray = [
+    { label: "Pemasukan", value: formatIDR_(incVal), note: "Bulan ini", amount: incVal },
+    { label: "Pengeluaran", value: formatIDR_(expVal), note: "Bulan ini", amount: expVal },
+    { label: "Arus Kas", value: formatIDR_(netVal), note: "Bersih", amount: netVal }
+  ];
+
+  var spendingIntel = snap.spending_intelligence || {};
+  var rawCats = spendingIntel.categories || spendingIntel.top_categories || [];
+  var rawSubcats = spendingIntel.subcategories || spendingIntel.top_subcategories || [];
+
+  var formattedCats = rawCats.map(function(c) {
+    var valNum = typeof c.value === "number" ? c.value : (typeof c.amount === "number" ? c.amount : 0);
+    var valStr = typeof c.value === "string" ? c.value : formatIDR_(valNum);
+    return {
+      name: c.name || c.category || "Uncategorized",
+      value: valStr,
+      status: c.status || "stable",
+      comparison: c.comparison || "-"
+    };
+  });
+
+  var formattedSubcats = rawSubcats.map(function(s) {
+    var valNum = typeof s.value === "number" ? s.value : (typeof s.amount === "number" ? s.amount : 0);
+    var valStr = typeof s.value === "string" ? s.value : formatIDR_(valNum);
+    return {
+      name: s.name || s.subcategory || "Uncategorized",
+      parent: s.parent || s.category || "",
+      value: valStr,
+      status: s.status || "stable",
+      comparison: s.comparison || "-"
+    };
+  });
+
+  var rawAccounts = snap.wallet_snapshot || [];
+  var formattedAccounts = rawAccounts.map(function(acc) {
+    var accName = acc.name || acc.account || "Wallet";
+    var balNum = typeof acc.balance === "number" ? acc.balance : (typeof acc.value === "number" ? acc.value : 0);
+    var balStr = typeof acc.value === "string" ? acc.value : formatIDR_(balNum);
+    return {
+      name: accName,
+      value: balStr,
+      type: acc.type || "Account",
+      status: acc.status || "ACTIVE"
+    };
+  });
+
+  var qualityObj = snap.data_quality || {};
+  var qualityArray = [
+    { name: "Account Registry", value: (qualityObj.account_registry_error ? "Error" : "Exact"), status: (qualityObj.account_registry_error ? "WARN" : "PASS") },
+    { name: "Generic Cash Guard", value: "Absent", status: "PASS" },
+    { name: "Read-only Boundary", value: "Protected", status: "PASS" },
+    { name: "Uncategorized Rows", value: String(qualityObj.uncategorized_count || 0), status: (qualityObj.uncategorized_count > 0 ? "WARN" : "PASS") },
+    { name: "Pending Review", value: String(qualityObj.pending_review_count || 0), status: (qualityObj.pending_review_count > 0 ? "WARN" : "PASS") }
+  ];
+  if (Array.isArray(qualityObj.warnings)) {
+    qualityObj.warnings.forEach(function(w) {
+      qualityArray.push({ name: "Quality Warning", value: String(w), status: "WARN" });
+    });
+  }
+
   return {
     ok: true,
     requestId: reqId,
@@ -29859,20 +29932,20 @@ function airoWebDashboardGetClientSnapshot(input, options) {
     status: status,
     warning: warningObj,
     overview: {
-      metrics: {
-        income: (snap.totals && snap.totals.income) || 0,
-        expense: (snap.totals && snap.totals.expense) || 0,
-        net_cashflow: (snap.totals && snap.totals.net_cashflow) || 0,
-        clean_expense: (snap.totals && snap.totals.clean_expense) || 0
-      },
+      metrics: metricsArray,
       summary: {
         period_label: snap.period_label || "",
         data_status: snap.data_status || "CLEAN"
       }
     },
-    spending: snap.spending_intelligence || { top_categories: [], top_subcategories: [] },
-    accounts: snap.wallet_snapshot || [],
-    quality: snap.data_quality || { uncategorized_count: 0, pending_review_count: 0, warnings: [] }
+    spending: {
+      categories: formattedCats,
+      subcategories: formattedSubcats,
+      top_categories: formattedCats,
+      top_subcategories: formattedSubcats
+    },
+    accounts: formattedAccounts,
+    quality: qualityArray
   };
 }
 

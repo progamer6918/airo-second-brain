@@ -478,8 +478,10 @@
       const snap = activeSnapshot;
       if (!snap || !snap.spending) return element("div", "grid two");
       const grid = element("div", "grid two");
-      grid.appendChild(comparisonList("Category Comparison", snap.spending.categories || []));
-      grid.appendChild(comparisonList("Subcategory Comparison", snap.spending.subcategories || []));
+      const cats = Array.isArray(snap.spending.categories) ? snap.spending.categories : (Array.isArray(snap.spending.top_categories) ? snap.spending.top_categories : []);
+      const subcats = Array.isArray(snap.spending.subcategories) ? snap.spending.subcategories : (Array.isArray(snap.spending.top_subcategories) ? snap.spending.top_subcategories : []);
+      grid.appendChild(comparisonList("Category Comparison", cats));
+      grid.appendChild(comparisonList("Subcategory Comparison", subcats));
       return grid;
     }
 
@@ -505,16 +507,28 @@
       const box = card("System Health");
       const list = element("div", "list");
 
-      snap.quality.forEach(function (item) {
+      let qList = [];
+      if (Array.isArray(snap.quality)) {
+        qList = snap.quality;
+      } else if (snap.quality && typeof snap.quality === "object") {
+        qList = [
+          { name: "Uncategorized Rows", value: String(snap.quality.uncategorized_count || 0), status: snap.quality.uncategorized_count > 0 ? "WARN" : "PASS" },
+          { name: "Pending Review", value: String(snap.quality.pending_review_count || 0), status: snap.quality.pending_review_count > 0 ? "WARN" : "PASS" }
+        ];
+        if (Array.isArray(snap.quality.warnings)) {
+          snap.quality.warnings.forEach(w => qList.push({ name: "Warning", value: String(w), status: "WARN" }));
+        }
+      }
+
+      qList.forEach(function (item) {
         const row = element("div", "row");
         const labels = element("div", "label-group");
-        labels.appendChild(element("strong", "", item.name));
-        labels.appendChild(element("span", "", item.value));
+        labels.appendChild(element("strong", "", item.name || "Item"));
+        labels.appendChild(element("span", "", item.value || "OK"));
         row.appendChild(labels);
-        row.appendChild(element("div", "value quality-good", item.status));
+        row.appendChild(element("div", "value quality-good", item.status || "PASS"));
         list.appendChild(row);
       });
-
       box.appendChild(list);
       return box;
     }
@@ -526,11 +540,24 @@
       return renderOverview();
     }
 
+    function updateProvenance(provider) {
+      const subEl = document.querySelector(".subheading");
+      if (!subEl) return;
+      if (provider instanceof AppsScriptSnapshotProvider) {
+        subEl.textContent = "LIVE_APPS_SCRIPT_RPC · Apps Script WebApp · terhubung";
+      } else {
+        subEl.textContent = "PUBLIC_SAFE_SAMPLE_DATA · kandidat lokal · belum terhubung RPC";
+      }
+    }
+
     async function runRender() {
       const sequence = ++requestSequence;
       const month = document.getElementById("month-filter").value;
       const year = document.getElementById("year-filter").value;
       const state = document.getElementById("state-filter").value;
+
+      const provider = getDashboardProvider();
+      updateProvenance(provider);
 
       clearNode(content);
       setStatus("");
