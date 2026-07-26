@@ -10,7 +10,7 @@
 | Scope / Project | Owner-Approved Status | Roadmap Pointer | Current Status Source | Notes / Blockers |
 |---|---|---|---|---|
 | **ASB_GLOBAL** | `ACTIVE` | None yet | `CURRENT.md` + `decisions/approved/asb-gov-0c-owner-decisions-20260702.md` | Use current snapshots and decision logs until a dedicated ASB global roadmap is created. |
-| **AIRO Finance / vortex-ai-skill-lab** | `ACTIVE` | `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md` | AFPD current handoff + Web App V2 PRD addendum + latest runtime evidence | Owner-approved Web App V2 track (Phases 0–8). Read-only cockpit architecture. Telegram foreign-message ingestion incident is open; no finance runtime mutation is authorized by this checkpoint. |
+| **AIRO Finance / vortex-ai-skill-lab** | `ACTIVE_PHASE_4_CICILAN_RUMAH` | `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md` | Phase 4 Cicilan Rumah Active (Gate 4.0 Docs-Only Activation) + latest runtime evidence | Owner-approved Web App V2 track (Phases 0–8). Read-only cockpit architecture. Telegram foreign-message ingestion incident is open; no finance runtime mutation is authorized by this checkpoint. |
 | **finance-bot-alternatives** | `EXPERIMENT_REFERENCE` | None | Folder contents | Classified as experiment reference. |
 | **earnsai-pulse-trading-local-backups** | `ARCHIVE_LOCAL_BACKUP` | None | Folder contents | Local backup archive. |
 | **earnsai-telegram-gateway** | `PARKED_UNTIL_VERIFIED` | None | Folder contents | Parked until gateway operation is verified. |
