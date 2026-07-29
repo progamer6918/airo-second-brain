@@ -1,12 +1,12 @@
-PREREQ_ID	DESCRIPTION	CURRENT_EVIDENCE	STATUS	BLOCKS_DOCUMENT_INTEGRATION	BLOCKS_IMPLEMENTATION	RESOLUTION_GATE
-PREREQ-001	Canonical workspace integration strategy	TARGET_PROJECT_PATH=ecosystem/projects/earesmes-arfin-bridge/docs	PROPOSED	NO	YES	EAB_G0_5 / Workspace Preflight
-PREREQ-002	AFPD-INC-011 runtime isolation proof	chat_id allowlist & topology audit	OPEN_CONTAINED	NO	YES	EAB_G0_1S / G1_2
-PREREQ-003	Stable pending_id contract	UserProperties schema update spec	PROPOSED	NO	YES	EAB_G1_1
-PREREQ-004	pending_version contract	UserProperties schema update spec	PROPOSED	NO	YES	EAB_G1_1
-PREREQ-005	Bounded adapter contract	eabSubmitBatchClarification GAS spec	PROPOSED	NO	YES	EAB_G1_2
-PREREQ-006	Adapter authentication and least privilege	owner_chat_id filter & banned methods spec	PROPOSED	NO	YES	EAB_G1_2
-PREREQ-007	Review Queue behavior verification	writeRouted_ staging test spec	PROPOSED	NO	YES	EAB_G1_2
-PREREQ-008	Direct Arfin fallback verification	Apps Script doPost fallback route test	PROPOSED	NO	YES	EAB_G1_2
-PREREQ-009	Rollback topology and rollback proof plan	Git commit rollback & deployment preflight spec	PROPOSED	NO	YES	EAB_G1_2
-PREREQ-010	Source/runtime/deployment attribution	systems/telegram-agent-identity-contract.md	PROPOSED	NO	YES	Preflight Gate
-PREREQ-011	Owner authorization for canonical document integration	Owner explicit approval	PENDING	YES	YES	EAB_G0_5
+PREREQ_ID	DESCRIPTION	CURRENT_STATUS	DIRECT_EVIDENCE	BLOCKS_IMPLEMENTATION	RESOLUTION_GATE	MUTATION_REQUIRED	OWNER_APPROVAL_REQUIRED	PASS_CRITERIA	FAIL_CLOSED_ACTION
+PREREQ-001	Dedicated implementation workspace strategy	PARTIAL_EVIDENCE	Fresh temporary clone strategy proven for G0.5I documentation integration	YES	EAB_G1_0	NO	NO	Dedicated implementation workspace begins at verified remote parity while Owner canonical dirty workspace remains untouched	Block source mutation; never reset, clean, stash, pull, or rebase canonical dirty workspace
+PREREQ-002	AFPD-INC-011 runtime isolation	NOT_STARTED	G0.1 Audit Report (IF_DISCOVERY_FAILS=EAB_G1_0R_OWNER_AUTHORIZED_RUNTIME_ISOLATION_REPAIR)	YES	EAB_G1_0_DISCOVERY	NO	NO	Read-only evidence proves process, chat_id, queue, and bot-route isolation	Halt implementation until isolated
+PREREQ-003	Stable pending_id contract (CANONICAL_TARGET_ID=pending_id, DISPLAY_SHORT_REFERENCE=AF-XXXX_EXAMPLE, DISPLAY_REFERENCE_IS_CANONICAL_ID=NO)	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_1	NO	NO	AF-XXXX format spec & unit tests	Reject ambiguous replies
+PREREQ-004	pending_version contract	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_1	NO	NO	Concurrency collision tests	Fail closed on stale version
+PREREQ-005	Bounded Arfin adapter contract	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_2	NO	NO	Review Queue API schema spec	Block direct ledger writes
+PREREQ-006	Adapter authentication and least privilege	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_2	NO	NO	Telegram ID guard verification	Ignore unauthorized sender
+PREREQ-007	Review Queue behavior	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_3	NO	NO	Draft state retention tests	Isolate incomplete items
+PREREQ-008	Direct Arfin fallback	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_3	NO	NO	Manual fallback route verification	Preserve direct UI path
+PREREQ-009	Rollback topology	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_4	NO	NO	Zero-loss rollback plan	Freeze state transition
+PREREQ-010	Source/runtime/deployment attribution	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_4	NO	NO	Audit logging & trace headers	Reject unattributed payload
+PREREQ-011	Owner implementation authorization	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_6	YES	YES	Explicit Owner approval receipt	Block source code implementation

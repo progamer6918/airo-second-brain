@@ -9,3 +9,18 @@ AFPD-INC-008	False readiness	OPEN	HIGH	APPLICABLE	Dynamic traceability extractio
 AFPD-INC-009	Stuck pending state	OPEN	HIGH	APPLICABLE	Active prompt TTL 24h auto-expires to backlog	YES	YES	YES	NO	Prompt TTL auto-expiry test	YES
 AFPD-INC-010	Out of order updates	RESOLVED	HIGH	INHERITED_GUARD	Idempotent update handling by update_id	YES	YES	YES	NO	Gateway checks update_id offset	NO
 AFPD-INC-011	Cross-project collision	OPEN_CONTAINED	CRITICAL	UNRESOLVED_BLOCKER	Strict runtime isolation between Earesmes and Arfin bots	YES	YES	YES	YES	Requires EAB bounded adapter with chat_id allowlist	YES
+EAB-GOV-INC-001	Executed patch hash differed from Owner authorized hash	RESOLVED_RATIFIED	HIGH	PROCESS_GOVERNANCE_INCIDENT	Zero patch modification without Owner reauthorization	YES	YES	YES	NO	14 permanent process guards enforced in execution scripts	YES
+EAB-GOV-GRD-001	Unpersisted Owner authorization receipt	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Persist Owner authorization receipt before execution	YES	YES	YES	NO	Receipt file verified before script execution	YES
+EAB-GOV-GRD-002	Editable execution patch input	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Immutable authorized patch input directory	YES	YES	YES	NO	Read-only input directory enforced	YES
+EAB-GOV-GRD-003	Hardcoded hash in script	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Receipt-driven authorized hash	YES	YES	YES	NO	Hash read dynamically from receipt	YES
+EAB-GOV-GRD-004	Execution script patch modification	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Execution script may not modify patch input	YES	YES	YES	NO	Input patch file zero mutated	YES
+EAB-GOV-GRD-005	Unverified patch pre-apply	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Hash verification immediately before apply	YES	YES	YES	NO	Pre-apply sha256 check enforced	YES
+EAB-GOV-GRD-006	Unverified patch pre-commit	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Hash verification immediately before commit	YES	YES	YES	NO	Pre-commit sha256 check enforced	YES
+EAB-GOV-GRD-007	Unverified patch pre-push	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Hash verification immediately before push	YES	YES	YES	NO	Pre-push sha256 check enforced	YES
+EAB-GOV-GRD-008	Silent patch byte change	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Any byte change blocks and requires new authorization	YES	YES	YES	NO	Automatic HALT on hash mismatch	YES
+EAB-GOV-GRD-009	Missing patch fallback reconstruction	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Missing authorized artifact blocks without reconstruction	YES	YES	YES	NO	Missing /tmp artifact triggers BLOCKED	YES
+EAB-GOV-GRD-010	Mutation gate transcript reconstruction	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Transcript reconstruction forbidden in mutation gates	YES	YES	YES	NO	Reconstruction limited to read-only forensic gates	YES
+EAB-GOV-GRD-011	Conflated hash reporting	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Owner-authorized and executed hashes reported separately	YES	YES	YES	NO	Dual-hash field reporting enforced	YES
+EAB-GOV-GRD-012	Execution after hash mismatch	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Hash mismatch unconditionally blocks commit and push	YES	YES	YES	NO	Unconditional exit code 1 on mismatch	YES
+EAB-GOV-GRD-013	Unvalidated patch formatting submitted for approval	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Patch formatting validation before Owner authorization	YES	YES	YES	NO	Formatting validated prior to authorization receipt	YES
+EAB-GOV-GRD-014	Unexecutable patch submitted for approval	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Exact authorized bytes must pass git apply --check	YES	YES	YES	NO	Pre-flight git apply --check PASS on exact bytes	YES
