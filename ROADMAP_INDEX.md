@@ -48,3 +48,5 @@
 - **EarnsAI Telegram Gateway:** remains `PARKED_UNTIL_VERIFIED`; consumer ownership and routing require read-only forensic proof.
 - **Root cause:** `NOT_YET_PROVEN`.
 - **Next gate:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
+
+- **EARESMES_ARFIN_CLARIFICATION_BRIDGE**: `ecosystem/projects/earesmes-arfin-bridge/docs/00_PROJECT_BOOT.md` (STATUS=SCOPE_LOCKED_DOCUMENTATION_INTEGRATED, CURRENT_GATE=EAB_G0_5I, IMPLEMENTATION_ALLOWED=NO)

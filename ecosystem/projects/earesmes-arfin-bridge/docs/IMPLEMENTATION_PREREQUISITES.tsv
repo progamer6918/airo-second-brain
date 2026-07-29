@@ -1,0 +1,12 @@
+PREREQ_ID	DESCRIPTION	CURRENT_EVIDENCE	STATUS	BLOCKS_DOCUMENT_INTEGRATION	BLOCKS_IMPLEMENTATION	RESOLUTION_GATE
+PREREQ-001	Canonical workspace integration strategy	TARGET_PROJECT_PATH=ecosystem/projects/earesmes-arfin-bridge/docs	PROPOSED	NO	YES	EAB_G0_5 / Workspace Preflight
+PREREQ-002	AFPD-INC-011 runtime isolation proof	chat_id allowlist & topology audit	OPEN_CONTAINED	NO	YES	EAB_G0_1S / G1_2
+PREREQ-003	Stable pending_id contract	UserProperties schema update spec	PROPOSED	NO	YES	EAB_G1_1
+PREREQ-004	pending_version contract	UserProperties schema update spec	PROPOSED	NO	YES	EAB_G1_1
+PREREQ-005	Bounded adapter contract	eabSubmitBatchClarification GAS spec	PROPOSED	NO	YES	EAB_G1_2
+PREREQ-006	Adapter authentication and least privilege	owner_chat_id filter & banned methods spec	PROPOSED	NO	YES	EAB_G1_2
+PREREQ-007	Review Queue behavior verification	writeRouted_ staging test spec	PROPOSED	NO	YES	EAB_G1_2
+PREREQ-008	Direct Arfin fallback verification	Apps Script doPost fallback route test	PROPOSED	NO	YES	EAB_G1_2
+PREREQ-009	Rollback topology and rollback proof plan	Git commit rollback & deployment preflight spec	PROPOSED	NO	YES	EAB_G1_2
+PREREQ-010	Source/runtime/deployment attribution	systems/telegram-agent-identity-contract.md	PROPOSED	NO	YES	Preflight Gate
+PREREQ-011	Owner authorization for canonical document integration	Owner explicit approval	PENDING	YES	YES	EAB_G0_5

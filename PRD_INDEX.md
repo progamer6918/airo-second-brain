@@ -22,3 +22,5 @@
 > - `PRD_INDEX` is a pointer-only index.
 > - It does NOT rewrite or supersede project PRDs or specifications unless explicitly approved in ASB-GOV-1.
 > - In case of context or status conflict, refer to owner-approved decisions and verify using the latest live evidence.
+
+- **EAB PRD**: `ecosystem/projects/earesmes-arfin-bridge/docs/01_PRD.md` (STATUS=SCOPE_LOCKED, OWNER_SCOPE_LOCK=APPROVED)

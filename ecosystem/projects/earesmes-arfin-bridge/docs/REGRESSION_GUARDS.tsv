@@ -1,0 +1,11 @@
+INCIDENT_ID	FAILURE_PATTERN	LATEST_STATUS	EAB_APPLICABILITY	DISPOSITION	PROJECT_INVARIANT	STATIC_GUARD	UNIT_TEST	INTEGRATION_TEST	LIVE_CANARY	CLOSE_CONDITION	BLOCKS_IMPLEMENTATION
+INC_001	Old A/B/C/D/E prompt	RESOLVED	HIGH	INHERITED_GUARD	Prompt must use canonical numeric menus	YES	YES	YES	YES	Numeric menu contract in v375	NO
+INC_002	Account reply "2"	RESOLVED	HIGH	INHERITED_GUARD	Numeric replies converted to strings	YES	YES	YES	NO	Parser boundary test added	NO
+INC_003	Typed "Blu Pocket"	RESOLVED	HIGH	INHERITED_GUARD	Exact match prioritized over substring	YES	YES	YES	NO	Exact match registry check enforced	NO
+INC_004	Category 0 fallback	RESOLVED	HIGH	INHERITED_GUARD	Category 0 routes explicitly to Review Queue	YES	YES	YES	NO	Category 0 fallback route verified	NO
+INC_005	Split authority	IN_PROGRESS	HIGH	APPLICABLE	AFPD.md PROPOSED_NOT_CANONICAL until approval	YES	NO	NO	NO	Single source of truth maintained	NO
+INC_007	Timezone discrepancy	UNRESOLVED	MEDIUM	APPLICABLE	Canonical Asia/Jakarta WIB timezone handling	YES	YES	NO	NO	Manifest uses Asia/Bangkok; script uses Asia/Jakarta	NO
+AFPD-INC-008	False readiness	OPEN	HIGH	APPLICABLE	Dynamic traceability extraction	YES	YES	NO	NO	377 rules extracted in Phase 4.2	NO
+AFPD-INC-009	Stuck pending state	OPEN	HIGH	APPLICABLE	Active prompt TTL 24h auto-expires to backlog	YES	YES	YES	NO	Prompt TTL auto-expiry test	YES
+AFPD-INC-010	Out of order updates	RESOLVED	HIGH	INHERITED_GUARD	Idempotent update handling by update_id	YES	YES	YES	NO	Gateway checks update_id offset	NO
+AFPD-INC-011	Cross-project collision	OPEN_CONTAINED	CRITICAL	UNRESOLVED_BLOCKER	Strict runtime isolation between Earesmes and Arfin bots	YES	YES	YES	YES	Requires EAB bounded adapter with chat_id allowlist	YES

@@ -565,3 +565,14 @@ before giving a technical recommendation, command, or mutation plan.
 
 This guard applies to all AI operators and every new chat.
 <!-- AIRO_TELEGRAM_IDENTITY_GUARD_END -->
+
+
+<!-- BEGIN EAB_PROJECT_BOOT_POINTER -->
+### Mandatory Earesmes-Arfin Bridge (EAB) Boot Guard
+For tasks involving the Earesmes-Arfin Clarification Bridge (EAB):
+1. Complete the Mandatory AIRO Finance AFPD Boot Guard.
+2. Complete the Mandatory Telegram Agent Identity Guard.
+3. Read `ecosystem/projects/earesmes-arfin-bridge/docs/00_PROJECT_BOOT.md` completely.
+4. Follow its project manifest (`BOOT_MANIFEST.tsv`) and read order.
+5. Do not recommend mutation before its project boot receipt passes.
+<!-- END EAB_PROJECT_BOOT_POINTER -->

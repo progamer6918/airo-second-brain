@@ -1,0 +1,6 @@
+ID	STATEMENT	TYPE	CURRENT_EVIDENCE	STATUS	IMPACT_IF_FALSE	VALIDATION_GATE	BLOCKS_IMPLEMENTATION
+ASSUMP-001	Stable pending_id UUID currently absent in Arfin UserProperties	LIMITATION	AIRO_Finance_Multitab_Final_v1.js source audit	PROVEN	Must add UUID generator to pending state	EAB_G1_1	YES
+ASSUMP-002	Pending version counter currently absent in Arfin UserProperties	LIMITATION	AIRO_Finance_Multitab_Final_v1.js source audit	PROVEN	Must add version counter to pending object	EAB_G1_1	YES
+ASSUMP-003	EAB Bounded Adapter API endpoints currently absent in GAS	LIMITATION	AIRO_Finance_Multitab_Final_v1.js source audit	PROVEN	Must implement eabSubmitBatchClarification adapter	EAB_G1_2	YES
+ASSUMP-004	AFPD-INC-011 cross-project routing collision open-contained on branch	UNKNOWN	11_INCIDENT_REGISTER.md & git branch ref	OPEN_CONTAINED	Requires bounded adapter with chat_id allowlist	EAB_G0_1S / G1_2	YES
+ASSUMP-005	Canonical local workspace diverged from remote main	LIMITATION	git rev-parse HEAD (7f5ee9f vs 7056f66)	PROVEN	Must use remote main as canonical baseline	EAB_G0_1R	YES
