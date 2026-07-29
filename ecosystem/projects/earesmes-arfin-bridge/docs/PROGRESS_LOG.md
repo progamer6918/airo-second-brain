@@ -87,3 +87,19 @@
 - **Implementation Prerequisites**: 11 total prerequisites tracked (0 passed, 11 blocking).
 - **Implementation State**: `NOT_STARTED` (`IMPLEMENTATION_ALLOWED=NO`).
 - **Next Project Gate**: `EAB_G1_0` (Read-only runtime topology and AFPD-INC-011 isolation discovery).
+
+### G1.0 Runtime Topology & Isolation Discovery (2026-07-29)
+- **Mode**: `READ_ONLY_RUNTIME_AND_CANONICAL_EVIDENCE_DISCOVERY`
+- **Result**: `PASS`
+- **AFPD-INC-011 Isolation Verdict**: `PROVEN_ISOLATED` (Local process PID 476 single poller, queue namespace isolated, zero local Arfin poller).
+- **Classification**: `PASS_WITH_LIMITATIONS` (Production webhook binding explicitly unknown; owner_chat_id allowlist not implemented in code).
+- **G1.0R Required**: `NO`.
+
+### Execution Roadmap Canonicalization & Scope Correction (2026-07-29)
+- **Mode**: `REGENERATE_EXISTING_14_PATH_PROPOSAL_NO_COMMIT_NO_PUSH`
+- **Result**: `PASS`
+- **Milestone Scope**: Full MVP Milestones M0 through M14 defined (13 MVP requirements REQ-001..REQ-013); Phase 2 (M15 / REQ-014) deferred.
+- **M1 Transition Rule**: M1 `PASS_WITH_LIMITATIONS` transitions to `DONE` at M12 (Fresh Live Canary).
+- **Current Milestone**: `M2` (`EAB_G1_1` Stable Pending Identity & Concurrency Contract).
+- **Gate Lineage**: Pre-existing canonical gates `EAB_G1_0`–`EAB_G1_6` preserved; new delivery gates `EAB_G2_0`–`EAB_G2_7` canonicalized by Owner approval.
+- **Implementation State**: `NOT_STARTED` (`IMPLEMENTATION_ALLOWED=NO`).

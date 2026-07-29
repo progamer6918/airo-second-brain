@@ -1,15 +1,15 @@
-REQ_ID	REQUIREMENT	CLASSIFICATION	SOURCE	PRD_REF	ARCH_REF	CONTRACT_REF	WORKFLOW_REF	TEST_ID	STATUS	BLOCKER
-REQ-001	Earesmes as primary conversation interface	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-001	TEST-WF-001	APPROVED	None
-REQ-002	Arfin as authoritative finance backend	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-029	TEST-WF-029	APPROVED	None
-REQ-003	Stable short pending reference (AF-1042)	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-004	TEST-WF-004	APPROVED	None
-REQ-004	Active prompt TTL 24h separated from record retention	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None
-REQ-005	Expired prompt destination durable unresolved backlog	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None
-REQ-006	Incomplete expired items do not auto-stage to Review Queue	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None
-REQ-007	Itemized per-line batch evaluation (FND-001)	WORKFLOW_DERIVED	FND-001 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-005	TEST-WF-005-PARTIAL	APPROVED	None
-REQ-008	Pre-submission pending revalidation via eabGetPending (FND-002)	WORKFLOW_DERIVED	FND-002 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-020	TEST-WF-020-SYNC	APPROVED	None
-REQ-009	Manual multi-line catat intake one tx per line (FND-003)	OWNER_EXPLICIT	FND-003 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-007	TEST-WF-007-MULTILINE	APPROVED	None
-REQ-010	Direct Arfin fallback retained	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-019	TEST-WF-019	APPROVED	None
-REQ-011	Review Queue staging mandatory before /approval	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None
-REQ-012	Earesmes direct Account Ledger write forbidden	SAFETY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None
-REQ-013	Strict owner_chat_id allowlist filter	SAFETY_REQUIRED	AFPD-INC-011 Remediation	01_PRD.md:S2	02_ARCH.md:S3	03_CONTRACTS.md:S2	WF-026	TEST-WF-026	APPROVED	BLK-002
-REQ-014	Cloud inbox deferred to Phase 2	OPERABILITY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S1	03_CONTRACTS.md:S1	WF-018	TEST-WF-018	APPROVED	None
+REQ_ID	REQUIREMENT	CLASSIFICATION	SOURCE	PRD_REF	ARCH_REF	CONTRACT_REF	WORKFLOW_REF	TEST_ID	STATUS	BLOCKER	PRIMARY_DELIVERY_MILESTONE	FINAL_ACCEPTANCE_MILESTONE
+REQ-001	Earesmes as primary conversation interface	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-001	TEST-WF-001	APPROVED	None	M9	M12
+REQ-002	Arfin as authoritative finance backend	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-029	TEST-WF-029	APPROVED	None	M8	M12
+REQ-003	Stable short pending reference (AF-1042)	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-004	TEST-WF-004	APPROVED	None	M2	M12
+REQ-004	Active prompt TTL 24h separated from record retention	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None	M4	M12
+REQ-005	Expired prompt destination durable unresolved backlog	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None	M4	M12
+REQ-006	Incomplete expired items do not auto-stage to Review Queue	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-021	TEST-WF-021	APPROVED	None	M4	M12
+REQ-007	Itemized per-line batch evaluation (FND-001)	WORKFLOW_DERIVED	FND-001 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-005	TEST-WF-005-PARTIAL	APPROVED	None	M4	M12
+REQ-008	Pre-submission pending revalidation via eabGetPending (FND-002)	WORKFLOW_DERIVED	FND-002 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-020	TEST-WF-020-SYNC	APPROVED	None	M4	M12
+REQ-009	Manual multi-line catat intake one tx per line (FND-003)	OWNER_EXPLICIT	FND-003 Remediation	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S1	WF-007	TEST-WF-007-MULTILINE	APPROVED	None	M4	M12
+REQ-010	Direct Arfin fallback retained	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-019	TEST-WF-019	APPROVED	None	M4	M12
+REQ-011	Review Queue staging mandatory before /approval	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None	M3	M12
+REQ-012	Earesmes direct Account Ledger write forbidden	SAFETY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None	M3	M12
+REQ-013	Strict owner_chat_id allowlist filter	SAFETY_REQUIRED	AFPD-INC-011 Remediation	01_PRD.md:S2	02_ARCH.md:S3	03_CONTRACTS.md:S2	WF-026	TEST-WF-026	APPROVED	BLK-002	M3	M12
+REQ-014	Cloud inbox deferred to Phase 2	OPERABILITY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S1	03_CONTRACTS.md:S1	WF-018	TEST-WF-018	APPROVED	None	M15	M15

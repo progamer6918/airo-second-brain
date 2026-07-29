@@ -576,3 +576,33 @@ For tasks involving the Earesmes-Arfin Clarification Bridge (EAB):
 4. Follow its project manifest (`BOOT_MANIFEST.tsv`) and read order.
 5. Do not recommend mutation before its project boot receipt passes.
 <!-- END EAB_PROJECT_BOOT_POINTER -->
+
+
+<!-- AIRO_UNIVERSAL_CHAT_MILESTONE_SNAPSHOT_RULE_BEGIN -->
+## Mandatory AIRO Project Milestone Snapshot Rule
+
+Every substantive governed-project response must first resolve and display the AIRO Roadmap Snapshot header before providing detailed technical text.
+
+### Required Header Format:
+
+```text
+🧭 AIRO ROADMAP SNAPSHOT
+📍 PROJECT: <project_name>
+✅ Milestone sebelumnya — <ID / gate / result / evidence>
+🟡 POSISI SEKARANG: <current milestone / gate / status>
+📊 Completion — <DONE>/<required> milestone wajib DONE; <partial> PASS_WITH_LIMITATIONS; <blocked> BLOCKED
+⛔ Blocker — <exact blocker or Tidak ada>
+🎯 Next — <next exact action from roadmap/handoff>
+🏁 Done when — <Definition of Done pointer>
+```
+
+### Governing Rules:
+1. **Read Sequence**: Read `ROADMAP_INDEX.md`, then the target project's roadmap, milestone tracker, progress log, and current handoff before constructing the snapshot.
+2. **Strict Evidence Truthfulness**: Never invent a phase, gate, milestone, status, percentage, or completion claim absent from canonical documentation.
+3. **Roadmap Gap Guard**: If no canonical roadmap exists for the project, set `ROADMAP_GAP=YES` and state explicitly that the project execution roadmap is missing. Do NOT create ad hoc gates as though they were canonical.
+4. **No Unweighted Percentages**: Do NOT publish raw percentage completion unless the project roadmap explicitly defines Owner-approved milestone weights. By default, report milestone counts (`DONE`/`REQUIRED`).
+5. **PASS_WITH_LIMITATIONS Status**: `PASS_WITH_LIMITATIONS` indicates a milestone has passed with open limitations or unverified production bindings. It is NOT `DONE`.
+6. **Project Completion Definition**: A project is NOT complete merely because its documentation is complete. Project completion requires satisfying the project roadmap's Definition of Done with direct implementation, test, runtime, deployment, canary, and Owner evidence where applicable.
+7. **Canonical Next Action**: The next action must originate directly from the canonical roadmap or current handoff. Any proposed deviation must be explicitly labeled `PROPOSAL` and require Owner approval.
+8. **No Ad Hoc Gates**: The insertion of ad hoc gates (e.g. `G1.0A` or unapproved sub-gates) is strictly forbidden.
+<!-- AIRO_UNIVERSAL_CHAT_MILESTONE_SNAPSHOT_RULE_END -->
