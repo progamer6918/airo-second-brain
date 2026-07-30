@@ -1,0 +1,7 @@
+DECISION_ID	TOPIC	STATUS	RECOMMENDATION	BLOCKS_G1_1_DESIGN
+DEC-001	short_ref character set	RESOLVED	Use exactly 4 decimal digits AF-1042 for user clarity	NO
+DEC-002	Monotonic version storage type	RESOLVED	Use 64-bit integer for pending_version	NO
+DEC-003	Idempotency cache TTL	RESOLVED	Retain idempotency receipts for 72 hours (3x active prompt TTL)	NO
+DEC-004	Revalidation version behavior	RESOLVED	Revalidation is 100% read-only and never increments version	NO
+DEC-005	Prompt context binding structure	RESOLVED	Use canonical 6-field binding tuple	NO
+DEC-006	Legacy backfill mapping table	RESOLVED	Persist arfin_pending_mapping table with dry-run check	NO

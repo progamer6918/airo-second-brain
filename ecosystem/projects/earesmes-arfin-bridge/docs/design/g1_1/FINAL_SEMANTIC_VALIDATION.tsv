@@ -1,0 +1,11 @@
+CHECK_ID	CHECK_NAME	EXPECTED_CRITERIA	OBSERVED_STATUS	RESULT
+FSV-001	Prompt Context Binding	Canonical 6-field tuple defined	PROMPT_CONTEXT_BINDING_FIELD_COUNT=6	PASS
+FSV-002	Legacy Backfill Identity	No mutable business fields used; persisted mapping table	LEGACY_ID_USES_MUTABLE_BUSINESS_FIELDS=NO, LEGACY_MAPPING_PERSISTED=YES	PASS
+FSV-003	Durable Duplicate Prevention	Durable uniqueness guard beyond 72h TTL cache	IDEMPOTENCY_CACHE_IS_SOLE_DUPLICATE_GUARD=NO	PASS
+FSV-004	Reactivation Lineage	Explicit lineage tuple & 1 non-terminal cycle rule	REACTIVATION_LINEAGE_DEFINED=YES, ONE_NON_TERMINAL_CYCLE_PER_SOURCE_RECORD=YES	PASS
+FSV-005	Stale short_ref Guard	Old messages never silently hit new cycle	SHORT_REF_STALE_REUSE_GUARD=PASS	PASS
+FSV-006	Source Path Baseline Validation	Checked against exact baseline 36708f6c	SOURCE_VALIDATION_BASELINE=36708f6ce903444bfe2a9dd62b41fe10b9c95db2	PASS
+FSV-007	Owner Finding Coverage	All 14 Owner findings covered by tests	OWNER_FINDING_COUNT=14, COVERED=14, UNCOVERED=0	PASS
+FSV-008	Read-Only Revalidation Guard	Revalidation never increments pending_version	READ_ONLY_REVALIDATION_VERSION_INCREMENT=NO	PASS
+FSV-009	ACTIVE Review Queue Effect	ACTIVE creation has zero Review Queue effect	ACTIVE_CREATION_REVIEW_QUEUE_EFFECT=NONE	PASS
+FSV-010	Zero Direct Ledger Write	Zero direct Account Ledger write in all tests	ZERO_DIRECT_ACCOUNT_LEDGER_WRITE=YES	PASS

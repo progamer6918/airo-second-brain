@@ -56,14 +56,15 @@ REQ_014_REQUIRED_FOR_MVP=NO
 
 ### M2 — Stable Pending Identity and Concurrency Contract
 - **Gate**: `EAB_G1_1`
-- **Status**: `READY` (`CURRENT_MILESTONE=YES`)
+- **Status**: `DONE`
+- **Evidence**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_1/`
 - **Deliverables**: Canonical `pending_id` schema and lifecycle, collision-safe `short_ref` contract (`AF-XXXX`), `pending_version` monotonic contract, stale-reply fail-closed contract, migration/backfill strategy, unit-test vectors, exact candidate source paths.
 - **Exit Criteria**: PREREQ-003 and PREREQ-004 design evidence `PASS`. Zero source code mutation.
 - **Next Exact Action**: Produce one consolidated G1.1 implementation-design package.
 
 ### M3 — Bounded Adapter and Authentication Contract
 - **Gate**: `EAB_G1_2`
-- **Status**: `NOT_STARTED`
+- **Status**: `READY` (`CURRENT_MILESTONE=YES`)
 - **Deliverables**: 4 bounded API methods (`eabGetPending`, `eabListPending`, `eabSubmitBatchClarification`, `eabCreateManualTransaction`), `owner_chat_id` allowlist specification, caller authentication, least-privilege capability boundary, prohibited-method proof, error schemas.
 - **Exit Criteria**: PREREQ-005 and PREREQ-006 design evidence `PASS`.
 

@@ -41,3 +41,4 @@ LATEST_GIT_RUNTIME_EVIDENCE_RESOLVED=YES
 
 - **ROADMAP_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/05_EXECUTION_ROADMAP.md`
 - **TRACKER_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/MILESTONE_TRACKER.tsv`
+- **DESIGN_G1_1_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_1/` (12 G1.1 Canonical Design Package Files)

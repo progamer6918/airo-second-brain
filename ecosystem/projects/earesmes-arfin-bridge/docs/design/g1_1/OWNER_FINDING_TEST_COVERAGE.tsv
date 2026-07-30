@@ -1,0 +1,15 @@
+FINDING_ID	FINDING_DESCRIPTION	CORRECTED_ARTIFACT	TEST_ID	TEST_ASSERTION	FORBIDDEN_SIDE_EFFECT	COVERAGE_STATUS
+OF-001	Revalidation is read-only and must not increment version	PENDING_VERSION_CONTRACT.md	TV-013	Revalidation returns status without modifying version	Incrementing version during revalidation	COVERED
+OF-002	Atomic version increment on successful state mutation only	PENDING_VERSION_CONTRACT.md	TV-005	pending_version increments +1 on state change	Incrementing version on failed validation	COVERED
+OF-003	Failed/stale validation does not increment version	PENDING_VERSION_CONTRACT.md	TV-006	Stale version returns 409; version remains v2	Mutating storage or version on stale check	COVERED
+OF-004	ACTIVE creation has zero Review Queue effect	PENDING_LIFECYCLE.tsv	TV-004	ACTIVE record created; zero Review Queue entry	Creating Review Queue item on ACTIVE creation	COVERED
+OF-005	EXPIRED_UNRESOLVED terminal & reactivation contract	PENDING_ID_CONTRACT.md & LIFECYCLE.tsv	TV-011, TV-012	Expired prompt returns 410; reactivation creates new cycle	Directly reopening expired pending_id	COVERED
+OF-006	short_ref format AF plus 4 decimal digits	SHORT_REFERENCE_CONTRACT.md	TV-001, TV-002	short_ref regex matches ^AF-[0-9]{4}$	Hexadecimal or non-standard format	COVERED
+OF-007	short_ref non-terminal uniqueness scope	SHORT_REFERENCE_CONTRACT.md	TV-003	Collision returns 409 Conflict	Staging ambiguous item	COVERED
+OF-008	6-field prompt context binding	SHORT_REFERENCE_CONTRACT.md	TV-016	5-tuple / 6-field context verified on reply	Silent resolution against wrong cycle	COVERED
+OF-009	Legacy backfill on non-mutable origin identity	MIGRATION_AND_BACKFILL_PLAN.md	TV-001	Backfill uses root_source_record_id & persisted table	Deriving legacy ID from mutable text	COVERED
+OF-010	Durable duplicate-operation prevention	PENDING_VERSION_CONTRACT.md	TV-015	Durable uniqueness guard blocks duplicate staging	Duplicate Review Queue entry	COVERED
+OF-011	Application error codes & HTTP transport mapping	PENDING_VERSION_CONTRACT.md	TV-006..TV-014	Domain error codes map to explicit HTTP status	Unmapped raw exceptions	COVERED
+OF-012	Existing modify candidate repository verification	SOURCE_PATH_CANDIDATES.tsv	N/A (Schema Check)	EXISTING_MODIFY requires EXISTS=YES & GIT_TRACKED=YES	Labeling non-existent file as existing	COVERED
+OF-013	Executable test vectors completeness	TEST_VECTORS.tsv	TV-001..TV-016	16 executable test cases defined	Untested edge cases	COVERED
+OF-014	Zero direct Account Ledger write & zero auto-staging	PENDING_LIFECYCLE.tsv & TEST_VECTORS.tsv	TV-002, TV-004	Review Queue staging mandatory; zero ledger write	Direct Account Ledger mutation	COVERED

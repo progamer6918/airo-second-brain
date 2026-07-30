@@ -1,0 +1,6 @@
+STATE	IS_TERMINAL	TRANSITION_TRIGGERS	MUTATION_ALLOWED	REVIEW_QUEUE_EFFECT	ACCOUNT_LEDGER_EFFECT	REACTIVATION_RULE
+ACTIVE	NO	Creation from unclassified transaction	YES (draft edits & version++)	NONE	NONE	N/A
+SUBMITTED_STAGED	NO	Clarification received & validated	NO (locked for review)	ENQUEUED_REVIEW_ITEM	NONE	N/A
+RESOLVED	YES	Owner approves Review Queue item	NO (read-only archive)	APPROVED_PROCESSED	TRANSACTION_POSTED	FORBIDDEN (Cannot be reopened)
+EXPIRED_UNRESOLVED	YES	24h TTL elapsed without reply	NO (moved to backlog)	BACKLOG_ARCHIVED	NONE	User confirmation creates NEW cycle (predecessor_pid, cycle++)
+IGNORED	YES	Owner manually dismisses item	NO	REJECTED_DISMISSED	NONE	FORBIDDEN

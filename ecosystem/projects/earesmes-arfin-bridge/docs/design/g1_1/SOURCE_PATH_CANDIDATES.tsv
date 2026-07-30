@@ -1,0 +1,10 @@
+PATH	PATH_EXISTS	GIT_TRACKED	CLASSIFICATION	RELEVANT_SYMBOLS	DIRECT_EVIDENCE	ACTIVE_RUNTIME_RELATION	CONFIDENCE
+ops/telegram/telegram-gateway.py	YES	YES	EXISTING_MODIFY_CANDIDATE	_airo_c3m3_exit_if_webhook_active_, TelegramGatewayHandler	ops/telegram/telegram-gateway.py L1-50	Active WSL Poller (PID 476)	HIGH
+scripts/airo-hermes-worker	YES	YES	EXISTING_MODIFY_CANDIDATE	AIAgent, sendMessage, POLL_INTERVAL	scripts/airo-hermes-worker L1-40	Active WSL Worker (PID 350)	HIGH
+systems/telegram-agent-identity-contract.md	YES	YES	READ_ONLY_DEPENDENCY	Telegram Identity Invariants	systems/telegram-agent-identity-contract.md	Read-Only Authority	HIGH
+docs/afpd/AFPD_BOOT_MANIFEST.tsv	YES	YES	READ_ONLY_DEPENDENCY	16/16 Manifest Modules	docs/afpd/AFPD_BOOT_MANIFEST.tsv	Read-Only Authority	HIGH
+apps_script/ArfinAdapter.gs	NO	NO	NEW_FILE_OR_EXTERNAL_HOSTED	eabGetPending, eabSubmitBatchClarification	Referenced in ARFIN.md & 03_CONTRACTS.md	External Apps Script Host	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/pending_model.py	NO	NO	NEW_FILE_CANDIDATE	PendingRecord, PendingVersion, ShortRef	Planned in 05_EXECUTION_ROADMAP.md	New Python Module	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/short_ref_resolver.py	NO	NO	NEW_FILE_CANDIDATE	ShortRefResolver, resolve_short_ref	Planned in 05_EXECUTION_ROADMAP.md	New Python Module	HIGH
+ecosystem/projects/earesmes-arfin-bridge/tests/test_pending_model.py	NO	NO	NEW_FILE_CANDIDATE	test_pending_version_increment, test_stale_rejection	Planned in 05_EXECUTION_ROADMAP.md	New Test Suite	HIGH
+ecosystem/projects/earesmes-arfin-bridge/tests/test_short_ref.py	NO	NO	NEW_FILE_CANDIDATE	test_short_ref_format, test_collision_fail_closed	Planned in 05_EXECUTION_ROADMAP.md	New Test Suite	HIGH
