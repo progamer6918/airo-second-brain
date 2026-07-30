@@ -1,0 +1,4 @@
+DECISION_ID	TITLE	STATUS	IMPACT	RECOMMENDATION
+OD-001	EAB Bounded Adapter Authentication Wire Contract	RESOLVED	Defines HTTP header signature & canonical signing string	Use X-EAB-Signature header
+OD-002	Itemized Batch Processing Semantics	RESOLVED	Per-item independent processing & itemized response schema	Remove atomic batch rollback
+OD-003	Audit Pseudonymization Key Strategy	RESOLVED	Keyed HMAC-SHA256 using dedicated audit key	Use separate EAB_AUDIT_KEY

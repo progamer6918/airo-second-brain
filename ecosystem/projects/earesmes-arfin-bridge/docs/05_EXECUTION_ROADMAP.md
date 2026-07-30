@@ -64,13 +64,14 @@ REQ_014_REQUIRED_FOR_MVP=NO
 
 ### M3 — Bounded Adapter and Authentication Contract
 - **Gate**: `EAB_G1_2`
-- **Status**: `READY` (`CURRENT_MILESTONE=YES`)
+- **Status**: `DONE`
+- **Evidence**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_2/`
 - **Deliverables**: 4 bounded API methods (`eabGetPending`, `eabListPending`, `eabSubmitBatchClarification`, `eabCreateManualTransaction`), `owner_chat_id` allowlist specification, caller authentication, least-privilege capability boundary, prohibited-method proof, error schemas.
 - **Exit Criteria**: PREREQ-005 and PREREQ-006 design evidence `PASS`.
 
 ### M4 — Review Queue, Fallback, Batch, Expiry and Idempotency Contract
 - **Gate**: `EAB_G1_3`
-- **Status**: `NOT_STARTED`
+- **Status**: `READY` (`CURRENT_MILESTONE=YES`)
 - **Deliverables**: Itemized per-line batch behavior, partial success handling, pre-submission revalidation, direct-Arfin fallback route, idempotency, 24-hour TTL and unresolved backlog retention, manual catat parser spec.
 - **Exit Criteria**: PREREQ-007 and PREREQ-008 design evidence `PASS`.
 

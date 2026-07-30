@@ -1,0 +1,15 @@
+FINDING_ID	OWNER_FINDING_DESCRIPTION	REMEDIATION_SUMMARY	MAPPED_TEST_ID_OR_EVIDENCE	COVERAGE_STATUS
+OF-001	Atomic batch rollback invalid for itemized clarification	Implemented itemized per-line batch results; removed atomic rollback	TV-006, TV-007	PASS
+OF-002	Field ambiguity between top-level and item envelope	Removed top-level pending_id/version for batch ops; created field matrix	TV-008	PASS
+OF-003	Authentication proof in application JSON body	Moved auth proof strictly to HTTP headers (X-EAB-Signature, etc.)	TV-002, TV-003	PASS
+OF-004	Missing canonical signing string specification	Defined canonical signing string format with body SHA-256 digest	TV-009	PASS
+OF-005	Missing nonce replay protection	Implemented nonce store and X-EAB-Nonce validation	TV-010	PASS
+OF-006	Missing secret rotation & grace key contract	Defined dual-active key lookup (K_CURRENT, K_PREVIOUS)	TV-011, TV-012	PASS
+OF-007	Conflation of actor user ID and chat ID	Separated actor_user_id, conversation_chat_id, and owner_principal	TV-013	PASS
+OF-008	Undefined group chat authorization policy	Enforced PHASE_1_UNSUPPORTED_FAIL_CLOSED for group chats	TV-014	PASS
+OF-009	Generic retry of uncertain write timeouts	Required reconciliation using exact same idempotency key	TV-015	PASS
+OF-010	Durable uniqueness mismatch with G1.1	Inherited root_source_record_id + exact_mutation_hash contract	TV-016	PASS
+OF-011	Overly broad mutation blocking in TV-014	Fixed TV-017 so legitimate later non-equivalent mutations are allowed	TV-017	PASS
+OF-012	Unclassified operational timeout/retry values	Classified operational values as proposed deployment defaults	TIMEOUT_RETRY_AND_REPLAY_CONTRACT.md	PASS
+OF-013	Raw SHA-256 pseudonymization without key	Replaced raw SHA-256 with Keyed HMAC-SHA256 audit pseudonymization	TV-018	PASS
+OF-014	Active runtime attribution excluded proven processes	Attributed ops/telegram/telegram-gateway.py and scripts/airo-hermes-worker	TV-019, SOURCE_PATH_CANDIDATES.tsv	PASS

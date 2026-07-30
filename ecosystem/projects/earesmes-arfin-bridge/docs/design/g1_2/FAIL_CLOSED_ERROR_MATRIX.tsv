@@ -1,0 +1,24 @@
+ERROR_CODE	TRANSPORT_MAPPING	RETRYABLE	USER_SAFE_MESSAGE	LEGAL_SIDE_EFFECT	FORBIDDEN_SIDE_EFFECT	AUDIT_EVENT	FAIL_CLOSED_STATUS
+ERR_MISSING_AUTH	401 Unauthorized	NO	Authentication header missing.	None	Executing operation or logging secrets	AUDIT_MISSING_AUTH	FAIL_CLOSED
+ERR_INVALID_AUTH_KEY	401 Unauthorized	NO	Authentication key invalid.	None	Executing operation	AUDIT_INVALID_KEY	FAIL_CLOSED
+ERR_EXPIRED_AUTH_TIMESTAMP	401 Unauthorized	NO	Authentication timestamp expired.	None	Executing operation	AUDIT_EXPIRED_TS	FAIL_CLOSED
+ERR_NONCE_REPLAYED	401 Unauthorized	NO	Authentication nonce replayed.	None	Re-executing request	AUDIT_NONCE_REPLAY	FAIL_CLOSED
+ERR_BODY_TAMPERED	401 Unauthorized	NO	Body digest mismatch.	None	Processing tampered body	AUDIT_BODY_TAMPER	FAIL_CLOSED
+ERR_INVALID_SIGNATURE	401 Unauthorized	NO	HMAC signature verification failed.	None	Executing operation	AUDIT_BAD_SIG	FAIL_CLOSED
+ERR_UNAUTHORIZED_CHAT_ID	403 Forbidden	NO	Unauthorized chat sender.	None	Exposing finance data or staging	AUDIT_UNAUTHORIZED_CHAT	FAIL_CLOSED
+ERR_UNSUPPORTED_GROUP_CHAT	403 Forbidden	NO	Group chat unsupported in Phase 1.	None	Executing in group chat	AUDIT_GROUP_CHAT_REJECT	FAIL_CLOSED
+ERR_CHAT_PROMPT_MISMATCH	403 Forbidden	NO	Chat ID does not match prompt owner.	None	Staging item for wrong chat	AUDIT_CHAT_PROMPT_MISMATCH	FAIL_CLOSED
+ERR_UNKNOWN_OPERATION	400 Bad Request	NO	Operation not supported.	None	Dynamic method execution	AUDIT_UNKNOWN_OP	FAIL_CLOSED
+ERR_UNSUPPORTED_SCHEMA_VERSION	400 Bad Request	NO	Unsupported schema version.	None	Partial processing	AUDIT_SCHEMA_VER_ERR	FAIL_CLOSED
+ERR_MALFORMED_PAYLOAD	400 Bad Request	NO	Malformed request payload.	None	Staging invalid data	AUDIT_MALFORMED_PAYLOAD	FAIL_CLOSED
+ERR_FIELD_AMBIGUITY_REJECTED	400 Bad Request	NO	Conflicting top-level and item fields.	None	Processing ambiguous fields	AUDIT_FIELD_AMBIGUITY	FAIL_CLOSED
+ERR_STALE_PENDING_VERSION	409 Conflict	NO	Pending item version conflict.	Itemized failure feedback	Overwriting concurrent state	AUDIT_STALE_VERSION	FAIL_CLOSED
+ERR_UNKNOWN_PENDING_ID	404 Not Found	NO	Pending item not found.	Itemized failure feedback	Creating dummy pending item	AUDIT_UNKNOWN_PENDING_ID	FAIL_CLOSED
+ERR_AMBIGUOUS_SHORT_REF	409 Conflict	NO	Multiple items match short reference.	Itemized failure feedback	Staging ambiguous item	AUDIT_AMBIGUOUS_REF	FAIL_CLOSED
+ERR_EXPIRED_PROMPT	410 Gone	NO	Prompt expired. Request reactivation.	Itemized failure feedback	Staging expired prompt response	AUDIT_EXPIRED_PROMPT	FAIL_CLOSED
+ERR_IDEMPOTENCY_SAME_PAYLOAD	200 OK	NO	Request already processed (cached receipt).	Return cached receipt	Incrementing version or double staging	AUDIT_IDEMPOTENT_HIT	FAIL_CLOSED
+ERR_IDEMPOTENCY_PAYLOAD_MISMATCH	400 Bad Request	NO	Idempotency key payload mismatch.	None	Overwriting cached receipt	AUDIT_IDEMPOTENT_MISMATCH	FAIL_CLOSED
+ERR_DUPLICATE_STAGING_MUTATION	409 Conflict	NO	Exact mutation already staged in Review Queue.	None	Creating duplicate Review Queue item	AUDIT_DUPLICATE_MUTATION	FAIL_CLOSED
+ERR_ADAPTER_TIMEOUT	504 Gateway Timeout	YES	Operation timed out. Reconcile via key.	Log timeout event	Generic safe retry or hang	AUDIT_TIMEOUT	FAIL_CLOSED
+ERR_ARFIN_UNAVAILABLE	503 Service Unavailable	YES	Finance system temporarily unavailable.	Log downstream error	Corrupting local state	AUDIT_DOWNSTREAM_UNAVAIL	FAIL_CLOSED
+ERR_LOG_REDACTION_FAIL	500 Internal Error	NO	Internal logging error.	None	Writing unredacted secret to log	AUDIT_REDACTION_ERR	FAIL_CLOSED

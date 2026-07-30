@@ -1,0 +1,13 @@
+CHECK_ID	CHECK_NAME	EXPECTED	OBSERVED	RESULT
+SC-001	Itemized Batch Processing	Itemized per line; no atomic rollback	Itemized per line; no atomic rollback	PASS
+SC-002	Operation Required Field Matrix	Defined for 4 ops	Defined for 4 ops	PASS
+SC-003	Header-Only Auth Proof	X-EAB headers only	X-EAB headers only	PASS
+SC-004	Canonical Signing String	Defined with body digest	Defined with body digest	PASS
+SC-005	Owner Principal Binding	Separated actor/chat IDs	Separated actor/chat IDs	PASS
+SC-006	Phase 1 Group Chat Policy	UNSUPPORTED_FAIL_CLOSED	UNSUPPORTED_FAIL_CLOSED	PASS
+SC-007	G1.1 Uniqueness Contract	Inherited root_source + mutation_hash	Inherited root_source + mutation_hash	PASS
+SC-008	Uncertain Write Reconciliation	Same key reconciliation	Same key reconciliation	PASS
+SC-009	Keyed HMAC Audit Pseudonymization	Keyed HMAC-SHA256	Keyed HMAC-SHA256	PASS
+SC-010	Proven Active Runtime Attribution	Gateway & Hermes Worker attributed	Gateway & Hermes Worker attributed	PASS
+SC-011	Owner Finding Test Coverage	14/14 findings covered	14/14 findings covered	PASS
+SC-012	Prerequisite & Requirement Mapping	PREREQ-005 & 006 PASS	PREREQ-005 & 006 PASS	PASS

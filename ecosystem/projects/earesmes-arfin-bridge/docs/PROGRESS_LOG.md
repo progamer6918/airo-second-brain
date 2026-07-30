@@ -105,3 +105,5 @@
 - **Implementation State**: `NOT_STARTED` (`IMPLEMENTATION_ALLOWED=NO`).
 
 - [20260730_183303] EAB_G1_1 Canonical Design Closeout PASS: G1.1 initial design and semantic remediation approved by Owner. 14/14 Owner findings covered across 16 executable test vectors. PREREQ-003 and PREREQ-004 PASS at design level. M2 marked DONE, M3 marked READY. Zero source/runtime mutation.
+
+- [20260730_195138] EAB_G1_2 Canonical Design Closeout PASS: G1.2 initial design and semantic remediation approved by Owner. 14/14 Owner findings covered across 20 executable test vectors. PREREQ-005 and PREREQ-006 PASS at design level. M3 marked DONE, M4 marked READY. Zero source/runtime mutation.

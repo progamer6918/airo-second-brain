@@ -1,0 +1,5 @@
+OPERATION_ID	CALLER	PURPOSE	INPUT_SCHEMA	AUTH_REQUIRED	AUTHORIZATION_SCOPE	READ_OR_WRITE	REVIEW_QUEUE_EFFECT	ACCOUNT_LEDGER_EFFECT	IDEMPOTENCY_REQUIRED	FAILURE_BEHAVIOR
+EAB_GET_PENDING	HERMES_WORKER	Fetch pending item details by pending_id or short_ref	eab_get_pending_v1_req	YES	OWNER_PRINCIPAL_ALLOWLIST	READ	NONE	NONE	NO	Fail closed; return 404/403
+EAB_LIST_PENDING	HERMES_WORKER	List active pending items for prompt display	eab_list_pending_v1_req	YES	OWNER_PRINCIPAL_ALLOWLIST	READ	NONE	NONE	NO	Fail closed; return empty list/403
+EAB_SUBMIT_BATCH_CLARIFICATION	HERMES_WORKER	Submit itemized clarification batch for pending items	eab_submit_batch_v1_req	YES	OWNER_PRINCIPAL_ALLOWLIST	WRITE	STAGE_REVIEW_QUEUE_ITEMIZED	NONE	YES	Itemized failure feedback; zero ledger write
+EAB_CREATE_MANUAL_TRANSACTION	HERMES_WORKER	Create manual catat transaction entry	eab_create_manual_v1_req	YES	OWNER_PRINCIPAL_ALLOWLIST	WRITE	STAGE_REVIEW_QUEUE	NONE	YES	Fail closed; zero ledger write

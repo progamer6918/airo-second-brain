@@ -1,0 +1,5 @@
+OPERATION_ID	REQUIRED_ENVELOPE_FIELDS	FORBIDDEN_ENVELOPE_FIELDS	PAYLOAD_SCHEMA	ITEMIZED_RESPONSE_REQUIRED	IDEMPOTENCY_REQUIRED	PENDING_VERSION_REQUIRED	PROMPT_BINDING_REQUIRED
+EAB_GET_PENDING	schema_version, request_id, operation_id, owner_chat_id	pending_id, expected_pending_version, idempotency_key	eab_get_pending_v1_req	NO	NO	NO	NO
+EAB_LIST_PENDING	schema_version, request_id, operation_id, owner_chat_id	pending_id, expected_pending_version, idempotency_key	eab_list_pending_v1_req	NO	NO	NO	NO
+EAB_SUBMIT_BATCH_CLARIFICATION	schema_version, request_id, operation_id, owner_chat_id, prompt_id, telegram_message_id	pending_id, expected_pending_version	eab_submit_batch_v1_req (items[])	YES	YES	YES (in payload.items[])	YES
+EAB_CREATE_MANUAL_TRANSACTION	schema_version, request_id, operation_id, owner_chat_id, idempotency_key	pending_id, expected_pending_version, prompt_id	eab_create_manual_v1_req	NO	YES	NO	NO
