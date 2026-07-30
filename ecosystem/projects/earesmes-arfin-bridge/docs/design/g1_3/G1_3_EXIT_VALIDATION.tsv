@@ -1,0 +1,15 @@
+CHECK_ID	CHECK_NAME	EXPECTED	OBSERVED	RESULT
+EV-001	Remote Baseline Verification	7d40f429eb3c458f2965e3a93d899c9c0e18d312	7d40f429eb3c458f2965e3a93d899c9c0e18d312	PASS
+EV-002	Review Queue Data Contract	Defined	Defined	PASS
+EV-003	Review Queue State Transitions	6 States Defined	6 States Defined	PASS
+EV-004	Pre-Submission Revalidation Contract	11-Step Sequence	11-Step Sequence	PASS
+EV-005	Itemized Batch Contract	Itemized per line	Itemized per line	PASS
+EV-006	Manual Transaction Contract	One catat per line	One catat per line	PASS
+EV-007	Expiry & Durable Backlog Contract	24h TTL, Durable Backlog	24h TTL, Durable Backlog	PASS
+EV-008	Reactivation & Lineage Contract	Single active cycle guard	Single active cycle guard	PASS
+EV-009	Direct Arfin Fallback Coherence	Retained & Coherent	Retained & Coherent	PASS
+EV-010	Idempotency & Duplicate Contract	3-Tier Idempotency	3-Tier Idempotency	PASS
+EV-011	Failure & Recovery Matrix	20 Fail-Closed Scenarios	20 Fail-Closed Scenarios	PASS
+EV-012	Source Path Candidates	Gateway & Hermes Attributed	Gateway & Hermes Attributed	PASS
+EV-013	Test Vectors	30 Test Vectors	30 Test Vectors	PASS
+EV-014	Prerequisite & Requirement Mapping	PREREQ-007 & 008 PASS	PREREQ-007 & 008 PASS	PASS

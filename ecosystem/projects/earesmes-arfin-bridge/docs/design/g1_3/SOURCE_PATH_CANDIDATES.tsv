@@ -1,0 +1,9 @@
+PATH	PATH_EXISTS	GIT_TRACKED	CLASSIFICATION	RELEVANT_SYMBOLS	DIRECT_EVIDENCE	ACTIVE_RUNTIME_RELATION	MUTATION_GATE	CONFIDENCE
+ops/telegram/telegram-gateway.py	YES	YES	EXISTING_MODIFY_CANDIDATE	TelegramGateway, getUpdates_loop, owner_chat_id_filter	Active Telegram Gateway PID 476 evidence from G1.0	Active Gateway	EAB_G2_2	HIGH
+scripts/airo-hermes-worker	YES	YES	EXISTING_MODIFY_CANDIDATE	hermes_worker_loop, queue_consumer	Active Hermes worker process evidence from G1.0	Active Queue Worker	EAB_G2_2	HIGH
+systems/telegram-agent-identity-contract.md	YES	YES	READ_ONLY_DEPENDENCY	TELEGRAM_IDENTITY_CONTRACT	Identity governance contract	Identity Governance	EAB_G1_3	HIGH
+ARFIN.md	YES	YES	READ_ONLY_DEPENDENCY	REVIEW_QUEUE_SPEC, APPROVAL_SPEC	Arfin authority rules	Finance Runtime	EAB_G1_3	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/pending/pending_model.py	NO	NO	NEW_FILE_CANDIDATE	PendingModel, ExpiryManager, BacklogStore	Pending model & backlog store	Pending Model	EAB_G2_0	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/review_queue/queue_service.py	NO	NO	NEW_FILE_CANDIDATE	ReviewQueueService, stage_item, approve_item	Review Queue staging service	Review Queue	EAB_G2_1	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/adapter/bounded_adapter.py	NO	NO	NEW_FILE_CANDIDATE	eab_get_pending, eab_submit_batch, eab_create_manual	Bounded adapter implementation	EAB Adapter	EAB_G2_1	HIGH
+tests/test_review_queue.py	NO	NO	NEW_FILE_CANDIDATE	test_review_queue_staging, test_owner_approval	Review Queue unit tests	Test Suite	EAB_G2_3	HIGH

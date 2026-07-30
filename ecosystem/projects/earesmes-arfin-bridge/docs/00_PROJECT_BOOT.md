@@ -43,3 +43,4 @@ LATEST_GIT_RUNTIME_EVIDENCE_RESOLVED=YES
 - **TRACKER_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/MILESTONE_TRACKER.tsv`
 - **DESIGN_G1_1_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_1/` (12 G1.1 Canonical Design Package Files)
 - **DESIGN_G1_2_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_2/` (18 G1.2 Canonical Design Package Files)
+- **DESIGN_G1_3_POINTER**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_3/` (16 G1.3 Canonical Design Package Files)

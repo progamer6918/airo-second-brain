@@ -1,0 +1,20 @@
+SCENARIO	APPLICATION_ERROR_CODE	ITEM_OR_BATCH_SCOPE	RETRYABLE	RECONCILIATION_REQUIRED	LEGAL_SIDE_EFFECT	FORBIDDEN_SIDE_EFFECT	USER_SAFE_MESSAGE	AUDIT_EVENT	FAIL_CLOSED_STATUS
+Stale pending version	ERR_STALE_PENDING_VERSION	ITEM	NO	NO	Itemized failure feedback	Overwriting concurrent state	Pending item version conflict. Reload list.	AUDIT_STALE_VERSION	FAIL_CLOSED
+Missing pending record	ERR_UNKNOWN_PENDING_ID	ITEM	NO	NO	Itemized failure feedback	Creating dummy pending item	Pending item not found.	AUDIT_UNKNOWN_PENDING	FAIL_CLOSED
+Resolved pending record	ERR_ALREADY_RESOLVED	ITEM	NO	NO	Itemized failure feedback	Reopening resolved item	Item already resolved in Arfin.	AUDIT_ALREADY_RESOLVED	FAIL_CLOSED
+Ignored pending record	ERR_ITEM_IGNORED	ITEM	NO	NO	Itemized failure feedback	Staging ignored item	Item was ignored.	AUDIT_ITEM_IGNORED	FAIL_CLOSED
+Expired prompt	ERR_EXPIRED_PROMPT	ITEM	NO	YES	Itemized failure feedback; offer reactivation	Staging expired prompt response	Prompt expired. Reply YA to reactivate.	AUDIT_EXPIRED_PROMPT	FAIL_CLOSED
+Idempotency key hit same payload	ERR_IDEMPOTENCY_SAME_PAYLOAD	ITEM	NO	NO	Return cached receipt	Double staging in Review Queue	Request already processed (cached receipt).	AUDIT_IDEMPOTENT_HIT	FAIL_CLOSED
+Idempotency key mismatch payload	ERR_IDEMPOTENCY_PAYLOAD_MISMATCH	ITEM	NO	NO	Reject request	Overwriting cached receipt	Idempotency key payload mismatch.	AUDIT_IDEMPOTENT_MISMATCH	FAIL_CLOSED
+Duplicate mutation under new key	ERR_DUPLICATE_STAGING_MUTATION	ITEM	NO	NO	Reject duplicate staging	Creating duplicate Review Queue item	Exact mutation already staged in Review Queue.	AUDIT_DUPLICATE_MUTATION	FAIL_CLOSED
+Malformed manual line	ERR_INCOMPLETE_MANUAL_LINE	ITEM	NO	NO	Itemized failure feedback	Auto-staging incomplete line	Incomplete manual transaction line. Amount required.	AUDIT_MALFORMED_MANUAL	FAIL_CLOSED
+Partial batch failure	NONE (PARTIALLY_SUCCEEDED)	BATCH	NO	NO	Stage valid items; return item feedback	Rolling back valid items	Batch partially succeeded. See item details.	AUDIT_BATCH_PARTIAL	FAIL_CLOSED
+Review Queue unavailable	ERR_ARFIN_UNAVAILABLE	BATCH	YES	YES	Log downstream error	Corrupting local state	Finance system temporarily unavailable.	AUDIT_DOWNSTREAM_UNAVAIL	FAIL_CLOSED
+Arfin timeout uncertain result	ERR_ADAPTER_TIMEOUT	BATCH	YES	YES	Log timeout event; reconcile via key	Generic retry or double staging	Operation timed out. Reconcile via key.	AUDIT_TIMEOUT	FAIL_CLOSED
+Crash after stage before response	ERR_ADAPTER_TIMEOUT	BATCH	YES	YES	Reconcile via exact same key	Creating duplicate Review Queue item	Operation timed out. Reconcile via key.	AUDIT_CRASH_RECOVERY	FAIL_CLOSED
+Hermes queue replay	ERR_IDEMPOTENCY_SAME_PAYLOAD	BATCH	NO	NO	Return cached receipt	Re-staging queue payload	Queue replay detected (cached receipt).	AUDIT_QUEUE_REPLAY	FAIL_CLOSED
+Direct Arfin resolution race	ERR_ALREADY_RESOLVED	ITEM	NO	NO	Itemized failure feedback	Overriding direct Arfin state	Item already resolved directly in Arfin.	AUDIT_RACE_RESOLVED	FAIL_CLOSED
+Review Queue item rejected	ERR_REVIEW_ITEM_REJECTED	ITEM	NO	NO	Review item marked REJECTED	Posting rejected item to ledger	Review Queue item rejected by Owner.	AUDIT_REVIEW_REJECTED	FAIL_CLOSED
+Owner approval failure	ERR_APPROVAL_FAILED	ITEM	NO	NO	Log approval failure	Partial ledger posting	Owner approval execution failed.	AUDIT_APPROVAL_FAILED	FAIL_CLOSED
+Backlog reactivation conflict	ERR_MULTIPLE_ACTIVE_CYCLES_BLOCKED	ITEM	NO	NO	Reject reactivation	Creating multiple active cycles	Item already has an active cycle.	AUDIT_CYCLE_CONFLICT	FAIL_CLOSED
+Audit write failure	ERR_LOG_REDACTION_FAIL	BATCH	NO	NO	Log failure	Writing raw finance data	Internal logging error.	AUDIT_LOG_FAIL	FAIL_CLOSED

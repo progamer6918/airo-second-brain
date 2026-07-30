@@ -5,8 +5,8 @@ PREREQ-003	M2	Stable pending_id contract (CANONICAL_TARGET_ID=pending_id, DISPLA
 PREREQ-004	M2	pending_version contract	PASS	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_1	YES	EAB_G1_1	NO	NO	Concurrency collision tests	Fail closed on stale version
 PREREQ-005	M3	Bounded Arfin adapter contract	PASS	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_2	YES	EAB_G1_2	NO	NO	Review Queue API schema spec	Block direct ledger writes
 PREREQ-006	M3	Adapter authentication and least privilege	PASS	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_2	YES	EAB_G1_2	NO	NO	Telegram ID guard verification	Ignore unauthorized sender
-PREREQ-007	M4	Review Queue behavior	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_3	NO	NO	Draft state retention tests	Isolate incomplete items
-PREREQ-008	M4	Direct Arfin fallback	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_3	NO	NO	Manual fallback route verification	Preserve direct UI path
+PREREQ-007	M4	Review Queue behavior	PASS	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_3	YES	EAB_G1_3	NO	NO	Draft state retention tests	Isolate incomplete items
+PREREQ-008	M4	Direct Arfin fallback	PASS	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_3	YES	EAB_G1_3	NO	NO	Manual fallback route verification	Preserve direct UI path
 PREREQ-009	M5	Rollback topology	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_4	NO	NO	Zero-loss rollback plan	Freeze state transition
 PREREQ-010	M5	Source/runtime/deployment attribution	NOT_STARTED	G0.2 Architecture	YES	EAB_G1_4	NO	NO	Audit logging & trace headers	Reject unattributed payload
 PREREQ-011	M6	Owner implementation authorization	NOT_STARTED	G0.4 Scope Lock	YES	EAB_G1_6	YES	YES	Explicit Owner approval receipt	Block source code implementation

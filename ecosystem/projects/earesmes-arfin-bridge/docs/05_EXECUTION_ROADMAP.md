@@ -71,7 +71,8 @@ REQ_014_REQUIRED_FOR_MVP=NO
 
 ### M4 — Review Queue, Fallback, Batch, Expiry and Idempotency Contract
 - **Gate**: `EAB_G1_3`
-- **Status**: `READY` (`CURRENT_MILESTONE=YES`)
+- **Status**: `DONE`
+- **Evidence**: `ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_3/`
 - **Deliverables**: Itemized per-line batch behavior, partial success handling, pre-submission revalidation, direct-Arfin fallback route, idempotency, 24-hour TTL and unresolved backlog retention, manual catat parser spec.
 - **Exit Criteria**: PREREQ-007 and PREREQ-008 design evidence `PASS`.
 

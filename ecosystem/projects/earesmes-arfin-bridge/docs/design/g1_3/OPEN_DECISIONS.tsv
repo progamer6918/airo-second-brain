@@ -1,0 +1,4 @@
+DECISION_ID	TITLE	STATUS	IMPACT	RECOMMENDATION
+OD-001	Review Queue Staging Architecture	RESOLVED	Mandatory staging in Review Queue before Owner approval	Enforce STAGED state before ledger write
+OD-002	Durable Unresolved Backlog Destination	RESOLVED	Expired prompts move to durable backlog; record deleted=NO	Use EXPIRED_UNRESOLVED state
+OD-003	Itemized Batch Failure Strategy	RESOLVED	Valid items stage independently; invalid items return feedback	Remove atomic batch rollback
