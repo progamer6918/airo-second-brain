@@ -1,0 +1,4 @@
+DECISION_ID	TITLE	STATUS	IMPACT	RECOMMENDATION
+OD-001	Implementation Change Unit Sequencing	RESOLVED	Partitioned into 12 change units (CU-01 to CU-12)	Enforce strict change unit isolation
+OD-002	Rollback Topology State Distinctions	RESOLVED	Defined 4 distinct rollback execution states	Prohibit silent deletion of posted ledger entries
+OD-003	M1 Limitation Closure Strategy	RESOLVED	Defer M1 closeout to M12 Live Canary	Keep M1 PASS_WITH_LIMITATIONS until M12

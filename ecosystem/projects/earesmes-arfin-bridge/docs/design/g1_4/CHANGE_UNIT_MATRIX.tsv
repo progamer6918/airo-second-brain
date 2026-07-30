@@ -1,0 +1,13 @@
+CHANGE_UNIT_ID	PURPOSE	CANONICAL_CONTRACT_SOURCE	CANDIDATE_SOURCE_PATHS	DEPENDENCIES	MUTATION_GATE	DATA_MIGRATION_REQUIRED	RUNTIME_RESTART_REQUIRED	ROLLBACK_UNIT	VERIFICATION_GATE	FORBIDDEN_COUPLING
+CU-01	Pending item & Review Queue domain model	docs/design/g1_1, g1_3	ecosystem/projects/earesmes-arfin-bridge/src/pending/	None	EAB_G2_0	YES	NO	RU-01	EAB_G2_0	Direct Account Ledger writes
+CU-02	Bounded adapter API & authentication guard	docs/design/g1_2	ecosystem/projects/earesmes-arfin-bridge/src/adapter/	CU-01	EAB_G2_1	NO	YES	RU-02, RU-SECRET	EAB_G2_1	Dynamic method execution
+CU-03	Earesmes Telegram gateway integration	docs/design/g1_2, g1_3	ops/telegram/telegram-gateway.py	CU-02	EAB_G2_2	NO	YES	RU-03	EAB_G2_2	Bypassing Owner chat allowlist
+CU-04	Hermes worker queue consumer integration	docs/design/g1_2, g1_3	scripts/airo-hermes-worker	CU-02, CU-03	EAB_G2_2	NO	YES	RU-04	EAB_G2_2	Un-redacted log emission
+CU-05	Schema versioning & request validation layer	docs/design/g1_2	ecosystem/projects/earesmes-arfin-bridge/src/schemas/	CU-01	EAB_G2_1	NO	NO	RU-05	EAB_G2_1	Unknown field coercion
+CU-06	Idempotency receipt storage engine	docs/design/g1_2, g1_3	ecosystem/projects/earesmes-arfin-bridge/src/idempotency/	CU-01	EAB_G2_1	YES	NO	RU-06	EAB_G2_1	In-memory-only receipt storage
+CU-07	Durable equivalent-operation duplicate guard	docs/design/g1_1, g1_2, g1_3	ecosystem/projects/earesmes-arfin-bridge/src/idempotency/	CU-06	EAB_G2_1	YES	NO	RU-07	EAB_G2_1	Volatile hash caching
+CU-08	Expiry detection & durable backlog worker	docs/design/g1_3	ecosystem/projects/earesmes-arfin-bridge/src/backlog/	CU-01	EAB_G2_1	YES	YES	RU-08	EAB_G2_1	Auto-staging expired items
+CU-09	Direct Arfin fallback coherence sync	docs/design/g1_3	ecosystem/projects/earesmes-arfin-bridge/src/sync/	CU-01, CU-02	EAB_G2_1	NO	NO	RU-09	EAB_G2_1	Overriding Arfin resolution
+CU-10	Automated unit & integration test suite	docs/design/g1_1, g1_2, g1_3	tests/	CU-01 to CU-09	EAB_G2_3	NO	NO	RU-10	EAB_G2_3	Skipping failing assertions
+CU-11	Integration dry-run execution (M11)	docs/design/g1_4	scripts/dry_run/	CU-10	EAB_G2_4	NO	NO	RU-11	EAB_G2_4	Writing live finance data
+CU-12	Fresh live canary rollout (M12)	docs/design/g1_4	deploy/	CU-11	EAB_G2_5	NO	YES	RU-12, RU-PROD-ROUTE	EAB_G2_5	Broad user rollout

@@ -1,0 +1,10 @@
+CHECK_ID	CHECK_NAME	EXPECTED	OBSERVED	RESULT
+SC-R5-01	Exact Threshold ID Namespace Consistency	TR-001 to TR-030 single namespace (Zero TR-N IDs)	TR-001 to TR-030 single namespace (Zero TR-N IDs)	PASS
+SC-R5-02	Nonnumeric Configuration THRESHOLD_ID	THRESHOLD_ID = N/A for nonnumeric configuration entries	THRESHOLD_ID = N/A for nonnumeric configuration entries	PASS
+SC-R5-03	Complete Numeric Usage Coverage	UNMAPPED_NUMERIC_THRESHOLD_COUNT == 0	UNMAPPED_NUMERIC_THRESHOLD_COUNT == 0	PASS
+SC-R5-04	Canonical vs Proposed Threshold Classification	Canonical constraints explicitly separated from proposed defaults	Canonical constraints explicitly separated from proposed defaults	PASS
+SC-R5-05	Rollout Roadmap Alignment (M13/M14)	M12 Live Canary -> M13 Owner Acceptance -> M14 Production Activation	M12 Live Canary -> M13 Owner Acceptance -> M14 Production Activation	PASS
+SC-R5-06	Coverage Reference Validation	MISSING_REFERENCED_TEST_ID_COUNT == 0	MISSING_REFERENCED_TEST_ID_COUNT == 0	PASS
+SC-R5-07	Secret Rotation Complete Fail-Closed Matrix	6-case matrix verified with direct Arfin fallback intact	6-case matrix verified with direct Arfin fallback intact	PASS
+SC-R5-08	Final Closeout Validation	18/18 Closeout Checks PASS	18/18 Closeout Checks PASS	PASS
+SC-R5-09	Round 5 Finding Coverage	6/6 Round 5 Findings Covered	6/6 Round 5 Findings Covered	PASS

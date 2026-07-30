@@ -1,0 +1,22 @@
+PATH	PATH_EXISTS	GIT_TRACKED	CLASSIFICATION	RELEVANT_SYMBOLS	DIRECT_EVIDENCE	ACTIVE_RUNTIME_RELATION	MUTATION_GATE	ROLLBACK_UNIT	OBSERVABILITY_UNIT	CONFIDENCE
+ops/telegram/telegram-gateway.py	YES	YES	EXISTING_MODIFY_CANDIDATE	TelegramGateway, getUpdates_loop, owner_chat_id_filter	Active Telegram Gateway PID 476 evidence from G1.0	Active Gateway	EAB_G2_2	RU-03	SIG-001, SIG-019	HIGH
+scripts/airo-hermes-worker	YES	YES	EXISTING_MODIFY_CANDIDATE	hermes_worker_loop, queue_consumer	Active Hermes worker process evidence from G1.0	Active Queue Worker	EAB_G2_2	RU-04	SIG-001, SIG-014, SIG-018	HIGH
+systems/telegram-agent-identity-contract.md	YES	YES	READ_ONLY_DEPENDENCY	TELEGRAM_IDENTITY_CONTRACT	Identity governance contract	Identity Governance	EAB_G1_4	N/A	N/A	HIGH
+ARFIN.md	YES	YES	READ_ONLY_DEPENDENCY	REVIEW_QUEUE_SPEC, APPROVAL_SPEC	Arfin authority rules	Finance Runtime	EAB_G1_4	N/A	N/A	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/pending/pending_model.py	NO	NO	NEW_FILE_CANDIDATE	PendingModel, ExpiryManager, BacklogStore	Pending model & backlog store	Pending Model	EAB_G2_0	RU-01	SIG-005, SIG-010	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/review_queue/queue_service.py	NO	NO	NEW_FILE_CANDIDATE	ReviewQueueService, stage_item, approve_item	Review Queue staging service	Review Queue	EAB_G2_1	RU-05	SIG-006, SIG-016	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/adapter/bounded_adapter.py	NO	NO	NEW_FILE_CANDIDATE	eab_get_pending, eab_submit_batch, eab_create_manual	Bounded adapter implementation	EAB Adapter	EAB_G2_1	RU-02	SIG-004, SIG-005, SIG-009	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/adapter/auth_guard.py	NO	NO	NEW_FILE_CANDIDATE	verify_service_auth, verify_owner_principal	Authentication and authorization guard	EAB Adapter	EAB_G2_1	RU-02, RU-SECRET	SIG-002, SIG-003, SIG-020	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/idempotency/store.py	NO	NO	NEW_FILE_CANDIDATE	IdempotencyStore, check_duplicate_mutation	Idempotency store & duplicate guard	EAB Adapter	EAB_G2_1	RU-06	SIG-007, SIG-008	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/sync/sync_engine.py	NO	NO	NEW_FILE_CANDIDATE	SyncEngine, resolve_direct_arfin_race	Direct Arfin sync engine	Sync Engine	EAB_G2_1	RU-09	SIG-013	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/backlog/expiry_worker.py	NO	NO	NEW_FILE_CANDIDATE	ExpiryWorker, BacklogManager, reactivate_item	Expiry & durable backlog worker	Backlog Worker	EAB_G2_1	RU-08	SIG-010, SIG-011, SIG-012	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/migration/migrate_legacy.py	NO	NO	NEW_FILE_CANDIDATE	migrate_legacy_pending, dry_run_migration	Migration implementation	Migration Implementation	EAB_G2_0	RU-01	SIG-005	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/queue/hermes_queue_store.py	NO	NO	NEW_FILE_CANDIDATE	HermesQueueStore, enqueue_message, dequeue_message	Hermes queue storage implementation	Queue Implementation	EAB_G2_2	RU-04	SIG-014	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/observability/logger.py	NO	NO	NEW_FILE_CANDIDATE	RedactedLogger, emit_audit_event	Observability instrumentation	Observability Implementation	EAB_G2_1	RU-04	SIG-018	HIGH
+ecosystem/projects/earesmes-arfin-bridge/src/health/health_checker.py	NO	NO	NEW_FILE_CANDIDATE	HealthChecker, verify_ownership_lock	Health-check implementation	Health Check Implementation	EAB_G2_1	RU-03	SIG-001, SIG-019	HIGH
+deploy/process_definitions.json	NO	NO	NEW_FILE_CANDIDATE	gateway_process_spec, worker_process_spec	Runtime process definitions	Process Definitions	EAB_G2_2	RU-03	SIG-001	HIGH
+deploy/deployment_config.env	NO	NO	NEW_FILE_CANDIDATE	eab_env_vars	Deployment configuration	Deployment Config	EAB_G2_5	RU-CONFIG	N/A	HIGH
+scripts/dry_run/run_m11_dry_run.py	NO	NO	NEW_FILE_CANDIDATE	run_dry_run, validate_no_writes	Integration dry-run script	Dry-Run Script	EAB_G2_4	RU-11	N/A	HIGH
+deploy/canary_guard.py	NO	NO	NEW_FILE_CANDIDATE	CanaryGuard, verify_owner_canary_route	Live canary rollout guard	Canary Guard	EAB_G2_5	RU-12, RU-PROD-ROUTE	SIG-020	HIGH
+tests/test_implementation_readiness.py	NO	NO	NEW_FILE_CANDIDATE	test_rollback, test_observability, test_canary	Implementation readiness tests	Test Suite	EAB_G2_3	RU-10	N/A	HIGH
+arfin/external_boundary/arfin_api_client.py	NO	NO	NEW_FILE_OR_EXTERNAL_HOSTED	ArfinClient, post_ledger_entry	External Arfin implementation boundary	External Finance API	EAB_G2_1	RU-05	SIG-017	HIGH

@@ -1,0 +1,19 @@
+CHECK_ID	CHECK_NAME	EXPECTED	OBSERVED	RESULT
+FCV-01	Remote Baseline Parity	f759918b998e9baf9afe2eccfd191b9da5d015d0	f759918b998e9baf9afe2eccfd191b9da5d015d0	PASS
+FCV-02	Canonical Requirement Mapping	REQ-011, REQ-012, REQ-013 mapped	REQ-011, REQ-012, REQ-013 mapped	PASS
+FCV-03	Prerequisite M2-M5 Status	PREREQ-009 & PREREQ-010 PASS	PREREQ-009 & PREREQ-010 PASS	PASS
+FCV-04	Exact Threshold ID Reference Validation	INVALID_THRESHOLD_REFERENCE_COUNT == 0	INVALID_THRESHOLD_REFERENCE_COUNT == 0	PASS
+FCV-05	Orphan Threshold Register Row Count	ORPHAN_THRESHOLD_REGISTER_ROW_COUNT == 0	ORPHAN_THRESHOLD_REGISTER_ROW_COUNT == 0	PASS
+FCV-06	Unmapped Numeric Threshold Count	UNMAPPED_NUMERIC_THRESHOLD_COUNT == 0	UNMAPPED_NUMERIC_THRESHOLD_COUNT == 0	PASS
+FCV-07	Canonical Threshold Classification	Canonical constraints separated from proposed defaults	Canonical constraints separated from proposed defaults	PASS
+FCV-08	Prompt TTL Canonical Source	CANONICAL_SOURCE = G1_3_SCOPE_LOCK	CANONICAL_SOURCE = G1_3_SCOPE_LOCK	PASS
+FCV-09	Clock Skew & Key Grace Canonical Source	CANONICAL_SOURCE = G1_2_SCOPE_LOCK	CANONICAL_SOURCE = G1_2_SCOPE_LOCK	PASS
+FCV-10	Rollout Roadmap Alignment	M12 live canary does NOT activate production	M12 live canary does NOT activate production	PASS
+FCV-11	M13 Owner Acceptance Mandatory	OWNER_ACCEPTANCE_REQUIRED_BEFORE_PRODUCTION = YES	OWNER_ACCEPTANCE_REQUIRED_BEFORE_PRODUCTION = YES	PASS
+FCV-12	M14 Production Activation Authorization	EXACT_M14_ACTIVATION_AUTHORIZATION_REQUIRED = YES	EXACT_M14_ACTIVATION_AUTHORIZATION_REQUIRED = YES	PASS
+FCV-13	Test Reference Validation	MISSING_REFERENCED_TEST_ID_COUNT == 0	MISSING_REFERENCED_TEST_ID_COUNT == 0	PASS
+FCV-14	Secret Rotation Complete Fail-Closed Matrix	6-case matrix fully covered with direct Arfin fallback intact	6-case matrix fully covered with direct Arfin fallback intact	PASS
+FCV-15	Exact Test Vector Count Validation	63 Test Vectors Verified	63 Test Vectors Verified	PASS
+FCV-16	Open Blocking Decision Count	OPEN_BLOCKING_DECISION_COUNT == 0	OPEN_BLOCKING_DECISION_COUNT == 0	PASS
+FCV-17	M6 Authorization Candidacy	YES_PENDING_EXACT_OWNER_APPROVAL	YES_PENDING_EXACT_OWNER_APPROVAL	PASS
+FCV-18	Implementation Execution Guard	IMPLEMENTATION_ALLOWED = NO	IMPLEMENTATION_ALLOWED = NO	PASS

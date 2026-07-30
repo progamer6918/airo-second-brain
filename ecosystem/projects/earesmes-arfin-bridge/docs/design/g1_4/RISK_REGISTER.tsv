@@ -1,0 +1,6 @@
+RISK_ID	TITLE	SEVERITY	LIKELIHOOD	MITIGATION_STRATEGY	RESIDUAL_RISK	STATUS
+RSK-01	Un-redacted secret in application log	CRITICAL	LOW	Automated log redaction filter + process halt on failure	LOW	MITIGATED
+RSK-02	Duplicate update ownership on Telegram Gateway	CRITICAL	LOW	PID lockfile + getUpdates ownership check	LOW	MITIGATED
+RSK-03	Direct Arfin race condition overwriting Earesmes reply	HIGH	MEDIUM	Pre-submission revalidation with atomic compare-and-swap	LOW	MITIGATED
+RSK-04	Review Queue database outage causing request hangs	HIGH	LOW	Adapter 8000ms timeout + 503 fail-closed mode	LOW	MITIGATED
+RSK-05	Uncertain write timeout causing duplicate staging	HIGH	LOW	3-tier idempotency + same-key reconciliation	LOW	MITIGATED

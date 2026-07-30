@@ -1,0 +1,15 @@
+CHECK_ID	CHECK_CATEGORY	REQUIREMENT_DESCRIPTION	MANDATORY_OR_OPTIONAL	VERIFICATION_METHOD	GO_CRITERIA	NO_GO_ACTION	CURRENT_STATUS
+GNG-01	DESIGN	Design Prerequisites M2-M5 Complete	MANDATORY	Design review audit	All M2-M5 prereqs PASS at design level	Halt M6 authorization	PASS
+GNG-02	DESIGN	Zero Open Blocking Design Decisions	MANDATORY	OPEN_DECISIONS.tsv audit	OPEN_BLOCKING_DECISION_COUNT == 0	Halt M6 authorization	PASS
+GNG-03	SAFETY	No Ledger-Write Authority Assigned to Earesmes	MANDATORY	Architecture audit	EARESMES_LEDGER_WRITE == FORBIDDEN	Halt M6 authorization	PASS
+GNG-04	SAFETY	Direct Arfin Fallback Retained	MANDATORY	Coexistence contract audit	DIRECT_ARFIN_FALLBACK == RETAIN	Halt M6 authorization	PASS
+GNG-05	SAFETY	Review Queue & Owner Approval Mandatory	MANDATORY	Review Queue contract audit	OWNER_APPROVAL_REQUIRED == YES	Halt M6 authorization	PASS
+GNG-06	PLANNING	Implementation Change Units Partitioned	MANDATORY	CHANGE_UNIT_MATRIX.tsv audit	12 change units defined with boundaries	Halt M6 authorization	PASS
+GNG-07	PLANNING	Rollback & Backout Topology Complete	MANDATORY	ROLLBACK_AND_BACKOUT_CONTRACT.md audit	4-state rollback distinctions defined	Halt M6 authorization	PASS
+GNG-08	PLANNING	Data Migration & Backout Strategy Complete	MANDATORY	DATA_MIGRATION_AND_BACKOUT_CONTRACT.md audit	Dry-run & collision guards defined	Halt M6 authorization	PASS
+GNG-09	SECURITY	Redaction & Keyed Pseudonymization Complete	MANDATORY	OBSERVABILITY_SIGNAL_CATALOG.tsv audit	Secret redaction & Keyed HMAC defined	Halt M6 authorization	PASS
+GNG-10	SECURITY	Configuration & Secret Inventory Complete	MANDATORY	CONFIGURATION_AND_SECRET_READINESS.tsv audit	31 configuration items defined	Halt M6 authorization	PASS
+GNG-11	OPERABILITY	Alerting & Incident Response Matrix Complete	MANDATORY	ALERTING_AND_INCIDENT_RESPONSE_MATRIX.tsv audit	18 incident scenarios defined	Halt M6 authorization	PASS
+GNG-12	OPERABILITY	Canary & Staged Rollout Plan Complete	MANDATORY	CANARY_AND_ROLLOUT_PLAN.md audit	Owner-only canary defined	Halt M6 authorization	PASS
+GNG-13	TESTING	63 Test Vectors Design-Defined and Mapped	MANDATORY	TEST_VECTORS.tsv audit	63 test vectors design-defined & mapped for future execution	Halt M6 authorization	PASS
+GNG-14	GOVERNANCE	Explicit Owner Implementation Approval	MANDATORY	Owner authorization receipt	Owner approval receipt signed	IMPLEMENTATION_ALLOWED = NO	PENDING_M6_OWNER_APPROVAL
