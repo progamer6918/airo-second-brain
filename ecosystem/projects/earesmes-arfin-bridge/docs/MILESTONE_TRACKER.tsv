@@ -9,11 +9,11 @@ M6	EAB_G1_6	READY	YES	DONE	M5	Exact baseline, exact source paths, mutation recei
 M7	EAB_G2_0	Arfin Pending Model Implementation	YES	DONE	M6	pending_id, short_ref, pending_version code	Pending model unit tests PASS	Pending code & tests	NO	G1.6 Owner approval	Implement pending model
 M8	EAB_G2_1	Bounded Arfin Adapter Implementation	YES	DONE	M7	4 bounded API methods, chat_id filter code	Adapter contract tests PASS	Pending code & tests	NO	M7 completion	Implement bounded adapter
 M9	EAB_G2_2	Earesmes & Hermes Bridge Implementation	YES	DONE	M8	Pending list renderer, NL parser, batch client	Bridge integration tests PASS	Pending code & tests	NO	M8 completion	Implement Earesmes/Hermes bridge
-M10	EAB_G2_3	Automated Verification	YES	READY	M9	Automated test suite (13 MVP requirements)	13 MVP requirements automated evidence PASS	Pending test log	NO	M9 completion	Run automated verification
-M11	EAB_G2_4	Controlled Integration Dry Run	YES	NOT_STARTED	M10	Synthetic pending/stale/batch dry run	Dry run PASS; zero direct ledger write	Pending dry run log	NO	M10 completion	Run controlled dry run
+M10	EAB_G2_3	Automated Verification	YES	DONE	M9	Automated test suite (13 MVP requirements)	13 MVP requirements automated evidence PASS	Test suite /tmp/eab_g2_3_implementation_20260731_190001 (100% PASS)	NO	Tidak ada	Proceed to M11 dry run
+M11	EAB_G2_4	Controlled Integration Dry Run	YES	READY	M10	Synthetic pending/stale/batch dry run	Dry run PASS; zero direct ledger write	Pending dry run log	NO	Tidak ada	Run controlled dry run
 M12	EAB_G2_5	Fresh Live Canary	YES	NOT_STARTED	M11	Live pending clarification & canary checks	Live canary PASS; AFPD-INC-011 verified; M1 DONE	Pending canary report	NO	M11 completion	Execute fresh live canary
 M13	EAB_G2_6	Owner Acceptance	YES	NOT_STARTED	M12	Owner E2E testing of Earesmes & Arfin flow	Explicit Owner acceptance receipt	Pending Owner receipt	YES	M12 completion	Obtain Owner acceptance
 M14	EAB_G2_7	Production Activation & Project Closeout	YES	NOT_STARTED	M13	Production activation & canonical closeout	All M0-M14 DONE; REQ-001..013 PASS	Pending closeout receipt	YES	M13 completion	Execute production closeout
 M15	EAB_PHASE_2	Optional Product Phase 2 (Cloud Inbox)	NO	DEFERRED	M14	Cloud inbox & comma-separated batch parser (REQ-014)	Phase 2 release PASS	Deferred	YES	Phase 1 MVP completion	Deferred to Phase 2
 
-# SUMMARY: REQUIRED_MILESTONE_COUNT=15, DONE_MILESTONE_COUNT=7, PASS_WITH_LIMITATIONS_COUNT=1, READY_MILESTONE_COUNT=1, BLOCKED_MILESTONE_COUNT=0, NOT_STARTED_MILESTONE_COUNT=6, CURRENT_MILESTONE=M9, CURRENT_GATE=EAB_G2_2, PROJECT_COMPLETION_STATUS=IN_PROGRESS_PRE_IMPLEMENTATION
+# SUMMARY: REQUIRED_MILESTONE_COUNT=15, DONE_MILESTONE_COUNT=8, PASS_WITH_LIMITATIONS_COUNT=1, READY_MILESTONE_COUNT=1, BLOCKED_MILESTONE_COUNT=0, NOT_STARTED_MILESTONE_COUNT=5, CURRENT_MILESTONE=M11, CURRENT_GATE=EAB_G2_4, PROJECT_COMPLETION_STATUS=IN_PROGRESS_TESTS_COMPLETE

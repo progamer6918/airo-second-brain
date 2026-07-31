@@ -171,3 +171,12 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - Source files verified byte-for-byte: `telegram-gateway.py` (`83cad99c715aae5f6d2a63df4ad1107440755ab41778065c19ddce64504e3172`), `gateway_bridge.py` (`266118e132378d7c8c91881777f36a2458f214cf68988745aed41f8deebe7945`).
 - Combined 6-path patch proposal created.
 - Transitioned M9 to DONE, M10 to READY.
+
+## [2026-07-31] EAB_G2_3 (M10) - CANONICAL INTEGRATION PROPOSAL
+- Milestone M10 (CU-10: Automated unit & integration test suite) canonical integration proposal formulated.
+- Applied reviewed source test patch (SHA256: `6604b062fb32b165ed697c2c0d301f35535c5acb86895246b388210f5a027a4b`).
+- Test files verified byte-for-byte: `test_bridge_integration.py` (`98d446644793caa918c41181765509a29366933c0856afd9292363146a1757da`), `test_implementation_readiness.py` (`e14a47a29df4eb4a880111237bcadb55178a6cf7ba7ff126e16c36e12d89c96e`).
+- Production source files verified byte-exact: `pending_model.py`, `migrate_legacy.py`, `auth_guard.py`, `bounded_adapter.py`, `telegram-gateway.py`, `gateway_bridge.py` (0 mutations).
+- 30 automated integration test vectors executed 100% PASS in offline fake transport and synthetic key mode.
+- Combined 6-path patch proposal created (`EAB_G2_3_CANONICAL_INTEGRATION.patch`).
+- Transitioned M10 to DONE, M11 to READY (`CURRENT_MILESTONE=M11`, `CURRENT_GATE=EAB_G2_4`).
