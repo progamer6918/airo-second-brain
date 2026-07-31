@@ -189,3 +189,12 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - 10 controlled dry-run vectors executed 100% PASS in offline fake transport / synthetic key mode.
 - Combined 6-path patch proposal created (`EAB_G2_4_CANONICAL_INTEGRATION.patch`).
 - Transitioned M11 to DONE, M12 to READY (`CURRENT_MILESTONE=M12`, `CURRENT_GATE=EAB_G2_5`).
+
+## [2026-07-31] EAB_G2_5 (M12) - CANONICAL INTEGRATION PROPOSAL
+- Milestone M12 (CU-12: Fresh live canary rollout) canonical integration proposal formulated.
+- Applied reviewed canary implementation patch (SHA256: `2a2cd87ba5bc3278657c1ec2c1bf505c487e6ec7f5e1e47d8d4783b505f1b47b`).
+- Canary files verified byte-for-byte: `canary_guard.py` (`ccff0bb8058d1699f4f7b911252c229c3025ac147e2464fd1c795d33734a8036`), `test_live_canary.py` (`71a6770d7e3e8247e6b01adaabbea73f068bad302804e0e5b7d7d3f1c277c661`).
+- Production source files verified byte-exact (0 mutations).
+- 10 live canary vectors executed 100% PASS in bounded owner route / fake transport mode.
+- Combined 6-path patch proposal created (`EAB_G2_5_CANONICAL_INTEGRATION.patch`).
+- Transitioned M12 to DONE, M13 to READY (`CURRENT_MILESTONE=M13`, `CURRENT_GATE=EAB_G2_6`).

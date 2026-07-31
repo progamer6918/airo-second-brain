@@ -94,3 +94,5 @@ ecosystem/projects/earesmes-arfin-bridge/tests/test_bridge_integration.py	98d446
 tests/test_implementation_readiness.py	e14a47a29df4eb4a880111237bcadb55178a6cf7ba7ff126e16c36e12d89c96e	System-level implementation readiness test suite	M10	EAB_G2_3
 ecosystem/projects/earesmes-arfin-bridge/tests/test_controlled_dry_run.py	beebf02ddb5ef65bb7f239348aaf652eaba4806eb0a16343282374947f88a775	Controlled integration dry-run test suite	M11	EAB_G2_4
 scripts/dry_run/run_eab_dry_run.py	d4bdecccdb9ea47ab79cbcb9a0e6733d3a62db8beaa3a2c169771b9c918a6dc0	Standalone controlled dry-run CLI runner script	M11	EAB_G2_4
+deploy/canary_guard.py	ccff0bb8058d1699f4f7b911252c229c3025ac147e2464fd1c795d33734a8036	Live canary rollout guard & automatic rollback trigger	M12	EAB_G2_5
+ecosystem/projects/earesmes-arfin-bridge/tests/test_live_canary.py	71a6770d7e3e8247e6b01adaabbea73f068bad302804e0e5b7d7d3f1c277c661	Live canary route & rollback test suite	M12	EAB_G2_5
