@@ -113,3 +113,54 @@
 - [20260730_210359] EAB_G1_4 Canonical Design Closeout PASS: Minimal G1.4 implementation-readiness design package (19 design artifacts + 6 closeout evidence artifacts) completed and verified across 5 correction rounds. PREREQ-009 and PREREQ-010 PASS at design level. M5 marked DONE, M6 marked READY. Zero source/runtime/deployment mutation.
 
 - [20260730_213549] EAB_G2_0 Arfin Pending Domain Model Implementation PASS: CU-01 source implementation completed and semantically approved by Owner. Bounded source files (ecosystem/projects/earesmes-arfin-bridge/src/pending/pending_model.py, ecosystem/projects/earesmes-arfin-bridge/src/migration/migrate_legacy.py) added. 5 offline contract unit tests PASS. PREREQ-011 PASS based on explicit Owner authorization. M6 marked DONE, M7 marked DONE, M8 marked READY. Zero active runtime/deployment mutation.
+
+---
+
+## M8 / EAB_G2_1: Bounded Arfin Adapter Implementation - CU-02
+
+DATE=2026-07-31
+GATE=EAB_G2_1
+MILESTONE=M8
+STATUS=DONE
+CHANGE_UNIT=CU-02
+AUTHORIZED_BASE_COMMIT=2358b54a465c3e371746c909ccc58d8f7c5e2156
+
+### Source Files Added
+
+1. src/adapter/auth_guard.py
+   - SHA-256: 85dd5f751edec855ef38c865f47dbcba332bbd058f53b15b449567161bf7fa59
+   - Purpose: Authentication guard — HMAC-SHA256 signature, owner_chat_id allowlist,
+     service key rotation (24h grace window), clock skew tolerance (60s),
+     in-memory nonce replay guard (600s TTL, single-process guarantee level),
+     secret redaction.
+2. src/adapter/bounded_adapter.py
+   - SHA-256: 996ebe417a585c98edc92bf29f7485454fe4fc69abc32883ff8331954b6508c0
+   - Purpose: Bounded Arfin adapter — 4 bounded API operations (eab_get_pending,
+     eab_submit_batch, eab_create_manual, eab_get_status), pre-submission
+     pending record revalidation, deterministic idempotency key, timeout/retry
+     classification, structured audit emission.
+
+### Reviewed Source Patch
+
+PATCH=/tmp/eab_g2_1_implementation_20260730_221241/EAB_G2_1_BOUNDED_ADAPTER.patch
+SOURCE_PATCH_SHA256=a2d20204ff92d670bf012b260b6b16fd4287bab5d0b3d593797a07dde77b6899
+SEMANTIC_AND_SECURITY_REVIEW=PASS
+
+### Offline Test Evidence
+
+TRACKED_OFFLINE_TEST_COUNT=8
+EPHEMERAL_REVIEW_TEST_COUNT=4
+TOTAL_EXECUTED_TEST_COUNT=12
+OFFLINE_TEST_EXECUTION=PASS
+FAKE_TRANSPORT=YES | SYNTHETIC_KEYS=YES | NETWORK=NO | LIVE_SECRETS=NO | LIVE_DATA=NO
+RUNTIME_BINDING=NO | QUEUE_CONSUMPTION=NO | LIVE_RQ_SUBMISSION=NO | LEDGER_WRITE=NO
+
+NOTE: No code-coverage percentage measured. Test counts reflect executed test vectors.
+
+### Safety Assertions
+
+DIRECT_ARFIN_FALLBACK=RETAINED
+ACCOUNT_LEDGER_WRITE=FORBIDDEN_AND_ABSENT
+M9_IMPLEMENTATION_AUTHORIZED=NO
+IMPLEMENTATION_ALLOWED=NO
+PREREQUISITE_STATUS_MUTATION_COUNT=0

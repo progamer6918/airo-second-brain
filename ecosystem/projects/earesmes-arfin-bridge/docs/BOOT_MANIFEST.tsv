@@ -86,3 +86,5 @@ MANIFEST_INDEX	RELATIVE_PATH	SHA256	LINE_COUNT	ROLE
 85	ecosystem/projects/earesmes-arfin-bridge/docs/design/g1_4/THRESHOLD_USAGE_VALIDATION.tsv	553d0140080fb6fbf2f3c4338cd61c81ad6c53c172af1903e0a8d1fb67471ec8	31	CANONICAL_DESIGN_PACKAGE
 86	ecosystem/projects/earesmes-arfin-bridge/src/pending/pending_model.py	f3455837dba4a5828adddce64b4a4bb350bff1eb18f492ec194614016ef0dc97	208	CANONICAL_SOURCE_CODE
 87	ecosystem/projects/earesmes-arfin-bridge/src/migration/migrate_legacy.py	1e904606a8a6b2a60001401752a07ffee110b335b081e281f72f9fbb35222880	85	CANONICAL_SOURCE_CODE
+EAB	src/adapter/auth_guard.py	85dd5f751edec855ef38c865f47dbcba332bbd058f53b15b449567161bf7fa59	Bounded Arfin adapter auth guard - CU-02
+EAB	src/adapter/bounded_adapter.py	996ebe417a585c98edc92bf29f7485454fe4fc69abc32883ff8331954b6508c0	Bounded Arfin adapter client - CU-02
