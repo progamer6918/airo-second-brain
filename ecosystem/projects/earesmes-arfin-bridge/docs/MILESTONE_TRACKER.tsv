@@ -8,8 +8,8 @@ M5	EAB_G1_4	DONE	YES	READY	M4	Rollback topology, trace headers, test map	PREREQ-
 M6	EAB_G1_6	READY	YES	DONE	M5	Exact baseline, exact source paths, mutation receipt	PREREQ-011 PASS	Pending Owner Receipt	YES	M5 completion & Owner approval	Obtain G1.6 Owner authorization
 M7	EAB_G2_0	Arfin Pending Model Implementation	YES	DONE	M6	pending_id, short_ref, pending_version code	Pending model unit tests PASS	Pending code & tests	NO	G1.6 Owner approval	Implement pending model
 M8	EAB_G2_1	Bounded Arfin Adapter Implementation	YES	DONE	M7	4 bounded API methods, chat_id filter code	Adapter contract tests PASS	Pending code & tests	NO	M7 completion	Implement bounded adapter
-M9	EAB_G2_2	Earesmes & Hermes Bridge Implementation	YES	READY	M8	Pending list renderer, NL parser, batch client	Bridge integration tests PASS	Pending code & tests	NO	M8 completion	Implement Earesmes/Hermes bridge
-M10	EAB_G2_3	Automated Verification	YES	NOT_STARTED	M9	Automated test suite (13 MVP requirements)	13 MVP requirements automated evidence PASS	Pending test log	NO	M9 completion	Run automated verification
+M9	EAB_G2_2	Earesmes & Hermes Bridge Implementation	YES	DONE	M8	Pending list renderer, NL parser, batch client	Bridge integration tests PASS	Pending code & tests	NO	M8 completion	Implement Earesmes/Hermes bridge
+M10	EAB_G2_3	Automated Verification	YES	READY	M9	Automated test suite (13 MVP requirements)	13 MVP requirements automated evidence PASS	Pending test log	NO	M9 completion	Run automated verification
 M11	EAB_G2_4	Controlled Integration Dry Run	YES	NOT_STARTED	M10	Synthetic pending/stale/batch dry run	Dry run PASS; zero direct ledger write	Pending dry run log	NO	M10 completion	Run controlled dry run
 M12	EAB_G2_5	Fresh Live Canary	YES	NOT_STARTED	M11	Live pending clarification & canary checks	Live canary PASS; AFPD-INC-011 verified; M1 DONE	Pending canary report	NO	M11 completion	Execute fresh live canary
 M13	EAB_G2_6	Owner Acceptance	YES	NOT_STARTED	M12	Owner E2E testing of Earesmes & Arfin flow	Explicit Owner acceptance receipt	Pending Owner receipt	YES	M12 completion	Obtain Owner acceptance

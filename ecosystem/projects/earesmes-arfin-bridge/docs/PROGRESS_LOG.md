@@ -164,3 +164,10 @@ ACCOUNT_LEDGER_WRITE=FORBIDDEN_AND_ABSENT
 M9_IMPLEMENTATION_AUTHORIZED=NO
 IMPLEMENTATION_ALLOWED=NO
 PREREQUISITE_STATUS_MUTATION_COUNT=0
+
+## [2026-07-31] EAB_G2_2 (M9) - CANONICAL INTEGRATION PROPOSAL
+- Milestone M9 (CU-03: Earesmes Telegram gateway integration) canonical integration proposal formulated.
+- Applied reviewed source patch (SHA256: `077bf4eb9e32e3e1814e29a5a0ad9eec3248bf02cca96a80609390ad043d71e5`).
+- Source files verified byte-for-byte: `telegram-gateway.py` (`83cad99c715aae5f6d2a63df4ad1107440755ab41778065c19ddce64504e3172`), `gateway_bridge.py` (`266118e132378d7c8c91881777f36a2458f214cf68988745aed41f8deebe7945`).
+- Combined 6-path patch proposal created.
+- Transitioned M9 to DONE, M10 to READY.

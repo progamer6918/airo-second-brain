@@ -88,3 +88,5 @@ MANIFEST_INDEX	RELATIVE_PATH	SHA256	LINE_COUNT	ROLE
 87	ecosystem/projects/earesmes-arfin-bridge/src/migration/migrate_legacy.py	1e904606a8a6b2a60001401752a07ffee110b335b081e281f72f9fbb35222880	85	CANONICAL_SOURCE_CODE
 EAB	src/adapter/auth_guard.py	85dd5f751edec855ef38c865f47dbcba332bbd058f53b15b449567161bf7fa59	Bounded Arfin adapter auth guard - CU-02
 EAB	src/adapter/bounded_adapter.py	996ebe417a585c98edc92bf29f7485454fe4fc69abc32883ff8331954b6508c0	Bounded Arfin adapter client - CU-02
+ops/telegram/telegram-gateway.py	83cad99c715aae5f6d2a63df4ad1107440755ab41778065c19ddce64504e3172	Telegram gateway integration runner	M9	EAB_G2_2
+ecosystem/projects/earesmes-arfin-bridge/src/bridge/gateway_bridge.py	266118e132378d7c8c91881777f36a2458f214cf68988745aed41f8deebe7945	Gateway & Hermes bridge orchestrator module	M9	EAB_G2_2
