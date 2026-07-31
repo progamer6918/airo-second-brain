@@ -92,3 +92,5 @@ ops/telegram/telegram-gateway.py	83cad99c715aae5f6d2a63df4ad1107440755ab41778065
 ecosystem/projects/earesmes-arfin-bridge/src/bridge/gateway_bridge.py	266118e132378d7c8c91881777f36a2458f214cf68988745aed41f8deebe7945	Gateway & Hermes bridge orchestrator module	M9	EAB_G2_2
 ecosystem/projects/earesmes-arfin-bridge/tests/test_bridge_integration.py	98d446644793caa918c41181765509a29366933c0856afd9292363146a1757da	Automated unit & integration test suite for EAB bridge	M10	EAB_G2_3
 tests/test_implementation_readiness.py	e14a47a29df4eb4a880111237bcadb55178a6cf7ba7ff126e16c36e12d89c96e	System-level implementation readiness test suite	M10	EAB_G2_3
+ecosystem/projects/earesmes-arfin-bridge/tests/test_controlled_dry_run.py	beebf02ddb5ef65bb7f239348aaf652eaba4806eb0a16343282374947f88a775	Controlled integration dry-run test suite	M11	EAB_G2_4
+scripts/dry_run/run_eab_dry_run.py	d4bdecccdb9ea47ab79cbcb9a0e6733d3a62db8beaa3a2c169771b9c918a6dc0	Standalone controlled dry-run CLI runner script	M11	EAB_G2_4

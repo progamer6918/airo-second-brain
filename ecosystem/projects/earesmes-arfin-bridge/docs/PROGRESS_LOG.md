@@ -180,3 +180,12 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - 30 automated integration test vectors executed 100% PASS in offline fake transport and synthetic key mode.
 - Combined 6-path patch proposal created (`EAB_G2_3_CANONICAL_INTEGRATION.patch`).
 - Transitioned M10 to DONE, M11 to READY (`CURRENT_MILESTONE=M11`, `CURRENT_GATE=EAB_G2_4`).
+
+## [2026-07-31] EAB_G2_4 (M11) - CANONICAL INTEGRATION PROPOSAL
+- Milestone M11 (CU-11: Integration dry-run execution) canonical integration proposal formulated.
+- Applied reviewed dry-run patch (SHA256: `5e633d675995fce3707cbaad4f977af645df3b41f20c66c91a0ec19003f4be49`).
+- Dry-run files verified byte-for-byte: `test_controlled_dry_run.py` (`beebf02ddb5ef65bb7f239348aaf652eaba4806eb0a16343282374947f88a775`), `run_eab_dry_run.py` (`d4bdecccdb9ea47ab79cbcb9a0e6733d3a62db8beaa3a2c169771b9c918a6dc0`).
+- Production source files verified byte-exact (0 mutations).
+- 10 controlled dry-run vectors executed 100% PASS in offline fake transport / synthetic key mode.
+- Combined 6-path patch proposal created (`EAB_G2_4_CANONICAL_INTEGRATION.patch`).
+- Transitioned M11 to DONE, M12 to READY (`CURRENT_MILESTONE=M12`, `CURRENT_GATE=EAB_G2_5`).
