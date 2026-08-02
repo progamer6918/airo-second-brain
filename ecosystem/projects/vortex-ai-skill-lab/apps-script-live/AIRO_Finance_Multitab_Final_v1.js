@@ -47,6 +47,62 @@ function getPendingClarification_(chatId) {
   }
 }
 
+function eabReadPendingClarificationReadOnly_(chatId) {
+  if (!chatId) return null;
+  const raw = PropertiesService.getScriptProperties().getProperty(clarificationPropKey_(chatId));
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    return { status: "CORRUPT_JSON_ERROR", error: "Stored JSON malformed", raw: raw };
+  }
+}
+
+function airoEabMaybeHandleInternalRequest_(e) {
+  if (!e || !e.postData || !e.postData.contents) return null;
+  var payload = null;
+  try { payload = JSON.parse(e.postData.contents); } catch (err) { return null; }
+  if (!payload || !payload.is_eab_internal) return null;
+
+  var expectedToken = PropertiesService.getScriptProperties().getProperty("EAB_INTERNAL_AUTH_TOKEN");
+  if (!expectedToken) {
+    return json_({ status: "CONFIG_ERROR", error: "Missing internal EAB auth configuration", review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+  }
+
+  var token = payload.internal_auth_token;
+  if (!token || token !== expectedToken) {
+    return json_({ status: "UNAUTHORIZED", error: "Invalid internal EAB token", review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+  }
+
+  var ownerChatId = PropertiesService.getScriptProperties().getProperty("OWNER_CHAT_ID");
+  if (!ownerChatId) {
+    return json_({ status: "CONFIG_ERROR", error: "Missing owner chat configuration", review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+  }
+
+  var chatId = payload.chat_id;
+  if (!chatId || String(chatId) !== String(ownerChatId)) {
+    return json_({ status: "FORBIDDEN", error: "Unauthorized owner chat ID", review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+  }
+
+  if (payload.action === "eabListPending") {
+    var pendingObj = eabReadPendingClarificationReadOnly_(chatId);
+    var items = [];
+    if (pendingObj && !pendingObj.status) {
+      items.push({
+        pending_id: pendingObj.pending_id || "P001",
+        stable_short_ref: pendingObj.stable_short_ref || "AF-0001",
+        date: pendingObj.date || "2026-08-01",
+        amount_sanitized: pendingObj.amount_sanitized || ("Rp" + (pendingObj.amount || "0")),
+        type: pendingObj.type || "pengeluaran",
+        required_field: pendingObj.required_field || "kategori",
+        status: "ACTIVE"
+      });
+    }
+    return json_({ status: "SUCCESS", action: "eabListPending", count: items.length, items: items, review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+  }
+  return json_({ status: "INVALID_ACTION", error: "Operation not allowed", review_queue_delta: 0, account_ledger_delta: 0, telegram_send_count: 0 });
+}
+
 function savePendingClarification_(chatId, pending) {
   if (!chatId || !pending) return;
   if (!pending.created_at) {
