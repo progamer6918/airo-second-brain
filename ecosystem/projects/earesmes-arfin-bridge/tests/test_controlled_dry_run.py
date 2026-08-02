@@ -62,7 +62,7 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
 
     def test_dry_run_01_valid_flow(self):
         update = {
-            "message": {"chat": {"id": "100"}, "text": "Approve batch", "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "text": "Approve batch", "short_ref": "AF-1001"},
             "items": [{"amount": 500, "category": "OFFICE"}],
             "expected_version": 1
         }
@@ -72,17 +72,17 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
 
     def test_dry_run_02_unauthorized_chat_id(self):
         update = {
-            "message": {"chat": {"id": "999"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "999"}, "chat": {"id": "999", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
         res = self.bridge.process_telegram_update(update, current_time=self.now)
         self.assertEqual(res["status"], "REJECTED")
-        self.assertEqual(res["error_code"], "AUTH_UNAUTHORIZED")
+        self.assertEqual(res["error_code"], "ERR_UNAUTHORIZED_CHAT_ID")
 
     def test_dry_run_03_stale_version(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 99
         }
@@ -98,7 +98,7 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
         sig = hmac.new(CURR_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -116,7 +116,7 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
         sig = hmac.new(CURR_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -132,7 +132,7 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
     def test_dry_run_06_idempotent_duplicate(self):
         items = [{"amount": 500}]
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1
         }
@@ -145,7 +145,7 @@ class TestEABControlledDryRunSuite(unittest.TestCase):
     def test_dry_run_07_timeout_retention(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Timeout", "TIMEOUT_BEFORE_ACCEPTANCE"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }

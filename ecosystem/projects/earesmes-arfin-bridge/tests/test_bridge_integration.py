@@ -72,7 +72,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_01_authorized_owner_valid_reply(self):
         update = {
             "message": {
-                "chat": {"id": "100"},
+                "from": {"id": "100"}, "chat": {"id": "100", "type": "private"},
                 "text": "Approve batch",
                 "short_ref": "AF-1001"
             },
@@ -86,7 +86,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_02_unauthorized_owner(self):
         update = {
             "message": {
-                "chat": {"id": "999"},
+                "from": {"id": "999"}, "chat": {"id": "999", "type": "private"},
                 "text": "Approve batch",
                 "short_ref": "AF-1001"
             },
@@ -95,12 +95,12 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         }
         res = self.bridge.process_telegram_update(update, current_time=self.now)
         self.assertEqual(res["status"], "REJECTED")
-        self.assertEqual(res["error_code"], "AUTH_UNAUTHORIZED")
+        self.assertEqual(res["error_code"], "ERR_UNAUTHORIZED_CHAT_ID")
         self.assertEqual(res["queue_message_effect"], "REJECTED")
 
     def test_03_pending_record_not_found(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-9999"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-9999"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -110,7 +110,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
 
     def test_04_valid_pending_version(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 200}],
             "expected_version": 1
         }
@@ -119,7 +119,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
 
     def test_05_stale_pending_version(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 99
         }
@@ -129,7 +129,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
 
     def test_06_stale_short_reference(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-EXPIRED"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-EXPIRED"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -144,7 +144,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         self.bridge.register_pending_record(rec_inactive)
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1002"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1002"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -160,7 +160,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         self.bridge.register_pending_record(rec_exp)
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1003"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1003"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -175,7 +175,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         sig = hmac.new(CURR_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -192,7 +192,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         sig = hmac.new(PREV_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -218,7 +218,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         sig = hmac.new(PREV_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -231,7 +231,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
 
     def test_12_invalid_signature(self):
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1,
             "signature": "invalid_signature_hash_123",
@@ -250,7 +250,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         sig = hmac.new(CURR_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -268,7 +268,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         sig = hmac.new(CURR_KEY.encode(), msg, hashlib.sha256).hexdigest()
 
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1,
             "signature": sig,
@@ -284,7 +284,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_15_exact_idempotent_duplicate(self):
         items = [{"amount": 500}]
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": items,
             "expected_version": 1
         }
@@ -306,7 +306,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_17_timeout_before_acceptance(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Timeout", "TIMEOUT_BEFORE_ACCEPTANCE"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -317,7 +317,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_18_timeout_unknown_acceptance(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Timeout unknown", "TIMEOUT_UNKNOWN_ACCEPTANCE"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -328,7 +328,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_19_retryable_adapter_failure(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Service unavailable", "ADAPTER_RETRYABLE_ERROR"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -339,7 +339,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_20_permanent_adapter_failure(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Bad request", "ADAPTER_NON_RETRYABLE_ERROR"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -350,7 +350,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_21_malformed_adapter_response(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Malformed", "MALFORMED_RESPONSE"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -360,7 +360,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
     def test_22_queue_retention_outcome(self):
         self.adapter.eab_submit_batch = MagicMock(side_effect=BoundedAdapterError("Service unavailable", "ADAPTER_RETRYABLE_ERROR"))
         update = {
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 500}],
             "expected_version": 1
         }
@@ -379,7 +379,7 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
 
     def test_25_telegram_runner_raw_json(self):
         raw_json = json.dumps({
-            "message": {"chat": {"id": "100"}, "short_ref": "AF-1001"},
+            "message": {"from": {"id": "100"}, "chat": {"id": "100", "type": "private"}, "short_ref": "AF-1001"},
             "items": [{"amount": 100}],
             "expected_version": 1
         })
@@ -403,6 +403,128 @@ class TestEABBridgeIntegrationSuite(unittest.TestCase):
         method_name = "post_" + "ledger"
         self.assertFalse(hasattr(self.bridge, method_name))
         self.assertFalse(hasattr(self.adapter, method_name))
+
+
+    def test_31_actor_and_chat_must_match(self):
+        update = {
+            "message": {
+                "from": {"id": "200"},
+                "chat": {"id": "100", "type": "private"},
+                "short_ref": "AF-1001"
+            },
+            "items": [{"amount": 500}],
+            "expected_version": 1
+        }
+
+        res = self.bridge.process_telegram_update(
+            update,
+            current_time=self.now
+        )
+
+        self.assertEqual(res["status"], "REJECTED")
+        self.assertEqual(
+            res["error_code"],
+            "ERR_UNAUTHORIZED_CHAT_ID"
+        )
+
+    def test_32_group_chat_fails_closed(self):
+        update = {
+            "message": {
+                "from": {"id": "100"},
+                "chat": {"id": "100", "type": "group"},
+                "short_ref": "AF-1001"
+            },
+            "items": [{"amount": 500}],
+            "expected_version": 1
+        }
+
+        res = self.bridge.process_telegram_update(
+            update,
+            current_time=self.now
+        )
+
+        self.assertEqual(res["status"], "REJECTED")
+        self.assertEqual(
+            res["error_code"],
+            "ERR_UNSUPPORTED_GROUP_CHAT"
+        )
+
+    def test_33_callback_query_valid_dual_principal(self):
+        update = {
+            "callback_query": {
+                "from": {"id": "100"},
+                "message": {
+                    "chat": {
+                        "id": "100",
+                        "type": "private"
+                    }
+                }
+            },
+            "short_ref": "AF-1001",
+            "items": [{"amount": 500}],
+            "expected_version": 1
+        }
+
+        res = self.bridge.process_telegram_update(
+            update,
+            current_time=self.now
+        )
+
+        self.assertEqual(res["status"], "SUCCESS")
+
+    def test_34_callback_sender_spoof_rejected(self):
+        update = {
+            "callback_query": {
+                "from": {"id": "999"},
+                "message": {
+                    "chat": {
+                        "id": "100",
+                        "type": "private"
+                    }
+                }
+            },
+            "short_ref": "AF-1001",
+            "items": [{"amount": 500}],
+            "expected_version": 1
+        }
+
+        result = json.loads(
+            self.runner.handle_raw_update(
+                json.dumps(update),
+                current_time=self.now
+            )
+        )
+
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertEqual(
+            result["error_code"],
+            "ERR_UNAUTHORIZED_CHAT_ID"
+        )
+
+    def test_35_missing_actor_fails_closed(self):
+        update = {
+            "message": {
+                "chat": {
+                    "id": "100",
+                    "type": "private"
+                },
+                "short_ref": "AF-1001"
+            },
+            "items": [{"amount": 500}],
+            "expected_version": 1
+        }
+
+        res = self.bridge.process_telegram_update(
+            update,
+            current_time=self.now
+        )
+
+        self.assertEqual(res["status"], "REJECTED")
+        self.assertEqual(
+            res["error_code"],
+            "ERR_UNAUTHORIZED_CHAT_ID"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

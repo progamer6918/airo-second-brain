@@ -64,6 +64,56 @@ class SecurityGuard:
         if str(owner_chat_id) not in self.allowed_owner_chat_ids:
             raise AuthGuardError(f"owner_chat_id '{owner_chat_id}' not in allowlist.", "AUTH_UNAUTHORIZED")
 
+    def verify_owner_telegram_principals(
+        self,
+        actor_user_id: str,
+        conversation_chat_id: str,
+        chat_type: str
+    ) -> None:
+        """Enforce the Phase-1 Telegram Owner principal contract."""
+        actor = str(actor_user_id or "").strip()
+        conversation = str(conversation_chat_id or "").strip()
+        chat_kind = str(chat_type or "").strip().lower()
+
+        if chat_kind in {"group", "supergroup"}:
+            raise AuthGuardError(
+                "Group chats are unsupported in EAB Phase 1.",
+                "ERR_UNSUPPORTED_GROUP_CHAT"
+            )
+
+        if chat_kind != "private":
+            raise AuthGuardError(
+                "Telegram conversation is not a proven private Owner chat.",
+                "ERR_UNAUTHORIZED_CHAT_ID"
+            )
+
+        if not self.allowed_owner_chat_ids:
+            raise AuthGuardError(
+                "Owner principal allowlist is empty; access denied.",
+                "ERR_UNAUTHORIZED_CHAT_ID"
+            )
+
+        if not actor or not conversation:
+            raise AuthGuardError(
+                "Telegram actor or conversation principal is missing.",
+                "ERR_UNAUTHORIZED_CHAT_ID"
+            )
+
+        if actor != conversation:
+            raise AuthGuardError(
+                "Telegram actor and conversation principals do not match.",
+                "ERR_UNAUTHORIZED_CHAT_ID"
+            )
+
+        if (
+            actor not in self.allowed_owner_chat_ids
+            or conversation not in self.allowed_owner_chat_ids
+        ):
+            raise AuthGuardError(
+                "Telegram Owner principal is not allowlisted.",
+                "ERR_UNAUTHORIZED_CHAT_ID"
+            )
+
     def _verify_signature(self, key: str, payload_str: str, timestamp: float, nonce: str, signature: str) -> bool:
         msg = f"{payload_str}:{timestamp}:{nonce}".encode("utf-8")
         expected_sig = hmac.new(key.encode("utf-8"), msg, hashlib.sha256).hexdigest()

@@ -85,15 +85,45 @@ class GatewayBridge:
         Propagates owner_chat_id, pending_id, and pending_version to adapter.
         """
         now = current_time if current_time is not None else time.time()
-        
-        message = update_dict.get("message", {})
-        chat = message.get("chat", {})
-        owner_chat_id = str(chat.get("id", ""))
+
+        callback_query = update_dict.get("callback_query")
+        if isinstance(callback_query, dict):
+            raw_message = callback_query.get("message")
+            raw_actor = callback_query.get("from")
+        else:
+            raw_message = update_dict.get("message")
+            raw_actor = (
+                raw_message.get("from")
+                if isinstance(raw_message, dict)
+                else None
+            )
+
+        message = raw_message if isinstance(raw_message, dict) else {}
+        actor = raw_actor if isinstance(raw_actor, dict) else {}
+
+        raw_chat = message.get("chat")
+        chat = raw_chat if isinstance(raw_chat, dict) else {}
+
+        actor_user_id = str(actor.get("id", "")).strip()
+        owner_chat_id = str(chat.get("id", "")).strip()
+        chat_type = str(chat.get("type", "")).strip().lower()
 
         try:
-            self.security_guard.verify_owner_chat_id(owner_chat_id)
+            self.security_guard.verify_owner_telegram_principals(
+                actor_user_id=actor_user_id,
+                conversation_chat_id=owner_chat_id,
+                chat_type=chat_type
+            )
         except AuthGuardError as e:
-            self.log_audit("BRIDGE_AUTH_UNAUTHORIZED", {"owner_chat_id": owner_chat_id, "error": str(e)})
+            self.log_audit(
+                "BRIDGE_AUTH_UNAUTHORIZED",
+                {
+                    "error_code": e.error_code,
+                    "actor_present": bool(actor_user_id),
+                    "conversation_present": bool(owner_chat_id),
+                    "chat_type": chat_type
+                }
+            )
             return {
                 "status": "REJECTED",
                 "error_code": e.error_code,
