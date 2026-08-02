@@ -30,6 +30,279 @@ function clarificationPropKey_(chatId) {
   return 'AIRO_PENDING_CLARIFICATION_' + String(chatId || '').trim();
 }
 
+
+/* EAB_M12_READ_ONLY_RECEIVER_START */
+function airoEabBytesToHex_(bytes) {
+  return Array.prototype.map.call(bytes || [], function(b) {
+    var n = Number(b);
+    if (n < 0) n += 256;
+    return ('0' + n.toString(16)).slice(-2);
+  }).join('');
+}
+
+function airoEabHmacHex_(secret, text) {
+  return airoEabBytesToHex_(
+    Utilities.computeHmacSha256Signature(
+      String(text),
+      String(secret),
+      Utilities.Charset.UTF_8
+    )
+  );
+}
+
+function airoEabDigestHex_(text) {
+  return airoEabBytesToHex_(
+    Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256,
+      String(text),
+      Utilities.Charset.UTF_8
+    )
+  );
+}
+
+function airoEabConstantTimeEqual_(left, right) {
+  var a = String(left || '').toLowerCase();
+  var b = String(right || '').toLowerCase();
+  if (!a || a.length !== b.length) return false;
+
+  var diff = 0;
+  for (var i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+function airoEabJson_(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function airoEabOwnerAllowed_(ownerChatId, rawAllowlist) {
+  var owner = String(ownerChatId || '').trim();
+  if (!owner) return false;
+
+  return String(rawAllowlist || '')
+    .split(',')
+    .map(function(v) { return String(v || '').trim(); })
+    .filter(function(v) { return !!v; })
+    .indexOf(owner) !== -1;
+}
+
+function airoEabReplayKey_(keyId, nonce) {
+  return 'AIRO_EAB_REPLAY_' +
+    airoEabDigestHex_(String(keyId) + ':' + String(nonce));
+}
+
+function airoEabPruneReplay_(props, nowSeconds) {
+  var all = props.getProperties();
+  var prefix = 'AIRO_EAB_REPLAY_';
+
+  Object.keys(all || {}).forEach(function(key) {
+    if (key.indexOf(prefix) !== 0) return;
+
+    var stored = Number(all[key]);
+    if (!isFinite(stored) || nowSeconds - stored > 600) {
+      props.deleteProperty(key);
+    }
+  });
+}
+
+function airoEabProjectPending_(pending) {
+  return {
+    pending_id: String(pending.pending_id || ''),
+    short_ref: String(pending.short_ref || ''),
+    pending_version: Number(pending.pending_version || 1),
+    type: String(pending.type || ''),
+    amount:
+      pending.amount === undefined || pending.amount === null
+        ? null
+        : pending.amount,
+    account: String(pending.account || ''),
+    category: String(pending.category || ''),
+    description: String(
+      pending.description ||
+      pending.original_text ||
+      pending.rawText ||
+      ''
+    ).slice(0, 240),
+    created_at: String(pending.created_at || ''),
+    updated_at: String(pending.updated_at || '')
+  };
+}
+
+function airoEabPureReadPending_(chatId) {
+  var props = PropertiesService.getScriptProperties();
+  var raw = props.getProperty(clarificationPropKey_(chatId));
+
+  if (!raw) {
+    return [];
+  }
+
+  var parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    throw new Error('EAB_CORRUPT_PENDING_STATE');
+  }
+
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('EAB_CORRUPT_PENDING_STATE');
+  }
+
+  return [airoEabProjectPending_(parsed)];
+}
+
+function airoEabMaybeHandleInternalRequest_(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return null;
+  }
+
+  var envelope;
+  try {
+    envelope = JSON.parse(String(e.postData.contents || ''));
+  } catch (err) {
+    return null;
+  }
+
+  if (!envelope || !envelope._eab_internal) {
+    return null;
+  }
+
+  var meta = envelope._eab_internal;
+
+  if (meta.marker !== 'AIRO_EAB_INTERNAL_V1') {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_INTERNAL_MARKER'
+    });
+  }
+
+  var props = PropertiesService.getScriptProperties();
+  var internalSecret = props.getProperty('EAB_INTERNAL_AUTH_TOKEN');
+  var ownerAllowlist = props.getProperty('EAB_OWNER_CHAT_ID_ALLOWLIST');
+
+  if (!internalSecret || !ownerAllowlist) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_EAB_CONFIGURATION_MISSING'
+    });
+  }
+
+  if (
+    meta.schema_version !== '1.0' ||
+    meta.operation_id !== 'EAB_LIST_PENDING' ||
+    !meta.request_id ||
+    !meta.key_id ||
+    !meta.nonce ||
+    !meta.body_sha256 ||
+    !meta.mac
+  ) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_INTERNAL_REQUEST'
+    });
+  }
+
+  if (!/^[0-9a-fA-F]{16}$/.test(String(meta.nonce))) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_NONCE'
+    });
+  }
+
+  var issuedAt = Number(meta.issued_at);
+  var nowSeconds = Math.floor(new Date().getTime() / 1000);
+
+  if (
+    !isFinite(issuedAt) ||
+    Math.abs(nowSeconds - issuedAt) > 300
+  ) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_EXPIRED_INTERNAL_TIMESTAMP'
+    });
+  }
+
+  if (!airoEabOwnerAllowed_(meta.owner_chat_id, ownerAllowlist)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_OWNER_NOT_AUTHORIZED'
+    });
+  }
+
+  var canonical =
+    'v=1.0' +
+    '&op=' + String(meta.operation_id) +
+    '&req_id=' + String(meta.request_id) +
+    '&owner_chat_id=' + String(meta.owner_chat_id) +
+    '&key_id=' + String(meta.key_id) +
+    '&nonce=' + String(meta.nonce) +
+    '&ts=' + String(meta.issued_at) +
+    '&body_sha256=' + String(meta.body_sha256);
+
+  var expectedMac = airoEabHmacHex_(internalSecret, canonical);
+
+  if (!airoEabConstantTimeEqual_(expectedMac, meta.mac)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_INTERNAL_AUTH'
+    });
+  }
+
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(5000)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_REPLAY_LOCK_UNAVAILABLE'
+    });
+  }
+
+  try {
+    airoEabPruneReplay_(props, nowSeconds);
+
+    var replayKey = airoEabReplayKey_(meta.key_id, meta.nonce);
+    if (props.getProperty(replayKey)) {
+      return airoEabJson_({
+        ok: false,
+        error: 'ERR_NONCE_REPLAYED'
+      });
+    }
+
+    props.setProperty(replayKey, String(nowSeconds));
+  } finally {
+    lock.releaseLock();
+  }
+
+  var items;
+  try {
+    items = airoEabPureReadPending_(meta.owner_chat_id);
+  } catch (err) {
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'FAILED',
+      application_error_code: 'ERR_CORRUPT_PENDING_STATE',
+      payload: {
+        items: []
+      }
+    });
+  }
+
+  return airoEabJson_({
+    schema_version: '1.0',
+    request_id: String(meta.request_id),
+    application_status: 'SUCCESS',
+    application_error_code: 'NONE',
+    payload: {
+      items: items
+    }
+  });
+}
+/* EAB_M12_READ_ONLY_RECEIVER_END */
+
+
 function clearPendingClarification_(chatId) {
   if (!chatId) return;
   PropertiesService.getScriptProperties().deleteProperty(clarificationPropKey_(chatId));
@@ -18091,7 +18364,12 @@ function airoTask103BalanceCommandMaybeHandleRoute_(e) {
   }
 }
 /* AIRO_TASK_10_3_CEK_SALDO_COMMAND_V1_END */
-function doPost(e) { var task103BalanceCommandResult = airoTask103BalanceCommandMaybeHandleRoute_(e); if (task103BalanceCommandResult) { return task103BalanceCommandResult; }
+function doPost(e) {
+  var eabM12ReadOnlyResult = airoEabMaybeHandleInternalRequest_(e);
+  if (eabM12ReadOnlyResult !== null) {
+    return eabM12ReadOnlyResult;
+  }
+ var task103BalanceCommandResult = airoTask103BalanceCommandMaybeHandleRoute_(e); if (task103BalanceCommandResult) { return task103BalanceCommandResult; }
   var task10RepairResult = airoTask10ReadAndRepairMaybeHandleRoute_(e);
   if (task10RepairResult) {
     return task10RepairResult;
