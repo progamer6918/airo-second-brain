@@ -198,3 +198,19 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - 10 live canary vectors executed 100% PASS in bounded owner route / fake transport mode.
 - Combined 6-path patch proposal created (`EAB_G2_5_CANONICAL_INTEGRATION.patch`).
 - Transitioned M12 to DONE, M13 to READY (`CURRENT_MILESTONE=M13`, `CURRENT_GATE=EAB_G2_6`).
+
+## [2026-08-02] EAB_G2_5 (M12) - CANONICAL STATUS RECONCILIATION
+
+- Reconciled the prior M12 completion claim against the canonical Fresh Live Canary exit criterion.
+- The prior 10-vector execution is retained as PRE-CANARY REHEARSAL evidence.
+- That execution used fake transport and established zero network sockets.
+- Therefore it does not prove a real Arfin production connection and cannot close M12.
+- M11 / EAB_G2_4 remains DONE.
+- M12 / EAB_G2_5 is restored to READY.
+- M13 / EAB_G2_6 remains NOT_STARTED.
+- M14 / EAB_G2_7 remains NOT_STARTED.
+- M1 remains PASS_WITH_LIMITATIONS until true M12 live evidence satisfies its closure rule.
+- M5 and M6 tracker semantics were reconciled against already-recorded canonical progress evidence.
+- 00_PROJECT_BOOT implementation state was reconciled against the already-recorded Owner-authorized implementation history.
+- Existing implementation and canary artifacts are retained.
+- Direct Arfin production was not touched by this reconciliation.
