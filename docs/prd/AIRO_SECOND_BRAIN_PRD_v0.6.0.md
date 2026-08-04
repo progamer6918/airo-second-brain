@@ -49,7 +49,7 @@ If required live evidence is missing or simulated only:
 
 The v0.6 upgrade is structured into exactly seven canonical milestones:
 - **M0 — Reality Audit & Design Freeze** (DONE — M0B Evidence-Bound Accepted)
-- **M1 — Governance & Execution Assurance** (IN_PROGRESS)
+- **M1 — Governance & Execution Assurance** (DONE — Closeout Record Verified)
 - **M2 — Session & Worklog** (NOT_YET_PROVEN)
 - **M3 — Obsidian Human Experience** (NOT_YET_PROVEN)
 - **M4 — LLM Wiki Memory Loop** (NOT_YET_PROVEN)

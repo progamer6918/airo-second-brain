@@ -1,3 +1,22 @@
+<!-- ASB_V06_CURRENT_ROUTING_OVERRIDE_BEGIN -->
+
+# ASB Current Routing Override — 2026-08-04
+
+- **Current ASB target:** AIRO Second Brain v0.6
+- **Current milestone after M1 closeout:** M2 — Session & Worklog
+- **Canonical roadmap:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md`
+- **Canonical tracker:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv`
+- **Canonical design:** `docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md`
+- **Owner-facing status contract:** `🧭 AIRO STATUS`
+- **Old `AIRO ROADMAP SNAPSHOT` wording below is historical/superseded and MUST NOT override BOOT.md.**
+- **Historical project checkpoints below are context only.**
+- For any project-specific work, resolve status from ROADMAP_INDEX plus that project's current tracker/handoff/latest evidence.
+- Latest live/project evidence overrides historical CURRENT.md snippets.
+
+<!-- ASB_V06_CURRENT_ROUTING_OVERRIDE_END -->
+
+# Historical / Legacy Current-State Records
+
 ## P0 Telegram Cross-Project Runtime-Isolation Incident — 2026-07-23
 - **Marker:** `AIRO_TELEGRAM_CROSS_PROJECT_RUNTIME_INCIDENT_ASB_CHECKPOINT_DOCS_ONLY_NO_RUNTIME_MUTATION`
 - **Baseline source commit:** `e12d92a7e315259129704c62b8985624555eeadf`
@@ -214,7 +233,7 @@ Use only Living PRD naming: Task, Gate, and Gate 11B-Sx. Do not use invented lab
 <!-- AIRO_SYNC_OPERATING_STYLE_START -->
 ## AIRO Sync Operating Style Normalized — 2026-06-27
 
-AIRO Sync operating style normalized. New AIRO sessions should start from [BOOT.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/BOOT.md), then follow [AGENTS.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/AGENTS.md) and [working-principles.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/identity/working-principles.md) for roadmap, command, prompt, evidence, and WSL safety rules.
+AIRO Sync operating style normalized. New AIRO sessions should start from [BOOT.md](BOOT.md), then follow [AGENTS.md](AGENTS.md) and [working-principles.md](identity/working-principles.md) for roadmap, command, prompt, evidence, and WSL safety rules.
 <!-- AIRO_SYNC_OPERATING_STYLE_END -->
 
 ## AIRO Finance Gate 7 Fallback Trigger Proof — 2026-06-27
@@ -573,7 +592,7 @@ Next:
 - B2 topbar displays valid synced information on both months.
 - Scheduler connected: NO (intentionally not connected in this gate).
 - Next: docs/git closeout complete, then Gate 12 / scheduler decision only with owner approval.
-- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
+- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
 
 ## AIRO Finance Task 10.2 / Gate 11B — Runtime Final Validation PASS 20260629_190545
 
@@ -584,7 +603,7 @@ Next:
 - B2 topbar displays valid synced information on both months.
 - Scheduler connected: NO (intentionally not connected in this gate).
 - Next: docs/git closeout complete, then Gate 12 / scheduler decision only with owner approval.
-- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
+- Evidence record: [airo-task10-2-gate11b-runtime-final-validation-20260629.md](ecosystem/projects/vortex-ai-skill-lab/docs/validation/airo-task10-2-gate11b-runtime-final-validation-20260629.md)
 
 <!-- AIRO_TASK_10_3_GATE9_CLOSEOUT_START -->
 ## AIRO Finance Task 10.3 — Arfin Telegram Runtime Hardening

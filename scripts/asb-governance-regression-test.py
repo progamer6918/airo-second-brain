@@ -2,7 +2,7 @@
 """
 asb-governance-regression-test: Automated governance regression test suite for AIRO Second Brain.
 Verifies retention of critical governance markers, project pointers, absence of absolute file URIs,
-and recursive target resolution of all repository-local Markdown links.
+recursive target resolution of all repository-local Markdown links, and full startup sequence consistency.
 """
 import sys
 import os
@@ -33,7 +33,7 @@ def check_file_contains(rel_path, required_markers):
 
 def check_no_absolute_file_uris():
     canonical_docs = [
-        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md",
+        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md", "CURRENT.md",
         "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md",
         "docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md",
         "decisions/approved/asb-v06-architecture-owner-approval-20260804.md",
@@ -63,7 +63,7 @@ def check_no_absolute_file_uris():
 
 def check_markdown_link_resolution():
     canonical_docs = [
-        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md",
+        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md", "CURRENT.md",
         "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md",
         "docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md",
         "decisions/approved/asb-v06-architecture-owner-approval-20260804.md",
@@ -102,7 +102,6 @@ def check_markdown_link_resolution():
             total_links += 1
             resolved_path = os.path.normpath(os.path.join(src_dir, target_path_only))
             
-            # Check traversal outside repo
             if not resolved_path.startswith(REPO_ROOT):
                 broken_links.append((doc, target, f"Traversal outside repo: {resolved_path}"))
                 continue
@@ -122,6 +121,51 @@ def check_markdown_link_resolution():
         return False
     else:
         print("  [PASS] 100% of canonical Markdown relative links resolve to existing repository files.")
+        return True
+
+def check_startup_consistency():
+    print("Checking startup sequence consistency across BOOT, CURRENT, ROADMAP_INDEX, PRD_INDEX...")
+    boot_path = os.path.join(REPO_ROOT, "BOOT.md")
+    current_path = os.path.join(REPO_ROOT, "CURRENT.md")
+    roadmap_idx_path = os.path.join(REPO_ROOT, "ROADMAP_INDEX.md")
+    prd_idx_path = os.path.join(REPO_ROOT, "PRD_INDEX.md")
+    tracker_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv")
+
+    errors = []
+
+    with open(boot_path, "r", encoding="utf-8") as f:
+        boot_txt = f.read()
+    if "🧭 AIRO STATUS" not in boot_txt:
+        errors.append("BOOT.md missing 🧭 AIRO STATUS contract header")
+
+    with open(current_path, "r", encoding="utf-8") as f:
+        curr_txt = f.read()
+    if "<!-- ASB_V06_CURRENT_ROUTING_OVERRIDE_BEGIN -->" not in curr_txt:
+        errors.append("CURRENT.md missing top routing override block")
+    if "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md" not in curr_txt:
+        errors.append("CURRENT.md missing v0.6 roadmap pointer")
+
+    with open(roadmap_idx_path, "r", encoding="utf-8") as f:
+        rm_txt = f.read()
+    if "M2 — Session & Worklog" not in rm_txt and "M2" not in rm_txt:
+        errors.append("ROADMAP_INDEX.md missing ASB_GLOBAL M2 active milestone pointer")
+
+    with open(prd_idx_path, "r", encoding="utf-8") as f:
+        prd_txt = f.read()
+    if "AIRO_SECOND_BRAIN_PRD_v0.6.0.md" not in prd_txt or "AIRO_SECOND_BRAIN_PRD_v0.5.1.md" not in prd_txt:
+        errors.append("PRD_INDEX.md missing v0.6 implementation target or v0.5.1 baseline")
+
+    with open(tracker_path, "r", encoding="utf-8") as f:
+        tr_txt = f.read()
+    if "M1\tGovernance & Execution Assurance\tDONE\tBERHASIL\tYES" not in tr_txt:
+        errors.append("MILESTONE_TRACKER.tsv M1 is not DONE/BERHASIL/YES")
+
+    if errors:
+        for err in errors:
+            print(f"  [FAIL] Startup consistency error: {err}")
+        return False
+    else:
+        print("  [PASS] Startup sequence consistency verified across all canonical governance files.")
         return True
 
 def run_suite():
@@ -174,9 +218,9 @@ def run_suite():
     ]
 
     passed = 0
-    total = len(tests) + 2 # include absolute URI check + relative link resolution check
+    total = len(tests) + 3 # include absolute URI check + relative link resolution check + startup consistency
 
-    print(f"Running {total} ASB governance regression checks...")
+    print(f"Running {total} ASB governance regression & consistency checks...")
     for name, rel_path, markers in tests:
         if check_file_contains(rel_path, markers):
             passed += 1
@@ -185,6 +229,9 @@ def run_suite():
         passed += 1
 
     if check_markdown_link_resolution():
+        passed += 1
+
+    if check_startup_consistency():
         passed += 1
 
     print(f"\nGovernance Regression Test Results: {passed}/{total} passed.")

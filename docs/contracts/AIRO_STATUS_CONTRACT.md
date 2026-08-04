@@ -44,6 +44,8 @@ Boleh lanjut — YA | TIDAK
 
 Every execution task MUST generate or evaluate a structured JSON receipt with these minimum fields:
 
+*(ILLUSTRATIVE EXAMPLE ONLY — NOT CURRENT PROJECT STATE)*
+
 ```json
 {
   "project_id": "ASB_GLOBAL",
@@ -52,12 +54,12 @@ Every execution task MUST generate or evaluate a structured JSON receipt with th
   "script_status": "SCRIPT_SUCCESS",
   "required_evidence": ["PRD_v06_DesignSpec_Contracts_Validator"],
   "actual_evidence": ["Validator_Tests_Passed"],
-  "limitations": ["Canonical local repo workspace adoption pending"],
+  "limitations": [],
   "blockers": [],
-  "task_status": "BERHASIL_DENGAN_BATASAN",
-  "can_advance": "NO",
-  "next_exact_action": "SAFE_ADOPT_CORRECTED_REMOTE_M1_IN_CANONICAL_LOCAL_WORKSPACE",
-  "done_when": "M1 remote governance corrected and canonical local workspace safely adopted",
+  "task_status": "BERHASIL",
+  "can_advance": "YES",
+  "next_exact_action": "START_M2_SESSION_AND_WORKLOG_IMPLEMENTATION",
+  "done_when": "ASB v0.6 M1 closeout complete and M2 ready to begin",
   "evidence_references": [
     "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md",
     "docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md"
