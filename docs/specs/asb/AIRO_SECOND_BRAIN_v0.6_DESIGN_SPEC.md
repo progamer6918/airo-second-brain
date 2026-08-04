@@ -4,9 +4,9 @@
 - **Owner:** Egit Aristo Randas
 - **Approved Date:** 2026-08-04
 - **Scope:** `ASB_GLOBAL`
-- **Canonical PRD:** [AIRO Second Brain PRD v0.6.0](../prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
-- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](../roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
-- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](../../decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
+- **Canonical PRD:** [AIRO Second Brain PRD v0.6.0](../../prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
+- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](../../roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
+- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](../../../decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
 
 ---
 

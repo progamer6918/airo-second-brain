@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 asb-governance-regression-test: Automated governance regression test suite for AIRO Second Brain.
-Verifies retention of critical governance markers, project pointers, and absence of absolute file URIs.
+Verifies retention of critical governance markers, project pointers, absence of absolute file URIs,
+and recursive target resolution of all repository-local Markdown links.
 """
 import sys
 import os
@@ -32,11 +33,7 @@ def check_file_contains(rel_path, required_markers):
 
 def check_no_absolute_file_uris():
     canonical_docs = [
-        "BOOT.md",
-        "AGENTS.md",
-        "SECURITY.md",
-        "PRD_INDEX.md",
-        "ROADMAP_INDEX.md",
+        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md",
         "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md",
         "docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md",
         "decisions/approved/asb-v06-architecture-owner-approval-20260804.md",
@@ -63,6 +60,69 @@ def check_no_absolute_file_uris():
         print("  [PASS] No absolute file URIs found in canonical v0.6 documentation.")
         return True
     return False
+
+def check_markdown_link_resolution():
+    canonical_docs = [
+        "BOOT.md", "AGENTS.md", "SECURITY.md", "PRD_INDEX.md", "ROADMAP_INDEX.md",
+        "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md",
+        "docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md",
+        "decisions/approved/asb-v06-architecture-owner-approval-20260804.md",
+        "docs/evidence/ASB_v0.6_DESIGN_SESSION_SYNTHESIS_20260804.md",
+        "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md",
+        "docs/contracts/AIRO_STATUS_CONTRACT.md",
+        "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md"
+    ]
+
+    total_links = 0
+    resolved_links = 0
+    broken_links = []
+
+    print("Checking recursive Markdown relative link target resolution...")
+    for doc in canonical_docs:
+        src_path = os.path.join(REPO_ROOT, doc)
+        if not os.path.exists(src_path):
+            continue
+        src_dir = os.path.dirname(src_path)
+        with open(src_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        links = re.findall(r"\[([^\]]+)\]\(([^)]+)\)", content)
+        for text, target in links:
+            target = target.strip()
+            if target.startswith("http://") or target.startswith("https://") or target.startswith("#"):
+                continue
+            if target.startswith("file:///"):
+                broken_links.append((doc, target, "Absolute file:/// URI forbidden"))
+                continue
+            
+            target_path_only = target.split("#")[0]
+            if not target_path_only:
+                continue
+            
+            total_links += 1
+            resolved_path = os.path.normpath(os.path.join(src_dir, target_path_only))
+            
+            # Check traversal outside repo
+            if not resolved_path.startswith(REPO_ROOT):
+                broken_links.append((doc, target, f"Traversal outside repo: {resolved_path}"))
+                continue
+
+            if os.path.exists(resolved_path):
+                resolved_links += 1
+            else:
+                broken_links.append((doc, target, f"Target missing: {resolved_path}"))
+
+    print(f"  Total Local Relative Links Tested: {total_links}")
+    print(f"  Resolved Links: {resolved_links}")
+    print(f"  Broken Links: {len(broken_links)}")
+
+    if broken_links:
+        for doc, target, err in broken_links:
+            print(f"  [FAIL] Broken link in {doc}: '{target}' -> {err}")
+        return False
+    else:
+        print("  [PASS] 100% of canonical Markdown relative links resolve to existing repository files.")
+        return True
 
 def run_suite():
     tests = [
@@ -114,7 +174,7 @@ def run_suite():
     ]
 
     passed = 0
-    total = len(tests) + 1 # include absolute URI check
+    total = len(tests) + 2 # include absolute URI check + relative link resolution check
 
     print(f"Running {total} ASB governance regression checks...")
     for name, rel_path, markers in tests:
@@ -122,6 +182,9 @@ def run_suite():
             passed += 1
 
     if check_no_absolute_file_uris():
+        passed += 1
+
+    if check_markdown_link_resolution():
         passed += 1
 
     print(f"\nGovernance Regression Test Results: {passed}/{total} passed.")
