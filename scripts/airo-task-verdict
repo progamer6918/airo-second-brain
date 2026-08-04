@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""
+airo-task-verdict: Deterministic task verdict & execution assurance calculator for AIRO Second Brain.
+"""
+import sys
+import json
+
+def compute_verdict(input_data):
+    script_status = input_data.get("script_status", "SCRIPT_FAILED")
+    required_evidence = input_data.get("required_evidence", [])
+    actual_evidence = input_data.get("actual_evidence", [])
+    blockers = input_data.get("blockers", [])
+    limitations = input_data.get("limitations", [])
+
+    if script_status != "SCRIPT_SUCCESS":
+        return {
+            "task_status": "GAGAL",
+            "can_advance": "NO",
+            "reason": "Execution script failed or returned error exit code."
+        }
+
+    if blockers:
+        return {
+            "task_status": "TERHAMBAT",
+            "can_advance": "NO",
+            "reason": f"Active blocker present: {', '.join(blockers)}"
+        }
+
+    if not required_evidence:
+        return {
+            "task_status": "BELUM_TERBUKTI",
+            "can_advance": "NO",
+            "reason": "No required evidence specified."
+        }
+
+    req_set = set(required_evidence)
+    act_set = set(actual_evidence)
+    missing = req_set - act_set
+
+    if missing:
+        return {
+            "task_status": "BELUM_TERBUKTI",
+            "can_advance": "NO",
+            "reason": f"Required evidence missing: {', '.join(sorted(missing))}"
+        }
+
+    if limitations:
+        return {
+            "task_status": "BERHASIL_DENGAN_BATASAN",
+            "can_advance": "NO",
+            "reason": f"Satisfied with limitations: {', '.join(limitations)}"
+        }
+
+    return {
+        "task_status": "BERHASIL",
+        "can_advance": "YES",
+        "reason": "All required evidence satisfied without blockers or limitations."
+    }
+
+def format_human_status(project, position, progress, req_proof, act_proof, verdict_res, blocker_str, next_action, dod):
+    can_adv = "YA" if verdict_res["can_advance"] == "YES" else "TIDAK"
+    blocker_val = blocker_str if blocker_str else "Tidak ada"
+    return f"""🧭 AIRO STATUS
+
+📍 Project — {project}
+📌 Lagi di — {position}
+📈 Progress — {progress}
+
+🧪 Bukti
+Yang wajib ada — {req_proof}
+Yang sudah ada — {act_proof}
+Kesimpulan — {verdict_res['task_status']}
+Boleh lanjut — {can_adv}
+
+⛔ Hambatan — {blocker_val}
+➡️ Berikutnya — {next_action}
+🏁 Selesai kalau — {dod}"""
+
+def main():
+    try:
+        if len(sys.argv) > 1 and sys.argv[1] != "-":
+            with open(sys.argv[1], "r", encoding="utf-8") as f:
+                input_data = json.load(f)
+        else:
+            input_data = json.load(sys.stdin)
+    except Exception as e:
+        sys.stderr.write(f"Error parsing input JSON: {e}\n")
+        res = {"task_status": "BELUM_TERBUKTI", "can_advance": "NO", "reason": f"Invalid input JSON: {e}"}
+        print(json.dumps(res, indent=2))
+        sys.exit(1)
+
+    res = compute_verdict(input_data)
+    
+    if input_data.get("human_format", False):
+        human_out = format_human_status(
+            project=input_data.get("project", "ASB_GLOBAL"),
+            position=input_data.get("position", "M1"),
+            progress=input_data.get("progress", "In progress"),
+            req_proof=", ".join(input_data.get("required_evidence", [])),
+            act_proof=", ".join(input_data.get("actual_evidence", [])),
+            verdict_res=res,
+            blocker_str=", ".join(input_data.get("blockers", [])),
+            next_action=input_data.get("next_action", "Proceed to next step"),
+            dod=input_data.get("dod", "Definition of Done satisfied")
+        )
+        print(human_out)
+    else:
+        print(json.dumps(res, indent=2))
+
+if __name__ == "__main__":
+    main()

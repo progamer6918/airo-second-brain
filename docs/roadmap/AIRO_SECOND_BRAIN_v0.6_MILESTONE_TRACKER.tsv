@@ -1,0 +1,8 @@
+MILESTONE	TITLE	STATUS	REQUIRED_EVIDENCE	ACTUAL_EVIDENCE	VERDICT	CAN_ADVANCE
+M0	Reality Audit & Design Freeze	DONE	M0B_Evidence_Bound_Report	M0B_Accepted_Log	BERHASIL	YES
+M1	Governance & Execution Assurance	IN_PROGRESS	PRD_v06_DesignSpec_Contracts_Validator	Validator_Tests_Passed	BERHASIL_DENGAN_BATASAN	NO
+M2	Session & Worklog	NOT_YET_PROVEN	Session_Lifecycle_Daily_Gen	None	BELUM_TERBUKTI	NO
+M3	Obsidian Human Experience	NOT_YET_PROVEN	Home_Cockpit_Bases_Views	None	BELUM_TERBUKTI	NO
+M4	LLM Wiki Memory Loop	NOT_YET_PROVEN	Wiki_Distillation_Loop	None	BELUM_TERBUKTI	NO
+M5	Cross-Consumer & Failure Proof	NOT_YET_PROVEN	Cross_Consumer_Test	None	BELUM_TERBUKTI	NO
+M6	Owner Acceptance & Cutover	NOT_YET_PROVEN	Owner_Live_Acceptance	None	BELUM_TERBUKTI	NO
