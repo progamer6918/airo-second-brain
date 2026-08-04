@@ -4,9 +4,9 @@
 - **Owner:** Egit Aristo Randas
 - **Approved Date:** 2026-08-04
 - **Scope:** `ASB_GLOBAL`
-- **Canonical PRD:** [AIRO Second Brain PRD v0.6.0](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
-- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
-- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
+- **Canonical PRD:** [AIRO Second Brain PRD v0.6.0](../prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
+- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](../roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
+- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](../../decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
 
 ---
 
@@ -70,7 +70,26 @@ AIRO STATUS RECEIPT
 
 ---
 
-## 4. Human-Facing Status Receipt (`🧭 AIRO STATUS`)
+## 4. Exact Real Per-Run Workflow
+
+1. **ChatGPT Guarded Prompt**: Owner provides task request with explicit boundaries.
+2. **Owner Copy**: Request copied to workspace/Antigravity.
+3. **Antigravity Preflight**: Preflight inspection of repo status and environment.
+4. **Execute**: Execution in bounded temporary environment or script.
+5. **Full /tmp Log**: Output captured via `tee` to `/tmp/airo_<task>_<timestamp>.txt`.
+6. **Validation**: Deterministic validation via `scripts/airo-task-verdict`.
+7. **Project Commit**: Commit in git repository when authorized.
+8. **Project Push**: Push to GitHub main when authorized.
+9. **Verify Remote**: Remote parity check (`REMOTE_COMMIT_PARITY` and `REMOTE_TREE_PARITY`).
+10. **Append Safe Checkpoint**: Safe checkpoint appended to the SAME active session draft.
+11. **Record Safe Machine Event**: Telemetry event recorded to event ledger.
+12. **Compact Result**: Final machine receipt generated.
+13. **Clipboard Copy**: Log and summary copied to Windows clipboard (`clip.exe`).
+14. **Owner Paste to ChatGPT**: Summary pasted back to ChatGPT with `🧭 AIRO STATUS`.
+
+---
+
+## 5. Human-Facing Status Receipt (`🧭 AIRO STATUS`)
 
 All human-facing session status outputs and checkpoint receipts use the standard `🧭 AIRO STATUS` header and baby-friendly Indonesian fields:
 
@@ -92,28 +111,6 @@ Boleh lanjut — YA | TIDAK
 🏁 Selesai kalau — <Definisi Selesai / DoD>
 ```
 
-### Human Wording Mapping
-- `TASK_VERDICT` -> Kesimpulan
-- `REQUIRED_PROOF` -> Bukti yang wajib ada
-- `ACTUAL_PROOF` -> Bukti yang sudah ada
-- `CAN_ADVANCE` -> Boleh lanjut?
-- `REHEARSAL` -> Uji coba / simulasi
-- `LIVE_RUNTIME` -> Bukti dari sistem nyata
-- `NOT_YET_PROVEN` -> Belum terbukti selesai
-
----
-
-## 5. Execution Assurance & Deterministic Validation
-
-### 5.1 Deterministic Rules
-`scripts/airo-task-verdict` computes task status deterministically using these fail-closed rules:
-- `script_status != SCRIPT_SUCCESS` => `GAGAL` / `CAN_ADVANCE=NO`
-- `blockers` non-empty => `TERHAMBAT` / `CAN_ADVANCE=NO`
-- `required_evidence` missing or unsatisfied => `BELUM_TERBUKTI` / `CAN_ADVANCE=NO`
-- `actual_evidence` satisfied with `limitations` => `BERHASIL_DENGAN_BATASAN` / `CAN_ADVANCE=NO`
-- `required_evidence` satisfied, no blockers, no limitations => `BERHASIL` / `CAN_ADVANCE=YES`
-- Unknown / conflicting evidence => `BELUM_TERBUKTI` / `CAN_ADVANCE=NO`
-
 ---
 
 ## 6. Worklog Session Lifecycle & Per-Run Append Flow
@@ -124,77 +121,76 @@ Boleh lanjut — YA | TIDAK
 - Same project + same objective = continue updating the SAME active session draft.
 - Switch project or new objective = close current session and start a new session.
 
-### 6.2 Session Filename & Folder UX (Target M2 Scope)
-- Path pattern: `worklog/sessions/YYYY-MM-DD/<Project>/<Number> - <Objective>.md`
-- Example: `worklog/sessions/2026-08-04/ASB/01 - Upgrade Workflow ASB.md`
-- Raw UUIDs are forbidden in human filenames.
+### 6.2 Target Human Session Note Sections (10 Sections)
+Every completed session note in Obsidian contains these 10 target sections:
+1. `🧭 AIRO STATUS`
+2. `🎯 Tujuan sesi`
+3. `🛠 Yang dilakukan`
+4. `📌 Hasil`
+5. `🧪 Bukti`
+6. `⛔ Masalah / hambatan`
+7. `✅ Keputusan`
+8. `📁 Yang berubah`
+9. `📝 Yang belum selesai`
+10. `➡️ Berikutnya`
 
-### 6.3 Per-Run Append vs Closeout Push
-- During an active session, Antigravity appends safe checkpoints to the active session draft locally.
-- Project work pushes and session closeout pushes are conceptually separate.
-- Closeout push occurs only at explicit session close after final sanitization, secret scanning, and evidence verification.
+### 6.3 Special Session Handling Rules
+- **Failed / Blocked Sessions**: Must still be recorded truthfully in session history with exact blocker details.
+- **Unknown Root Cause**: Must explicitly state `"Penyebab belum diketahui"` rather than guessing or swallowing exceptions.
+- **Interrupted / Inactive Sessions**: Remain in draft/resumable state; never falsely mark as finalized or complete.
 
 ---
 
-## 7. Multi-Layer Memory Architecture
+## 7. Multi-Layer Memory Architecture & Daily Generator
 
+### 7.1 Memory Layers Table
 | Layer | Primary Role | Storage Location / Interface |
 |---|---|---|
 | **Raw Events** | Machine telemetry & event ledger | `events/raw/events.ndjson` |
-| **Session** | Episodic work memory ("what happened in this segment?") | `worklog/sessions/` (M2) |
-| **Daily** | Generated human navigation view ("what happened today?") | `worklog/daily/` (M2) |
+| **Session** | Episodic work memory ("what happened in this segment?") | `worklog/sessions/` (M2 target) |
+| **Daily** | Generated human navigation view ("what happened today?") | `worklog/daily/` (M2 target) |
 | **Canonical Project Docs** | Current project truth ("where is the project now?") | `projects/`, `docs/`, `CURRENT.md` |
 | **Decisions** | Durable Owner decision records | `decisions/approved/` |
 | **LLM Wiki** | Reusable semantic knowledge & lessons learned | `wiki/` |
 
----
-
-## 8. Multi-Project Real Use-Case Walkthrough
-
-```text
-09:00 - 11:30: EAB session (Objective: Canary Fix) -> Session 01
-13:00 - 15:00: AIRO Finance session (Objective: Email Parsing) -> Session 01
-19:00 - 22:00: ASB_GLOBAL session (Objective: v0.6 Upgrade) -> Session 01
-
-Daily Navigation View (4 August 2026):
-  EAB: Session 01 (Canary Fix) — BERHASIL (CAN_ADVANCE=YES)
-  AIRO Finance: Session 01 (Email Parsing) — BERHASIL_DENGAN_BATASAN
-  ASB: Session 01 (v0.6 Upgrade) — BERHASIL (CAN_ADVANCE=YES)
-```
+### 7.2 Daily Navigation View Rules
+- Generated automatically from recorded session files.
+- Serves as a human navigation view only; it is NOT the current project source of truth.
+- Completely regenerable from session notes.
+- Avoid concurrent manual appends from multiple devices.
 
 ---
 
-## 9. Selective Upstream Adoption Decisions
+## 8. Multi-Device Design & Raw Chat Policy
 
+### 8.1 Multi-Device Design Considerations
+- Obsidian may synchronize working-copy notes through an approved vault sync layer.
+- Git / GitHub remains the canonical version and audit layer.
+- Never perform filesystem synchronization on the `.git` folder across devices.
+- Avoid competing automatic Git and vault-sync writers.
+- Note: Remotely Save plugin implementation is not declared active in M1.
+
+### 8.2 Raw Chat Transcript Policy
+- Raw downloaded chat transcripts are NEVER canonical repository documentation.
+- Raw transcripts remain local-only evidence or reference material.
+- Only distilled specs, approved decision records, and clean session summaries are committed to the canonical repository.
+
+---
+
+## 9. Selective Upstream Adoption Decisions & Research Appendix
+
+### 9.1 Upstream Decisions
 1. **`Ar9av/obsidian-wiki`**: Selected as primary upstream for LLM Wiki capabilities, capture/query patterns, and metadata/Bases filtering.
 2. **`kepano/obsidian-skills`**: Selected for Obsidian-native authoring, Bases, Canvas, and CLI skills.
 3. **`eugeniughelbur/obsidian-second-brain`**: Selected as UX/workflow pattern donor for worklog, daily recap, and project views.
 4. **`Everything OpenAI Codex`**: Selected as execution-pattern donor (Intake -> Route -> Plan -> Execute -> Verify -> Capture -> Resume).
 
-*Strategy: Selective adoption only. No wholesale replacement of ASB governance.*
+### 9.2 Deferred / Rejected Options
+- **Whole Vault Replacement**: Deferred/Rejected. ASB governance and execution assurance must remain canonical.
+- **Session Brain as Source of Truth**: Deferred/Rejected. Session Brain remains an optional local helper script, NOT the ASB source of truth.
 
 ---
 
-## 10. System Component Roles & Status
+## 10. Known Limitations & Out of Scope for M1
 
-- **`airo-capture`**: KEEP / REUSE concept and NDJSON ledger. Will be integrated into session lifecycle in M2.
-- **Runtime Sync (`ops/runtime/airo-runtime-runner.sh`)**: KEEP DISABLED until automatic rebase is replaced with safe conflict-free sync.
-- **Finance Legacy Timer (`airo-full-auto-sheets-sync.timer`)**: Recorded as `RETIRE_CANDIDATE` for AIRO Finance. Do not mutate in M1.
-- **Earesmes Telegram Gateway**: Active running background process (`telegram-gateway.py`). E2E health remains `NOT_YET_PROVEN` until live test.
-
----
-
-## 11. Before vs After Summary
-
-| Dimension | BEFORE (v0.5.1) | AFTER (v0.6.0) |
-|---|---|---|
-| **Execution Truth** | `RC=0` / Script success often mistranslated as Milestone PASS | Script success != Task PASS; `airo-task-verdict` requires verified evidence |
-| **Context Recovery** | Search across raw chats, terminal logs, git history | Instantly navigable via `🧭 AIRO STATUS`, Session worklogs, and Daily view |
-| **Human UX** | Exposed technical enums, raw UUIDs, and dry logs | Simple, baby-friendly Indonesian status receipts and Obsidian cockpit |
-| **Memory Loop** | Passive LLM Wiki with incomplete daily integration | Multi-layer memory architecture (Raw -> Session -> Daily -> Canonical -> Wiki) |
-
----
-
-## 12. Known Limitations & Out of Scope for M1
-
-- **Out of Scope for M1:** `worklog/sessions/` directory creation, `HOME.md` cockpit UI build, LLM Wiki capture automation, Runtime Sync repair, Finance timer retirement. These belong to M2..M6.
+- Out of scope for M1: `worklog/sessions/` directory creation, `HOME.md` cockpit UI build, LLM Wiki capture automation, Runtime Sync repair, Finance timer retirement. These belong to M2..M6.

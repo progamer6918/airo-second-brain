@@ -31,6 +31,6 @@ The Owner has explicitly approved the final architecture for **AIRO Second Brain
 
 ## 3. Canonical Pointers
 
-- **PRD:** [docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
-- **Design Spec:** [docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
-- **Roadmap:** [docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
+- **PRD:** [docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md](../../docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md)
+- **Design Spec:** [docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md](../../docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
+- **Roadmap:** [docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md](../../docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)

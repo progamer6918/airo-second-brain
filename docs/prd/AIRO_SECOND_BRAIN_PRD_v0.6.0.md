@@ -7,10 +7,10 @@
 - **Approved Date:** 2026-08-04
 - **Scope:** `ASB_GLOBAL`
 - **Target System:** AIRO Second Brain v0.6
-- **Inherits From:** [AIRO Second Brain PRD v0.5.1](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/prd/AIRO_SECOND_BRAIN_PRD_v0.5.1.md)
-- **Primary Design Spec:** [AIRO Second Brain v0.6 Design Specification](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
-- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
-- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
+- **Inherits From:** [AIRO Second Brain PRD v0.5.1](AIRO_SECOND_BRAIN_PRD_v0.5.1.md)
+- **Primary Design Spec:** [AIRO Second Brain v0.6 Design Specification](../specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
+- **Roadmap:** [AIRO Second Brain v0.6 Roadmap](../roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md)
+- **Approved Decision Record:** [Owner Architecture Approval 2026-08-04](../../decisions/approved/asb-v06-architecture-owner-approval-20260804.md)
 
 ---
 
@@ -66,4 +66,4 @@ No ad-hoc roadmap gates (e.g. M2.1A, Shadow Gate) are allowed without explicit O
 2. **Runtime Sync Safety:** `ops/runtime/airo-runtime-runner.sh` remains DISABLED until its automatic rebase behavior is replaced with safe conflict-free handling.
 3. **Finance Legacy Timer:** `airo-full-auto-sheets-sync.timer` is classified as `RETIRE_CANDIDATE` for the AIRO Finance project and recorded as a cleanup candidate only.
 
-For detailed architecture, workflow diagrams, before/after comparisons, and complete design rationale, see the comprehensive [Design Specification](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md).
+For detailed architecture, workflow diagrams, before/after comparisons, and complete design rationale, see the comprehensive [Design Specification](../specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md).

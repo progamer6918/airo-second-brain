@@ -35,4 +35,4 @@ This document captures the synthesis and chronological evolution of the Owner de
 ## 3. Canonical Architecture Pointer
 
 For the active, canonical design specification, see:
-[docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
+[docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md](../specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md)
