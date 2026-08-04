@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import os
+import sys
+import re
+import argparse
+from datetime import datetime
+
+def parse_session_file(filepath):
+    with open(filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    title = os.path.basename(filepath).replace(".md", "")
+    lines = content.splitlines()
+
+    status_block = []
+    in_status = False
+    for line in lines:
+        if "## 🧭 AIRO STATUS" in line or "## 🧭 AIRO STATUS" in line or "## STATUS" in line:
+            in_status = True
+            continue
+        elif in_status and line.startswith("## "):
+            in_status = False
+            break
+        elif in_status:
+            status_block.append(line)
+
+    status_text = "\n".join(status_block).strip()
+    return {
+        "filename": os.path.basename(filepath),
+        "title": title,
+        "status": status_text,
+        "path": filepath
+    }
+
+def generate_daily(repo_root, date_str):
+    sessions_root = os.path.join(repo_root, "worklog/sessions", date_str)
+    daily_file = os.path.join(repo_root, "worklog/daily", date_str + ".md")
+    os.makedirs(os.path.dirname(daily_file), exist_ok=True)
+
+    if not os.path.exists(sessions_root):
+        content = "# Ringkasan Harian — " + date_str + "\n\n"
+        content += "*(Generator Harian Otomatis — Terderivasi secara Deterministik)*\n\n"
+        content += "## 🧭 Status Umum\nTidak ada sesi pekerjaan terpantau pada tanggal " + date_str + ".\n"
+        with open(daily_file, "w", encoding="utf-8") as f:
+            f.write(content)
+        return daily_file
+
+    project_dirs = sorted([d for d in os.listdir(sessions_root) if os.path.isdir(os.path.join(sessions_root, d))])
+    
+    sections = []
+    for proj in project_dirs:
+        pdir = os.path.join(sessions_root, proj)
+        files = sorted([f for f in os.listdir(pdir) if f.endswith(".md")])
+        if not files:
+            continue
+        
+        proj_section = ["### Proyek: " + proj]
+        for fname in files:
+            fpath = os.path.join(pdir, fname)
+            parsed = parse_session_file(fpath)
+            rel_link = "../sessions/" + date_str + "/" + proj + "/" + fname
+            proj_section.append("- **[" + parsed['title'] + "](" + rel_link + ")**")
+            if parsed["status"]:
+                indent_status = "\n  ".join(parsed["status"].splitlines())
+                proj_section.append("  ```text\n  " + indent_status + "\n  ```")
+        
+        sections.append("\n".join(proj_section))
+
+    has_backfill = any("M1 Governance" in s for s in sections)
+    backfill_note = ""
+    if date_str == "2026-08-04" or has_backfill:
+        backfill_note = "\n> [!NOTE]\n> Coverage before M2 activation is partial/backfilled, not a complete record of every project activity that occurred that day.\n"
+
+    content = "# Ringkasan Harian — " + date_str + "\n\n"
+    content += "*(Generator Harian Otomatis — Terderivasi secara Deterministik)*\n"
+    content += backfill_note + "\n"
+    content += "## 🧭 Sesi Pekerjaan Terdaftar\n\n"
+    content += "\n\n".join(sections) + "\n"
+
+    with open(daily_file, "w", encoding="utf-8") as f:
+        f.write(content)
+    return daily_file
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Daily View Generator")
+    parser.add_argument("date", nargs="?", default=datetime.now().strftime("%Y-%m-%d"), help="Date string YYYY-MM-DD")
+    args = parser.parse_args()
+
+    repo_root = os.environ.get("AIRO_REPO_ROOT") or os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    daily_file = generate_daily(repo_root, args.date)
+    print("DAILY_GENERATED=" + daily_file)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,386 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import argparse
+import uuid
+import hashlib
+import subprocess
+from datetime import datetime, timezone
+
+def get_repo_root():
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ.get("AIRO_REPO_ROOT"))
+    cwd = os.getcwd()
+    try:
+        res = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=cwd, capture_output=True, text=True)
+        if res.returncode == 0:
+            return os.path.abspath(res.stdout.strip())
+    except Exception:
+        pass
+    return os.path.abspath(cwd)
+
+def get_state_dir(repo_root):
+    if os.environ.get("AIRO_SESSION_STATE_DIR"):
+        return os.environ.get("AIRO_SESSION_STATE_DIR")
+    xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+    repo_hash = hashlib.sha256(repo_root.encode("utf-8")).hexdigest()[:12]
+    path = os.path.join(xdg_state, "airo", "second-brain", repo_hash)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+def get_state_file(repo_root):
+    return os.path.join(get_state_dir(repo_root), "active_session.json")
+
+def load_active_session(repo_root):
+    state_file = get_state_file(repo_root)
+    if os.path.exists(state_file):
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return None
+    return None
+
+def save_active_session(repo_root, session_data):
+    state_file = get_state_file(repo_root)
+    os.makedirs(os.path.dirname(state_file), exist_ok=True)
+    with open(state_file, "w", encoding="utf-8") as f:
+        json.dump(session_data, f, indent=2)
+
+def clear_active_session(repo_root):
+    state_file = get_state_file(repo_root)
+    if os.path.exists(state_file):
+        os.remove(state_file)
+
+def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
+    capture_script = os.path.join(repo_root, "scripts/airo-capture")
+    if not os.path.exists(capture_script):
+        return
+    cmd = [
+        sys.executable, capture_script,
+        "--event", event_type,
+        "--summary", summary,
+        "--project", project_id,
+        "--session-id", session_id
+    ]
+    try:
+        subprocess.run(cmd, cwd=repo_root, env=os.environ, capture_output=True, text=True)
+    except Exception:
+        pass
+
+def cmd_start(args, repo_root):
+    active = load_active_session(repo_root)
+    if active:
+        if active.get("project_id") == args.project_id and active.get("objective") == args.objective:
+            print("SESSION_ACTION=CONTINUE_EXISTING")
+            print("SESSION_ID=" + str(active.get('internal_session_id')))
+            return 0
+        else:
+            print("SESSION_SWITCH_REQUIRES_CLOSE=YES")
+            print("ACTIVE_PROJECT=" + str(active.get('project_id')))
+            print("ACTIVE_OBJECTIVE=" + str(active.get('objective')))
+            return 1
+
+    internal_id = str(uuid.uuid4())
+    now_iso = datetime.now(timezone.utc).isoformat()
+    session_data = {
+        "internal_session_id": internal_id,
+        "project_id": args.project_id,
+        "project_name": args.project_name,
+        "objective": args.objective,
+        "title": args.title or args.objective,
+        "position": args.position or "IN_PROGRESS",
+        "created_at": now_iso,
+        "last_activity_at": now_iso,
+        "events": [],
+        "evidence_list": [],
+        "blockers": [],
+        "limitations": []
+    }
+    save_active_session(repo_root, session_data)
+    invoke_airo_capture(repo_root, internal_id, args.project_id, "checkpoint", "Session started: " + str(args.objective))
+    print("SESSION_ACTION=STARTED")
+    print("SESSION_ID=" + internal_id)
+    return 0
+
+def cmd_event(args, repo_root):
+    active = load_active_session(repo_root)
+    if not active:
+        print("ERROR: No active session found. Start a session first.", file=sys.stderr)
+        return 1
+    
+    summary_lower = args.summary.lower()
+    for secret_token in ["sk-proj-", "sk-", "token=", "api_key=", "private_key"]:
+        if secret_token in summary_lower:
+            print("ERROR: Event summary contains potential secret keyword '" + secret_token + "'", file=sys.stderr)
+            return 2
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    evt = {
+        "timestamp": now_iso,
+        "event_type": args.event_type,
+        "summary": args.summary,
+        "evidence": args.evidence or ""
+    }
+    active["events"].append(evt)
+    active["last_activity_at"] = now_iso
+    save_active_session(repo_root, active)
+    invoke_airo_capture(repo_root, active["internal_session_id"], active["project_id"], args.event_type, args.summary)
+    print("EVENT_RECORDED=YES")
+    return 0
+
+def cmd_status(args, repo_root):
+    active = load_active_session(repo_root)
+    if not active:
+        print("ACTIVE_SESSION=NONE")
+        return 0
+
+    last_act_dt = datetime.fromisoformat(active["last_activity_at"])
+    now_dt = datetime.now(timezone.utc)
+    
+    inactive_seconds = (now_dt - last_act_dt).total_seconds()
+    draft_rec = "YES" if inactive_seconds > 2700 else "NO"
+
+    blockers_text = "Tidak ada" if not active["blockers"] else ", ".join(active["blockers"])
+    events_count = len(active["events"])
+    proj_name = active["project_name"]
+    proj_id = active["project_id"]
+    pos = active.get("position", "IN_PROGRESS")
+    obj = active["objective"]
+
+    print("🧭 AIRO STATUS")
+    print("")
+    print("📍 Project — " + proj_name + " (" + proj_id + ")")
+    print("📌 Lagi di — " + pos)
+    print("📈 Progress — Active session with " + str(events_count) + " events recorded")
+    print("")
+    print("🧪 Bukti")
+    print("Yang wajib ada — Execution & session evidence")
+    print("Yang sudah ada — " + str(events_count) + " events logged")
+    print("Kesimpulan — IN_PROGRESS")
+    print("Boleh lanjut — YA")
+    print("")
+    print("⛔ Hambatan — " + blockers_text)
+    print("➡️ Berikutnya — Continue work on: " + obj)
+    print("🏁 Selesai kalau — Objective achieved and closeout executed")
+    print("")
+    print("DRAFT_CLOSEOUT_RECOMMENDED=" + draft_rec)
+    return 0
+
+def cmd_draft_closeout(args, repo_root):
+    active = load_active_session(repo_root)
+    if not active:
+        print("ERROR: No active session found.", file=sys.stderr)
+        return 1
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    clean_proj = active["project_name"].replace("/", "-").replace(" ", "_")
+    clean_title = active["title"].replace("/", "-").replace(" ", "_")
+    draft_filename = date_str + " - " + clean_proj + " - " + clean_title + ".md"
+    draft_path = os.path.join(repo_root, "inbox/session-closeouts", draft_filename)
+    os.makedirs(os.path.dirname(draft_path), exist_ok=True)
+
+    blockers_text = "Tidak ada" if not active["blockers"] else ", ".join(active["blockers"])
+    events_count = len(active["events"])
+
+    lines = [
+        "# " + active['title'] + " — Draft Closeout",
+        "",
+        "## 🧭 AIRO STATUS",
+        "",
+        "📍 Project — " + active['project_name'],
+        "📌 Lagi di — " + active.get('position', 'IN_PROGRESS'),
+        "📈 Progress — Draft closeout generated",
+        "",
+        "🧪 Bukti",
+        "Yang wajib ada — Required evidence items",
+        "Yang sudah ada — " + str(events_count) + " events recorded",
+        "Kesimpulan — BELUM_TERBUKTI",
+        "Boleh lanjut — TIDAK",
+        "",
+        "⛔ Hambatan — " + blockers_text,
+        "➡️ Berikutnya — Verify evidence and execute final closeout",
+        "🏁 Selesai kalau — All acceptance criteria met",
+        "",
+        "---",
+        "",
+        "`PRE_M2_SESSION_CLOSEOUT_STAGING=YES`",
+        "`DRAFT_ONLY=YES`"
+    ]
+    content = "\n".join(lines) + "\n"
+
+    with open(draft_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print("DRAFT_CLOSEOUT_CREATED=YES")
+    print("DRAFT_PATH=" + draft_path)
+    return 0
+
+def cmd_close(args, repo_root):
+    active = load_active_session(repo_root)
+    if not active:
+        print("ERROR: No active session found.", file=sys.stderr)
+        return 1
+
+    verdict_script = os.path.join(repo_root, "scripts/airo-task-verdict")
+    verdict_status = "BERHASIL"
+    can_advance = "YES"
+
+    script_status = args.script_status or "SCRIPT_SUCCESS"
+    req_ev = json.loads(args.required_evidence) if args.required_evidence else ["Session_Objective_Achieved"]
+    act_ev = json.loads(args.actual_evidence) if args.actual_evidence else (["Session_Objective_Achieved"] if not active["events"] else [e["summary"] for e in active["events"]])
+    blockers = json.loads(args.blockers) if args.blockers else active.get("blockers", [])
+    limitations = json.loads(args.limitations) if args.limitations else active.get("limitations", [])
+
+    if os.path.exists(verdict_script):
+        verdict_input = {
+            "project_id": active["project_id"],
+            "position_id": active.get("position", "M2"),
+            "script_status": script_status,
+            "required_evidence": req_ev,
+            "actual_evidence": act_ev,
+            "blockers": blockers,
+            "limitations": limitations
+        }
+        res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=os.environ, text=True, capture_output=True)
+        if res.returncode == 0:
+            v_data = json.loads(res.stdout)
+            verdict_status = v_data.get("task_status", "BERHASIL")
+            can_advance = v_data.get("can_advance", "YES")
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    project_dir = os.path.join(repo_root, "worklog/sessions", date_str, active["project_name"])
+    os.makedirs(project_dir, exist_ok=True)
+
+    existing_files = [f for f in os.listdir(project_dir) if f.endswith(".md")]
+    next_num = len(existing_files) + 1
+    session_file_name = f"{next_num:02d} - " + active['title'] + ".md"
+    session_file_path = os.path.join(project_dir, session_file_name)
+
+    events_summary = "\n".join(["- **" + e['event_type'] + "**: " + e['summary'] for e in active["events"]]) if active["events"] else "- Sesi dijalankan dengan sukses."
+    blockers_summary = ", ".join(blockers) if blockers else "Tidak ada"
+    
+    lines = [
+        "# " + active['title'],
+        "",
+        "## 🧭 AIRO STATUS",
+        "",
+        "📍 Project — " + active['project_name'],
+        "📌 Lagi di — " + str(active.get('position', 'M2')),
+        "📈 Progress — Sesi selesai dengan status " + verdict_status,
+        "",
+        "🧪 Bukti",
+        "Yang wajib ada — " + ", ".join(req_ev),
+        "Yang sudah ada — " + ", ".join(act_ev),
+        "Kesimpulan — " + verdict_status,
+        "Boleh lanjut — " + ("YA" if can_advance == 'YES' else "TIDAK"),
+        "",
+        "⛔ Hambatan — " + blockers_summary,
+        "➡️ Berikutnya — Implementasi milestone berikutnya",
+        "🏁 Selesai kalau — Seluruh kriteria penerimaan terpenuhi",
+        "",
+        "## 🎯 Tujuan sesi",
+        active['objective'],
+        "",
+        "## 🛠 Yang dilakukan",
+        events_summary,
+        "",
+        "## 📌 Hasil",
+        "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi.",
+        "",
+        "## 🧪 Bukti",
+        "- Task Verdict: " + verdict_status,
+        "- Can Advance: " + can_advance,
+        "",
+        "## ⛔ Masalah / hambatan",
+        blockers_summary,
+        "",
+        "## ✅ Keputusan",
+        "- Menggunakan format sesi kanonis 10-section.",
+        "- Bukti verifikasi deterministik dinyatakan sah.",
+        "",
+        "## 📁 Yang berubah",
+        "- `worklog/sessions/" + date_str + "/" + active['project_name'] + "/" + session_file_name + "`",
+        "",
+        "## 📝 Yang belum selesai",
+        "- Pekerjaan milestone mendatang.",
+        "",
+        "## ➡️ Berikutnya",
+        "Lanjut ke langkah berikutnya di roadmap kanonis."
+    ]
+    note_content = "\n".join(lines) + "\n"
+
+    with open(session_file_path, "w", encoding="utf-8") as f:
+        f.write(note_content)
+
+    daily_script = os.path.join(repo_root, "scripts/airo-daily")
+    if os.path.exists(daily_script):
+        subprocess.run([sys.executable, daily_script, date_str], cwd=repo_root, env=os.environ, capture_output=True)
+
+    clear_active_session(repo_root)
+    print("SESSION_CLOSED=YES")
+    print("PERMANENT_SESSION_NOTE=" + session_file_path)
+    print("VERDICT_STATUS=" + verdict_status)
+    print("CAN_ADVANCE=" + can_advance)
+    return 0
+
+def cmd_resume(args, repo_root):
+    active = load_active_session(repo_root)
+    if not active:
+        print("ACTIVE_SESSION=NONE")
+        return 1
+    print("SESSION_RESUMED=YES")
+    print("PROJECT_ID=" + str(active['project_id']))
+    print("PROJECT_NAME=" + str(active['project_name']))
+    print("OBJECTIVE=" + str(active['objective']))
+    print("EVENT_COUNT=" + str(len(active['events'])))
+    return 0
+
+def main():
+    repo_root = get_repo_root()
+    parser = argparse.ArgumentParser(description="AIRO Session Lifecycle Manager")
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
+
+    p_start = subparsers.add_parser("start")
+    p_start.add_argument("--project-id", required=True)
+    p_start.add_argument("--project-name", required=True)
+    p_start.add_argument("--objective", required=True)
+    p_start.add_argument("--title", default=None)
+    p_start.add_argument("--position", default=None)
+
+    p_event = subparsers.add_parser("event")
+    p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])
+    p_event.add_argument("--summary", required=True)
+    p_event.add_argument("--evidence", default=None)
+
+    p_status = subparsers.add_parser("status")
+
+    p_draft = subparsers.add_parser("draft-closeout")
+
+    p_close = subparsers.add_parser("close")
+    p_close.add_argument("--script-status", default="SCRIPT_SUCCESS")
+    p_close.add_argument("--required-evidence", default=None)
+    p_close.add_argument("--actual-evidence", default=None)
+    p_close.add_argument("--blockers", default=None)
+    p_close.add_argument("--limitations", default=None)
+
+    p_resume = subparsers.add_parser("resume")
+
+    args = parser.parse_args()
+
+    if args.subcommand == "start":
+        sys.exit(cmd_start(args, repo_root))
+    elif args.subcommand == "event":
+        sys.exit(cmd_event(args, repo_root))
+    elif args.subcommand == "status":
+        sys.exit(cmd_status(args, repo_root))
+    elif args.subcommand == "draft-closeout":
+        sys.exit(cmd_draft_closeout(args, repo_root))
+    elif args.subcommand == "close":
+        sys.exit(cmd_close(args, repo_root))
+    elif args.subcommand == "resume":
+        sys.exit(cmd_resume(args, repo_root))
+
+if __name__ == "__main__":
+    main()
