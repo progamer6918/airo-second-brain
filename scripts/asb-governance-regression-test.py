@@ -100,6 +100,17 @@ def check_markdown_link_resolution():
         print("  [PASS] 100% of canonical Markdown relative links resolve to existing repository files.")
         return True
 
+def validate_roadmap_semantics(rm_txt):
+    errors = []
+    has_m5_done = ("M5 — Cross-Consumer & Failure Proof** (`DONE`" in rm_txt) and ("Milestone 5 — Cross-Consumer & Failure Proof (`DONE`)" in rm_txt)
+    has_m6_next = ("M6 — Owner Acceptance & Cutover** (`NOT_YET_PROVEN` — Next Active Target)" in rm_txt) and ("Milestone 6 — Owner Acceptance & Cutover (`NOT_YET_PROVEN`)" in rm_txt)
+
+    if not has_m5_done:
+        errors.append("ROADMAP: M5 status is not DONE")
+    if not has_m6_next:
+        errors.append("ROADMAP: M6 is not NOT_YET_PROVEN — Next Active Target")
+    return errors
+
 def check_canonical_milestone_state_consistency():
     print("Checking canonical milestone state consistency across tracker, roadmap, index, current, prd, closeout...")
     current_path = os.path.join(REPO_ROOT, "CURRENT.md")
@@ -122,10 +133,8 @@ def check_canonical_milestone_state_consistency():
 
         with open(roadmap_path, "r", encoding="utf-8") as f:
             rm_txt = f.read()
-        if "M5 — Cross-Consumer & Failure Proof" not in rm_txt:
-            errors.append("ROADMAP: M5 missing")
-        if "M6 — Owner Acceptance & Cutover" not in rm_txt:
-            errors.append("ROADMAP: M6 missing")
+        rm_errors = validate_roadmap_semantics(rm_txt)
+        errors.extend(rm_errors)
 
         with open(roadmap_idx_path, "r", encoding="utf-8") as f:
             rm_idx_txt = f.read()
