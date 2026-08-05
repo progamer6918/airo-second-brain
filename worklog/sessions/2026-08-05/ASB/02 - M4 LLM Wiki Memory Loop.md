@@ -23,34 +23,42 @@ Kesimpulan — BERHASIL
 Boleh lanjut — YA
 
 ⛔ Hambatan — Tidak ada
-➡️ Berikutnya — Implementasi milestone berikutnya
-🏁 Selesai kalau — Seluruh kriteria penerimaan terpenuhi
+➡️ Berikutnya — M5 — Cross-Consumer & Failure Proof
+🏁 Selesai kalau — Pengujian Governed Memory Loop 20/20 PASS
 
 ## 🎯 Tujuan sesi
 Implement M4 LLM Wiki Memory Loop
 
 ## 🛠 Yang dilakukan
-- **checkpoint**: Governed memory loop contract, candidate tool, Execution Assurance concept, and query retrieval verified
+- Implementation tool memory candidate governed `scripts/airo-wiki-memory-candidate`.
+- Enforcement contract memori turunan (provenance tracking, linting, semantic query retrieval).
+- Ingestion catatan konsep Execution Assurance ke repositori `obsidian-wiki` (commit `0dc9bfb9`).
+- Executed 20 M4 LLM Wiki Memory Loop test cases (`scripts/airo-wiki-memory-test.py`).
 
 ## 📌 Hasil
-Pekerjaan sesi telah selesai dieksekusi dan diverifikasi.
+- High-value lessons dari sesi ASB dapat ditransformasi menjadi pengetahuan Wiki turunan.
+- Wiki terisolasi dan tidak dapat mengoverride kebenaran kanonis proyek.
+- Milestone M4 terverifikasi 100% PASS (20/20 test cases).
 
 ## 🧪 Bukti
-- Task Verdict: BERHASIL
-- Can Advance: YES
+- `docs/validation/AIRO_SECOND_BRAIN_v0.6_M4_CLOSEOUT_20260805.md`
+- `scripts/airo-wiki-memory-candidate`
+- `scripts/airo-wiki-memory-test.py` (20/20 PASS)
 
 ## ⛔ Masalah / hambatan
 Tidak ada
 
 ## ✅ Keputusan
-- Menggunakan format sesi kanonis 10-section.
-- Bukti verifikasi deterministik dinyatakan sah.
+- Tidak semua sesi dijadikan Wiki; hanya pelajaran bernilai tinggi dengan persetujuan kanonis.
+- Dilarang dump transcript atau bulk ingest percakapan mentah.
 
 ## 📁 Yang berubah
-- `worklog/sessions/2026-08-05/ASB/02 - M4 LLM Wiki Memory Loop.md`
+- `scripts/airo-wiki-memory-candidate`
+- `scripts/airo-wiki-memory-test.py`
+- `docs/validation/AIRO_SECOND_BRAIN_v0.6_M4_CLOSEOUT_20260805.md`
 
 ## 📝 Yang belum selesai
-- Pekerjaan milestone mendatang.
+Tidak ada requirement M4 tersisa. Lanjut ke M5 Cross-Consumer & Failure Proof.
 
 ## ➡️ Berikutnya
-Lanjut ke langkah berikutnya di roadmap kanonis.
+M5 — Cross-Consumer & Failure Proof
