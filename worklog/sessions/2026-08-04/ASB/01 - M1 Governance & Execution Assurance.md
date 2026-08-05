@@ -1,3 +1,13 @@
+---
+type: airo-session
+date: 2026-08-04
+project: "ASB"
+objective: "Build ASB v0.6 M1 Candidate with Execution Assurance & Governance Recovery"
+position: "M1 — Governance & Execution Assurance"
+status: BERHASIL
+can_advance: YES
+---
+
 # 01 - M1 Governance & Execution Assurance
 
 ## 🧭 AIRO STATUS

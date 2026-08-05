@@ -2,7 +2,7 @@ MILESTONE	NAME	STATUS	VERDICT	CAN_ADVANCE	EVIDENCE_POINTER	NOTES
 M0	Reality Audit & Design Freeze	DONE	BERHASIL	YES	docs/evidence/ASB_v0.6_DESIGN_SESSION_SYNTHESIS_20260804.md	M0B Evidence-Bound Accepted
 M1	Governance & Execution Assurance	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M1_CLOSEOUT_20260804.md	Validator 7/7, Governance 8/8, Parity PASS, M1 Closeout Complete
 M2	Session & Worklog	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md	Corrected acceptance: task verdict 7/7, governance 8/8, session 30/30, local runtime acceptance PASS, parity PASS
-M3	Obsidian Human Experience	NOT_YET_PROVEN	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M3 implementation pending
+M3	Obsidian Human Experience	IN_PROGRESS	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M3 implementation pending
 M4	LLM Wiki Memory Loop	NOT_YET_PROVEN	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M4 implementation pending
 M5	Cross-Consumer & Failure Proof	NOT_YET_PROVEN	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M5 implementation pending
 M6	Owner Acceptance & Cutover	NOT_YET_PROVEN	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M6 implementation pending

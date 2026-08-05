@@ -1,0 +1,26 @@
+{
+  "type": "base",
+  "version": 1,
+  "filter": "file.path.startsWith(\"worklog/sessions/\") && type == \"airo-session\"",
+  "properties": {
+    "project": { "label": "Project" },
+    "objective": { "label": "Tujuan" },
+    "position": { "label": "Posisi" },
+    "status": { "label": "Hasil" },
+    "can_advance": { "label": "Boleh lanjut" },
+    "date": { "label": "Tanggal" }
+  },
+  "views": [
+    {
+      "name": "Hari Ini",
+      "type": "table",
+      "filter": "date == today()",
+      "fields": ["file.name", "project", "position", "status", "can_advance"]
+    },
+    {
+      "name": "Semua Sesi",
+      "type": "table",
+      "fields": ["file.name", "date", "project", "position", "status", "can_advance"]
+    }
+  ]
+}

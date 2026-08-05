@@ -281,6 +281,16 @@ def cmd_draft_closeout(args, repo_root):
     events_count = len(active["events"])
 
     lines = [
+        "---",
+        "type: airo-session",
+        f"date: {date_str}",
+        f"project: \"{active['project_name']}\"",
+        f"objective: \"{active['objective']}\"",
+        f"position: \"{active.get('position', 'IN_PROGRESS')}\"",
+        "status: BELUM_TERBUKTI",
+        "can_advance: NO",
+        "---",
+        "",
         "# " + active['title'] + " — Draft Closeout",
         "",
         "## 🧭 AIRO STATUS",
@@ -339,8 +349,6 @@ def cmd_close(args, repo_root):
     can_advance = "NO"
 
     script_status = args.script_status or "SCRIPT_SUCCESS"
-    
-    # Check if explicit evidence arguments were provided
     has_explicit_evidence = args.required_evidence is not None and args.actual_evidence is not None
 
     req_ev = json.loads(args.required_evidence) if args.required_evidence else []
@@ -349,7 +357,6 @@ def cmd_close(args, repo_root):
     limitations = json.loads(args.limitations) if args.limitations else active.get("limitations", [])
 
     if not has_explicit_evidence:
-        # NO fabricated evidence! Fail closed: BELUM_TERBUKTI / NO
         verdict_status = "BELUM_TERBUKTI"
         can_advance = "NO"
     else:
@@ -364,7 +371,7 @@ def cmd_close(args, repo_root):
         
         verdict_input = {
             "project_id": active["project_id"],
-            "position_id": active.get("position", "M2"),
+            "position_id": active.get("position", "M3"),
             "script_status": script_status,
             "required_evidence": req_ev,
             "actual_evidence": act_ev,
@@ -411,7 +418,6 @@ def cmd_close(args, repo_root):
 
     os.makedirs(project_dir, exist_ok=True)
 
-    # Determine stable closeout path
     if active.get("planned_closeout_path"):
         session_file_path = active["planned_closeout_path"]
         session_file_name = os.path.basename(session_file_path)
@@ -426,13 +432,24 @@ def cmd_close(args, repo_root):
     events_summary = "\n".join(["- **" + e['event_type'] + "**: " + e['summary'] for e in active["events"]]) if active["events"] else "- Sesi dijalankan."
     blockers_summary = ", ".join(blockers) if blockers else "Tidak ada"
     
+    # Render frontmatter + 10 human sections
     lines = [
+        "---",
+        "type: airo-session",
+        f"date: {date_str}",
+        f"project: \"{active['project_name']}\"",
+        f"objective: \"{active['objective']}\"",
+        f"position: \"{active.get('position', 'M3')}\"",
+        f"status: {verdict_status}",
+        f"can_advance: {can_advance}",
+        "---",
+        "",
         "# " + active['title'],
         "",
         "## 🧭 AIRO STATUS",
         "",
         "📍 Project — " + active['project_name'],
-        "📌 Lagi di — " + str(active.get('position', 'M2')),
+        "📌 Lagi di — " + str(active.get('position', 'M3')),
         "📈 Progress — Sesi selesai dengan status " + verdict_status,
         "",
         "🧪 Bukti",
@@ -476,13 +493,11 @@ def cmd_close(args, repo_root):
     ]
     note_content = "\n".join(lines) + "\n"
 
-    # Render to temporary file first, then atomic replace
     tmp_note_path = session_file_path + ".tmp"
     with open(tmp_note_path, "w", encoding="utf-8") as f:
         f.write(note_content)
     os.replace(tmp_note_path, session_file_path)
 
-    # Run Daily generator and verify
     daily_script = os.path.join(repo_root, "scripts/airo-daily")
     if not os.path.exists(daily_script):
         print("ERROR: Daily generator script missing.", file=sys.stderr)
@@ -504,7 +519,6 @@ def cmd_close(args, repo_root):
         print("ACTIVE_SESSION_PRESERVED=YES")
         return 1
 
-    # Only when all durable outputs succeeded, clear active session
     clear_active_session(repo_root)
     print("SESSION_CLOSED=YES")
     print("PERMANENT_SESSION_NOTE=" + session_file_path)
@@ -542,7 +556,6 @@ def main():
     p_event.add_argument("--evidence", default=None)
 
     p_status = subparsers.add_parser("status")
-
     p_draft = subparsers.add_parser("draft-closeout")
 
     p_close = subparsers.add_parser("close")

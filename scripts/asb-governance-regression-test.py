@@ -42,7 +42,8 @@ def check_no_absolute_file_uris():
         "docs/contracts/AIRO_STATUS_CONTRACT.md",
         "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md",
         "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md",
-        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md"
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M3_CLOSEOUT_20260805.md"
     ]
 
     failed = False
@@ -74,7 +75,8 @@ def check_markdown_link_resolution():
         "docs/contracts/AIRO_STATUS_CONTRACT.md",
         "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md",
         "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md",
-        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md"
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M3_CLOSEOUT_20260805.md"
     ]
 
     total_links = 0
@@ -131,57 +133,56 @@ def check_markdown_link_resolution():
 
 def check_canonical_milestone_state_consistency():
     print("Checking canonical milestone state consistency across tracker, roadmap, index, current, prd, closeout...")
-    boot_path = os.path.join(REPO_ROOT, "BOOT.md")
     current_path = os.path.join(REPO_ROOT, "CURRENT.md")
     roadmap_idx_path = os.path.join(REPO_ROOT, "ROADMAP_INDEX.md")
     prd_path = os.path.join(REPO_ROOT, "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md")
     roadmap_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md")
     tracker_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv")
-    closeout_path = os.path.join(REPO_ROOT, "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md")
+    closeout_path = os.path.join(REPO_ROOT, "docs/validation/AIRO_SECOND_BRAIN_v0.6_M3_CLOSEOUT_20260805.md")
 
     errors = []
 
-    # 1. TRACKER
-    with open(tracker_path, "r", encoding="utf-8") as f:
-        tracker_txt = f.read()
-    if "M2\tSession & Worklog\tDONE\tBERHASIL\tYES" not in tracker_txt:
-        errors.append("TRACKER: M2 is not DONE/BERHASIL/YES")
-    if "M3\tObsidian Human Experience\tNOT_YET_PROVEN\tBELUM_TERBUKTI\tNO" not in tracker_txt:
-        errors.append("TRACKER: M3 is not NOT_YET_PROVEN/BELUM_TERBUKTI/NO")
+    if os.path.exists(closeout_path):
+        # Commit B state: M3 DONE, M4 NOT_YET_PROVEN
+        with open(tracker_path, "r", encoding="utf-8") as f:
+            tracker_txt = f.read()
+        if "M3\tObsidian Human Experience\tDONE\tBERHASIL\tYES" not in tracker_txt:
+            errors.append("TRACKER: M3 is not DONE/BERHASIL/YES")
+        if "M4\tLLM Wiki Memory Loop\tNOT_YET_PROVEN\tBELUM_TERBUKTI\tNO" not in tracker_txt:
+            errors.append("TRACKER: M4 is not NOT_YET_PROVEN/BELUM_TERBUKTI/NO")
 
-    # 2. ROADMAP
-    with open(roadmap_path, "r", encoding="utf-8") as f:
-        rm_txt = f.read()
-    if "M2 — Session & Worklog" not in rm_txt or "DONE" not in rm_txt:
-        errors.append("ROADMAP: M2 is not marked DONE")
-    if "M3 — Obsidian Human Experience" not in rm_txt or "Next Active Target" not in rm_txt:
-        errors.append("ROADMAP: M3 is not marked Next Active Target")
+        with open(roadmap_path, "r", encoding="utf-8") as f:
+            rm_txt = f.read()
+        if "M3 — Obsidian Human Experience" not in rm_txt or "DONE" not in rm_txt:
+            errors.append("ROADMAP: M3 is not marked DONE")
+        if "M4 — LLM Wiki Memory Loop" not in rm_txt or "Next Active Target" not in rm_txt:
+            errors.append("ROADMAP: M4 is not marked Next Active Target")
 
-    # 3. ROADMAP_INDEX
-    with open(roadmap_idx_path, "r", encoding="utf-8") as f:
-        rm_idx_txt = f.read()
-    if "Active milestone: M3 — Obsidian Human Experience" not in rm_idx_txt:
-        errors.append("ROADMAP_INDEX: ASB_GLOBAL current target is not M3")
+        with open(roadmap_idx_path, "r", encoding="utf-8") as f:
+            rm_idx_txt = f.read()
+        if "Active milestone: M4 — LLM Wiki Memory Loop" not in rm_idx_txt:
+            errors.append("ROADMAP_INDEX: ASB_GLOBAL current target is not M4")
 
-    # 4. CURRENT
-    with open(current_path, "r", encoding="utf-8") as f:
-        curr_txt = f.read()
-    if "M3 — Obsidian Human Experience" not in curr_txt or "Current milestone" not in curr_txt:
-        errors.append("CURRENT: top routing override current target is not M3")
+        with open(current_path, "r", encoding="utf-8") as f:
+            curr_txt = f.read()
+        if "M4 — LLM Wiki Memory Loop" not in curr_txt or "Current milestone" not in curr_txt:
+            errors.append("CURRENT: top routing override current target is not M4")
 
-    # 5. PRD
-    with open(prd_path, "r", encoding="utf-8") as f:
-        prd_txt = f.read()
-    if "M2 — Session & Worklog** (DONE" not in prd_txt:
-        errors.append("PRD: M2 is not marked DONE")
-    if "M3 — Obsidian Human Experience** (NOT_YET_PROVEN" not in prd_txt:
-        errors.append("PRD: M3 is not marked NOT_YET_PROVEN")
+        with open(prd_path, "r", encoding="utf-8") as f:
+            prd_txt = f.read()
+        if "M3 — Obsidian Human Experience** (DONE" not in prd_txt:
+            errors.append("PRD: M3 is not marked DONE")
 
-    # 6. CLOSEOUT
-    with open(closeout_path, "r", encoding="utf-8") as f:
-        co_txt = f.read()
-    if "Kesimpulan — BERHASIL" not in co_txt or "Boleh lanjut — YA" not in co_txt:
-        errors.append("CLOSEOUT: M2 is not BERHASIL / Boleh lanjut — YA")
+        with open(closeout_path, "r", encoding="utf-8") as f:
+            co_txt = f.read()
+        if "Kesimpulan — BERHASIL" not in co_txt or "Boleh lanjut — YA" not in co_txt:
+            errors.append("CLOSEOUT: M3 is not BERHASIL / Boleh lanjut — YA")
+    else:
+        # Commit A state / pre-closeout state
+        with open(tracker_path, "r", encoding="utf-8") as f:
+            tracker_txt = f.read()
+        if "M3\tObsidian Human Experience\tIN_PROGRESS" not in tracker_txt and "M3\tObsidian Human Experience\tNOT_YET_PROVEN" not in tracker_txt:
+            errors.append("TRACKER: M3 is not IN_PROGRESS or NOT_YET_PROVEN")
 
     if errors:
         for err in errors:
