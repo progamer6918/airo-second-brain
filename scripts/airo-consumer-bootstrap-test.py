@@ -25,9 +25,9 @@ def get_script_repo_root():
 def run_consumer_bootstrap_test_suite():
     repo_root = get_script_repo_root()
     passed = 0
-    total = 27
+    total = 32
 
-    print(f"Running 27 M5 Cross-Consumer & Failure Proof test cases (repo: {repo_root})...")
+    print(f"Running 32 M5 Cross-Consumer & Failure Proof test cases (repo: {repo_root})...")
 
     # Load tracker status
     tracker_path = os.path.join(repo_root, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv")
@@ -47,7 +47,7 @@ def run_consumer_bootstrap_test_suite():
     boot_path = os.path.join(repo_root, "BOOT.md")
     current_path = os.path.join(repo_root, "CURRENT.md")
     roadmap_index_path = os.path.join(repo_root, "ROADMAP_INDEX.md")
-    
+
     t1_pass = os.path.exists(boot_path) and os.path.exists(current_path) and os.path.exists(roadmap_index_path)
     if t1_pass:
         print("  [PASS] T1: ChatGPT bootstrap path resolves required startup documents (CHATGPT_BOOTSTRAP_STATE=PASS)")
@@ -90,7 +90,7 @@ def run_consumer_bootstrap_test_suite():
 
     # T5: Cross-Consumer State Equality
     prd_path = os.path.join(repo_root, "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md")
-    
+
     with open(current_path, "r", encoding="utf-8") as f:
         ctxt = f.read()
     with open(roadmap_index_path, "r", encoding="utf-8") as f:
@@ -180,7 +180,7 @@ def run_consumer_bootstrap_test_suite():
         env = os.environ.copy()
         env["AIRO_SESSION_STATE_DIR"] = tmp_state
         env["AIRO_REPO_ROOT"] = repo_root
-        
+
         subprocess.run([sys.executable, session_script, "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "T13 Obj", "--title", "T13 Session"], env=env, capture_output=True, text=True)
         cres = subprocess.run([sys.executable, session_script, "close", "--validator-script", "/bin/false"], env=env, capture_output=True, text=True)
         sres = subprocess.run([sys.executable, session_script, "status"], env=env, capture_output=True, text=True)
@@ -198,7 +198,7 @@ def run_consumer_bootstrap_test_suite():
     roadmap_path = os.path.join(repo_root, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md")
     with open(roadmap_path, "r", encoding="utf-8") as f:
         rmtxt = f.read()
-    
+
     no_adhoc = not bool(re.search(r"M5\.1|M5A|M5-SHADOW", rmtxt))
     if no_adhoc:
         print("  [PASS] T14: Ad-hoc roadmap gate invention strictly prohibited (NO_AD_HOC_ROADMAP_GATE=PASS)")
@@ -329,6 +329,52 @@ def run_consumer_bootstrap_test_suite():
         passed += 1
     else:
         print("  [FAIL] T27: Antigravity prompt propagation rule missing")
+
+    # T28: VERIFIED_CLIPBOARD_HELPER_REQUIRED=PASS
+    with open(boot_path, "r", encoding="utf-8") as f:
+        boot_content = f.read()
+    with open(agents_path, "r", encoding="utf-8") as f:
+        agents_content = f.read()
+
+    t28_pass = "scripts/airo-clipboard-receipt" in boot_content and "scripts/airo-clipboard-receipt" in agents_content
+    if t28_pass:
+        print("  [PASS] T28: Canonical verified clipboard helper required (VERIFIED_CLIPBOARD_HELPER_REQUIRED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T28: Clipboard helper requirement missing")
+
+    # T29: CLIPBOARD_COMMAND_EXIT_NOT_SUFFICIENT=PASS
+    t29_pass = "CLIPBOARD_COMMAND_EXIT_NOT_SUFFICIENT=YES" in boot_content or "exit 0 alone is NOT sufficient" in boot_content
+    if t29_pass:
+        print("  [PASS] T29: Clipboard command exit code 0 is explicitly insufficient (CLIPBOARD_COMMAND_EXIT_NOT_SUFFICIENT=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T29: Exit code insufficiency rule missing")
+
+    # T30: CLIPBOARD_READBACK_REQUIRED=PASS
+    t30_pass = "CLIPBOARD_READBACK=PASS" in boot_content or "read-back" in boot_content
+    if t30_pass:
+        print("  [PASS] T30: Clipboard readback verification required (CLIPBOARD_READBACK_REQUIRED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T30: Readback rule missing")
+
+    # T31: CLIPBOARD_CONTENT_HASH_REQUIRED=PASS
+    t31_pass = "CLIPBOARD_CONTENT_HASH=PASS" in boot_content or "content-hash" in boot_content
+    if t31_pass:
+        print("  [PASS] T31: Clipboard content hash verification required (CLIPBOARD_CONTENT_HASH_REQUIRED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T31: Content hash rule missing")
+
+    # T32: ANTIGRAVITY_FINALIZER_USES_VERIFIED_CLIPBOARD=PASS
+    t32_pass = "COPIED_TO_CLIPBOARD=YES after verified delivery" in boot_content or "scripts/airo-clipboard-receipt" in boot_content
+    if t32_pass:
+        print("  [PASS] T32: Antigravity finalizer uses verified clipboard helper (ANTIGRAVITY_FINALIZER_USES_VERIFIED_CLIPBOARD=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T32: Finalizer clipboard rule missing")
+
 
 
     print(f"\nM5 Cross-Consumer & Failure Proof Test Results: {passed}/{total} passed.")

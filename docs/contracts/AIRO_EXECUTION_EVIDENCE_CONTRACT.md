@@ -26,3 +26,10 @@ This contract defines evidence classification, required evidence matching, and e
 
 - A `SIMULATION` evidence item MUST NEVER satisfy a requirement specifying `LIVE_RUNTIME` evidence.
 - If required evidence is `LIVE_RUNTIME` and actual evidence is `SIMULATION`, the validator MUST compute `BELUM_TERBUKTI` and `can_advance: NO`.
+
+## 8. Output Transport Evidence Invariant
+
+- Clipboard delivery is output transport evidence, NOT task-completion evidence.
+- Command exit code 0 does not prove receipt delivery.
+- Verified read-back (`CLIPBOARD_READBACK=PASS`) and complete content match (`CLIPBOARD_CONTENT_HASH=PASS`) are mandatory.
+- Do not confuse clipboard delivery success with task verdict BERHASIL or CAN_ADVANCE.

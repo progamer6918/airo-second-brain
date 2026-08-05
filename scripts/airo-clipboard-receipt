@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-clipboard-receipt: Canonical Verified Windows Clipboard Receipt Delivery Helper.
+Ensures verified Windows clipboard receipt delivery via normalized content comparison and readback.
+"""
+
+import os
+import sys
+import argparse
+import hashlib
+import subprocess
+import tempfile
+
+def normalize_text(text):
+    if text is None:
+        return ""
+    # Normalize CRLF and isolated CR to LF
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    # Strip trailing line-endings at the very end
+    normalized = normalized.rstrip("\n")
+    return normalized
+
+def compute_hash(text):
+    norm = normalize_text(text)
+    return hashlib.sha256(norm.encode("utf-8")).hexdigest()
+
+def verify_readback(candidate_text, readback_text):
+    c_norm = normalize_text(candidate_text)
+    r_norm = normalize_text(readback_text)
+    if c_norm == r_norm:
+        c_hash = compute_hash(c_norm)
+        r_hash = compute_hash(r_norm)
+        if c_hash == r_hash:
+            return True, c_hash
+    return False, None
+
+def read_clipboard_powershell():
+    ps_cmd = "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Get-Clipboard -Raw"
+    try:
+        res = subprocess.run(["powershell.exe", "-NoProfile", "-Command", ps_cmd], capture_output=True, text=True)
+        if res.returncode == 0:
+            return res.stdout
+    except Exception:
+        pass
+    return None
+
+def copy_via_clip_exe(text):
+    clip_bin = "/mnt/c/Windows/System32/clip.exe"
+    if not os.path.exists(clip_bin):
+        clip_bin = "clip.exe"
+    try:
+        # clip.exe expects UTF-16LE encoding for Unicode strings from console stdin
+        res = subprocess.run([clip_bin], input=text.encode("utf-16le"), capture_output=True)
+        return res.returncode == 0
+    except Exception:
+        return False
+
+def copy_via_powershell(text):
+    win_temp = r"C:\Users\Admin\AppData\Local\Temp"
+    if not os.path.exists(win_temp):
+        win_temp = tempfile.gettempdir()
+
+    tmp_file_win = os.path.join(win_temp, f"airo_receipt_{os.getpid()}.txt")
+
+    wsl_tmp_path = None
+    if tmp_file_win.startswith("C:\\") or tmp_file_win.startswith("c:\\"):
+        rel = tmp_file_win[3:].replace("\\", "/")
+        wsl_tmp_path = f"/mnt/c/{rel}"
+    else:
+        wsl_tmp_path = tmp_file_win
+
+    try:
+        with open(wsl_tmp_path, "w", encoding="utf-8") as f:
+            f.write(text)
+
+        ps_script = f"$OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $p = '{tmp_file_win}'; $content = [System.IO.File]::ReadAllText($p, [System.Text.Encoding]::UTF8); Set-Clipboard -Value $content"
+        res = subprocess.run(["powershell.exe", "-NoProfile", "-Command", ps_script], capture_output=True, text=True)
+        return res.returncode == 0
+    except Exception:
+        return False
+    finally:
+        if wsl_tmp_path and os.path.exists(wsl_tmp_path):
+            try:
+                os.remove(wsl_tmp_path)
+            except Exception:
+                pass
+
+def process_receipt_file(receipt_file_path):
+    if not receipt_file_path or not os.path.exists(receipt_file_path):
+        print(f"ERROR: Receipt file missing: {receipt_file_path}", file=sys.stderr)
+        return False, "Receipt file missing"
+
+    try:
+        with open(receipt_file_path, "r", encoding="utf-8") as f:
+            raw_content = f.read()
+    except Exception as e:
+        print(f"ERROR: Invalid UTF-8 or unreadable receipt file: {e}", file=sys.stderr)
+        return False, "Invalid UTF-8 receipt file"
+
+    if not raw_content or not raw_content.strip():
+        print("ERROR: Receipt file is empty", file=sys.stderr)
+        return False, "Receipt file empty"
+
+    forbidden_fields = ["COPIED_TO_CLIPBOARD=", "CLIPBOARD_METHOD=", "CLIPBOARD_ERROR=", "CLIPBOARD_READBACK=", "CLIPBOARD_CONTENT_HASH="]
+    for field in forbidden_fields:
+        if field in raw_content:
+            print(f"ERROR: Duplicate clipboard field in input receipt: {field}", file=sys.stderr)
+            return False, f"Duplicate field {field}"
+
+    base_text = raw_content.rstrip("\n")
+
+    # Primary Attempt: clip.exe
+    primary_method = "/mnt/c/Windows/System32/clip.exe"
+    candidate_primary = base_text + f"\n\nCOPIED_TO_CLIPBOARD=YES\nCLIPBOARD_METHOD={primary_method}\nCLIPBOARD_ERROR=NONE\nCLIPBOARD_READBACK=PASS\nCLIPBOARD_CONTENT_HASH=PASS\n"
+
+    if copy_via_clip_exe(candidate_primary):
+        readback_1 = read_clipboard_powershell()
+        ok_1, hash_1 = verify_readback(candidate_primary, readback_1)
+        if ok_1:
+            with open(receipt_file_path, "w", encoding="utf-8") as f:
+                f.write(candidate_primary)
+            return True, "PASS"
+
+    # Fallback Attempt: PowerShell Set-Clipboard
+    fallback_method = "PowerShell Set-Clipboard"
+    candidate_fallback = base_text + f"\n\nCOPIED_TO_CLIPBOARD=YES\nCLIPBOARD_METHOD={fallback_method}\nCLIPBOARD_ERROR=NONE\nCLIPBOARD_READBACK=PASS\nCLIPBOARD_CONTENT_HASH=PASS\n"
+
+    if copy_via_powershell(candidate_fallback):
+        readback_2 = read_clipboard_powershell()
+        ok_2, hash_2 = verify_readback(candidate_fallback, readback_2)
+        if ok_2:
+            with open(receipt_file_path, "w", encoding="utf-8") as f:
+                f.write(candidate_fallback)
+            return True, "PASS"
+
+    # Failure Candidate
+    failure_text = base_text + "\n\nCOPIED_TO_CLIPBOARD=NO\nCLIPBOARD_METHOD=NONE\nCLIPBOARD_ERROR=CLIPBOARD_READBACK_CONTENT_MISMATCH\nCLIPBOARD_READBACK=FAIL\nCLIPBOARD_CONTENT_HASH=FAIL\n"
+    with open(receipt_file_path, "w", encoding="utf-8") as f:
+        f.write(failure_text)
+    return False, "CLIPBOARD_READBACK_CONTENT_MISMATCH"
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Verified Clipboard Receipt Helper")
+    parser.add_argument("--receipt-file", required=True, help="Path to receipt text file")
+    args = parser.parse_args()
+
+    ok, reason = process_receipt_file(args.receipt_file)
+    if ok:
+        with open(args.receipt_file, "r", encoding="utf-8") as f:
+            sys.stdout.write(f.read())
+        sys.exit(0)
+    else:
+        with open(args.receipt_file, "r", encoding="utf-8") as f:
+            sys.stdout.write(f.read())
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

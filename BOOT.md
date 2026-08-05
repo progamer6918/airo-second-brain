@@ -5,15 +5,11 @@ When asked to act as AIRO Sync or read GitHub / Second Brain, read this rule fir
 Every owner-facing command must:
 
 * capture both stdout and stderr;
-* write the output to a timestamped log file;
-* copy the same final output to the Windows clipboard;
-* print `COPIED_TO_CLIPBOARD=<path>` after a successful clipboard copy.
-
-For PowerShell, use `Set-Clipboard`.
-
-For WSL, write output through `tee` to `/tmp/`, then copy the final file through `clip.exe`.
-
-Do not rely on `Tee-Object` alone because an empty pipeline may result in no usable log file.
+* write the output to a timestamped receipt log file `/tmp/<receipt>.txt`;
+* invoke canonical helper `python3 scripts/airo-clipboard-receipt --receipt-file /tmp/<receipt>.txt`;
+* process exit 0 alone is NOT sufficient for clipboard delivery (`CLIPBOARD_COMMAND_EXIT_NOT_SUFFICIENT=YES`);
+* verified read-back and content-hash match are mandatory (`CLIPBOARD_READBACK=PASS`, `CLIPBOARD_CONTENT_HASH=PASS`);
+* print resulting receipt file containing `COPIED_TO_CLIPBOARD=YES` after verified delivery.
 
 ---
 
