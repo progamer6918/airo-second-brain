@@ -129,7 +129,7 @@ def check_canonical_milestone_state_consistency():
 
         with open(roadmap_idx_path, "r", encoding="utf-8") as f:
             rm_idx_txt = f.read()
-        if "Active milestone: M6 — Owner Acceptance & Cutover" not in rm_idx_txt:
+        if "Active milestone: M6 — Owner Acceptance & Cutover" not in rm_idx_txt and "Active milestone M6 — Owner Acceptance & Cutover" not in rm_idx_txt:
             errors.append("ROADMAP_INDEX: ASB_GLOBAL current target is not M6")
 
         with open(current_path, "r", encoding="utf-8") as f:
@@ -139,7 +139,7 @@ def check_canonical_milestone_state_consistency():
 
         with open(prd_path, "r", encoding="utf-8") as f:
             prd_txt = f.read()
-        if "M5 — Cross-Consumer & Failure Proof | DONE" not in prd_txt:
+        if "M5 — Cross-Consumer & Failure Proof** (DONE" not in prd_txt and "M5 — Cross-Consumer & Failure Proof | DONE" not in prd_txt:
             errors.append("PRD: M5 is not marked DONE")
     else:
         # Commit A / In-progress M5 state
