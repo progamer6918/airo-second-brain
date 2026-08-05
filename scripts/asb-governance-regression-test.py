@@ -100,15 +100,25 @@ def check_markdown_link_resolution():
         print("  [PASS] 100% of canonical Markdown relative links resolve to existing repository files.")
         return True
 
-def validate_roadmap_semantics(rm_txt):
+def validate_roadmap_semantics(rm_txt, post_m6=False):
     errors = []
     has_m5_done = ("M5 — Cross-Consumer & Failure Proof** (`DONE`" in rm_txt) and ("Milestone 5 — Cross-Consumer & Failure Proof (`DONE`)" in rm_txt)
-    has_m6_next = ("M6 — Owner Acceptance & Cutover** (`NOT_YET_PROVEN` — Next Active Target)" in rm_txt) and ("Milestone 6 — Owner Acceptance & Cutover (`NOT_YET_PROVEN`)" in rm_txt)
-
-    if not has_m5_done:
-        errors.append("ROADMAP: M5 status is not DONE")
-    if not has_m6_next:
-        errors.append("ROADMAP: M6 is not NOT_YET_PROVEN — Next Active Target")
+    
+    if post_m6:
+        has_m6_done = ("M6 — Owner Acceptance & Cutover** (`DONE`" in rm_txt) and ("Milestone 6 — Owner Acceptance & Cutover (`DONE`)" in rm_txt)
+        no_next = "Next Active Target" not in rm_txt
+        if not has_m5_done:
+            errors.append("ROADMAP: M5 status is not DONE")
+        if not has_m6_done:
+            errors.append("ROADMAP: M6 status is not DONE")
+        if not no_next:
+            errors.append("ROADMAP: Still contains Next Active Target after v0.6 completion")
+    else:
+        has_m6_next = ("M6 — Owner Acceptance & Cutover** (`NOT_YET_PROVEN` — Next Active Target)" in rm_txt) and ("Milestone 6 — Owner Acceptance & Cutover (`NOT_YET_PROVEN`)" in rm_txt)
+        if not has_m5_done:
+            errors.append("ROADMAP: M5 status is not DONE")
+        if not has_m6_next:
+            errors.append("ROADMAP: M6 is not NOT_YET_PROVEN — Next Active Target")
     return errors
 
 def check_canonical_milestone_state_consistency():
@@ -119,10 +129,46 @@ def check_canonical_milestone_state_consistency():
     roadmap_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md")
     tracker_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv")
     closeout_m5_path = os.path.join(REPO_ROOT, "docs/validation/AIRO_SECOND_BRAIN_v0.6_M5_CLOSEOUT_20260805.md")
+    closeout_m6_path = os.path.join(REPO_ROOT, "docs/validation/AIRO_SECOND_BRAIN_v0.6_M6_CLOSEOUT_20260805.md")
+    dec_m6_path = os.path.join(REPO_ROOT, "decisions/approved/asb-v06-m6-owner-acceptance-20260805.md")
 
     errors = []
 
-    if os.path.exists(closeout_m5_path):
+    if os.path.exists(closeout_m6_path):
+        # Post-M6 final complete state: M0-M6 DONE
+        with open(tracker_path, "r", encoding="utf-8") as f:
+            tracker_txt = f.read()
+        if "M6\tOwner Acceptance & Cutover\tDONE\tBERHASIL\tYES" not in tracker_txt:
+            errors.append("TRACKER: M6 is not DONE/BERHASIL/YES")
+
+        if not os.path.exists(dec_m6_path):
+            errors.append("DECISION: Owner M6 acceptance decision file missing")
+        else:
+            with open(dec_m6_path, "r", encoding="utf-8") as f:
+                dtxt = f.read()
+            if "OWNER_M6_ACCEPTANCE=APPROVED" not in dtxt:
+                errors.append("DECISION: Owner M6 acceptance decision missing APPROVED marker")
+
+        with open(roadmap_path, "r", encoding="utf-8") as f:
+            rm_txt = f.read()
+        rm_errors = validate_roadmap_semantics(rm_txt, post_m6=True)
+        errors.extend(rm_errors)
+
+        with open(roadmap_idx_path, "r", encoding="utf-8") as f:
+            rm_idx_txt = f.read()
+        if "V0_6_COMPLETE" not in rm_idx_txt and "v0.6 7-Milestone Roadmap Complete" not in rm_idx_txt:
+            errors.append("ROADMAP_INDEX: ASB_GLOBAL does not record v0.6 complete")
+
+        with open(current_path, "r", encoding="utf-8") as f:
+            curr_txt = f.read()
+        if "AIRO Second Brain v0.6 — COMPLETE" not in curr_txt and "M6_STATUS=DONE" not in curr_txt:
+            errors.append("CURRENT: top routing override does not record v0.6 complete / M6 DONE")
+
+        with open(prd_path, "r", encoding="utf-8") as f:
+            prd_txt = f.read()
+        if "M6 — Owner Acceptance & Cutover** (DONE" not in prd_txt and "IMPLEMENTATION_STATE=COMPLETE_OWNER_ACCEPTED" not in prd_txt:
+            errors.append("PRD: M6 is not marked DONE")
+    elif os.path.exists(closeout_m5_path):
         # Post-M5 closeout state: M5 DONE, M6 NOT_YET_PROVEN
         with open(tracker_path, "r", encoding="utf-8") as f:
             tracker_txt = f.read()
@@ -133,7 +179,7 @@ def check_canonical_milestone_state_consistency():
 
         with open(roadmap_path, "r", encoding="utf-8") as f:
             rm_txt = f.read()
-        rm_errors = validate_roadmap_semantics(rm_txt)
+        rm_errors = validate_roadmap_semantics(rm_txt, post_m6=False)
         errors.extend(rm_errors)
 
         with open(roadmap_idx_path, "r", encoding="utf-8") as f:

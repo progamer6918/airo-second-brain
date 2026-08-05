@@ -5,4 +5,4 @@ M2	Session & Worklog	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M2
 M3	Obsidian Human Experience	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M3_CLOSEOUT_20260805.md	HOME navigation PASS, native Base PASS, properties PASS, Obsidian tests 20/20 PASS
 M4	LLM Wiki Memory Loop	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M4_CLOSEOUT_20260805.md	Candidate tool PASS, Execution Assurance concept PASS, query retrieval PASS, Wiki tests 20/20 PASS
 M5	Cross-Consumer & Failure Proof	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M5_CLOSEOUT_20260805.md	Cross-consumer safety & failure proof complete
-M6	Owner Acceptance & Cutover	NOT_YET_PROVEN	BELUM_TERBUKTI	NO	docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md	M6 implementation pending
+M6	Owner Acceptance & Cutover	DONE	BERHASIL	YES	docs/validation/AIRO_SECOND_BRAIN_v0.6_M6_CLOSEOUT_20260805.md	Owner acceptance approved; final v0.6 cutover complete

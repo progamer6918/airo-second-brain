@@ -2,11 +2,12 @@
 
 # ASB Current Routing Override — 2026-08-05
 
-- **Current ASB target:** AIRO Second Brain v0.6
-- **Current milestone:** M6 — Owner Acceptance & Cutover (NOT_YET_PROVEN)
+- **Current ASB target:** AIRO Second Brain v0.6 — COMPLETE
+- **Final milestone:** M6 — Owner Acceptance & Cutover (DONE)
 - **Previous milestone:** M5 — Cross-Consumer & Failure Proof (DONE)
-- **M5 status:** `M5_STATUS=DONE`, `M5_IMPLEMENTED=YES`, `M5_CANONICAL_DONE=YES`
-- **M6 status:** `M6_STATUS=NOT_YET_PROVEN`, `M6_IMPLEMENTED=NO`, `M6_STARTED=NO`
+- **M6 status:** `M6_STATUS=DONE`, `M6_IMPLEMENTED=YES`, `M6_CANONICAL_DONE=YES`, `OWNER_ACCEPTED=YES`, `FINAL_CUTOVER=COMPLETE`
+- **v0.6 status:** `AIRO_SECOND_BRAIN_V0_6_STATUS=COMPLETE`
+- **Next v0.6 milestone:** `NONE — roadmap complete`
 - **Canonical roadmap:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md`
 - **Canonical tracker:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv`
 - **Canonical design:** `docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md`

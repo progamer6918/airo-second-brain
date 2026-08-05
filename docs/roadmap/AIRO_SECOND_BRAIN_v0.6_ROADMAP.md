@@ -18,7 +18,7 @@ AIRO Second Brain v0.6 is structured into exactly seven canonical milestones:
 4. **M3 — Obsidian Human Experience** (`DONE` — M3 Human Cockpit Complete)
 5. **M4 — LLM Wiki Memory Loop** (`DONE` — M4 Governed LLM Wiki Memory Loop Complete)
 6. **M5 — Cross-Consumer & Failure Proof** (`DONE` — M5 Cross-Consumer & Failure Proof Complete)
-7. **M6 — Owner Acceptance & Cutover** (`NOT_YET_PROVEN` — Next Active Target)
+7. **M6 — Owner Acceptance & Cutover** (`DONE` — Owner Accepted / Final v0.6 Cutover Complete)
 
 ---
 
@@ -44,6 +44,10 @@ AIRO Second Brain v0.6 is structured into exactly seven canonical milestones:
 - **Objective:** Verify multi-agent consumer safety, failure handling, and cross-interface compatibility.
 - **Evidence:** `docs/validation/AIRO_SECOND_BRAIN_v0.6_M5_CLOSEOUT_20260805.md`
 
-### Milestone 6 — Owner Acceptance & Cutover (`NOT_YET_PROVEN`)
+### Milestone 6 — Owner Acceptance & Cutover (`DONE`)
 - **Objective:** Owner acceptance and final v0.6 cutover.
-- **Status:** Next active implementation target.
+- **Evidence:** `docs/validation/AIRO_SECOND_BRAIN_v0.6_M6_CLOSEOUT_20260805.md`
+
+---
+
+AIRO Second Brain v0.6 roadmap complete. All seven canonical milestones M0-M6 are DONE. No next active milestone exists inside v0.6.

@@ -54,7 +54,7 @@ The v0.6 upgrade is structured into exactly seven canonical milestones:
 - **M3 — Obsidian Human Experience** (DONE — Human Cockpit Record Verified)
 - **M4 — LLM Wiki Memory Loop** (DONE — Governed Memory Loop Record Verified)
 - **M5 — Cross-Consumer & Failure Proof** (DONE — Cross-consumer safety & failure proof verified)
-- **M6 — Owner Acceptance & Cutover** (NOT_YET_PROVEN — Next Active Target)
+- **M6 — Owner Acceptance & Cutover** (DONE — Owner Accepted / Final Cutover Complete)
 
 No ad-hoc roadmap gates (e.g. M2.1A, Shadow Gate) are allowed without explicit Owner approval.
 

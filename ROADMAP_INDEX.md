@@ -9,7 +9,7 @@
 
 | Scope / Project | Owner-Approved Status | Roadmap Pointer | Current Status Source | Notes / Blockers |
 |---|---|---|---|---|
-| **ASB_GLOBAL** | `ACTIVE` | `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md` | `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv` | ASB v0.6 7-Milestone Roadmap. Active milestone: M6 — Owner Acceptance & Cutover (Status: NOT_YET_PROVEN). Previous: M5 (DONE). See [Design Spec](docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md). |
+| **ASB_GLOBAL** | `V0_6_COMPLETE` | `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md` | `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv` | ASB v0.6 7-Milestone Roadmap Complete. M0-M6 DONE. Owner accepted. Final cutover complete. No active milestone remains in v0.6. |
 | **AIRO Finance / vortex-ai-skill-lab** | `ACTIVE_PHASE_4_CICILAN_RUMAH` | `ecosystem/projects/vortex-ai-skill-lab/docs/plans/AIRO_FINANCE_WEB_APP_V2_EXECUTION_SLICE_PLAN.md` | Phase 4 Cicilan Rumah Active (Gate 4.0 Docs-Only Activation) + latest runtime evidence | Owner-approved Web App V2 track (Phases 0–8). Read-only cockpit architecture. Telegram foreign-message ingestion incident is open; no finance runtime mutation is authorized by this checkpoint. |
 | **finance-bot-alternatives** | `EXPERIMENT_REFERENCE` | None | Folder contents | Classified as experiment reference. |
 | **earnsai-pulse-trading-local-backups** | `ARCHIVE_LOCAL_BACKUP` | None | Folder contents | Local backup archive. |
