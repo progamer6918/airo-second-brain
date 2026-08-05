@@ -3,9 +3,9 @@
 # ASB Current Routing Override — 2026-08-05
 
 - **Current ASB target:** AIRO Second Brain v0.6
-- **Current milestone:** M3 — Obsidian Human Experience (NOT_YET_PROVEN)
-- **Previous milestone:** M2 — Session & Worklog (DONE)
-- **M3 status:** `M3_STATUS=NOT_YET_PROVEN`, `M3_IMPLEMENTED=NO`, `M3_STARTED=NO`
+- **Current milestone:** M4 — LLM Wiki Memory Loop (NOT_YET_PROVEN)
+- **Previous milestone:** M3 — Obsidian Human Experience (DONE)
+- **M4 status:** `M4_STATUS=NOT_YET_PROVEN`, `M4_IMPLEMENTED=NO`, `M4_STARTED=NO`
 - **Canonical roadmap:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md`
 - **Canonical tracker:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv`
 - **Canonical design:** `docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md`
