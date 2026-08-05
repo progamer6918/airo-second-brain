@@ -66,7 +66,7 @@ def check_markdown_link_resolution():
         src_dir = os.path.dirname(src_path)
         with open(src_path, "r", encoding="utf-8") as f:
             content = f.read()
-        
+
         links = re.findall(r"\[([^\]]+)\]\(([^)]+)\)", content)
         for text, target in links:
             target = target.strip()
@@ -75,14 +75,14 @@ def check_markdown_link_resolution():
             if target.startswith("file:///"):
                 broken_links.append((doc, target, "Absolute file:/// URI forbidden"))
                 continue
-            
+
             target_path_only = target.split("#")[0]
             if not target_path_only:
                 continue
-            
+
             total_links += 1
             resolved_path = os.path.normpath(os.path.join(src_dir, target_path_only))
-            
+
             if os.path.exists(resolved_path):
                 resolved_links += 1
             else:
@@ -103,7 +103,7 @@ def check_markdown_link_resolution():
 def validate_roadmap_semantics(rm_txt, post_m6=False):
     errors = []
     has_m5_done = ("M5 — Cross-Consumer & Failure Proof** (`DONE`" in rm_txt) and ("Milestone 5 — Cross-Consumer & Failure Proof (`DONE`)" in rm_txt)
-    
+
     if post_m6:
         has_m6_done = ("M6 — Owner Acceptance & Cutover** (`DONE`" in rm_txt) and ("Milestone 6 — Owner Acceptance & Cutover (`DONE`)" in rm_txt)
         no_next = "Next Active Target" not in rm_txt
