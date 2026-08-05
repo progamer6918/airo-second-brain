@@ -8,6 +8,52 @@ import hashlib
 import subprocess
 from datetime import datetime, timezone
 
+SECRET_PATTERNS = ["sk-proj-", "sk-", "token=", "api_key=", "private_key", "begin private key", "-----begin"]
+
+def check_public_safety(*fields):
+    for field in fields:
+        if field is None:
+            continue
+        val_str = str(field)
+        val_lower = val_str.lower()
+        for pat in SECRET_PATTERNS:
+            if pat in val_lower:
+                return False, pat
+    return True, None
+
+def validate_identifier(val, name="identifier"):
+    if not val or not isinstance(val, str):
+        return False, f"{name} must be a non-empty string"
+    if ".." in val or "/" in val or "\\" in val or "\0" in val or "\r" in val or "\n" in val:
+        return False, f"{name} contains invalid path characters or traversal"
+    safe, pat = check_public_safety(val)
+    if not safe:
+        return False, f"{name} contains secret pattern '{pat}'"
+    return True, None
+
+def validate_string_list(val, name="list"):
+    if val is None:
+        return True, None
+    if isinstance(val, str):
+        try:
+            val = json.loads(val)
+        except Exception:
+            return False, f"{name} is not valid JSON"
+    if not isinstance(val, list):
+        return False, f"{name} must be a JSON array"
+    for item in val:
+        if not isinstance(item, str):
+            return False, f"{name} items must be strings"
+        safe, pat = check_public_safety(item)
+        if not safe:
+            return False, f"{name} item contains secret pattern '{pat}'"
+    return True, None
+
+def is_path_contained(target_path, parent_dir):
+    target_abs = os.path.abspath(target_path)
+    parent_abs = os.path.abspath(parent_dir)
+    return target_abs == parent_abs or target_abs.startswith(parent_abs + os.sep)
+
 def get_repo_root():
     if os.environ.get("AIRO_REPO_ROOT"):
         return os.path.abspath(os.environ.get("AIRO_REPO_ROOT"))
@@ -53,10 +99,25 @@ def clear_active_session(repo_root):
     if os.path.exists(state_file):
         os.remove(state_file)
 
+def verify_ledger_session_id(repo_root, session_id):
+    ledger_file = os.path.join(repo_root, "events/raw/events.ndjson")
+    if not os.path.exists(ledger_file):
+        return False
+    try:
+        with open(ledger_file, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+        if not lines:
+            return False
+        last_line = lines[-1]
+        data = json.loads(last_line)
+        return data.get("session_id") == session_id
+    except Exception:
+        return False
+
 def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
     capture_script = os.path.join(repo_root, "scripts/airo-capture")
     if not os.path.exists(capture_script):
-        return
+        return False
     cmd = [
         sys.executable, capture_script,
         "--event", event_type,
@@ -65,11 +126,25 @@ def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
         "--session-id", session_id
     ]
     try:
-        subprocess.run(cmd, cwd=repo_root, env=os.environ, capture_output=True, text=True)
+        res = subprocess.run(cmd, cwd=repo_root, env=os.environ, capture_output=True, text=True)
+        if res.returncode != 0:
+            return False
+        return verify_ledger_session_id(repo_root, session_id)
     except Exception:
-        pass
+        return False
 
 def cmd_start(args, repo_root):
+    for val, name in [(args.project_id, "project_id"), (args.project_name, "project_name")]:
+        valid, err = validate_identifier(val, name)
+        if not valid:
+            print(f"ERROR: {err}", file=sys.stderr)
+            return 1
+    
+    safe, pat = check_public_safety(args.objective, args.title, args.position)
+    if not safe:
+        print(f"ERROR: Input contains secret pattern '{pat}'", file=sys.stderr)
+        return 1
+
     active = load_active_session(repo_root)
     if active:
         if active.get("project_id") == args.project_id and active.get("objective") == args.objective:
@@ -96,10 +171,19 @@ def cmd_start(args, repo_root):
         "events": [],
         "evidence_list": [],
         "blockers": [],
-        "limitations": []
+        "limitations": [],
+        "planned_closeout_path": None
     }
+    
     save_active_session(repo_root, session_data)
-    invoke_airo_capture(repo_root, internal_id, args.project_id, "checkpoint", "Session started: " + str(args.objective))
+    
+    capture_ok = invoke_airo_capture(repo_root, internal_id, args.project_id, "checkpoint", "Session started: " + str(args.objective))
+    if not capture_ok:
+        print("EVENT_RECORDED=NO")
+        print("CAPTURE_STATUS=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
+
     print("SESSION_ACTION=STARTED")
     print("SESSION_ID=" + internal_id)
     return 0
@@ -110,11 +194,10 @@ def cmd_event(args, repo_root):
         print("ERROR: No active session found. Start a session first.", file=sys.stderr)
         return 1
     
-    summary_lower = args.summary.lower()
-    for secret_token in ["sk-proj-", "sk-", "token=", "api_key=", "private_key"]:
-        if secret_token in summary_lower:
-            print("ERROR: Event summary contains potential secret keyword '" + secret_token + "'", file=sys.stderr)
-            return 2
+    safe, pat = check_public_safety(args.summary, args.evidence)
+    if not safe:
+        print(f"ERROR: Event summary contains potential secret keyword '{pat}'", file=sys.stderr)
+        return 2
 
     now_iso = datetime.now(timezone.utc).isoformat()
     evt = {
@@ -123,10 +206,18 @@ def cmd_event(args, repo_root):
         "summary": args.summary,
         "evidence": args.evidence or ""
     }
+    
     active["events"].append(evt)
     active["last_activity_at"] = now_iso
     save_active_session(repo_root, active)
-    invoke_airo_capture(repo_root, active["internal_session_id"], active["project_id"], args.event_type, args.summary)
+
+    capture_ok = invoke_airo_capture(repo_root, active["internal_session_id"], active["project_id"], args.event_type, args.summary)
+    if not capture_ok:
+        print("EVENT_RECORDED=NO")
+        print("CAPTURE_STATUS=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
+
     print("EVENT_RECORDED=YES")
     return 0
 
@@ -156,10 +247,10 @@ def cmd_status(args, repo_root):
     print("📈 Progress — Active session with " + str(events_count) + " events recorded")
     print("")
     print("🧪 Bukti")
-    print("Yang wajib ada — Execution & session evidence")
+    print("Yang wajib ada — Evaluasi bukti saat sesi ditutup")
     print("Yang sudah ada — " + str(events_count) + " events logged")
-    print("Kesimpulan — IN_PROGRESS")
-    print("Boleh lanjut — YA")
+    print("Kesimpulan — SEDANG DIKERJAKAN")
+    print("Boleh lanjut — TIDAK / BELUM DINILAI")
     print("")
     print("⛔ Hambatan — " + blockers_text)
     print("➡️ Berikutnya — Continue work on: " + obj)
@@ -175,10 +266,15 @@ def cmd_draft_closeout(args, repo_root):
         return 1
 
     date_str = datetime.now().strftime("%Y-%m-%d")
-    clean_proj = active["project_name"].replace("/", "-").replace(" ", "_")
-    clean_title = active["title"].replace("/", "-").replace(" ", "_")
+    clean_proj = active["project_name"].replace("/", "-").replace("\\", "-").replace(" ", "_")
+    clean_title = active["title"].replace("/", "-").replace("\\", "-").replace(" ", "_")
     draft_filename = date_str + " - " + clean_proj + " - " + clean_title + ".md"
     draft_path = os.path.join(repo_root, "inbox/session-closeouts", draft_filename)
+    
+    if not is_path_contained(draft_path, os.path.join(repo_root, "inbox/session-closeouts")):
+        print("ERROR: Path traversal detected in draft path", file=sys.stderr)
+        return 1
+
     os.makedirs(os.path.dirname(draft_path), exist_ok=True)
 
     blockers_text = "Tidak ada" if not active["blockers"] else ", ".join(active["blockers"])
@@ -223,17 +319,49 @@ def cmd_close(args, repo_root):
         print("ERROR: No active session found.", file=sys.stderr)
         return 1
 
-    verdict_script = os.path.join(repo_root, "scripts/airo-task-verdict")
-    verdict_status = "BERHASIL"
-    can_advance = "YES"
+    # Validate JSON argument shapes
+    for val, name in [
+        (args.required_evidence, "required_evidence"),
+        (args.actual_evidence, "actual_evidence"),
+        (args.blockers, "blockers"),
+        (args.limitations, "limitations")
+    ]:
+        valid, err = validate_string_list(val, name)
+        if not valid:
+            print(f"ERROR: {err}", file=sys.stderr)
+            print("CLOSE_RESULT=FAILED")
+            print("TASK_STATUS=BELUM_TERBUKTI")
+            print("CAN_ADVANCE=NO")
+            print("ACTIVE_SESSION_PRESERVED=YES")
+            return 1
+
+    verdict_status = "BELUM_TERBUKTI"
+    can_advance = "NO"
 
     script_status = args.script_status or "SCRIPT_SUCCESS"
-    req_ev = json.loads(args.required_evidence) if args.required_evidence else ["Session_Objective_Achieved"]
-    act_ev = json.loads(args.actual_evidence) if args.actual_evidence else (["Session_Objective_Achieved"] if not active["events"] else [e["summary"] for e in active["events"]])
+    
+    # Check if explicit evidence arguments were provided
+    has_explicit_evidence = args.required_evidence is not None and args.actual_evidence is not None
+
+    req_ev = json.loads(args.required_evidence) if args.required_evidence else []
+    act_ev = json.loads(args.actual_evidence) if args.actual_evidence else []
     blockers = json.loads(args.blockers) if args.blockers else active.get("blockers", [])
     limitations = json.loads(args.limitations) if args.limitations else active.get("limitations", [])
 
-    if os.path.exists(verdict_script):
+    if not has_explicit_evidence:
+        # NO fabricated evidence! Fail closed: BELUM_TERBUKTI / NO
+        verdict_status = "BELUM_TERBUKTI"
+        can_advance = "NO"
+    else:
+        verdict_script = os.path.join(repo_root, "scripts/airo-task-verdict")
+        if not os.path.exists(verdict_script) or not os.access(verdict_script, os.X_OK):
+            print("ERROR: Task verdict validator missing or non-executable.", file=sys.stderr)
+            print("CLOSE_RESULT=FAILED")
+            print("TASK_STATUS=BELUM_TERBUKTI")
+            print("CAN_ADVANCE=NO")
+            print("ACTIVE_SESSION_PRESERVED=YES")
+            return 1
+        
         verdict_input = {
             "project_id": active["project_id"],
             "position_id": active.get("position", "M2"),
@@ -243,22 +371,59 @@ def cmd_close(args, repo_root):
             "blockers": blockers,
             "limitations": limitations
         }
-        res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=os.environ, text=True, capture_output=True)
-        if res.returncode == 0:
+        
+        try:
+            res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=os.environ, text=True, capture_output=True)
+            if res.returncode != 0:
+                print("ERROR: Validator returned nonzero exit code.", file=sys.stderr)
+                print("CLOSE_RESULT=FAILED")
+                print("TASK_STATUS=BELUM_TERBUKTI")
+                print("CAN_ADVANCE=NO")
+                print("ACTIVE_SESSION_PRESERVED=YES")
+                return 1
+            
             v_data = json.loads(res.stdout)
-            verdict_status = v_data.get("task_status", "BERHASIL")
-            can_advance = v_data.get("can_advance", "YES")
+            if "task_status" not in v_data or "can_advance" not in v_data:
+                raise ValueError("Validator output missing required keys")
+            
+            valid_statuses = ["BERHASIL", "BERHASIL_DENGAN_BATASAN", "BELUM_TERBUKTI", "TERHAMBAT", "GAGAL"]
+            if v_data["task_status"] not in valid_statuses or v_data["can_advance"] not in ["YES", "NO"]:
+                raise ValueError("Validator output contains unknown enum")
+            
+            verdict_status = v_data["task_status"]
+            can_advance = v_data["can_advance"]
+        except Exception as e:
+            print(f"ERROR: Validator execution/parsing failed: {e}", file=sys.stderr)
+            print("CLOSE_RESULT=FAILED")
+            print("TASK_STATUS=BELUM_TERBUKTI")
+            print("CAN_ADVANCE=NO")
+            print("ACTIVE_SESSION_PRESERVED=YES")
+            return 1
 
     date_str = datetime.now().strftime("%Y-%m-%d")
     project_dir = os.path.join(repo_root, "worklog/sessions", date_str, active["project_name"])
+    
+    if not is_path_contained(project_dir, os.path.join(repo_root, "worklog/sessions")):
+        print("ERROR: Path containment violation in project directory.", file=sys.stderr)
+        print("CLOSE_RESULT=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
+
     os.makedirs(project_dir, exist_ok=True)
 
-    existing_files = [f for f in os.listdir(project_dir) if f.endswith(".md")]
-    next_num = len(existing_files) + 1
-    session_file_name = f"{next_num:02d} - " + active['title'] + ".md"
-    session_file_path = os.path.join(project_dir, session_file_name)
+    # Determine stable closeout path
+    if active.get("planned_closeout_path"):
+        session_file_path = active["planned_closeout_path"]
+        session_file_name = os.path.basename(session_file_path)
+    else:
+        existing_files = [f for f in os.listdir(project_dir) if f.endswith(".md")]
+        next_num = len(existing_files) + 1
+        session_file_name = f"{next_num:02d} - " + active['title'] + ".md"
+        session_file_path = os.path.join(project_dir, session_file_name)
+        active["planned_closeout_path"] = session_file_path
+        save_active_session(repo_root, active)
 
-    events_summary = "\n".join(["- **" + e['event_type'] + "**: " + e['summary'] for e in active["events"]]) if active["events"] else "- Sesi dijalankan dengan sukses."
+    events_summary = "\n".join(["- **" + e['event_type'] + "**: " + e['summary'] for e in active["events"]]) if active["events"] else "- Sesi dijalankan."
     blockers_summary = ", ".join(blockers) if blockers else "Tidak ada"
     
     lines = [
@@ -271,8 +436,8 @@ def cmd_close(args, repo_root):
         "📈 Progress — Sesi selesai dengan status " + verdict_status,
         "",
         "🧪 Bukti",
-        "Yang wajib ada — " + ", ".join(req_ev),
-        "Yang sudah ada — " + ", ".join(act_ev),
+        "Yang wajib ada — " + (", ".join(req_ev) if req_ev else "Evaluasi bukti kanonis"),
+        "Yang sudah ada — " + (", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"),
         "Kesimpulan — " + verdict_status,
         "Boleh lanjut — " + ("YA" if can_advance == 'YES' else "TIDAK"),
         "",
@@ -311,13 +476,35 @@ def cmd_close(args, repo_root):
     ]
     note_content = "\n".join(lines) + "\n"
 
-    with open(session_file_path, "w", encoding="utf-8") as f:
+    # Render to temporary file first, then atomic replace
+    tmp_note_path = session_file_path + ".tmp"
+    with open(tmp_note_path, "w", encoding="utf-8") as f:
         f.write(note_content)
+    os.replace(tmp_note_path, session_file_path)
 
+    # Run Daily generator and verify
     daily_script = os.path.join(repo_root, "scripts/airo-daily")
-    if os.path.exists(daily_script):
-        subprocess.run([sys.executable, daily_script, date_str], cwd=repo_root, env=os.environ, capture_output=True)
+    if not os.path.exists(daily_script):
+        print("ERROR: Daily generator script missing.", file=sys.stderr)
+        print("CLOSE_RESULT=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
 
+    daily_res = subprocess.run([sys.executable, daily_script, date_str], cwd=repo_root, env=os.environ, capture_output=True, text=True)
+    if daily_res.returncode != 0:
+        print("ERROR: Daily generator failed.", file=sys.stderr)
+        print("CLOSE_RESULT=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
+
+    daily_file = os.path.join(repo_root, "worklog/daily", date_str + ".md")
+    if not os.path.exists(daily_file):
+        print("ERROR: Daily file missing after generation.", file=sys.stderr)
+        print("CLOSE_RESULT=FAILED")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        return 1
+
+    # Only when all durable outputs succeeded, clear active session
     clear_active_session(repo_root)
     print("SESSION_CLOSED=YES")
     print("PERMANENT_SESSION_NOTE=" + session_file_path)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-airo-session-test.py: Comprehensive test suite for AIRO Session Lifecycle & Daily Generator.
-Runs 18 isolated test cases (T1..T18) covering scoping, events, resume, verdict enforcement, UX, and daily generation.
+airo-session-test.py: Comprehensive 30-case test suite for AIRO Session Lifecycle & Daily Generator.
+Tests prove exact state, ledger, path containment, verdict enforcement, public safety, and atomic closeout.
 """
 import sys
 import os
@@ -9,13 +9,18 @@ import shutil
 import tempfile
 import json
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-BIN_SESSION = os.path.join(REPO_ROOT, "bin/airo-session")
-SCRIPTS_DAILY = os.path.join(REPO_ROOT, "scripts/airo-daily")
+def get_script_repo_root():
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ.get("AIRO_REPO_ROOT"))
+    return os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 def run_test_suite():
+    repo_root_source = get_script_repo_root()
+    if not os.path.exists(os.path.join(repo_root_source, "scripts/airo-capture")):
+        repo_root_source = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+
     tmp_dir = tempfile.mkdtemp(prefix="airo_session_test_")
     tmp_state = os.path.join(tmp_dir, "state")
     tmp_repo = os.path.join(tmp_dir, "repo")
@@ -23,39 +28,54 @@ def run_test_suite():
     os.makedirs(os.path.join(tmp_repo, "bin"), exist_ok=True)
     os.makedirs(os.path.join(tmp_repo, "scripts"), exist_ok=True)
     os.makedirs(os.path.join(tmp_repo, "docs/roadmap"), exist_ok=True)
-    
-    shutil.copy(BIN_SESSION, os.path.join(tmp_repo, "bin/airo-session"))
-    shutil.copy(SCRIPTS_DAILY, os.path.join(tmp_repo, "scripts/airo-daily"))
-    shutil.copy(os.path.join(REPO_ROOT, "scripts/airo-capture"), os.path.join(tmp_repo, "scripts/airo-capture"))
-    if os.path.exists(os.path.join(REPO_ROOT, "scripts/airo-task-verdict")):
-        shutil.copy(os.path.join(REPO_ROOT, "scripts/airo-task-verdict"), os.path.join(tmp_repo, "scripts/airo-task-verdict"))
+    os.makedirs(os.path.join(tmp_repo, "events/raw"), exist_ok=True)
+
+    scratch_dir = os.path.dirname(os.path.abspath(__file__))
+    bin_src = os.path.join(scratch_dir, "bin_airo_session.py") if os.path.exists(os.path.join(scratch_dir, "bin_airo_session.py")) else os.path.join(repo_root_source, "bin/airo-session")
+    daily_src = os.path.join(scratch_dir, "scripts_airo_daily.py") if os.path.exists(os.path.join(scratch_dir, "scripts_airo_daily.py")) else os.path.join(repo_root_source, "scripts/airo-daily")
+
+    shutil.copy(bin_src, os.path.join(tmp_repo, "bin/airo-session"))
+    shutil.copy(daily_src, os.path.join(tmp_repo, "scripts/airo-daily"))
+    shutil.copy(os.path.join(repo_root_source, "scripts/airo-capture"), os.path.join(tmp_repo, "scripts/airo-capture"))
+    if os.path.exists(os.path.join(repo_root_source, "scripts/airo-task-verdict")):
+        shutil.copy(os.path.join(repo_root_source, "scripts/airo-task-verdict"), os.path.join(tmp_repo, "scripts/airo-task-verdict"))
+
+    os.chmod(os.path.join(tmp_repo, "bin/airo-session"), 0o755)
+    os.chmod(os.path.join(tmp_repo, "scripts/airo-daily"), 0o755)
+    if os.path.exists(os.path.join(tmp_repo, "scripts/airo-task-verdict")):
+        os.chmod(os.path.join(tmp_repo, "scripts/airo-task-verdict"), 0o755)
 
     env = os.environ.copy()
     env["AIRO_SESSION_STATE_DIR"] = tmp_state
     env["AIRO_REPO_ROOT"] = tmp_repo
 
     passed = 0
-    total = 18
+    total = 30
 
-    print("Running 18 AIRO session & worklog test cases...")
+    print("Running 30 AIRO session & worklog test cases...")
 
-    # T1: start session => active session created
+    state_file = os.path.join(tmp_state, "active_session.json")
+
+    # T1: start creates durable active session
     res1 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj1"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "SESSION_ACTION=STARTED" in res1.stdout:
-        print("  [PASS] T1: Start session creates active session")
+    if "SESSION_ACTION=STARTED" in res1.stdout and os.path.exists(state_file):
+        with open(state_file, "r") as f:
+            sdata1 = json.load(f)
+        session_id_1 = sdata1["internal_session_id"]
+        print("  [PASS] T1: Start creates durable active session")
         passed += 1
     else:
-        print(f"  [FAIL] T1: Start session failed: {res1.stdout}")
+        print(f"  [FAIL] T1: Start failed: {res1.stdout}")
 
-    # T2: same project + objective start => same internal session reused
+    # T2: same project+objective reuses exact internal ID
     res2 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj1"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "SESSION_ACTION=CONTINUE_EXISTING" in res2.stdout:
-        print("  [PASS] T2: Same project + objective reuses active session")
+    if "SESSION_ACTION=CONTINUE_EXISTING" in res2.stdout and f"SESSION_ID={session_id_1}" in res2.stdout:
+        print("  [PASS] T2: Same project+objective reuses exact internal ID")
         passed += 1
     else:
-        print(f"  [FAIL] T2: Same project reuse failed: {res2.stdout}")
+        print(f"  [FAIL] T2: Session reuse failed: {res2.stdout}")
 
-    # T3: different project while active => refuses auto-switch
+    # T3: different project/objective refuses switch
     res3 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "FINANCE", "--project-name", "FINANCE", "--objective", "Obj2"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     if "SESSION_SWITCH_REQUIRES_CLOSE=YES" in res3.stdout:
         print("  [PASS] T3: Different project refuses auto-switch")
@@ -63,178 +83,363 @@ def run_test_suite():
     else:
         print(f"  [FAIL] T3: Project switch guard failed: {res3.stdout}")
 
-    # T4: multiple events => same internal session ID
+    # T4: multiple state events retain exact internal ID
     res4a = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Evt1"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     res4b = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Evt2"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "EVENT_RECORDED=YES" in res4a.stdout and "EVENT_RECORDED=YES" in res4b.stdout:
-        print("  [PASS] T4: Multiple events recorded under active session")
+    with open(state_file, "r") as f:
+        sdata4 = json.load(f)
+    if sdata4["internal_session_id"] == session_id_1 and len(sdata4["events"]) == 2:
+        print("  [PASS] T4: Multiple state events retain exact internal ID")
         passed += 1
     else:
-        print(f"  [FAIL] T4: Multiple events failed: {res4a.stdout}")
+        print(f"  [FAIL] T4: Event recording failed: {res4a.stdout}")
 
-    # T5: event integration => airo-capture ledger receives events
+    # T5: ledger events contain exact same session ID
     ndjson = os.path.join(tmp_repo, "events/raw/events.ndjson")
-    if os.path.exists(ndjson):
-        with open(ndjson, "r") as f:
-            lines = [line for line in f if line.strip()]
-        if len(lines) >= 3:
-            print("  [PASS] T5: Integration with airo-capture event ledger verified")
-            passed += 1
-        else:
-            print(f"  [FAIL] T5: Expected >= 3 events in ledger, found {len(lines)}")
+    with open(ndjson, "r") as f:
+        ledger_lines = [json.loads(line) for line in f if line.strip()]
+    matching_ids = [entry["session_id"] for entry in ledger_lines if entry.get("session_id") == session_id_1]
+    if len(matching_ids) >= 3:
+        print("  [PASS] T5: Ledger events contain exact same session ID (LEDGER_SESSION_ID_MATCH=PASS)")
+        passed += 1
     else:
-        print("  [FAIL] T5: Event ledger file missing")
+        print(f"  [FAIL] T5: Ledger session ID mismatch: {matching_ids}")
 
-    # T6: process restart/resume => session remains resumable
+    # T6: resume after process restart
     res6 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "resume"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "SESSION_RESUMED=YES" in res6.stdout:
-        print("  [PASS] T6: Session remains resumable after process exit")
+    if "SESSION_RESUMED=YES" in res6.stdout and "PROJECT_ID=ASB" in res6.stdout:
+        print("  [PASS] T6: Resume after process restart verified")
         passed += 1
     else:
         print(f"  [FAIL] T6: Resume failed: {res6.stdout}")
 
-    # T7: draft-closeout => staging closeout created, no fake finalization
+    # T7: draft closeout does not finalize
     res7 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "draft-closeout"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "DRAFT_CLOSEOUT_CREATED=YES" in res7.stdout:
+    if "DRAFT_CLOSEOUT_CREATED=YES" in res7.stdout and os.path.exists(state_file):
         print("  [PASS] T7: Draft closeout creates staging note without finalization")
         passed += 1
     else:
         print(f"  [FAIL] T7: Draft closeout failed: {res7.stdout}")
 
-    # T8: missing required evidence => session close status BELUM_TERBUKTI / CAN_ADVANCE=NO
-    res8 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--script-status", "SCRIPT_FAILED"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "VERDICT_STATUS=GAGAL" in res8.stdout or "VERDICT_STATUS=BELUM_TERBUKTI" in res8.stdout:
-        print("  [PASS] T8: Failed script status closes as GAGAL/BELUM_TERBUKTI")
+    # T8: SCRIPT_SUCCESS + missing evidence => BELUM_TERBUKTI/NO
+    res8 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "VERDICT_STATUS=BELUM_TERBUKTI" in res8.stdout and "CAN_ADVANCE=NO" in res8.stdout and not os.path.exists(state_file):
+        print("  [PASS] T8: Missing evidence closes as BELUM_TERBUKTI / CAN_ADVANCE=NO without evidence fabrication")
         passed += 1
     else:
-        print(f"  [FAIL] T8: Close verdict failed: {res8.stdout}")
+        print(f"  [FAIL] T8: Missing evidence close failed: {res8.stdout}")
 
-    # Start a new session for T9..T18
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj2", "--title", "Test Session 2"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-
-    # T9: blocker => TERHAMBAT / NO
-    res9 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--blockers", "[\"Active blocker\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "VERDICT_STATUS=TERHAMBAT" in res9.stdout:
-        print("  [PASS] T9: Blocker produces TERHAMBAT verdict")
+    # T9: blocker => TERHAMBAT/NO
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj9", "--title", "T9 Blocker"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res9 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]", "--blockers", "[\"Active blocker\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "VERDICT_STATUS=TERHAMBAT" in res9.stdout and "CAN_ADVANCE=NO" in res9.stdout:
+        print("  [PASS] T9: Active blocker produces TERHAMBAT / CAN_ADVANCE=NO")
         passed += 1
     else:
-        print(f"  [FAIL] T9: Blocker verdict failed: {res9.stdout}")
+        print(f"  [FAIL] T9: Blocker close failed: {res9.stdout}")
 
-    # Start a clean session for T10..T18
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj3", "--title", "Test Session 3"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-
-    # T10: valid evidence => BERHASIL / YES
-    res10 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    # T10: explicit matching evidence => BERHASIL/YES
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj10", "--title", "T10 Success"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res10 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"LIVE_RUNTIME\"]", "--actual-evidence", "[\"LIVE_RUNTIME\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     if "VERDICT_STATUS=BERHASIL" in res10.stdout and "CAN_ADVANCE=YES" in res10.stdout:
-        print("  [PASS] T10: Valid evidence produces BERHASIL verdict")
+        print("  [PASS] T10: Explicit matching evidence produces BERHASIL / CAN_ADVANCE=YES")
         passed += 1
     else:
-        print(f"  [FAIL] T10: Valid verdict failed: {res10.stdout}")
+        print(f"  [FAIL] T10: Matching evidence close failed: {res10.stdout}")
 
-    # T11: human filename has no UUID/random hash
+    # T11: explicit missing evidence => BELUM_TERBUKTI/NO
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj11", "--title", "T11 Missing"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res11 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"REQUIRED_A\", \"REQUIRED_B\"]", "--actual-evidence", "[\"REQUIRED_A\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "VERDICT_STATUS=BELUM_TERBUKTI" in res11.stdout and "CAN_ADVANCE=NO" in res11.stdout:
+        print("  [PASS] T11: Partial missing evidence produces BELUM_TERBUKTI / CAN_ADVANCE=NO")
+        passed += 1
+    else:
+        print(f"  [FAIL] T11: Partial missing evidence failed: {res11.stdout}")
+
+    # T12: limitation => BERHASIL_DENGAN_BATASAN/NO
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj12", "--title", "T12 Limitation"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res12 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]", "--limitations", "[\"Local test mode\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "VERDICT_STATUS=BERHASIL_DENGAN_BATASAN" in res12.stdout and "CAN_ADVANCE=NO" in res12.stdout:
+        print("  [PASS] T12: Limitation produces BERHASIL_DENGAN_BATASAN / CAN_ADVANCE=NO")
+        passed += 1
+    else:
+        print(f"  [FAIL] T12: Limitation close failed: {res12.stdout}")
+
+    # T13: missing validator => close fails and state survives
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj13", "--title", "T13 Missing Validator"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    verdict_script = os.path.join(tmp_repo, "scripts/airo-task-verdict")
+    verdict_backup = verdict_script + ".bak"
+    if os.path.exists(verdict_script):
+        os.rename(verdict_script, verdict_backup)
+    
+    res13 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res13.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res13.stdout and os.path.exists(state_file):
+        print("  [PASS] T13: Missing validator fails closed and preserves active session state")
+        passed += 1
+    else:
+        print(f"  [FAIL] T13: Missing validator handling failed: {res13.stdout}")
+    
+    if os.path.exists(verdict_backup):
+        os.rename(verdict_backup, verdict_script)
+
+    # T14: invalid validator output => close fails and state survives
+    fake_validator = os.path.join(tmp_repo, "scripts/fake_validator.py")
+    with open(fake_validator, "w") as f:
+        f.write("#!/usr/bin/env python3\nimport sys\nprint('invalid json')\n")
+    os.chmod(fake_validator, 0o755)
+    
+    os.rename(verdict_script, verdict_backup)
+    shutil.copy(fake_validator, verdict_script)
+    os.chmod(verdict_script, 0o755)
+
+    res14 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res14.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res14.stdout and os.path.exists(state_file):
+        print("  [PASS] T14: Invalid validator output fails closed and preserves active session state")
+        passed += 1
+    else:
+        print(f"  [FAIL] T14: Invalid validator handling failed: {res14.stdout}")
+    
+    os.remove(verdict_script)
+    os.rename(verdict_backup, verdict_script)
+
+    # Clean up T13/T14 state by closing cleanly
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T15: capture failure is visible and not claimed recorded
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj15", "--title", "T15 Capture Fail"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    capture_script = os.path.join(tmp_repo, "scripts/airo-capture")
+    capture_bak = capture_script + ".bak"
+    os.rename(capture_script, capture_bak)
+
+    res15 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Event when capture missing"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "EVENT_RECORDED=NO" in res15.stdout and "CAPTURE_STATUS=FAILED" in res15.stdout:
+        print("  [PASS] T15: Capture failure is visible and not claimed recorded")
+        passed += 1
+    else:
+        print(f"  [FAIL] T15: Capture failure handling failed: {res15.stdout}")
+    
+    os.rename(capture_bak, capture_script)
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T16: ledger session ID equality verified
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj16"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    with open(state_file, "r") as f:
+        sid16 = json.load(f)["internal_session_id"]
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Evt 16"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    with open(ndjson, "r") as f:
+        last_evt = json.loads([line for line in f if line.strip()][-1])
+    if last_evt.get("session_id") == sid16:
+        print("  [PASS] T16: Ledger event contains exact active session ID")
+        passed += 1
+    else:
+        print(f"  [FAIL] T16: Ledger session ID equality failed")
+
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T17: path traversal in project/title rejected
+    res17 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "../ASB", "--project-name", "ASB/Traversal", "--objective", "Obj17"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if res17.returncode != 0:
+        print("  [PASS] T17: Path traversal in project/title rejected")
+        passed += 1
+    else:
+        print(f"  [FAIL] T17: Path traversal in project/title accepted")
+
+    # T18: UUID/random hash absent from human filename
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj18", "--title", "Human Session Title"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res18 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     sess_dir = os.path.join(tmp_repo, "worklog/sessions")
-    files_found = []
-    for root, dirs, files in os.walk(sess_dir):
-        for f in files:
-            files_found.append(f)
-    has_uuid = any(len(f) > 30 and "-" in f for f in files_found)
-    if files_found and not has_uuid:
-        print("  [PASS] T11: Human filenames contain no UUID or random hash")
+    files_18 = []
+    for r, d, fs in os.walk(sess_dir):
+        for f in fs:
+            files_18.append(f)
+    has_uuid_18 = any(len(f) > 30 and "-" in f for f in files_18)
+    if files_18 and not has_uuid_18:
+        print("  [PASS] T18: UUID/random hash absent from human filenames")
         passed += 1
     else:
-        print(f"  [FAIL] T11: Filename UX failed, files: {files_found}")
+        print(f"  [FAIL] T18: Filename check failed: {files_18}")
 
-    # T12: permanent session contains all 10 human sections
+    # T19: long legitimate human title accepted safely
+    long_title = "Detailed Architectural Implementation of Execution Assurance and Governance Rules"
+    res19 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj19", "--title", long_title], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if res19.returncode == 0:
+        subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+        print("  [PASS] T19: Long legitimate human title accepted safely")
+        passed += 1
+    else:
+        print(f"  [FAIL] T19: Long human title failed: {res19.stdout}")
+
+    # T20: all 10 human sections exist
     sample_file = None
-    for root, dirs, files in os.walk(sess_dir):
-        for f in files:
+    for r, d, fs in os.walk(sess_dir):
+        for f in fs:
             if f.endswith(".md"):
-                sample_file = os.path.join(root, f)
+                sample_file = os.path.join(r, f)
                 break
     if sample_file:
         with open(sample_file, "r", encoding="utf-8") as f:
             stxt = f.read()
-        required_headers = [
+        req_sections = [
             "## 🧭 AIRO STATUS", "## 🎯 Tujuan sesi", "## 🛠 Yang dilakukan",
             "## 📌 Hasil", "## 🧪 Bukti", "## ⛔ Masalah / hambatan",
             "## ✅ Keputusan", "## 📁 Yang berubah", "## 📝 Yang belum selesai", "## ➡️ Berikutnya"
         ]
-        all_headers = all(h in stxt or h.replace("🧭", "\U0001F9ED") in stxt for h in required_headers)
-        if all_headers:
-            print("  [PASS] T12: Permanent session note contains all 10 human sections")
+        if all(sec in stxt for sec in req_sections):
+            print("  [PASS] T20: Permanent session note contains all 10 human sections")
             passed += 1
         else:
-            print(f"  [FAIL] T12: Missing section headers in {sample_file}")
+            print(f"  [FAIL] T20: Missing sections in permanent note")
     else:
-        print("  [FAIL] T12: No sample session file found")
+        print("  [FAIL] T20: Sample session file missing")
 
-    # T13: daily groups sessions by project
+    # T21: blocked/failed session permanently recordable
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj21", "--title", "T21 Failed"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res21 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]", "--blockers", "[\"Live runtime failure\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "VERDICT_STATUS=TERHAMBAT" in res21.stdout:
+        print("  [PASS] T21: Blocked/failed session permanently recordable")
+        passed += 1
+    else:
+        print(f"  [FAIL] T21: Blocked session recording failed: {res21.stdout}")
+
+    # T22: "Penyebab belum diketahui" appears in permanent note
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj22", "--title", "T22 Unknown Root Cause"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Failure analysis: Penyebab belum diketahui"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res22 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    note_22 = res22.stdout.split("PERMANENT_SESSION_NOTE=")[-1].splitlines()[0] if "PERMANENT_SESSION_NOTE=" in res22.stdout else ""
+    if os.path.exists(note_22):
+        with open(note_22, "r", encoding="utf-8") as f:
+            ntxt22 = f.read()
+        if "Penyebab belum diketahui" in ntxt22:
+            print("  [PASS] T22: 'Penyebab belum diketahui' appears in permanent note")
+            passed += 1
+        else:
+            print(f"  [FAIL] T22: 'Penyebab belum diketahui' missing in note: {note_22}")
+    else:
+        print(f"  [FAIL] T22: Permanent note missing for T22")
+
+    # T23: inactivity > 45 minutes recommends draft, stays active, no completion created
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj23", "--title", "T23 Inactivity"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    with open(state_file, "r") as f:
+        sdata23 = json.load(f)
+    old_time = (datetime.now(timezone.utc) - timedelta(minutes=50)).isoformat()
+    sdata23["last_activity_at"] = old_time
+    with open(state_file, "w") as f:
+        json.dump(sdata23, f)
+
+    res23 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "status"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "DRAFT_CLOSEOUT_RECOMMENDED=YES" in res23.stdout and "Kesimpulan — SEDANG DIKERJAKAN" in res23.stdout and os.path.exists(state_file):
+        print("  [PASS] T23: >45 min inactivity recommends draft without auto-finalizing")
+        passed += 1
+    else:
+        print(f"  [FAIL] T23: Inactivity test failed: {res23.stdout}")
+    
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T24: Daily groups by project
     today_str = datetime.now().strftime("%Y-%m-%d")
     daily_res = subprocess.run([sys.executable, os.path.join(tmp_repo, "scripts/airo-daily"), today_str], env=env, cwd=tmp_repo, capture_output=True, text=True)
     daily_path = os.path.join(tmp_repo, "worklog/daily", f"{today_str}.md")
     if os.path.exists(daily_path):
         with open(daily_path, "r", encoding="utf-8") as f:
-            dtxt = f.read()
-        if "### Proyek: ASB" in dtxt:
-            print("  [PASS] T13: Daily generator groups sessions by human project name")
+            dtxt24 = f.read()
+        if "### Proyek: ASB" in dtxt24:
+            print("  [PASS] T24: Daily generator groups sessions by human project name")
             passed += 1
         else:
-            print(f"  [FAIL] T13: Daily project grouping missing in {daily_path}")
+            print(f"  [FAIL] T24: Daily project grouping missing in {daily_path}")
     else:
-        print(f"  [FAIL] T13: Daily file missing: {daily_path}, stdout: {daily_res.stdout}, stderr: {daily_res.stderr}")
+        print(f"  [FAIL] T24: Daily file missing: {daily_path}")
 
-    # T14: daily regeneration is byte-identical (DAILY_IDEMPOTENT=PASS)
+    # T25: Daily regeneration byte-identical (DAILY_IDEMPOTENT=PASS)
     with open(daily_path, "r", encoding="utf-8") as f:
-        dtxt1 = f.read()
+        dtxt25_1 = f.read()
     subprocess.run([sys.executable, os.path.join(tmp_repo, "scripts/airo-daily"), today_str], env=env, cwd=tmp_repo, capture_output=True, text=True)
     with open(daily_path, "r", encoding="utf-8") as f:
-        dtxt2 = f.read()
-    if dtxt1 == dtxt2:
-        print("  [PASS] T14: Daily regeneration is 100% byte-identical (idempotent)")
+        dtxt25_2 = f.read()
+    if dtxt25_1 == dtxt25_2:
+        print("  [PASS] T25: Daily regeneration is 100% byte-identical (DAILY_IDEMPOTENT=PASS)")
         passed += 1
     else:
-        print("  [FAIL] T14: Daily regeneration is not idempotent")
+        print(f"  [FAIL] T25: Daily regeneration not idempotent")
 
-    # T15: raw secret-like summary rejected / not written
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj4"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    res15 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "sk-proj-1234567890secret"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if res15.returncode != 0:
-        print("  [PASS] T15: Secret-like event summary is rejected")
+    # T26: every Daily link resolves to existing file (DAILY_LINK_RESOLUTION=PASS)
+    import re
+    link_pattern = re.compile(r"\[.*?\]\((.*?)\)")
+    broken_links = 0
+    total_links = 0
+    with open(daily_path, "r", encoding="utf-8") as f:
+        daily_body = f.read()
+    
+    daily_dir = os.path.dirname(daily_path)
+    for link in link_pattern.findall(daily_body):
+        if link.startswith("http") or link.startswith("#"):
+            continue
+        total_links += 1
+        resolved = os.path.abspath(os.path.join(daily_dir, link))
+        if not os.path.exists(resolved):
+            broken_links += 1
+    
+    if total_links > 0 and broken_links == 0:
+        print("  [PASS] T26: Every Daily session link resolves to an existing file (DAILY_LINK_RESOLUTION=PASS)")
         passed += 1
     else:
-        print("  [FAIL] T15: Secret-like event summary was accepted")
+        print(f"  [FAIL] T26: Daily link resolution failed: {broken_links}/{total_links} broken")
 
-    # T16: failed/blocked session remains recordable
-    res16 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--blockers", "[\"Live runtime failure\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "VERDICT_STATUS=TERHAMBAT" in res16.stdout:
-        print("  [PASS] T16: Failed/blocked session is recorded truthfully without hiding failure")
+    # T27: Daily failure preserves active state
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj27", "--title", "T27 Daily Fail"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    daily_script = os.path.join(tmp_repo, "scripts/airo-daily")
+    daily_bak = daily_script + ".bak"
+    os.rename(daily_script, daily_bak)
+    
+    res27 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res27.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res27.stdout and os.path.exists(state_file):
+        print("  [PASS] T27: Daily failure preserves active session state")
         passed += 1
     else:
-        print(f"  [FAIL] T16: Blocked session recording failed: {res16.stdout}")
+        print(f"  [FAIL] T27: Daily failure state preservation failed: {res27.stdout}")
+    
+    os.rename(daily_bak, daily_script)
 
-    # T17: unknown root cause can be represented as "Penyebab belum diketahui"
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj5"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "Failure analysis: Penyebab belum diketahui"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    res17 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if res17.returncode == 0:
-        print("  [PASS] T17: Unknown root cause is validly represented as 'Penyebab belum diketahui'")
+    # T28: close retry uses same path and creates no duplicate
+    with open(state_file, "r") as f:
+        planned_path_28 = json.load(f).get("planned_closeout_path")
+    res28 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    final_path_28 = res28.stdout.split("PERMANENT_SESSION_NOTE=")[-1].splitlines()[0] if "PERMANENT_SESSION_NOTE=" in res28.stdout else ""
+    if planned_path_28 == final_path_28 and os.path.exists(final_path_28):
+        print("  [PASS] T28: Close retry uses same path without duplicate creation (CLOSE_RETRY_IDEMPOTENT=PASS)")
         passed += 1
     else:
-        print("  [FAIL] T17: Unknown root cause representation failed")
+        print(f"  [FAIL] T28: Close retry idempotency failed: planned={planned_path_28}, final={final_path_28}")
 
-    # T18: inactivity never automatically finalizes completion
-    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj6"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    res18 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "status"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    if "DRAFT_CLOSEOUT_RECOMMENDED=NO" in res18.stdout and "Kesimpulan — IN_PROGRESS" in res18.stdout:
-        print("  [PASS] T18: Inactivity status recommends draft without falsely finalizing completion")
+    # T29: secret in title/objective/evidence/blocker rejected
+    res29a = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "sk-proj-secret123"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj29"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res29b = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "token=12345secret"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res29c = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--blockers", "[\"BEGIN PRIVATE KEY\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    
+    if res29a.returncode != 0 and res29b.returncode != 0 and "CLOSE_RESULT=FAILED" in res29c.stdout:
+        print("  [PASS] T29: Secrets in title/objective/evidence/blocker rejected (PUBLIC_SAFETY=PASS)")
         passed += 1
     else:
-        print(f"  [FAIL] T18: Inactivity check failed: {res18.stdout}")
+        print(f"  [FAIL] T29: Secret rejection failed: a={res29a.returncode}, b={res29b.returncode}, c={res29c.stdout}")
+    
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T30: malformed JSON/list input fails closed
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj30"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res30 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "not a json list"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res30.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res30.stdout and os.path.exists(state_file):
+        print("  [PASS] T30: Malformed JSON input fails closed and preserves active session state")
+        passed += 1
+    else:
+        print(f"  [FAIL] T30: Malformed JSON input handling failed: {res30.stdout}")
+    
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
 
     # Cleanup temp
     shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    print(f"\nSession & Worklog Test Results: {passed}/{total} passed.")
+    print(f"\nSession & Worklog Corrected Test Results: {passed}/{total} passed.")
     if passed == total:
         sys.exit(0)
     else:

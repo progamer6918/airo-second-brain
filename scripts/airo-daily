@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-import re
 import argparse
 from datetime import datetime
 
@@ -58,6 +57,7 @@ def generate_daily(repo_root, date_str):
         for fname in files:
             fpath = os.path.join(pdir, fname)
             parsed = parse_session_file(fpath)
+            # Ensure safe relative link resolution
             rel_link = "../sessions/" + date_str + "/" + proj + "/" + fname
             proj_section.append("- **[" + parsed['title'] + "](" + rel_link + ")**")
             if parsed["status"]:
