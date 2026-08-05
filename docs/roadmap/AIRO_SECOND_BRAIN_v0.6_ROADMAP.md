@@ -16,8 +16,8 @@ AIRO Second Brain v0.6 is structured into exactly seven canonical milestones:
 2. **M1 — Governance & Execution Assurance** (`DONE` — Final Closeout Complete)
 3. **M2 — Session & Worklog** (`DONE` — Corrected M2 Execution Assurance Complete)
 4. **M3 — Obsidian Human Experience** (`DONE` — M3 Human Cockpit Complete)
-5. **M4 — LLM Wiki Memory Loop** (`NOT_YET_PROVEN` — Next Active Target)
-6. **M5 — Cross-Consumer & Failure Proof** (`NOT_YET_PROVEN`)
+5. **M4 — LLM Wiki Memory Loop** (`DONE` — M4 Governed LLM Wiki Memory Loop Complete)
+6. **M5 — Cross-Consumer & Failure Proof** (`NOT_YET_PROVEN` — Next Active Target)
 7. **M6 — Owner Acceptance & Cutover** (`NOT_YET_PROVEN`)
 
 ---
@@ -36,6 +36,10 @@ AIRO Second Brain v0.6 is structured into exactly seven canonical milestones:
 - **Objective:** Implement Obsidian Vault Human Experience, `HOME.md` navigation, native `AIRO Worklog.base` views, and YAML frontmatter properties.
 - **Evidence:** `docs/validation/AIRO_SECOND_BRAIN_v0.6_M3_CLOSEOUT_20260805.md`
 
-### Milestone 4 — LLM Wiki Memory Loop (`NOT_YET_PROVEN`)
-- **Objective:** Implement LLM Wiki memory ingestion, topic indexing, and cross-session knowledge synthesis loop.
+### Milestone 4 — LLM Wiki Memory Loop (`DONE`)
+- **Objective:** Implement LLM Wiki memory candidate tool (`scripts/airo-wiki-memory-candidate`), derivative memory loop contract, Execution Assurance concept note, and query retrieval.
+- **Evidence:** `docs/validation/AIRO_SECOND_BRAIN_v0.6_M4_CLOSEOUT_20260805.md`
+
+### Milestone 5 — Cross-Consumer & Failure Proof (`NOT_YET_PROVEN`)
+- **Objective:** Verify multi-agent consumer safety, failure handling, and cross-interface compatibility.
 - **Status:** Next active implementation target.
