@@ -24,7 +24,7 @@ def run_test_suite():
     tmp_dir = tempfile.mkdtemp(prefix="airo_session_test_")
     tmp_state = os.path.join(tmp_dir, "state")
     tmp_repo = os.path.join(tmp_dir, "repo")
-    
+
     os.makedirs(os.path.join(tmp_repo, "bin"), exist_ok=True)
     os.makedirs(os.path.join(tmp_repo, "scripts"), exist_ok=True)
     os.makedirs(os.path.join(tmp_repo, "docs/roadmap"), exist_ok=True)
@@ -50,7 +50,7 @@ def run_test_suite():
     env["AIRO_REPO_ROOT"] = tmp_repo
 
     passed = 0
-    total = 30
+    total = 36
 
     print("Running 30 AIRO session & worklog test cases...")
 
@@ -171,14 +171,14 @@ def run_test_suite():
     verdict_backup = verdict_script + ".bak"
     if os.path.exists(verdict_script):
         os.rename(verdict_script, verdict_backup)
-    
+
     res13 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     if "CLOSE_RESULT=FAILED" in res13.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res13.stdout and os.path.exists(state_file):
         print("  [PASS] T13: Missing validator fails closed and preserves active session state")
         passed += 1
     else:
         print(f"  [FAIL] T13: Missing validator handling failed: {res13.stdout}")
-    
+
     if os.path.exists(verdict_backup):
         os.rename(verdict_backup, verdict_script)
 
@@ -187,7 +187,7 @@ def run_test_suite():
     with open(fake_validator, "w") as f:
         f.write("#!/usr/bin/env python3\nimport sys\nprint('invalid json')\n")
     os.chmod(fake_validator, 0o755)
-    
+
     os.rename(verdict_script, verdict_backup)
     shutil.copy(fake_validator, verdict_script)
     os.chmod(verdict_script, 0o755)
@@ -198,7 +198,7 @@ def run_test_suite():
         passed += 1
     else:
         print(f"  [FAIL] T14: Invalid validator handling failed: {res14.stdout}")
-    
+
     os.remove(verdict_script)
     os.rename(verdict_backup, verdict_script)
 
@@ -217,7 +217,7 @@ def run_test_suite():
         passed += 1
     else:
         print(f"  [FAIL] T15: Capture failure handling failed: {res15.stdout}")
-    
+
     os.rename(capture_bak, capture_script)
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
 
@@ -332,7 +332,7 @@ def run_test_suite():
         passed += 1
     else:
         print(f"  [FAIL] T23: Inactivity test failed: {res23.stdout}")
-    
+
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
 
     # T24: Daily groups by project
@@ -369,7 +369,7 @@ def run_test_suite():
     total_links = 0
     with open(daily_path, "r", encoding="utf-8") as f:
         daily_body = f.read()
-    
+
     daily_dir = os.path.dirname(daily_path)
     for link in link_pattern.findall(daily_body):
         if link.startswith("http") or link.startswith("#"):
@@ -378,7 +378,7 @@ def run_test_suite():
         resolved = os.path.abspath(os.path.join(daily_dir, link))
         if not os.path.exists(resolved):
             broken_links += 1
-    
+
     if total_links > 0 and broken_links == 0:
         print("  [PASS] T26: Every Daily session link resolves to an existing file (DAILY_LINK_RESOLUTION=PASS)")
         passed += 1
@@ -390,14 +390,14 @@ def run_test_suite():
     daily_script = os.path.join(tmp_repo, "scripts/airo-daily")
     daily_bak = daily_script + ".bak"
     os.rename(daily_script, daily_bak)
-    
+
     res27 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     if "CLOSE_RESULT=FAILED" in res27.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res27.stdout and os.path.exists(state_file):
         print("  [PASS] T27: Daily failure preserves active session state")
         passed += 1
     else:
         print(f"  [FAIL] T27: Daily failure state preservation failed: {res27.stdout}")
-    
+
     os.rename(daily_bak, daily_script)
 
     # T28: close retry uses same path and creates no duplicate
@@ -416,13 +416,13 @@ def run_test_suite():
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj29"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     res29b = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "event", "--summary", "token=12345secret"], env=env, cwd=tmp_repo, capture_output=True, text=True)
     res29c = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--blockers", "[\"BEGIN PRIVATE KEY\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
-    
+
     if res29a.returncode != 0 and res29b.returncode != 0 and "CLOSE_RESULT=FAILED" in res29c.stdout:
         print("  [PASS] T29: Secrets in title/objective/evidence/blocker rejected (PUBLIC_SAFETY=PASS)")
         passed += 1
     else:
         print(f"  [FAIL] T29: Secret rejection failed: a={res29a.returncode}, b={res29b.returncode}, c={res29c.stdout}")
-    
+
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
 
     # T30: malformed JSON/list input fails closed
@@ -433,8 +433,117 @@ def run_test_suite():
         passed += 1
     else:
         print(f"  [FAIL] T30: Malformed JSON input handling failed: {res30.stdout}")
-    
+
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T31: Structured closeout renders real actions/outcomes without generic boilerplate
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj31", "--title", "T31 Structured Closeout"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    cj31 = json.dumps({
+        "actions": ["Implemented semantic renderer"],
+        "outcomes": ["Structured closeout works cleanly"],
+        "evidence_refs": ["docs/validation/sample.md"],
+        "decisions": ["Approved structured schema"],
+        "changed_paths": ["bin/airo-session"],
+        "unfinished": ["None"],
+        "next_action": "Run test suite",
+        "completion_criteria": "Tests pass 100%"
+    })
+    res31 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", cj31], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    t31_pass = False
+    if "SESSION_CLOSED=YES" in res31.stdout:
+        note_31 = [line.split("=")[1].strip() for line in res31.stdout.splitlines() if line.startswith("PERMANENT_SESSION_NOTE=")][0]
+        if os.path.exists(note_31):
+            with open(note_31, "r", encoding="utf-8") as f31:
+                n31_txt = f31.read()
+            if "Implemented semantic renderer" in n31_txt and "Sesi dijalankan." not in n31_txt:
+                t31_pass = True
+    if t31_pass:
+        print("  [PASS] T31: Structured closeout renders real actions/outcomes without generic boilerplate (STRUCTURED_CLOSEOUT_SUPPORTED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T31: Structured closeout rendering failed")
+
+    # T32: Empty decisions => 'Tidak ada keputusan baru.'
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj32", "--title", "T32 Empty Decisions"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    cj32 = json.dumps({
+        "actions": ["Action 32"],
+        "decisions": [],
+        "unfinished": []
+    })
+    res32 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", cj32], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    t32_pass = False
+    if "SESSION_CLOSED=YES" in res32.stdout:
+        note_32 = [line.split("=")[1].strip() for line in res32.stdout.splitlines() if line.startswith("PERMANENT_SESSION_NOTE=")][0]
+        if os.path.exists(note_32):
+            with open(note_32, "r", encoding="utf-8") as f32:
+                n32_txt = f32.read()
+            if "Tidak ada keputusan baru." in n32_txt and "Tidak ada pekerjaan sesi yang tersisa." in n32_txt:
+                t32_pass = True
+    if t32_pass:
+        print("  [PASS] T32: Empty decisions/unfinished render default explicit messages (REAL_DECISIONS_RENDER=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T32: Empty decisions rendering failed")
+
+    # T33: next_action renders in BOTH AIRO STATUS and final section
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj33", "--title", "T33 Next Action"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    cj33 = json.dumps({
+        "actions": ["Action 33"],
+        "next_action": "Proceed to M6.1 validation",
+        "completion_criteria": "DoD 33 satisfied"
+    })
+    res33 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", cj33], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    t33_pass = False
+    if "SESSION_CLOSED=YES" in res33.stdout:
+        note_33 = [line.split("=")[1].strip() for line in res33.stdout.splitlines() if line.startswith("PERMANENT_SESSION_NOTE=")][0]
+        if os.path.exists(note_33):
+            with open(note_33, "r", encoding="utf-8") as f33:
+                n33_txt = f33.read()
+            if n33_txt.count("Proceed to M6.1 validation") >= 2 and "DoD 33 satisfied" in n33_txt:
+                t33_pass = True
+    if t33_pass:
+        print("  [PASS] T33: next_action renders in BOTH AIRO STATUS and final section (REAL_NEXT_ACTION_RENDER=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T33: next_action rendering failed")
+
+    # T34: Secret pattern in closeout-json rejected
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj34"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    cj34 = json.dumps({
+        "actions": ["sk-proj-secretKey123"]
+    })
+    res34 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", cj34], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res34.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res34.stdout:
+        print("  [PASS] T34: Secret pattern in closeout-json rejected (PUBLIC_SAFETY=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T34: Secret rejection in closeout-json failed")
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T35: Path traversal in changed_paths rejected
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj35"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    cj35 = json.dumps({
+        "changed_paths": ["../../etc/passwd"]
+    })
+    res35 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", cj35], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res35.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res35.stdout:
+        print("  [PASS] T35: Path traversal in changed_paths rejected (PATH_TRAVERSAL_REJECTED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T35: Path traversal rejection failed")
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
+    # T36: Malformed closeout-json fails closed
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj36"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res36 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--closeout-json", "invalid json"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    if "CLOSE_RESULT=FAILED" in res36.stdout and "ACTIVE_SESSION_PRESERVED=YES" in res36.stdout:
+        print("  [PASS] T36: Malformed closeout-json fails closed (MALFORMED_CLOSEOUT_JSON_FAIL_CLOSED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T36: Malformed closeout-json handling failed")
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+
 
     # Cleanup temp
     shutil.rmtree(tmp_dir, ignore_errors=True)

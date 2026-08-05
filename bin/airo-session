@@ -139,7 +139,7 @@ def cmd_start(args, repo_root):
         if not valid:
             print(f"ERROR: {err}", file=sys.stderr)
             return 1
-    
+
     safe, pat = check_public_safety(args.objective, args.title, args.position)
     if not safe:
         print(f"ERROR: Input contains secret pattern '{pat}'", file=sys.stderr)
@@ -174,9 +174,9 @@ def cmd_start(args, repo_root):
         "limitations": [],
         "planned_closeout_path": None
     }
-    
+
     save_active_session(repo_root, session_data)
-    
+
     capture_ok = invoke_airo_capture(repo_root, internal_id, args.project_id, "checkpoint", "Session started: " + str(args.objective))
     if not capture_ok:
         print("EVENT_RECORDED=NO")
@@ -193,7 +193,7 @@ def cmd_event(args, repo_root):
     if not active:
         print("ERROR: No active session found. Start a session first.", file=sys.stderr)
         return 1
-    
+
     safe, pat = check_public_safety(args.summary, args.evidence)
     if not safe:
         print(f"ERROR: Event summary contains potential secret keyword '{pat}'", file=sys.stderr)
@@ -206,7 +206,7 @@ def cmd_event(args, repo_root):
         "summary": args.summary,
         "evidence": args.evidence or ""
     }
-    
+
     active["events"].append(evt)
     active["last_activity_at"] = now_iso
     save_active_session(repo_root, active)
@@ -229,7 +229,7 @@ def cmd_status(args, repo_root):
 
     last_act_dt = datetime.fromisoformat(active["last_activity_at"])
     now_dt = datetime.now(timezone.utc)
-    
+
     inactive_seconds = (now_dt - last_act_dt).total_seconds()
     draft_rec = "YES" if inactive_seconds > 2700 else "NO"
 
@@ -270,7 +270,7 @@ def cmd_draft_closeout(args, repo_root):
     clean_title = active["title"].replace("/", "-").replace("\\", "-").replace(" ", "_")
     draft_filename = date_str + " - " + clean_proj + " - " + clean_title + ".md"
     draft_path = os.path.join(repo_root, "inbox/session-closeouts", draft_filename)
-    
+
     if not is_path_contained(draft_path, os.path.join(repo_root, "inbox/session-closeouts")):
         print("ERROR: Path traversal detected in draft path", file=sys.stderr)
         return 1
@@ -368,7 +368,7 @@ def cmd_close(args, repo_root):
             print("CAN_ADVANCE=NO")
             print("ACTIVE_SESSION_PRESERVED=YES")
             return 1
-        
+
         verdict_input = {
             "project_id": active["project_id"],
             "position_id": active.get("position", "M3"),
@@ -378,7 +378,7 @@ def cmd_close(args, repo_root):
             "blockers": blockers,
             "limitations": limitations
         }
-        
+
         try:
             res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=os.environ, text=True, capture_output=True)
             if res.returncode != 0:
@@ -388,15 +388,15 @@ def cmd_close(args, repo_root):
                 print("CAN_ADVANCE=NO")
                 print("ACTIVE_SESSION_PRESERVED=YES")
                 return 1
-            
+
             v_data = json.loads(res.stdout)
             if "task_status" not in v_data or "can_advance" not in v_data:
                 raise ValueError("Validator output missing required keys")
-            
+
             valid_statuses = ["BERHASIL", "BERHASIL_DENGAN_BATASAN", "BELUM_TERBUKTI", "TERHAMBAT", "GAGAL"]
             if v_data["task_status"] not in valid_statuses or v_data["can_advance"] not in ["YES", "NO"]:
                 raise ValueError("Validator output contains unknown enum")
-            
+
             verdict_status = v_data["task_status"]
             can_advance = v_data["can_advance"]
         except Exception as e:
@@ -409,7 +409,7 @@ def cmd_close(args, repo_root):
 
     date_str = datetime.now().strftime("%Y-%m-%d")
     project_dir = os.path.join(repo_root, "worklog/sessions", date_str, active["project_name"])
-    
+
     if not is_path_contained(project_dir, os.path.join(repo_root, "worklog/sessions")):
         print("ERROR: Path containment violation in project directory.", file=sys.stderr)
         print("CLOSE_RESULT=FAILED")
@@ -431,7 +431,76 @@ def cmd_close(args, repo_root):
 
     events_summary = "\n".join(["- **" + e['event_type'] + "**: " + e['summary'] for e in active["events"]]) if active["events"] else "- Sesi dijalankan."
     blockers_summary = ", ".join(blockers) if blockers else "Tidak ada"
-    
+
+    closeout_data = None
+    if getattr(args, 'closeout_json', None):
+        try:
+            cj = json.loads(args.closeout_json)
+            if not isinstance(cj, dict):
+                raise ValueError("closeout-json must be a JSON object")
+
+            for k, v in cj.items():
+                if isinstance(v, list):
+                    for item in v:
+                        if not isinstance(item, str):
+                            raise ValueError(f"List item in {k} must be string")
+                        safe, pat = check_public_safety(item)
+                        if not safe:
+                            raise ValueError(f"Secret pattern '{pat}' in closeout-json field {k}")
+                        if k == "changed_paths" or k == "evidence_refs":
+                            if ".." in item or "\r" in item or "\n" in item or item.startswith("/"):
+                                raise ValueError(f"Path traversal or absolute path in closeout-json field {k}: {item}")
+                elif isinstance(v, str):
+                    safe, pat = check_public_safety(v)
+                    if not safe:
+                        raise ValueError(f"Secret pattern '{pat}' in closeout-json field {k}")
+
+            closeout_data = cj
+        except Exception as e:
+            print(f"ERROR: Invalid closeout-json payload: {e}", file=sys.stderr)
+            print("CLOSE_RESULT=FAILED")
+            print("ACTIVE_SESSION_PRESERVED=YES")
+            return 1
+
+    if closeout_data:
+        actions_list = closeout_data.get("actions", [])
+        outcomes_list = closeout_data.get("outcomes", [])
+        evidence_refs_list = closeout_data.get("evidence_refs", [])
+        decisions_list = closeout_data.get("decisions", [])
+        changed_paths_list = closeout_data.get("changed_paths", [])
+        unfinished_list = closeout_data.get("unfinished", [])
+        next_action_str = closeout_data.get("next_action", "NONE — objective complete")
+        completion_criteria_str = closeout_data.get("completion_criteria", "Definition of Done satisfied")
+
+        sec_actions = "\n".join(["- " + a for a in actions_list]) if actions_list else "- " + active['objective']
+        sec_outcomes = "\n".join(["- " + o for o in outcomes_list]) if outcomes_list else "- Verified state transition completed successfully."
+        sec_decisions = "\n".join(["- " + d for d in decisions_list]) if decisions_list else "- Tidak ada keputusan baru."
+        sec_unfinished = "\n".join(["- " + u for u in unfinished_list]) if unfinished_list else "- Tidak ada pekerjaan sesi yang tersisa."
+        sec_next_action = next_action_str
+        sec_completion_criteria = completion_criteria_str
+
+        if changed_paths_list:
+            sec_changed_paths = "\n".join(["- `" + p + "`" for p in changed_paths_list])
+        else:
+            sec_changed_paths = "- `worklog/sessions/" + date_str + "/" + active['project_name'] + "/" + session_file_name + "`"
+
+        if evidence_refs_list:
+            actual_ev_str = ", ".join(evidence_refs_list)
+            sec_evidence_refs = "\n".join(["- " + e for e in evidence_refs_list])
+        else:
+            actual_ev_str = ", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"
+            sec_evidence_refs = "- Task Verdict: " + verdict_status + "\n- Can Advance: " + can_advance
+    else:
+        sec_actions = events_summary
+        sec_outcomes = "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi."
+        sec_decisions = "- Menggunakan format sesi kanonis 10-section.\n- Bukti verifikasi deterministik dinyatakan sah."
+        sec_changed_paths = "- `worklog/sessions/" + date_str + "/" + active['project_name'] + "/" + session_file_name + "`"
+        sec_unfinished = "- Pekerjaan milestone mendatang."
+        sec_next_action = "Lanjut ke langkah berikutnya di roadmap kanonis."
+        sec_completion_criteria = "Seluruh kriteria penerimaan terpenuhi"
+        actual_ev_str = ", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"
+        sec_evidence_refs = "- Task Verdict: " + verdict_status + "\n- Can Advance: " + can_advance
+
     # Render frontmatter + 10 human sections
     lines = [
         "---",
@@ -454,42 +523,40 @@ def cmd_close(args, repo_root):
         "",
         "🧪 Bukti",
         "Yang wajib ada — " + (", ".join(req_ev) if req_ev else "Evaluasi bukti kanonis"),
-        "Yang sudah ada — " + (", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"),
+        "Yang sudah ada — " + actual_ev_str,
         "Kesimpulan — " + verdict_status,
         "Boleh lanjut — " + ("YA" if can_advance == 'YES' else "TIDAK"),
         "",
         "⛔ Hambatan — " + blockers_summary,
-        "➡️ Berikutnya — Implementasi milestone berikutnya",
-        "🏁 Selesai kalau — Seluruh kriteria penerimaan terpenuhi",
+        "➡️ Berikutnya — " + sec_next_action,
+        "🏁 Selesai kalau — " + sec_completion_criteria,
         "",
         "## 🎯 Tujuan sesi",
         active['objective'],
         "",
         "## 🛠 Yang dilakukan",
-        events_summary,
+        sec_actions,
         "",
         "## 📌 Hasil",
-        "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi.",
+        sec_outcomes,
         "",
         "## 🧪 Bukti",
-        "- Task Verdict: " + verdict_status,
-        "- Can Advance: " + can_advance,
+        sec_evidence_refs,
         "",
         "## ⛔ Masalah / hambatan",
         blockers_summary,
         "",
         "## ✅ Keputusan",
-        "- Menggunakan format sesi kanonis 10-section.",
-        "- Bukti verifikasi deterministik dinyatakan sah.",
+        sec_decisions,
         "",
         "## 📁 Yang berubah",
-        "- `worklog/sessions/" + date_str + "/" + active['project_name'] + "/" + session_file_name + "`",
+        sec_changed_paths,
         "",
         "## 📝 Yang belum selesai",
-        "- Pekerjaan milestone mendatang.",
+        sec_unfinished,
         "",
         "## ➡️ Berikutnya",
-        "Lanjut ke langkah berikutnya di roadmap kanonis."
+        sec_next_action
     ]
     note_content = "\n".join(lines) + "\n"
 
@@ -564,6 +631,7 @@ def main():
     p_close.add_argument("--actual-evidence", default=None)
     p_close.add_argument("--blockers", default=None)
     p_close.add_argument("--limitations", default=None)
+    p_close.add_argument("--closeout-json", default=None)
 
     p_resume = subparsers.add_parser("resume")
 

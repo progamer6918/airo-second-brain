@@ -13,21 +13,51 @@ def parse_session_file(filepath):
 
     status_block = []
     in_status = False
+
+    hasil_block = []
+    in_hasil = False
+
+    berikutnya_block = []
+    in_berikutnya = False
+
     for line in lines:
-        if "## 🧭 AIRO STATUS" in line or "## 🧭 AIRO STATUS" in line or "## STATUS" in line:
+        if "## 🧭 AIRO STATUS" in line or "## STATUS" in line:
             in_status = True
+            in_hasil = False
+            in_berikutnya = False
             continue
-        elif in_status and line.startswith("## "):
+        elif "## 📌 Hasil" in line:
             in_status = False
-            break
-        elif in_status:
+            in_hasil = True
+            in_berikutnya = False
+            continue
+        elif "## ➡️ Berikutnya" in line:
+            in_status = False
+            in_hasil = False
+            in_berikutnya = True
+            continue
+        elif line.startswith("## "):
+            in_status = False
+            in_hasil = False
+            in_berikutnya = False
+
+        if in_status:
             status_block.append(line)
+        elif in_hasil:
+            hasil_block.append(line)
+        elif in_berikutnya:
+            berikutnya_block.append(line)
 
     status_text = "\n".join(status_block).strip()
+    hasil_text = "\n".join(hasil_block).strip()
+    berikutnya_text = "\n".join(berikutnya_block).strip()
+
     return {
         "filename": os.path.basename(filepath),
         "title": title,
         "status": status_text,
+        "hasil": hasil_text,
+        "berikutnya": berikutnya_text,
         "path": filepath
     }
 
@@ -57,13 +87,19 @@ def generate_daily(repo_root, date_str):
         for fname in files:
             fpath = os.path.join(pdir, fname)
             parsed = parse_session_file(fpath)
-            # Ensure safe relative link resolution
             rel_link = "../sessions/" + date_str + "/" + proj + "/" + fname
             proj_section.append("- **[" + parsed['title'] + "](" + rel_link + ")**")
-            if parsed["status"]:
+
+            # High-quality semantic summary if available, else degrade gracefully to status block
+            if parsed["hasil"] and parsed["berikutnya"] and "Pekerjaan sesi telah selesai dieksekusi" not in parsed["hasil"]:
+                block_lines = []
+                block_lines.append("  Hasil — " + parsed["hasil"].replace("\n", "; "))
+                block_lines.append("  Berikutnya — " + parsed["berikutnya"].replace("\n", "; "))
+                proj_section.append("\n".join(block_lines))
+            elif parsed["status"]:
                 indent_status = "\n  ".join(parsed["status"].splitlines())
                 proj_section.append("  ```text\n  " + indent_status + "\n  ```")
-        
+
         sections.append("\n".join(proj_section))
 
     has_backfill = any("M1 Governance" in s for s in sections)
