@@ -1,10 +1,10 @@
 # Wiki Status
 
-Status: namespace initialized
+Status: namespace active & governed memory loop integrated
 
 ## Counts
 
-- Concepts: 7
+- Concepts: 8
 - Sources: 3
 - Syntheses: 1
 
@@ -25,4 +25,4 @@ Status: namespace initialized
 
 ## Next milestone
 
-M6 — connect Earesmes/Hermes as a read-only query and dispatch front door.
+M5 — Cross-Consumer & Failure Proof

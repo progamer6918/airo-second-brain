@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+import re
+import json
+import subprocess
+from datetime import datetime
+
+SECRET_PATTERNS = ["sk-proj-", "sk-", "token=", "api_key=", "private_key", "begin private key", "-----begin"]
+
+def check_public_safety(*fields):
+    for field in fields:
+        if field is None:
+            continue
+        val_str = str(field).lower()
+        for pat in SECRET_PATTERNS:
+            if pat in val_str:
+                return False, pat
+    return True, None
+
+def check_raw_transcript(lesson, why):
+    combined = (str(lesson) + " " + str(why)).lower()
+    transcript_markers = ["user_input", "planner_response", "tool_call", "\"type\":\"user_input\"", "<user_request>", "</user_request>"]
+    for tm in transcript_markers:
+        if tm in combined:
+            return True, tm
+    return False, None
+
+def get_repo_root():
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ.get("AIRO_REPO_ROOT"))
+    cwd = os.getcwd()
+    try:
+        res = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=cwd, capture_output=True, text=True)
+        if res.returncode == 0:
+            return os.path.abspath(res.stdout.strip())
+    except Exception:
+        pass
+    return os.path.abspath(cwd)
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Wiki Memory Candidate Generator")
+    parser.add_argument("--session", required=True, help="Path to permanent session note")
+    parser.add_argument("--title", required=True, help="Candidate memory title")
+    parser.add_argument("--lesson", required=True, help="High-value lesson to remember")
+    parser.add_argument("--why", required=True, help="Why this lesson is worth remembering")
+    parser.add_argument("--source-section", required=True, help="Exact source section header in session note")
+    parser.add_argument("--target-concept", default=None, help="Optional target concept name")
+    
+    args = parser.parse_args()
+    repo_root = get_repo_root()
+
+    # 1. Path containment check
+    session_abs = os.path.abspath(args.session if os.path.isabs(args.session) else os.path.join(repo_root, args.session))
+    sessions_dir_abs = os.path.abspath(os.path.join(repo_root, "worklog/sessions"))
+    
+    if not (session_abs.startswith(sessions_dir_abs + os.sep) or session_abs == sessions_dir_abs):
+        print("ERROR: Session path must be inside worklog/sessions/", file=sys.stderr)
+        sys.exit(1)
+
+    if not os.path.exists(session_abs):
+        print("ERROR: Session note does not exist: " + session_abs, file=sys.stderr)
+        sys.exit(1)
+
+    # 2. Public safety check
+    safe, pat = check_public_safety(args.title, args.lesson, args.why, args.source_section)
+    if not safe:
+        print(f"ERROR: Input contains secret pattern '{pat}'", file=sys.stderr)
+        sys.exit(1)
+
+    # 3. Raw transcript check
+    is_transcript, marker = check_raw_transcript(args.lesson, args.why)
+    if is_transcript:
+        print(f"ERROR: Lesson contains raw transcript marker '{marker}'", file=sys.stderr)
+        sys.exit(1)
+
+    # 4. Verify source section exists in session note
+    with open(session_abs, "r", encoding="utf-8") as f:
+        session_text = f.read()
+
+    if args.source_section not in session_text:
+        print("ERROR: Source section '" + args.source_section + "' not found in session note", file=sys.stderr)
+        sys.exit(1)
+
+    # 5. Get source commit
+    source_commit = "UNKNOWN"
+    try:
+        c_res = subprocess.run(["git", "log", "-n", "1", "--format=%H", session_abs], cwd=repo_root, capture_output=True, text=True)
+        if c_res.returncode == 0 and c_res.stdout.strip():
+            source_commit = c_res.stdout.strip()
+        else:
+            c_res2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root, capture_output=True, text=True)
+            if c_res2.returncode == 0:
+                source_commit = c_res2.stdout.strip()
+    except Exception:
+        pass
+
+    rel_session_path = os.path.relpath(session_abs, repo_root).replace("\\", "/")
+
+    # 6. Check existing Wiki match
+    target_concept = args.target_concept or args.title.lower().replace(" ", "-").replace("—", "-")
+    target_concept = re.sub(r"[^a-zA-Z0-9\-]", "", target_concept)
+
+    wiki_concepts_dir = os.path.join(repo_root, "wiki/concepts")
+    existing_concept_file = os.path.join(wiki_concepts_dir, target_concept + ".md")
+    
+    if os.path.exists(existing_concept_file):
+        proposed_action = "MERGE"
+    else:
+        proposed_action = "CREATE"
+
+    # 7. Render candidate note
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    clean_title = args.title.replace("/", "-").replace("\\", "-").replace(":", "-")
+    candidate_filename = date_str + " - " + clean_title + ".md"
+    
+    distill_dir = os.path.join(repo_root, "distill/proposals/wiki")
+    os.makedirs(distill_dir, exist_ok=True)
+    candidate_path = os.path.join(distill_dir, candidate_filename)
+
+    candidate_content = f"""---
+type: airo-wiki-memory-candidate
+canonical: false
+status: candidate
+source_path: "{rel_session_path}"
+source_commit: "{source_commit}"
+source_section: "{args.source_section}"
+target_concept: "{target_concept}"
+proposed_action: "{proposed_action}"
+---
+
+# {args.title} — Memory Candidate
+
+- **Source Session:** [{os.path.basename(rel_session_path)}]({rel_session_path})
+- **Source Commit:** `{source_commit}`
+- **Source Section:** `{args.source_section}`
+- **Proposed Action:** `{proposed_action}`
+- **Target Concept:** `wiki/concepts/{target_concept}.md`
+
+---
+
+## 💡 Pelajaran
+{args.lesson}
+
+## 🤔 Kenapa Layak Diingat?
+{args.why}
+
+## 🔍 Match Wiki Saat Ini
+{f"Konsep '{target_concept}.md' sudah ada. Usulan tindakan: MERGE." if proposed_action == "MERGE" else "Konsep baru. Usulan tindakan: CREATE."}
+"""
+
+    with open(candidate_path, "w", encoding="utf-8") as f:
+        f.write(candidate_content)
+
+    print("WIKI_CANDIDATE_CREATED=YES")
+    print("CANDIDATE_PATH=" + candidate_path)
+    print("PROPOSED_ACTION=" + proposed_action)
+    print("SOURCE_COMMIT=" + source_commit)
+
+if __name__ == "__main__":
+    main()
