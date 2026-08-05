@@ -1,9 +1,11 @@
 <!-- ASB_V06_CURRENT_ROUTING_OVERRIDE_BEGIN -->
 
-# ASB Current Routing Override — 2026-08-04
+# ASB Current Routing Override — 2026-08-05
 
 - **Current ASB target:** AIRO Second Brain v0.6
-- **Current milestone after M1 closeout:** M2 — Session & Worklog
+- **Current milestone:** M3 — Obsidian Human Experience (NOT_YET_PROVEN)
+- **Previous milestone:** M2 — Session & Worklog (DONE)
+- **M3 status:** `M3_STATUS=NOT_YET_PROVEN`, `M3_IMPLEMENTED=NO`, `M3_STARTED=NO`
 - **Canonical roadmap:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md`
 - **Canonical tracker:** `docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv`
 - **Canonical design:** `docs/specs/asb/AIRO_SECOND_BRAIN_v0.6_DESIGN_SPEC.md`

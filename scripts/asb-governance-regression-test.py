@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 """
-asb-governance-regression-test: Automated governance regression test suite for AIRO Second Brain.
-Verifies retention of critical governance markers, project pointers, absence of absolute file URIs,
-recursive target resolution of all repository-local Markdown links, and full startup sequence consistency.
+asb-governance-regression-test.py: Regression and consistency suite for AIRO Second Brain v0.6 governance files.
+Verifies rules, link resolution, secret safety, and canonical milestone state consistency.
 """
-import sys
+
 import os
+import sys
 import re
 
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+REPO_ROOT = os.environ.get("AIRO_REPO_ROOT") or os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def check_file_contains(rel_path, required_markers):
+def check_file_contains(rel_path, required_strings):
     filepath = os.path.join(REPO_ROOT, rel_path)
     if not os.path.exists(filepath):
-        print(f"  [FAIL] Missing file: {rel_path}")
+        print(f"  [FAIL] {rel_path} does not exist.")
         return False
 
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     missing = []
-    for marker in required_markers:
-        if marker not in content:
-            missing.append(marker)
+    for s in required_strings:
+        if s not in content:
+            missing.append(s)
 
     if missing:
-        print(f"  [FAIL] {rel_path} missing markers: {', '.join(missing)}")
+        print(f"  [FAIL] {rel_path} missing required markers: {missing}")
         return False
     else:
-        print(f"  [PASS] {rel_path} contains all {len(required_markers)} required markers.")
+        print(f"  [PASS] {rel_path} contains all {len(required_strings)} required markers.")
         return True
 
 def check_no_absolute_file_uris():
@@ -40,7 +40,9 @@ def check_no_absolute_file_uris():
         "docs/evidence/ASB_v0.6_DESIGN_SESSION_SYNTHESIS_20260804.md",
         "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md",
         "docs/contracts/AIRO_STATUS_CONTRACT.md",
-        "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md"
+        "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md"
     ]
 
     failed = False
@@ -70,7 +72,9 @@ def check_markdown_link_resolution():
         "docs/evidence/ASB_v0.6_DESIGN_SESSION_SYNTHESIS_20260804.md",
         "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md",
         "docs/contracts/AIRO_STATUS_CONTRACT.md",
-        "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md"
+        "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md",
+        "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md"
     ]
 
     total_links = 0
@@ -118,54 +122,75 @@ def check_markdown_link_resolution():
     if broken_links:
         for doc, target, err in broken_links:
             print(f"  [FAIL] Broken link in {doc}: '{target}' -> {err}")
+        print("M2_VALIDATION_LINK_RESOLUTION=FAIL")
         return False
     else:
         print("  [PASS] 100% of canonical Markdown relative links resolve to existing repository files.")
+        print("M2_VALIDATION_LINK_RESOLUTION=PASS")
         return True
 
-def check_startup_consistency():
-    print("Checking startup sequence consistency across BOOT, CURRENT, ROADMAP_INDEX, PRD_INDEX...")
+def check_canonical_milestone_state_consistency():
+    print("Checking canonical milestone state consistency across tracker, roadmap, index, current, prd, closeout...")
     boot_path = os.path.join(REPO_ROOT, "BOOT.md")
     current_path = os.path.join(REPO_ROOT, "CURRENT.md")
     roadmap_idx_path = os.path.join(REPO_ROOT, "ROADMAP_INDEX.md")
-    prd_idx_path = os.path.join(REPO_ROOT, "PRD_INDEX.md")
+    prd_path = os.path.join(REPO_ROOT, "docs/prd/AIRO_SECOND_BRAIN_PRD_v0.6.0.md")
+    roadmap_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md")
     tracker_path = os.path.join(REPO_ROOT, "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_MILESTONE_TRACKER.tsv")
+    closeout_path = os.path.join(REPO_ROOT, "docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_CLOSEOUT_20260804.md")
 
     errors = []
 
-    with open(boot_path, "r", encoding="utf-8") as f:
-        boot_txt = f.read()
-    if "🧭 AIRO STATUS" not in boot_txt:
-        errors.append("BOOT.md missing 🧭 AIRO STATUS contract header")
+    # 1. TRACKER
+    with open(tracker_path, "r", encoding="utf-8") as f:
+        tracker_txt = f.read()
+    if "M2\tSession & Worklog\tDONE\tBERHASIL\tYES" not in tracker_txt:
+        errors.append("TRACKER: M2 is not DONE/BERHASIL/YES")
+    if "M3\tObsidian Human Experience\tNOT_YET_PROVEN\tBELUM_TERBUKTI\tNO" not in tracker_txt:
+        errors.append("TRACKER: M3 is not NOT_YET_PROVEN/BELUM_TERBUKTI/NO")
 
+    # 2. ROADMAP
+    with open(roadmap_path, "r", encoding="utf-8") as f:
+        rm_txt = f.read()
+    if "M2 — Session & Worklog" not in rm_txt or "DONE" not in rm_txt:
+        errors.append("ROADMAP: M2 is not marked DONE")
+    if "M3 — Obsidian Human Experience" not in rm_txt or "Next Active Target" not in rm_txt:
+        errors.append("ROADMAP: M3 is not marked Next Active Target")
+
+    # 3. ROADMAP_INDEX
+    with open(roadmap_idx_path, "r", encoding="utf-8") as f:
+        rm_idx_txt = f.read()
+    if "Active milestone: M3 — Obsidian Human Experience" not in rm_idx_txt:
+        errors.append("ROADMAP_INDEX: ASB_GLOBAL current target is not M3")
+
+    # 4. CURRENT
     with open(current_path, "r", encoding="utf-8") as f:
         curr_txt = f.read()
-    if "<!-- ASB_V06_CURRENT_ROUTING_OVERRIDE_BEGIN -->" not in curr_txt:
-        errors.append("CURRENT.md missing top routing override block")
-    if "docs/roadmap/AIRO_SECOND_BRAIN_v0.6_ROADMAP.md" not in curr_txt:
-        errors.append("CURRENT.md missing v0.6 roadmap pointer")
+    if "M3 — Obsidian Human Experience" not in curr_txt or "Current milestone" not in curr_txt:
+        errors.append("CURRENT: top routing override current target is not M3")
 
-    with open(roadmap_idx_path, "r", encoding="utf-8") as f:
-        rm_txt = f.read()
-    if "M2 — Session & Worklog" not in rm_txt and "M2" not in rm_txt:
-        errors.append("ROADMAP_INDEX.md missing ASB_GLOBAL M2 active milestone pointer")
-
-    with open(prd_idx_path, "r", encoding="utf-8") as f:
+    # 5. PRD
+    with open(prd_path, "r", encoding="utf-8") as f:
         prd_txt = f.read()
-    if "AIRO_SECOND_BRAIN_PRD_v0.6.0.md" not in prd_txt or "AIRO_SECOND_BRAIN_PRD_v0.5.1.md" not in prd_txt:
-        errors.append("PRD_INDEX.md missing v0.6 implementation target or v0.5.1 baseline")
+    if "M2 — Session & Worklog** (DONE" not in prd_txt:
+        errors.append("PRD: M2 is not marked DONE")
+    if "M3 — Obsidian Human Experience** (NOT_YET_PROVEN" not in prd_txt:
+        errors.append("PRD: M3 is not marked NOT_YET_PROVEN")
 
-    with open(tracker_path, "r", encoding="utf-8") as f:
-        tr_txt = f.read()
-    if "M1\tGovernance & Execution Assurance\tDONE\tBERHASIL\tYES" not in tr_txt:
-        errors.append("MILESTONE_TRACKER.tsv M1 is not DONE/BERHASIL/YES")
+    # 6. CLOSEOUT
+    with open(closeout_path, "r", encoding="utf-8") as f:
+        co_txt = f.read()
+    if "Kesimpulan — BERHASIL" not in co_txt or "Boleh lanjut — YA" not in co_txt:
+        errors.append("CLOSEOUT: M2 is not BERHASIL / Boleh lanjut — YA")
 
     if errors:
         for err in errors:
-            print(f"  [FAIL] Startup consistency error: {err}")
+            print(f"  [FAIL] Milestone state inconsistency: {err}")
+        print("CANONICAL_MILESTONE_STATE_CONSISTENCY=FAIL")
         return False
     else:
-        print("  [PASS] Startup sequence consistency verified across all canonical governance files.")
+        print("  [PASS] Canonical milestone state consistency verified across all governance documents.")
+        print("CANONICAL_MILESTONE_STATE_CONSISTENCY=PASS")
         return True
 
 def run_suite():
@@ -218,7 +243,7 @@ def run_suite():
     ]
 
     passed = 0
-    total = len(tests) + 3 # include absolute URI check + relative link resolution check + startup consistency
+    total = len(tests) + 3
 
     print(f"Running {total} ASB governance regression & consistency checks...")
     for name, rel_path, markers in tests:
@@ -231,7 +256,7 @@ def run_suite():
     if check_markdown_link_resolution():
         passed += 1
 
-    if check_startup_consistency():
+    if check_canonical_milestone_state_consistency():
         passed += 1
 
     print(f"\nGovernance Regression Test Results: {passed}/{total} passed.")

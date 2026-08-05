@@ -16,7 +16,7 @@
 > 3. Active session status incorrectly reported `Boleh lanjut — YA` before evaluation.
 > 4. Test suites checked text labels rather than durable state and ledger session IDs.
 >
-> Full corrective implementation and validation are recorded in [AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md](docs/validation/AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md).
+> Full corrective implementation and validation are recorded in [AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md](AIRO_SECOND_BRAIN_v0.6_M2_EXECUTION_ASSURANCE_CORRECTION_20260804.md).
 
 ---
 
