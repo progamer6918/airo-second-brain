@@ -17,7 +17,7 @@ audience: human
 |---|---|
 | 🔎 **Cari tahu sesuatu** — istilah, aturan, sistem, konsep | [[KNOWLEDGE_MAP|Peta Pengetahuan]] |
 | 📊 **Selesaikan masalah** — sales, MS, dealer, people, activity | [[TASK_ROUTER|Bantu arahkan masalah gue]] |
-| 🛠 **Bikin sesuatu** — PICA, dealer review, PPT, report, data | [[playbooks/MAKE_WORK_OUTPUT|Pilih output]] |
+| 🛠 **Bikin sesuatu** — PICA, dealer review, PPT, report, data | [[DELIVERABLE_INDEX|Pilih output kerja]] |
 | ▶️ **Lanjut kerjaan** | [[CURRENT|Posisi WorkDesk saat ini]] |
 | 🎓 **Belajar dari nol** | [[START_HERE|Mulai dari Sini]] |
 
@@ -31,6 +31,14 @@ audience: human
 - [[playbooks/DEALER_REVIEW|Mau review dealer]]
 - [[playbooks/AT_HIGH_UNDERPERFORMANCE|AT High underperform]]
 - [[playbooks/NOS_DIAGNOSIS|Mau cek gap NOS]]
+
+## 🛠 Jalan pintas bikin output
+
+- [[deliverables/DEALER_REVIEW|Laporan Review Dealer]]
+- [[deliverables/PICA|Formulir PICA]]
+- [[deliverables/BUSINESS_CASE|Dokumen Business Case]]
+- [[deliverables/MANAGEMENT_REVIEW|Presentasi Eksekutif AHM / MD]]
+- [[deliverables/DATA_VALIDATION|Checklist Validasi Data]]
 
 ## 🍼 Baru pertama kali?
 

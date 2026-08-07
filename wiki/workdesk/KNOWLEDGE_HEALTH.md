@@ -20,22 +20,22 @@ audience: human-ai
 | Secret notes excluded | **2** |
 | Out-of-scope notes excluded | **1** |
 
-## M2 Cross-Source Knowledge Compilation State
+## M3 Playbooks & Work Deliverables State
 
 | Metric | Current |
 |---|---:|
 | Sources with output mapping | **103 / 103** |
 | Atomic evidence claims in ledger | **165** |
-| Explicit conflict/uncertainty rules | **8** |
 | Core semantic modules | **28** |
 | Playbooks active | **7** |
-| Human navigation & Start Here | **PASS** |
-| AI Task Router | **PASS** |
-| Cross-source conflict resolution | **PASS** |
+| Deliverable blueprints active | **8** |
+| Deliverable index ("Yang Bisa Dibikin WorkDesk") | **PASS** |
+| Data validation checklist | **PASS** |
+| AI Task Router (Deliverable Mode) | **PASS** |
 | Fresh-AI canonical benchmark | **NOT RUN (M4 Target)** |
 
 ## Meaning
 
-`SOURCE_ACCOUNTING=100%` is proven for the supplied universe. `FULL_SEMANTIC_DIGESTION=YES` and `CROSS_SOURCE_COMPILATION=YES` are complete for M2.
+`SOURCE_ACCOUNTING=100%` is proven for the supplied universe. `FULL_SEMANTIC_DIGESTION=YES`, `CROSS_SOURCE_COMPILATION=YES`, and `PLAYBOOKS_AND_WORK_DELIVERABLES=YES` are complete for M3.
 
 `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (will be evaluated in M4 benchmarking).

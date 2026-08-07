@@ -21,17 +21,19 @@ User cukup menyebut gejala atau output. Tidak perlu tahu nama framework.
 | “Mau audit/gap NOS” | [[playbooks/NOS_DIAGNOSIS]] |
 | “Gue belum tahu masalahnya apa” | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] |
 
-## Output routes
+## Output routes (Deliverable Mode)
 
-| Output | Route |
-|---|---|
-| Dealer Review | [[playbooks/DEALER_REVIEW]] |
-| PICA/RCA/PDCA/DMAIC | [[frameworks/PROBLEM_SOLVING_SYSTEM]] |
-| PPT / management review | [[presentation/AHM_REVIEW_AND_PRESENTATION]] |
-| Excel / Power BI | [[analytics/DATA_ANALYTICS_POWER_BI]] |
-| Market research | [[business/MARKET_INTELLIGENCE]] |
-| Target/forecast | [[business/TARGETING_FORECASTING]] + [[business/DEMAND_MANAGEMENT]] |
+| Output | Route | Deliverable Blueprint |
+|---|---|---|
+| Dealer Review | [[playbooks/DEALER_REVIEW]] | [[deliverables/DEALER_REVIEW]] |
+| PICA / Action Plan | [[frameworks/PROBLEM_SOLVING_SYSTEM]] | [[deliverables/PICA]] |
+| Business Case | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] | [[deliverables/BUSINESS_CASE]] |
+| Market / Area Brief | [[business/MARKET_INTELLIGENCE]] | [[deliverables/MARKET_BRIEF]] |
+| PPT / Management Review | [[presentation/AHM_REVIEW_AND_PRESENTATION]] | [[deliverables/MANAGEMENT_REVIEW]] |
+| Data Validation Checklist | [[analytics/DATA_ANALYTICS_POWER_BI]] | [[deliverables/DATA_VALIDATION]] |
+| Dealer / Management Communication | [[playbooks/DEALER_REVIEW]] | [[deliverables/COMMUNICATION]] |
+| Meeting Preparation Brief | [[playbooks/DEALER_REVIEW]] | [[deliverables/MEETING_PREP]] |
 
-## AI rule
+## AI Context Loading Rule
 
-Load WorkDesk core boot first, then task modules. `100% knowledge available` never means all raw sources must be loaded into context every turn.
+Load WorkDesk core boot first, lalu modul relevan berdasarkan rute di atas. Tidak perlu memuat seluruh 103 berkas sumber ke dalam konteks.
