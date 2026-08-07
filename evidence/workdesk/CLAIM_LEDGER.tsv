@@ -1,0 +1,51 @@
+claim_id	domain	claim	source_id	source_location	authority	confidence
+WD-CLM-001	role	ASS role uses PDCA: forecast/target/strategy in Plan	WD-SRC-026	slide 4	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-002	role	ASS Do includes daily sales/stock monitoring, strategy execution, field supervision and coordination	WD-SRC-026	slide 5	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-003	role	ASS Check includes economic/market evaluation, achievement/share and Dealer Review	WD-SRC-026	slide 6	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-004	role	ASS Action includes PICA, dealer correction and proposed strategy/activity/program	WD-SRC-026	slide 7	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-005	dealer_review	Advanced SPV review requires standardized minimum review items across sales/stock/fincoy/market/people/customer dimensions	WD-SRC-004	slide 4	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-006	salesforce	Activity formulation should quantify SF contribution, count, productivity, need, activity frequency and activity target	WD-SRC-004	slide 6	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-007	monitoring	Advanced SPV monitoring includes county/dealer/stock/fincoy/series/daily-sales trend	WD-SRC-004	slide 7	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-008	market	Market research cycle: identify problem, hypothesis, test, strategy	WD-SRC-028	slide 4	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-009	market	Market research sources include Polreg/AISI/price/CDB/BPS/BI/media/competitor/survey	WD-SRC-028	slides 5-6	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-010	demand	Demand Management links marketing strategy, forecast, demand plan, sales plan and supply plan	WD-SRC-028	slide 7	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-011	demand	Top-down AHM and bottom-up MD planning must balance supply-demand and stock availability	WD-SRC-028	slide 8	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-012	forecast	Forecast factors include seasonality, trend/growth, new-model penetration, competition, economy, weather, buying power and disaster	WD-SRC-028	slides 9-10	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-013	target	Target breakdown connects province/market/share to county, dealer, sales force and activity	WD-SRC-027	slides 11-19	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-014	dealer_review	Dealer Review is intended as a Kacab management diary, not merely visit preparation	WD-SRC-027	slide 24	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-015	stock	Sales/stock monitoring drills MD → kabupaten → dealer → series	WD-SRC-018	slides 2-10	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-016	pricing	Price intelligence compares OTR, DP, discount, actual DP, installment and rate competitiveness	WD-SRC-019	slides 3-5	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-017	financing	Historical FID/BA analysis is used to understand financing risk/appetite and must be reviewed by fincoy/series/dealer/DP/customer segment	WD-SRC-019	slides 9-14	FORMAL_HONDA_TRAINING	MEDIUM_HISTORICAL_RULES
+WD-CLM-018	dp	DP composition should be tracked by layer/series/fincoy and linked to strategy	WD-SRC-027	slides 33-38	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-019	pica	PICA should drill general performance to specific contributor/root cause before corrective action	WD-SRC-020	slides 6-30	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-020	channel	Channel management covers new dealer, resign/replacement coverage and upgrade monitoring	WD-SRC-017	slides 2-15	FORMAL_HONDA_TRAINING	HIGH_HISTORICAL
+WD-CLM-021	territory	TTM maps coverage/rings and links territory target to dealer/activity/productivity monitoring	WD-SRC-025	slides 5-25	FORMAL_HONDA_TRAINING	HIGH_HISTORICAL
+WD-CLM-022	myhero	MyHero is a digital sales-force learning/sales tool with product/general knowledge, quizzes/surveys and monitoring features in 2023 material	WD-SRC-022	slides 2-14	FORMAL_HONDA_TRAINING	HIGH_HISTORICAL_FEATURESET
+WD-CLM-023	myhero	MyHero self-audit NOS was explicitly not an official NOS audit result in 2023 material	WD-SRC-022	slide 11	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-024	ins	INS 2023 evaluates network sustainability through performance/potential, qualitative condition, NOS/customer and digital dimensions	WD-SRC-023	slides 2-11	FORMAL_HONDA_TRAINING	HIGH_HISTORICAL
+WD-CLM-025	nos	NOS current 2026 guidance requires update/delete/merge/new items align with Reshape Network	WD-SRC-062	Guidance!A16:C17	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH
+WD-CLM-026	nos	NOS 2026 guidance highlights loyalty, EV charger needs, Reshape, people/training and digitalization concerns	WD-SRC-062	Guidance!A9:C17	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH
+WD-CLM-027	nos	Current NOS is organized around network-specific Premises/Process/People sheets and Result Summary where applicable	WD-SRC-063	workbook structure	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH
+WD-CLM-028	nos	POS 2026 has adapted H1/H23 Premises/People/Process standards	WD-SRC-069	workbook sheets	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH
+WD-CLM-029	nos	BTL 2026 has H1/H23 adapted standards	WD-SRC-070	workbook sheets	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH
+WD-CLM-030	nos	2023 NOS is historical/visual context and cannot override 2026 current checklist on conflict	WD-SRC-071	deck + authority decision	HISTORICAL_OFFICIAL_REFERENCE	HIGH
+WD-CLM-031	nms	NMS expansion is Network Management System	OWNER_CONFIRMATION	decisions/approved/airo-workdesk-fast-track-owner-decisions-20260807.md item 9	OWNER_CONFIRMED	HIGH
+WD-CLM-032	nms	2026 NOS embeds NMS/NMS Mobile in sales/customer/booking/service/CRM operational contexts	WD-SRC-066	sampled H1/H23 process rows	CURRENT_OFFICIAL_NETWORK_STANDARD	HIGH_PER_FEATURE
+WD-CLM-033	crm	CRM workshop models lead validation, assignment, follow-up and status progression	WD-SRC-058	lead process/status slides	FORMAL_HONDA_TRAINING	HIGH
+WD-CLM-034	leadership	Basic interpersonal curriculum includes listening, communication, empathy, conflict resolution, assertiveness, emotional intelligence and teamwork	WD-SRC-013	pages 3-40	BWI_CURRICULUM	HIGH
+WD-CLM-035	presentation	Basic presentation curriculum emphasizes purpose, audience, clarity, voice/body language, enthusiasm and storytelling	WD-SRC-014	pages 3-36	BWI_CURRICULUM	HIGH
+WD-CLM-036	rca	Basic external curriculum models problem statement → hypothesis → root cause → solution/PIC/deadline/status	WD-SRC-015	pages 36-45	BWI_CURRICULUM	HIGH
+WD-CLM-037	coaching	Advanced BWI material uses GROW coaching	WD-SRC-002	coaching section	FORMAL_EXTERNAL_TRAINING	HIGH_FOR_THEORY
+WD-CLM-038	change	External material uses Vision+Skills+Incentives+Resources+Action Plan as change implementation diagnostic	WD-SRC-003	page 83 area	FORMAL_EXTERNAL_TRAINING	HIGH_FOR_THEORY
+WD-CLM-039	customer	External material teaches C.A.S.H. = Convenience/Action/Speed/Hassle Free	WD-SRC-003	page 32 area	FORMAL_EXTERNAL_TRAINING	HIGH_FOR_THEORY
+WD-CLM-040	customer	Power of Moments material teaches Elevation/Insight/Pride/Connection	WD-SRC-003	pages 42-50 area	FORMAL_EXTERNAL_TRAINING	HIGH_FOR_THEORY
+WD-CLM-041	owner_project	Intermediate Owner AT High project uses market→target→execution→monitoring/result structure	WD-SRC-061	pages 3-12	OWNER_DIRECT_ARTIFACT	HIGH
+WD-CLM-042	owner_project	Advanced Owner project uses DMAIC	WD-SRC-006	pages 3-19	OWNER_DIRECT_ARTIFACT	HIGH
+WD-CLM-043	owner_project	Advanced Owner project selected Merangin based on high volume plus lower share opportunity	WD-SRC-006	pages 5-8	OWNER_DIRECT_ARTIFACT	HIGH_HISTORICAL_CASE
+WD-CLM-044	owner_project	Advanced Owner project converts customer occupation/buying context into community-channel strategy	WD-SRC-006	pages 9-16	OWNER_DIRECT_ARTIFACT	HIGH_HISTORICAL_CASE
+WD-CLM-045	owner_project	Advanced Owner project defines daily/monthly monitoring and evaluates market share/dealer volume	WD-SRC-006	pages 17-19	OWNER_DIRECT_ARTIFACT	HIGH_HISTORICAL_CASE
+WD-CLM-046	strategy	ND Plan/Reshape deck spans market/economic, H1/H2/H3/HC3/Dev, area/network, PICA and transformation	WD-SRC-073	slides 1-64	CURRENT_INTERNAL_STRATEGY_REFERENCE	HIGH_ARCHITECTURE
+WD-CLM-047	notion	Presenter/Notion notes are secondary due to speech-to-text and AI-cleanup provenance	WD-SRC-077	note provenance pattern	SUPPLEMENTARY	MEDIUM
+WD-CLM-048	notion	Reshape Notion note contains obvious corrupted/unrelated terminology and cannot define Reshape without corroboration	WD-SRC-097	note text	SUPPLEMENTARY	HIGH_RISK_LABEL
+WD-CLM-049	security	Two Notion notes contain secret/auth-like material and are excluded from public knowledge	WD-SRC-078	manifest classification	FORBIDDEN	HIGH
+WD-CLM-050	security	Second secret/auth-like Notion note is excluded from public knowledge	WD-SRC-098	manifest classification	FORBIDDEN	HIGH

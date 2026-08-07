@@ -1,0 +1,17 @@
+source_id	related_source_id	relationship	confidence	source_path	related_path
+WD-SRC-010	WD-SRC-009	EXACT_BINARY_DUPLICATE	HIGH	Basic/88. Petunjuk Pelaksanaan Project Presentation Training ASSDP - Tahap 2.pdf	Basic/88. Petunjuk Pelaksanaan Project Presentation Training ASSDP #U2013 Tahap 2.pdf
+WD-SRC-071	WD-SRC-024	EXACT_BINARY_DUPLICATE	HIGH	15. NOS ASSDP.pptx	Basic/Materi Internal/15. NOS ASSDP.pptx
+WD-SRC-036	WD-SRC-017	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/1. ASSDP Channel Management 2023.txt	Basic/Materi Internal/1. ASSDP Channel Management 2023.pptx
+WD-SRC-037	WD-SRC-018	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/10.-Sales-_-Stock-Monitoring-per-Dealer.txt	Basic/Materi Internal/10. Sales _ Stock Monitoring per Dealer.pptx
+WD-SRC-038	WD-SRC-019	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/11. Analisa Pricing _ FID-BA.txt	Basic/Materi Internal/11. Analisa Pricing _ FID-BA.pptx
+WD-SRC-039	WD-SRC-020	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/12. PICA.txt	Basic/Materi Internal/12. PICA.pptx
+WD-SRC-040	WD-SRC-021	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/13. KPI Highlight - ASSDP Jun_23.txt	Basic/Materi Internal/13. KPI Highlight - ASSDP Jun_23.pptx
+WD-SRC-041	WD-SRC-022	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/14.-My-Hero-ASSDP-2023.txt	Basic/Materi Internal/14. My Hero - ASSDP 2023.pptx
+WD-SRC-042	WD-SRC-023	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/15.-INS-ASSDP.txt	Basic/Materi Internal/15. INS ASSDP.pptx
+WD-SRC-043	WD-SRC-071	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/15.-NOS-ASSDP.txt	15. NOS ASSDP.pptx
+WD-SRC-044	WD-SRC-025	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/15.-TTM-ASSDP.txt	Basic/Materi Internal/15. TTM ASSDP.pptx
+WD-SRC-045	WD-SRC-026	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/2. ASSDP Basic - PDCA.txt	Basic/Materi Internal/2. ASSDP Basic - PDCA.pptx
+WD-SRC-046	WD-SRC-027	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/3-6. ASSDP Breakdown target, form dealer review _ TTFU, Targetting _ Forecasting dan komposisi DP .txt	Basic/Materi Internal/3-6. ASSDP Breakdown target, form dealer review _ TTFU, Targetting _ Forecasting dan komposisi DP .pptx
+WD-SRC-047	WD-SRC-028	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/7.-Demand-Management-_-Recovery-Rate.txt	Basic/Materi Internal/7. Demand Management _ Recovery Rate.pptx
+WD-SRC-048	WD-SRC-029	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/8.-Management-Visit-Guidance.txt	Basic/Materi Internal/8. Management Visit Guidance.pptx
+WD-SRC-049	WD-SRC-030	DERIVED_TEXT_COMPANION	HIGH_FILENAME_MATCH	Basic/Materi Internal/txt/9.-Niguri-AHM.txt	Basic/Materi Internal/9. Niguri AHM.pptx

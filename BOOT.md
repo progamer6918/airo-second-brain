@@ -130,7 +130,7 @@ If documentation or context conflicts with live system evidence:
 For every AIRO Finance or Arfin task, read the full AFPD boot bundle in file order before proposing mutations. If incomplete, set `AFPD_BOOT_GUARD=FAIL` and `MUTATION_ALLOWED=NO`.
 
 ### Mandatory Telegram Agent Identity Guard
-Before any Telegram bot or webhook recommendations, read `systems/telegram-agent-identity-contract.md`. Earesmes and Arfin have distinct dedicated bot identities.
+Applies to all AI operators and every new chat. Before any Telegram bot or webhook recommendations, read `systems/telegram-agent-identity-contract.md`. Earesmes and Arfin have distinct dedicated bot identities. Every substantive Telegram architecture response must visibly emit the PASS or FAIL receipt.
 
 ### Mandatory Earesmes-Arfin Bridge (EAB) Boot Guard
 For EAB tasks, read `ecosystem/projects/earesmes-arfin-bridge/docs/00_PROJECT_BOOT.md`. Implementation remains forbidden until explicit gate authorization.

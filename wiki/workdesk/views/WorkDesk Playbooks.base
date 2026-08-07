@@ -1,0 +1,8 @@
+filters:
+  and:
+    - file.inFolder("wiki/workdesk/playbooks")
+views:
+  - type: table
+    name: Semua Playbook
+    order:
+      - file.name

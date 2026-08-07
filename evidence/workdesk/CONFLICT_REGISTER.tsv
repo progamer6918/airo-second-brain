@@ -1,0 +1,9 @@
+conflict_id	topic	conflict	resolution_rule	primary_sources	secondary_sources	status
+WD-CFL-001	NOS current standard	NOS 2023 vs NOS 2026	Use 2026 current checklist; 2023 only historical/visual unless explicitly referenced	WD-SRC-062;WD-SRC-063;WD-SRC-065;WD-SRC-066;WD-SRC-067;WD-SRC-068;WD-SRC-069;WD-SRC-070;WD-SRC-072	WD-SRC-064;WD-SRC-071	RESOLVED
+WD-CFL-002	Historical POS/channel thresholds	ASSDP 2023 numeric POS classes/deadlines vs unknown current	Do not canonicalize as current rule without current source	WD-SRC-017		OPEN_CURRENT_CONFIRMATION
+WD-CFL-003	FID/BA thresholds	2023 examples vs current financing policy	Use concept; require current policy for threshold/action	WD-SRC-019		OPEN_CURRENT_CONFIRMATION
+WD-CFL-004	Niguri cadence	2023 submission calendar vs current cadence	Use planning concept; require current evidence for calendar	WD-SRC-030		OPEN_CURRENT_CONFIRMATION
+WD-CFL-005	MyHero features	2023 feature roadmap vs current runtime	Use current evidence per feature; do not assume roadmap delivered/unchanged	WD-SRC-022	WD-SRC-069;WD-SRC-070	OPEN_PER_FEATURE
+WD-CFL-006	Notion transcription	Noisy/AI-cleaned notes vs formal material	Formal/current material wins on conflict; keep note as context only	WD-SRC-075:WD-SRC-106		POLICY_RESOLVED
+WD-CFL-007	NMS exact module map	Owner-confirmed name + NOS feature references vs no definitive system spec	Per-feature evidence only; complete architecture unresolved	OWNER;WD-SRC-063:WD-SRC-070		OPEN
+WD-CFL-008	TTFU expansion	Acronym exists but exact expansion unproven	Keep acronym unresolved; do not guess	WD-SRC-027		OPEN

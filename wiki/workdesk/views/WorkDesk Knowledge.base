@@ -1,0 +1,11 @@
+filters:
+  and:
+    - file.inFolder("wiki/workdesk")
+    - 'type == "workdesk-knowledge"'
+views:
+  - type: table
+    name: Siap Dibaca
+    order:
+      - file.name
+      - domain
+      - workdesk_status

@@ -1,0 +1,85 @@
+{
+  "nodes": [
+    {
+      "id": "ass",
+      "type": "text",
+      "text": "AREA SALES SUPERVISOR",
+      "x": 0,
+      "y": 0,
+      "width": 300,
+      "height": 120
+    },
+    {
+      "id": "market",
+      "type": "text",
+      "text": "MARKET & AREA\nMarket Share • Competitor • Economy • Customer",
+      "x": -500,
+      "y": -220,
+      "width": 320,
+      "height": 150
+    },
+    {
+      "id": "dealer",
+      "type": "text",
+      "text": "DEALER & NETWORK\nNOS • NMS • Channel • People",
+      "x": 500,
+      "y": -220,
+      "width": 320,
+      "height": 150
+    },
+    {
+      "id": "sales",
+      "type": "text",
+      "text": "SALES & COMMERCIAL\nTarget • Forecast • Stock • Pricing • Fincoy • Funnel",
+      "x": -500,
+      "y": 220,
+      "width": 320,
+      "height": 160
+    },
+    {
+      "id": "strategy",
+      "type": "text",
+      "text": "STRATEGY & IMPROVEMENT\nDealer Review • RCA • PICA • PDCA • DMAIC",
+      "x": 500,
+      "y": 220,
+      "width": 320,
+      "height": 160
+    },
+    {
+      "id": "lead",
+      "type": "text",
+      "text": "LEADERSHIP & EXECUTION\nInfluence • Negotiation • Coaching • Change",
+      "x": 0,
+      "y": 420,
+      "width": 320,
+      "height": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "fromNode": "ass",
+      "toNode": "market"
+    },
+    {
+      "id": "e2",
+      "fromNode": "ass",
+      "toNode": "dealer"
+    },
+    {
+      "id": "e3",
+      "fromNode": "ass",
+      "toNode": "sales"
+    },
+    {
+      "id": "e4",
+      "fromNode": "ass",
+      "toNode": "strategy"
+    },
+    {
+      "id": "e5",
+      "fromNode": "ass",
+      "toNode": "lead"
+    }
+  ]
+}
