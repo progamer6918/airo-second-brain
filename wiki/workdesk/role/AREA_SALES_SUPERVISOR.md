@@ -11,48 +11,36 @@ audience: human-ai
 
 Area Sales Supervisor (ASS) bukan sekadar mengawasi sales. ASS mengelola **business performance area**: memahami market, menyusun target/forecast, membaca dealer, menggerakkan people/network, mengontrol execution, lalu memperbaiki hasil.
 
-## Operating cycle
+## 💡 Kenapa ini penting
 
-### 1. Understand
-Market, economic drivers, customer, competitor, area, dealer, sales/stock/fincoy.
+Main Dealer bergantung pada ASS untuk menjamin eksekusi strategi nasional/regional di tingkat dealer dan area. Tanpa pengawasan ASS, potensi pasar lokal tidak akan tergarap optimal dan masalah dealer tidak akan tertangani dengan cepat.
 
-### 2. Plan
-Forecast market, target, demand, distribution, people/productivity, activity and network development.
+## 🔄 Siklus Operasional (Operating Cycle)
 
-### 3. Execute
-Coordinate with AHM, dealer, financial company and cross-function; ensure strategy/activity runs.
+### 1. Understand (Pahami)
+Pasar, penggerak ekonomi lokal, profil konsumen, pergerakan kompetitor, dealer, serta posisi sales/stock/fincoy.
 
-### 4. Check
-Monitor daily/weekly/monthly performance, dealer review, market share, sales/stock, economic/competitor movement.
+### 2. Plan (Rencanakan)
+Forecast pasar, penetapan target bulanan/tipe, demand management, alokasi distribusi stock, produktivitas sales force, serta rencana aktivitas BTL & pengembangan jaringan.
 
-### 5. Act / Improve
-Build PICA/corrective action, propose strategy/activity/program, develop network/people and control sustainability.
+### 3. Execute (Eksekusi)
+Koordinasi dengan AHM, pemilik dealer, perusahaan pembiayaan (fincoy), dan fungsi internal Main Dealer untuk memastikan program berjalan sesuai jadwal.
 
-## Advanced role evidence
+### 4. Check (Evaluasi)
+Monitoring harian/mingguan/bulanan, Dealer Review (TTFU), pergerakan market share, keseimbangan stock (DOI), dan kepatuhan standar NOS.
 
-Advanced SPV-role material adds a standardized dealer-review lens and expects deeper activity formulation:
+### 5. Act / Improve (Tindak Lanjut)
+Penyusunan PICA/aksi korektif, usulan program komersial lokal, pelatihan/coaching SDM dealer, dan evaluasi hasil berkelanjutan.
 
-- target & achievement by type/people;
-- stock days;
-- cash/credit and fincoy approval/reject/cancel;
-- hyperlocal market information and forecast;
-- customer/migration indicators;
-- historical trend and area mapping;
-- sales-force count/productivity;
-- activity frequency and target;
-- county/dealer/stock/fincoy/series/daily-sales monitoring.
+## 🔍 Alur Diagnosis Default
 
-## Default diagnosis discipline
+`gap hasil → ruang lingkup → market/segmen/area → dealer/channel → pendorong komersial → manpower/produktivitas → aktivitas/funnel → eksekusi sistem/NOS → akar masalah → aksi terkuantifikasi → kontrol`
 
-`result gap → exact scope → market/segment/area → dealer/channel → commercial drivers → people/productivity → activity/funnel → execution/system/NOS → root cause → quantified action → control`
+## 🔗 Evidence & Source
 
-Not every branch is mandatory. Evidence determines the path.
+- `WD-SRC-026` slides 4–7 — Peran ASS berbasis siklus PDCA.
+- `WD-SRC-004` slides 4–9 — Peran SPV Advance, formulasi aktivitas, dan monitoring proses dealer.
+- `WD-SRC-005` slides 6–25 — Wrap-up materi ASSDP Advance (riset pasar, forecast, stock & PICA).
+- `WD-SRC-006` pages 3–19 — Penerapan peran ASS oleh Owner berbasis DMAIC pada proyek penetrasi pasar 2026.
 
-## Evidence
-
-- `WD-SRC-026`, slides 4–7 — ASS role expressed through PDCA.
-- `WD-SRC-004`, slides 4–9 — Advanced SPV role/dealer review/activity formulation/process monitoring.
-- `WD-SRC-005`, slides 6–25 — advanced wrap-up across market research, forecast, targeting, sales/stock and PICA.
-- `WD-SRC-006`, pages 3–19 — Owner Advanced project applying DMAIC to market penetration.
-
-**Confidence:** HIGH for role operating model; FULL 61/61 curriculum review still pending.
+**Confidence:** HIGH. Penelaahan 61/61 materi kurikulum ASSDP lengkap.

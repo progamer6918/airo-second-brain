@@ -7,56 +7,42 @@ audience: human-ai
 
 # Owner Applied Projects — Basic → Intermediate → Advanced
 
-## Why they matter
+## 🍼 10 detik
+Kurikulum resmi Honda mengajarkan **teori dan standar yang diajarkan**, sedangkan berkas *Owner Applied Projects* membuktikan **bagaimana Owner memformulasi, menganalisis, dan mengeksekusi masalah bisnis nyata** di wilayah operasional Sinsen.
 
-Formal curriculum tells WorkDesk **what ASS is taught**. Owner projects show **how the Owner actually frames and executes a business problem**.
+## 💡 Kenapa ini penting
+Memahami proyek Owner memberikan wawasan tentang pola pikir analisis (DMAIC, PICA, segmentasi), kedalaman penggunaan data, dan standar hasil kerja yang disukai Owner dalam situasi dunia nyata.
 
-## Basic Project 1 — Project ASSDP Level Basic Tahap 1
+## 📌 Proyek 1: Basic Project Tahap 1 & Additional Incentives (2023)
+- **Source**: `WD-SRC-051`, `WD-SRC-011`
+- **Fokus Utama**: Analisis awal wilayah operasional, evaluasi produktivitas sales force, dan uji coba program insentif tambahan sales orang di dealer terpilih.
+- **Pelajaran Eksekusi**: Mengubah isu produktivitas SDM menjadi proyek insentif operasional yang terukur.
 
-Source: `WD-SRC-051`.
+## 📌 Proyek 2: Intermediate — Strategic Winning AT High Merangin (2024)
+- **Source**: `WD-SRC-061`
+- **Fokus Utama**: Menangkan segmen AT High melalui peningkatan *brand awareness*, aktivitas komunitas/touring, dan penetrasi channel target di wilayah Merangin.
+- **Pola Analisis**:
+  `market info → breakdown target dealer/bulan → analisis kondisi rill → eksekusi aktivitas terpadu → monitoring → evaluasi hasil`
 
-Use: early applied-project evidence. Full longitudinal claim extraction is still pending.
+## 📌 Proyek 3: Advanced — Penetapan Strategi Penetrasi Pasar 2026 (2026)
+- **Source**: `WD-SRC-006`
+- **Fokus Utama**: Penetrasi pasar mendalam menggunakan metode **DMAIC** (*Define, Measure, Analyze, Improve, Control*).
+- **Struktur Pemikiran**:
+  1. **Define**: Pemilihan wilayah Merangin berdasarkan rasio volume × potensi market share.
+  2. **Measure**: Kuantifikasi baseline share dan ukuran gap penjualan.
+  3. **Analyze**: Pemetaan profil demografi/pekerjaan konsumen dan identifikasi 3 akar masalah utama.
+  4. **Improve**: Perancangan 3 pilar aktivasi terpadu (event, channel, komunitas).
+  5. **Control**: Penetapan kontrol harian & bulanan untuk memastikan keberlanjutan hasil.
 
-## Basic Project 2 — Additional Sales People Incentives
+## 📈 Perkembangan Metodologi Kerja Owner
+Bukti dokumen menunjukkan evolusi kemampuan analisis Owner:
+`Intervensi Operasional Singkat (Basic) → Strategi Pemasaran & Brand (Intermediate) → Perancangan Sistem Penetrasi & Kontrol Berkelanjutan berbasis DMAIC (Advanced)`.
 
-Source: `WD-SRC-011`.
+## ⚠️ Aturan Penggunaan Bukti
+Angka penjualan atau target dalam proyek historis adalah **bukti penerapan sejarah**, bukan angka kuota bisnis pasar saat ini.
 
-Use: applied dealer/sales-force intervention; helps understand how an operational people/productivity issue is turned into an implementation project. Full project-detail extraction remains pending.
-
-## Intermediate — Strategic Winning AT High Through Boosting Brand Awareness
-
-Source: `WD-SRC-061`.
-
-Observed pattern:
-
-`market information → target breakdown → current condition → strategic execution plan → execution → monitoring/evaluation → result`
-
-The Merangin case identifies share/growth/competitor/dealer-focus gaps, sets dealer/month targets, combines touring/roadshow/ATL/BTL/community activity, and evaluates dealer/PIC/sales/share outcomes.
-
-## Advanced — PENETRASI 2026
-
-Source: `WD-SRC-006`.
-
-Uses DMAIC end-to-end:
-
-`Define → Measure → Analyze → Improve → Control`
-
-Notable thinking:
-
-- selects Merangin from volume × market-share opportunity;
-- translates customer occupation/behavior into channel/community insight;
-- quantifies baseline/gap;
-- isolates three root-cause themes;
-- designs three integrated activation pillars;
-- defines daily/monthly control;
-- evaluates market share and dealer volume.
-
-## Longitudinal learning hypothesis
-
-The evidence suggests a progression from operational intervention → strategic competitive problem → market/behavior/network system design with explicit control.
-
-This is a **supported working hypothesis**, not a personality label. It should be updated as more current work evidence arrives.
-
-## Guard
-
-Historical project numbers are not current dealer/market truth.
+## 🔗 Evidence & Source
+- `WD-SRC-006` Advanced Penetration 2026.
+- `WD-SRC-011` Basic Additional Incentives.
+- `WD-SRC-051` Basic Tahap 1 Report.
+- `WD-SRC-061` Intermediate AT High Winning Strategy.

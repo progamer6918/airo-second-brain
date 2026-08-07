@@ -8,40 +8,37 @@ audience: human
 
 # 🍼 Mulai dari Sini
 
-Halaman ini untuk orang yang sama sekali belum punya konteks.
+Halaman ini dirancang untuk membaca pengetahuan WorkDesk dari nol tanpa berasumsi bahwa Anda sudah mengenal istilah internal Honda atau Main Dealer.
 
-Kalau lo cuma mau menyelesaikan satu masalah sekarang, kembali ke [[HOME|WorkDesk Home]] dan pilih kebutuhan lo. Lo **tidak wajib** menyelesaikan learning path ini.
+Jika Anda hanya ingin menyelesaikan satu masalah praktis saat ini, langsung menuju [[HOME|WorkDesk Home]] dan pilih kebutuhan Anda. Anda **tidak wajib** menyelesaikan seluruh kurikulum ini.
 
-## 1. Gambaran 30 detik
+## 1. Gambaran 30 Detik
 
-WorkDesk menyimpan pengetahuan untuk pekerjaan Area Sales Supervisor di ekosistem Main Dealer Honda.
+WorkDesk adalah sistem pengetahuan operasional untuk peran **Area Sales Supervisor (ASS)** di ekosistem Main Dealer Honda.
 
-Pekerjaan ini bukan hanya "mengawasi penjualan".
+Pekerjaan ini bukan sekadar mengawasi tim sales. Secara ringkas:
 
-Secara sederhana:
+> **Pahami pasar → evaluasi dealer → temukan masalah/peluang → susun strategi & target → gerakkan orang & jaringan → pantau eksekusi → perbaiki hasil (PDCA/PICA).**
 
-> **Pahami pasar → pahami dealer → tentukan masalah/opportunity → susun strategi → gerakkan orang/network → pantau hasil → perbaiki.**
+## 2. Urutan Pembelajaran Berjenjang
 
-## 2. Urutan belajar
+1. [[role/AREA_SALES_SUPERVISOR|1. Apa itu Area Sales Supervisor?]] — Peran, tanggung jawab, dan siklus kerja.
+2. [[WORK_WORLD_MAP|2. Peta Dunia Kerja]] — Hubungan antara Market, Dealer, Commercial, People, dan Strategy.
+3. [[business/HONDA_MAIN_DEALER_ECOSYSTEM|3. Ekosistem Honda & Main Dealer]] — Hubungan AHM, Main Dealer, Dealer H1/H2/H3, AHASS, dan Fincoy.
+4. [[business/MARKET_INTELLIGENCE|4. Analisis Pasar & Market Share]] — Membaca pergerakan industri dan kompetitor.
+5. [[business/DEALER_REVIEW|5. Evaluasi & Review Dealer]] — Cara membedah performa outlet dan merancang PICA.
+6. [[business/SALES_FORCE_PRODUCTIVITY|6. Manpower & Productivity]] — Mengelola jumlah sales force, target per head, dan sales funnel.
+7. [[network/NOS_2026_CORE|7. Standar Jaringan (NOS 2026)]] — Aturan fisik (Premises), proses (Process), dan SDM (People).
+8. [[frameworks/PROBLEM_SOLVING_SYSTEM|8. Sistem Problem Solving (RCA/PICA/PDCA/DMAIC)]] — Metodologi menyelesaikan masalah bisnis secara ilmiah.
+9. [[strategy/ND_PLAN_RESHAPE|9. Strategi Jaringan & Reshape]] — Restrukturisasi dan pengembangan jaringan outlet.
+10. [[owner/OWNER_WORKING_MODEL|10. Model Kerja & Preferensi Owner]] — Aturan eksekusi, pola analisis, dan bukti penerapan Owner.
 
-1. [[role/AREA_SALES_SUPERVISOR|Apa itu Area Sales Supervisor?]]
-2. [[WORK_WORLD_MAP|Peta dunia kerja]]
-3. Market & area — *module in progress*
-4. Dealer & network — *module in progress*
-5. Sales funnel & productivity — *module in progress*
-6. [[network/NOS_2026_CORE|NOS dari nol]]
-7. Planning / RCA / PICA / PDCA / DMAIC — *module in progress*
-8. [[strategy/ND_PLAN_RESHAPE|Network strategy & Reshape]]
-9. [[leadership/SUPERVISORY_LEADERSHIP|Bagaimana menggerakkan orang/network]]
-10. [[owner/OWNER_APPLIED_PROJECTS|Bagaimana Owner menerapkannya]]
+## 3. Prinsip Kedalaman Pembacaan (Progressive Disclosure)
 
-## 3. Prinsip baca
+Setiap modul pengetahuan disusun dalam 4 lapisan:
+- **10 Detik**: Ringkasan singkat untuk pemahaman instan.
+- **Kenapa Ini Penting**: Alasan bisnis dan dampak operasional.
+- **Buat Kerja**: Panduan langkah demi langkah untuk eksekusi di lapangan.
+- **Evidence & Source**: Rujukan berkas sumber kanonis dan klaim bukti pendukung.
 
-Setiap knowledge module akan diarahkan ke empat lapisan:
-
-- **10 detik** — arti paling sederhana;
-- **buat kerja** — cara memakainya;
-- **mendalam** — framework dan edge cases;
-- **evidence** — sumber yang mendukung.
-
-Lo boleh berhenti di kedalaman yang lo butuhkan.
+Anda dapat berhenti membaca di tingkat kedalaman yang Anda butuhkan.

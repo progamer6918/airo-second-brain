@@ -20,21 +20,22 @@ audience: human-ai
 | Secret notes excluded | **2** |
 | Out-of-scope notes excluded | **1** |
 
-## M1 Full-Corpus Semantic Digestion State
+## M2 Cross-Source Knowledge Compilation State
 
 | Metric | Current |
 |---|---:|
-| Sources with substantive semantic pass | **103 / 103** |
-| Atomic evidence claims in ledger | **105** |
+| Sources with output mapping | **103 / 103** |
+| Atomic evidence claims in ledger | **165** |
 | Explicit conflict/uncertainty rules | **8** |
-| Core semantic modules | **24+** |
-| Full visual review | **PASS** |
-| Full spreadsheet row/rule review | **PASS** |
-| Notion 32/32 reconciliation | **PASS** |
+| Core semantic modules | **28** |
+| Playbooks active | **7** |
+| Human navigation & Start Here | **PASS** |
+| AI Task Router | **PASS** |
+| Cross-source conflict resolution | **PASS** |
 | Fresh-AI canonical benchmark | **NOT RUN (M4 Target)** |
 
 ## Meaning
 
-`SOURCE_ACCOUNTING=100%` is proven for the supplied universe. `FULL_SEMANTIC_DIGESTION=YES` is complete for M1.
+`SOURCE_ACCOUNTING=100%` is proven for the supplied universe. `FULL_SEMANTIC_DIGESTION=YES` and `CROSS_SOURCE_COMPILATION=YES` are complete for M2.
 
 `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (will be evaluated in M4 benchmarking).

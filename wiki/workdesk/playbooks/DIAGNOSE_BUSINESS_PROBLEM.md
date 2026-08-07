@@ -2,84 +2,39 @@
 type: workdesk-playbook
 project: AIRO_WORKDESK
 domain: problem-solving
-workdesk_status: PARTIAL
+workdesk_status: ACTIVE
 audience: human-ai
 ---
 
 # 🔧 Diagnose a Business Problem
 
-## 🍼 Kalau lo cuma tahu gejalanya
+## 🍼 10 detik
+Kalau lo cuma tahu gejalanya (misal: "sales drop", "activity tidak berefek"), jangan tebak solusinya. Gunakan urutan diagnosis berlapis untuk menemukan akar masalah utama secara matematis dan operasional.
 
-Mulai dari gejala. WorkDesk yang menerjemahkan ke domain.
+## 💡 Kenapa ini penting
+Menambah diskon atau membuat acara BTL ketika masalah sebenarnya ada di *manpower productivity* atau *stockout* hanya membuang anggaran. Diagnosis berlapis memastikan intervensi tepat sasaran.
 
-Examples:
+## 🔍 Alur Diagnosis Standard (10 Langkah)
 
-- sales turun;
-- market share turun;
-- activity banyak tapi hasil kecil;
-- sales people banyak tapi productivity rendah;
-- dealer tidak perform;
-- customer follow-up lemah.
+1. **Definisikan Gap Terukur**: Metrik, periode, area, segment, target vs pencapaian aktual.
+2. **Cek Pasar & Kompetitor**: Total market, pergeseran segmen, pergerakan kompetitor ([[business/MARKET_INTELLIGENCE]]).
+3. **Cek Kontribusi Dealer & Channel**: Evaluasi outlet H1/H2/H3 dan coverage area ([[business/CHANNEL_MANAGEMENT]]).
+4. **Cek Komersial**: Stock DOI, pricing, subsidi leasing/fincoy ([[business/PRICING_DP_FINANCING]]).
+5. **Cek Manpower & Productivity**: Jumlah FLP, productivity per salesman, sales funnel conversion ([[business/SALES_FORCE_PRODUCTIVITY]]).
+6. **Cek Aktivitas BTL**: Frekuensi, kualitas eksekusi, leads yang dihasilkan vs prospek ([[business/SALES_FORCE_PRODUCTIVITY]]).
+7. **Cek Eksekusi & Kepatuhan NOS**: Standar Premises, Process, People dealer ([[network/NOS_2026_CORE]]).
+8. **Isolasi Akar Masalah (RCA)**: Bedakan antara gejala (symptom) dengan akar masalah (root cause) yang dapat dikontrol.
+9. **Rancang Aksi Korektif (PICA)**: Tindakan spesifik, terukur, PIC, dan timeline.
+10. **Tentukan Sistem Kontrol**: Leading & lagging indicators, ritme peninjauan (PDCA/DMAIC).
 
-## Default diagnostic flow
+## 🔗 Gejala & Playbook Langsung
+- Market share turun → [[playbooks/MARKET_SHARE_DOWN]]
+- Activity tinggi hasil rendah → [[playbooks/HIGH_ACTIVITY_LOW_RESULT]]
+- AT High underperform → [[playbooks/AT_HIGH_UNDERPERFORMANCE]]
+- Dealer tidak perform → [[playbooks/DEALER_REVIEW]]
+- Audit / Gap standar dealer → [[playbooks/NOS_DIAGNOSIS]]
 
-1. **Define the exact gap**
-   - metric;
-   - period;
-   - area;
-   - segment/product;
-   - target/baseline.
-
-2. **Check the market**
-   - total market;
-   - segment movement;
-   - competitor;
-   - economic/customer driver when relevant.
-
-3. **Check dealer/channel**
-   - contribution;
-   - coverage;
-   - channel execution.
-
-4. **Check commercial drivers**
-   - stock;
-   - pricing;
-   - financing/fincoy;
-   - product/series.
-
-5. **Check people & funnel**
-   - manpower/productivity;
-   - leads;
-   - follow-up;
-   - prospect;
-   - SPK;
-   - delivery.
-
-6. **Check activity**
-   - frequency;
-   - quality;
-   - traffic/leads created;
-   - conversion.
-
-7. **Check execution/system**
-   - NOS/process/people/premises when relevant;
-   - NMS/CRM consistency when relevant.
-
-8. **Root cause**
-   - distinguish symptom from controllable cause.
-
-9. **Action**
-   - specific;
-   - quantified;
-   - owner/timeline;
-   - expected business effect.
-
-10. **Control**
-   - leading indicator;
-   - lagging indicator;
-   - review cadence;
-   - PICA/PDCA/DMAIC as appropriate.
-
-## Guard
-
-This is a routing playbook, not a checklist that must be forced into every case.
+## 🔗 Evidence & Source
+- `WD-SRC-020` PICA Framework & RCA Logic.
+- `WD-SRC-005` Marketing Sense & Advanced Diagnostics.
+- `WD-SRC-006` Owner Advanced DMAIC Application.
