@@ -20,7 +20,7 @@ audience: human-ai
 | Secret notes excluded | **2** |
 | Out-of-scope notes excluded | **1** |
 
-## M4 Transferability Verification State
+## M4 Transferability Verification State (M5 pending)
 
 | Metric | Current |
 |---|---:|
@@ -40,3 +40,8 @@ audience: human-ai
 `SOURCE_ACCOUNTING=100%` is proven. `FULL_SEMANTIC_DIGESTION=YES`, `CROSS_SOURCE_COMPILATION=YES`, `PLAYBOOKS_AND_WORK_DELIVERABLES=YES`, and `FRESH_AI_TRANSFER_TEST=PASS` are complete.
 
 `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (awaiting live zero-context human session execution).
+
+> [!WARNING]
+> M5 human usability test has NOT been executed by an actual human tester.
+> AI-proxy results are explicitly excluded as acceptance evidence per canonical M5 contract.
+> `ZERO_CONTEXT_HUMAN_ACCEPTANCE` must not be set to `PASS` until Owner runs the live test.

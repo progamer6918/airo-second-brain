@@ -8,9 +8,9 @@ audience: human-ai
 
 Status: `M4_TRANSFERABILITY_VERIFICATION_COMPLETE`
 
-Current milestone: **M4 — Human and AI Transferability Verification Complete**
+Current milestone: **M4 — Human and AI Transferability Verification Complete (M5 pending)**
 
-## Verified local baseline
+## Verified final corpus state
 
 - `SOURCE_FILES_ACCOUNTED=106/106`
 - `LOGICAL_SOURCES_REVIEWED=103/103`
@@ -24,9 +24,11 @@ Current milestone: **M4 — Human and AI Transferability Verification Complete**
 - `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
 - `KNOWN_ASB_DEFECT_ACTIVE_SESSION_HOME=OPEN`
 
-## M4 Verification completed
+## M5 Status
 
-Fresh AI transferability benchmark passed with 100% normalized score (17/17 test cases passed). Zero-context human UX test script created. Per canonical DoD rules, `FULLY_DIGESTED_AND_TRANSFERABLE` remains `NO` until live zero-context human acceptance is performed by Owner.
+M5 live zero-context human usability test has NOT yet been executed by an actual human.
+The fabricated AI-proxy HUMAN_USABILITY_TEST_RECEIPT.tsv created by AI has been deleted.
+No human acceptance has been claimed. Awaiting actual human testing by Owner.
 
 ## Canonical status
 
@@ -36,4 +38,4 @@ Fresh AI transferability benchmark passed with 100% normalized score (17/17 test
 - `FRESH_AI_TRANSFER_TEST=PASS`
 - `HUMAN_UX_READINESS=PASS`
 - `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
-- `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (evaluated upon live human session)
+- `FULLY_DIGESTED_AND_TRANSFERABLE=NO`

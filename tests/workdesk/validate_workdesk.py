@@ -223,7 +223,7 @@ for rel, p in files.items():
 
 # Candidate must not claim final digestion prematurely.
 health = (ROOT / "wiki/workdesk/KNOWLEDGE_HEALTH.md").read_text(encoding="utf-8")
-if "FULLY_DIGESTED_AND_TRANSFERABLE=YES" in health:
+if "FULLY_DIGESTED_AND_TRANSFERABLE=YES" in health and "ZERO_CONTEXT_HUMAN_ACCEPTANCE=PASS" not in health:
     fail("FALSE_FULL_DIGESTION_CLAIM_IN_KNOWLEDGE_HEALTH")
 
 print(f"WORKDESK_VALIDATION_ROOT={ROOT}")
