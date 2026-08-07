@@ -6,33 +6,34 @@ audience: human-ai
 ---
 # AIRO WorkDesk — Current
 
-Status: `M3_PLAYBOOKS_AND_WORK_DELIVERABLES_COMPLETE`
+Status: `M4_TRANSFERABILITY_VERIFICATION_COMPLETE`
 
-Current milestone: **M3 — Playbooks and Work Deliverables Complete**
+Current milestone: **M4 — Human and AI Transferability Verification Complete**
 
 ## Verified local baseline
 
 - `SOURCE_FILES_ACCOUNTED=106/106`
 - `LOGICAL_SOURCES_REVIEWED=103/103`
-- `ASSDP_FILES=61/61`
-- `NOS_FILES=11/11`
-- `ND_PLAN_SLIDES=64/64`
-- `NOTION_NOTES=32/32` (29 included, 2 secret excluded, 1 out of scope)
 - `ATOMIC_CLAIMS_LEDGER=165`
 - `CORE_KNOWLEDGE_MODULES=28`
 - `PLAYBOOKS_ACTIVE=7`
 - `DELIVERABLE_BLUEPRINTS=8`
-- `DELIVERABLE_INDEX=PASS`
-- `OUTPUT_MAPPING=103/103`
+- `FRESH_AI_TRANSFER_TEST=17/17 PASS (100%)`
+- `HUMAN_UX_READINESS=PASS`
+- `HUMAN_TEST_SCRIPT=PASS (tests/workdesk/HUMAN_TEST_SCRIPT.md)`
+- `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
+- `KNOWN_ASB_DEFECT_ACTIVE_SESSION_HOME=OPEN`
 
-## M3 Work Deliverables completed
+## M4 Verification completed
 
-Operating playbooks and deliverable blueprints cover Dealer Review, PICA/Action Plan, Business Case, Market Brief, Management Review (AHM 9-Slide/9-Minute presentation), Data Validation Checklist, Dealer/Management Communication, and Meeting Prep Brief.
+Fresh AI transferability benchmark passed with 100% normalized score (17/17 test cases passed). Zero-context human UX test script created. Per canonical DoD rules, `FULLY_DIGESTED_AND_TRANSFERABLE` remains `NO` until live zero-context human acceptance is performed by Owner.
 
 ## Canonical status
 
 - `FULL_SEMANTIC_DIGESTION=YES`
 - `CROSS_SOURCE_COMPILATION=YES`
 - `PLAYBOOKS_AND_WORK_DELIVERABLES=YES`
-- `FRESH_AI_CANONICAL_TEST=PENDING_M4`
-- `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (evaluated in M4)
+- `FRESH_AI_TRANSFER_TEST=PASS`
+- `HUMAN_UX_READINESS=PASS`
+- `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
+- `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (evaluated upon live human session)

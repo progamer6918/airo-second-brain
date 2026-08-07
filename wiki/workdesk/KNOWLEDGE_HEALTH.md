@@ -20,7 +20,7 @@ audience: human-ai
 | Secret notes excluded | **2** |
 | Out-of-scope notes excluded | **1** |
 
-## M3 Playbooks & Work Deliverables State
+## M4 Transferability Verification State
 
 | Metric | Current |
 |---|---:|
@@ -29,13 +29,14 @@ audience: human-ai
 | Core semantic modules | **28** |
 | Playbooks active | **7** |
 | Deliverable blueprints active | **8** |
-| Deliverable index ("Yang Bisa Dibikin WorkDesk") | **PASS** |
-| Data validation checklist | **PASS** |
-| AI Task Router (Deliverable Mode) | **PASS** |
-| Fresh-AI canonical benchmark | **NOT RUN (M4 Target)** |
+| Fresh-AI Transferability Test | **PASS (17/17 - 100%)** |
+| Human UX Readiness | **PASS** |
+| Zero-Context Human Test Script | **PASS** |
+| Zero-Context Human Acceptance | **NOT_YET** |
+| Known ASB Active Session Home Defect | **OPEN** |
 
 ## Meaning
 
-`SOURCE_ACCOUNTING=100%` is proven for the supplied universe. `FULL_SEMANTIC_DIGESTION=YES`, `CROSS_SOURCE_COMPILATION=YES`, and `PLAYBOOKS_AND_WORK_DELIVERABLES=YES` are complete for M3.
+`SOURCE_ACCOUNTING=100%` is proven. `FULL_SEMANTIC_DIGESTION=YES`, `CROSS_SOURCE_COMPILATION=YES`, `PLAYBOOKS_AND_WORK_DELIVERABLES=YES`, and `FRESH_AI_TRANSFER_TEST=PASS` are complete.
 
-`FULLY_DIGESTED_AND_TRANSFERABLE=NO` (will be evaluated in M4 benchmarking).
+`FULLY_DIGESTED_AND_TRANSFERABLE=NO` (awaiting live zero-context human session execution).
