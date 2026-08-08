@@ -17,12 +17,13 @@ Stage 0 verifies corpus file availability, establishes deterministic source unit
 | Metric | Count | Notes |
 |---|---|---|
 | **TOTAL_MANIFEST_ENTRIES** | `106` | 100% accounted for in source ledger |
-| **ORIGINAL_SEMANTIC_SOURCES** | `88` | Primary logical sources requiring semantic dossiers |
+| **DIGESTIBLE_ORIGINAL_SEMANTIC_SOURCES** | `87` | Primary non-forbidden logical sources requiring semantic dossiers |
+| **STAGE1_REQUIRED_ORIGINALS** | `87` | Exact target queue for Stage 1 semantic mapping |
 | **MIRROR_EXTRACTION_AIDS** | `14` | Derived TXT extraction mirrors (linked to original PPTX/PDF) |
 | **IDENTICAL_DUPLICATE_ALIASES** | `3` | Content-identical aliases sharing exact SHA256 |
-| **SECRET_EXCLUSIONS** | `0` | Redacted under ASB public-safety contract |
-| **OUT_OF_SCOPE** | `1` | Non-professional / out-of-scope files |
-| **VERIFIED_AVAILABLE_ORIGINALS** | `105` | Verified available in inventory / metadata index |
+| **SECRET_EXCLUDED_ENTRIES** | `2` | Redacted & excluded under ASB security contract |
+| **SECRET_EXCLUDED_UNIQUE_PAYLOADS** | `1` | Single redacted payload (WD-SRC-078) |
+| **OUT_OF_SCOPE_ENTRIES** | `1` | Excluded non-professional files |
 | **MISSING_REQUIRED_ORIGINALS** | `0` | Zero missing required originals |
 | **HASH_MISMATCHES** | `0` | Zero identity mismatches |
 | **AMBIGUOUS_RESOLUTIONS** | `0` | Zero ambiguous files |
@@ -32,7 +33,7 @@ Stage 0 verifies corpus file availability, establishes deterministic source unit
 
 ## 📁 Corpus Grouping
 
-- **ASSDP Core Presentations & Analytics**: 15 core PPTX files + derived TXT extraction aids.
+- **ASSDP Core Presentations & Analytics**: 15 core PPTX files + 14 derived TXT extraction aids.
 - **Direct Business Uploads**: Dealer readiness, sales monitoring, pricing/PICA models, Niguri XLSX, and PDCA guides.
 - **Notion & Markdown Notes**: Procedural guidelines, coaching frameworks, and operational notes.
 - **Applied Case Library**: Owner intervention histories and dealer performance case studies.
@@ -51,4 +52,4 @@ Every source entry in `SEMANTIC_RECONSTRUCTION_SOURCE_LEDGER.tsv` specifies the 
 STAGE1_READY=YES
 ```
 
-All 106 manifest entries have deterministic classification. No unresolved file ambiguities exist. Stage 1 (Source-Unit Semantic Mapping) can proceed under the `PRACTICALLY_LOSSLESS_SEMANTIC_INTERNALIZATION` contract.
+All 106 manifest entries have deterministic classification. All 14 mirror extraction aids are linked to their original sources. All security exclusions are isolated (`FORBIDDEN_ROWS_ELIGIBLE_FOR_STAGE1=0`). Stage 1 (Source-Unit Semantic Mapping) is ready to process `87` independent original sources under the `PRACTICALLY_LOSSLESS_SEMANTIC_INTERNALIZATION` contract.
