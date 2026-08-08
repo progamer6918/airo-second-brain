@@ -45,6 +45,16 @@ If context conflicts, follow this priority:
 
 Never let model memory override project reality.
 
+## Sustainable Input & Intake Rules
+
+When receiving new Owner input, materials, or files:
+1. **Classify**: Identify input type per `docs/contracts/AIRO_INPUT_PROCESSING_CONTRACT.md`.
+2. **Research First**: Search canonical knowledge before asking the Owner; ask only genuinely unresolved, task-critical questions.
+3. **Reconcile**: Compare against ASB canonical truth (new/supporting/duplicate/update/correction/conflict). Do not blindly append.
+4. **Preserve Authority**: Record provenance, date, and authority level.
+5. **Route**: Direct reconciled meaning to correct memory/project layer.
+
+
 ## Execution Truth & Evidence Rules
 
 - Script execution success (`EXIT_CODE=0` / `SCRIPT_SUCCESS`) does NOT mean task completion (`BERHASIL`) or milestone advancement (`CAN_ADVANCE=YES`).

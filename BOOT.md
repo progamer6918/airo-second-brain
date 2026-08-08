@@ -45,6 +45,11 @@ Never commit tokens, API keys, OAuth credentials, Telegram bot tokens, Google cl
 
 If a local repository access command fails or returns an error exit code, report the exact failure output to the Owner. Do not pretend the read or execution succeeded.
 
+## Sustainable Input Processing Guard
+
+When Owner supplies new information, material, data, or files, apply the canonical [`AIRO Input Processing Contract`](docs/contracts/AIRO_INPUT_PROCESSING_CONTRACT.md) before treating it as canonical truth. RAW_INPUT -> DIRECT_CANONICAL_TRUTH is strictly forbidden.
+
+
 ## Startup Sequence
 
 Read in this order:
