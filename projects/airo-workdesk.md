@@ -40,3 +40,8 @@ Area Sales Supervisor work inside the Honda Main Dealer ecosystem, including mar
 ## Hard Rule
 
 `SOURCE_ACCOUNTING=100%` never means `FULLY_DIGESTED_AND_TRANSFERABLE=YES` by itself.
+
+
+## 🧠 Knowledge Home
+
+[WorkDesk Knowledge](../wiki/workdesk/HOME.md) — Pusat pengetahuan profesional: analisis bisnis, playbook, deliverable.

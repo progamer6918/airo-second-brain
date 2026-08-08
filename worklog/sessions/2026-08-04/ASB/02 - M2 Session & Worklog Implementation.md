@@ -1,7 +1,9 @@
 ---
 type: airo-session
 date: 2026-08-04
-project: "ASB"
+project_id: AIRO_SECOND_BRAIN
+project_name: AIRO Second Brain
+project: "[[projects/airo-second-brain|AIRO Second Brain]]"
 objective: "Implement M2 Session Lifecycle & Worklog Model"
 position: "M2 — Session & Worklog"
 status: BERHASIL

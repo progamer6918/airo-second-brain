@@ -1,7 +1,9 @@
 ---
 type: airo-session
 date: 2026-08-05
-project: "ASB"
+project_id: AIRO_SECOND_BRAIN
+project_name: AIRO Second Brain
+project: "[[projects/airo-second-brain|AIRO Second Brain]]"
 objective: "Harden verified Windows clipboard receipt delivery"
 position: "Post-v0.6 Maintenance"
 status: BERHASIL

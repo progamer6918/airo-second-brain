@@ -4,6 +4,35 @@ import sys
 import argparse
 from datetime import datetime
 
+
+def _load_project_registry(repo_root):
+    """Load PROJECT_REGISTRY.tsv for project link resolution."""
+    reg_path = os.path.join(repo_root, "projects/PROJECT_REGISTRY.tsv")
+    if not os.path.exists(reg_path):
+        return {}
+    registry = {}
+    with open(reg_path, encoding="utf-8") as f:
+        reader = __import__("csv").DictReader(f, delimiter="\t")
+        for row in reader:
+            registry[row["project_name"]] = row
+            for alias in row.get("aliases", "").split(","):
+                alias = alias.strip()
+                if alias:
+                    registry[alias] = row
+    return registry
+
+_PROJECT_REGISTRY_CACHE = None
+
+def _resolve_project_for_daily(proj_name):
+    """Resolve project name/alias to registry entry. Returns None if unresolvable."""
+    global _PROJECT_REGISTRY_CACHE
+    if _PROJECT_REGISTRY_CACHE is None:
+        repo_root = os.environ.get("AIRO_REPO_ROOT") or os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..")
+        )
+        _PROJECT_REGISTRY_CACHE = _load_project_registry(repo_root)
+    return _PROJECT_REGISTRY_CACHE.get(proj_name)
+
 def parse_session_file(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
@@ -83,7 +112,13 @@ def generate_daily(repo_root, date_str):
         if not files:
             continue
         
-        proj_section = ["### Proyek: " + proj]
+        # Resolve project wikilink from registry
+        proj_reg = _resolve_project_for_daily(proj)
+        if proj_reg and proj_reg.get("project_path"):
+            proj_link = "[[" + proj_reg["project_path"].replace(".md","") + "|" + proj_reg["project_name"] + "]]"
+        else:
+            proj_link = proj  # safe plain fallback
+        proj_section = ["### Proyek: " + proj_link]
         for fname in files:
             fpath = os.path.join(pdir, fname)
             parsed = parse_session_file(fpath)
