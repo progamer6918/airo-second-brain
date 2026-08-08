@@ -1,8 +1,8 @@
 # AIRO WorkDesk Semantic Reconstruction Contract
 
-**Status**: CANONICAL_CONTRACT  
-**Authority**: Owner Approved (2026-08-08)  
-**Project**: `AIRO_WORKDESK`  
+**Status**: CANONICAL_CONTRACT
+**Authority**: Owner Approved (2026-08-08)
+**Project**: `AIRO_WORKDESK`
 
 ---
 
@@ -101,3 +101,17 @@ Understanding must remain complete. Storage must respect ASB public-safety bound
 ## 9. Acceptance Standard
 
 Source accounting alone is insufficient. Do not claim semantic completion until all required semantic units have deterministic accounting and unresolved material is zero except explicitly documented exclusions/conflicts.
+
+
+## Source-Grounding Quality Gate
+
+1. **UNIT COUNT != SEMANTIC COMPLETENESS**: Having the correct number of rows or slides does not constitute semantic completion if the payload lacks source-specific substance.
+2. **NO GENERIC PLACEHOLDERS**: A substantive unit may NOT use generic placeholder phrases such as `"Slide N structural presentation unit"`, `"Structured slide layout..."`, `"Qualitative procedural logic"`, or equivalent template filler.
+3. **MANDATORY SLIDE ATTRIBUTES**: Every substantive slide unit must contain an actual source-grounded slide title (or `NO_EXPLICIT_TITLE`), a source-specific semantic payload, source-specific anchors, explicit visual semantics when information-bearing, and exact original filename + slide provenance.
+4. **VISUAL INSPECTION REQUIREMENT**: A slide classified as visually reviewed requires actual slide render evidence, visual inspection by the consumer, and a specific visual interpretation or `NO_INFORMATION_BEARING_VISUAL`.
+5. **CLAIM CLASSIFICATION**: Claims, formulas, thresholds, and decision rules must be explicitly classified as either `EXPLICIT_SOURCE` or `INFERRED_RELATIONSHIP`.
+6. **PROHIBITION OF INFERRED AS EXPLICIT**: `INFERRED_RELATIONSHIP` items must never be presented as explicit source rules.
+7. **NO DOMAIN KNOWLEDGE INJECTION**: A metric, formula, or threshold absent from the source may not be injected from generic domain knowledge.
+8. **SOURCE SPECIFICITY**: Different source dossiers must be source-specific. Reusable dossier STRUCTURE is allowed; repeated semantic CONTENT is forbidden unless actual source redundancy is proven.
+9. **HONEST UNRESOLVED STATE**: `UNRESOLVED` is preferable to guessing.
+10. **COMPLETENESS BLOCKER**: A source cannot be marked `COMPLETE` while anti-template/source-grounding validation fails.

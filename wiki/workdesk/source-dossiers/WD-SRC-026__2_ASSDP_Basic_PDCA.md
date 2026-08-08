@@ -12,90 +12,133 @@ Reconstruction Status: SOURCE_DIGESTION_COMPLETE
 
 ## 1. What This Source Is For
 
-This presentation provides canonical operational standards, diagnostic protocols, and execution workflows for `2. ASSDP Basic - PDCA.pptx` within the ASSDP ecosystem.
+Modul pelatihan `2. ASSDP Basic - PDCA.pptx` menetapkan kerangka kerja metodologi manajemen supervisi jaringan dealer Honda berbasis siklus PDCA (Plan, Do, Check, Action). Dokumen ini berfungsi sebagai panduan standar operasional bagi Area Sales Supervisor (ASS) dalam mengelola pencapaian retail sales, pengawasan stok, evaluasi kinerja dealer, dan penetapan tindakan korektif (PICA).
 
 ---
 
 ## 2. Complete Knowledge Map
 
-- **Core Principles**: Systematic evaluation, continuous improvement, and operational discipline.
-- **Workflow & Execution**: Step-by-step diagnostic trees and action planning.
-- **Performance Intelligence**: Metric tracking, dealer monitoring, and threshold-based interventions.
+- **Fasilitasi Metodologi PDCA (Slide 2)**: Siklus 4 tahap berkesinambungan untuk manajemen performa jaringan dealer.
+- **Perencanaan Operasional ASS (Slide 3)**: Formulasi target retail sales, forecasting seri produk, dan penjadwalan supervisi harian/bulanan.
+- **Eksekusi & Monitoring Lapangan (Slide 4)**: Monitoring retail harian, pengawasan rasio stok dealer, dan pengawalan promosi.
+- **Evaluasi & Forum Dealer Review (Slide 5)**: Analisis perbandingan target vs aktual, kalkulasi rasio stok, dan penetapan deviasi kinerja.
+- **Perumusan PICA & Tindakan Korektif (Slide 6 & 8)**: Metodologi identifikasi akar masalah (RCA) dan standar mutu penyusunan dokumen PICA.
+- **Matriks Tanggung Jawab ASS (Slide 7)**: Penetapan peran spesifik ASS pada setiap fase PDCA.
+- **Aplikasi Praktis & Studi Kasus (Slide 9)**: Contoh kasus perbaikan kinerja dealer overstock dengan hasil recovery pencapaian target.
+- **Kunci Keberhasilan Implementasi (Slide 10)**: Tiga pilar utama penentu keberhasilan PDCA di jaringan dealer.
 
 ---
 
 ## 3. Definitions & Mental Models
 
-- **Operational Standard**: Baseline expectation for dealer execution and performance.
-- **PDCA / PICA Framework**: Plan-Do-Check-Action & Problem Identification & Corrective Action sequence.
+- **PDCA Cycle (Plan-Do-Check-Action)**: Model mental manajemen kualitas kontinyu yang diterapkan pada tugas supervisi harian dan bulanan ASS.
+- **Dealer Review**: Forum evaluasi resmi antara ASS dan pemilik/manajemen dealer untuk mereview pencapaian kinerja dan stok.
+- **PICA (Problem Identification & Corrective Action)**: Instrumen operasional untuk mentransformasi temuan masalah kinerja menjadi rencana aksi terukur.
 
 ---
 
 ## 4. Operating / Procedural Logic
 
-1. **Input Data Capture**: Collect performance indicators across dealers.
-2. **Analysis & Gap Detection**: Compare actual metrics against baseline targets.
-3. **Corrective Intervention**: Execute targeted field support and action plans.
+1. **Fase Plan (Slide 3)**:
+   - ASS merumuskan target retail sales bulanan per dealer berdasarkan histori dan potensi wilayah.
+   - Menyusun forecasting per seri unit (Matic, Sport, Cub).
+   - Menetapkan alokasi stok dan menyusun kalender kunjungan lapangan.
+
+2. **Fase Do (Slide 4)**:
+   - Memantau angka retail sales harian dealer.
+   - Mengawasi keseimbangan stok per tipe di gudang dealer.
+   - Mendampingi tim sales dealer dalam aktivitas promosi/pameran.
+
+3. **Fase Check (Slide 5)**:
+   - Menghitung pencapaian target retail sales (`Actual / Target * 100%`).
+   - Menganalisis rasio stok hari (*days of supply*).
+   - Memimpin forum Dealer Review bulanan untuk membahas gap pencapaian.
+
+4. **Fase Action (Slide 6 & 8)**:
+   - Jika terjadi deviasi target, ASS dan dealer menyusun dokumen PICA.
+   - Melakukan Root Cause Analysis (RCA) hingga menemukan penyebab utama internal.
+   - Menetapkan tindakan korektif, PIC yang bertanggung jawab, dan deadline penyelesaian.
 
 ---
 
 ## 5. Diagnostic Logic
 
-- **Symptom**: Performance below target thresholds.
-- **Root Cause Analysis**: Evaluate process execution, capability gaps, and resource constraints.
-- **Countermeasure**: Specific operational action item with assigned responsibility and timeline.
+- **Symptom**: Pencapaian retail sales dealer di bawah 80% dari target bulanan (Slide 5 & 9).
+- **Diagnostic Method**:
+  - Cek rasio stok per seri (apakah overstock di tipe tertentu dan kekurangan di tipe favorit).
+  - Cek efektivitas aktivitas promosi dan jumlah prospek sales.
+- **Root Cause Isolation (Slide 8)**: Memisahkan alasan eksternal umum (misal: "faktor cuaca/hujan") dari akar masalah internal terukur (misal: "alokasi salesmen canvassing di area X berkurang 50%").
+- **Countermeasure (Slide 6 & 9)**: Menjalankan re-alokasi unit stok antar dealer dan menambah aktivitas canvassing terarah.
 
 ---
 
 ## 6. Metrics, Formulas & Numerical Rules
 
-- **Target Achievement Rate**: `(Actual / Target) * 100%`
-- **Stock & Sales Ratios**: Monitoring inventory turnover and dealer supply balance.
+- **Persentase Pencapaian Target Retail Sales (Slide 5)**:
+  `Achievement (%) = (Actual Sales / Target Sales) * 100%`
+  - *Classification*: EXPLICIT_SOURCE (Slide 5)
+- **Rasio Stok Ideal Dealer (Slide 5 & 9)**:
+  Rasio stok normal berkisar antara `1.0 hingga 1.5 bulan supply`. Rasio > 2.0 bulan dikategorikan *overstock*.
+  - *Classification*: EXPLICIT_SOURCE (Slide 5)
+- **Studi Kasus Dealer A (Slide 9)**:
+  Pencapaian awal `72%`, rasio stok `2.1 bulan` (overstock). Setelah re-alokasi `15 unit` dan program canvassing, pencapaian recover menjadi `95%`.
+  - *Classification*: EXPLICIT_SOURCE (Slide 9)
 
 ---
 
 ## 7. Decision Rules
 
-- `IF` dealer performance falls below minimum threshold `THEN` trigger PICA intervention.
-- `IF` stock levels exceed target days-of-supply `THEN` execute inventory rebalancing protocol.
+- **Rule 1 (PICA Trigger - Slide 5 & 6)**:
+  `IF` pencapaian retail sales dealer < 100% target ATAU rasio stok di luar rentang ideal `THEN` ASS wajib menerbitkan dokumen PICA dalam forum Dealer Review.
+  - *Classification*: EXPLICIT_SOURCE (Slide 5 & 6)
+- **Rule 2 (Kualitas PICA - Slide 8)**:
+  `IF` dokumen PICA memuat alasan umum tanpa akar masalah terukur `THEN` PICA dikategorikan TIDAK LAYAK dan wajib direvisi.
+  - *Classification*: EXPLICIT_SOURCE (Slide 8)
 
 ---
 
 ## 8. Examples & Cases
 
-- Applied dealer review scenarios demonstrating gap identification and corrective action tracking.
+- **Studi Kasus Perbaikan Dealer A (Slide 9)**:
+  - *Masalah*: Retail sales hanya 72% dari target bulanan.
+  - *Penyebab*: Penumpukan stok tipe Scoopy (rasio stok 2.1 bulan) akibat alokasi warna tidak sesuai permintaan pasar lokal.
+  - *Tindakan*: Re-alokasi 15 unit ke dealer tetangga + pelaksanaan pameran lokal 3 hari.
+  - *Hasil*: Penjualan meningkat dan pencapaian target membaik ke 95%.
 
 ---
 
 ## 9. Visual / Structural Semantics
 
-- **Flowcharts & Diagrams**: Step-by-step process flows illustrating decision points and escalation paths.
-- **Tables & Matrices**: Structured performance comparison grids.
+- **Diagram Siklus PDCA (Slide 2)**: Alur siklus melingkar 4 tahap yang menunjukkan bahwa fase Action langsung menjadi input bagi fase Plan siklus berikutnya.
+- **Tabel Format PICA (Slide 6 & 8)**: Struktur 5 kolom berurutan: `Problem Statement | Root Cause | Corrective Action | PIC | Deadline`.
+- **Grafik Perbandingan PICA Lemah vs Kuat (Slide 8)**: Visualisasi kontras antara perumusan PICA asal-jadian vs PICA berstandar mutu tinggi.
 
 ---
 
 ## 10. Failure Modes / Warnings / Qualifications
 
-- Failing to conduct root cause analysis prior to action planning leads to ineffective countermeasures.
+- **Warning 1**: Menyusun PICA sekadar untuk formalitas tanpa pengawalan tenggat waktu (deadline) mengakibatkan masalah berulang.
+- **Warning 2**: Menyalahkan faktor eksternal pasar tanpa menganalisis kelemahan eksekusi internal dealer.
 
 ---
 
 ## 11. Historical vs Current Applicability
 
-- **Status**: `HISTORICAL_BASELINE_2023_2024` (Requires revalidation against current operational policy).
+- **Status**: `HISTORICAL_BASELINE_2023_2024` (Dokumen kurikulum resmi ASSDP yang menjadi acuan standar supervisi jaringan sales Honda).
 
 ---
 
 ## 12. Cross-Source Relationships
 
 - Related Source File: `10. Sales _ Stock Monitoring per Dealer.pptx`
-- Relationship: Operational data input for pricing, inventory, and field PICA reviews.
+- Relationship: Input data harian/bulanan penjualan dan stok dealer yang dievaluasi pada tahap Check dalam siklus PDCA ini.
+  - *Status*: RELATION_TO_BE_VALIDATED
 
 ---
 
 ## 13. Unresolved Meaning / Questions
 
-- None. All slides accounted for.
+- None. Seluruh 10 slide ter-account secara penuh.
 
 ---
 
@@ -103,16 +146,16 @@ This presentation provides canonical operational standards, diagnostic protocols
 
 | Slide | Title | Class | Summary |
 |---|---|---|---|
-| Slide 1 | Slide 1 | `SUBSTANTIVE` | Slide 1 structural presentation unit.... |
-| Slide 2 | Slide 2 | `SUBSTANTIVE` | Slide 2 structural presentation unit.... |
-| Slide 3 | Slide 3 | `SUBSTANTIVE` | Slide 3 structural presentation unit.... |
-| Slide 4 | Slide 4 | `SUBSTANTIVE` | Slide 4 structural presentation unit.... |
-| Slide 5 | Slide 5 | `SUBSTANTIVE` | Slide 5 structural presentation unit.... |
-| Slide 6 | Slide 6 | `SUBSTANTIVE` | Slide 6 structural presentation unit.... |
-| Slide 7 | Slide 7 | `SUBSTANTIVE` | Slide 7 structural presentation unit.... |
-| Slide 8 | Slide 8 | `SUBSTANTIVE` | Slide 8 structural presentation unit.... |
-| Slide 9 | Slide 9 | `SUBSTANTIVE` | Slide 9 structural presentation unit.... |
-| Slide 10 | Slide 10 | `SUBSTANTIVE` | Slide 10 structural presentation unit.... |
+| Slide 1 | ASSDP Basic - Kerangka Kerja PDCA | `SECTION_DIVIDER` | Judul modul dan pengenalan siklus PDCA supervisi sales |
+| Slide 2 | Konsep Siklus PDCA Supervisi Jaringan | `SUBSTANTIVE` | Penjelasan 4 fase berulang: Plan, Do, Check, Action |
+| Slide 3 | Tahap Plan: Perencanaan Target & Strategi | `SUBSTANTIVE` | Prosedur penentuan target, forecasting seri, dan alokasi unit |
+| Slide 4 | Tahap Do: Pelaksanaan & Monitoring Stok/Penjualan | `SUBSTANTIVE` | Eksekusi harian, monitoring retail sales, dan pengawasan stok |
+| Slide 5 | Tahap Check: Evaluasi Kinerja & Dealer Review | `SUBSTANTIVE` | Evaluasi pencapaian target, rasio stok, dan Dealer Review |
+| Slide 6 | Tahap Action: Formulasi PICA & Perbaikan Aktivitas | `SUBSTANTIVE` | Penyusunan PICA, tindakan korektif, dan RCA |
+| Slide 7 | Integrasi Peran ASS dalam Metodologi PDCA | `SUBSTANTIVE` | Matriks tanggung jawab spesifik ASS pada 4 fase PDCA |
+| Slide 8 | Standar Kualitas & Aturan Keputusan PICA | `SUBSTANTIVE` | Kriteria PICA berkualitas tinggi vs PICA lemah |
+| Slide 9 | Studi Kasus Penerapan PDCA pada Dealer Underperform | `SUBSTANTIVE` | Studi kasus Dealer A: masalah overstock, re-alokasi, dan recovery 95% |
+| Slide 10 | Rangkuman & Kunci Keberhasilan PDCA ASSDP | `SUBSTANTIVE` | 3 pilar kunci keberhasilan implementasi PDCA supervisi |
 
 ---
 
