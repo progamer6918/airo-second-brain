@@ -37,11 +37,14 @@ audience: human-ai
 
 ## Meaning
 
-`SOURCE_ACCOUNTING=100%` is proven. `FULL_SEMANTIC_DIGESTION=YES`, `CROSS_SOURCE_COMPILATION=YES`, `PLAYBOOKS_AND_WORK_DELIVERABLES=YES`, and `FRESH_AI_TRANSFER_TEST=PASS` are complete.
+`SOURCE_ACCOUNTING=100%` is proven. `FULL_SEMANTIC_DIGESTION=NOT_PROVEN_UNDER_OWNER_DEPTH_STANDARD
 
-`FULLY_DIGESTED_AND_TRANSFERABLE=NO` (awaiting live zero-context human session execution).
+`FULLY_DIGESTED_AND_TRANSFERABLE=NO
 
 > [!WARNING]
 > M5 human usability test has NOT been executed by an actual human tester.
 > AI-proxy results are explicitly excluded as acceptance evidence per canonical M5 contract.
 > `ZERO_CONTEXT_HUMAN_ACCEPTANCE` must not be set to `PASS` until Owner runs the live test.
+
+SEMANTIC_RECONSTRUCTION=REQUIRED
+M5=PARKED_PENDING_SEMANTIC_RECONSTRUCTION
