@@ -46,5 +46,5 @@ audience: human-ai
 > AI-proxy results are explicitly excluded as acceptance evidence per canonical M5 contract.
 > `ZERO_CONTEXT_HUMAN_ACCEPTANCE` must not be set to `PASS` until Owner runs the live test.
 
-SEMANTIC_RECONSTRUCTION=REQUIRED
+SEMANTIC_RECONSTRUCTION=ACTIVE
 M5=PARKED_PENDING_SEMANTIC_RECONSTRUCTION
