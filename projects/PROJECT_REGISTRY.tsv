@@ -1,6 +1,8 @@
 project_id	project_name	project_path	knowledge_path	parent_project_id	aliases
 AIRO_WORKDESK	AIRO WorkDesk	projects/airo-workdesk.md	wiki/workdesk/HOME.md		WorkDesk
-AIRO_SECOND_BRAIN	AIRO Second Brain	projects/airo-second-brain.md			ASB,airo-second-brain,Second Brain
-EARESMES_ARFIN_CLARIFICATION_BRIDGE	EAB	projects/earesmes-arfin-bridge.md			EAB,Earesmes-Arfin Bridge,Earesmes Arfin Bridge
+D_READY	D-READY	projects/d-ready.md		AIRO_WORKDESK	d-ready,D READY,Dealer Readiness
+REPORT_AUTOMATION_VBA	Report Automation VBA	projects/report-automation-vba.md		AIRO_WORKDESK	VBA,Report Automation,Macro VBA
+AIRO_SECOND_BRAIN	AIRO Second Brain	projects/airo-second-brain.md		AIRO_SECOND_BRAIN	ASB,airo-second-brain,Second Brain
+EARESMES_ARFIN_CLARIFICATION_BRIDGE	EAB	projects/earesmes-arfin-bridge.md		AIRO_WORKDESK	EAB,Earesmes-Arfin Bridge,Earesmes Arfin Bridge
 AIRO_FINANCE	AIRO Finance	projects/airo-finance.md			Arfin,AIRO Finance,airo-finance
 EARESMES	Earesmes	projects/earesmes-hermes.md			Hermes,earesmes-hermes,Earesmes Hermes

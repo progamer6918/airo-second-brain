@@ -58,6 +58,12 @@ audience: human
 - [[analytics/DATA_ANALYTICS_POWER_BI|Data & Power BI]]
 - [[presentation/AHM_REVIEW_AND_PRESENTATION|Presentation & review]]
 
+## 🌿 Child Projects & Intake
+
+- [[INTAKE|Aturan Intake & Sustainable Input Contract]]
+- `projects/d-ready.md` — [[../../projects/d-ready|D-READY]] (`ACTIVE` / `PILOT_LOGIC_VALIDATION`)
+- `projects/report-automation-vba.md` — [[../../projects/report-automation-vba|Report Automation VBA]] (`FROZEN_BY_OWNER`)
+
 ## 🧠 Health & audit
 
 - [[KNOWLEDGE_HEALTH|Knowledge Health]]
@@ -68,3 +74,4 @@ audience: human
 
 > [!IMPORTANT]
 > Home adalah human cockpit. Current truth tetap ditentukan oleh project docs + evidence + authority rules, bukan tampilan Home.
+

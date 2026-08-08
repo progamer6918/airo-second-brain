@@ -3,6 +3,7 @@ type: project-index
 purpose: navigation
 audience: human-ai
 ---
+
 # AIRO Project Index
 
 Navigasi cepat ke semua project aktif dalam ekosistem AIRO Second Brain.
@@ -12,18 +13,28 @@ Navigasi cepat ke semua project aktif dalam ekosistem AIRO Second Brain.
 
 ---
 
-## Project Aktif
+## Project Utama
 
 | Project | File | Knowledge Home |
 |---|---|---|
 | [AIRO WorkDesk](airo-workdesk.md) | `projects/airo-workdesk.md` | [WorkDesk Knowledge](../wiki/workdesk/HOME.md) |
-| [EAB — Earesmes-Arfin Bridge](earesmes-arfin-bridge.md) | `projects/earesmes-arfin-bridge.md` | *(tidak ada)* |
+| [AIRO Second Brain](airo-second-brain.md) | `projects/airo-second-brain.md` | *(repositori induk)* |
 
 ---
 
-## Project Terdaftar (File Belum Ada)
+## Child Projects (AIRO WorkDesk)
 
-| Project | Project ID | Status |
+| Child Project | Parent | Status / Stage | File |
+|---|---|---|---|
+| [D-READY](d-ready.md) | AIRO WorkDesk | `ACTIVE` / `PILOT_LOGIC_VALIDATION` | `projects/d-ready.md` |
+| [Report Automation VBA](report-automation-vba.md) | AIRO WorkDesk | `FROZEN_BY_OWNER` (`EXECUTION_ALLOWED=NO`) | `projects/report-automation-vba.md` |
+| [EAB — Earesmes-Arfin Bridge](earesmes-arfin-bridge.md) | AIRO WorkDesk | `SCOPE_LOCKED_DOCUMENTATION_INTEGRATED` | `projects/earesmes-arfin-bridge.md` |
+
+---
+
+## Project Terdaftar Lainnya
+
+| Project | Project ID | Status File |
 |---|---|---|
 | AIRO Finance | `AIRO_FINANCE` | `projects/airo-finance.md` — belum dibuat |
 | Earesmes | `EARESMES` | `projects/earesmes-hermes.md` — belum dibuat |
