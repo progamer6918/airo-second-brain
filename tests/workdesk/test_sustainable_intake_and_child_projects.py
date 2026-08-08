@@ -67,6 +67,8 @@ class TestSustainableIntakeAndChildProjects(unittest.TestCase):
         self.assertEqual(ids["D_READY"]["parent_project_id"], "AIRO_WORKDESK")
         self.assertIn("REPORT_AUTOMATION_VBA", ids)
         self.assertEqual(ids["REPORT_AUTOMATION_VBA"]["parent_project_id"], "AIRO_WORKDESK")
+        self.assertIn("EARESMES_ARFIN_CLARIFICATION_BRIDGE", ids)
+        self.assertEqual(ids["EARESMES_ARFIN_CLARIFICATION_BRIDGE"]["parent_project_id"], "", "EAB must be independent project, not WorkDesk child")
 
     def test_08_incremental_input_cases_simulation(self):
         """Simulate 10 deterministic input routing decisions."""

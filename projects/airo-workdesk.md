@@ -24,4 +24,3 @@ Its job is not to store filenames. Its job is to transfer usable professional un
 |---|---|---|---|
 | [D-READY](d-ready.md) | `D_READY` | `ACTIVE` | `PILOT_LOGIC_VALIDATION` (Power BI Target) |
 | [Report Automation VBA](report-automation-vba.md) | `REPORT_AUTOMATION_VBA` | `FROZEN_BY_OWNER` | `EXECUTION_ALLOWED=NO` (Ditolak mutasi/eksekusi) |
-| [EAB](earesmes-arfin-bridge.md) | `EARESMES_ARFIN_CLARIFICATION_BRIDGE` | `DOCUMENTED` | Bridge klarifikasi Earesmes-Arfin |
