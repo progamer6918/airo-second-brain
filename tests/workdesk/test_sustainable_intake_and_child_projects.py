@@ -130,6 +130,25 @@ class TestSustainableIntakeAndChildProjects(unittest.TestCase):
         self.assertTrue(os.path.exists(d_ready))
         self.assertTrue(os.path.exists(vba))
 
+    def test_11_eab_navigation_consistency(self):
+        """Prove EAB independent project navigation metadata in projects/_index.md."""
+        idx_p = os.path.join(repo_root, "projects/_index.md")
+        c = open(idx_p, encoding="utf-8").read()
+        child_sec = c.split("## Child Projects (AIRO WorkDesk)")[1].split("## ")[0] if "## Child Projects (AIRO WorkDesk)" in c else ""
+        indep_sec = c.split("## Project Terdaftar Lainnya")[1].split("## ")[0] if "## Project Terdaftar Lainnya" in c else ""
+
+        self.assertNotIn("Earesmes-Arfin Bridge", child_sec, "EAB must NOT be in WorkDesk child section of index")
+        self.assertIn("Earesmes-Arfin Bridge", indep_sec, "EAB must be in independent section of index")
+        self.assertIn("`EARESMES_ARFIN_CLARIFICATION_BRIDGE`", indep_sec, "EAB row must contain exact Project ID")
+        self.assertIn("`projects/earesmes-arfin-bridge.md`", indep_sec, "EAB row must contain exact status file pointer")
+
+    def test_12_workdesk_page_no_eab(self):
+        """Prove projects/airo-workdesk.md does not list EAB as child."""
+        wd_p = os.path.join(repo_root, "projects/airo-workdesk.md")
+        c = open(wd_p, encoding="utf-8").read()
+        child_sec = c.split("## 🌿 Child Projects")[1].split("## ")[0] if "## 🌿 Child Projects" in c else ""
+        self.assertNotIn("EARESMES_ARFIN_CLARIFICATION_BRIDGE", child_sec, "EAB must NOT be in WorkDesk project page child section")
+
 
 if __name__ == "__main__":
     unittest.main()
