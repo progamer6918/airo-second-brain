@@ -110,5 +110,46 @@ class TestM4FreshAITransferability(unittest.TestCase):
             c = f.read()
         self.assertIn("Source guard", c)
 
+
+class TestRootHomeWorkDeskDiscoverability(unittest.TestCase):
+    """Regression: root HOME.md exposes a durable resolvable WorkDesk navigation target."""
+
+    def test_root_home_exists(self):
+        path = os.path.join(repo_root, "HOME.md")
+        self.assertTrue(os.path.exists(path), "Root HOME.md is missing from ASB vault")
+
+    def test_workdesk_home_exists(self):
+        path = os.path.join(repo_root, "wiki/workdesk/HOME.md")
+        self.assertTrue(os.path.exists(path), "wiki/workdesk/HOME.md missing")
+
+    def test_root_home_contains_workdesk_link(self):
+        path = os.path.join(repo_root, "HOME.md")
+        with open(path, "r", encoding="utf-8") as f:
+            c = f.read()
+        self.assertIn(
+            "wiki/workdesk/HOME.md", c,
+            "Root HOME.md has no WorkDesk navigation target"
+        )
+
+    def test_root_home_workdesk_target_resolves(self):
+        import re as _re
+        root_home = os.path.join(repo_root, "HOME.md")
+        with open(root_home, "r", encoding="utf-8") as f:
+            c = f.read()
+        pattern = r"\[.*?\]\((wiki/workdesk/HOME\.md)\)"
+        matches = _re.findall(pattern, c)
+        self.assertGreaterEqual(len(matches), 1, "No markdown link to wiki/workdesk/HOME.md in root HOME")
+        target = os.path.join(repo_root, "wiki/workdesk/HOME.md")
+        self.assertTrue(os.path.exists(target), "Link target does not resolve to a real file")
+
+    def test_root_home_no_transient_session_id(self):
+        import re as _re
+        path = os.path.join(repo_root, "HOME.md")
+        with open(path, "r", encoding="utf-8") as f:
+            c = f.read()
+        matches = _re.findall(r"SESSION_ID\s*=\s*[a-f0-9-]{36}", c)
+        self.assertEqual(len(matches), 0, f"Transient session IDs in root HOME: {matches}")
+
+
 if __name__ == '__main__':
     unittest.main()

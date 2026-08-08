@@ -24,6 +24,7 @@ Pusat navigasi manusia untuk AIRO Second Brain.
 
 - [Posisi Project](ROADMAP_INDEX.md) — Ringkasan status dan peta jalan seluruh proyek AIRO.
 - [Konteks Terkini](CURRENT.md) — Catatan konteks aktif dan routing target terbaru.
+- [AIRO WorkDesk](wiki/workdesk/HOME.md) — Pusat kerja profesional: analisis bisnis, playbook, dan output kerja nyata.
 
 ---
 
