@@ -228,3 +228,26 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - Direct Arfin fallback remains required.
 - Next action is production/runtime readiness verification of the existing bounded connection before true Fresh Live Canary.
 - No source-code, deployment, workbook, token, webhook, or production mutation is performed by this reconciliation.
+
+## [2026-08-09] EAB_G2_5 (M12) - APPS SCRIPT EXECUTION AUTH INCIDENT
+- MARKER: `EAB_M12_EXECUTION_AUTH_INCIDENT_20260809`
+- RESULT: `DIAGNOSED`
+- M12 STATUS: `READY`
+- Production deployment during incident investigation: `NO`
+- Live EAB canary during incident investigation: `NO`
+- Failed provisioning attempt used the default clasp execution-auth route and matched the exact clasp `NOT_AUTHORIZED` fingerprint.
+- Provisioning function body executed: `NO`.
+- Script Property mutation from that failed provisioning attempt: `NO`.
+- Public/private helper naming was not the root authorization failure; both calls stopped before Apps Script function execution.
+- Default clasp profile for Apps Script Execution API: `DO_NOT_USE`.
+- Required existing named execution-auth candidate: `airoexec`.
+- `clasp run-function` process exit code alone MUST NOT be treated as proof that the Apps Script function body executed.
+- For clasp 3.3.0, remote-only temporary-file deletion MUST NOT be assumed to trigger a push; cleanup requires a proven content update plus exact remote readback.
+- Do not push additional diagnostic helpers until the execution-auth route is proven usable.
+- AIROEXEC refresh HTTP: `400`
+- AIROEXEC refresh OAuth error: `invalid_grant`
+- ROOT_CAUSE: `AIROEXEC_REFRESH_TOKEN_INVALID_GRANT`
+- ACTIVE_BLOCKER: `AIROEXEC_REFRESH_TOKEN_INVALID_GRANT`
+- NEXT_ACTION: `REAUTHORIZE_EXISTING_AIROEXEC_PROFILE_WITH_EXISTING_USER_PROVIDED_OAUTH_CLIENT`
+- Retained secret values, OAuth tokens, OAuth client secrets, Telegram owner IDs, and raw credential files MUST NOT be committed to ASB.
+
