@@ -324,3 +324,28 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - Do not repeat OAuth scope reauthorization merely to address the same 403 unless new evidence shows scope regression.
 - NEXT_ACTION: `OWNER_APPROVAL_ONE_FRESH_API_EXECUTABLE_DEPLOYMENT_LINEAGE_TEST`
 
+## [2026-08-09] EAB_G2_5 (M12) - ONE FRESH API EXECUTABLE DEPLOYMENT LINEAGE TEST
+- MARKER: `EAB_M12_FRESH_API_EXECUTABLE_LINEAGE_TEST_20260809`
+- OWNER_APPROVAL: `OWNER_APPROVAL_ONE_FRESH_API_EXECUTABLE_DEPLOYMENT_LINEAGE_TEST=APPROVED`
+- RESULT: `TEMP_DEPLOYMENT_CREATION_NOT_DETERMINISTIC`
+- Existing immutable Apps Script version used: `391`.
+- New Apps Script version created: `NO`.
+- Temporary deployment created: `EXACTLY_ONE`.
+- Temporary deployment may have inherited WEB_APP plus EXECUTION_API entry points from immutable version 391; only EXECUTION_API was invoked.
+- Deliberately nonexistent function used: `YES`.
+- `devMode`: `false`.
+- Fresh temporary `scripts.run` HTTP: `None`.
+- LINEAGE_HYPOTHESIS_RESULT: `UNRESOLVED`.
+- Temporary deployment deleted after evidence capture: `PASS`.
+- Deployment-ID set after cleanup equals pre-test set: `PASS`.
+- Version set after cleanup equals pre-test set: `PASS`.
+- Canonical production deployment `ZYjuOA @391` unchanged: `PASS`.
+- Script source mutation: `NO`.
+- Script Property mutation: `NO`.
+- OAuth mutation: `NO`.
+- Worker mutation: `NO`.
+- Workbook/webhook/live-canary mutation: `NO`.
+- CURRENT_ACTIVE_BLOCKER: `FRESH_API_EXECUTABLE_TEST_RESULT_UNRESOLVED`.
+- No second lineage deployment test is authorized or required from this result.
+- NEXT_ACTION: `REVIEW_SINGLE_FRESH_DEPLOYMENT_TEST_RESULT_WITHOUT_CREATING_ANOTHER_DEPLOYMENT`
+
