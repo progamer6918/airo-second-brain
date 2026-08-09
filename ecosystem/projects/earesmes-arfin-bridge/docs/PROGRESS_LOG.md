@@ -267,3 +267,22 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - No Script Property, Apps Script source, Worker, production, workbook, webhook, or live-canary mutation occurred.
 - API Executable Deployment ID value, OAuth tokens, OAuth client secret, Telegram owner ID, and retained EAB secrets MUST NOT be committed.
 
+## [2026-08-09] EAB_G2_5 (M12) - REMOTE TARGET IDENTITY CONTROL INCIDENT
+- MARKER: `EAB_M12_REMOTE_TARGET_IDENTITY_INCIDENT_20260809`
+- RESULT: `DIAGNOSED_AND_PROCESS_GUARD_ADDED`
+- PROCESS_FAILURE: `REMOTE_TARGET_IDENTITY_LOCK_WAS_MISSING_BEFORE_REMOTE_MUTATION`
+- REMOTE_PROJECT_TITLE_OBSERVED: `Airo Finance Telegram Direct`
+- CANONICAL_RESOURCE_CLASSIFICATION: `SAME_CANONICAL_AIRO_FINANCE_RESOURCE_WITH_LEGACY_OR_MISLEADING_TITLE`
+- WRONG_TARGET_PROVEN: `NO`
+- REMOTE_SOURCE_STATE: `BASELINE_MATCH`
+- AUTHORIZED_PRINCIPAL_MATCHES_SCRIPT_OWNER: `UNRESOLVED`
+- Canonical AIRO Finance deployment identity and production version were used as stable identity anchors.
+- A project display name alone MUST NOT decide target identity.
+- The previous Apps Script/OAuth diagnostic sequence proceeded before a complete target-identity tuple was proven; this is a process defect regardless of whether the resource ultimately proves to be the canonical resource.
+- Earlier temporary Apps Script helper mutations were independently restored to exact development-HEAD parity.
+- Failed property-provision attempts executed no provisioning function body and wrote no EAB Script Properties.
+- Production deployment, Worker, workbook, webhook, and live EAB canary were not mutated by the incident sequence.
+- Previous `AIROEXEC_OAUTH_CLIENT_CLOUD_PROJECT_MISMATCH_WITH_APPS_SCRIPT_STANDARD_PROJECT` diagnosis is not sufficient by itself after Owner-visible GCP/project evidence and MUST NOT be reused without a fresh identity-locked proof.
+- Universal `REMOTE_TARGET_IDENTITY_LOCK` is now mandatory before future external mutation.
+- NEXT_ACTION: `VERIFY_AUTHORIZED_GOOGLE_PRINCIPAL_AND_EXECUTION_SCOPE_ON_IDENTITY_LOCKED_CANONICAL_APPS_SCRIPT`
+

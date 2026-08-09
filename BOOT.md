@@ -124,6 +124,35 @@ If documentation or context conflicts with live system evidence:
 - Do NOT force push (`--force` or `--force-with-lease` are strictly forbidden).
 - Do NOT automatically rebase or choose "ours/theirs" on divergence; stop and report blockers explicitly.
 
+
+
+## Mandatory Remote Target Identity Lock
+<!-- AIRO_REMOTE_TARGET_IDENTITY_LOCK_V1 -->
+
+Before ANY mutation of a remote runtime, authentication state, deployment,
+secret/configuration, webhook, temporary diagnostic source, cloud credential,
+or production resource:
+
+1. Derive the expected target identity from canonical ASB evidence.
+2. Prove the live target with stable resource identity evidence. Display names,
+   remembered URLs, local config files, and successful API responses alone are
+   NOT sufficient identity proof.
+3. For Apps Script or equivalent managed runtimes, the identity receipt MUST
+   include the project resource ID or hash, canonical deployment ID or hash,
+   cloud-project identity, expected source/deployment state, and an
+   owner-visible or independently queried metadata cross-check.
+4. Temporary helper pushes, OAuth client/profile changes, audience changes,
+   secret writes, and other diagnostic mutations count as remote mutations and
+   require this identity lock first.
+5. If any required identity field is UNKNOWN, mismatched, ambiguous, or based
+   only on model/chat memory:
+   `REMOTE_TARGET_IDENTITY_LOCK=FAIL`,
+   `REMOTE_MUTATION_ALLOWED=NO`, and STOP.
+6. A legacy or misleading display name does not by itself prove a wrong target;
+   stable resource identities must decide the verdict.
+7. Any violation MUST be recorded as a semantic session error and in the
+   relevant project progress/incident record before remote mutation resumes.
+
 ## Operating Protocol Pointers
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
