@@ -286,3 +286,25 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - Universal `REMOTE_TARGET_IDENTITY_LOCK` is now mandatory before future external mutation.
 - NEXT_ACTION: `VERIFY_AUTHORIZED_GOOGLE_PRINCIPAL_AND_EXECUTION_SCOPE_ON_IDENTITY_LOCKED_CANONICAL_APPS_SCRIPT`
 
+## [2026-08-09] EAB_G2_5 (M12) - EXECUTION API RUNTIME SCOPE DEFICIT
+- MARKER: `EAB_M12_EXECUTION_RUNTIME_SCOPE_MISMATCH_20260809`
+- RESULT: `PROVEN_BLOCKER`
+- Owner-visible Apps Script Overview reported exactly 7 Project OAuth Scopes.
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/script.scriptapp`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/spreadsheets`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/drive`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/script.external_request`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://mail.google.com/`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/script.container.ui`
+- REQUIRED_PROJECT_OAUTH_SCOPE: `https://www.googleapis.com/auth/userinfo.email`
+- Existing `airoexec` token directly proved missing `spreadsheets`, broad `drive`, `script.external_request`, and Gmail runtime authorization.
+- `clasp 3.3.0` default scopes do not include `script.scriptapp` or `script.container.ui`.
+- The Apps Script manifest contains no explicit `oauthScopes`; therefore `--use-project-scopes` did not reproduce the auto-detected Project OAuth Scopes shown by Apps Script Overview.
+- Google Apps Script Execution API caller tokens must be authorized with the script scopes recorded from Project OAuth Scopes.
+- PROVEN_BLOCKER: `AIROEXEC_TOKEN_MISSING_REQUIRED_PROJECT_RUNTIME_SCOPES`.
+- This blocker MUST be resolved before Script Property provisioning or production deployment.
+- DO_NOT_REPEAT: do not assume Apps Script auto-detected runtime scopes are present in `appsscript.json`.
+- DO_NOT_REPEAT: for this project, verify the token against the authoritative 7-scope Project OAuth Scopes set before `scripts.run`.
+- External runtime mutation remains forbidden except the bounded named-profile OAuth remediation required to resolve this blocker.
+- NEXT_ACTION: `REAUTHORIZE_AIROEXEC_WITH_EXACT_PROJECT_OAUTH_SCOPES`
+
