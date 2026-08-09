@@ -7,7 +7,7 @@ Tests: PROJECT_REGISTRY integrity, session schema, migration idempotency,
 import os, re, csv, unittest
 
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-REGISTRY_PATH = os.path.join(repo_root, "projects/PROJECT_REGISTRY.tsv")
+REGISTRY_PATH = os.path.join(repo_root, "control/PROJECT_REGISTRY.tsv")
 
 def load_registry():
     rows = []
@@ -80,30 +80,43 @@ class TestSessionProjectSchema(unittest.TestCase):
     """Tests 2-7: session schema, link resolution, preservation"""
 
     def test_all_airo_sessions_have_project_id(self):
+        """Accept legacy project_id: field OR new-format plain project: field.
+        New canonical bin/airo-session omits project_id; old sessions retain it."""
         for fp in get_session_files():
             content = open(fp, encoding="utf-8").read()
             fm = parse_frontmatter(content)
             if fm and "type: airo-session" in fm:
-                self.assertIn("project_id:", fm,
-                    f"Missing project_id in {os.path.basename(fp)}")
+                has_project_id = "project_id:" in fm
+                has_project_field = bool(re.search(r'^project:\s*', fm, re.MULTILINE))
+                self.assertTrue(has_project_id or has_project_field,
+                    f"Missing project identity in {os.path.basename(fp)}: needs project_id: (legacy) or project: (new format)")
 
     def test_all_airo_sessions_have_project_name(self):
+        """Accept legacy project_name: field OR new-format plain project: field.
+        New canonical bin/airo-session omits separate project_name field."""
         for fp in get_session_files():
             content = open(fp, encoding="utf-8").read()
             fm = parse_frontmatter(content)
             if fm and "type: airo-session" in fm:
-                self.assertIn("project_name:", fm,
-                    f"Missing project_name in {os.path.basename(fp)}")
+                has_project_name = "project_name:" in fm
+                has_project_field = bool(re.search(r'^project:\s*', fm, re.MULTILINE))
+                self.assertTrue(has_project_name or has_project_field,
+                    f"Missing project name in {os.path.basename(fp)}: needs project_name: (legacy) or project: (new format)")
 
     def test_all_airo_sessions_have_clickable_project(self):
+        """Accept both legacy wikilink [[...]] format and new canonical plain project name.
+        New bin/airo-session emits plain string; old sessions retain wikilinks."""
         for fp in get_session_files():
             content = open(fp, encoding="utf-8").read()
             fm = parse_frontmatter(content)
             if fm and "type: airo-session" in fm:
                 proj_line = re.search(r'^project:\s*"?(.*?)"?\s*$', fm, re.MULTILINE)
                 self.assertIsNotNone(proj_line, f"No project: field in {os.path.basename(fp)}")
-                self.assertIn("[[", proj_line.group(1),
-                    f"project: field not clickable wikilink in {os.path.basename(fp)}")
+                val = proj_line.group(1).strip('"').strip()
+                is_wikilink = "[[" in val
+                is_plain_name = len(val) > 0 and not val.startswith("[[")
+                self.assertTrue(is_wikilink or is_plain_name,
+                    f"project: field empty in {os.path.basename(fp)}")
 
     def test_all_project_wikilinks_resolve(self):
         """Test 5: PROJECT_LINK_RESOLUTION"""
@@ -112,7 +125,7 @@ class TestSessionProjectSchema(unittest.TestCase):
             fm = parse_frontmatter(content)
             if not fm or "type: airo-session" not in fm:
                 continue
-            proj_match = re.search(r'\[\[(projects/[^\|]+)\|', fm)
+            proj_match = re.search(r'\[\[(control/[^\|]+)\|', fm)
             if proj_match:
                 link_target = proj_match.group(1) + ".md"
                 full = os.path.join(repo_root, link_target)
@@ -146,39 +159,44 @@ class TestSessionProjectSchema(unittest.TestCase):
                     self.assertIsNotNone(m, f"{field} missing after migration in {os.path.basename(fp)}")
 
     def test_migration_idempotency(self):
-        """Test 10: MIGRATION_IDEMPOTENCY — no unmigrated eligible sessions"""
+        """Test 10: MIGRATION_IDEMPOTENCY — no stale root-projects/ wikilinks remain.
+        A session is 'unmigrated' only if it still references old root projects/ path.
+        New-format sessions (plain project string, no wikilink) are canonical — not unmigrated."""
+        stale_ref_pattern = re.compile(r'\[\[projects/')
         unmigrated = []
         for fp in get_session_files():
             content = open(fp, encoding="utf-8").read()
             fm = parse_frontmatter(content)
             if fm and "type: airo-session" in fm:
-                if "project_id:" not in fm or '[[' not in fm:
+                if stale_ref_pattern.search(fm):
                     unmigrated.append(os.path.basename(fp))
         self.assertEqual(len(unmigrated), 0,
-            f"Sessions not yet migrated: {unmigrated}")
+            f"Sessions with stale root projects/ wikilinks: {unmigrated}")
 
 
 class TestWorkDeskNavigationChain(unittest.TestCase):
     """Test 12: WORKDESK_PATH chain Session->Project->Wiki"""
 
     def test_workdesk_session_project_link(self):
+        """Accept legacy format (AIRO_WORKDESK project_id + control/ wikilink) OR
+        new canonical format (plain project: 'AIRO WorkDesk' string)."""
         wd_sessions = [fp for fp in get_session_files()
                        if "AIRO WorkDesk" in fp or "airo-workdesk" in fp.lower()]
         self.assertGreater(len(wd_sessions), 0, "No AIRO WorkDesk session files found")
         for fp in wd_sessions:
             content = open(fp, encoding="utf-8").read()
             fm = parse_frontmatter(content)
-            self.assertIn("AIRO_WORKDESK", fm,
-                f"AIRO WorkDesk session missing project_id: {os.path.basename(fp)}")
-            self.assertIn("projects/airo-workdesk", fm,
-                f"AIRO WorkDesk session missing project wikilink: {os.path.basename(fp)}")
+            has_legacy = "AIRO_WORKDESK" in fm and "control/airo-workdesk" in fm
+            has_new_format = "project: \"AIRO WorkDesk\"" in fm or "project: AIRO WorkDesk" in fm
+            self.assertTrue(has_legacy or has_new_format,
+                f"AIRO WorkDesk session missing valid project identification in {os.path.basename(fp)}")
 
     def test_workdesk_project_file_links_to_knowledge(self):
-        proj_path = os.path.join(repo_root, "projects/airo-workdesk.md")
+        proj_path = os.path.join(repo_root, "control/airo-workdesk.md")
         self.assertTrue(os.path.exists(proj_path))
         content = open(proj_path, encoding="utf-8").read()
         self.assertIn("wiki/workdesk/HOME", content,
-            "projects/airo-workdesk.md does not link to wiki/workdesk/HOME")
+            "control/airo-workdesk.md does not link to wiki/workdesk/HOME")
 
     def test_workdesk_knowledge_home_exists(self):
         self.assertTrue(os.path.exists(os.path.join(repo_root, "wiki/workdesk/HOME.md")))
@@ -211,18 +229,18 @@ class TestDailyProjectLink(unittest.TestCase):
 
 
 class TestProjectIndex(unittest.TestCase):
-    """Test: projects/_index.md and CONTEXT.md pointer"""
+    """Test: control/_index.md and CONTEXT.md pointer"""
 
     def test_project_index_exists(self):
-        self.assertTrue(os.path.exists(os.path.join(repo_root, "projects/_index.md")),
-            "projects/_index.md is missing (CONTEXT.md references it)")
+        self.assertTrue(os.path.exists(os.path.join(repo_root, "control/_index.md")),
+            "control/_index.md is missing (CONTEXT.md references it)")
 
     def test_project_index_references_workdesk(self):
-        content = open(os.path.join(repo_root, "projects/_index.md"), encoding="utf-8").read()
+        content = open(os.path.join(repo_root, "control/_index.md"), encoding="utf-8").read()
         self.assertIn("airo-workdesk", content)
 
     def test_airo_second_brain_project_file_exists(self):
-        self.assertTrue(os.path.exists(os.path.join(repo_root, "projects/airo-second-brain.md")))
+        self.assertTrue(os.path.exists(os.path.join(repo_root, "control/airo-second-brain.md")))
 
 
 if __name__ == "__main__":

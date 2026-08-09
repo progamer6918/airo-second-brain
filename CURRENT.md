@@ -345,14 +345,14 @@ Use this layer model:
 inbox/ = session closeout capture.
 state/ = current active context.
 decisions/ = final and pending decisions.
-projects/ = project pointers and summaries.
+control/ = project pointers and summaries.
 identity/, systems/, agents/, meta/ = stable operating knowledge.
 Read Next
 For owner preferences: identity/working-principles.md
-For project list: projects/_index.md
+For project list: control/_index.md
 For execution rules: AGENTS.md
 For safety rules: SECURITY.md
-For AIRO Finance: projects/airo-finance.md, then canonical repo docs
+For AIRO Finance: control/airo-finance.md, then canonical repo docs
 
 For Earesmes/Hermes: ecosystem/earesmes-hermes.md
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT -->
@@ -363,7 +363,7 @@ Primary active workstream: Report Automation VBA.
 
 Relevant project file:
 
-- `projects/report-automation-vba.md`
+- `control/report-automation-vba.md`
 
 Related registry:
 
@@ -386,7 +386,7 @@ AIRO Second Brain is the canonical knowledge hub. Repository-specific work may l
 <!-- AIRO:REPORT_AUTOMATION_VBA_CURRENT:BEGIN -->
 ## Active Workstream: Report Automation VBA
 
-- Canonical project: `projects/report-automation-vba.md`.
+- Canonical project: `control/report-automation-vba.md`.
 - Current baseline: R8.11 `FROZEN STABLE BASELINE`; reopen persistence PASS.
 - RPT001 Monitoring Dealer: PASS.
 - RPT002 Report Per Type: runtime and business-output PASS.

@@ -38,7 +38,7 @@ def scan_workspaces():
             "id": "airo-finance",
             "name": "AIRO Finance",
             "tier": "GOVERNED-GUARDED",
-            "brain_file": "projects/airo-finance.md",
+            "brain_file": "control/airo-finance.md",
             "source_of_truth": [
                 "docs/AIRO_FINANCE_CURRENT_STATE.md",
                 "docs/AIRO_FINANCE_PRD_LIVING.md"

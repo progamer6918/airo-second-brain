@@ -15,7 +15,7 @@ Sistem Worklog ASB v0.6 membagi memori pekerjaan menjadi 4 lapisan utama dengan 
 2. **Daily (`worklog/daily/YYYY-MM-DD.md`)**:  
    *"Hari ini gue ngapain?"*  
    Merupakan tampilan navigasi harian otomatis yang tergenerasi secara deterministik dari berkas sesi harian. Daily **BUKAN** sumber kebenaran kanonis status proyek dan dapat didaur ulang kapan saja (`DAILY_IDEMPOTENT=PASS`).
-3. **Project Docs (`projects/`, `docs/`, `CURRENT.md`)**:  
+3. **Project Docs (`control/`, `docs/`, `CURRENT.md`)**:
    *"Project sekarang posisi sebenarnya di mana?"*  
    Merupakan sumber kebenaran kanonis (*canonical source of truth*) posisi dan komitmen proyek saat ini.
 4. **LLM Wiki (`wiki/`)**:  

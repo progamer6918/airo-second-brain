@@ -18,7 +18,7 @@ can_advance: YES
 
 🧪 Bukti
 Yang wajib ada — EAB_PARENT_AFTER=NONE, EAB_IN_WORKDESK_INDEX_CHILD_SECTION_AFTER=NO, EAB_IN_INDEPENDENT_PROJECT_INDEX_AFTER=YES, EAB_IN_WORKDESK_PROJECT_PAGE_CHILD_SECTION_AFTER=NO, EAB_IN_WORKDESK_HOME_AFTER=NO, D_READY_PARENT_AFTER=AIRO_WORKDESK, VBA_PARENT_AFTER=AIRO_WORKDESK, TARGETED_REGRESSION=PASS, GIT_DIFF_CHECK=PASS, PUBLIC_SAFETY=PASS, EAB_IMPLEMENTATION_FILES_CHANGED=NO, AIRO_FINANCE_ARFIN_RUNTIME_CHANGED=NO, TELEGRAM_RUNTIME_CHANGED=NO, UNRELATED_OWNER_DIRTY_WORK_PRESERVED=YES
-Yang sudah ada — projects/PROJECT_REGISTRY.tsv, projects/_index.md, projects/airo-workdesk.md, tests/workdesk/test_sustainable_intake_and_child_projects.py
+Yang sudah ada — control/PROJECT_REGISTRY.tsv, control/_index.md, control/airo-workdesk.md, tests/workdesk/test_sustainable_intake_and_child_projects.py
 Kesimpulan — BERHASIL
 Boleh lanjut — YA
 
@@ -41,9 +41,9 @@ Compile the Owner-supplied professional corpus into validated, provenance-preser
 - Commit 5be5b34 pushed to origin/main
 
 ## 🧪 Bukti
-- projects/PROJECT_REGISTRY.tsv
-- projects/_index.md
-- projects/airo-workdesk.md
+- control/PROJECT_REGISTRY.tsv
+- control/_index.md
+- control/airo-workdesk.md
 - tests/workdesk/test_sustainable_intake_and_child_projects.py
 
 ## ⛔ Masalah / hambatan
@@ -53,9 +53,9 @@ Tidak ada
 - EAB is an independent registered AIRO project, not a WorkDesk child
 
 ## 📁 Yang berubah
-- `projects/PROJECT_REGISTRY.tsv`
-- `projects/_index.md`
-- `projects/airo-workdesk.md`
+- `control/PROJECT_REGISTRY.tsv`
+- `control/_index.md`
+- `control/airo-workdesk.md`
 - `tests/workdesk/test_sustainable_intake_and_child_projects.py`
 
 ## 📝 Yang belum selesai

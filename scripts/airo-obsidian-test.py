@@ -55,12 +55,14 @@ def run_obsidian_test_suite():
     else:
         print("  [FAIL] T3: HOME missing Hari Ini base embed")
 
-    # T4: HOME embeds AIRO Worklog.base#Semua Sesi
-    if os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Semua Sesi]]" in htxt:
-        print("  [PASS] T4: HOME embeds AIRO Worklog.base#Semua Sesi")
+    # T4: HOME embeds bounded recent view (Sesi Terbaru) and full history view (Riwayat Sesi)
+    has_sesi_terbaru = os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Sesi Terbaru]]" in htxt
+    has_riwayat_sesi = os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Riwayat Sesi]]" in htxt
+    if has_sesi_terbaru and has_riwayat_sesi:
+        print("  [PASS] T4: HOME embeds Sesi Terbaru (bounded) and Riwayat Sesi (full history)")
         passed += 1
     else:
-        print("  [FAIL] T4: HOME missing Semua Sesi base embed")
+        print(f"  [FAIL] T4: HOME missing bounded/history base embeds (sesi_terbaru={has_sesi_terbaru}, riwayat_sesi={has_riwayat_sesi})")
 
     # T5: All HOME repository links resolve
     home_links_ok = True
@@ -123,20 +125,23 @@ def run_obsidian_test_suite():
     else:
         print("  [FAIL] T8: Hari Ini view filters missing date == today()")
 
-    # T9: Semua Sesi view exists with order
-    if os.path.exists(base_path) and "Semua Sesi" in btxt and "order:" in btxt:
-        print("  [PASS] T9: Semua Sesi view exists with order")
+    # T9: Sesi Terbaru (bounded) and Riwayat Sesi (full history) views exist with newest-first order
+    has_terbaru_view = os.path.exists(base_path) and "Sesi Terbaru" in btxt and "order:" in btxt
+    has_riwayat_view = os.path.exists(base_path) and "Riwayat Sesi" in btxt and "orderDirection: desc" in btxt
+    if has_terbaru_view and has_riwayat_view:
+        print("  [PASS] T9: Sesi Terbaru and Riwayat Sesi views exist with newest-first order")
         passed += 1
     else:
-        print("  [FAIL] T9: Semua Sesi view missing order")
+        print(f"  [FAIL] T9: Missing bounded/history views with order (terbaru={has_terbaru_view}, riwayat={has_riwayat_view})")
 
-    # T10: Base exposes human display labels: displayName: Project, Tujuan, Posisi, Hasil, Boleh lanjut, Tanggal
-    req_labels = ["displayName: Project", "displayName: Tujuan", "displayName: Posisi", "displayName: Hasil", "displayName: Boleh lanjut", "displayName: Tanggal"]
+    # T10: Base exposes human display labels (Proyek updated from Project post-UX hardening)
+    req_labels = ["displayName: Proyek", "displayName: Tujuan", "displayName: Posisi", "displayName: Hasil", "displayName: Boleh lanjut", "displayName: Tanggal"]
     if os.path.exists(base_path) and all(lbl in btxt for lbl in req_labels):
         print("  [PASS] T10: Base exposes human display labels using displayName")
         passed += 1
     else:
-        print("  [FAIL] T10: Base missing required displayName labels")
+        missing = [lbl for lbl in req_labels if lbl not in btxt]
+        print(f"  [FAIL] T10: Base missing required displayName labels: {missing}")
 
     # T11: Independent dataset scan under worklog/sessions
     today_sessions = []

@@ -21,7 +21,7 @@ def is_in_allowlist(target):
     if target in exact_list:
         return True
         
-    if target.startswith("projects/") and target.endswith(".md"):
+    if target.startswith("control/") and target.endswith(".md"):
         return True
         
     if target.startswith("registry/") and target.endswith(".yaml"):

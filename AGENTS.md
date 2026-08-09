@@ -25,7 +25,7 @@ At the start of every meaningful session:
 4. Read AGENTS.md.
 5. Read SECURITY.md.
 6. Read PRD_INDEX.md & ROADMAP_INDEX.md.
-7. Read the relevant project file under `projects/`.
+7. Read the relevant project file under `control/`.
 
 Do not read `inbox/` or `archive/` unless explicitly asked for history or forensic review.
 
@@ -37,7 +37,7 @@ If context conflicts, follow this priority:
 2. Canonical project repo
 3. `state/active-context.md`
 4. `decisions/decision-log.md`
-5. `projects/*.md`
+5. `control/*.md`
 6. `CURRENT.md`
 7. `inbox/`
 8. Chat summaries

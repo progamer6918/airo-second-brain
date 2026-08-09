@@ -3,7 +3,7 @@ type: airo-session
 date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
-project: "[[projects/airo-second-brain|AIRO Second Brain]]"
+project: "[[control/airo-second-brain|AIRO Second Brain]]"
 objective: "Backfill legacy ASB v0.6 Session notes with durable semantic evidence"
 position: "Post-v0.6 Maintenance"
 status: BERHASIL

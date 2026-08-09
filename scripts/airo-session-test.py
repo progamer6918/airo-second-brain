@@ -50,7 +50,7 @@ def run_test_suite():
     env["AIRO_REPO_ROOT"] = tmp_repo
 
     passed = 0
-    total = 36
+    total = 37
 
     print("Running 30 AIRO session & worklog test cases...")
 
@@ -545,7 +545,25 @@ def run_test_suite():
     subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
 
 
+
+    # T37: Real closed_at emitted on session close
+    subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "start", "--project-id", "ASB", "--project-name", "ASB", "--objective", "Obj37"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res37 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", "[\"E1\"]", "--actual-evidence", "[\"E1\"]"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    note_37 = res37.stdout.split("PERMANENT_SESSION_NOTE=")[-1].splitlines()[0] if "PERMANENT_SESSION_NOTE=" in res37.stdout else ""
+    t37_pass = False
+    if os.path.exists(note_37):
+        with open(note_37, "r", encoding="utf-8") as f37:
+            txt37 = f37.read()
+        if "closed_at:" in txt37 and "date:" in txt37:
+            t37_pass = True
+    if t37_pass:
+        print("  [PASS] T37: Real closed_at emitted on session close (CLOSED_AT_EMITTED=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T37: closed_at emission failed")
+
     # Cleanup temp
+
     shutil.rmtree(tmp_dir, ignore_errors=True)
 
     print(f"\nSession & Worklog Corrected Test Results: {passed}/{total} passed.")

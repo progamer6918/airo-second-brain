@@ -7,7 +7,7 @@ from datetime import datetime
 
 def _load_project_registry(repo_root):
     """Load PROJECT_REGISTRY.tsv for project link resolution."""
-    reg_path = os.path.join(repo_root, "projects/PROJECT_REGISTRY.tsv")
+    reg_path = os.path.join(repo_root, "control/PROJECT_REGISTRY.tsv")
     if not os.path.exists(reg_path):
         return {}
     registry = {}

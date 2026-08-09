@@ -147,7 +147,7 @@ def main():
     if latest and latest["canonical"]:
         processed_canonical = "yes"
         
-    next_action = "owner can request process into projects/report-automation-vba.md + CURRENT.md"
+    next_action = "owner can request process into control/report-automation-vba.md + CURRENT.md"
     if data["pending_count"] == 0:
         next_action = "none (all manual queue items are processed)"
         

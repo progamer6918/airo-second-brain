@@ -3,7 +3,7 @@ type: airo-session
 date: 2026-08-07
 project_id: AIRO_WORKDESK
 project_name: AIRO WorkDesk
-project: "[[projects/airo-workdesk|AIRO WorkDesk]]"
+project: "[[control/airo-workdesk|AIRO WorkDesk]]"
 knowledge: "[[wiki/workdesk/HOME|AIRO WorkDesk Knowledge]]"
 objective: "Build AIRO WorkDesk as the canonical professional knowledge and work-assistance domain inside AIRO Second Brain, optimized for zero-context humans and fresh AI consumers."
 position: "Fast Track v0.2 / M0 Canonical Integration"
@@ -15,7 +15,7 @@ can_advance: YES
 
 ## 🧭 AIRO STATUS
 
-📍 Project — [[projects/airo-workdesk|AIRO WorkDesk]]
+📍 Project — [[control/airo-workdesk|AIRO WorkDesk]]
 📌 Lagi di — Fast Track v0.2 / M0 Canonical Integration
 📈 Progress — Sesi selesai dengan status BERHASIL
 

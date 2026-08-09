@@ -3,7 +3,7 @@ type: airo-session
 date: 2026-08-07
 project_id: AIRO_WORKDESK
 project_name: AIRO WorkDesk
-project: "[[projects/airo-workdesk|AIRO WorkDesk]]"
+project: "[[control/airo-workdesk|AIRO WorkDesk]]"
 knowledge: "[[wiki/workdesk/HOME|AIRO WorkDesk Knowledge]]"
 objective: "Compile the Owner-supplied professional corpus into validated, provenance-preserving WorkDesk knowledge that is transferable to zero-context humans and fresh AI consumers."
 position: "M1 Semantic Core Acceleration and Full Corpus Digestion"
@@ -15,7 +15,7 @@ can_advance: YES
 
 ## 🧭 AIRO STATUS
 
-📍 Project — [[projects/airo-workdesk|AIRO WorkDesk]]
+📍 Project — [[control/airo-workdesk|AIRO WorkDesk]]
 📌 Lagi di — M1 Semantic Core Acceleration and Full Corpus Digestion
 📈 Progress — Sesi selesai dengan status BERHASIL
 

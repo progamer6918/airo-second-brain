@@ -310,6 +310,7 @@ def cmd_draft_closeout(args, repo_root):
         "---",
         "type: airo-session",
         f"date: {date_str}",
+        f"closed_at: {datetime.now(timezone.utc).isoformat()}",
         f"project_id: {active['project_id']}",
         f"project_name: {active['project_name']}",
         f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",

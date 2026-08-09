@@ -3,7 +3,7 @@ type: airo-session
 date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
-project: "[[projects/airo-second-brain|AIRO Second Brain]]"
+project: "[[control/airo-second-brain|AIRO Second Brain]]"
 objective: "Finalize Owner acceptance and AIRO Second Brain v0.6 cutover"
 position: "M6 — Owner Acceptance & Cutover"
 status: BERHASIL

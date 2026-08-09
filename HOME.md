@@ -14,16 +14,23 @@ Pusat navigasi manusia untuk AIRO Second Brain.
 
 ---
 
-## 🕘 Semua Sesi
+## 🕘 Sesi Terbaru
 
-![[worklog/views/AIRO Worklog.base#Semua Sesi]]
+![[worklog/views/AIRO Worklog.base#Sesi Terbaru]]
 
 ---
 
-## 🚀 Project
+## 📚 Riwayat Sesi
 
-- [Posisi Project](ROADMAP_INDEX.md) — Ringkasan status dan peta jalan seluruh proyek AIRO.
+![[worklog/views/AIRO Worklog.base#Riwayat Sesi]]
+
+---
+
+## 🧭 Control
+
+- [Posisi Proyek](ROADMAP_INDEX.md) — Ringkasan status dan peta jalan seluruh proyek AIRO.
 - [Konteks Terkini](CURRENT.md) — Catatan konteks aktif dan routing target terbaru.
+- [Indeks Proyek](control/_index.md) — Daftar dan pointer seluruh proyek AIRO.
 - [AIRO WorkDesk](wiki/workdesk/HOME.md) — Pusat kerja profesional: analisis bisnis, playbook, dan output kerja nyata.
 
 ---
@@ -40,11 +47,10 @@ Pusat navigasi manusia untuk AIRO Second Brain.
 
 ---
 
-## 📚 Riwayat Kerja
+## 📚 Referensi Kerja
 
 - [Buku Petunjuk Worklog](worklog/README.md) — Panduan struktur riwayat kerja dan siklus sesi.
 - [Ringkasan Harian](worklog/daily/) — Panduan navigasi harian per tanggal.
-- [Catatan Sesi](worklog/sessions/) — Arsip sesi kerja per proyek.
 
 ---
 

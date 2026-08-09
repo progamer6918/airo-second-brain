@@ -5,8 +5,10 @@ filters:
     - 'type == "airo-session"'
 
 properties:
+  title:
+    displayName: Sesi
   project:
-    displayName: Project
+    displayName: Proyek
   objective:
     displayName: Tujuan
   position:
@@ -17,6 +19,8 @@ properties:
     displayName: Boleh lanjut
   date:
     displayName: Tanggal
+  closed_at:
+    displayName: Waktu Selesai
 
 views:
   - type: table
@@ -25,18 +29,37 @@ views:
       and:
         - 'date == today()'
     order:
-      - file.name
+      - closed_at
+      - date
+      - title
       - project
       - position
       - status
       - can_advance
 
   - type: table
-    name: Semua Sesi
+    name: Sesi Terbaru
+    filters:
+      and:
+        - 'date >= dateadd(today(), -14, "days")'
     order:
-      - file.name
+      - closed_at
       - date
+      - title
       - project
       - position
       - status
       - can_advance
+    orderDirection: desc
+
+  - type: table
+    name: Riwayat Sesi
+    order:
+      - closed_at
+      - date
+      - title
+      - project
+      - position
+      - status
+      - can_advance
+    orderDirection: desc

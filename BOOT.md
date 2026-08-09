@@ -60,7 +60,7 @@ Read in this order:
 4. `SECURITY.md`
 5. `PRD_INDEX.md`
 6. `ROADMAP_INDEX.md`
-7. Relevant project file under `projects/`
+7. Relevant project file under `control/`
 
 Do not read `archive/` or `inbox/` unless explicitly asked for history or forensic review.
 
