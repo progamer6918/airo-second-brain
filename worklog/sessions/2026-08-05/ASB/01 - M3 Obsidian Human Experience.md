@@ -4,6 +4,7 @@ date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-05/ASB/01 - M3 Obsidian Human Experience.md|M3 Obsidian Human Experience]]"
 objective: "Implement M3 Obsidian Human Experience"
 position: "M3 — Obsidian Human Experience"
 status: BERHASIL

@@ -4,6 +4,7 @@ date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-05/ASB/02 - M4 LLM Wiki Memory Loop.md|M4 LLM Wiki Memory Loop]]"
 objective: "Implement M4 LLM Wiki Memory Loop"
 position: "M4 — LLM Wiki Memory Loop"
 status: BERHASIL

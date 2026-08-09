@@ -2,11 +2,12 @@
 type: airo-session
 date: 2026-08-09
 closed_at: 2026-08-09T01:21:01.993803+00:00
-project: "ASB Global"
+project: "[[control/airo-second-brain|ASB Global]]"
 objective: "Add canonical real closed_at support for future Session closeouts and make Worklog chronology use it without fabricating historical timestamps."
 position: "Final bounded correction after HOME and Worklog UX Hardening"
 status: BELUM_TERBUKTI
 can_advance: NO
+title: "[[worklog/sessions/2026-08-09/ASB Global/02 - Closed At Chronology Correction.md|Closed At Chronology Correction]]"
 ---
 
 # Closed At Chronology Correction

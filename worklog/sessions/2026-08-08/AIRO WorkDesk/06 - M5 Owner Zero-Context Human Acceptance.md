@@ -1,7 +1,8 @@
 ---
 type: airo-session
 date: 2026-08-08
-project: "AIRO WorkDesk"
+project: "[[control/airo-workdesk|AIRO WorkDesk]]"
+title: "[[worklog/sessions/2026-08-08/AIRO WorkDesk/06 - M5 Owner Zero-Context Human Acceptance.md|M5 Owner Zero-Context Human Acceptance]]"
 objective: "Compile the Owner-supplied professional corpus into validated, provenance-preserving WorkDesk knowledge that is transferable to zero-context humans and fresh AI consumers."
 position: "M5_LIVE_HUMAN_ACCEPTANCE"
 status: BERHASIL_DENGAN_BATASAN

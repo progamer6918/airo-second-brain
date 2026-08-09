@@ -4,6 +4,7 @@ date: 2026-08-07
 project_id: AIRO_WORKDESK
 project_name: AIRO WorkDesk
 project: "[[control/airo-workdesk|AIRO WorkDesk]]"
+title: "[[worklog/sessions/2026-08-07/AIRO WorkDesk/03 - AIRO WorkDesk M1 Full Corpus Semantic Digestion Fast Track.md|AIRO WorkDesk M1 Full Corpus Semantic Digestion Fast Track]]"
 knowledge: "[[wiki/workdesk/HOME|AIRO WorkDesk Knowledge]]"
 objective: "Compile the Owner-supplied professional corpus into validated, provenance-preserving WorkDesk knowledge that is transferable to zero-context humans and fresh AI consumers."
 position: "M1 Semantic Core Acceleration and Full Corpus Digestion"

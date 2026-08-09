@@ -1,9 +1,8 @@
 filters:
   and:
-    - 'file.inFolder("worklog/sessions")'
-    - 'file.ext == "md"'
-    - 'type == "airo-session"'
-
+  - file.inFolder("worklog/sessions")
+  - file.ext == "md"
+  - type == "airo-session"
 properties:
   title:
     displayName: Sesi
@@ -20,46 +19,68 @@ properties:
   date:
     displayName: Tanggal
   closed_at:
-    displayName: Waktu Selesai
-
+    displayName: Timestamp
+  formula.selesai:
+    displayName: Selesai
+  formula.waktu_ringkas:
+    displayName: Waktu
+  formula.waktu_lengkap:
+    displayName: Waktu
 views:
-  - type: table
-    name: Hari Ini
-    filters:
-      and:
-        - 'date == today()'
-    order:
-      - closed_at
-      - date
-      - title
-      - project
-      - position
-      - status
-      - can_advance
-
-  - type: table
-    name: Sesi Terbaru
-    filters:
-      and:
-        - 'date >= dateadd(today(), -14, "days")'
-    order:
-      - closed_at
-      - date
-      - title
-      - project
-      - position
-      - status
-      - can_advance
-    orderDirection: desc
-
-  - type: table
-    name: Riwayat Sesi
-    order:
-      - closed_at
-      - date
-      - title
-      - project
-      - position
-      - status
-      - can_advance
-    orderDirection: desc
+- type: table
+  name: Hari Ini
+  filters:
+    and:
+    - date == today()
+  order:
+  - formula.selesai
+  - title
+  - project
+  - position
+  - status
+  - can_advance
+  columnSize:
+    note.closed_at: 288
+  sort:
+  - property: formula.sort_closed_local
+    direction: DESC
+  - property: title
+    direction: ASC
+- type: table
+  name: Sesi Terbaru
+  filters:
+    and:
+    - date >= today() - "14d"
+  order:
+  - formula.waktu_ringkas
+  - title
+  - project
+  - position
+  - status
+  - can_advance
+  orderDirection: desc
+  sort:
+  - property: formula.sort_closed_local
+    direction: DESC
+  - property: title
+    direction: ASC
+- type: table
+  name: Riwayat Sesi
+  order:
+  - formula.waktu_lengkap
+  - title
+  - project
+  - position
+  - status
+  - can_advance
+  orderDirection: desc
+  sort:
+  - property: formula.sort_closed_local
+    direction: DESC
+  - property: title
+    direction: ASC
+formulas:
+  sort_closed_local: 'if(closed_at, if(closed_at.isType("date"), closed_at, date(closed_at.toString().slice(0, 19).replace("T", " ")) + "7h"), null)'
+  selesai: 'if(formula.sort_closed_local, if(formula.sort_closed_local.isType("date"), formula.sort_closed_local.time().slice(0, 5), "—"), "—")'
+  waktu_ringkas: 'if(formula.sort_closed_local, if(formula.sort_closed_local.isType("date"), formula.sort_closed_local.format("DD/MM") + " · " + formula.sort_closed_local.time().slice(0, 5), "—"), "—")'
+  waktu_lengkap: 'if(formula.sort_closed_local, if(formula.sort_closed_local.isType("date"), formula.sort_closed_local.format("DD/MM/YY") + " · " + formula.sort_closed_local.time().slice(0, 5), "—"), "—")'

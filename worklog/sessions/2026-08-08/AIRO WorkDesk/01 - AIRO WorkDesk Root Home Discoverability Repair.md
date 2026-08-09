@@ -1,7 +1,8 @@
 ---
 type: airo-session
 date: 2026-08-08
-project: "AIRO WorkDesk"
+project: "[[control/airo-workdesk|AIRO WorkDesk]]"
+title: "[[worklog/sessions/2026-08-08/AIRO WorkDesk/01 - AIRO WorkDesk Root Home Discoverability Repair.md|AIRO WorkDesk Root Home Discoverability Repair]]"
 objective: "Compile the Owner-supplied professional corpus into validated, provenance-preserving WorkDesk knowledge that is transferable to zero-context humans and fresh AI consumers."
 position: "M5 Transferability Sign-Off Preparation"
 status: BERHASIL

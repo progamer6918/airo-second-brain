@@ -1,7 +1,8 @@
 ---
 type: airo-session
 date: 2026-08-09
-project: "ASB Global"
+project: "[[control/airo-second-brain|ASB Global]]"
+title: "[[worklog/sessions/2026-08-09/ASB Global/01 - HOME & Worklog UX Hardening.md|HOME & Worklog UX Hardening]]"
 objective: "Harden HOME and Worklog human experience, rename the root control-plane from projects to control, and normalize chronology/navigation without losing permanent history."
 position: "Post-v0.6 Human Navigation & Worklog Hardening"
 status: BELUM_TERBUKTI

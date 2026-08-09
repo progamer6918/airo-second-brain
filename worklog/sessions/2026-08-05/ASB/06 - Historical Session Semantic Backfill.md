@@ -4,6 +4,7 @@ date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-05/ASB/06 - Historical Session Semantic Backfill.md|Historical Session Semantic Backfill]]"
 objective: "Backfill legacy ASB v0.6 Session notes with durable semantic evidence"
 position: "Post-v0.6 Maintenance"
 status: BERHASIL

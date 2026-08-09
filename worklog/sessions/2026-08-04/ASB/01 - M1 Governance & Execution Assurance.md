@@ -4,6 +4,7 @@ date: 2026-08-04
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-04/ASB/01 - M1 Governance & Execution Assurance.md|M1 Governance & Execution Assurance]]"
 objective: "Build ASB v0.6 M1 Candidate with Execution Assurance & Governance Recovery"
 position: "M1 — Governance & Execution Assurance"
 status: BERHASIL

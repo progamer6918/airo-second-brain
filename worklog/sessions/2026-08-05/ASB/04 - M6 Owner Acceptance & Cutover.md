@@ -4,6 +4,7 @@ date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-05/ASB/04 - M6 Owner Acceptance & Cutover.md|M6 Owner Acceptance & Cutover]]"
 objective: "Finalize Owner acceptance and AIRO Second Brain v0.6 cutover"
 position: "M6 — Owner Acceptance & Cutover"
 status: BERHASIL

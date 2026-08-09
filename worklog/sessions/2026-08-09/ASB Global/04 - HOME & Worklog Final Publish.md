@@ -2,7 +2,8 @@
 type: airo-session
 date: 2026-08-09
 closed_at: 2026-08-09T01:37:00.255525+00:00
-project: "ASB Global"
+project: "[[control/airo-second-brain|ASB Global]]"
+title: "[[worklog/sessions/2026-08-09/ASB Global/04 - HOME & Worklog Final Publish.md|HOME & Worklog Final Publish]]"
 objective: "Publish the approved ASB HOME and Worklog UX hardening commit while preserving unrelated Owner dirty work."
 position: "Final publish after validated HOME/Worklog hardening and closed_at correction"
 status: BELUM_TERBUKTI

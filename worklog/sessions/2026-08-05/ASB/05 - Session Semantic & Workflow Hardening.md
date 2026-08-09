@@ -4,6 +4,7 @@ date: 2026-08-05
 project_id: AIRO_SECOND_BRAIN
 project_name: AIRO Second Brain
 project: "[[control/airo-second-brain|AIRO Second Brain]]"
+title: "[[worklog/sessions/2026-08-05/ASB/05 - Session Semantic & Workflow Hardening.md|Session Semantic & Workflow Hardening]]"
 objective: "Harden Session semantic quality and mandatory workflow enforcement"
 position: "Post-v0.6 Maintenance"
 status: BERHASIL

@@ -116,29 +116,30 @@ def verify_ledger_session_id(repo_root, session_id):
 
 
 def _resolve_project_link(project_id, project_name, repo_root):
-    """Resolve project wikilink path from PROJECT_REGISTRY.tsv."""
-    reg_path = os.path.join(repo_root, "projects/PROJECT_REGISTRY.tsv")
+    """Resolve canonical project path from control/PROJECT_REGISTRY.tsv."""
+    reg_path = os.path.join(repo_root, "control/PROJECT_REGISTRY.tsv")
     if os.path.exists(reg_path):
         import csv as _csv
         with open(reg_path, encoding="utf-8") as f:
-            for row in _csv.DictReader(f, delimiter="\t"):
-                if row["project_id"] == project_id:
-                    return row["project_path"].replace(".md", "")
-    return "projects/" + project_name.lower().replace(" ", "-")
+            for row in _csv.DictReader(f, delimiter="	"):
+                if (
+                    row.get("project_id") == project_id
+                    or row.get("project_name") == project_name
+                ):
+                    target = row.get("project_path", "")
+                    return target[:-3] if target.endswith(".md") else target
 
-def _maybe_knowledge_line(project_id, project_name, repo_root):
-    """Return knowledge frontmatter line if a knowledge home exists."""
-    reg_path = os.path.join(repo_root, "projects/PROJECT_REGISTRY.tsv")
-    if os.path.exists(reg_path):
-        import csv as _csv
-        with open(reg_path, encoding="utf-8") as f:
-            for row in _csv.DictReader(f, delimiter="\t"):
-                if row["project_id"] == project_id and row.get("knowledge_path"):
-                    kp = row["knowledge_path"].replace(".md", "")
-                    label = project_name + " Knowledge"
-                    return f'        f"knowledge: \"[[{kp}|{label}]]\"",
-'
-    return ""
+    if (
+        project_id in ("ASB_GLOBAL", "AIRO_SECOND_BRAIN")
+        or project_name in ("ASB Global", "AIRO Second Brain")
+    ):
+        return "control/airo-second-brain"
+
+    if project_id == "AIRO_WORKDESK" or project_name == "AIRO WorkDesk":
+        return "control/airo-workdesk"
+
+    return "control/" + project_name.lower().replace(" ", "-")
+
 
 def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
     capture_script = os.path.join(repo_root, "scripts/airo-capture")
@@ -530,14 +531,22 @@ def cmd_close(args, repo_root):
         actual_ev_str = ", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"
         sec_evidence_refs = "- Task Verdict: " + verdict_status + "\n- Can Advance: " + can_advance
 
+    rel_session_path = os.path.relpath(
+        session_file_path,
+        repo_root,
+    ).replace("\\", "/")
+    title_wl = f"[[{rel_session_path}|{active['title']}]]"
+
     # Render frontmatter + 10 human sections
     lines = [
         "---",
         "type: airo-session",
         f"date: {date_str}",
+        f"closed_at: {datetime.now(timezone.utc).isoformat()}",
         f"project_id: {active['project_id']}",
         f"project_name: {active['project_name']}",
         f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",
+        f"title: \"{title_wl}\"",
         f"objective: \"{active['objective']}\"",
         f"position: \"{active.get('position', 'M3')}\"",
         f"status: {verdict_status}",

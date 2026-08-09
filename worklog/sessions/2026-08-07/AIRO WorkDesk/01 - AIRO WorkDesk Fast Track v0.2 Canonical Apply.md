@@ -4,6 +4,7 @@ date: 2026-08-07
 project_id: AIRO_WORKDESK
 project_name: AIRO WorkDesk
 project: "[[control/airo-workdesk|AIRO WorkDesk]]"
+title: "[[worklog/sessions/2026-08-07/AIRO WorkDesk/01 - AIRO WorkDesk Fast Track v0.2 Canonical Apply.md|AIRO WorkDesk Fast Track v0.2 Canonical Apply]]"
 knowledge: "[[wiki/workdesk/HOME|AIRO WorkDesk Knowledge]]"
 objective: "Build AIRO WorkDesk as the canonical professional knowledge and work-assistance domain inside AIRO Second Brain, optimized for zero-context humans and fresh AI consumers."
 position: "Fast Track v0.2 / M0 Canonical Integration"

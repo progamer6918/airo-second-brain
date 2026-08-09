@@ -1,7 +1,8 @@
 ---
 type: airo-session
 date: 2026-08-08
-project: "AIRO WorkDesk"
+project: "[[control/airo-workdesk|AIRO WorkDesk]]"
+title: "[[worklog/sessions/2026-08-08/AIRO WorkDesk/05 - Repair Worklog Session Persistence Invariant.md|Repair Worklog Session Persistence Invariant]]"
 objective: "Compile the Owner-supplied professional corpus into validated, provenance-preserving WorkDesk knowledge that is transferable to zero-context humans and fresh AI consumers."
 position: "M5_PRE_ACCEPTANCE_WORKLOG_PERSISTENCE_REPAIR"
 status: BERHASIL
