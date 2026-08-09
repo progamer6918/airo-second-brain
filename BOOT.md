@@ -153,6 +153,31 @@ or production resource:
 7. Any violation MUST be recorded as a semantic session error and in the
    relevant project progress/incident record before remote mutation resumes.
 
+
+
+## Mandatory Remote Mutation Result Integrity
+<!-- AIRO_REMOTE_MUTATION_RESULT_INTEGRITY_V1 -->
+
+For every remote mutation attempt:
+
+1. Final receipt claims MUST be derived from measured remote post-state and
+   actual API/CLI response evidence. Approval, intention, requested count, or
+   reaching a mutation branch MUST NOT be reported as proof that a resource
+   was created, changed, or deleted.
+2. A non-2xx or structurally failed remote mutation MUST persist a sanitized
+   response classification before the process returns. When the response can
+   contain sensitive data, store the raw evidence in a mode-600 private file
+   and put only safe hashes/error classes in the normal receipt.
+3. Never hardcode success fields such as `CREATED=YES`,
+   `MUTATED=YES`, `DELETED=YES`, or `APPROVAL_CONSUMED=YES`.
+   Derive them from actual verified state.
+4. If mutation accounting in a receipt contradicts post-state evidence,
+   `CAN_ADVANCE=NO` until the receipt, active-session event, project progress,
+   and current handoff are corrected.
+5. Temporary-resource tests MUST report separately:
+   authorized count, attempted request count, actual created count,
+   tested-resource count, cleanup count, and final remote parity.
+
 ## Operating Protocol Pointers
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)

@@ -349,3 +349,26 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - No second lineage deployment test is authorized or required from this result.
 - NEXT_ACTION: `REVIEW_SINGLE_FRESH_DEPLOYMENT_TEST_RESULT_WITHOUT_CREATING_ANOTHER_DEPLOYMENT`
 
+## [2026-08-09] EAB_G2_5 (M12) - LINEAGE TEST FALSE RECEIPT CORRECTION
+- MARKER: `EAB_M12_LINEAGE_TEST_FALSE_RECEIPT_CORRECTION_20260809`
+- RESULT: `CANONICAL_CORRECTION_REQUIRED_AND_APPLIED`
+- Previous lineage-test API create HTTP: `400`.
+- Actual temporary deployment created: `NO`.
+- Actual temporary deployment creation count: `0`.
+- Actual temporary Execution API invocation: `NO`.
+- Pre/post deployment count: `21 / 21`.
+- Pre/post deployment ID set: `EXACT_PARITY`.
+- Pre/post immutable version set: `EXACT_PARITY`.
+- Canonical production deployment `ZYjuOA @391`: `UNCHANGED`.
+- Previous final-summary claim `TEMP_DEPLOYMENT_CREATED=EXACTLY_ONE`: `FALSE`.
+- Previous final-summary claim `OWNER_APPROVAL=APPROVED_AND_CONSUMED`: `FALSE_AS_MUTATION_ACCOUNTING`.
+- Owner authorization permitted exactly one actual temporary deployment; actual created count used: `0/1`.
+- Remaining actual temporary-deployment creation allowance under the approved bounded test: `1`, but MUST NOT be used until the HTTP-400 request diagnosis is complete.
+- Previous HTTP-400 raw/sanitized Google error body was not persisted: `INSTRUMENTATION_DEFECT`.
+- Previous request-shape reconstruction: `MATCHES_CANONICAL_AND_CLASP_APPSSCRIPT_SHAPE`.
+- CREATE_HTTP_400_FORENSIC_ROOT: `CREATE_HTTP_400_EXACT_CAUSE_UNRECOVERABLE_FROM_PREVIOUS_RECEIPT`.
+- No lineage differential conclusion can be drawn because no fresh deployment existed and no `scripts.run` call was made against one.
+- DO_NOT_REPEAT: never derive created-resource count from approval/intention; use verified remote post-state.
+- DO_NOT_REPEAT: persist sanitized non-2xx mutation response evidence before process return.
+- NEXT_ACTION: `RETRY_SAME_APPROVED_ONE_ACTUAL_DEPLOYMENT_TEST_WITH_CLASP_EQUIVALENT_APPSSCRIPT_PAYLOAD_AND_FULL_NON2XX_ERROR_CAPTURE`
+
