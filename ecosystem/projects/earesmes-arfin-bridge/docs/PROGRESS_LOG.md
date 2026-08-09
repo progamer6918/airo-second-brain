@@ -214,3 +214,17 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - 00_PROJECT_BOOT implementation state was reconciled against the already-recorded Owner-authorized implementation history.
 - Existing implementation and canary artifacts are retained.
 - Direct Arfin production was not touched by this reconciliation.
+
+## [2026-08-09] EAB_G2_5 (M12) - POST-RECEIVER CANONICAL RECONCILIATION
+- MARKER: `EAB_M12_POST_RECEIVER_CANONICAL_RECONCILIATION_20260809`
+- Canonical M12 status remains `READY`.
+- Commit `d880b116307ab80a7c692c76158eabd8e1198ff5` added the real read-only Arfin pending receiver source.
+- Commit `7d77c56a8af44195495371d4fa179450dd22c79c` added Telegram dual-principal binding.
+- These source commits do not by themselves prove production deployment or a real Arfin runtime path.
+- Previous fake-transport canary remains PRE-CANARY REHEARSAL evidence only.
+- Fresh Live Canary exit criterion remains unsatisfied.
+- M13 remains `NOT_STARTED`.
+- M14 remains `NOT_STARTED`.
+- Direct Arfin fallback remains required.
+- Next action is production/runtime readiness verification of the existing bounded connection before true Fresh Live Canary.
+- No source-code, deployment, workbook, token, webhook, or production mutation is performed by this reconciliation.
