@@ -251,3 +251,19 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - NEXT_ACTION: `REAUTHORIZE_EXISTING_AIROEXEC_PROFILE_WITH_EXISTING_USER_PROVIDED_OAUTH_CLIENT`
 - Retained secret values, OAuth tokens, OAuth client secrets, Telegram owner IDs, and raw credential files MUST NOT be committed to ASB.
 
+## [2026-08-09] EAB_G2_5 (M12) - EXECUTION API ROUTE IDENTIFIER DIAGNOSIS
+- MARKER: `EAB_M12_EXECUTION_ROUTE_IDENTIFIER_DIAG_20260809`
+- RESULT: `DIAGNOSED`
+- Previous `AIROEXEC_REFRESH_TOKEN_INVALID_GRANT`: `RESOLVED_AT_RUNTIME`.
+- `airoexec` reauthorization: `PASS`.
+- New `airoexec` refresh exchange: `HTTP_200`.
+- Direct project Script-ID `scripts.run` probe: `HTTP_403`; that probe MUST NOT by itself be used to diagnose Cloud-project mismatch.
+- Current Apps Script API discovery contract for projects with multiple executable APIs requires the `scripts.run` path identifier to use an API Executable Deployment ID.
+- `clasp 3.3.0` `run-function` uses the project `.clasp.json` Script ID directly and MUST NOT be treated as the authoritative execution route for this EAB project.
+- HEAD API Executable Deployment-ID probe HTTP: `403`.
+- ROOT_CAUSE: `AIROEXEC_OAUTH_CLIENT_CLOUD_PROJECT_MISMATCH_WITH_APPS_SCRIPT_STANDARD_PROJECT`
+- ACTIVE_BLOCKER: `AIROEXEC_OAUTH_CLIENT_CLOUD_PROJECT_MISMATCH`
+- NEXT_ACTION: `CREATE_OR_USE_DESKTOP_OAUTH_CLIENT_IN_EXISTING_APPS_SCRIPT_STANDARD_GCP_PROJECT_AND_REAUTHORIZE_AIROEXEC`
+- No Script Property, Apps Script source, Worker, production, workbook, webhook, or live-canary mutation occurred.
+- API Executable Deployment ID value, OAuth tokens, OAuth client secret, Telegram owner ID, and retained EAB secrets MUST NOT be committed.
+
