@@ -308,3 +308,19 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - External runtime mutation remains forbidden except the bounded named-profile OAuth remediation required to resolve this blocker.
 - NEXT_ACTION: `REAUTHORIZE_AIROEXEC_WITH_EXACT_PROJECT_OAUTH_SCOPES`
 
+## [2026-08-09] EAB_G2_5 (M12) - EXECUTION SCOPE CAUSALITY CORRECTION
+- MARKER: `EAB_M12_SCOPE_CAUSALITY_CORRECTION_20260809`
+- RESULT: `CORRECTION_RECORDED`
+- Previous runtime-scope deficit was real: `YES`.
+- Exact 7/7 Owner-visible Project OAuth Scopes were subsequently granted and independently verified: `PASS`.
+- Same authorized principal retained: `PASS`.
+- Fresh OAuth refresh after exact-scope remediation: `HTTP_200`.
+- `scripts.run` after exact-scope remediation HTTP: `403`.
+- Therefore the prior claim that the missing runtime scopes were the sufficient/primary cause of the 403 is `FALSIFIED`.
+- Scope deficit status: `RESOLVED_BUT_NOT_SUFFICIENT_TO_REMOVE_403`.
+- Current execution classification: `CALLER_CLOUD_PROJECT_MISMATCH_SIGNAL_PERSISTS_AFTER_EXACT_SCOPE_MATCH`.
+- CURRENT_ACTIVE_BLOCKER: `EXECUTION_API_DEPLOYMENT_CLOUD_PROJECT_LINEAGE_UNRESOLVED`.
+- No Script Property, Apps Script source, Worker, production, workbook, webhook, or live-canary mutation occurred during this correction.
+- Do not repeat OAuth scope reauthorization merely to address the same 403 unless new evidence shows scope regression.
+- NEXT_ACTION: `OWNER_APPROVAL_ONE_FRESH_API_EXECUTABLE_DEPLOYMENT_LINEAGE_TEST`
+
