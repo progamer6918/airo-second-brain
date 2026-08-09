@@ -463,6 +463,7 @@ def cmd_close(args, repo_root):
     blockers_summary = ", ".join(blockers) if blockers else "Tidak ada"
 
     closeout_data = None
+    cj = {}
     if getattr(args, 'closeout_json', None):
         try:
             cj = json.loads(args.closeout_json)
@@ -531,6 +532,54 @@ def cmd_close(args, repo_root):
         actual_ev_str = ", ".join(act_ev) if act_ev else "Tidak ada bukti terlampir"
         sec_evidence_refs = "- Task Verdict: " + verdict_status + "\n- Can Advance: " + can_advance
 
+
+    def _render_human(value, fallback):
+        if value is None:
+            return fallback
+        if isinstance(value, list):
+            items = [str(x).strip() for x in value if str(x).strip()]
+            return "\n".join("- " + x for x in items) if items else fallback
+        text = str(value).strip()
+        return text if text else fallback
+
+    human_background = _render_human(
+        cj.get("background"),
+        "Latar belakang tambahan belum dicatat."
+    )
+
+    human_owner_requests = _render_human(
+        cj.get("owner_requests"),
+        "Tidak ada raw permintaan Owner yang disimpan untuk sesi ini."
+    )
+
+    human_goal = _render_human(
+        cj.get("goal"),
+        active["objective"]
+    )
+
+    human_outcomes = _render_human(
+        cj.get("outcomes"),
+        "Tidak ada ringkasan hasil tambahan."
+    )
+
+    human_current_state = _render_human(
+        cj.get("current_state"),
+        "Sesi selesai dengan status " + verdict_status
+        + " dan boleh lanjut: "
+        + ("YA" if can_advance == "YES" else "TIDAK")
+        + "."
+    )
+
+    human_next_action = _render_human(
+        cj.get("next_action"),
+        "Tidak ada langkah berikutnya yang dicatat."
+    )
+
+    human_technical_details = _render_human(
+        cj.get("technical_details"),
+        "Tidak ada detail teknis tambahan di luar catatan di bawah."
+    )
+
     rel_session_path = os.path.relpath(
         session_file_path,
         repo_root,
@@ -555,7 +604,35 @@ def cmd_close(args, repo_root):
         "",
         "# " + active['title'],
         "",
-        "## 🧭 AIRO STATUS",
+        "## 🧩 Latar Belakang",
+        "",
+        human_background,
+        "",
+        "## 💬 Permintaan Owner",
+        "",
+        human_owner_requests,
+        "",
+        "## 🎯 Tujuan",
+        "",
+        human_goal,
+        "",
+        "## ✅ Hasil",
+        "",
+        human_outcomes,
+        "",
+        "## 📍 Kondisi Sekarang",
+        "",
+        human_current_state,
+        "",
+        "## ➡️ Berikutnya",
+        "",
+        human_next_action,
+        "",
+        "## 🔧 Detail Teknis",
+        "",
+        human_technical_details,
+        "",
+        "### 🧭 Status Teknis",
         "",
         "📍 Project — [[" + _resolve_project_link(active['project_id'], active['project_name'], repo_root) + "|" + active['project_name'] + "]]",
         "📌 Lagi di — " + str(active.get('position', 'M3')),
@@ -571,31 +648,31 @@ def cmd_close(args, repo_root):
         "➡️ Berikutnya — " + sec_next_action,
         "🏁 Selesai kalau — " + sec_completion_criteria,
         "",
-        "## 🎯 Tujuan sesi",
+        "### 🎯 Tujuan teknis",
         active['objective'],
         "",
-        "## 🛠 Yang dilakukan",
+        "### 🛠 Yang dilakukan",
         sec_actions,
         "",
-        "## 📌 Hasil",
+        "### 📌 Hasil teknis",
         sec_outcomes,
         "",
-        "## 🧪 Bukti",
+        "### 🧪 Bukti teknis",
         sec_evidence_refs,
         "",
-        "## ⛔ Masalah / hambatan",
+        "### ⛔ Masalah / hambatan",
         blockers_summary,
         "",
-        "## ✅ Keputusan",
+        "### ✅ Keputusan",
         sec_decisions,
         "",
-        "## 📁 Yang berubah",
+        "### 📁 Yang berubah",
         sec_changed_paths,
         "",
-        "## 📝 Yang belum selesai",
+        "### 📝 Yang belum selesai",
         sec_unfinished,
         "",
-        "## ➡️ Berikutnya",
+        "### ➡️ Berikutnya teknis",
         sec_next_action
     ]
     note_content = "\n".join(lines) + "\n"
