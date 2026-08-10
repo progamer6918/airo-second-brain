@@ -1,64 +1,50 @@
+---
+aliases:
+  - AIRO Home
+  - Beranda AIRO
+  - HOME
+---
+
 # 🏠 AIRO
 
-Pusat navigasi manusia untuk AIRO Second Brain.
-
-> [!NOTE]
-> HOME membantu melihat dan membuka informasi.
-> Status resmi project tetap berasal dari roadmap/tracker/project evidence.
+External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dilanjutkan tanpa mulai dari nol.
 
 ---
 
-## 📅 Hari Ini
+## Mau ngapain?
 
-![[worklog/views/AIRO Worklog.base#Hari Ini]]
+### 💼 Kerja
+[[wiki/workdesk/HOME|AIRO WorkDesk]] — Brainstorming, analisa, dealer, pasar, sales, stock, problem solving, data, dan pembuat output kerja.
+➡️ **[[wiki/workdesk/HOME|Masuk WorkDesk]]**
 
----
-
-## 🕘 Sesi Terbaru
-
-![[worklog/views/AIRO Worklog.base#Sesi Terbaru]]
-
----
-
-## 📚 Riwayat Sesi
-
-![[worklog/views/AIRO Worklog.base#Riwayat Sesi]]
+### 💰 Keuangan
+[[ARFIN|AIRO Finance]] — Pengelolaan keuangan, pelaporan, dan kepatuhan finansial AIRO.
+➡️ **[[ARFIN|Masuk Keuangan]]**
 
 ---
 
-## 🧭 Control
+## ▶️ Lanjut Kerja
 
-- [Posisi Proyek](ROADMAP_INDEX.md) — Ringkasan status dan peta jalan seluruh proyek AIRO.
-- [Konteks Terkini](CURRENT.md) — Catatan konteks aktif dan routing target terbaru.
-- [Indeks Proyek](control/_index.md) — Daftar dan pointer seluruh proyek AIRO.
-- [AIRO WorkDesk](wiki/workdesk/HOME.md) — Pusat kerja profesional: analisis bisnis, playbook, dan output kerja nyata.
-
----
-
-## ✅ Keputusan
-
-- [Log Keputusan](decisions/decision-log.md) — Catatan keputusan resmi yang telah disetujui Owner.
+- **AIRO WorkDesk**: Baseline v1 & memori bisnis terdistilasi aktif.
+- **Posisi**: WorkDesk v1 Baseline Active — Fresh-AI Context & Business Memory Enabled.
+- **Berikutnya**: Lanjutkan analisis operasional atau eksekusi kerjaan lewat WorkDesk.
+➡️ **[[wiki/workdesk/HOME|Lanjut WorkDesk]]**
 
 ---
 
-## 🧠 Pengetahuan
+## 🔎 Cari & Jelajah
 
-- [Peta Pengetahuan](docs/integrations/obsidian-wiki.md) — Indeks basis pengetahuan dan pembelajaran LLM Wiki.
-
----
-
-## 📚 Referensi Kerja
-
-- [Buku Petunjuk Worklog](worklog/README.md) — Panduan struktur riwayat kerja dan siklus sesi.
-- [Ringkasan Harian](worklog/daily/) — Panduan navigasi harian per tanggal.
+- 🗂 **[[wiki/workdesk/AREAS_AND_PROJECTS|Semua Area & Project]]** — Lihat seluruh peta area kerja dan hirarki sistem AIRO.
+- 📜 **[[worklog/views/AIRO Worklog.base|Riwayat Kerja]]** — Catatan aktivitas dan histori kerja lengkap.
 
 ---
 
 <details>
-<summary>⚙️ Teknis (Khusus Pengembang / Agent)</summary>
+<summary>⚙️ Sistem & Audit (Advanced)</summary>
 
-- [BOOT.md](BOOT.md) — Titik masuk utama AI/Agent.
-- [PRD_INDEX.md](PRD_INDEX.md) — Indeks Spesifikasi Kebutuhan Produk.
-- [System Health](state/system-health.md) — Ringkasan kesehatan sistem ekosistem.
+- Status Sistem: [[wiki/workdesk/CURRENT|WorkDesk Current Status]]
+- Kebijakan Memori Bisnis: [[wiki/workdesk/BUSINESS_MEMORY_VISIBILITY|Business Memory Visibility Policy]]
+- Kontrak Respon: [[wiki/workdesk/RESPONSE_PLANE_CONTRACT|Response Plane Contract]]
+- Kontrol Project: [[control/airo-workdesk|AIRO WorkDesk Control]] | [[control/d-ready|D-READY Control]]
 
 </details>

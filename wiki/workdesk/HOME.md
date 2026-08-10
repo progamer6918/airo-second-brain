@@ -1,77 +1,51 @@
 ---
-type: workdesk-home
-project: AIRO_WORKDESK
-workdesk_status: ACTIVE
-audience: human
+aliases:
+  - AIRO WorkDesk
+  - WorkDesk
+  - Otak Kerja
 ---
 
-# 🏢 AIRO WorkDesk
+🏠 [[HOME|AIRO Home]] → 💼 WorkDesk
 
-> **Kerjaan apa yang mau lo beresin?**
->
-> Lo tidak perlu tahu folder, framework, atau singkatan. Mulai dari kebutuhan atau gejala.
+# 💼 AIRO WorkDesk
 
-## ⚡ Mulai cepat
+Otak kerja profesional untuk berpikir, menganalisis, menyelesaikan masalah, dan membuat output kerja.
 
-| Gue mau... | Masuk lewat |
-|---|---|
-| 🔎 **Cari tahu sesuatu** — istilah, aturan, sistem, konsep | [[KNOWLEDGE_MAP|Peta Pengetahuan]] |
-| 📊 **Selesaikan masalah** — sales, MS, dealer, people, activity | [[TASK_ROUTER|Bantu arahkan masalah gue]] |
-| 🛠 **Bikin sesuatu** — PICA, dealer review, PPT, report, data | [[DELIVERABLE_INDEX|Pilih output kerja]] |
-| ▶️ **Lanjut kerjaan** | [[CURRENT|Posisi WorkDesk saat ini]] |
-| 🎓 **Belajar dari nol** | [[START_HERE|Mulai dari Sini]] |
+---
 
-> [!TIP]
-> Cuma tahu gejalanya? Contoh: *"activity banyak tapi sales nggak naik"*. Pilih **Selesaikan masalah**. WorkDesk yang menerjemahkan gejala ke funnel, people, activity, market dan execution checks.
+## Kerjaan apa yang mau lo beresin?
 
-## 🧭 Jalan pintas masalah umum
+- 🔎 **[[wiki/workdesk/KNOWLEDGE_MAP_V1|Cari Tahu Sesuatu]]** — Cari istilah, konsep, rumus metrik, atau aturan keputusan.
+- 🧯 **[[wiki/workdesk/TASK_ROUTER|Selesaikan Masalah]]** — Panduan langkah demi langkah untuk masalah retail turun, MS drop, PICA, atau dealer stock.
+- 👀 **[[wiki/workdesk/review/SALES_AND_STOCK|Review Performa]]** — Monitoring Sales, Stock, Pricing, FID-BA, dan analisis dealer.
+- ✍️ **[[wiki/workdesk/DELIVERABLE_INDEX|Bikin Output / Deliverable]]** — Template PICA, Dealer Review PPT, dan format laporan resmi.
+- 🧠 **[[wiki/workdesk/START_HERE|Belajar dari Nol]]** — Pengenalan struktur dan cara kerja AIRO WorkDesk.
+- 🆘 **[[wiki/workdesk/TASK_ROUTER|Gue Bingung]]** — Pembantu navigasi otomatis berdasarkan gejala masalah.
 
-- [[playbooks/MARKET_SHARE_DOWN|Market share turun]]
-- [[playbooks/HIGH_ACTIVITY_LOW_RESULT|Activity banyak, hasil kecil]]
-- [[playbooks/DEALER_REVIEW|Mau review dealer]]
-- [[playbooks/AT_HIGH_UNDERPERFORMANCE|AT High underperform]]
-- [[playbooks/NOS_DIAGNOSIS|Mau cek gap NOS]]
+---
 
-## 🛠 Jalan pintas bikin output
+## ▶️ Lanjut Kerjaan Terakhir
 
-- [[deliverables/DEALER_REVIEW|Laporan Review Dealer]]
-- [[deliverables/PICA|Formulir PICA]]
-- [[deliverables/BUSINESS_CASE|Dokumen Business Case]]
-- [[deliverables/MANAGEMENT_REVIEW|Presentasi Eksekutif AHM / MD]]
-- [[deliverables/DATA_VALIDATION|Checklist Validasi Data]]
+- **Status Terkini**: Baseline v1 aktif dengan memori bisnis terdistilasi disetujui Owner.
+- **Project Aktif**: [[control/airo-workdesk|AIRO WorkDesk]]
+➡️ **[[wiki/workdesk/CURRENT|Lihat Status Detail]]**
 
-## 🍼 Baru pertama kali?
+---
 
-- [[START_HERE|Kenalin dunia kerja ini dari nol]]
-- [[WORK_WORLD_MAP|Lihat peta dunia kerja]]
-- [[role/AREA_SALES_SUPERVISOR|Area Sales Supervisor sebenarnya ngapain?]]
-- [[READING_MODES|Cara baca WorkDesk tanpa nyasar]]
+## 🛠 Project di dalam WorkDesk
 
-## 📚 Jelajah cepat
+### 1. [[control/d-ready|D-READY]]
+*Bagian dari AIRO WorkDesk — Dealer Review & Operational Readiness Automation.*
+➡️ **[[control/d-ready|Masuk D-READY]]**
 
-- [[business/HONDA_MAIN_DEALER_ECOSYSTEM|Honda/Main Dealer ecosystem]]
-- [[business/MARKET_INTELLIGENCE|Market & insight]]
-- [[business/DEALER_REVIEW|Dealer & performance]]
-- [[network/NOS_2026_CORE|NOS & network]]
-- [[frameworks/PROBLEM_SOLVING_SYSTEM|Problem solving]]
-- [[leadership/SUPERVISORY_LEADERSHIP|Leadership & execution]]
-- [[analytics/DATA_ANALYTICS_POWER_BI|Data & Power BI]]
-- [[presentation/AHM_REVIEW_AND_PRESENTATION|Presentation & review]]
+---
 
-## 🌿 Child Projects & Intake
+<details>
+<summary>⚙️ Advanced & Evidence Audit</summary>
 
-- [[INTAKE|Aturan Intake & Sustainable Input Contract]]
-- `projects/d-ready.md` — [[../../projects/d-ready|D-READY]] (`ACTIVE` / `PILOT_LOGIC_VALIDATION`)
-- `projects/report-automation-vba.md` — [[../../projects/report-automation-vba|Report Automation VBA]] (`FROZEN_BY_OWNER`)
+- Registri Sumber Material: [[wiki/workdesk/source-reference/SOURCE_MAP_BATCH01|Source Map Batch 01]]
+- Ledger Sumber Rekonstruksi: [[evidence/workdesk/SEMANTIC_RECONSTRUCTION_SOURCE_LEDGER.tsv|Source Ledger]]
+- Kebijakan Memori Bisnis: [[wiki/workdesk/BUSINESS_MEMORY_VISIBILITY|Business Memory Visibility Policy]]
+- Kontrak Memori Privat: [[wiki/workdesk/PRIVATE_SIDECAR_CONTRACT|Private Sidecar Contract]]
 
-## 🧠 Health & audit
-
-- [[KNOWLEDGE_HEALTH|Knowledge Health]]
-- [[SOURCE_AUTHORITY|Source Authority]]
-- `evidence/workdesk/CLAIM_LEDGER.tsv`
-- `evidence/workdesk/CONFLICT_REGISTER.tsv`
-- `evidence/workdesk/COVERAGE_MATRIX.tsv`
-
-> [!IMPORTANT]
-> Home adalah human cockpit. Current truth tetap ditentukan oleh project docs + evidence + authority rules, bukan tampilan Home.
-
+</details>

@@ -1,32 +1,30 @@
 ---
-project_id: D_READY
-project_name: D-READY
-parent_project_id: AIRO_WORKDESK
-parent_project_name: AIRO WorkDesk
-status: ACTIVE
-stage: PILOT_LOGIC_VALIDATION
-target_platform: Power BI
-current_prototype: Excel Logic Report Prototype
-canonical_repo: AIRO Second Brain
+aliases:
+  - D-READY
+  - D Ready
 ---
 
-# D-READY (AIRO WorkDesk Child Project)
+🏠 [[HOME|AIRO Home]] → 💼 [[wiki/workdesk/HOME|WorkDesk]] → 🛠 D-READY
 
-D-READY adalah child project di bawah **AIRO WorkDesk** yang berfokus pada otomatisasi dan validasi logika laporan kesiapan dealer (dealer readiness reporting).
+# 🛠 D-READY (Dealer Review & Operational Readiness)
 
-## Status & State
+**Parent System**: Bagian dari [[wiki/workdesk/HOME|AIRO WorkDesk]]
+**Status**: Aktif (`ACTIVE`)
 
-- **Parent Project**: [AIRO WorkDesk](airo-workdesk.md)
-- **Status**: `ACTIVE`
-- **Stage**: `PILOT_LOGIC_VALIDATION`
-- **Target Platform**: Power BI (pengembangan visualisasi & dashboard)
-- **Current Baseline**: Excel logic report prototype
+---
 
-## Deskripsi
+## 🧭 Apa itu D-READY?
 
-D-READY menerjemahkan aturan bisnis kesiapan dealer, audit kepatuhan, dan indikator performa jaringan ke dalam model data terstruktur dan visualisasi Power BI.
+D-READY adalah modul otomatisasi di dalam AIRO WorkDesk yang digunakan untuk mengevaluasi kesiapan operasional dealer, menganalisis performa jaringan cabang, dan menyusun laporan Dealer Review secara otomatis.
 
-## Navigasi
+---
 
-- [AIRO WorkDesk Home](../wiki/workdesk/HOME.md) — Pusat Pengetahuan WorkDesk
-- [Spesialisasi Intake WorkDesk](../wiki/workdesk/INTAKE.md) — Aturan masukan material D-READY
+## ⚡ Akses Cepat
+
+- 📊 **[[wiki/workdesk/review/SALES_AND_STOCK|Sales & Stock Monitoring]]** — Data monitoring harian sales & stok dealer.
+- 📝 **[[wiki/workdesk/deliverables/PICA|PICA & Action Plan]]** — Form PICA dan rencana tindakan korektif dealer.
+- 🗂 **[[wiki/workdesk/business-memory/source_registry/PRIVATE_SOURCE_REGISTRY.tsv|Registri Template D-READY]]** — Metadata template V8 Lightweight Fixed.
+
+---
+
+⬅️ [[wiki/workdesk/HOME|Kembali ke WorkDesk Home]] | 🏠 [[HOME|Kembali ke AIRO Home]]
