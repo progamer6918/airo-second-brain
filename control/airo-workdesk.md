@@ -1,26 +1,31 @@
 ---
 project_id: AIRO_WORKDESK
-project_name: AIRO WorkDesk
-status: FAST_TRACK_V0_2_LOCAL_CANDIDATE
-visibility: PUBLIC_DISTILLED_KNOWLEDGE
-current_milestone: M5
-canonical_repo: AIRO Second Brain
+project_name: "AIRO WorkDesk"
+project_path: control/airo-workdesk.md
+status: ACTIVE
+baseline: WORKDESK_V1_ACTIVE
 ---
 
-# AIRO WorkDesk
+# AIRO WorkDesk Project Control
 
-AIRO WorkDesk is the professional-work domain inside AIRO Second Brain (ASB).
+## 🧭 Executive Summary
 
-Its job is not to store filenames. Its job is to transfer usable professional understanding across humans and AI consumers with evidence, provenance, source authority and progressive UX.
+AIRO WorkDesk is the Owner's externalized professional brain and decision-support system. WorkDesk v1 candidate and sanitized business memory are active and canonical.
 
-## 🧠 Knowledge Home
+## 📌 Current Operating Status
 
-[WorkDesk Knowledge](../wiki/workdesk/HOME.md) — Pusat pengetahuan profesional: analisis bisnis, playbook, deliverable.
-[Spesialisasi Intake WorkDesk](../wiki/workdesk/INTAKE.md) — Kontrak pemrosesan masukan berkelanjutan & aturan intake.
+- **Baseline**: `WORKDESK_V1_ACTIVE`
+- **Public Candidate**: `CANONICALIZED` (`wiki/workdesk/`)
+- **Business Memory**: `BUSINESS_MEMORY_CANONICAL=YES` (`wiki/workdesk/business-memory/`), `BUSINESS_MEMORY_FRESH_AI_USE=YES`
+- **Response Plane**: `RESPONSE_PLANE_CONTRACT=ACTIVE`
+- **Currentness Model**: `CURRENTNESS_MODEL=ACTIVE`
+- **Input Mode**: `BASE_SOURCE_COLLECTION=CLOSED_FOR_BASELINE`; `FUTURE_INPUT_MODE=CASE_DRIVEN_DELTA`
+- **Semantic Reconstruction**: `IN_PROGRESS` (`FULL_SEMANTIC_DIGESTION=NO`; `M5=PARKED`)
+- **Human Transferability**: `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (`ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`)
 
-## 🌿 Child Projects
+## 🔑 Fresh-AI Context Rules
 
-| Child Project | Project ID | Status | Stage / Note |
-|---|---|---|---|
-| [D-READY](d-ready.md) | `D_READY` | `ACTIVE` | `PILOT_LOGIC_VALIDATION` (Power BI Target) |
-| [Report Automation VBA](report-automation-vba.md) | `REPORT_AUTOMATION_VBA` | `FROZEN_BY_OWNER` | `EXECUTION_ALLOWED=NO` (Ditolak mutasi/eksekusi) |
+1. **Human-Facing Professional Mode**: Produce clear, professional Bahasa Indonesia responses for Owner-facing interaction.
+2. **Business Memory Usage**: Use `wiki/workdesk/business-memory/` digests and registries for operational reasoning and analysis.
+3. **Exclusion Boundaries**: Raw customer PII, secret keys/passwords, and raw operational binaries (.xlsx, .pdf, .pptx) are strictly excluded from public ASB commits.
+4. **Honest Status**: Never claim full corpus semantic digestion is complete while reconstruction is ongoing.

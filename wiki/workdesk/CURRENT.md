@@ -1,49 +1,42 @@
 ---
 type: workdesk-current
-date: 2026-08-08
+date: 2026-08-10
 project: AIRO_WORKDESK
-status: SEMANTIC_RECONSTRUCTION_ACTIVE
-current_phase: "Stage 1 — Source-Unit Semantic Mapping READY"
-m5: PARKED_PENDING_SEMANTIC_RECONSTRUCTION
+status: WORKDESK_V1_ACTIVE
+current_phase: "WorkDesk v1 Baseline Active — Fresh-AI Context & Business Memory Enabled"
+m5: PARKED_PENDING_SEMANTIC_RECONSTRUCTION_AND_OWNER_ACCEPTANCE
 ---
-# AIRO WorkDesk — Current
 
-Status: `M4_TRANSFERABILITY_VERIFICATION_COMPLETE`
+# AIRO WorkDesk Current Status & Baseline Cutover
 
-Current milestone: **M4 — Human and AI Transferability Verification Complete (M5 pending)**
+**Status**: `WORKDESK_V1_ACTIVE`
+**Date**: 2026-08-10
+**Project**: `AIRO_WORKDESK`
 
-## Verified final corpus state
+---
 
-- `SOURCE_FILES_ACCOUNTED=106/106`
-- `LOGICAL_SOURCES_REVIEWED=103/103`
-- `ATOMIC_CLAIMS_LEDGER=165`
-- `CORE_KNOWLEDGE_MODULES=28`
-- `PLAYBOOKS_ACTIVE=7`
-- `DELIVERABLE_BLUEPRINTS=8`
-- `FRESH_AI_TRANSFER_TEST=17/17 PASS (100%)`
-- `HUMAN_UX_READINESS=PASS`
-- `HUMAN_TEST_SCRIPT=PASS (tests/workdesk/HUMAN_TEST_SCRIPT.md)`
-- `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
-- `KNOWN_ASB_DEFECT_ACTIVE_SESSION_HOME=OPEN`
+## 🧭 Active Baseline & Capabilities
 
-## M5 Status
+- **WorkDesk Baseline**: `V1_ACTIVE` (Canonical public documentation and sanitized business memory imported).
+- **Public WorkDesk Candidate**: `CANONICALIZED` (Active at `wiki/workdesk/`).
+- **Business Memory Access**: `BUSINESS_MEMORY_CANONICAL=YES`, `BUSINESS_MEMORY_FRESH_AI_USE=YES` (Sanitized business memory digests in `wiki/workdesk/business-memory/` are fully authorized for fresh-AI reasoning and operational analysis).
+- **Response Plane & Currentness**: `RESPONSE_PLANE_CONTRACT=ACTIVE`, `CURRENTNESS_MODEL=ACTIVE`.
+- **Source Collection Mode**: `BASE_SOURCE_COLLECTION=CLOSED_FOR_BASELINE` (Future input mode is `CASE_DRIVEN_DELTA` ingestion).
 
-M5 live zero-context human usability test has NOT yet been executed by an actual human.
-The fabricated AI-proxy HUMAN_USABILITY_TEST_RECEIPT.tsv created by AI has been deleted.
-No human acceptance has been claimed. Awaiting actual human testing by Owner.
+---
 
-## Canonical status
+## 📊 Semantic Reconstruction Status
 
-- `FULL_SEMANTIC_DIGESTION=NOT_PROVEN_UNDER_OWNER_DEPTH_STANDARD`
-- `CROSS_SOURCE_COMPILATION=NOT_PROVEN_UNDER_OWNER_DEPTH_STANDARD`
-- `PLAYBOOKS_AND_WORK_DELIVERABLES=YES`
-- `FRESH_AI_TRANSFER_TEST=PASS`
-- `HUMAN_UX_READINESS=PASS`
-- `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
-- `FULLY_DIGESTED_AND_TRANSFERABLE=NO
+- **Batch 01 Reconstructed Knowledge**: `AVAILABLE` (PDCA, Sales & Stock Monitoring, Pricing FID-BA, and PICA dossiers available in `wiki/workdesk/source-dossiers/` and `reference/`).
+- **Full Baseline Semantic Reconstruction**: `IN_PROGRESS` (Full practically-lossless semantic reconstruction across all 87 original sources is ongoing).
+- **Full Semantic Digestion**: `FULL_SEMANTIC_DIGESTION=NO` (Not claimed complete for entire corpus).
+- **Full Cross-Source Compilation**: `FULL_CROSS_SOURCE_COMPILATION=NO`.
+- **Fresh-AI Applied Validation**: `PROVISIONAL`.
+- **Zero-Context Human Acceptance**: `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET` (`FULLY_DIGESTED_AND_TRANSFERABLE=NO`).
+- **Milestone 5**: `M5=PARKED_PENDING_SEMANTIC_RECONSTRUCTION_AND_OWNER_ACCEPTANCE`.
 
-`SEMANTIC_RECONSTRUCTION=ACTIVE`
-`M5=PARKED_PENDING_SEMANTIC_RECONSTRUCTION`
+---
 
-RECONSTRUCTED_ORIGINAL_SOURCES=0/87
-REMAINING_ORIGINAL_SOURCES=87
+## 📜 Historical Baseline Preservation
+
+- **M4 Transferability Verification Baseline**: Historically completed on 2026-08-07 (`FRESH_AI_TRANSFER_TEST=17/17 PASS`, `HUMAN_UX_READINESS=PASS`). Preserved as historical baseline evidence; superseded by new practically-lossless semantic depth standard.
