@@ -1,0 +1,16 @@
+canonical_path_or_class	treatment	rationale
+wiki/workdesk/HOME.md	KEEP_REFINE	Preserve existing human-first cockpit; merge response-plane wording and v1 routes.
+wiki/workdesk/START_HERE.md	KEEP_REFINE	Preserve zero-context learning route; later enrich from reconstructed domains.
+wiki/workdesk/TASK_ROUTER.md	MERGE	Merge candidate symptom-first routing; do not expose backend ceremony.
+wiki/workdesk/KNOWLEDGE_MAP.md	MERGE	Map to 12 compiled domains + three memory planes.
+wiki/workdesk/CURRENT.md	REPLACE_STATUS_ONLY_AFTER_VALIDATION	Current completion flags are stale relative to reconstruction plan; do not rewrite until measured migration state exists.
+wiki/workdesk/business/DEALER_REVIEW.md	REBUILD_BODY	Existing page is thin and still notes pending workbook audit. Preserve good human framing, replace/enrich after source reconstruction.
+wiki/workdesk/business/MARKET_INTELLIGENCE.md	REBUILD_BODY	Preserve useful hypothesis discipline; enrich with actual-data interface and cases.
+wiki/workdesk/playbooks/MARKET_SHARE_DOWN.md	MERGE_REBUILD	Merge Batch01 applied logic; later add Demand/Dealer Review/MSW/case knowledge.
+wiki/workdesk/playbooks/AT_HIGH_UNDERPERFORMANCE.md	REVALIDATE_REBUILD	Keep route but rebuild from full source + actual business memory.
+wiki/workdesk/reference/CURRENTNESS_MODEL.md	CREATE	New version/date/supersession contract.
+wiki/workdesk/RESPONSE_PLANE_CONTRACT.md	CREATE	Separate AIRO control-plane ceremony from business WorkDesk responses.
+wiki/workdesk/PRIVATE_SIDECAR_CONTRACT.md	CREATE	Public-safe boundary for private business memory.
+wiki/workdesk/BASELINE_SCOPE.md	CREATE	Capture owner baseline freeze + case-driven delta policy.
+wiki/workdesk/domains/pricing-financing/COMMERCIAL_PROGRAM_INTELLIGENCE.md	CREATE	Public-safe analytical model; exact MSW values stay private.
+PRIVATE_SIDECAR_CANDIDATE/**	NO_PUBLIC_IMPORT	Private operational memory, commercial values, and potentially PII-bearing source registry.

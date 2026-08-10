@@ -1,0 +1,5 @@
+source_id	source_file	units	semantic_signoff	basis
+WD-SRC-026	2. ASSDP Basic - PDCA.pptx	10	PASS_WITH_EXPLICIT_UNRESOLVED_REGISTER	Definitions + Area Supervisor Plan/Do/Check/Action + integrated example reviewed; no universal thresholds invented.
+WD-SRC-018	10. Sales _ Stock Monitoring per Dealer.pptx	12	PASS_WITH_EXPLICIT_UNRESOLVED_REGISTER	Three-level hierarchy, sales/stock/intransit visuals, M vs M-1 drill-down and 5-step analysis reviewed.
+WD-SRC-019	11. Analisa Pricing _ FID-BA.pptx	16	PASS_WITH_EXPLICIT_UNRESOLVED_REGISTER	Pricing, DP Real, FID/BA definitions/thresholds/trends reviewed; printed rate formula preserved as unresolved.
+WD-SRC-020	12. PICA.pptx	31	PASS_WITH_EXPLICIT_UNRESOLVED_REGISTER	All 31 slides swept; Area↔Product, Retail, M/S, good-vs-bad PICA and corrective-action examples reviewed; historical examples preserved as historical.
