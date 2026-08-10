@@ -1,70 +1,79 @@
 ---
+aliases:
+  - Cari Tahu Sesuatu
+  - Knowledge Map
+  - Peta Pengetahuan WorkDesk
 type: workdesk-map
 project: AIRO_WORKDESK
 workdesk_status: ACTIVE
 audience: human-ai
 ---
 
-# 🧠 WorkDesk Knowledge Map
+🏠 [[HOME|AIRO Home]] → 💼 [[wiki/workdesk/HOME|WorkDesk]] → 🔎 Cari Tahu
 
-## 1 — Dunia kerja & role
+# 🔎 Cari Tahu di WorkDesk
 
-- [[business/HONDA_MAIN_DEALER_ECOSYSTEM]]
-- [[role/AREA_SALES_SUPERVISOR]]
-- [[role/ASSDP_CAPABILITY_LADDER]]
-- [[owner/OWNER_APPLIED_PROJECTS]]
-- [[owner/OWNER_WORKING_MODEL]]
+Lo mau ngerti bagian yang mana? Pilih topik profesional di bawah untuk langsung mempelajari aturan, sistem, dan modul kerjanya.
 
-## 2 — Market, target & commercial
+---
 
-- [[business/MARKET_INTELLIGENCE]]
-- [[business/DEMAND_MANAGEMENT]]
-- [[business/TARGETING_FORECASTING]]
-- [[business/SALES_STOCK_DISTRIBUTION]]
-- [[business/PRICING_DP_FINANCING]]
-- [[business/AT_HIGH]]
+## 1. Dunia Kerja & Peran
+- 🏢 [[business/HONDA_MAIN_DEALER_ECOSYSTEM|Ekosistem Main Dealer Honda]]
+- 👤 [[role/AREA_SALES_SUPERVISOR|Peran Area Sales Supervisor (ASSPV)]]
+- 📈 [[role/ASSDP_CAPABILITY_LADDER|Tangga Kapabilitas ASSDP]]
+- 💼 [[owner/OWNER_APPLIED_PROJECTS|Owner Applied Projects]]
+- ⚙️ [[owner/OWNER_WORKING_MODEL|Model Kerja Operational Owner]]
 
-## 3 — Dealer, territory & people
+## 2. Pasar, Target & Komersial
+- 📊 [[business/MARKET_INTELLIGENCE|Market Intelligence]]
+- 🎯 [[business/DEMAND_MANAGEMENT|Demand Management]]
+- 📉 [[business/TARGETING_FORECASTING|Targeting & Forecasting]]
+- 📦 [[business/SALES_STOCK_DISTRIBUTION|Sales, Stock & Distribution]]
+- 💰 [[business/PRICING_DP_FINANCING|Pricing, DP & Financing]]
+- 🏍 [[business/AT_HIGH|AT High Segment Intelligence]]
 
-- [[business/DEALER_REVIEW]]
-- [[business/CHANNEL_MANAGEMENT]]
-- [[business/TERRITORY_MANAGEMENT]]
-- [[business/SALES_FORCE_PRODUCTIVITY]]
+## 3. Dealer, Wilayah & Tim
+- 🔍 [[business/DEALER_REVIEW|Dealer Review]]
+- 🛣 [[business/CHANNEL_MANAGEMENT|Channel Management]]
+- 🗺 [[business/TERRITORY_MANAGEMENT|Territory Management]]
+- 👥 [[business/SALES_FORCE_PRODUCTIVITY|Sales Force Productivity]]
 
-## 4 — Network & systems
+## 4. Jaringan & Sistem Operasional
+- 🌐 [[network/NOS_2026_CORE|NOS 2026 Core]]
+- 📋 [[network/NOS_APPLICABILITY|NOS Applicability]]
+- 📲 [[network/INS|INS System]]
+- 🖥 [[systems/NMS|NMS System]]
+- 🦸 [[systems/MYHERO|MyHero App]]
 
-- [[network/NOS_2026_CORE]]
-- [[network/NOS_APPLICABILITY]]
-- [[network/INS]]
-- [[systems/NMS]]
-- [[systems/MYHERO]]
+## 5. Pelanggan & CRM
+- 🤝 [[customer/CRM_LEADS|CRM & Leads Management]]
+- Star [[customer/CUSTOMER_EXPERIENCE|Customer Experience]]
 
-## 5 — Customer & CRM
+## 6. Strategi & Pemecahan Masalah
+- 🧯 [[frameworks/PROBLEM_SOLVING_SYSTEM|System Pemecahan Masalah (Problem Solving)]]
+- 🔄 [[strategy/ND_PLAN_RESHAPE|ND Plan & Reshape]]
 
-- [[customer/CRM_LEADS]]
-- [[customer/CUSTOMER_EXPERIENCE]]
+## 7. Kepemimpinan & Eksekusi
+- 👑 [[leadership/SUPERVISORY_LEADERSHIP|Supervisory Leadership]]
+- 🗣 [[leadership/INFLUENCE_COACHING_CHANGE|Coaching & Change Management]]
 
-## 6 — Strategy & improvement
+## 8. Data & Output Kerja
+- 📉 [[analytics/DATA_ANALYTICS_POWER_BI|Data Analytics & Power BI]]
+- 📊 [[presentation/AHM_REVIEW_AND_PRESENTATION|AHM Review & Presentation]]
 
-- [[frameworks/PROBLEM_SOLVING_SYSTEM]]
-- [[strategy/ND_PLAN_RESHAPE]]
+---
 
-## 7 — Leadership & organizational execution
+## 📚 Kamus & Referensi
+- 📖 [[glossary/WORK_TERMINOLOGY|Kamus Istilah Kerja]]
+- 📝 [[notes/PRESENTER_NOTES_POLICY|Kebijakan Catatan Presenter]]
+- 🔐 [[SOURCE_AUTHORITY|Otoritas Sumber Data]]
 
-- [[leadership/SUPERVISORY_LEADERSHIP]]
-- [[leadership/INFLUENCE_COACHING_CHANGE]]
+---
 
-## 8 — Data & output
+<details>
+<summary>⚙️ Advanced / Arsitektur Pengetahuan</summary>
 
-- [[analytics/DATA_ANALYTICS_POWER_BI]]
-- [[presentation/AHM_REVIEW_AND_PRESENTATION]]
+- Layout Tiga Memory Planes: [[wiki/workdesk/KNOWLEDGE_MAP_V1|Knowledge Map Arsitektur v1]]
+- Matriks Cakupan Baseline: [[wiki/workdesk/BASELINE_SCOPE|Baseline Scope]]
 
-## Reference
-
-- [[glossary/WORK_TERMINOLOGY]]
-- [[notes/PRESENTER_NOTES_POLICY]]
-- [[SOURCE_AUTHORITY]]
-
-## Organizing rule
-
-Users navigate by **concept and job-to-be-done**. ASSDP/NOS/ND Plan/BWI/Notion are evidence families, not the main information architecture.
+</details>

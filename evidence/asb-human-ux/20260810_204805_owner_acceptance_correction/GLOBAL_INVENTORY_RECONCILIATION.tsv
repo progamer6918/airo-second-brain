@@ -1,0 +1,7 @@
+project_id	project_name	ontology	parent	path
+AIRO_SECOND_BRAIN	AIRO Second Brain	SYSTEM	NONE	HOME.md
+AIRO_WORKDESK	AIRO WorkDesk	WORK_WORLD	NONE	wiki/workdesk/HOME.md
+D_READY	D-READY	CHILD_PROJECT	AIRO_WORKDESK	control/d-ready.md
+REPORT_AUTOMATION_VBA	Report Automation VBA	CHILD_PROJECT	AIRO_WORKDESK	control/report-automation-vba.md
+AIRO_FINANCE	AIRO Finance	FINANCE_WORLD	NONE	ARFIN.md
+EARESMES_ARFIN_CLARIFICATION_BRIDGE	EAB	BRIDGE	NONE	control/earesmes-arfin-bridge.md

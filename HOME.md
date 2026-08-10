@@ -25,17 +25,21 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 
 ## ▶️ Lanjut Kerja
 
-- **AIRO WorkDesk**: Baseline v1 & memori bisnis terdistilasi aktif.
-- **Posisi**: WorkDesk v1 Baseline Active — Fresh-AI Context & Business Memory Enabled.
-- **Berikutnya**: Lanjutkan analisis operasional atau eksekusi kerjaan lewat WorkDesk.
-➡️ **[[wiki/workdesk/HOME|Lanjut WorkDesk]]**
+Belum ada pekerjaan aktif spesifik yang perlu dilanjutkan otomatis.
+➡️ **[[wiki/workdesk/HOME|Masuk WorkDesk untuk mulai kerja]]**
 
 ---
 
 ## 🔎 Cari & Jelajah
 
-- 🗂 **[[wiki/workdesk/AREAS_AND_PROJECTS|Semua Area & Project]]** — Lihat seluruh peta area kerja dan hirarki sistem AIRO.
-- 📜 **[[worklog/views/AIRO Worklog.base|Riwayat Kerja]]** — Catatan aktivitas dan histori kerja lengkap.
+- 🗂 **[[wiki/AREAS_AND_PROJECTS|Semua Area & Project]]** — Lihat seluruh peta area kerja dan hirarki sistem AIRO.
+- 📜 **[[RIWAYAT_KERJA|Lihat seluruh Riwayat Kerja]]** — Catatan histori kerja lengkap.
+
+---
+
+## 📅 Hari Ini
+
+![[worklog/views/AIRO Worklog.base#Hari Ini]]
 
 ---
 
@@ -44,7 +48,7 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 
 - Status Sistem: [[wiki/workdesk/CURRENT|WorkDesk Current Status]]
 - Kebijakan Memori Bisnis: [[wiki/workdesk/BUSINESS_MEMORY_VISIBILITY|Business Memory Visibility Policy]]
-- Kontrak Respon: [[wiki/workdesk/RESPONSE_PLANE_CONTRACT|Response Plane Contract]]
+- Kontrak Navigasi: [[docs/contracts/ASB_HUMAN_NAVIGATION_CONTRACT|Human Navigation Contract]]
 - Kontrol Project: [[control/airo-workdesk|AIRO WorkDesk Control]] | [[control/d-ready|D-READY Control]]
 
 </details>
