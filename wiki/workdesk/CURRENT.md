@@ -1,42 +1,50 @@
 ---
 type: workdesk-current
-date: 2026-08-10
+date: 2026-08-11
 project: AIRO_WORKDESK
 status: WORKDESK_V1_ACTIVE
-current_phase: "WorkDesk v1 Baseline Active — Fresh-AI Context & Business Memory Enabled"
-m5: PARKED_PENDING_SEMANTIC_RECONSTRUCTION_AND_OWNER_ACCEPTANCE
+current_phase: "Canonical Brain + Business Memory Active; Human Operational Surface Upgrade"
 ---
 
-# AIRO WorkDesk Current Status & Baseline Cutover
+# AIRO WorkDesk — Current Status
 
-**Status**: `WORKDESK_V1_ACTIVE`
-**Date**: 2026-08-10
-**Project**: `AIRO_WORKDESK`
+## Canonical State
 
----
+- WorkDesk baseline: `WORKDESK_V1_ACTIVE`
+- Public WorkDesk candidate: `CANONICALIZED`
+- Business memory: `BUSINESS_MEMORY_CANONICAL=YES`
+- Fresh-AI business-memory use: `YES`
+- Response Plane / currentness model: `ACTIVE`
+- Future input mode: `CASE_DRIVEN_DELTA`
 
-## 🧭 Active Baseline & Capabilities
+## Human Surface
 
-- **WorkDesk Baseline**: `V1_ACTIVE` (Canonical public documentation and sanitized business memory imported).
-- **Public WorkDesk Candidate**: `CANONICALIZED` (Active at `wiki/workdesk/`).
-- **Business Memory Access**: `BUSINESS_MEMORY_CANONICAL=YES`, `BUSINESS_MEMORY_FRESH_AI_USE=YES` (Sanitized business memory digests in `wiki/workdesk/business-memory/` are fully authorized for fresh-AI reasoning and operational analysis).
-- **Response Plane & Currentness**: `RESPONSE_PLANE_CONTRACT=ACTIVE`, `CURRENTNESS_MODEL=ACTIVE`.
-- **Source Collection Mode**: `BASE_SOURCE_COLLECTION=CLOSED_FOR_BASELINE` (Future input mode is `CASE_DRIVEN_DELTA` ingestion).
+WorkDesk Home v2 sedang mengubah front door dari navigation portal menjadi **expert operational cockpit**:
 
----
+**Business Pulse → Signals → verified Commitments → Quick Work → Knowledge Updates → Deep Brain → Work History.**
 
-## 📊 Semantic Reconstruction Status
+Live-session continuation card **tidak difabrikasi**. Sampai deterministic sanitized session-to-Obsidian bridge tersedia, live runtime session state tetap berada di execution layer.
 
-- **Batch 01 Reconstructed Knowledge**: `AVAILABLE` (PDCA, Sales & Stock Monitoring, Pricing FID-BA, and PICA dossiers available in `wiki/workdesk/source-dossiers/` and `reference/`).
-- **Full Baseline Semantic Reconstruction**: `IN_PROGRESS` (Full practically-lossless semantic reconstruction across all 87 original sources is ongoing).
-- **Full Semantic Digestion**: `FULL_SEMANTIC_DIGESTION=NO` (Not claimed complete for entire corpus).
-- **Full Cross-Source Compilation**: `FULL_CROSS_SOURCE_COMPILATION=NO`.
-- **Fresh-AI Applied Validation**: `PROVISIONAL`.
-- **Zero-Context Human Acceptance**: `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET` (`FULLY_DIGESTED_AND_TRANSFERABLE=NO`).
-- **Milestone 5**: `M5=PARKED_PENDING_SEMANTIC_RECONSTRUCTION_AND_OWNER_ACCEPTANCE`.
+## Transferability Boundaries
 
----
+- `FULL_SEMANTIC_DIGESTION=NO`
+- `FULLY_DIGESTED_AND_TRANSFERABLE=NO`
+- `ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`
+- Fresh-AI/practically-lossless transferability tetap merupakan gate terpisah dari canonical persistence.
 
-## 📜 Historical Baseline Preservation
+## Home v2 Acceptance
 
-- **M4 Transferability Verification Baseline**: Historically completed on 2026-08-07 (`FRESH_AI_TRANSFER_TEST=17/17 PASS`, `HUMAN_UX_READINESS=PASS`). Preserved as historical baseline evidence; superseded by new practically-lossless semantic depth standard.
+- `HOME_V2_ACCEPTED=YES`
+- `HOME_V2_CONTENT_QA=PASS`
+- `HOME_V2_SEMANTIC_QA=PASS`
+- `HOME_V2_ROUTING_QA=PASS`
+- `HOME_V2_VISUAL_STRUCTURE=PASS`
+- `HOME_V2_RUNTIME_BLOCKER_RESOLVED=YES`
+- `OWNER_MANUAL_CONTENT_QA_REQUIRED=NO`
+- `CANONICAL_INTEGRATION=PENDING_EAB_SAFE_POINT`
+
+Home v2 sudah accepted sebagai **expert operational cockpit**. Content, semantic routing, currentness, runtime update surface, dan rendered information hierarchy sudah direkonsiliasi.
+
+Live `Lanjut Kerja` tetap tidak difabrikasi sampai deterministic sanitized session-to-vault bridge tersedia.
+
+→ [[control/airo-workdesk|Canonical project control]]
