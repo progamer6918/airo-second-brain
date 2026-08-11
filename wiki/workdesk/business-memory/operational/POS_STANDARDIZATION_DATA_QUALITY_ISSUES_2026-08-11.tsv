@@ -1,0 +1,8 @@
+issue_id	issue_type	scope	finding	decision_state
+DQ-001	REQUIRED_FIELD_MISSING	Kelas POS	Meeting requires POS class (POS/Mini POS/Mega POS); Sinsen All pos snapshot has no class field.	BLOCKS_PROOF_OF_SUBMISSION_READY
+DQ-002	REQUIRED_FIELD_MISSING	Kelurahan	Meeting requires address through kelurahan; Sinsen All pos snapshot ends at kecamatan.	BLOCKS_PROOF_OF_SUBMISSION_READY
+DQ-003	REQUIRED_FIELD_MISSING	Koordinat	Meeting requires coordinates; Sinsen All pos snapshot does not contain coordinate fields.	BLOCKS_PROOF_OF_SUBMISSION_READY
+DQ-004	ROW_LOCATION_INCOMPLETE	All pos row 18	PT. CITRA LENCANA SAKTI - PAMENANG has no Kabupaten/Kecamatan in supplied snapshot; comment says menginduk ke CLS Bangko.	REQUIRES_VALIDATION
+DQ-005	CLASSIFICATION_CONFLICT	All pos rows 7,10,11,13,16	Tipe POS is H1 while source note says 'merupakan H23'. Preserve as source conflict; do not silently recast.	REQUIRES_H1_H2_NETDEV_VALIDATION
+DQ-006	PLAN_AMBIGUITY	plan row 10	Planned POS shown as 'POS Pasar ?'; exact location/name unresolved.	UNRESOLVED
+DQ-007	TARGET_SELECTION_GAP	SSP Integrated TTM target	Meeting sets SSP target input=3 Mega POS, but supplied Sinsen snapshot has no Kelas POS field; exact three cannot be selected defensibly from this file alone.	REQUIRES_CLASS_FIELD_OR_AUTHORITY

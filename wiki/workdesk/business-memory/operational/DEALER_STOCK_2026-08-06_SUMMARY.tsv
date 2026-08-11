@@ -1,0 +1,62 @@
+dealer	total	0-30	31-60	61-90	91-120	121-150	>150	UNKNOWN	source_file	source_table_range	as_of	derivation
+ANUGRAH HONDA MOTOR	92	80	3	4	0	1	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. AGUNG MOTOR	70	55	10	1	1	0	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. BOBBY RACING SHOP	69	54	2	6	4	0	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. CITRA SENTOSA MOTOR - M.ANGIN	101	78	9	4	4	4	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. CITRA SENTOSA MOTOR - SRLG	106	90	9	3	1	2	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. MAKMUR SENTOSA MOTOR	138	109	15	4	3	3	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. MITRA SENTOSA MAS	68	61	5	0	0	0	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. WULAN JAYA MOTOR - RIMBO	178	157	11	4	1	1	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+CV. WULAN JAYA MOTOR - TEBO	107	85	7	4	2	6	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS ASTRA - LIVERPOOL	74	42	10	7	5	6	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS DAYA - BENGKAL	46	34	1	3	2	4	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS DAYA - SUNDERLAND	87	55	15	3	9	1	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - BUNGO	81	47	23	3	4	2	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - MENDALO	75	51	7	7	3	3	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - PAUH	82	64	10	6	2	0	0	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - SEI. GELAM	71	40	13	2	7	3	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - SIJENJANG	77	52	9	6	4	1	5	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS PATRIA - TUNGKAL	61	36	16	5	1	0	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS SSM - NIPAH PANJANG	51	38	8	1	2	1	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS TUNAS JAMBI - BULURAN	81	37	13	10	7	7	7	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS TUNAS MERLUNG - SEI. BADAR	44	34	5	5	0	0	0	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+POS TUNAS SABAK - RANTAU RASAU	51	32	13	3	2	1	0	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. ASTRA INTERNATIONAL TBK-HONDA	164	130	4	6	2	2	20	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. BADORAY MOTOR - LINTAS	103	89	3	3	4	1	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. BADORAY MOTOR - RIMBO	72	48	15	3	0	1	5	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. BULAN MOTOR - MERLUNG	93	81	0	4	3	0	5	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. BULAN MOTOR - SABAK	69	48	10	3	4	1	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. BULAN MOTOR - TUNGKAL	84	60	10	6	2	2	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. CITRA KARYA INTISENTOSA I	35	15	1	7	3	3	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. CITRA KARYA INTISENTOSA II	33	18	5	3	3	0	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. CITRA LENCANA SAKTI - BANGKO	133	112	6	5	3	1	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. CITRA LENCANA SAKTI - PAMENANG	108	80	16	5	3	2	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. CITRA LENCANA SAKTI - SINGKUT	136	118	9	3	0	1	5	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. DAYA ANUGRAH MANDIRI - BAHAR	114	68	13	6	2	5	20	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. DAYA ANUGRAH MANDIRI - JAMBI	119	70	13	12	6	1	17	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. DAYA ANUGRAH MANDIRI - RIMBO	74	54	1	1	1	5	12	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. MEGA WAHANA PESONA - SENGETI	38	30	5	0	2	0	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. MEGA WAHANA PESONA - SIMP. RIMBO	41	32	5	3	0	0	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. NUSANTARA SURYA SAKTI - JAMBI	97	61	1	10	5	3	17	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. NUSANTARA SURYA SAKTI - SRLG	97	69	6	3	4	1	14	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. PATRIA ANUGRAH SENTOSA - JAMBI	105	82	4	7	5	1	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. PATRIA ANUGRAH SENTOSA - SRLG	105	73	21	8	0	0	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. RIAU ARGO PERKASA	94	76	5	3	1	1	8	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SENTOSA SAKTI MOTOR - MAYANG	78	46	9	7	5	5	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SENTOSA SAKTI MOTOR - THEHOK	73	53	7	3	7	3	0	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - ABUNJANI	70	50	11	1	2	0	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - BAHAR	53	48	2	1	0	1	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - BULIAN	44	37	3	3	0	0	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - HANDIL	61	39	4	3	6	3	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - PAAL VI	59	53	4	1	0	0	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - TEBING	70	59	6	0	2	1	2	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SINAR SENTOSA MOTORA - WAHIDIN	13	9	2	1	0	0	1	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SURYA MANDALA - BAKUNG	48	31	8	2	2	0	5	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. SURYA MANDALA - SEBAPO	77	61	5	2	2	3	4	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TEMBESI JAYA SENTOSA	99	74	9	5	1	3	7	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TEMBESI JAYA SENTOSA - RENGAS	115	93	12	3	1	3	3	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TUNAS DWIPA MATRA - BANGKO	180	137	24	4	2	3	10	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TUNAS DWIPA MATRA - BUNGO	215	175	18	5	3	2	12	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TUNAS DWIPA MATRA - JAMBI	117	57	21	13	4	6	16	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TUNAS DWIPA MATRA - MERLUNG	71	52	3	2	2	2	10	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket
+PT. TUNAS DWIPA MATRA - SABAK	72	43	11	4	6	2	6	0	Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls	HTML table / 5,239 data rows	2026-08-06 08:03:42	Grouped by dealer and source aging bucket

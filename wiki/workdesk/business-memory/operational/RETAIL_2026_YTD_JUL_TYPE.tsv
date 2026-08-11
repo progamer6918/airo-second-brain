@@ -1,0 +1,75 @@
+type_code	type_description	ytd	Jan	Feb	Mar	Apr	May	Jun	Jul	source_file	source_sheet	source_range	privacy_transform	data_quality
+ES7	CRF150L	166	41	31	25	15	24	16	14	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ESF	CRF150L	3	1	1	0	1	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ESK	CRF150L	560	174	139	53	39	61	63	31	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ESL	CRF150L	3124	376	459	603	353	416	407	510	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+GB4	REVO FIT	3018	452	408	375	386	424	453	520	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+GD4	REVO X	4655	700	622	602	564	646	681	840	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+GE5	SUPRA X 125 SW	310	33	48	53	48	49	40	39	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+GF5	SUPRA X 125 CW	3060	423	428	495	362	415	420	517	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+HJ9	NEW SUPRA GTR150 SPORTY	161	22	24	24	25	17	21	28	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+HJK	NEW SUPRA GTR150	120	21	22	12	8	15	15	27	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JM2	CBR 150R STD	4	1	0	0	1	0	2	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JML	CBR 150R STD	13	4	1	2	0	1	2	3	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JMM	CBR 150R STD	32	5	9	2	5	3	3	5	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JR0	CB150R STREETFIRE	13	0	2	1	3	0	4	3	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JS0	CB150R STREETFIRE	23	1	6	4	4	2	1	5	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JT2	CRF250LRAS IN M/T	1	1	0	0	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JTB	CRF250LAS IN M/T	1	0	0	0	0	0	1	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JX0	CB150X STD	4	2	0	1	0	1	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+JXA	CB150X SE	1	0	0	0	1	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KC0	CBR 250RR ABS+QS	1	0	0	1	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KCB	CBR 250RR ABS+QS	2	0	0	0	1	0	1	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KE0	CBR 150R ABS	4	0	0	1	0	0	0	3	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KEA	CBR 150R ABS	18	5	1	3	2	2	1	4	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KF0	CB150 VERZA SW	144	33	10	20	20	28	13	20	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+KG0	CB150 VERZA CW	583	69	85	61	97	93	82	96	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LV1	VARIO 160 CBS	925	172	167	218	133	94	100	41	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LVE	VARIO 160 CBS	669	114	121	150	75	85	93	31	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LW1	VARIO 160 ABS	667	121	118	143	90	79	86	30	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LY1	GENIO CBS	4	2	1	1	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LY2	GENIO CBS	216	49	35	34	21	20	23	34	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LZ1	GENIO CBS ISS	8	4	0	2	1	1	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+LZ2	GENIO CBS ISS	522	90	85	91	47	61	71	77	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MB0	ADV160 ABS	2	2	0	0	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MD1	VARIO 125 CBS ISS	23	20	3	0	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ME0	EM1 e:	7	2	1	1	1	0	2	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MF0	Stylo 160 CBS	1630	492	486	445	199	6	2	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MF1	STYLO 160 CBS	1813	0	0	0	383	527	459	444	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MG0	Stylo 160 ABS	1816	571	592	482	161	9	1	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MG1	STYLO 160 ABS	1548	0	0	0	230	411	474	433	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MGA	STYLO 160 ABS SPECIAL	645	0	0	0	64	194	158	229	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MH0	EM1 e: PLUS	2	0	0	0	1	0	1	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MJ1	BEAT SPORTY CBS	8151	1065	1216	1347	1076	1129	1310	1008	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MJ2	BEAT SPORTY CBS	665	0	0	0	0	0	0	665	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MK1	BEAT SPORTY CBS ISS DELUXE	3126	470	502	572	448	425	472	237	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MK2	BEAT SPORTY CBS ISS	181	0	0	0	0	0	0	181	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ML1	BEAT SPORTY DLX SMART KEY	3171	469	527	633	423	433	513	173	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ML2	BEAT SPORTY DLX SMART KEY	476	0	0	0	0	0	0	476	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MM1	BEAT STREET	8785	1484	1526	1592	1039	1202	1328	614	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MM2	BEAT STREET	1172	0	0	0	0	0	0	1172	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MN0	CUV e:	3	0	2	0	0	1	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MP0	CUV e: RoadSync Duo	2	1	0	1	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MR0	SCOOPY ENERGETIC	12	6	2	3	0	1	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MRA	SCOOPY FASHION	12	5	3	4	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MRB	SCOOPY FASHION	4320	573	717	895	562	507	491	575	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MS0	SCOOPY PRESTIGE	13	6	3	2	1	0	0	1	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MS1	SCOOPY PRESTIGE	3773	449	502	695	417	447	579	684	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MSA	SCOOPY STYLISH	24	9	5	3	3	0	3	1	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MSB	SCOOPY STYLISH	3305	676	587	418	404	385	276	559	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MT0	PCX160 CBS	1044	441	472	119	5	4	3	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MT1	PCX160 CBS	2064	0	13	385	399	384	394	489	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MV0	PCX160 ABS	376	130	130	84	13	5	5	9	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MV1	PCX160 ABS	906	0	17	241	174	116	160	198	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MW0	PCX160 RoadSync	279	176	93	10	0	0	0	0	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MW1	PCX160 Honda RoadSync	949	0	75	168	162	189	168	187	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MX0	ICON E:	13	2	1	0	3	5	0	2	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MY0	VARIO EVO 160 CBS Nitro	102	0	0	0	0	0	0	102	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MYA	VARIO EVO 160 CBS	93	0	0	0	0	0	0	93	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+MZ0	VARIO EVO 160 ABS	136	0	0	0	0	0	0	136	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+NA0	ADV160 CBS	264	46	43	48	37	25	31	34	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+NB0	ADV160 ABS	116	17	16	16	16	16	16	19	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+NC0	ADV160 RoadSync	158	30	29	23	22	13	19	22	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+ND0	VARIO 125 CBS	990	112	140	141	151	148	133	165	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+NE0	VARIO 125 CBS ISS	2154	278	351	339	263	282	300	341	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026
+NF0	VARIO 125 STREET	615	97	67	117	63	78	79	114	SSU.2026.xlsx	Monitoring Penjualan Dealer Dai	A1:BD73970	AGGREGATED; customer PII fields excluded from public memory	Current 2026 authority through Jul 2026

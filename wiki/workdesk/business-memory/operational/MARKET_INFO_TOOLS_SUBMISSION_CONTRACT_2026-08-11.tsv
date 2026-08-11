@@ -1,0 +1,16 @@
+field	value	status	provenance_note
+cadence	Every week	CURRENT_SUPPLIED	Transcript + screenshot 13:27
+deadline	No later than Friday of running week	CURRENT_SUPPLIED	Screenshot 13:27 + transcript
+no_special_event	Still submit according to schedule	CURRENT_SUPPLIED	Screenshot 13:27 + transcript
+current_preportal_gate	MD Google Form + Supervisor Sales Area validation	CURRENT_TRANSITIONAL	Screenshot 13:24 + transcript
+future_target_flow	Direct dealer submission to AHM Market Info Tools	INTENDED_FUTURE	Presenter clarification; not current Sinsen flow
+grain_dealer	Required dealer identity / dealer-keyed record	CURRENT_SUPPLIED	Transcript
+grain_kecamatan	Kecamatan of market event	CURRENT_SUPPLIED	Screenshot 13:24 + transcript
+event_multi_select	Multiple relevant event categories can be combined	CURRENT_SUPPLIED	Transcript demo
+event_start_end	Start and end date captured	CURRENT_SUPPLIED	Screenshot 13:24 + transcript
+detail_note	Detailed additional note is mandatory	CURRENT_SUPPLIED	Screenshot 13:24 + transcript
+edit_delete	No edit/delete after portal submit in demonstrated flow	CURRENT_SUPPLIED_WITH_SOURCE_BOUNDARY	Transcript
+recap_check	Verify submitted event appears in recap	CURRENT_SUPPLIED	Transcript
+recap_export	Recap downloadable/exportable to Excel	CURRENT_SUPPLIED	Transcript
+same_kecamatan_multi_dealer	Allowed; observations remain dealer-keyed	CURRENT_SUPPLIED	Q&A transcript
+positive_negative_flag	Requested, not confirmed current feature	PROPOSED_NOT_CONFIRMED	Q&A transcript

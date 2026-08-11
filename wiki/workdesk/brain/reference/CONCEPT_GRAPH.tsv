@@ -1,0 +1,28 @@
+from	relation	to
+Market Sensing	IDENTIFIES	Market/Area Potential
+Market/Area Potential	INFORMS	Target Deployment
+Target Deployment	FEASIBILITY_CHECKED_BY	Forecast
+Forecast	COMMITTED_IN	Niguri
+Niguri	GUIDES	Distribution & Stock
+Distribution & Stock	MONITORED_BY	Sales & Stock Monitoring
+Sales & Stock Monitoring	TRIGGERS_WHEN_GAP	PICA/PPS
+PICA/PPS	CLOSES_CONTROL_LOOP_WITH	PDCA
+Territory Management	DEPLOYS	Activity Planning
+Channel Management	ENABLES_COVERAGE_FOR	Territory Management
+Territory Management	REQUIRES_NETWORK_EXECUTION_STANDARD	NOS
+NOS	FEEDS_NETWORK_SUSTAINABILITY	INS
+INS	INFORMS_TRANSFORMATION	NetDev / Reshape
+NetDev / Reshape	MONITORED_BY	BEST Monthly Control
+BTL / Virtual Exhibition	GENERATES	Leads
+Leads	MANAGED_BY	CRM
+CRM	BUILDS_KNOWLEDGE_FOR	Customer Experience
+Customer Experience	INFORMS_WHEN_SOLUTION_UNCERTAIN	Design Thinking
+Pricing / Financing	AFFECTS	Sales Access
+FID / BA	CAN_AFFECT	Financing Selectivity
+Dealer Review	INTEGRATES	Target / Forecast / People / Cash-Credit
+Leadership / Coaching	ENABLES	Execution Quality
+Negotiation / Influence	ENABLES	Stakeholder Execution
+Presentation	ENABLES	Decision / Alignment
+Business Case	INTEGRATES	Strategy / Resource / Activity
+Project Governance	REQUIRES	Sustained Improvement
+Currentness Resolver	GOVERNS	All Versioned Rules

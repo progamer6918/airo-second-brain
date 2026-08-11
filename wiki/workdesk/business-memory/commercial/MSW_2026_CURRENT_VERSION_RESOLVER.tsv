@@ -1,0 +1,18 @@
+effective_start	effective_end	program_family_scope	resolution_state	rule
+2026-01-01	2026-01-02	SMH|SMH_ACCESSORIES|PREMIUM|RUN_OUT|VARIO	ORIGINAL_JAN	Use original Jan 1-31 artifacts only for Jan 1-2; Jan revision begins Jan 3.
+2026-01-03	2026-01-31	SMH|SMH_ACCESSORIES|PREMIUM|RUN_OUT|VARIO	REVISED_JAN	Use artifacts under Jan/Revisi with explicit 3-31 period.
+2026-01-01	2026-01-31	EV|EM1	JAN_ORIGINAL	No overlapping Jan revision supplied for these families.
+2026-02-01	2026-02-28	ALL_FAMILIES	FEB_MONTH	Use Feb artifacts applicable 1-28.
+2026-03-01	2026-03-31	ALL_FAMILIES	MAR_MONTH	Use Mar artifacts applicable 1-31.
+2026-04-01	2026-04-03	SMH|SMH_ACCESSORIES|PREMIUM	APR_INITIAL	Folder `PL SMH Periode 1-3 April 2026` controls scope, even where inner filenames say 1-30.
+2026-04-04	2026-04-30	SMH|PREMIUM	APR_UPDATE	Use explicit Update 4-30 artifacts.
+2026-04-01	2026-04-30	RUN_OUT|EV	APR_FULL_MONTH	Use explicit 1-30 update/current artifacts.
+2026-04-04	2026-04-30	STYLO	APR_STYLO	Use Stylo MMC 4-30.
+2026-05-01	2026-05-31	ALL_FAMILIES	MAY_MONTH	Use May artifacts 1-31.
+2026-06-01	2026-06-30	SMH|SMH_ACCESSORIES|RUN_OUT|PREMIUM|EV	JUN_MONTH	Use Jun artifacts 1-30.
+2026-06-13	2026-06-30	EM1	JUN_EM1_SPECIAL	Special EM1 source begins Jun 13; use exact source terms.
+2026-07-01	2026-07-01	SMH|SMH_ACCESSORIES|VARIO|MSW_SUMMARY	UNRESOLVED_JUL01	Folder explicitly marks supplied Jul-1 candidate `TIDAK BERLAKU`; no valid replacement covering Jul 1 was supplied. Refuse to infer.
+2026-07-02	2026-07-31	SMH|SMH_ACCESSORIES	JUL_ACTIVE	Use explicit 2-31 artifacts.
+2026-07-03	2026-07-31	BEAT_MMC|VARIO	JUL_UPDATE	Use Update BeAT MMC & New Vario Evo 160 3-31.
+2026-07-01	2026-07-31	PREMIUM|EV	JUL_FULL_MONTH	Use explicit 1-31 artifacts.
+2026-08-01	2026-08-31	ALL_FAMILIES	AUG_MONTH	Use August artifacts; price-list workbook content explicitly states 1-31 Aug where applicable.

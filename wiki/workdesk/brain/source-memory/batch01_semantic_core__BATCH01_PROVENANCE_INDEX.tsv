@@ -1,0 +1,24 @@
+knowledge_key	knowledge_summary	source_file	location	classification
+PDCA_DEFINITION	PDCA definitions for Plan/Do/Check/Action	2. ASSDP Basic - PDCA.pptx	slide 2	EXPLICIT_SOURCE
+AREA_SUPERVISOR_PLAN	Forecast market/share/sales per type; targets; strategy/activity; supervision planning	2. ASSDP Basic - PDCA.pptx	slide 4	EXPLICIT_SOURCE
+AREA_SUPERVISOR_DO	Daily sales-stock monitoring; Honda/competitor activity; execution assurance; supervision; network/fincoy coordination	2. ASSDP Basic - PDCA.pptx	slide 5	EXPLICIT_SOURCE
+AREA_SUPERVISOR_CHECK	External-driver analysis; achievement/M-S; Dealer Review; strategy evaluation	2. ASSDP Basic - PDCA.pptx	slide 6	EXPLICIT_SOURCE
+AREA_SUPERVISOR_ACTION	PICA; dealer improvement; strategy/activity/program proposal; field feedback	2. ASSDP Basic - PDCA.pptx	slide 7	EXPLICIT_SOURCE
+PDCA_ARTIFACT_CHAIN	Target/strategy evidence → monitoring → Dealer Review/field evidence → action plan	2. ASSDP Basic - PDCA.pptx	slide 8	SOURCE_GROUNDED_VISUAL_SYNTHESIS
+SALES_STOCK_HIERARCHY	Monitoring Total MD → Kabupaten → Dealer	10. Sales _ Stock Monitoring per Dealer.pptx	slide 2	EXPLICIT_SOURCE
+TOTAL_MD_STOCK_LOGIC	Read Sales with Stock MD, Stock Dealer, AHM-MD intransit, AHM Distribution	10. Sales _ Stock Monitoring per Dealer.pptx	slide 4	EXPLICIT_SOURCE
+KABUPATEN_ANALYSIS	M vs M-1 daily sales/stock by Kabupaten, deepen with economic drivers and series	10. Sales _ Stock Monitoring per Dealer.pptx	slide 7	EXPLICIT_SOURCE
+DEALER_SERIES_DRILLDOWN	Break Kabupaten to Dealer then series contribution	10. Sales _ Stock Monitoring per Dealer.pptx	slides 9-10	EXPLICIT_SOURCE
+DP_REAL	DP Real = DP Pricelist - Discount	11. Analisa Pricing _ FID-BA.pptx	slide 3	EXPLICIT_SOURCE_FORMULA
+PRICE_INTELLIGENCE	Compare OTR, DP PL/discount/DP paid, installment, interest rate	11. Analisa Pricing _ FID-BA.pptx	slides 3-5	EXPLICIT_SOURCE
+FID	FID = Bad Customer / Total Booking; FID3/FID6 context	11. Analisa Pricing _ FID-BA.pptx	slide 7	EXPLICIT_SOURCE_FORMULA
+BA4	BA = Bad Customer / Total Booking; BA4 4-month monitoring	11. Analisa Pricing _ FID-BA.pptx	slide 8	EXPLICIT_SOURCE_FORMULA
+FINANCING_RISK_TO_SALES	High FID/BA makes Fincoy more selective, affecting low-DP/risk categories	11. Analisa Pricing _ FID-BA.pptx	slide 9	EXPLICIT_SOURCE_RELATIONSHIP
+PICA_GENERAL_TO_SPECIFIC	Problem identification narrows general → specific	12. PICA.pptx	slide 5	EXPLICIT_SOURCE
+PICA_AREA_PRODUCT	Main Dealer → Kabupaten → Dealer → Type	12. PICA.pptx	slide 6	EXPLICIT_SOURCE
+PICA_PRODUCT_AREA	Main Dealer → Segment-Type → Kabupaten → Dealer	12. PICA.pptx	slide 6	EXPLICIT_SOURCE
+PICA_CAUSAL_QUALITY	Challenge unchanged programs, cross-series contrast, and magnitude of GC	12. PICA.pptx	slide 23	EXPLICIT_SOURCE_QUALITY_RULE
+PICA_GOOD_EXAMPLE	Changed competitor pricing/program is used to explain CB150R decline	12. PICA.pptx	slide 24	HISTORICAL_WORKED_CASE
+PICA_CORRECTIVE_ACTION	Counteractions linked to diagnosed competitor mechanism	12. PICA.pptx	slide 25	HISTORICAL_WORKED_CASE
+PICA_MS_FLOW	Total M/S → Pareto subsegment contribution → declining subsegment analysis	12. PICA.pptx	slides 27-30	EXPLICIT_SOURCE
+PICA_SITUATION_PI_CA_NEXT	Situational Analysis → PI → CA → Next Action worked architecture	12. PICA.pptx	slide 30	HISTORICAL_WORKED_CASE_STRUCTURE

@@ -1,0 +1,7 @@
+id	source_or_group	type	canonical_treatment
+DUP-001	15. NOS ASSDP.pptx copies	BYTE_IDENTICAL_ALIAS	Keep one semantic authority; retain both paths in provenance
+DUP-002	Stage-2 guidance hyphen/en-dash filenames	BYTE_IDENTICAL_ALIAS	Keep one semantic authority; retain alias paths
+DUP-003	Checlist NOS 2026 H1 Premises Dealer.xlsx vs H1 Premises sheets in Regular H123/H1	SEMANTIC_DUPLICATE	No extra knowledge count; retain provenance
+DUP-004	SAFARI NOV 2022.pptx vs VE SAFARI November 2022.pdf	EXPORT_EQUIVALENT	One semantic deck; both physical files retained
+AGG-001	Materi Project ASSDP.pptx	AGGREGATOR	99/101 slide texts match already reconstructed constituent decks; preserve residual + provenance only
+AGG-002	TS AHM ASSDP Basic.pdf	COMPILATION_WITH_DUPLICATE_SECTIONS	Interpersonal/Presentation sections substantially duplicate standalone materials; keep unique residual concepts

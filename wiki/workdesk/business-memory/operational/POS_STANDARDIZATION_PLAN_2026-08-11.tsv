@@ -1,0 +1,5 @@
+source_row	dealer_or_owner	planned_pos	status_or_note	currentness_state
+8	TJS Tembesi	POS Mersam	sudah trial buka	PLAN_OR_TRIAL_NOT_CONFIRMED_ACTIVE_POS
+9	Asmo	POS Jambi Selatan	belum buka	PLAN_OR_TRIAL_NOT_CONFIRMED_ACTIVE_POS
+10	Anugrah	POS Pasar ?		PLAN_OR_TRIAL_NOT_CONFIRMED_ACTIVE_POS
+11	WJM	7 koto ilir	diusahakan trial service visit (permanen per 3 bulan dahulu)	PLAN_OR_TRIAL_NOT_CONFIRMED_ACTIVE_POS
