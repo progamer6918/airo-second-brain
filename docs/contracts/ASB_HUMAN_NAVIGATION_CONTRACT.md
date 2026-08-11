@@ -23,3 +23,4 @@
 10. **Obsidian Compatibility**: All primary human pages MUST use clean Markdown wikilinks and standard frontmatter `aliases` for Quick Switcher discoverability without requiring third-party plugins.
 
 11. **Root Presentation Placement**: WorkDesk and AIRO Finance remain Level-1 worlds even when their entry links are visually grouped under root `Cari & Jelajah`.
+12. **Acceptance Evidence**: Functional HOME acceptance may be established by verified backend evidence covering hierarchy, wikilinks, Base views, session/worklog continuity, vault/source parity, and regression tests. Pixel-level visual evidence is required only when visual appearance/render fidelity is an explicit acceptance objective.

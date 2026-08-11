@@ -20,3 +20,4 @@
 14. Git push is never implied. Bundle it only with explicit Owner authorization, verified remote parity, exact-path staging, public-safety checks, and never force push.
 15. Never reset, stash, rebase, clean, overwrite, or stage unrelated Owner work.
 16. Script success is not task success; completion remains evidence-driven.
+17. Acceptance evidence follows `AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md`; direct WSL should automate backend acceptance when it can prove the required behavior without Owner manual review.

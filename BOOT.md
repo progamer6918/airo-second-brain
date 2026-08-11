@@ -88,6 +88,7 @@ Owner-facing chat commands MUST also be formatting-safe: do not place a literal 
 See [`docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`](docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md).
 
 ## Evidence and Completion Rules
+- Match acceptance evidence to the actual objective. Backend evidence may satisfy functional/navigation/data/workflow DoD; pixel-level visual evidence is mandatory only for explicitly visual objectives or otherwise-unprovable GUI behavior.
 
 - Never claim PASS, completion, or milestone advancement without verified evidence.
 - Script execution result (`RESULT=SCRIPT_SUCCESS` / `RESULT=SCRIPT_FAILED`) refers ONLY to script execution.
@@ -175,6 +176,7 @@ For every remote mutation attempt:
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
 - Chat-Stability Protocol Pointer: [`state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`](state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md)
 - Direct WSL Execution Contract: [`docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`](docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md)
+- Acceptance Evidence Contract: [`docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md`](docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md)
 
 ## Mandatory Project Boot Guards
 

@@ -141,3 +141,8 @@ For every meaningful AIRO execution:
 All AIRO consumers and execution prompts MUST use canonical helper `scripts/airo-clipboard-receipt`.
 Process exit code 0 is NOT sufficient (`CLIPBOARD_COMMAND_EXIT_NOT_SUFFICIENT=YES`).
 Verified read-back (`CLIPBOARD_READBACK=PASS`) and complete content hash match (`CLIPBOARD_CONTENT_HASH=PASS`) are mandatory before claiming `COPIED_TO_CLIPBOARD=YES`.
+
+### Acceptance Evidence Contract
+- Follow `docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md`.
+- Do not force Owner screenshots or manual GUI review for functional behavior already proven by verified backend/runtime evidence.
+- Require pixel-level visual evidence only when appearance/render fidelity is an explicit objective or cannot be established by backend evidence.
