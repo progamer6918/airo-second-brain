@@ -1,0 +1,48 @@
+filters:
+  and:
+  - file.inFolder("worklog/sessions")
+  - file.ext == "md"
+  - note.type == "airo-session"
+  - note.project_id == "AIRO_WORKDESK"
+properties:
+  title:
+    displayName: Sesi
+  position:
+    displayName: Posisi
+  status:
+    displayName: Hasil
+  date:
+    displayName: Tanggal
+  closed_at:
+    displayName: Timestamp
+  formula.waktu_ringkas:
+    displayName: Waktu
+views:
+- type: table
+  name: Terbaru
+  limit: 5
+  order:
+  - formula.waktu_ringkas
+  - title
+  - position
+  - status
+  sort:
+  - property: formula.sort_closed_local
+    direction: DESC
+  - property: title
+    direction: ASC
+- type: table
+  name: Semua
+  order:
+  - formula.waktu_ringkas
+  - title
+  - position
+  - status
+  sort:
+  - property: formula.sort_closed_local
+    direction: DESC
+  - property: title
+    direction: ASC
+formulas:
+  sort_closed_local: 'if(closed_at, if(closed_at.isType("date"), closed_at, date(closed_at.toString().slice(0, 19).replace("T", " ")) + "7h"), null)'
+  waktu_ringkas: 'if(formula.sort_closed_local, if(formula.sort_closed_local.isType("date"), formula.sort_closed_local.format("DD/MM") + " · " + formula.sort_closed_local.time().slice(0, 5), "—"), "—")'

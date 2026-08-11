@@ -17,6 +17,21 @@ Lo mau ngerti bagian yang mana? Pilih topik profesional di bawah untuk langsung 
 
 ---
 
+## ⚡ Current Operational Capability Routes
+
+Pakai bagian ini untuk masuk ke **state, rule, dan capability WorkDesk terbaru**. Halaman profesional lain di bawah tetap berguna sebagai topic map, tetapi current operational evidence dan authority mengambil precedence.
+
+- 📊 [[wiki/workdesk/business-memory/operational/CURRENT_OPERATING_STATE|Current Operating State]] — Market, Retail, Stock, Commercial, Territory, serta authority/evidence boundaries terbaru yang tersedia.
+- 🛰 [[wiki/workdesk/business-memory/operational/MARKET_INFO_TOOLS_CURRENT_STATE_2026-08-11|Market Info Tools]] — weekly market sensing; event adalah contextual/hypothesis evidence, bukan automatic causal proof.
+- 🗺 [[wiki/workdesk/business-memory/operational/INTEGRATED_TTM_POS_CURRENT_STATE_2026-08-11|Integrated TTM + POS]] — territory/POS operating model, coding, readiness, dan unresolved evidence.
+- 🌍 [[wiki/workdesk/business-memory/operational/POLREG_GEOGRAPHIC_FILTER_RETRIEVAL|POLREG Deep Geography]] — retrieval sampai market area, kabupaten, kecamatan, dan mapped area.
+- 🌐 [[wiki/workdesk/brain/source-memory/NOS_2026_FIDELITY_CORRECTION|NOS 2026 Row-Level Fidelity]] — checklist row fidelity, mandatory logic, dan grading gates.
+- 💰 [[wiki/workdesk/business-memory/commercial/MSW_CURRENTNESS_RETRIEVAL|MSW Currentness]] — commercial authority berdasarkan requested date, effective period, revision, dan validity.
+
+➡️ [[wiki/workdesk/brain/KNOWLEDGE_DISCOVERY|Deep Knowledge Discovery]]
+
+---
+
 ## 1. Dunia Kerja & Peran
 - 🏢 [[business/HONDA_MAIN_DEALER_ECOSYSTEM|Ekosistem Main Dealer Honda]]
 - 👤 [[role/AREA_SALES_SUPERVISOR|Peran Area Sales Supervisor (ASSPV)]]
