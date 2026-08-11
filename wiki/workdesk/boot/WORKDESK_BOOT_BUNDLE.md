@@ -160,61 +160,61 @@ audience: human-ai
 
 ## 1 — Dunia kerja & role
 
-- [[business/HONDA_MAIN_DEALER_ECOSYSTEM]]
-- [[role/AREA_SALES_SUPERVISOR]]
-- [[role/ASSDP_CAPABILITY_LADDER]]
-- [[owner/OWNER_APPLIED_PROJECTS]]
-- [[owner/OWNER_WORKING_MODEL]]
+- [[wiki/workdesk/business/HONDA_MAIN_DEALER_ECOSYSTEM|HONDA_MAIN_DEALER_ECOSYSTEM]]
+- [[wiki/workdesk/role/AREA_SALES_SUPERVISOR|AREA_SALES_SUPERVISOR]]
+- [[wiki/workdesk/role/ASSDP_CAPABILITY_LADDER|ASSDP_CAPABILITY_LADDER]]
+- [[wiki/workdesk/owner/OWNER_APPLIED_PROJECTS|OWNER_APPLIED_PROJECTS]]
+- [[wiki/workdesk/owner/OWNER_WORKING_MODEL|OWNER_WORKING_MODEL]]
 
 ## 2 — Market, target & commercial
 
-- [[business/MARKET_INTELLIGENCE]]
-- [[business/DEMAND_MANAGEMENT]]
-- [[business/TARGETING_FORECASTING]]
-- [[business/SALES_STOCK_DISTRIBUTION]]
-- [[business/PRICING_DP_FINANCING]]
-- [[business/AT_HIGH]]
+- [[wiki/workdesk/business/MARKET_INTELLIGENCE|MARKET_INTELLIGENCE]]
+- [[wiki/workdesk/business/DEMAND_MANAGEMENT|DEMAND_MANAGEMENT]]
+- [[wiki/workdesk/business/TARGETING_FORECASTING|TARGETING_FORECASTING]]
+- [[wiki/workdesk/business/SALES_STOCK_DISTRIBUTION|SALES_STOCK_DISTRIBUTION]]
+- [[wiki/workdesk/business/PRICING_DP_FINANCING|PRICING_DP_FINANCING]]
+- [[wiki/workdesk/business/AT_HIGH|AT_HIGH]]
 
 ## 3 — Dealer, territory & people
 
-- [[business/DEALER_REVIEW]]
-- [[business/CHANNEL_MANAGEMENT]]
-- [[business/TERRITORY_MANAGEMENT]]
-- [[business/SALES_FORCE_PRODUCTIVITY]]
+- [[wiki/workdesk/playbooks/DEALER_REVIEW|DEALER_REVIEW]]
+- [[wiki/workdesk/business/CHANNEL_MANAGEMENT|CHANNEL_MANAGEMENT]]
+- [[wiki/workdesk/business/TERRITORY_MANAGEMENT|TERRITORY_MANAGEMENT]]
+- [[wiki/workdesk/business/SALES_FORCE_PRODUCTIVITY|SALES_FORCE_PRODUCTIVITY]]
 
 ## 4 — Network & systems
 
-- [[network/NOS_2026_CORE]]
-- [[network/NOS_APPLICABILITY]]
-- [[network/INS]]
-- [[systems/NMS]]
-- [[systems/MYHERO]]
+- [[wiki/workdesk/network/NOS_2026_CORE|NOS_2026_CORE]]
+- [[wiki/workdesk/network/NOS_APPLICABILITY|NOS_APPLICABILITY]]
+- [[wiki/workdesk/network/INS|INS]]
+- [[wiki/workdesk/systems/NMS|NMS]]
+- [[wiki/workdesk/systems/MYHERO|MYHERO]]
 
 ## 5 — Customer & CRM
 
-- [[customer/CRM_LEADS]]
-- [[customer/CUSTOMER_EXPERIENCE]]
+- [[wiki/workdesk/customer/CRM_LEADS|CRM_LEADS]]
+- [[wiki/workdesk/customer/CUSTOMER_EXPERIENCE|CUSTOMER_EXPERIENCE]]
 
 ## 6 — Strategy & improvement
 
-- [[frameworks/PROBLEM_SOLVING_SYSTEM]]
-- [[strategy/ND_PLAN_RESHAPE]]
+- [[wiki/workdesk/frameworks/PROBLEM_SOLVING_SYSTEM|PROBLEM_SOLVING_SYSTEM]]
+- [[wiki/workdesk/strategy/ND_PLAN_RESHAPE|ND_PLAN_RESHAPE]]
 
 ## 7 — Leadership & organizational execution
 
-- [[leadership/SUPERVISORY_LEADERSHIP]]
-- [[leadership/INFLUENCE_COACHING_CHANGE]]
+- [[wiki/workdesk/leadership/SUPERVISORY_LEADERSHIP|SUPERVISORY_LEADERSHIP]]
+- [[wiki/workdesk/leadership/INFLUENCE_COACHING_CHANGE|INFLUENCE_COACHING_CHANGE]]
 
 ## 8 — Data & output
 
-- [[analytics/DATA_ANALYTICS_POWER_BI]]
-- [[presentation/AHM_REVIEW_AND_PRESENTATION]]
+- [[wiki/workdesk/analytics/DATA_ANALYTICS_POWER_BI|DATA_ANALYTICS_POWER_BI]]
+- [[wiki/workdesk/presentation/AHM_REVIEW_AND_PRESENTATION|AHM_REVIEW_AND_PRESENTATION]]
 
 ## Reference
 
-- [[glossary/WORK_TERMINOLOGY]]
-- [[notes/PRESENTER_NOTES_POLICY]]
-- [[SOURCE_AUTHORITY]]
+- [[wiki/workdesk/glossary/WORK_TERMINOLOGY|WORK_TERMINOLOGY]]
+- [[wiki/workdesk/notes/PRESENTER_NOTES_POLICY|PRESENTER_NOTES_POLICY]]
+- [[wiki/workdesk/brain/reference/SOURCE_AUTHORITY|SOURCE_AUTHORITY]]
 
 ## Organizing rule
 
@@ -238,25 +238,25 @@ User cukup menyebut gejala atau output. Tidak perlu tahu nama framework.
 
 | Bahasa user | Route |
 |---|---|
-| “Market share turun” | [[playbooks/MARKET_SHARE_DOWN]] |
-| “Sales turun” | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] + [[business/SALES_STOCK_DISTRIBUTION]] |
-| “Activity banyak tapi hasil kecil” | [[playbooks/HIGH_ACTIVITY_LOW_RESULT]] |
-| “Dealer nggak perform” | [[playbooks/DEALER_REVIEW]] + [[network/NOS_2026_CORE]] jika execution standard relevan |
-| “Sales people rendah” | [[business/SALES_FORCE_PRODUCTIVITY]] |
-| “AT High kalah” | [[playbooks/AT_HIGH_UNDERPERFORMANCE]] |
-| “Mau audit/gap NOS” | [[playbooks/NOS_DIAGNOSIS]] |
-| “Gue belum tahu masalahnya apa” | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] |
+| “Market share turun” | [[wiki/workdesk/playbooks/MARKET_SHARE_DOWN|MARKET_SHARE_DOWN]] |
+| “Sales turun” | [[wiki/workdesk/playbooks/DIAGNOSE_BUSINESS_PROBLEM|DIAGNOSE_BUSINESS_PROBLEM]] + [[wiki/workdesk/business/SALES_STOCK_DISTRIBUTION|SALES_STOCK_DISTRIBUTION]] |
+| “Activity banyak tapi hasil kecil” | [[wiki/workdesk/playbooks/HIGH_ACTIVITY_LOW_RESULT|HIGH_ACTIVITY_LOW_RESULT]] |
+| “Dealer nggak perform” | [[wiki/workdesk/playbooks/DEALER_REVIEW|DEALER_REVIEW]] + [[wiki/workdesk/network/NOS_2026_CORE|NOS_2026_CORE]] jika execution standard relevan |
+| “Sales people rendah” | [[wiki/workdesk/business/SALES_FORCE_PRODUCTIVITY|SALES_FORCE_PRODUCTIVITY]] |
+| “AT High kalah” | [[wiki/workdesk/playbooks/AT_HIGH_UNDERPERFORMANCE|AT_HIGH_UNDERPERFORMANCE]] |
+| “Mau audit/gap NOS” | [[wiki/workdesk/playbooks/NOS_DIAGNOSIS|NOS_DIAGNOSIS]] |
+| “Gue belum tahu masalahnya apa” | [[wiki/workdesk/playbooks/DIAGNOSE_BUSINESS_PROBLEM|DIAGNOSE_BUSINESS_PROBLEM]] |
 
 ## Output routes
 
 | Output | Route |
 |---|---|
-| Dealer Review | [[playbooks/DEALER_REVIEW]] |
-| PICA/RCA/PDCA/DMAIC | [[frameworks/PROBLEM_SOLVING_SYSTEM]] |
-| PPT / management review | [[presentation/AHM_REVIEW_AND_PRESENTATION]] |
-| Excel / Power BI | [[analytics/DATA_ANALYTICS_POWER_BI]] |
-| Market research | [[business/MARKET_INTELLIGENCE]] |
-| Target/forecast | [[business/TARGETING_FORECASTING]] + [[business/DEMAND_MANAGEMENT]] |
+| Dealer Review | [[wiki/workdesk/playbooks/DEALER_REVIEW|DEALER_REVIEW]] |
+| PICA/RCA/PDCA/DMAIC | [[wiki/workdesk/frameworks/PROBLEM_SOLVING_SYSTEM|PROBLEM_SOLVING_SYSTEM]] |
+| PPT / management review | [[wiki/workdesk/presentation/AHM_REVIEW_AND_PRESENTATION|AHM_REVIEW_AND_PRESENTATION]] |
+| Excel / Power BI | [[wiki/workdesk/analytics/DATA_ANALYTICS_POWER_BI|DATA_ANALYTICS_POWER_BI]] |
+| Market research | [[wiki/workdesk/business/MARKET_INTELLIGENCE|MARKET_INTELLIGENCE]] |
+| Target/forecast | [[wiki/workdesk/business/TARGETING_FORECASTING|TARGETING_FORECASTING]] + [[wiki/workdesk/business/DEMAND_MANAGEMENT|DEMAND_MANAGEMENT]] |
 
 ## AI rule
 

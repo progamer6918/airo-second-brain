@@ -18,13 +18,13 @@ Pekerjaan Area Sales Supervisor selalu menghasilkan deliverable yang konkret: la
 
 | Deliverable | Tujuan Utama | Playbook / Modul |
 |---|---|---|
-| **Dealer Review** | Evaluasi bulanan/kuartalan outlet dealer | [[playbooks/DEALER_REVIEW]] |
-| **Formulir PICA** | Action plan perbaikan masalah operasional/sales | [[frameworks/PROBLEM_SOLVING_SYSTEM]] |
-| **Business Case** | Usulan investasi, promo area, atau penambahan channel | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] |
-| **Market Share / Area Insight** | Analisis pergerakan kompetitor dan territory share | [[playbooks/MARKET_SHARE_DOWN]] |
-| **PPT Executive / Management Review** | Slide presentasi 9-menit / 9-slide ke manajemen AHM/MD | [[presentation/AHM_REVIEW_AND_PRESENTATION]] |
-| **Power BI / Excel Dashboard** | Visualisasi data sales, stock, & manpower productivity | [[analytics/DATA_ANALYTICS_POWER_BI]] |
-| **NOS Audit Gap Report** | Diagnosis kepatuhan fisik/proses/people dealer | [[playbooks/NOS_DIAGNOSIS]] |
+| **Dealer Review** | Evaluasi bulanan/kuartalan outlet dealer | [[wiki/workdesk/playbooks/DEALER_REVIEW|DEALER_REVIEW]] |
+| **Formulir PICA** | Action plan perbaikan masalah operasional/sales | [[wiki/workdesk/frameworks/PROBLEM_SOLVING_SYSTEM|PROBLEM_SOLVING_SYSTEM]] |
+| **Business Case** | Usulan investasi, promo area, atau penambahan channel | [[wiki/workdesk/playbooks/DIAGNOSE_BUSINESS_PROBLEM|DIAGNOSE_BUSINESS_PROBLEM]] |
+| **Market Share / Area Insight** | Analisis pergerakan kompetitor dan territory share | [[wiki/workdesk/playbooks/MARKET_SHARE_DOWN|MARKET_SHARE_DOWN]] |
+| **PPT Executive / Management Review** | Slide presentasi 9-menit / 9-slide ke manajemen AHM/MD | [[wiki/workdesk/presentation/AHM_REVIEW_AND_PRESENTATION|AHM_REVIEW_AND_PRESENTATION]] |
+| **Power BI / Excel Dashboard** | Visualisasi data sales, stock, & manpower productivity | [[wiki/workdesk/analytics/DATA_ANALYTICS_POWER_BI|DATA_ANALYTICS_POWER_BI]] |
+| **NOS Audit Gap Report** | Diagnosis kepatuhan fisik/proses/people dealer | [[wiki/workdesk/playbooks/NOS_DIAGNOSIS|NOS_DIAGNOSIS]] |
 
 ## 📐 Aturan Pembuatan Deliverable
 Sebelum memoles visual/tampilan deliverable, pastikan 5 langkah validasi:
