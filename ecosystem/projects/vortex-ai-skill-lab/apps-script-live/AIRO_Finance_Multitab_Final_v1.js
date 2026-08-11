@@ -28309,7 +28309,7 @@ function airoSprint7HPollerTriggerStatus_() {
     live: count > 0,
     handler_name: handler,
     intended_interval_minutes: 15,
-    active_window: "07:00-22:00 WIB",
+    active_window: "09:00-00:59 WIB",
     kill_switch_state: killSwitch ? "DISABLED" : "ENABLED",
     write_performed: false,
     gmail_read_performed: false,
@@ -28370,7 +28370,7 @@ function airoSprint7HScheduledGmailPoller_() {
   var tz = "Asia/Jakarta";
   var hourString = Utilities.formatDate(now, tz, "H");
   var hour = parseInt(hourString, 10);
-  if (hour < 7 || hour >= 22) {
+  if (hour >= 1 && hour < 9) {
     var exitWindowStatus = {
       ok: true,
       sprint: "7H",
