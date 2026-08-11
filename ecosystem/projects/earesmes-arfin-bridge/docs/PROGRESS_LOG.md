@@ -372,3 +372,14 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - DO_NOT_REPEAT: persist sanitized non-2xx mutation response evidence before process return.
 - NEXT_ACTION: `RETRY_SAME_APPROVED_ONE_ACTUAL_DEPLOYMENT_TEST_WITH_CLASP_EQUIVALENT_APPSSCRIPT_PAYLOAD_AND_FULL_NON2XX_ERROR_CAPTURE`
 
+### 2026-08-11 — EAB_G2_5 / M12 Fresh Live Canary Completion & M1 Closeout
+- **Executor:** AIRO Sync (Owner-Authorized Execution)
+- **Runtime Correction:** Updated Cloudflare Worker `airo-finance-telegram-proxy` `APPS_SCRIPT_URL` from legacy v116 (`88872b8c4bcad678`) to Canonical Apps Script Live v392 (`497865e5f3c2345b`).
+- **Worker Version Created & Deployed:** Version `1dae4ab4-0a56-477f-9848-78e47d159631` created with all 5 secret/auth bindings preserved and deployed to 100% production traffic.
+- **Front-Door Regression:** `GET /eab` -> 405 PASS, unauthenticated `POST /eab` -> 401 PASS.
+- **Signed Live Canary:** `EAB_LIST_PENDING` executed with HMAC signature. Transport 200 OK PASS, envelope PASS, canonical v392 provenance PASS, Review Queue semantics PASS, zero direct ledger write PASS, zero workbook write PASS.
+- **AFPD-INC-011 Resolution:** Isolation verified PASS; `AFPD-INC-011` transitioned to `RESOLVED`.
+- **Milestone Transitions:** `M12` `READY` -> `DONE`; `M1` `PASS_WITH_LIMITATIONS` -> `DONE`; `M13` `NOT_STARTED` -> `READY`.
+- **Verified Runtime Receipt:** `/tmp/eab_m12_authorized_worker_correction_20260811_210405.txt`.
+- **Next Milestone:** `M13` (`EAB_G2_6` — Owner Acceptance).
+

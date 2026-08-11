@@ -11,5 +11,5 @@ REQ-009	Manual multi-line catat intake one tx per line (FND-003)	OWNER_EXPLICIT	
 REQ-010	Direct Arfin fallback retained	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S1	02_ARCH.md:S1	03_CONTRACTS.md:S2	WF-019	TEST-WF-019	APPROVED	None	M4	M12
 REQ-011	Review Queue staging mandatory before /approval	OWNER_EXPLICIT	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None	M3	M12
 REQ-012	Earesmes direct Account Ledger write forbidden	SAFETY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S2	03_CONTRACTS.md:S2	WF-028	TEST-WF-028	APPROVED	None	M3	M12
-REQ-013	Strict owner_chat_id allowlist filter	SAFETY_REQUIRED	AFPD-INC-011 Remediation	01_PRD.md:S2	02_ARCH.md:S3	03_CONTRACTS.md:S2	WF-026	TEST-WF-026	APPROVED	BLK-002	M3	M12
+REQ-013	Strict owner_chat_id allowlist filter	SAFETY_REQUIRED	AFPD-INC-011 Remediation	01_PRD.md:S2	02_ARCH.md:S3	03_CONTRACTS.md:S2	WF-026	TEST-WF-026	APPROVED	None	M3	M12
 REQ-014	Cloud inbox deferred to Phase 2	OPERABILITY_REQUIRED	Owner Approval	01_PRD.md:S2	02_ARCH.md:S1	03_CONTRACTS.md:S1	WF-018	TEST-WF-018	APPROVED	None	M15	M15

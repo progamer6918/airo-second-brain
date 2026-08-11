@@ -8,7 +8,7 @@ INC_007	Timezone discrepancy	UNRESOLVED	MEDIUM	APPLICABLE	Canonical Asia/Jakarta
 AFPD-INC-008	False readiness	OPEN	HIGH	APPLICABLE	Dynamic traceability extraction	YES	YES	NO	NO	377 rules extracted in Phase 4.2	NO
 AFPD-INC-009	Stuck pending state	OPEN	HIGH	APPLICABLE	Active prompt TTL 24h auto-expires to backlog	YES	YES	YES	NO	Prompt TTL auto-expiry test	YES
 AFPD-INC-010	Out of order updates	RESOLVED	HIGH	INHERITED_GUARD	Idempotent update handling by update_id	YES	YES	YES	NO	Gateway checks update_id offset	NO
-AFPD-INC-011	Cross-project collision	OPEN_CONTAINED	CRITICAL	UNRESOLVED_BLOCKER	Strict runtime isolation between Earesmes and Arfin bots	YES	YES	YES	YES	Requires EAB bounded adapter with chat_id allowlist	YES
+AFPD-INC-011	Cross-project collision	RESOLVED	CRITICAL	RESOLVED	Strict runtime isolation between Earesmes and Arfin bots	YES	YES	YES	YES	Requires EAB bounded adapter with chat_id allowlist	Bounded adapter owner_chat_id allowlist & Worker upstream v392 deployment verified; live canary PASS
 EAB-GOV-INC-001	Executed patch hash differed from Owner authorized hash	RESOLVED_RATIFIED	HIGH	PROCESS_GOVERNANCE_INCIDENT	Zero patch modification without Owner reauthorization	YES	YES	YES	NO	14 permanent process guards enforced in execution scripts	YES
 EAB-GOV-GRD-001	Unpersisted Owner authorization receipt	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Persist Owner authorization receipt before execution	YES	YES	YES	NO	Receipt file verified before script execution	YES
 EAB-GOV-GRD-002	Editable execution patch input	ENFORCED	HIGH	PERMANENT_PROCESS_GUARD	Immutable authorized patch input directory	YES	YES	YES	NO	Read-only input directory enforced	YES
