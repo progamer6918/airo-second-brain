@@ -1,7 +1,7 @@
 # WorkDesk Home Operating Surface Contract
 
 **Project:** AIRO_WORKDESK
-**Status:** ACCEPTED — CANONICAL_INTEGRATION_PENDING
+**Status:** ACCEPTED — CANONICAL
 **Date:** 2026-08-11
 
 ## Purpose
@@ -63,4 +63,4 @@ Backend and render acceptance have established:
 
 `HOME_V2_ACCEPTED=YES`
 
-The remaining gate is **canonical Git integration at an EAB-safe point**, not additional Owner content or visual QA.
+Canonical Git integration is complete. No additional Owner content or visual QA gate remains for Home v2.

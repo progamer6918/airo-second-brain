@@ -39,7 +39,7 @@ AIRO WorkDesk is the Owner's externalized professional brain and decision-suppor
 - `HOME_V2_VISUAL_STRUCTURE=PASS`
 - `HOME_V2_RUNTIME_BLOCKER_RESOLVED=YES`
 - `HOME_V2_OWNER_MANUAL_CONTENT_QA_REQUIRED=NO`
-- `HOME_V2_CANONICAL_INTEGRATION=PENDING_EAB_SAFE_POINT`
+- `HOME_V2_CANONICAL_INTEGRATION=COMPLETE`
 - `HOME_V2_LIVE_CURRENT_WORK_BRIDGE=NOT_IMPLEMENTED`
 
 Home v2 is the accepted human-facing WorkDesk operational cockpit. The live-session continuation surface remains intentionally absent until a deterministic sanitized runtime bridge exists.

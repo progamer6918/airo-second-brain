@@ -41,7 +41,7 @@ Live-session continuation card **tidak difabrikasi**. Sampai deterministic sanit
 - `HOME_V2_VISUAL_STRUCTURE=PASS`
 - `HOME_V2_RUNTIME_BLOCKER_RESOLVED=YES`
 - `OWNER_MANUAL_CONTENT_QA_REQUIRED=NO`
-- `CANONICAL_INTEGRATION=PENDING_EAB_SAFE_POINT`
+- `CANONICAL_INTEGRATION=COMPLETE`
 
 Home v2 sudah accepted sebagai **expert operational cockpit**. Content, semantic routing, currentness, runtime update surface, dan rendered information hierarchy sudah direkonsiliasi.
 
