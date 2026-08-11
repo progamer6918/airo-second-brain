@@ -70,3 +70,13 @@ Do not start runtime/deploy/workbook mutation in a chat that is already showing 
 ASB is the durable state. Chat is only an execution surface.
 
 Every long-running AIRO sequence should checkpoint to ASB after 2–3 gates or after any PASS that changes project direction.
+
+
+## Direct WSL Clarification — 2026-08-11
+
+- Direct WSL optimizes for the fewest safe Owner interaction cycles.
+- One bounded Owner-facing packet may contain multiple deterministic local sub-steps when no new Owner decision is required.
+- Command-size guidance prevents unstable oversized packets; it does not require one technical sub-step per chat turn.
+- Antigravity low-limit one-small-gate behavior remains Antigravity-specific.
+- Parent interactive WSL shell survival is mandatory. Strict shell flags and failure/exit semantics belong only to isolated child execution.
+- Owner-facing command payloads must be chat-formatting-safe. Literal nested Markdown fences inside an outer command fence are forbidden; encode or construct them at runtime.

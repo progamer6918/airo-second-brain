@@ -18,9 +18,15 @@ Catatan histori eksekusi kerja, sesi aktif, dan checkpoint project dalam ekosist
 
 ---
 
+## 🕘 Sesi Terbaru
+
+![[worklog/views/AIRO Worklog.base#Sesi Terbaru]]
+
+---
+
 ## 📚 Semua Sesi & Histori Kerja
 
-![[worklog/views/AIRO Worklog.base#Semua Sesi]]
+![[worklog/views/AIRO Worklog.base#Riwayat Sesi]]
 
 ---
 

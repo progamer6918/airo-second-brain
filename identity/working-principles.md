@@ -88,7 +88,9 @@ Fast track means fewer controlled cycles, not skipped evidence: one complete aud
 
 - **Roadmap Snapshots first**: Start every substantive AIRO response with a compact roadmap snapshot.
 - **Explain Before Execution**: When providing a command or prompt, always explain the goal, expected output, mutation scope, and stop conditions first.
-- **One Small WSL Command at a Time**: Prefer giving one small, safe WSL command per turn to maintain control and safety, unless the Owner explicitly requests an automated Antigravity prompt.
+- **One Bounded Direct-WSL Packet per Turn**: When Owner chooses direct WSL, prefer one copy-paste-ready packet containing as many already-determined safe sub-steps as practical. Optimize for the fewest safe Owner interaction cycles, not one technical sub-step per turn.
+- **Split at Real Boundaries Only**: Split for new Owner approval, unresolved identity/ambiguity, owner-work conflict, remote-runtime authorization, remote divergence, or required Owner visual/live acceptance.
+- **Antigravity Low-Limit Is Separate**: Antigravity one-small-gate behavior MUST NOT be generalized into artificial direct-WSL micro-gates.
 - **Antigravity Prompts**: When the Owner requests an Antigravity prompt, format it as a comprehensive, no-brainer instructions package with exact context, specific allowed/forbidden files, validation log paths, and automatic clipboard copy commands.
 - **No Information Overload**: Do not overwhelm the Owner with unnecessary directory listings, raw transcript dumps, or excessively long logs. Keep output clean and focused.
 - **No Manual Path Editing**: Do not ask the Owner to manually adjust file paths or scripts. All provided commands and scripts must be copy-paste ready.

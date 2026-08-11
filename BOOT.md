@@ -13,8 +13,8 @@ Every owner-facing command must:
 
 ---
 
-last_updated: 2026-08-04
-updated_by: owner-approved-v06-architecture-correction
+last_updated: 2026-08-11
+updated_by: owner-approved-direct-wsl-workflow-hardening
 status: current
 confidence: owner-confirmed
 source: ASB v0.6 Architecture & Governance Restored
@@ -75,26 +75,17 @@ For new chat threads:
 
 ## Default Command-Output Clipboard Copy Rule
 
-Setiap perintah yang dieksekusi atas permintaan Owner wajib menangkap output-nya ke berkas `/tmp/airo_<task>_<timestamp>.txt`, diarahkan lewat `tee`, dan disalin ke clipboard Windows menggunakan `clip.exe` di WSL.
+Every Owner-facing execution MUST capture stdout+stderr into a timestamped `/tmp/airo_<task>_<timestamp>.txt` receipt through `tee`, then invoke `python3 scripts/airo-clipboard-receipt --receipt-file "$OUT"`.
 
-### WSL default pattern
-```bash
-OUT="/tmp/airo_<task>_$(date +%Y%m%d_%H%M%S).txt"
-{
-  cd /home/egitaristorandas/AI_WORKSPACES/airo-second-brain
-  # <commands>
-} 2>&1 | tee "$OUT"
-cat "$OUT" | clip.exe
-echo "COPIED_TO_CLIPBOARD=$OUT"
-```
+Direct `clip.exe` or `Set-Clipboard` alone is not delivery proof. Success requires `COPIED_TO_CLIPBOARD=YES`, `CLIPBOARD_READBACK=PASS`, and `CLIPBOARD_CONTENT_HASH=PASS`.
 
-### PowerShell default pattern
-```powershell
-$out = "C:\Users\Admin\.gemini\antigravity\scratch\airo-second-brain\tmp_log.txt"
-# execute command
-Get-Content $out | Set-Clipboard
-Write-Host "COPIED_TO_CLIPBOARD=$out"
-```
+For direct WSL, define and export `OUT` in the Owner parent shell, run strict execution inside an isolated child shell or subshell, pipe child stdout+stderr through `tee "$OUT"`, then invoke the verified clipboard helper from the surviving parent shell.
+
+Never place `exit`, `set -e`, or `set -u` in the Owner interactive parent shell.
+
+Owner-facing chat commands MUST also be formatting-safe: do not place a literal nested Markdown fence inside an outer command fence. Encode or construct such documentation payloads at runtime instead.
+
+See [`docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`](docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md).
 
 ## Evidence and Completion Rules
 
@@ -119,6 +110,7 @@ If documentation or context conflicts with live system evidence:
 ## WSL Safety & Git Safety Rules
 
 - Never execute logout, session termination, or WSL shutdown commands.
+- Never let `exit`, `set -e`, or `set -u` affect the Owner interactive parent shell; isolate strict execution in a child shell/subshell.
 - Apply exact-path staging only (`git add <exact files>`); never use `git add .` or `git add -A`.
 - Verify remote parity and fetch/compare branches before push.
 - Do NOT force push (`--force` or `--force-with-lease` are strictly forbidden).
@@ -182,6 +174,7 @@ For every remote mutation attempt:
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
 - Chat-Stability Protocol Pointer: [`state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`](state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md)
+- Direct WSL Execution Contract: [`docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`](docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md)
 
 ## Mandatory Project Boot Guards
 

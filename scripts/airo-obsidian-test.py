@@ -36,56 +36,52 @@ def run_obsidian_test_suite():
     else:
         print("  [FAIL] T1: HOME.md missing at root")
 
-    # T2: HOME clearly identifies as human navigation, not project source of truth
+    # T2: HOME follows canonical intent-first hierarchy
     if os.path.exists(home_path):
         with open(home_path, "r", encoding="utf-8") as f:
             htxt = f.read()
-        if "Pusat navigasi manusia" in htxt and "Status resmi project tetap berasal dari roadmap/tracker" in htxt:
-            print("  [PASS] T2: HOME clearly identifies itself as human navigation, not source of truth")
+        markers = ["## Mau ngapain?", "### ▶️ Lanjut Kerja", "### 📅 Hari Ini", "### 🔎 Cari & Jelajah", "#### 💼 Kerja", "#### 💰 Keuangan"]
+        ordered = all(x in htxt for x in markers) and htxt.find("### 🔎 Cari & Jelajah") < htxt.find("#### 💼 Kerja") < htxt.find("#### 💰 Keuangan")
+        if ordered:
+            print("  [PASS] T2: HOME hierarchy and Cari & Jelajah placement are canonical")
             passed += 1
         else:
-            print(f"  [FAIL] T2: HOME header missing navigation disclaimer")
-    else:
-        print("  [FAIL] T2: HOME.md missing")
+            print("  [FAIL] T2: HOME hierarchy/order mismatch")
 
-    # T3: HOME embeds AIRO Worklog.base#Hari Ini
-    if os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Hari Ini]]" in htxt:
+    # T3: HOME embeds Hari Ini
+    if "![[worklog/views/AIRO Worklog.base#Hari Ini]]" in htxt:
         print("  [PASS] T3: HOME embeds AIRO Worklog.base#Hari Ini")
         passed += 1
     else:
         print("  [FAIL] T3: HOME missing Hari Ini base embed")
 
-    # T4: HOME embeds bounded recent view (Sesi Terbaru) and full history view (Riwayat Sesi)
-    has_sesi_terbaru = os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Sesi Terbaru]]" in htxt
-    has_riwayat_sesi = os.path.exists(home_path) and "![[worklog/views/AIRO Worklog.base#Riwayat Sesi]]" in htxt
-    if has_sesi_terbaru and has_riwayat_sesi:
-        print("  [PASS] T4: HOME embeds Sesi Terbaru (bounded) and Riwayat Sesi (full history)")
+    # T4: richer history lives in RIWAYAT_KERJA and Lanjut Kerja is non-duplicative
+    history_path = os.path.join(repo_root, "RIWAYAT_KERJA.md")
+    history_txt = open(history_path, "r", encoding="utf-8").read() if os.path.exists(history_path) else ""
+    lanjut = htxt[htxt.find("### ▶️ Lanjut Kerja"):htxt.find("### 📅 Hari Ini")]
+    home_ok = "#Sesi Terbaru]]" not in htxt and "#Riwayat Sesi]]" not in htxt
+    history_ok = all(x in history_txt for x in ["#Hari Ini]]", "#Sesi Terbaru]]", "#Riwayat Sesi]]"])
+    if home_ok and history_ok and "wiki/workdesk/HOME" not in lanjut:
+        print("  [PASS] T4: continuity/history placement matches navigation contract")
         passed += 1
     else:
-        print(f"  [FAIL] T4: HOME missing bounded/history base embeds (sesi_terbaru={has_sesi_terbaru}, riwayat_sesi={has_riwayat_sesi})")
+        print("  [FAIL] T4: continuity/history placement mismatch")
 
-    # T5: All HOME repository links resolve
-    home_links_ok = True
-    if os.path.exists(home_path):
-        home_dir = os.path.dirname(home_path)
-        links = re.findall(r"\[([^\]]+)\]\(([^)]+)\)", htxt)
-        for text, target in links:
-            if target.startswith("http") or target.startswith("#"):
-                continue
-            target_path = target.split("#")[0]
-            if not target_path:
-                continue
-            resolved = os.path.normpath(os.path.join(home_dir, target_path))
-            if not os.path.exists(resolved):
-                print(f"  [FAIL] T5: HOME link target missing: {target} -> {resolved}")
-                home_links_ok = False
-                break
-        if home_links_ok and len(links) > 0:
-            print("  [PASS] T5: All HOME.md repository links resolve")
-            passed += 1
-    else:
-        print("  [FAIL] T5: HOME.md missing")
-
+    # T5: all HOME Obsidian wikilinks and embeds resolve
+    links = re.findall(r"!?\[\[([^\]]+)\]\]", htxt)
+    link_ok = True
+    for raw in links:
+        target = raw.split("|", 1)[0].split("#", 1)[0].strip()
+        if not target:
+            continue
+        candidates = [os.path.join(repo_root, target), os.path.join(repo_root, target + ".md")]
+        if not any(os.path.exists(x) for x in candidates):
+            print(f"  [FAIL] T5: missing HOME wikilink target: {target}")
+            link_ok = False
+            break
+    if link_ok and links:
+        print(f"  [PASS] T5: All HOME wikilinks/embeds resolve ({len(links)} checked)")
+        passed += 1
     # T6: AIRO Worklog.base exists and uses official native Obsidian Bases YAML schema
     base_path = os.path.join(repo_root, "worklog/views/AIRO Worklog.base")
     if os.path.exists(base_path):

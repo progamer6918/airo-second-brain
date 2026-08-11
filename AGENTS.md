@@ -1,5 +1,5 @@
-last_updated: 2026-08-04
-updated_by: owner-approved-v06-architecture-correction
+last_updated: 2026-08-11
+updated_by: owner-approved-direct-wsl-workflow-hardening
 status: current
 confidence: owner-confirmed
 source: ASB v0.6 Architecture & Governance Restored
@@ -79,7 +79,7 @@ Canonical files require owner approval before modification.
 
 ## Default Command-Output Clipboard Copy Rule
 
-Setiap perintah yang dieksekusi atas permintaan Owner wajib menangkap output-nya ke berkas `/tmp/airo_<task>_<timestamp>.txt`, diarahkan lewat `tee`, dan disalin ke clipboard Windows menggunakan `clip.exe` di WSL.
+Setiap Owner-facing execution wajib menangkap stdout+stderr ke `/tmp/airo_<task>_<timestamp>.txt` melalui `tee`, lalu menggunakan `scripts/airo-clipboard-receipt`; verified readback dan content-hash match wajib.
 
 ## Never Store
 
@@ -106,8 +106,10 @@ STOP_IF=<stop condition>
 ```
 
 ### 4. WSL Command and Git Safety Contracts
-- Follow the canonical WSL command template with logging to `/tmp`, `tee` output capture, Windows clipboard copy via `/mnt/c/Windows/System32/clip.exe` (fallback `clip.exe`), and validation summary output.
+- Follow `docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`; direct WSL may bundle multiple deterministic sub-steps to minimize safe Owner interaction cycles.
+- Capture stdout+stderr through `tee` and use `scripts/airo-clipboard-receipt` for verified clipboard delivery.
 - Never execute logout, session termination, or WSL shutdown commands.
+- Never allow `exit`, `set -e`, or `set -u` to affect the Owner interactive parent shell.
 - Apply exact-path staging only; never use `git add .` or `git add -A`. Block on unexpected staged files or secrets.
 - Verify remote parity and fetch/compare branches before push. Do not force push.
 
