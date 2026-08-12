@@ -36,6 +36,7 @@ import urllib.parse
 import urllib.error
 import uuid
 import re
+from typing import Optional
 
 # ─── Bounded EAB Intent Pre-Router ───────────────────────────────────────────
 def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
