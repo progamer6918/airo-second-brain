@@ -35,6 +35,66 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import uuid
+import re
+
+# ─── Bounded EAB Intent Pre-Router ───────────────────────────────────────────
+def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
+    """
+    Bounded EAB pre-router. Resolves Owner EAB intents to signed production EAB transport.
+    Falls back to None if the message is normal conversational text.
+    """
+    clean = text.strip().lower()
+    
+    # Intent 1: "cek transaksi arfin yang pending" / "cek pending"
+    if "cek" in clean and ("pending" in clean or "transaksi" in clean or "arfin" in clean):
+        try:
+            # Call EAB client
+            from src.adapter.eab_live_client import EABLiveSignedClient
+            client = EABLiveSignedClient(fake_mode=False)
+            res = client.list_pending(owner_chat_id)
+            
+            if res.get("status") == "error":
+                return f"⚠️ Gagal menghubungi service Arfin live: {res.get('message')}"
+            
+            items = res.get("pending_items", [])
+            if not items:
+                return "ℹ️ Tidak ada transaksi Arfin yang memerlukan klarifikasi saat ini."
+            
+            lines = ["📋 **Daftar Transaksi Arfin Pending Clarification:**"]
+            for idx, item in enumerate(items, 1):
+                short_ref = item.get("short_ref") or f"AF-{1000+idx}"
+                desc = item.get("description", "Transaksi Baru")
+                amt = item.get("amount", 0)
+                lines.append(f"{idx}. **{short_ref}** — Rp {amt:,.0f} ({desc})")
+            lines.append("\nBalas dengan ref `AF-XXXX <kategori> <deskripsi>` untuk memberikan klarifikasi.")
+            return "\n".join(lines)
+        except Exception as e:
+            logger.error("EAB Pre-Router list_pending error: %s", e)
+            return f"⚠️ Terjadi kesalahan saat memeriksa transaksi pending: {e}"
+
+    # Intent 2: Clarification response "AF-XXXX <text>"
+    af_match = re.match(r"^(AF-\d+)\s+(.+)$", text.strip(), re.IGNORECASE)
+    if af_match:
+        short_ref = af_match.group(1).upper()
+        clarification_text = af_match.group(2).strip()
+        try:
+            from src.adapter.eab_live_client import EABLiveSignedClient
+            client = EABLiveSignedClient(fake_mode=False)
+            res = client.submit_clarification(
+                pending_id=short_ref,
+                pending_version=1,
+                clarification_text=clarification_text,
+                owner_chat_id=owner_chat_id
+            )
+            if res.get("status") == "error":
+                return f"⚠️ Gagal mengirim klarifikasi {short_ref}: {res.get('message')}"
+            
+            return f"✅ Klarifikasi untuk **{short_ref}** berhasil dikirim dan masuk ke Review Queue Arfin (`{clarification_text}`)."
+        except Exception as e:
+            return f"⚠️ Terjadi kesalahan saat mengirim klarifikasi {short_ref}: {e}"
+
+    return None
+
 from datetime import datetime
 from pathlib import Path
 
