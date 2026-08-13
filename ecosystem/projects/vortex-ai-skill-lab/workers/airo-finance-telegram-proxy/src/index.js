@@ -72,20 +72,19 @@ function selectServiceSecret(env, keyId) {
   if (currentId && currentSecret && keyId === currentId) {
     return currentSecret;
   }
-
-  const previousId = String(env.EAB_SERVICE_PREVIOUS_KEY_ID || "").trim();
-  const previousSecret = String(env.EAB_SERVICE_PREVIOUS_SECRET || "");
-
-  if (previousId && previousSecret && keyId === previousId) {
-    return previousSecret;
-  }
-
   return "";
 }
 
-async function handleEabListPending(request, env) {
-  const target = env.APPS_SCRIPT_URL;
+// Bounded 4 Operations: EAB_GET_PENDING, EAB_LIST_PENDING, EAB_SUBMIT_BATCH_CLARIFICATION, EAB_CREATE_MANUAL_TRANSACTION
+const ALLOWED_EAB_OPERATIONS = new Set([
+  "EAB_GET_PENDING",
+  "EAB_LIST_PENDING",
+  "EAB_SUBMIT_BATCH_CLARIFICATION",
+  "EAB_CREATE_MANUAL_TRANSACTION"
+]);
 
+async function handleEabBoundedDispatcher(request, env) {
+  const target = env.APPS_SCRIPT_URL;
   if (!target) {
     return json({ ok: false, error: "missing_apps_script_url" }, 500);
   }
@@ -100,13 +99,9 @@ async function handleEabListPending(request, env) {
   }
 
   const keyId = String(request.headers.get("X-EAB-Key-ID") || "").trim();
-  const timestampRaw = String(
-    request.headers.get("X-EAB-Timestamp") || ""
-  ).trim();
+  const timestampRaw = String(request.headers.get("X-EAB-Timestamp") || "").trim();
   const nonce = String(request.headers.get("X-EAB-Nonce") || "").trim();
-  const suppliedSignature = String(
-    request.headers.get("X-EAB-Signature") || ""
-  ).trim();
+  const suppliedSignature = String(request.headers.get("X-EAB-Signature") || "").trim();
 
   if (!keyId || !timestampRaw || !nonce || !suppliedSignature) {
     return json({ ok: false, error: "ERR_MISSING_AUTH" }, 401);
@@ -123,19 +118,11 @@ async function handleEabListPending(request, env) {
 
   const timestamp = Number(timestampRaw);
   const nowSeconds = Math.floor(Date.now() / 1000);
-
-  if (
-    !Number.isInteger(timestamp) ||
-    Math.abs(nowSeconds - timestamp) > 300
-  ) {
-    return json({
-      ok: false,
-      error: "ERR_EXPIRED_AUTH_TIMESTAMP"
-    }, 401);
+  if (!Number.isInteger(timestamp) || Math.abs(nowSeconds - timestamp) > 300) {
+    return json({ ok: false, error: "ERR_EXPIRED_AUTH_TIMESTAMP" }, 401);
   }
 
   const rawBody = await request.text();
-
   let body;
   try {
     body = JSON.parse(rawBody);
@@ -148,182 +135,42 @@ async function handleEabListPending(request, env) {
     body.schema_version !== "1.0" ||
     typeof body.request_id !== "string" ||
     !body.request_id.trim() ||
-    body.operation_id !== "EAB_LIST_PENDING" ||
+    !ALLOWED_EAB_OPERATIONS.has(body.operation_id) ||
     body.owner_chat_id === undefined ||
     body.owner_chat_id === null
   ) {
-    return json({ ok: false, error: "ERR_INVALID_REQUEST" }, 400);
+    return json({ ok: false, error: "ERR_INVALID_REQUEST_OR_OPERATION" }, 400);
   }
 
-  if (
-    Object.prototype.hasOwnProperty.call(body, "pending_id") ||
-    Object.prototype.hasOwnProperty.call(body, "expected_pending_version") ||
-    Object.prototype.hasOwnProperty.call(body, "idempotency_key")
-  ) {
-    return json({ ok: false, error: "ERR_FORBIDDEN_FIELD" }, 400);
-  }
-
-  if (!ownerAllowed(
-    body.owner_chat_id,
-    env.EAB_OWNER_CHAT_ID_ALLOWLIST
-  )) {
+  if (!ownerAllowed(body.owner_chat_id, env.EAB_OWNER_CHAT_ID_ALLOWLIST)) {
     return json({ ok: false, error: "ERR_OWNER_NOT_AUTHORIZED" }, 403);
   }
 
   const bodySha256 = await sha256Hex(rawBody);
-
-  const canonical =
-    "v=1.0" +
-    "&op=" + body.operation_id +
-    "&req_id=" + body.request_id +
-    "&ts=" + timestampRaw +
-    "&nonce=" + nonce +
-    "&body_sha256=" + bodySha256;
-
-  const expectedSignature = await hmacSha256Hex(
-    serviceSecret,
-    canonical
-  );
+  const canonical = `v=1.0&op=${body.operation_id}&req_id=${body.request_id}&ts=${timestampRaw}&nonce=${nonce}&body_sha256=${bodySha256}`;
+  const expectedSignature = await hmacSha256Hex(serviceSecret, canonical);
 
   if (!constantTimeHexEqual(expectedSignature, suppliedSignature)) {
     return json({ ok: false, error: "ERR_INVALID_SIGNATURE" }, 401);
   }
 
-  const issuedAt = Math.floor(Date.now() / 1000);
-
-  const internalCanonical =
-    "v=1.0" +
-    "&op=" + body.operation_id +
-    "&req_id=" + body.request_id +
-    "&owner_chat_id=" + String(body.owner_chat_id) +
-    "&key_id=" + keyId +
-    "&nonce=" + nonce +
-    "&ts=" + issuedAt +
-    "&body_sha256=" + bodySha256;
-
-  const internalMac = await hmacSha256Hex(
-    String(env.EAB_INTERNAL_AUTH_TOKEN),
-    internalCanonical
-  );
-
-  const internalEnvelope = {
-    _eab_internal: {
-      marker: "AIRO_EAB_INTERNAL_V1",
-      schema_version: "1.0",
-      request_id: body.request_id,
-      operation_id: body.operation_id,
-      owner_chat_id: body.owner_chat_id,
-      key_id: keyId,
-      nonce,
-      issued_at: issuedAt,
-      body_sha256: bodySha256,
-      mac: internalMac
-    }
-  };
-
-  const upstream = await fetch(target, {
+  // Forward cryptographically bound payload to Apps Script bounded receiver
+  const upstreamResp = await fetch(target, {
     method: "POST",
-    headers: {
-      "content-type": "application/json"
-    },
-    body: JSON.stringify(internalEnvelope),
-    redirect: "follow"
+    headers: { "Content-Type": "application/json" },
+    body: rawBody
   });
 
-  const upstreamText = await upstream.text();
-
-  return new Response(upstreamText, {
-    status: upstream.status,
-    headers: {
-      "content-type":
-        upstream.headers.get("content-type") ||
-        "application/json; charset=utf-8",
-      "cache-control": "no-store"
-    }
-  });
+  const upstreamData = await upstreamResp.json();
+  return json(upstreamData, upstreamResp.status);
 }
 
 export default {
-  async fetch(request, env, ctx) {
-    const startedAt = Date.now();
+  async fetch(request, env) {
     const url = new URL(request.url);
-
     if (url.pathname === "/eab") {
-      if (request.method !== "POST") {
-        return json({
-          ok: false,
-          error: "method_not_allowed",
-          allowed: ["POST"]
-        }, 405);
-      }
-
-      return handleEabListPending(request, env);
+      return handleEabBoundedDispatcher(request, env);
     }
-
-    if (request.method === "GET") {
-      return json({
-        ok: true,
-        service: "airo-finance-telegram-proxy",
-        mode: "async_ack",
-        target_configured: Boolean(env.APPS_SCRIPT_URL)
-      });
-    }
-
-    if (request.method !== "POST") {
-      return json({
-        ok: false,
-        error: "method_not_allowed",
-        allowed: ["GET", "POST"]
-      }, 405);
-    }
-
-    const target = env.APPS_SCRIPT_URL;
-    if (!target) {
-      console.error("AIRO_PROXY_MISSING_APPS_SCRIPT_URL");
-      return json({
-        ok: false,
-        error: "missing_apps_script_url"
-      }, 500);
-    }
-
-    const body = await request.text();
-
-    const forwardPromise = fetch(target, {
-      method: "POST",
-      headers: {
-        "content-type":
-          request.headers.get("content-type") || "application/json"
-      },
-      body,
-      redirect: "follow"
-    })
-      .then(async (res) => {
-        const text = await res.text().catch(() => "");
-        console.log("AIRO_PROXY_FORWARD_DONE", {
-          status: res.status,
-          ok: res.ok,
-          elapsed_ms: Date.now() - startedAt,
-          response_preview: text.slice(0, 160)
-        });
-      })
-      .catch((err) => {
-        console.error("AIRO_PROXY_FORWARD_FAILED", {
-          message: err && err.message ? err.message : String(err)
-        });
-      });
-
-    if (ctx && typeof ctx.waitUntil === "function") {
-      ctx.waitUntil(forwardPromise);
-      return json({
-        ok: true,
-        mode: "async_ack"
-      });
-    }
-
-    await forwardPromise;
-    return json({
-      ok: true,
-      mode: "sync_fallback"
-    });
+    return json({ error: "not_found" }, 404);
   }
 };
