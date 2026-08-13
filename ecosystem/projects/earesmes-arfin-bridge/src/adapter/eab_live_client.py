@@ -2,6 +2,7 @@
 """
 ecosystem/projects/earesmes-arfin-bridge/src/adapter/eab_live_client.py
 Production Signed EAB Client for Cloudflare Worker Transport.
+Fail-closed configuration, 4 bounded operations, canonical envelope parsing, User-Agent header.
 """
 
 import os
@@ -15,12 +16,15 @@ import urllib.parse
 import urllib.error
 from typing import Dict, Any, List, Optional
 
-WORKER_HOST = "airo-finance-telegram-proxy.egitaristorandas.workers.dev"
+WORKER_HOST = "airo-finance-telegram-proxy.progamer6918.workers.dev"
 KEY_ID = "EAB_KEY_2026_V1"
 
 class EABLiveSignedClient:
     def __init__(self, service_secret: Optional[str] = None, fake_mode: bool = False):
-        self.service_secret = service_secret or os.environ.get("EAB_SERVICE_SECRET", "eab_secret_canary_key_v1")
+        sec = service_secret or os.environ.get("EAB_SERVICE_SECRET")
+        if not sec and not fake_mode:
+            raise ValueError("EAB_SERVICE_SECRET missing in environment! Fail closed.")
+        self.service_secret = sec or ""
         self.fake_mode = fake_mode
 
     def _send_signed_request(self, operation_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -42,6 +46,7 @@ class EABLiveSignedClient:
         ).hexdigest()
 
         headers = {
+            "User-Agent": "AIRO-EAB-Client/1.0",
             "Content-Type": "application/json",
             "X-EAB-Key-ID": KEY_ID,
             "X-EAB-Timestamp": now_ts,
@@ -55,11 +60,23 @@ class EABLiveSignedClient:
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode('utf-8'))
+                if not isinstance(data, dict):
+                    return {"status": "error", "message": "Invalid non-dict response envelope"}
                 return data
         except urllib.error.HTTPError as e:
             return {"status": "error", "http_code": e.code, "message": f"HTTP Error {e.code}"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
+
+    def get_pending(self, pending_id: str, owner_chat_id: str) -> Dict[str, Any]:
+        payload = {
+            "schema_version": "1.0",
+            "request_id": f"req_get_{int(time.time())}",
+            "operation_id": "EAB_GET_PENDING",
+            "owner_chat_id": owner_chat_id,
+            "pending_id": pending_id
+        }
+        return self._send_signed_request("EAB_GET_PENDING", payload)
 
     def list_pending(self, owner_chat_id: str) -> Dict[str, Any]:
         payload = {
@@ -70,14 +87,24 @@ class EABLiveSignedClient:
         }
         return self._send_signed_request("EAB_LIST_PENDING", payload)
 
-    def submit_clarification(self, pending_id: str, pending_version: int, clarification_text: str, owner_chat_id: str) -> Dict[str, Any]:
+    def submit_batch_clarification(self, items: List[Dict[str, Any]], owner_chat_id: str) -> Dict[str, Any]:
         payload = {
             "schema_version": "1.0",
-            "request_id": f"req_submit_{int(time.time())}",
-            "operation_id": "EAB_SUBMIT_CLARIFICATION",
+            "request_id": f"req_batch_{int(time.time())}",
+            "operation_id": "EAB_SUBMIT_BATCH_CLARIFICATION",
             "owner_chat_id": owner_chat_id,
-            "pending_id": pending_id,
-            "expected_pending_version": pending_version,
-            "clarification_text": clarification_text
+            "items": items
         }
-        return self._send_signed_request("EAB_SUBMIT_CLARIFICATION", payload)
+        return self._send_signed_request("EAB_SUBMIT_BATCH_CLARIFICATION", payload)
+
+    def create_manual_transaction(self, amount: float, category: str, description: str, owner_chat_id: str) -> Dict[str, Any]:
+        payload = {
+            "schema_version": "1.0",
+            "request_id": f"req_manual_{int(time.time())}",
+            "operation_id": "EAB_CREATE_MANUAL_TRANSACTION",
+            "owner_chat_id": owner_chat_id,
+            "amount": amount,
+            "category": category,
+            "description": description
+        }
+        return self._send_signed_request("EAB_CREATE_MANUAL_TRANSACTION", payload)

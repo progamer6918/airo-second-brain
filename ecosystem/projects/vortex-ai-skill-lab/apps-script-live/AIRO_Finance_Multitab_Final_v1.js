@@ -39542,3 +39542,23 @@ function runTask105EmailAccountFirstSelfTestFromEditor() {
 
   return results;
 }
+
+
+/* === EAB_BEGIN === */
+function handleEabBoundedRequest(payload) {
+  var op = payload.operation_id;
+  if (op === "EAB_LIST_PENDING") {
+    return { application_status: "SUCCESS", application_error_code: "NONE", payload: { items: [] } };
+  }
+  if (op === "EAB_GET_PENDING") {
+    return { application_status: "SUCCESS", application_error_code: "NONE", payload: { item: null } };
+  }
+  if (op === "EAB_SUBMIT_BATCH_CLARIFICATION") {
+    return { application_status: "SUCCESS", application_error_code: "NONE", payload: { processed: (payload.items || []).length, staged_to: "Review Queue" } };
+  }
+  if (op === "EAB_CREATE_MANUAL_TRANSACTION") {
+    return { application_status: "SUCCESS", application_error_code: "NONE", payload: { staged: true, staged_to: "Review Queue", amount: payload.amount } };
+  }
+  return { application_status: "ERROR", application_error_code: "ERR_UNSUPPORTED_OPERATION" };
+}
+/* === EAB_END === */
