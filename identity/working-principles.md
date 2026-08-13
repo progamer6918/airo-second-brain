@@ -66,20 +66,54 @@ Antigravity adalah AI executor yang menerima PRD sebagai kontrak eksekusi. Stand
 - Antigravity tidak boleh membuat keputusan arsitektur yang tidak ada di PRD
 
 <!-- AIRO:DEVICE_MODES:BEGIN -->
-## Device Operating Modes
+### Owner Work Schedule and Device Operating Modes
 
-### Daytime mode
-- Owner may lack main-PC terminal and local workspace access.
-- GitHub web, github.dev, or Codespaces may be used.
-- Documentation, governance, planning, review, and queue processing may proceed.
-- Do not request uploads of files already in the main workspace.
-- Do not provide local terminal commands unless explicitly requested or a cloud workspace is active.
+#### Canonical Work Schedule
 
-### Main-PC/night mode
-- Local workspace, workbook inspection, VBA compile/runtime tests, and local file operations are available.
-- Process relevant daytime captures before execution.
+* Owner timezone: `Asia/Jakarta` (`WIB`, UTC+7).
+* Regular workdays: Monday through Saturday.
+* Regular work hours: `08:00-17:00 WIB`.
+* Sunday is a non-workday.
+* Indonesian national public holidays are non-workdays.
+* When national-holiday status affects execution-context inference, verify the current Indonesian national-holiday calendar from an authoritative/current source; do not rely on stale model memory.
 
-### Fast-track rule
+#### Context-Inference Precedence
+
+1. An explicit Owner statement about the current device or location always overrides schedule-based inference.
+2. During a regular workday at `08:00-17:00 WIB`, default to `WORK_BROWSER` when the Owner has not stated another device/context.
+3. Outside regular work hours, on Sunday, or on an Indonesian national public holiday, default to `MAIN_PC` unless the Owner states otherwise.
+4. Schedule-derived context is an operating default, not proof of physical device state.
+5. Never use inferred device context as evidence for runtime, credential, process, deployment, or filesystem state.
+
+#### `WORK_BROWSER` — Work Laptop
+
+* Browser-only operating context by default.
+* Local terminal and WSL execution are unavailable.
+* Local AIRO workspace/runtime access must not be assumed.
+* ChatGPT usage on the work laptop may be shared/non-private; keep this context non-secret and public-safe.
+* Do not expose credentials, tokens, private `.env` data, raw sensitive financial data, or other production secrets in this context.
+* Assume a full free-tier workflow; do not require paid tooling or subscriptions unless the Owner explicitly changes this constraint.
+* Appropriate work: ASB/GitHub reading, research, planning, architecture, source review, requirements reconciliation, test-design review, candidate specification, and preparation of complete `MAIN_PC` execution packets.
+* Do not provide local WSL/runtime commands as immediately executable work unless the Owner explicitly says a compatible execution environment is available.
+* When a task requires runtime execution, complete as much deterministic analysis/design as possible and prepare a bounded `MAIN_PC` execution packet rather than blocking productive work.
+
+#### `MAIN_PC` — Primary Execution Environment
+
+* Local workspace and WSL execution are available when the Owner confirms or context inference selects `MAIN_PC`.
+* This is the primary environment for local AIRO implementation, test execution, Git CLI operations, runtime/service inspection, deployment preparation, and production evidence collection.
+* Production/runtime state must still be verified directly; `MAIN_PC` context never substitutes for runtime evidence.
+* Continue the same canonical ASB project/session state rather than reconstructing continuity from chat memory.
+
+#### Cross-Device Continuity
+
+* AIRO Second Brain (ASB) is the durable cross-device source of continuity.
+* Chat/model memory is not required for project continuity and must not override canonical ASB or live evidence.
+* `WORK_BROWSER` should optimize for research, review, design, and complete execution preparation.
+* `MAIN_PC` should optimize for bounded execution, verification, deployment, and evidence capture.
+* Device changes do not create a new project objective by themselves; preserve the active project/session when the objective is unchanged.
+
+#### Fast-track Rule
+
 Fast track means fewer controlled cycles, not skipped evidence: one complete audit, one mapping decision, one approved implementation package, one regression cycle, one release update. Never modify the frozen baseline directly.
 <!-- AIRO:DEVICE_MODES:END -->
 
