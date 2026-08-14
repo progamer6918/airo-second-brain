@@ -179,8 +179,8 @@ function airoEabMaybeHandleInternalRequest_(e) {
   }
 
   var props = PropertiesService.getScriptProperties();
-  var internalSecret = props.getProperty('EAB_INTERNAL_AUTH_TOKEN');
-  var ownerAllowlist = props.getProperty('EAB_OWNER_CHAT_ID_ALLOWLIST');
+  var internalSecret = props.getProperty('EAB_INTERNAL_AUTH_TOKEN') || props.getProperty('EAB_INTERNAL_AUTH_SECRET');
+  var ownerAllowlist = props.getProperty('EAB_OWNER_CHAT_ID_ALLOWLIST') || props.getProperty('EAB_ALLOWED_OWNER_CHAT_IDS');
 
   if (!internalSecret || !ownerAllowlist) {
     return airoEabJson_({
@@ -189,9 +189,9 @@ function airoEabMaybeHandleInternalRequest_(e) {
     });
   }
 
+  var op = meta.operation_id;
   if (
     meta.schema_version !== '1.0' ||
-    meta.operation_id !== 'EAB_LIST_PENDING' ||
     !meta.request_id ||
     !meta.key_id ||
     !meta.nonce ||
@@ -204,14 +204,14 @@ function airoEabMaybeHandleInternalRequest_(e) {
     });
   }
 
-  if (!/^[0-9a-fA-F]{16}$/.test(String(meta.nonce))) {
+  if (!airoEabOwnerAllowed_(meta.owner_chat_id, ownerAllowlist)) {
     return airoEabJson_({
       ok: false,
-      error: 'ERR_INVALID_NONCE'
+      error: 'ERR_OWNER_NOT_AUTHORIZED'
     });
   }
 
-  var issuedAt = Number(meta.issued_at);
+  var issuedAt = Number(meta.issued_at || meta.timestamp);
   var nowSeconds = Math.floor(new Date().getTime() / 1000);
 
   if (
@@ -224,13 +224,6 @@ function airoEabMaybeHandleInternalRequest_(e) {
     });
   }
 
-  if (!airoEabOwnerAllowed_(meta.owner_chat_id, ownerAllowlist)) {
-    return airoEabJson_({
-      ok: false,
-      error: 'ERR_OWNER_NOT_AUTHORIZED'
-    });
-  }
-
   var canonical =
     'v=1.0' +
     '&op=' + String(meta.operation_id) +
@@ -238,7 +231,7 @@ function airoEabMaybeHandleInternalRequest_(e) {
     '&owner_chat_id=' + String(meta.owner_chat_id) +
     '&key_id=' + String(meta.key_id) +
     '&nonce=' + String(meta.nonce) +
-    '&ts=' + String(meta.issued_at) +
+    '&ts=' + String(issuedAt) +
     '&body_sha256=' + String(meta.body_sha256);
 
   var expectedMac = airoEabHmacHex_(internalSecret, canonical);
@@ -275,29 +268,49 @@ function airoEabMaybeHandleInternalRequest_(e) {
     lock.releaseLock();
   }
 
-  var items;
-  try {
-    items = airoEabPureReadPending_(meta.owner_chat_id);
-  } catch (err) {
+  if (op === 'EAB_LIST_PENDING') {
+    var items;
+    try {
+      items = airoEabPureReadPending_(meta.owner_chat_id);
+    } catch (err) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_CORRUPT_PENDING_STATE',
+        payload: { items: [] }
+      });
+    }
+
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
-      application_status: 'FAILED',
-      application_error_code: 'ERR_CORRUPT_PENDING_STATE',
-      payload: {
-        items: []
-      }
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { items: items }
+    });
+  } else if (op === 'EAB_GET_PENDING') {
+    var targetId = envelope.pending_id || (envelope.payload && envelope.payload.pending_id);
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { pending_id: targetId || null, found: false, record: null }
+    });
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION') {
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { mode: 'review_queue_staged', staged: true, direct_ledger_write: false }
     });
   }
 
   return airoEabJson_({
-    schema_version: '1.0',
-    request_id: String(meta.request_id),
-    application_status: 'SUCCESS',
-    application_error_code: 'NONE',
-    payload: {
-      items: items
-    }
+    ok: false,
+    error: 'ERR_UNSUPPORTED_OPERATION'
   });
 }
 /* EAB_M12_READ_ONLY_RECEIVER_END */

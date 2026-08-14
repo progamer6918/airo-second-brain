@@ -83,7 +83,14 @@ function selectServiceSecret(env, keyId) {
   return "";
 }
 
-async function handleEabListPending(request, env) {
+const SUPPORTED_EAB_OPERATIONS = new Set([
+  "EAB_GET_PENDING",
+  "EAB_LIST_PENDING",
+  "EAB_SUBMIT_BATCH_CLARIFICATION",
+  "EAB_CREATE_MANUAL_TRANSACTION"
+]);
+
+async function handleEabRequest(request, env) {
   const target = env.APPS_SCRIPT_URL;
 
   if (!target) {
@@ -94,7 +101,7 @@ async function handleEabListPending(request, env) {
     !env.EAB_SERVICE_AUTH_KEY_ID ||
     !env.EAB_SERVICE_SECRET ||
     !env.EAB_INTERNAL_AUTH_TOKEN ||
-    !env.EAB_OWNER_CHAT_ID_ALLOWLIST
+    (env.EAB_OWNER_CHAT_ID_ALLOWLIST === undefined && env.EAB_ALLOWED_OWNER_CHAT_IDS === undefined)
   ) {
     return json({ ok: false, error: "eab_configuration_missing" }, 503);
   }
@@ -112,7 +119,7 @@ async function handleEabListPending(request, env) {
     return json({ ok: false, error: "ERR_MISSING_AUTH" }, 401);
   }
 
-  const serviceSecret = selectServiceSecret(env, keyId);
+  const serviceSecret = selectServiceSecret(env, keyId) || String(env.EAB_SERVICE_SECRET || "");
   if (!serviceSecret) {
     return json({ ok: false, error: "ERR_INVALID_AUTH_KEY" }, 401);
   }
@@ -148,25 +155,19 @@ async function handleEabListPending(request, env) {
     body.schema_version !== "1.0" ||
     typeof body.request_id !== "string" ||
     !body.request_id.trim() ||
-    body.operation_id !== "EAB_LIST_PENDING" ||
+    !body.operation_id ||
     body.owner_chat_id === undefined ||
     body.owner_chat_id === null
   ) {
     return json({ ok: false, error: "ERR_INVALID_REQUEST" }, 400);
   }
 
-  if (
-    Object.prototype.hasOwnProperty.call(body, "pending_id") ||
-    Object.prototype.hasOwnProperty.call(body, "expected_pending_version") ||
-    Object.prototype.hasOwnProperty.call(body, "idempotency_key")
-  ) {
-    return json({ ok: false, error: "ERR_FORBIDDEN_FIELD" }, 400);
+  if (!SUPPORTED_EAB_OPERATIONS.has(body.operation_id)) {
+    return json({ ok: false, error: "ERR_UNKNOWN_OPERATION" }, 400);
   }
 
-  if (!ownerAllowed(
-    body.owner_chat_id,
-    env.EAB_OWNER_CHAT_ID_ALLOWLIST
-  )) {
+  const allowlist = env.EAB_OWNER_CHAT_ID_ALLOWLIST || env.EAB_ALLOWED_OWNER_CHAT_IDS;
+  if (!ownerAllowed(body.owner_chat_id, allowlist)) {
     return json({ ok: false, error: "ERR_OWNER_NOT_AUTHORIZED" }, 403);
   }
 
@@ -201,8 +202,9 @@ async function handleEabListPending(request, env) {
     "&ts=" + issuedAt +
     "&body_sha256=" + bodySha256;
 
+  const internalSecret = env.EAB_INTERNAL_AUTH_TOKEN || env.EAB_INTERNAL_AUTH_SECRET || serviceSecret;
   const internalMac = await hmacSha256Hex(
-    String(env.EAB_INTERNAL_AUTH_TOKEN),
+    String(internalSecret),
     internalCanonical
   );
 
@@ -218,7 +220,12 @@ async function handleEabListPending(request, env) {
       issued_at: issuedAt,
       body_sha256: bodySha256,
       mac: internalMac
-    }
+    },
+    operation_id: body.operation_id,
+    request_id: body.request_id,
+    owner_chat_id: body.owner_chat_id,
+    pending_id: body.pending_id || null,
+    payload: body.payload || body
   };
 
   const upstream = await fetch(target, {
@@ -257,7 +264,7 @@ export default {
         }, 405);
       }
 
-      return handleEabListPending(request, env);
+      return handleEabRequest(request, env);
     }
 
     if (request.method === "GET") {
