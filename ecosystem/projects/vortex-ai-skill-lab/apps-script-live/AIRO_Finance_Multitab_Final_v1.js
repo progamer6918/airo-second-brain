@@ -18538,7 +18538,173 @@ function airoEabMaybeHandleDirectRequest_(e) {
 /* EAB_DIRECT_V1_RECEIVER_END */
 
 
+
+/* EAB_DIRECT_V1_RECEIVER_START */
+function airoEabMaybeHandleDirectRequest_(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return null;
+  }
+
+  var envelope;
+  try {
+    envelope = JSON.parse(String(e.postData.contents || ''));
+  } catch (err) {
+    return null;
+  }
+
+  if (!envelope || typeof envelope !== 'object') {
+    return null;
+  }
+
+  var meta = envelope._eab_direct || envelope._eab_direct_v1 || (envelope.marker === 'AIRO_EAB_DIRECT_V1' ? envelope : null);
+  if (!meta) {
+    return null;
+  }
+
+  if (meta.marker !== 'AIRO_EAB_DIRECT_V1') {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_DIRECT_MARKER'
+    });
+  }
+
+  var props = PropertiesService.getScriptProperties();
+  var serviceSecret = props.getProperty('EAB_SERVICE_SECRET') || props.getProperty('EAB_INTERNAL_AUTH_TOKEN') || '';
+  var ownerAllowlist = props.getProperty('EAB_OWNER_CHAT_ID_ALLOWLIST') || props.getProperty('EAB_ALLOWED_OWNER_CHAT_IDS') || '7113110978,8482041086';
+
+  var op = meta.operation_id;
+  if (
+    meta.schema_version !== '1.0' ||
+    !meta.request_id ||
+    !meta.key_id ||
+    !meta.nonce ||
+    !meta.body_sha256 ||
+    !meta.mac
+  ) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_DIRECT_REQUEST'
+    });
+  }
+
+  if (!airoEabOwnerAllowed_(meta.owner_chat_id, ownerAllowlist)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_OWNER_NOT_AUTHORIZED'
+    });
+  }
+
+  var issuedAt = Number(meta.issued_at || meta.timestamp);
+  var nowSeconds = Math.floor(new Date().getTime() / 1000);
+
+  if (
+    !isFinite(issuedAt) ||
+    Math.abs(nowSeconds - issuedAt) > 300
+  ) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_EXPIRED_DIRECT_TIMESTAMP'
+    });
+  }
+
+  var canonical =
+    'v=1.0' +
+    '&op=' + String(meta.operation_id) +
+    '&req_id=' + String(meta.request_id) +
+    '&owner_chat_id=' + String(meta.owner_chat_id) +
+    '&key_id=' + String(meta.key_id) +
+    '&nonce=' + String(meta.nonce) +
+    '&ts=' + String(issuedAt) +
+    '&body_sha256=' + String(meta.body_sha256);
+
+  var expectedMac = airoEabHmacHex_(serviceSecret, canonical);
+
+  if (!airoEabConstantTimeEqual_(expectedMac, meta.mac)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_INVALID_DIRECT_AUTH'
+    });
+  }
+
+  var lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(5000)) {
+    return airoEabJson_({
+      ok: false,
+      error: 'ERR_REPLAY_LOCK_UNAVAILABLE'
+    });
+  }
+
+  try {
+    airoEabPruneReplay_(props, nowSeconds);
+
+    var replayKey = airoEabReplayKey_(meta.key_id, meta.nonce);
+    if (props.getProperty(replayKey)) {
+      return airoEabJson_({
+        ok: false,
+        error: 'ERR_NONCE_REPLAYED'
+      });
+    }
+
+    props.setProperty(replayKey, String(nowSeconds));
+  } finally {
+    lock.releaseLock();
+  }
+
+  if (op === 'EAB_LIST_PENDING') {
+    var items;
+    try {
+      items = airoEabPureReadPending_(meta.owner_chat_id);
+    } catch (err) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_CORRUPT_PENDING_STATE',
+        payload: { items: [] }
+      });
+    }
+
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { items: items }
+    });
+  } else if (op === 'EAB_GET_PENDING') {
+    var targetId = envelope.pending_id || (envelope.payload && envelope.payload.pending_id);
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { pending_id: targetId || null, found: false, record: null }
+    });
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION') {
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: { mode: 'review_queue_staged', staged: true, direct_ledger_write: false }
+    });
+  }
+
+  return airoEabJson_({
+    ok: false,
+    error: 'ERR_UNSUPPORTED_OPERATION'
+  });
+}
+/* EAB_DIRECT_V1_RECEIVER_END */
+
+
 function doPost(e) {
+  var eabDirectResult = airoEabMaybeHandleDirectRequest_(e);
+  if (eabDirectResult !== null) {
+    return eabDirectResult;
+  }
+
   var eabDirectResult = airoEabMaybeHandleDirectRequest_(e);
   if (eabDirectResult !== null) {
     return eabDirectResult;
