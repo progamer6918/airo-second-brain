@@ -15,5 +15,11 @@
 - **M13_TECHNICAL_EVIDENCE**: `PARTIAL`
 - **M13_OWNER_ACCEPTANCE**: `NOT_YET_COMPLETE`
 - **EARESMES_PENDING_QUERY_LIVE_CAPABILITY**: `FAIL`
-- **CURRENT_BLOCKER**: `active Cloudflare Worker/public endpoint behavior is not yet reconciled strongly enough to prove live EAB pending-query.`
-- **NEXT_ACTION**: `ONE final bounded active-deployment behavior inspection. The inspection must end in FIX or PARK. No further exploratory gate chain is permitted.`
+- **CURRENT_BLOCKER**: `EXTERNAL_CLOUDFLARE_RUNTIME_BEHAVIOR_UNRESOLVED`
+- **BLOCKER_DISPOSITION**: `PARKED`
+- **FINAL_BOUNDED_INSPECTION_OUTCOME**: `PARK`
+- **FIX_SCOPE**: `NONE`
+- **TECHNICAL_DIAGNOSIS_BUDGET_EXHAUSTED**: `YES`
+- **FURTHER_DIAGNOSTIC_GATE_ALLOWED**: `NO`
+- **PRIMARY_FLOW_EVIDENCE**: `Earesmes -> Review Queue -> Arfin approval -> Ledger evidence PASS`
+- **NEXT_SAFE_GATE**: `EAB_BLOCKER_PARKED`

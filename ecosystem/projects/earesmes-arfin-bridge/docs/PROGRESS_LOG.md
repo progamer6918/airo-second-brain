@@ -395,3 +395,20 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `FAIL`.
 - **Current Blocker:** `active Cloudflare Worker/public endpoint behavior is not yet reconciled strongly enough to prove live EAB pending-query.`
 - **Next Action:** `ONE final bounded active-deployment behavior inspection. The inspection must end in FIX or PARK. No further exploratory gate chain is permitted.`
+
+### 2026-08-15 — EAB_G2_6 / M13 Blocker Park Durable Checkpoint
+- **Executor:** AIRO Sync (Owner-Authorized Execution)
+- **Status:** Final bounded active deployment technical inspection ended in PARK.
+- **M12 Status:** `DONE`.
+- **M13 Status:** `IN_PROGRESS`.
+- **M13_PRIMARY_FLOW_COMPLETED:** `YES` (Earesmes -> Review Queue -> Arfin approval -> Ledger evidence PASS).
+- **M13_TECHNICAL_EVIDENCE:** `PARTIAL`.
+- **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
+- **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `FAIL`.
+- **Current Blocker:** `EXTERNAL_CLOUDFLARE_RUNTIME_BEHAVIOR_UNRESOLVED`.
+- **Blocker Disposition:** `PARKED`.
+- **Final Bounded Inspection Outcome:** `PARK`.
+- **Fix Scope:** `NONE`.
+- **Technical Diagnosis Budget:** `EXHAUSTED` (`YES`).
+- **Further Diagnostic Gate Allowed:** `NO`.
+- **Next Safe Gate:** `EAB_BLOCKER_PARKED`.
