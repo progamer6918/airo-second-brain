@@ -438,3 +438,15 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
 - **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `AWAITING_OWNER_TELEGRAM_REPROOF`.
 - **Next Safe Gate:** `OWNER_LIVE_EARESMES_PENDING_QUERY_REPROOF`.
+
+### 2026-08-15 — EAB Completion Master Bundle P1 Governance Recovery
+- **Executor:** AIRO Sync (P1 Governance Docs Only)
+- **Token:** `DOCS_OWNER_TOKEN_20260815_P1_8921a3dd`
+- **Reconciliation:** Formalized `AIRO_EAB_DIRECT_V1` body-signed HMAC transport and updated deployment evidence.
+- **M12 Status:** `DONE`.
+- **M13 Status:** `IN_PROGRESS`.
+- **Active Deployment:** `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw` (version 398, `ANYONE_ANONYMOUS`).
+- **M13_PRIMARY_FLOW_COMPLETED:** `YES`.
+- **M13_TECHNICAL_EVIDENCE:** `PARTIAL`.
+- **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
+- **Next Safe Gate:** `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`).

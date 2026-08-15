@@ -1,8 +1,8 @@
 # Earesmes-Arfin Bridge (EAB) — Current Handoff
 
 last_updated: 2026-08-15
-updated_by: owner-authorized-m13-hermes-worker-repair
-status: IN_PROGRESS_HERMES_WORKER_REPAIRED
+updated_by: eab-completion-master-bundle-p1-governance-docs
+status: IN_PROGRESS_P1_GOVERNANCE_RECONCILED
 current_milestone: M13 (Owner Acceptance - IN_PROGRESS)
 previous_milestone: M12 (Fresh Live Canary - DONE)
 
@@ -16,19 +16,19 @@ previous_milestone: M12 (Fresh Live Canary - DONE)
    - `M13_TECHNICAL_EVIDENCE`: `PARTIAL`
    - `M13_OWNER_ACCEPTANCE`: `NOT_YET_COMPLETE`
    - `EARESMES_PENDING_QUERY_LIVE_CAPABILITY`: `AWAITING_OWNER_TELEGRAM_REPROOF`
-3. **Hermes Worker Scoping Fix:** `PASS` (`session_id` unbound variable bug resolved).
-4. **Hermes Service-Context Proof:** `PASS`
-5. **Next Safe Gate:** `OWNER_LIVE_EARESMES_PENDING_QUERY_REPROOF`
+3. **P1 Governance Recovery:** `PASS` (Formalized `AIRO_EAB_DIRECT_V1` transport and deployment evidence).
+4. **Active Deployment:** `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw` (version 398, `ANYONE_ANONYMOUS`).
+5. **Next Safe Gate:** `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`)
 
 ---
 
 ## 📜 RECONCILED STATE SEMANTICS
 - M12_CANONICAL_STATUS: `DONE`
 - M13_CANONICAL_STATUS: `IN_PROGRESS`
-- HERMES_WORKER_UNBOUND_VARIABLE_REPAIR: `PASS`
-- LIVE_TURN_PRE_TOOL_FAILURE_FIXED: `YES`
+- EAB_ACTIVE_WEBAPP_DEPLOYMENT_ID: `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw`
+- EAB_ACTIVE_WEBAPP_ACCESS: `ANYONE_ANONYMOUS`
 - DIRECT_APPS_SCRIPT_TRANSPORT: `PASS`
-- HERMES_SERVICE_CONTEXT_EAB_LIST_PENDING: `PASS`
+- HERMES_SERVICE_CONTEXT_EAB_LIST_PENDING: `PASS` (HTTP 200)
 - EARESMES_PENDING_QUERY_LIVE_CAPABILITY: `AWAITING_OWNER_TELEGRAM_REPROOF`
 - M13_PRIMARY_FLOW_COMPLETED: `YES`
 - M13_TECHNICAL_EVIDENCE: `PARTIAL`

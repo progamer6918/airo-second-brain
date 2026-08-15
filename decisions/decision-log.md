@@ -1,4 +1,3 @@
-
 last_updated: 2026-06-10
 updated_by: owner-confirmed-design
 status: current
@@ -84,3 +83,9 @@ Owner wants less manual logging but still needs safe canonical control.
 Superseded by:
 
 —
+
+### 2026-08-15 — Formalization of Direct Apps Script Transport (AIRO_EAB_DIRECT_V1)
+- **Decision:** Formalize `AIRO_EAB_DIRECT_V1` direct Apps Script transport as canonical EAB transport architecture.
+- **Context:** HMAC-SHA256 signature is passed inside the payload JSON body (`key_id`, `timestamp`, `nonce`, `signature`).
+- **Authority:** EAB Master Bundle 2026-08-15 R1 P1 Governance Recovery.
+- **Status:** APPROVED.
