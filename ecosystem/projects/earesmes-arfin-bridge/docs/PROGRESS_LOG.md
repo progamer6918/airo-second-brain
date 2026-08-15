@@ -425,3 +425,16 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
 - **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `AWAITING_OWNER_TELEGRAM_PROOF`.
 - **Next Safe Gate:** `OWNER_LIVE_EARESMES_PENDING_QUERY`.
+
+### 2026-08-15 — EAB_G2_6 / M13 Hermes Worker Session ID Unbound Variable Repair
+- **Executor:** AIRO Sync (Owner-Authorized Execution)
+- **Repair:** Fixed `session_id` scoping bug in `scripts/airo-hermes-worker` pre-router path.
+- **M12 Status:** `DONE`.
+- **M13 Status:** `IN_PROGRESS`.
+- **Hermes Worker Fix Tests:** `PASS`.
+- **Hermes Service Context Proof:** `PASS`.
+- **M13_PRIMARY_FLOW_COMPLETED:** `YES`.
+- **M13_TECHNICAL_EVIDENCE:** `PARTIAL`.
+- **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
+- **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `AWAITING_OWNER_TELEGRAM_REPROOF`.
+- **Next Safe Gate:** `OWNER_LIVE_EARESMES_PENDING_QUERY_REPROOF`.
