@@ -45,6 +45,11 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
     Falls back to None if the message is normal conversational text.
     """
     clean = text.strip().lower()
+    # Ensure bridge module is in sys.path
+    eab_project_dir = os.path.join(REPO_DIR, "ecosystem/projects/earesmes-arfin-bridge")
+    if eab_project_dir not in sys.path:
+        sys.path.insert(0, eab_project_dir)
+
     
     # Intent 1: "cek transaksi arfin yang pending" / "cek pending"
     if "cek" in clean and ("pending" in clean or "transaksi" in clean or "arfin" in clean):
@@ -629,7 +634,13 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: di
             request_id,
         )
     else:
-        session_id = get_or_create_session_id(chat_id, smap)
+        # Check bounded EAB intent pre-router first
+        eab_reply = try_handle_eab_intent(text, owner_chat_id)
+        if eab_reply is not None:
+            logger.info("Item %s: handled by bounded EAB pre-router", request_id)
+            reply = eab_reply
+        else:
+            session_id = get_or_create_session_id(chat_id, smap)
 
         import signal as _signal
 
