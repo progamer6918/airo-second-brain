@@ -642,38 +642,38 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: di
         else:
             session_id = get_or_create_session_id(chat_id, smap)
 
-        import signal as _signal
+            import signal as _signal
 
-        def _timeout_handler(signum, frame):
-            raise TimeoutError(
-                f"Hermes timeout after {HERMES_TIMEOUT}s"
-            )
+            def _timeout_handler(signum, frame):
+                raise TimeoutError(
+                    f"Hermes timeout after {HERMES_TIMEOUT}s"
+                )
 
-        old_handler = _signal.signal(
-            _signal.SIGALRM,
-            _timeout_handler,
-        )
-        _signal.alarm(HERMES_TIMEOUT)
+            old_handler = _signal.signal(
+                _signal.SIGALRM,
+                _timeout_handler,
+            )
+            _signal.alarm(HERMES_TIMEOUT)
 
-        try:
-            reply = call_hermes(text, session_id)
-        except TimeoutError as exc:
-            logger.error(
-                "Item %s timed out: %s",
-                request_id,
-                exc,
-            )
-            reply = None
-        except Exception as exc:
-            logger.error(
-                "Item %s Hermes error: %s",
-                request_id,
-                exc,
-            )
-            reply = None
-        finally:
-            _signal.alarm(0)
-            _signal.signal(_signal.SIGALRM, old_handler)
+            try:
+                reply = call_hermes(text, session_id)
+            except TimeoutError as exc:
+                logger.error(
+                    "Item %s timed out: %s",
+                    request_id,
+                    exc,
+                )
+                reply = None
+            except Exception as exc:
+                logger.error(
+                    "Item %s Hermes error: %s",
+                    request_id,
+                    exc,
+                )
+                reply = None
+            finally:
+                _signal.alarm(0)
+                _signal.signal(_signal.SIGALRM, old_handler)
 
         if reply:
             item["reply_text"] = reply
