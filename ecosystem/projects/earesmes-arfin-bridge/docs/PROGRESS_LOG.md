@@ -383,3 +383,15 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **Verified Runtime Receipt:** `/tmp/eab_m12_authorized_worker_correction_20260811_210405.txt`.
 - **Next Milestone:** `M13` (`EAB_G2_6` — Owner Acceptance).
 
+
+### 2026-08-15 — EAB_G2_6 / M13 Durable State Reconciliation
+- **Executor:** AIRO Sync (Owner-Authorized Execution)
+- **Reconciliation:** Reconciled M13 durable project truth and active session.
+- **M12 Status:** `DONE`.
+- **M13 Status:** `IN_PROGRESS`.
+- **M13_PRIMARY_FLOW_COMPLETED:** `YES`.
+- **M13_TECHNICAL_EVIDENCE:** `PARTIAL`.
+- **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
+- **EARESMES_PENDING_QUERY_LIVE_CAPABILITY:** `FAIL`.
+- **Current Blocker:** `active Cloudflare Worker/public endpoint behavior is not yet reconciled strongly enough to prove live EAB pending-query.`
+- **Next Action:** `ONE final bounded active-deployment behavior inspection. The inspection must end in FIX or PARK. No further exploratory gate chain is permitted.`
