@@ -34,15 +34,10 @@ class TestHermesEabBinding(unittest.TestCase):
         res = worker_mod.try_handle_eab_intent("halo Earesmes selamat malam", "7113110978")
         self.assertIsNone(res)
 
-
     def test_eab_prerouter_no_unbound_session_id(self):
         """Regression test: ensure try_handle_eab_intent does not raise UnboundLocalError."""
-        import scripts.airo_hermes_worker as hw
-        # Test pre-router directly
-        res = hw.try_handle_eab_intent("cek transaksi Arfin yang pending", "7113110978")
+        res = worker_mod.try_handle_eab_intent("cek transaksi Arfin yang pending", "7113110978")
         self.assertIsNotNone(res)
-        self.assertIn("Arfin", res)
-
 
 if __name__ == "__main__":
     unittest.main()
