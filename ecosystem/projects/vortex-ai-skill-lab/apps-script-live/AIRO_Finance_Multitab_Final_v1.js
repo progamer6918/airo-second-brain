@@ -18606,6 +18606,23 @@ function airoEabMaybeHandleDirectRequest_(e) {
 
 
 
+/* EAB_ACCOUNT_CANONICALIZATION_V1 */
+function airoEabCanonicalFundingAccount_(value) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+
+  if (typeof normalizeSupportedAccount_ === 'function') {
+    try {
+      var normalized = normalizeSupportedAccount_(raw);
+      if (normalized) {
+        return String(normalized).trim();
+      }
+    } catch (err) {}
+  }
+
+  return raw;
+}
+
 /* EAB_DIRECT_V1_RECEIVER_START */
 function airoEabMaybeHandleDirectRequest_(e) {
   if (!e || !e.postData || !e.postData.contents) {
@@ -18753,6 +18770,7 @@ function airoEabMaybeHandleDirectRequest_(e) {
     var rawText = payload.description || payload.raw_text || payload.clarification_text || '';
     var amtNum = Number(payload.amount);
     var fundingAccount = payload.funding_account || payload.account;
+    fundingAccount = airoEabCanonicalFundingAccount_(fundingAccount);
     var category = payload.category;
     var subcategory = payload.subcategory;
     var direction = payload.direction || 'EXPENSE';
@@ -18841,8 +18859,8 @@ function airoEabMaybeHandleDirectRequest_(e) {
       var existingVerified =
         String(existing.queue_id || '') === queueId &&
         Number(existing.parsed_amount) === amtNum &&
-        String(existing.parsed_account || '') ===
-          String(fundingAccount) &&
+        airoEabCanonicalFundingAccount_(existing.parsed_account) ===
+          airoEabCanonicalFundingAccount_(fundingAccount) &&
         String(existing.parsed_category || '') ===
           String(category) &&
         String(existing.parsed_subcategory || '') ===
@@ -18938,8 +18956,8 @@ function airoEabMaybeHandleDirectRequest_(e) {
       readback &&
       String(readback.queue_id || '') === queueId &&
       Number(readback.parsed_amount) === amtNum &&
-      String(readback.parsed_account || '') ===
-        String(fundingAccount) &&
+      airoEabCanonicalFundingAccount_(readback.parsed_account) ===
+        airoEabCanonicalFundingAccount_(fundingAccount) &&
       String(readback.parsed_category || '') ===
         String(category) &&
       String(readback.parsed_subcategory || '') ===
