@@ -6,14 +6,14 @@
 - **OWNER_SCOPE_LOCK**: `APPROVED`
 - **IMPLEMENTATION_STATE**: `IN_PROGRESS`
 - **PREVIOUS_MILESTONE**: `M12` (Fresh Live Canary - DONE)
-- **CURRENT_MILESTONE**: `M13` (Owner Acceptance - IN_PROGRESS)
+- **CURRENT_MILESTONE**: `M13` (Owner Acceptance - DONE)
 - **AUTHORITY_DEPENDENCIES**: `BOOT.md`, `ARFIN.md`, `systems/telegram-agent-identity-contract.md`
 - **CURRENT_GATE**: `EAB_G2_6`
 - **NEXT_GATE**: `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`)
 
 ## Current Status Semantics
 - **M12_STATUS**: `DONE`
-- **M13_STATUS**: `IN_PROGRESS`
+- **M13_STATUS**: `DONE`
 - **EAB_ACTIVE_WEBAPP_DEPLOYMENT_ID**: `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw`
 - **EAB_ACTIVE_WEBAPP_VERSION**: `398`
 - **EAB_ACTIVE_WEBAPP_ACCESS**: `ANYONE_ANONYMOUS`
@@ -22,7 +22,23 @@
 - **EARESMES_PENDING_QUERY_LIVE_CAPABILITY**: `AWAITING_OWNER_TELEGRAM_REPROOF`
 - **M13_PRIMARY_FLOW_COMPLETED**: `YES`
 - **M13_TECHNICAL_EVIDENCE**: `PARTIAL`
-- **M13_OWNER_ACCEPTANCE**: `NOT_YET_COMPLETE`
+- **M13_OWNER_ACCEPTANCE**: `APPROVED_WITH_RECORDED_LIMITATION`
 
 ## Purpose
 Build the fastest practical bridge where the Owner can answer Arfin clarification prompts and submit manual transactions through Earesmes, while Arfin remains the authoritative finance backend.
+
+## M13 Owner Acceptance & P8 Deferral Record
+- **M13_STATUS**: `DONE`
+- **M13_OWNER_ACCEPTANCE**: `APPROVED_WITH_RECORDED_LIMITATION`
+- **M13_OWNER_SCOPE_WAIVER**: `P8_DIRECT_ARFIN_FALLBACK_DEFERRED`
+- **M13_PRIMARY_FLOW_COMPLETED**: `YES`
+- **EAB_P8_SCOPE_DECISION**: `DEFERRED_BY_OWNER`
+- **P8_ACCEPTANCE_RESULT**: `FAIL_NOT_WAIVED_AS_PASS`
+- **P8_STATUS**: `DEFERRED_OPEN_DEFECT`
+- **P8_LIVE_ACCEPTANCE**: `FAIL`
+- **P8_BLOCKS_EAB_M13**: `NO_BY_EXPLICIT_OWNER_WAIVER`
+- **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE`
+- **M14_STATUS**: `NOT_STARTED`
+- **M14_AUTHORIZED**: `NO`
+- **NEXT_PHASE**: `M14_PRODUCTION_CLOSEOUT`
+- **RESIDUAL_LIMITATION**: Direct-Arfin multi-pending fallback using bare transaction-number selection is not accepted and must not be relied upon until the separate AIRO Finance defect is resolved.

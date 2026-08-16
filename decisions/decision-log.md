@@ -89,3 +89,25 @@ Superseded by:
 - **Context:** HMAC-SHA256 signature is passed inside the payload JSON body (`key_id`, `timestamp`, `nonce`, `signature`).
 - **Authority:** EAB Master Bundle 2026-08-15 R1 P1 Governance Recovery.
 - **Status:** APPROVED.
+
+### 2026-08-16 — EAB P8 Direct-Arfin Fallback Deferral & M13 Limited Owner Acceptance
+- **Decision:** Stop further technical debugging of P8 inside EAB. Defer the Direct-Arfin multi-pending bare-selector defect to AIRO Finance as a separate incident (`AFPD-INC-012`). Remove/defer P8 as a blocking EAB Phase-1 requirement via explicit Owner scope waiver. Accept EAB M13 with recorded residual limitation (`APPROVED_WITH_RECORDED_LIMITATION`).
+- **Semantics:**
+  - `EAB_P8_SCOPE_DECISION`: `DEFERRED_BY_OWNER`
+  - `P8_ACCEPTANCE_RESULT`: `FAIL_NOT_WAIVED_AS_PASS`
+  - `P8_BLOCKING_REQUIREMENT_FOR_EAB_PHASE1`: `WAIVED_BY_OWNER`
+  - `P8_DEFECT_OWNERSHIP`: `AIRO_FINANCE`
+  - `P8_FUTURE_REPAIR`: `SEPARATE_DEFECT_WORK`
+  - `EAB_CORE_LIVE_PATH_ACCEPTED`: `YES`
+  - `P8_STATUS`: `DEFERRED_OPEN_DEFECT`
+  - `P8_LIVE_ACCEPTANCE`: `FAIL`
+  - `P8_BLOCKS_EAB_M13`: `NO_BY_EXPLICIT_OWNER_WAIVER`
+  - `M13_STATUS`: `DONE`
+  - `M13_OWNER_ACCEPTANCE`: `APPROVED_WITH_RECORDED_LIMITATION`
+  - `M13_OWNER_SCOPE_WAIVER`: `P8_DIRECT_ARFIN_FALLBACK_DEFERRED`
+  - `M13_PRIMARY_FLOW_COMPLETED`: `YES`
+  - `M14_STATUS`: `NOT_STARTED`
+  - `M14_AUTHORIZED`: `NO`
+- **Residual Limitation:** Direct-Arfin multi-pending fallback using bare transaction-number selection is not accepted and must not be relied upon until the separate AIRO Finance defect is resolved.
+- **Authority:** EAB Completion Master Bundle 2026-08-16 R5 Owner Decision.
+- **Status:** APPROVED.
