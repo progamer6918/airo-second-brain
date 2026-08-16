@@ -38,7 +38,21 @@ Build the fastest practical bridge where the Owner can answer Arfin clarificatio
 - **P8_LIVE_ACCEPTANCE**: `FAIL`
 - **P8_BLOCKS_EAB_M13**: `NO_BY_EXPLICIT_OWNER_WAIVER`
 - **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE`
-- **M14_STATUS**: `NOT_STARTED`
-- **M14_AUTHORIZED**: `NO`
+- **M14_STATUS**: `IN_PROGRESS_24H_OBSERVATION`
+- **M14_AUTHORIZED**: `YES`
 - **NEXT_PHASE**: `M14_PRODUCTION_CLOSEOUT`
 - **RESIDUAL_LIMITATION**: Direct-Arfin multi-pending fallback using bare transaction-number selection is not accepted and must not be relied upon until the separate AIRO Finance defect is resolved.
+
+## M14 Production Activation & 24h Observation Record
+- **M14_AUTHORIZED**: `YES`
+- **M14_STAGE4_STATUS**: `DONE`
+- **M14_STAGE5_STATUS**: `IN_PROGRESS`
+- **M14_STATUS**: `IN_PROGRESS_24H_OBSERVATION`
+- **PRODUCTION_ACTIVATION_CHANGE_REQUIRED**: `NO`
+- **PRODUCTION_ACTIVATION_STATUS**: `ACTIVE_VERIFIED`
+- **OBSERVATION_START**: `2026-08-16 09:56:47 +07:00`
+- **OBSERVATION_REQUIRED_HOURS**: `24`
+- **OBSERVATION_NOT_BEFORE_END**: `2026-08-17 09:56:47 +07:00`
+- **P8_STATUS**: `DEFERRED_OPEN_DEFECT`
+- **P8_ACCEPTANCE_RESULT**: `FAIL_NOT_WAIVED_AS_PASS`
+- **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE`

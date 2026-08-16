@@ -111,3 +111,18 @@ Superseded by:
 - **Residual Limitation:** Direct-Arfin multi-pending fallback using bare transaction-number selection is not accepted and must not be relied upon until the separate AIRO Finance defect is resolved.
 - **Authority:** EAB Completion Master Bundle 2026-08-16 R5 Owner Decision.
 - **Status:** APPROVED.
+
+### 2026-08-16 — EAB M14 Stage 4 Production Activation & 24h Observation Window Entry
+- **Decision:** Enter M14 Stage 4 Production Activation using post-M13-waiver canonical state. Live topology is active and verified (`PRODUCTION_ACTIVATION_CHANGE_REQUIRED=NO`). Start mandatory 24h post-activation observation window.
+- **Semantics:**
+  - `M14_AUTHORIZED`: `YES`
+  - `M14_STAGE4_STATUS`: `DONE`
+  - `M14_STAGE5_STATUS`: `IN_PROGRESS`
+  - `M14_STATUS`: `IN_PROGRESS_24H_OBSERVATION`
+  - `PRODUCTION_ACTIVATION_STATUS`: `ACTIVE_VERIFIED`
+  - `OBSERVATION_START`: `2026-08-16 09:56:47 +07:00`
+  - `OBSERVATION_REQUIRED_HOURS`: `24`
+  - `OBSERVATION_NOT_BEFORE_END`: `2026-08-17 09:56:47 +07:00`
+  - `P8_STATUS`: `DEFERRED_OPEN_DEFECT`
+- **Authority:** EAB Completion Master Bundle 2026-08-16 R5 M14 Stage 4.
+- **Status:** APPROVED.
