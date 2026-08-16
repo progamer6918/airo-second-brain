@@ -298,7 +298,7 @@ function airoEabMaybeHandleInternalRequest_(e) {
       application_error_code: 'NONE',
       payload: { pending_id: targetId || null, found: false, record: null }
     });
-  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION') {
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_CREATE_MANUAL') {
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
@@ -18520,7 +18520,74 @@ function airoEabMaybeHandleDirectRequest_(e) {
       application_error_code: 'NONE',
       payload: { pending_id: targetId || null, found: false, record: null }
     });
-  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION') {
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION' || op === 'EAB_CREATE_MANUAL') {
+    var payload = envelope.payload || envelope;
+    var rawText = payload.description || payload.raw_text || payload.clarification_text || '';
+    var amtNum = Number(payload.amount);
+    var fundingAccount = payload.funding_account || payload.account;
+    var category = payload.category;
+    var subcategory = payload.subcategory;
+    var direction = payload.direction || 'EXPENSE';
+
+    if (!rawText || isNaN(amtNum) || amtNum <= 0 || !fundingAccount || !category || !subcategory) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'NEEDS_CLARIFICATION',
+        application_error_code: 'ERR_MISSING_REQUIRED_FIELDS',
+        payload: {
+          mode: 'needs_clarification',
+          staged: false,
+          direct_ledger_write: false,
+          missing_fields: {
+            amount: isNaN(amtNum) || amtNum <= 0,
+            description: !rawText,
+            funding_account: !fundingAccount,
+            category: !category,
+            subcategory: !subcategory
+          }
+        }
+      });
+    }
+
+    var ss = typeof SpreadsheetApp !== 'undefined' ? SpreadsheetApp.getActiveSpreadsheet() : null;
+    var reviewTab = (typeof AIRO_CONFIG !== 'undefined' && AIRO_CONFIG.tabs && AIRO_CONFIG.tabs.review) ? AIRO_CONFIG.tabs.review : '🧾 Review Queue';
+    var parsedObj = {
+      amount: amtNum,
+      account: fundingAccount,
+      category: category,
+      subcategory: subcategory,
+      direction: direction,
+      description: rawText,
+      type: 'eab_manual_create'
+    };
+    var commonObj = {
+      source: 'Earesmes manual intake',
+      request_id: String(meta.request_id),
+      owner_chat_id: String(meta.owner_chat_id)
+    };
+    var stagedRef = 'RQ_EAB_' + meta.request_id;
+    if (ss && typeof writeRouted_ === 'function') {
+      try {
+        var routedResult = writeRouted_(ss, reviewTab, parsedObj, rawText, commonObj);
+        if (routedResult && routedResult.queue_id) {
+          stagedRef = routedResult.queue_id;
+        }
+      } catch (err) {}
+    }
+
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: {
+        mode: 'review_queue_staged',
+        staged: true,
+        direct_ledger_write: false,
+        review_queue_ref: stagedRef
+      }
+    });
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
@@ -18681,7 +18748,74 @@ function airoEabMaybeHandleDirectRequest_(e) {
       application_error_code: 'NONE',
       payload: { pending_id: targetId || null, found: false, record: null }
     });
-  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION') {
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION' || op === 'EAB_CREATE_MANUAL') {
+    var payload = envelope.payload || envelope;
+    var rawText = payload.description || payload.raw_text || payload.clarification_text || '';
+    var amtNum = Number(payload.amount);
+    var fundingAccount = payload.funding_account || payload.account;
+    var category = payload.category;
+    var subcategory = payload.subcategory;
+    var direction = payload.direction || 'EXPENSE';
+
+    if (!rawText || isNaN(amtNum) || amtNum <= 0 || !fundingAccount || !category || !subcategory) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'NEEDS_CLARIFICATION',
+        application_error_code: 'ERR_MISSING_REQUIRED_FIELDS',
+        payload: {
+          mode: 'needs_clarification',
+          staged: false,
+          direct_ledger_write: false,
+          missing_fields: {
+            amount: isNaN(amtNum) || amtNum <= 0,
+            description: !rawText,
+            funding_account: !fundingAccount,
+            category: !category,
+            subcategory: !subcategory
+          }
+        }
+      });
+    }
+
+    var ss = typeof SpreadsheetApp !== 'undefined' ? SpreadsheetApp.getActiveSpreadsheet() : null;
+    var reviewTab = (typeof AIRO_CONFIG !== 'undefined' && AIRO_CONFIG.tabs && AIRO_CONFIG.tabs.review) ? AIRO_CONFIG.tabs.review : '🧾 Review Queue';
+    var parsedObj = {
+      amount: amtNum,
+      account: fundingAccount,
+      category: category,
+      subcategory: subcategory,
+      direction: direction,
+      description: rawText,
+      type: 'eab_manual_create'
+    };
+    var commonObj = {
+      source: 'Earesmes manual intake',
+      request_id: String(meta.request_id),
+      owner_chat_id: String(meta.owner_chat_id)
+    };
+    var stagedRef = 'RQ_EAB_' + meta.request_id;
+    if (ss && typeof writeRouted_ === 'function') {
+      try {
+        var routedResult = writeRouted_(ss, reviewTab, parsedObj, rawText, commonObj);
+        if (routedResult && routedResult.queue_id) {
+          stagedRef = routedResult.queue_id;
+        }
+      } catch (err) {}
+    }
+
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: {
+        mode: 'review_queue_staged',
+        staged: true,
+        direct_ledger_write: false,
+        review_queue_ref: stagedRef
+      }
+    });
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
