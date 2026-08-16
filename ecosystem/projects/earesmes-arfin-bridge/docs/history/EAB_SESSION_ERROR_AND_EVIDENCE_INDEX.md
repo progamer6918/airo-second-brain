@@ -45,3 +45,4 @@
 - **ROOT_CAUSE**: `UNRESOLVED_NOT_INVESTIGATED`
 - **PROJECT_REOPENED**: `NO`
 - **EXPLANATION**: Found after project closeout. Demonstrated acceptance coverage gap where manual `catat` creation path was not live-tested before closeout.
+16. **2026-08-16T11:50:00+07:00** | `R4_REAL_OWNER_ACCEPTANCE_FAIL` | `NO_EARESMES_RESPONSE_OBSERVED` | Real Owner test `catat Rp1 makan` to Earesmes yielded no response after R3C reload. Remediation cycle stopped (1 cycle). Post-R3C runtime health unaccepted for Owner workflow. Project remains CLOSED_INCOMPLETE.

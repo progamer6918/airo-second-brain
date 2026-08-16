@@ -76,3 +76,22 @@ The Owner required a seamless, frictionless conversational workflow where **Eare
 ## 8. Final Classification
 `PROJECT_STATUS`: **`CLOSED_WITH_RECORDED_LIMITATIONS`**  
 `PROJECT_DEVELOPMENT_FROZEN`: **`YES`**
+
+
+---
+
+## 8. Bounded Remediation Cycle Retrospective (2026-08-16)
+
+- **Reopened Remediation Reason**: Post-close live Owner testing revealed `catat ...` natural-language manual transaction intake via Earesmes was not operational.
+- **R1 Root Cause Identified**: `EAB_CREATE_MANUAL` operation was absent in Apps Script backend and Hermes client adapter (`DEFECT_CLASS=EAB_BACKEND_MANUAL_CREATE_MISSING`).
+- **R2 Source Implementation**: Bounded implementation of `EAB_CREATE_MANUAL` in 2 exact source files (`eab_live_client.py` and `AIRO_Finance_Multitab_Final_v1.js`), committed as `b63aa5aa`.
+- **R3 Activation**:
+  - R3A: Remote Apps Script source synced.
+  - R3B: EAB internal deployment (`6e1d4c1f`) updated in-place to version `v403` (Arfin Telegram deployment `85c6dfd6` preserved unchanged at `v402`).
+  - R3C: Hermes worker runtime reloaded to PID 9916 loading commit `b63aa5aa`; `EAB_LIST_PENDING` read-path health check passed.
+- **R4 Real Owner Acceptance Outcome**: `FAIL` (`NO_EARESMES_RESPONSE_OBSERVED` on `catat Rp1 makan`).
+- **Remediation Stop-Loss & Final Decision**:
+  - Stop-loss reached after exactly **1 repair cycle**.
+  - No second repair cycle authorized (`SECOND_REPAIR_CYCLE_AUTHORIZED=NO`).
+  - Root cause of post-R3C no-response intentionally left unresolved without further investigation.
+  - EAB project returns to **CLOSED_INCOMPLETE_PARTIAL_IMPLEMENTATION**.
