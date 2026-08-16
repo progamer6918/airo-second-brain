@@ -18789,19 +18789,180 @@ function airoEabMaybeHandleDirectRequest_(e) {
       description: rawText,
       type: 'eab_manual_create'
     };
+    var queueId =
+      'review:eab:' + String(meta.request_id);
+
     var commonObj = {
+      queue_id: queueId,
+      duplicate_key: queueId,
+      created_at: Utilities.formatDate(
+        new Date(),
+        Session.getScriptTimeZone(),
+        'yyyy-MM-dd HH:mm:ss'
+      ),
       source: 'Earesmes manual intake',
+      raw_text: rawText,
+      parsed_type: 'expense',
+      parsed_category: category,
+      parsed_subcategory: subcategory,
+      parsed_amount: amtNum,
+      parsed_currency: 'IDR',
+      parsed_account: fundingAccount,
+      write_policy: 'staging',
+      write_status: 'pending',
+      status: 'pending',
       request_id: String(meta.request_id),
       owner_chat_id: String(meta.owner_chat_id)
     };
-    var stagedRef = 'RQ_EAB_' + meta.request_id;
-    if (ss && typeof writeRouted_ === 'function') {
-      try {
-        var routedResult = writeRouted_(ss, reviewTab, parsedObj, rawText, commonObj);
-        if (routedResult && routedResult.queue_id) {
-          stagedRef = routedResult.queue_id;
+
+    if (
+      !ss ||
+      typeof writeRouted_ !== 'function' ||
+      typeof airoTask614FindReviewItemByQueueId_ !== 'function'
+    ) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_REVIEW_QUEUE_UNAVAILABLE',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false
         }
-      } catch (err) {}
+      });
+    }
+
+    var existing =
+      airoTask614FindReviewItemByQueueId_(ss, queueId);
+
+    if (existing) {
+      var existingVerified =
+        String(existing.queue_id || '') === queueId &&
+        Number(existing.parsed_amount) === amtNum &&
+        String(existing.parsed_account || '') ===
+          String(fundingAccount) &&
+        String(existing.parsed_category || '') ===
+          String(category) &&
+        String(existing.parsed_subcategory || '') ===
+          String(subcategory) &&
+        (
+          String(existing.write_status || '') === 'pending' ||
+          String(existing.review_status || '') === 'pending'
+        );
+
+      if (!existingVerified) {
+        return airoEabJson_({
+          schema_version: '1.0',
+          request_id: String(meta.request_id),
+          application_status: 'FAILED',
+          application_error_code: 'ERR_IDEMPOTENCY_CONFLICT',
+          payload: {
+            mode: 'review_queue_staged',
+            staged: false,
+            write_verified: false,
+            direct_ledger_write: false,
+            review_queue_ref: queueId
+          }
+        });
+      }
+
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'SUCCESS',
+        application_error_code: 'NONE',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: true,
+          write_verified: true,
+          direct_ledger_write: false,
+          idempotent_replay: true,
+          review_queue_ref: queueId,
+          review_queue_row: existing.rowNumber || 0
+        }
+      });
+    }
+
+    var routedResult;
+
+    try {
+      routedResult = writeRouted_(
+        ss,
+        reviewTab,
+        parsedObj,
+        rawText,
+        commonObj
+      );
+    } catch (err) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_REVIEW_QUEUE_WRITE_EXCEPTION',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    if (
+      !routedResult ||
+      routedResult.status !== 'written' ||
+      routedResult.writeVerified !== true ||
+      Number(routedResult.row || 0) <= 0
+    ) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_REVIEW_QUEUE_WRITE_UNVERIFIED',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false,
+          review_queue_ref: queueId
+        }
+      });
+    }
+
+    var readback =
+      airoTask614FindReviewItemByQueueId_(ss, queueId);
+
+    var readbackVerified =
+      readback &&
+      String(readback.queue_id || '') === queueId &&
+      Number(readback.parsed_amount) === amtNum &&
+      String(readback.parsed_account || '') ===
+        String(fundingAccount) &&
+      String(readback.parsed_category || '') ===
+        String(category) &&
+      String(readback.parsed_subcategory || '') ===
+        String(subcategory) &&
+      (
+        String(readback.write_status || '') === 'pending' ||
+        String(readback.review_status || '') === 'pending'
+      );
+
+    if (!readbackVerified) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_REVIEW_QUEUE_READBACK_MISMATCH',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false,
+          review_queue_ref: queueId
+        }
+      });
     }
 
     return airoEabJson_({
@@ -18812,16 +18973,13 @@ function airoEabMaybeHandleDirectRequest_(e) {
       payload: {
         mode: 'review_queue_staged',
         staged: true,
+        write_verified: true,
         direct_ledger_write: false,
-        review_queue_ref: stagedRef
+        idempotent_replay: false,
+        review_queue_ref: queueId,
+        review_queue_row:
+          readback.rowNumber || routedResult.row
       }
-    });
-    return airoEabJson_({
-      schema_version: '1.0',
-      request_id: String(meta.request_id),
-      application_status: 'SUCCESS',
-      application_error_code: 'NONE',
-      payload: { mode: 'review_queue_staged', staged: true, direct_ledger_write: false }
     });
   }
 

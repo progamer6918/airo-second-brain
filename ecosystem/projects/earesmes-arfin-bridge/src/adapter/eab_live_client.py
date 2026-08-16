@@ -108,3 +108,31 @@ class EABLiveSignedClient:
             "clarification_text": clarification_text
         }
         return self._send_signed_request("EAB_SUBMIT_CLARIFICATION", payload)
+
+    def create_manual(
+        self,
+        request_id: str,
+        owner_chat_id: str,
+        amount: float,
+        description: str,
+        funding_account: str,
+        category: str,
+        subcategory: str,
+        direction: str = "EXPENSE",
+    ) -> Dict[str, Any]:
+        payload = {
+            "schema_version": "1.0",
+            "request_id": str(request_id),
+            "operation_id": "EAB_CREATE_MANUAL",
+            "owner_chat_id": str(owner_chat_id),
+            "amount": amount,
+            "description": str(description),
+            "funding_account": str(funding_account),
+            "category": str(category),
+            "subcategory": str(subcategory),
+            "direction": str(direction or "EXPENSE"),
+        }
+        return self._send_signed_request(
+            "EAB_CREATE_MANUAL",
+            payload,
+        )
