@@ -126,3 +126,16 @@ Superseded by:
   - `P8_STATUS`: `DEFERRED_OPEN_DEFECT`
 - **Authority:** EAB Completion Master Bundle 2026-08-16 R5 M14 Stage 4.
 - **Status:** APPROVED.
+
+### 2026-08-16 — EAB Final Project Freeze, Retrospective & Session Closeout
+- **Decision:** Freeze and permanently close EAB Phase-1 project with recorded limitations (`CLOSED_WITH_RECORDED_LIMITATIONS`). Retain operational core bridge (`EAB_CORE_PRIMARY_PATH_STATUS=OPERATIONAL_ACCEPTED`). Waive 24h Stage-5 observation without claiming 24h stability PASS. Retain P8 multi-pending bare selector defect as an open incident under AIRO Finance (`AFPD-INC-012`). Persist retrospective and error history index.
+- **Semantics:**
+  - `PROJECT_STATUS`: `CLOSED_WITH_RECORDED_LIMITATIONS`
+  - `PROJECT_DEVELOPMENT_FROZEN`: `YES`
+  - `M14_STAGE4_STATUS`: `DONE`
+  - `M14_STAGE5_STATUS`: `WAIVED_BY_OWNER_BEFORE_24H_COMPLETION`
+  - `M14_24H_ZERO_OUTAGE_CLAIM`: `NOT_MADE`
+  - `M14_STATUS`: `DONE_WITH_RECORDED_LIMITATION`
+  - `P8_STATUS`: `DEFERRED_OPEN_DEFECT`
+- **Authority:** EAB Master Bundle 2026-08-16 R5 Final Closeout Decision.
+- **Status:** APPROVED.

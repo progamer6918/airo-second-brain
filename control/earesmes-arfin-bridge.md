@@ -2,11 +2,11 @@
 
 - **PROJECT**: `EARESMES_ARFIN_CLARIFICATION_BRIDGE` (`EAB`)
 - **CANONICAL_DOCS_PATH**: `ecosystem/projects/earesmes-arfin-bridge/docs/`
-- **STATUS**: `IN_PROGRESS_P1_GOVERNANCE_RECONCILED`
+- **STATUS**: `CLOSED_WITH_RECORDED_LIMITATIONS`
 - **OWNER_SCOPE_LOCK**: `APPROVED`
-- **IMPLEMENTATION_STATE**: `IN_PROGRESS`
+- **IMPLEMENTATION_STATE**: `FROZEN_CLOSED_WITH_LIMITATIONS`
 - **PREVIOUS_MILESTONE**: `M12` (Fresh Live Canary - DONE)
-- **CURRENT_MILESTONE**: `M13` (Owner Acceptance - DONE)
+- **CURRENT_MILESTONE**: `M14` (Production Closeout - DONE_WITH_RECORDED_LIMITATION)
 - **AUTHORITY_DEPENDENCIES**: `BOOT.md`, `ARFIN.md`, `systems/telegram-agent-identity-contract.md`
 - **CURRENT_GATE**: `EAB_G2_6`
 - **NEXT_GATE**: `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`)
@@ -38,7 +38,7 @@ Build the fastest practical bridge where the Owner can answer Arfin clarificatio
 - **P8_LIVE_ACCEPTANCE**: `FAIL`
 - **P8_BLOCKS_EAB_M13**: `NO_BY_EXPLICIT_OWNER_WAIVER`
 - **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE`
-- **M14_STATUS**: `IN_PROGRESS_24H_OBSERVATION`
+- **M14_STATUS**: `DONE_WITH_RECORDED_LIMITATION`
 - **M14_AUTHORIZED**: `YES`
 - **NEXT_PHASE**: `M14_PRODUCTION_CLOSEOUT`
 - **RESIDUAL_LIMITATION**: Direct-Arfin multi-pending fallback using bare transaction-number selection is not accepted and must not be relied upon until the separate AIRO Finance defect is resolved.
@@ -46,8 +46,8 @@ Build the fastest practical bridge where the Owner can answer Arfin clarificatio
 ## M14 Production Activation & 24h Observation Record
 - **M14_AUTHORIZED**: `YES`
 - **M14_STAGE4_STATUS**: `DONE`
-- **M14_STAGE5_STATUS**: `IN_PROGRESS`
-- **M14_STATUS**: `IN_PROGRESS_24H_OBSERVATION`
+- **M14_STAGE5_STATUS**: `WAIVED_BY_OWNER_BEFORE_24H_COMPLETION`
+- **M14_STATUS**: `DONE_WITH_RECORDED_LIMITATION`
 - **PRODUCTION_ACTIVATION_CHANGE_REQUIRED**: `NO`
 - **PRODUCTION_ACTIVATION_STATUS**: `ACTIVE_VERIFIED`
 - **OBSERVATION_START**: `2026-08-16 09:56:47 +07:00`
@@ -56,3 +56,18 @@ Build the fastest practical bridge where the Owner can answer Arfin clarificatio
 - **P8_STATUS**: `DEFERRED_OPEN_DEFECT`
 - **P8_ACCEPTANCE_RESULT**: `FAIL_NOT_WAIVED_AS_PASS`
 - **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE`
+
+## Final Freeze & Project Closeout Record
+- **PROJECT_STATUS**: `CLOSED_WITH_RECORDED_LIMITATIONS`
+- **PROJECT_DEVELOPMENT_FROZEN**: `YES`
+- **M14_STAGE4_STATUS**: `DONE`
+- **M14_STAGE5_STATUS**: `WAIVED_BY_OWNER_BEFORE_24H_COMPLETION`
+- **M14_24H_ZERO_OUTAGE_CLAIM**: `NOT_MADE`
+- **M14_STATUS**: `DONE_WITH_RECORDED_LIMITATION`
+- **EAB_CORE_PRIMARY_PATH_STATUS**: `OPERATIONAL_ACCEPTED`
+- **P8_STATUS**: `DEFERRED_OPEN_DEFECT`
+- **P8_ACCEPTANCE_RESULT**: `FAIL_NOT_WAIVED_AS_PASS`
+- **P8_DEFECT_OWNERSHIP**: `AIRO_FINANCE` (`AFPD-INC-012`)
+- **NEXT_EAB_DEVELOPMENT_ACTION**: `NONE`
+- **RETROSPECTIVE_PATH**: `ecosystem/projects/earesmes-arfin-bridge/docs/retrospective/EAB_PROJECT_RETROSPECTIVE_AND_CLOSEOUT.md`
+- **ERROR_INDEX_PATH**: `ecosystem/projects/earesmes-arfin-bridge/docs/history/EAB_SESSION_ERROR_AND_EVIDENCE_INDEX.md`
