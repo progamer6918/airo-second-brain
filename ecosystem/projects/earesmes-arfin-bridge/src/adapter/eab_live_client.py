@@ -29,6 +29,14 @@ class EABLiveSignedClient:
         if self.fake_mode:
             return {"status": "ok", "fake": True, "operation_id": operation_id, "payload": payload}
 
+        if not self.service_secret:
+            return {
+                "status": "error",
+                "application_status": "FAILED",
+                "application_error_code": "ERR_EAB_SERVICE_SECRET_MISSING",
+                "message": "EAB service secret is not configured",
+            }
+
         now_ts = str(int(time.time()))
         nonce_hex = secrets.token_bytes(8).hex()
         req_id = payload.get("request_id") or f"req_{int(time.time())}"

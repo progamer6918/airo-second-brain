@@ -62,10 +62,13 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
             client = EABLiveSignedClient(fake_mode=False)
             res = client.list_pending(owner_chat_id)
 
+            application_status = str(
+                res.get("application_status", "")
+            ).upper()
             if (
                 res.get("status") == "error"
-                or str(res.get("application_status", "")).upper()
-                in {"FAILED", "ERROR"}
+                or res.get("ok") is False
+                or application_status != "SUCCESS"
             ):
                 return "⚠️ Gagal menghubungi service Arfin live."
 
@@ -128,10 +131,13 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
                 owner_chat_id=owner_chat_id,
             )
 
+            application_status = str(
+                res.get("application_status", "")
+            ).upper()
             if (
                 res.get("status") == "error"
-                or str(res.get("application_status", "")).upper()
-                in {"FAILED", "ERROR"}
+                or res.get("ok") is False
+                or application_status != "SUCCESS"
             ):
                 return (
                     f"⚠️ Klarifikasi {short_ref} "
