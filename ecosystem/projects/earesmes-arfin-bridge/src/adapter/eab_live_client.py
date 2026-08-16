@@ -15,7 +15,7 @@ import urllib.parse
 import urllib.error
 from typing import Dict, Any, List, Optional
 
-APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyw5J5RWMoe9Vz2FDRwRInxt3J7VBGF5uWHOTKoKPNDYzgK83wqdrXU7zVP_Db0oOvCFQ/exec"
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzalMbtiHNHUFaWhZcaEBupMfxfXzqlTwrjhDmovUayZnSv-Z-kRmN6MPjq1ncv7nq0g/exec"
 WORKER_HOST = "airo-finance-telegram-proxy.progamer6918.workers.dev"
 KEY_ID = "EAB_KEY_2026_V1"
 

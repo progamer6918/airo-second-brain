@@ -43,7 +43,7 @@ class TestHermesEabBinding(unittest.TestCase):
     def test_eab_client_endpoint_is_public_canonical(self):
         """Regression test: ensure eab_live_client APPS_SCRIPT_URL points to public deployment ID."""
         import src.adapter.eab_live_client as client_mod
-        self.assertIn("AKfycbyw5J5RWMoe9Vz2FDRwRInxt3J7VBGF5uWHOTKoKPNDYzgK83wqdrXU7zVP_Db0oOvCFQ", client_mod.APPS_SCRIPT_URL)
+        self.assertIn("AKfycbxzalMbtiHNHUFaWhZcaEBupMfxfXzqlTwrjhDmovUayZnSv-Z-kRmN6MPjq1ncv7nq0g", client_mod.APPS_SCRIPT_URL)
         self.assertNotIn("AKfycbzu0Kuu9sNcCHHmZ1dj2sPW1Y4tZz9KUi8tG_ySeA-QY65yOPA9m3NYiEQcS8uKZYjuOA", client_mod.APPS_SCRIPT_URL)
 
 
