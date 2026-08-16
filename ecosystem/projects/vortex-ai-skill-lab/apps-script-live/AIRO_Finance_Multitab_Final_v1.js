@@ -22565,6 +22565,8 @@ function runTask8EmailMultiPendingSelfTestFromEditor() {
   var list = airoSprint7FLoadPendingEmailCandidateList_(chatId);
 
   var ambiguous = airoSprint7FSelectPendingEmailCandidate_(chatId, "A");
+  var selectedBare1 = airoSprint7FSelectPendingEmailCandidate_(chatId, "1");
+  var selectedBare2 = airoSprint7FSelectPendingEmailCandidate_(chatId, "2");
   var selected1 = airoSprint7FSelectPendingEmailCandidate_(chatId, "1 A");
   var selected2 = airoSprint7FSelectPendingEmailCandidate_(chatId, "2 C");
   var remove1 = airoSprint7FRemovePendingEmailCandidate_(chatId, candidate1);
@@ -22578,6 +22580,10 @@ function runTask8EmailMultiPendingSelfTestFromEditor() {
     upsert2_ok: !!upsert2.ok,
     list_count_two: list.length === 2,
     plain_a_ambiguous: ambiguous.status === "ambiguous",
+    bare_1_selects_candidate_1: selectedBare1.status === "selected" && selectedBare1.text_raw === "" && String(selectedBare1.pending.candidate_id) === "task8_candidate_1",
+    bare_2_selects_candidate_2: selectedBare2.status === "selected" && selectedBare2.text_raw === "" && String(selectedBare2.pending.candidate_id) === "task8_candidate_2",
+    bare_1_selects_candidate_1: selectedBare1.status === "selected" && selectedBare1.text_raw === "" && String(selectedBare1.pending.candidate_id) === "task8_candidate_1",
+    bare_2_selects_candidate_2: selectedBare2.status === "selected" && selectedBare2.text_raw === "" && String(selectedBare2.pending.candidate_id) === "task8_candidate_2",
     one_a_selects_candidate_1: selected1.status === "selected" &&
       selected1.text_raw === "A" &&
       String(selected1.pending.candidate_id) === "task8_candidate_1",
@@ -23737,8 +23743,8 @@ function airoSprint7FBuildEmailPendingDisambiguationMessage_(list) {
   list = Array.isArray(list) ? list : [];
   var lines = [
     "Ada " + list.length + " transaksi email pending.",
-    "Balas dengan nomor + pilihan kategori.",
-    "Contoh: 1 A atau 2 C",
+    "Balas nomor transaksi untuk membukanya.",
+    "Contoh: 1 atau 2",
     ""
   ];
 
@@ -23761,19 +23767,28 @@ function airoSprint7FBuildEmailPendingDisambiguationMessage_(list) {
 
 function airoSprint7FParseEmailPendingSelector_(textRaw) {
   var raw = String(textRaw || "").trim();
-  var match = raw.match(/^#?(\d+)\s+(.+)$/);
-  if (!match) {
+  var matchCompound = raw.match(/^#?(\d+)\s+(.+)$/);
+  if (matchCompound) {
     return {
-      has_selector: false,
-      index: 0,
-      text_raw: raw
+      has_selector: true,
+      index: parseInt(matchCompound[1], 10),
+      text_raw: String(matchCompound[2] || "").trim()
+    };
+  }
+
+  var matchBare = raw.match(/^#?(\d+)$/);
+  if (matchBare) {
+    return {
+      has_selector: true,
+      index: parseInt(matchBare[1], 10),
+      text_raw: ""
     };
   }
 
   return {
-    has_selector: true,
-    index: parseInt(match[1], 10),
-    text_raw: String(match[2] || "").trim()
+    has_selector: false,
+    index: 0,
+    text_raw: raw
   };
 }
 
@@ -24337,6 +24352,50 @@ function airoSprint7FEmailAnswerMaybeHandleRoute_(e) {
   var pending = selection.pending;
   if (!pending) {
     return null;
+  }
+
+  // Bare selector reopening (text_raw is empty because only transaction number e.g. "1" was provided)
+  if (selection.status === "selected" && textRaw === "") {
+    var dir = String(pending.inferred_direction || "ambigu").toLowerCase();
+    if (dir === "pengeluaran" && !pending.selected_account) {
+      pending.clarification_state = "account_pending";
+      airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
+      sendTelegram_(parsed.chat_id, airoSprint7FBuildEmailAccountSelectionPrompt_(pending));
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_bare_selector_reopened_account_pending",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false
+      });
+    }
+
+    var st = String(pending.clarification_state || "direction_pending").toLowerCase();
+    if (st === "direction_pending" || dir === "ambigu") {
+      pending.clarification_state = "direction_pending";
+      airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
+      sendTelegram_(parsed.chat_id, airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || "", pending));
+      return json_({
+        ok: true,
+        sprint: "7H",
+        status: "sprint7h_email_bare_selector_reopened_direction_pending",
+        handled: true,
+        waiting: true,
+        finance_write_performed: false
+      });
+    }
+
+    airoSprint7FUpsertPendingEmailCandidate_(parsed.chat_id, pending);
+    sendTelegram_(parsed.chat_id, airoSprint7FBuildFriendlyClarificationMessage_(pending.candidate_id || "", pending));
+    return json_({
+      ok: true,
+      sprint: "7H",
+      status: "sprint7h_email_bare_selector_reopened_general",
+      handled: true,
+      waiting: true,
+      finance_write_performed: false
+    });
   }
 
   var state = String(pending.clarification_state || "category_pending").toLowerCase();
