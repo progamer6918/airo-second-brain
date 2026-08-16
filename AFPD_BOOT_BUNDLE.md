@@ -1101,6 +1101,20 @@ STATUS=RESOLVED. V385 fixed the live email alpha prompt state-machine regression
 - **REMAINING_RISK:** token/webhook collision, incorrect route fallback, duplicate consumer ownership, or stale scheduled runtime may still exist.
 - **NEXT_GATE:** `AIRO_TELEGRAM_MULTI_BOT_TOPOLOGY_SCHEDULER_AND_ROUTING_FORENSIC_READ_ONLY_NO_MUTATION`.
 
+## [AFPD-INC-012] Direct-Arfin Multi-Pending Bare Selector Failure — 2026-08-16
+- **Marker:** `AIRO_FINANCE_ARFIN_MULTI_PENDING_BARE_SELECTOR_DEFERRED_INCIDENT_20260816`
+- **INCIDENT_ID:** `AFPD-INC-012`
+- **INCIDENT:** `DIRECT_ARFIN_MULTI_PENDING_BARE_SELECTOR_REOPEN_FAILURE`
+- **SYMPTOM:** When Owner replies to Arfin multi-pending prompt with a bare transaction number (e.g. "1"), Arfin live Web App runtime does not reopen the candidate item to re-ask missing questions, but repeats the old prompt requiring "nomor + pilihan kategori".
+- **EXPECTED_BEHAVIOR:** Bare transaction number selects candidate item and re-asks missing question (account first for outgoing expenses).
+- **ACTUAL_BEHAVIOR:** Remote Web App deployment continued serving old prompt signature despite source repair and in-place deployment updates.
+- **REPAIR_ATTEMPTS:** Canonical source repair commit `beaa6295`, clasp push, version creation (v401, v402), in-place deployment update to `85c6dfd6`.
+- **FINANCIAL_SIDE_EFFECTS:** `0` (Review Queue write count = 0, Account Ledger write count = 0, financial approvals = 0).
+- **REAL_PENDING_STATE:** 2 real pending items remain untouched.
+- **STATUS:** `DEFERRED_OPEN_DEFECT` / `OPEN` (Deferred to AIRO Finance as separate defect work).
+- **OWNER_DECISION:** Non-blocking for EAB Phase-1 acceptance per explicit Owner scope waiver (`P8_ACCEPTANCE_RESULT=FAIL_NOT_WAIVED_AS_PASS`, `P8_BLOCKING_REQUIREMENT_FOR_EAB_PHASE1=WAIVED_BY_OWNER`).
+- **SAFE_EVIDENCE_POINTERS:** `/tmp/eab_p8a_arfin_source_repair_*.txt`, `/tmp/eab_p8b1_remote_source_sync_*.txt`, `/tmp/eab_p8b2_arfin_deployment_*.txt`, `/tmp/eab_p8c_live_arfin_route_attribution_*.txt`, `/tmp/eab_p8c_exact_webhook_proof_*.txt`.
+
 # 12_EVIDENCE_INDEX.md
 
 ## Phase Evidence Index
