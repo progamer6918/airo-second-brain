@@ -1,7 +1,7 @@
 # Earesmes-Arfin Bridge (EAB) — Current Handoff
 
-last_updated: 2026-08-15
-updated_by: eab-completion-master-bundle-p1-governance-docs
+last_updated: 2026-08-16
+updated_by: owner-approved-eab-runtime-deployment-record-reconciliation
 status: IN_PROGRESS_P1_GOVERNANCE_RECONCILED
 current_milestone: M13 (Owner Acceptance - IN_PROGRESS)
 previous_milestone: M12 (Fresh Live Canary - DONE)
@@ -17,7 +17,7 @@ previous_milestone: M12 (Fresh Live Canary - DONE)
    - `M13_OWNER_ACCEPTANCE`: `NOT_YET_COMPLETE`
    - `EARESMES_PENDING_QUERY_LIVE_CAPABILITY`: `AWAITING_OWNER_TELEGRAM_REPROOF`
 3. **P1 Governance Recovery:** `PASS` (Formalized `AIRO_EAB_DIRECT_V1` transport and deployment evidence).
-4. **Active Deployment:** `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw` (version 398, `ANYONE_ANONYMOUS`).
+4. **Active Deployment:** `AKfycbxzalMbtiHNHUFaWhZcaEBupMfxfXzqlTwrjhDmovUayZnSv-Z-kRmN6MPjq1ncv7nq0g` (version 400, `ANYONE_ANONYMOUS`).
 5. **Next Safe Gate:** `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`)
 
 ---
@@ -25,7 +25,8 @@ previous_milestone: M12 (Fresh Live Canary - DONE)
 ## 📜 RECONCILED STATE SEMANTICS
 - M12_CANONICAL_STATUS: `DONE`
 - M13_CANONICAL_STATUS: `IN_PROGRESS`
-- EAB_ACTIVE_WEBAPP_DEPLOYMENT_ID: `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw`
+- EAB_ACTIVE_WEBAPP_DEPLOYMENT_ID: `AKfycbxzalMbtiHNHUFaWhZcaEBupMfxfXzqlTwrjhDmovUayZnSv-Z-kRmN6MPjq1ncv7nq0g`
+- EAB_ACTIVE_WEBAPP_VERSION: `400`
 - EAB_ACTIVE_WEBAPP_ACCESS: `ANYONE_ANONYMOUS`
 - DIRECT_APPS_SCRIPT_TRANSPORT: `PASS`
 - HERMES_SERVICE_CONTEXT_EAB_LIST_PENDING: `PASS` (HTTP 200)
@@ -33,3 +34,16 @@ previous_milestone: M12 (Fresh Live Canary - DONE)
 - M13_PRIMARY_FLOW_COMPLETED: `YES`
 - M13_TECHNICAL_EVIDENCE: `PARTIAL`
 - M13_OWNER_ACCEPTANCE: `NOT_YET_COMPLETE`
+
+---
+## 2026-08-16 Runtime Deployment Record Reconciliation
+- PREVIOUS_CANONICAL_DEPLOYMENT_ID: `AKfycbzFY9-4UcDgujpt7i6g86xR0K3MfV0Bzi-P8Ijq5mtB2zNFSLPryhGF9ZgLJI_oY9WeNw`
+- PREVIOUS_CANONICAL_RECORDED_VERSION: `398`
+- PREVIOUS_CANONICAL_LIVE_VERSION_AT_RECONCILIATION: `403`
+- PROVEN_EARESMES_RUNTIME_DEPLOYMENT_ID: `AKfycbxzalMbtiHNHUFaWhZcaEBupMfxfXzqlTwrjhDmovUayZnSv-Z-kRmN6MPjq1ncv7nq0g`
+- PROVEN_EARESMES_RUNTIME_DEPLOYMENT_VERSION: `400`
+- SCRIPT_RESOURCE_IDENTITY: `PROVEN`
+- CLOUD_PROJECT_IDENTITY: `PROVEN_BY_GCLOUD`
+- REPAIR_COMMIT: `bd9e197ed82ee33181a5f3f4b18ef6111b044563`
+- REPAIR_ACTIVATION_STATUS: `NOT_YET_ACTIVATED`
+- PRODUCTION_MUTATION_DURING_RECONCILIATION: `NO`
