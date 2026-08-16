@@ -23,6 +23,7 @@
 | 11 | EAB_P8C_DEPLOYMENT_REPUBLISH | 2026-08-16 09:26 | In-place redeploy to v402 | BERHASIL | Created v402, updated deployment `85c6dfd6` in place to v402 | `/tmp/eab_p8c_arfin_deployment_republish_*.txt` |
 | 12 | EAB_P8_DEFER_AND_M13_ACCEPTANCE | 2026-08-16 09:50 | P8 unresolved live defect | BERHASIL | Deferred P8 to AIRO Finance (`AFPD-INC-012`), M13 DONE with limitation (Commit `278aa801`) | `/tmp/eab_p8_deferral_governance_*.txt` |
 | 13 | M14_STAGE4_PRODUCTION_ACTIVATION | 2026-08-16 09:56 | Production activation & 24h window | BERHASIL | Stage 4 PASS (no-op), health proof PASS, 24h window started (Commit `0870137a`) | `/tmp/eab_m14_stage4_activation_*.txt` |
+| 15 | EAB_POST_CLOSE_PRODUCT_OUTCOME_CORRECTION | 2026-08-16 10:28 | Earesmes manual create returned direct access missing error | FAIL | EAB product outcome corrected to CLOSED_INCOMPLETE_PARTIAL_IMPLEMENTATION | Post-close Owner live turn |
 | 14 | EAB_FINAL_FREEZE_CLOSEOUT | 2026-08-16 10:19 | 24h window waiver & project close | BERHASIL | Waived 24h wait, froze project as `CLOSED_WITH_RECORDED_LIMITATIONS` | `/tmp/eab_final_closeout_*.txt` |
 
 ---
@@ -34,3 +35,13 @@
 - `REDACTED_PUBLIC_LOG_COUNT`: 0
 - `PRIVATE_INDEX_ONLY_LOG_COUNT`: 0
 - `UNINDEXED_MATERIAL_ERROR_COUNT`: 0
+
+---
+
+## Post-Close Acceptance Correction (2026-08-16)
+- **EVENT_CLASS**: `POST_CLOSE_ACCEPTANCE_CORRECTION`
+- **CAPABILITY**: `EARESMES_MANUAL_CREATE`
+- **RESULT**: `FAIL`
+- **ROOT_CAUSE**: `UNRESOLVED_NOT_INVESTIGATED`
+- **PROJECT_REOPENED**: `NO`
+- **EXPLANATION**: Found after project closeout. Demonstrated acceptance coverage gap where manual `catat` creation path was not live-tested before closeout.

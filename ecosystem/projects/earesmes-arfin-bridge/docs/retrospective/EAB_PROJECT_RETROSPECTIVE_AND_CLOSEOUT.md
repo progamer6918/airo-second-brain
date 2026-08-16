@@ -1,3 +1,16 @@
+# Post-Close Live Evidence Correction — 2026-08-16
+> [!IMPORTANT]
+> **Post-Close Live Test Correction**: A post-close real Owner test at `2026-08-16T10:28:00+07:00` exposed that an untested core MVP requirement—manual natural-language transaction creation through Earesmes (`catat ...`)—is **NOT operational** (`EARESMES_MANUAL_CREATE_LIVE_ACCESS=NOT_OPERATIONAL`).
+
+- **Proven Operational Path**: `LIST_PENDING` read path remains proven operational via Earesmes/Hermes bridge.
+- **Failed / Unproven Path**: Manual transaction creation through Earesmes is not operational and staging to Review Queue is unproven.
+- **Product Goal Status**: Original MVP/product goal (Earesmes as complete Finance front door) was **NOT achieved** (`EAB_MVP_PRODUCT_OUTCOME=NOT_ACHIEVED`).
+- **Final Project Classification**: **`CLOSED_INCOMPLETE_PARTIAL_IMPLEMENTATION`**.
+- **Daily Usage Guidance**: Do NOT treat Earesmes as the primary Finance transaction-entry interface. Use Earesmes ONLY for read-only `LIST_PENDING` queries.
+- **Project Status**: Project remains frozen and closed (`PROJECT_DEVELOPMENT_FROZEN=YES`). Any future remediation requires a **NEW Owner decision and a NEW bounded work item**.
+- **Process Lesson (ACCEPTANCE_GAP)**: Core PRD journey (`catat ...` -> EAB/Arfin -> Review Queue) was not live-verified before M13/project closeout.
+
+---
 # EAB Project Retrospective & Final Closeout Document
 
 - **PROJECT**: `EARESMES_ARFIN_CLARIFICATION_BRIDGE` (`EAB`)

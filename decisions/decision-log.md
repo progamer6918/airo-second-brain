@@ -139,3 +139,16 @@ Superseded by:
   - `P8_STATUS`: `DEFERRED_OPEN_DEFECT`
 - **Authority:** EAB Master Bundle 2026-08-16 R5 Final Closeout Decision.
 - **Status:** APPROVED.
+
+### 2026-08-16 — EAB Post-Close Product Outcome Correction
+- **Decision:** Correct EAB project classification to `CLOSED_INCOMPLETE_PARTIAL_IMPLEMENTATION` after post-close live test proved manual transaction creation via Earesmes is not operational (`EAB_MVP_PRODUCT_OUTCOME=NOT_ACHIEVED`). `LIST_PENDING` read path remains operational (`EAB_LIST_PENDING_READ_PATH=OPERATIONAL_PROVEN`). Project remains frozen/closed.
+- **Semantics:**
+  - `EAB_PROJECT_LIFECYCLE_STATUS`: `CLOSED`
+  - `EAB_FINAL_CLASSIFICATION`: `CLOSED_INCOMPLETE_PARTIAL_IMPLEMENTATION`
+  - `EAB_MVP_PRODUCT_OUTCOME`: `NOT_ACHIEVED`
+  - `EAB_LIST_PENDING_READ_PATH`: `OPERATIONAL_PROVEN`
+  - `EAB_MANUAL_CREATE_VIA_EARESMES`: `NOT_OPERATIONAL`
+  - `PROJECT_DEVELOPMENT_FROZEN`: `YES`
+  - `NEXT_EAB_ACTION`: `NONE`
+- **Authority:** EAB Master Bundle 2026-08-16 R5 Correction Decision.
+- **Status:** APPROVED.
