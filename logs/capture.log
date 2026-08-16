@@ -1,1 +1,2 @@
 [2026-06-11T23:01:07.557292] [INFO] Appended event to events/raw/events.ndjson: phase 2 validation
+[2026-08-16T10:20:59.106474] [INFO] Appended event to events/raw/events.ndjson: EAB_FINAL_FREEZE_RETROSPECTIVE_SESSION_CLOSEOUT PRECLOSE BERHASIL. EAB frozen; core bridge retained; P8 deferred to AIRO Finance; 24h observation waived without stability PASS claim; retrospective and error index committed (2a8524ba27e1). Ready for structured session close.
