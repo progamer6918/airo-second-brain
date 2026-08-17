@@ -18623,6 +18623,410 @@ function airoEabCanonicalFundingAccount_(value) {
   return raw;
 }
 
+/* EAB_SUBCATEGORY_SELF_HEAL_V1 */
+function airoEabCanonicalCategoryPair_(category, subcategory) {
+  var rawCategory = String(category || '').trim();
+  var rawSubcategory = String(subcategory || '').trim();
+
+  if (
+    !rawCategory ||
+    !rawSubcategory ||
+    typeof airoSprint7CategoryContractGetRegistry_ !== 'function'
+  ) {
+    return {
+      valid: false,
+      category: rawCategory,
+      subcategory: rawSubcategory
+    };
+  }
+
+  try {
+    var registry = airoSprint7CategoryContractGetRegistry_() || {};
+    var categories = Object.keys(registry);
+    var matchedCategory = '';
+
+    for (var i = 0; i < categories.length; i++) {
+      if (
+        String(categories[i]).toLowerCase() ===
+        rawCategory.toLowerCase()
+      ) {
+        matchedCategory = String(categories[i]);
+        break;
+      }
+    }
+
+    if (!matchedCategory) {
+      return {
+        valid: false,
+        category: rawCategory,
+        subcategory: rawSubcategory
+      };
+    }
+
+    var catData = registry[matchedCategory] || {};
+    var subs = Array.isArray(catData.subcategories)
+      ? catData.subcategories
+      : [];
+
+    var matchedSubcategory = '';
+
+    for (var j = 0; j < subs.length; j++) {
+      if (
+        String(subs[j]).toLowerCase() ===
+        rawSubcategory.toLowerCase()
+      ) {
+        matchedSubcategory = String(subs[j]);
+        break;
+      }
+    }
+
+    return {
+      valid: !!matchedSubcategory,
+      category: matchedCategory,
+      subcategory: matchedSubcategory || rawSubcategory
+    };
+
+  } catch (err) {
+    return {
+      valid: false,
+      category: rawCategory,
+      subcategory: rawSubcategory
+    };
+  }
+}
+
+function airoEabEnsureSubcategoryCellAccepts_(
+  sheet,
+  rowNumber,
+  subcategory
+) {
+  if (
+    !sheet ||
+    Number(rowNumber) <= 1 ||
+    !String(subcategory || '').trim()
+  ) {
+    return {
+      ok: false,
+      changed: false,
+      reason: 'invalid_target'
+    };
+  }
+
+  var header = findHeader_(sheet);
+
+  if (!header) {
+    return {
+      ok: false,
+      changed: false,
+      reason: 'header_missing'
+    };
+  }
+
+  var col = -1;
+
+  for (var i = 0; i < header.headers.length; i++) {
+    if (
+      canonicalKey_(header.headers[i]) ===
+      'parsed_subcategory'
+    ) {
+      col = i + 1;
+      break;
+    }
+  }
+
+  if (col <= 0) {
+    return {
+      ok: false,
+      changed: false,
+      reason: 'parsed_subcategory_header_missing'
+    };
+  }
+
+  var cell = sheet.getRange(Number(rowNumber), col);
+  var validation = cell.getDataValidation();
+
+  if (!validation) {
+    return {
+      ok: true,
+      changed: false,
+      reason: 'no_validation'
+    };
+  }
+
+  var criteriaType = validation.getCriteriaType();
+  var criteriaValues = validation.getCriteriaValues();
+  var allowed = [];
+
+  if (
+    criteriaType ===
+    SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST
+  ) {
+    allowed = (criteriaValues[0] || [])
+      .map(function(v) {
+        return String(v || '').trim();
+      })
+      .filter(Boolean);
+
+  } else if (
+    criteriaType ===
+    SpreadsheetApp.DataValidationCriteria.VALUE_IN_RANGE
+  ) {
+    try {
+      allowed = criteriaValues[0]
+        .getValues()
+        .flat()
+        .map(function(v) {
+          return String(v || '').trim();
+        })
+        .filter(Boolean);
+    } catch (err) {
+      return {
+        ok: false,
+        changed: false,
+        reason: 'validation_range_unreadable'
+      };
+    }
+
+  } else {
+    return {
+      ok: false,
+      changed: false,
+      reason: 'unsupported_validation_type'
+    };
+  }
+
+  var current = String(subcategory).trim();
+  var currentLower = current.toLowerCase();
+
+  var alreadyAllowed = allowed.some(function(v) {
+    return String(v).toLowerCase() === currentLower;
+  });
+
+  if (alreadyAllowed) {
+    return {
+      ok: true,
+      changed: false,
+      reason: 'already_allowed'
+    };
+  }
+
+  allowed.push(current);
+
+  var seen = {};
+  var deduped = [];
+
+  allowed.forEach(function(v) {
+    var clean = String(v || '').trim();
+    var key = clean.toLowerCase();
+
+    if (!clean || seen[key]) return;
+
+    seen[key] = true;
+    deduped.push(clean);
+  });
+
+  var rule = SpreadsheetApp
+    .newDataValidation()
+    .requireValueInList(deduped, true)
+    .setAllowInvalid(false)
+    .build();
+
+  cell.setDataValidation(rule);
+
+  return {
+    ok: true,
+    changed: true,
+    reason: 'cell_local_validation_extended'
+  };
+}
+
+function airoEabExistingRowMatchesManual_(
+  existing,
+  queueId,
+  amount,
+  fundingAccount,
+  category,
+  subcategory,
+  rawText
+) {
+  if (!existing) return false;
+
+  return (
+    String(existing.queue_id || '') === String(queueId) &&
+    Number(existing.parsed_amount) === Number(amount) &&
+    airoEabCanonicalFundingAccount_(existing.parsed_account) ===
+      airoEabCanonicalFundingAccount_(fundingAccount) &&
+    String(existing.parsed_type || '').toLowerCase() === 'expense' &&
+    String(existing.parsed_category || '') === String(category) &&
+    String(existing.parsed_subcategory || '') === String(subcategory) &&
+    String(existing.raw_text || '').trim() === String(rawText || '').trim() &&
+    String(existing.write_policy || '') === 'staging' &&
+    (
+      String(existing.write_status || '') === 'pending' ||
+      String(existing.review_status || '') === 'pending'
+    ) &&
+    !String(existing.linked_account_ledger_entry_id || '').trim() &&
+    !String(existing.linked_event_id || '').trim() &&
+    !String(existing.approved_transaction_id || '').trim()
+  );
+}
+
+function airoEabExistingRowEligibleForSubcategoryHeal_(
+  existing,
+  queueId,
+  amount,
+  fundingAccount,
+  category,
+  subcategory,
+  rawText
+) {
+  if (!existing) return false;
+
+  var pair = airoEabCanonicalCategoryPair_(
+    category,
+    subcategory
+  );
+
+  if (!pair.valid) return false;
+
+  return (
+    String(queueId || '').indexOf('review:eab:') === 0 &&
+    String(existing.queue_id || '') === String(queueId) &&
+    Number(existing.rowNumber || 0) > 1 &&
+    Number(existing.parsed_amount) === Number(amount) &&
+    airoEabCanonicalFundingAccount_(existing.parsed_account) ===
+      airoEabCanonicalFundingAccount_(fundingAccount) &&
+    String(existing.parsed_type || '').toLowerCase() === 'expense' &&
+    String(existing.parsed_category || '') === String(pair.category) &&
+    String(existing.parsed_subcategory || '').trim() === '' &&
+    String(existing.raw_text || '').trim() === String(rawText || '').trim() &&
+    String(existing.write_policy || '') === 'staging' &&
+    (
+      String(existing.write_status || '') === 'pending' ||
+      String(existing.review_status || '') === 'pending'
+    ) &&
+    !String(existing.linked_account_ledger_entry_id || '').trim() &&
+    !String(existing.linked_event_id || '').trim() &&
+    !String(existing.approved_transaction_id || '').trim()
+  );
+}
+
+function airoEabSelfHealReviewSubcategory_(
+  ss,
+  existing,
+  queueId,
+  amount,
+  fundingAccount,
+  category,
+  subcategory,
+  rawText
+) {
+  if (
+    !airoEabExistingRowEligibleForSubcategoryHeal_(
+      existing,
+      queueId,
+      amount,
+      fundingAccount,
+      category,
+      subcategory,
+      rawText
+    )
+  ) {
+    return {
+      ok: false,
+      eligible: false,
+      readback: existing || null
+    };
+  }
+
+  var pair = airoEabCanonicalCategoryPair_(
+    category,
+    subcategory
+  );
+
+  var sheet = getSheetLoose_(
+    ss,
+    AIRO_CONFIG.tabs.review
+  );
+
+  if (!sheet) {
+    return {
+      ok: false,
+      eligible: true,
+      reason: 'review_sheet_missing'
+    };
+  }
+
+  var validation =
+    airoEabEnsureSubcategoryCellAccepts_(
+      sheet,
+      existing.rowNumber,
+      pair.subcategory
+    );
+
+  if (!validation.ok) {
+    return {
+      ok: false,
+      eligible: true,
+      reason:
+        'subcategory_validation_' +
+        String(validation.reason || 'failed')
+    };
+  }
+
+  var header = findHeader_(sheet);
+
+  if (!header) {
+    return {
+      ok: false,
+      eligible: true,
+      reason: 'header_missing'
+    };
+  }
+
+  var map = reviewHeaderMap_(header.headers);
+
+  if (
+    !setReviewValue_(
+      sheet,
+      existing.rowNumber,
+      map,
+      ['parsed_subcategory'],
+      pair.subcategory
+    )
+  ) {
+    return {
+      ok: false,
+      eligible: true,
+      reason: 'subcategory_write_unavailable'
+    };
+  }
+
+  SpreadsheetApp.flush();
+
+  var readback =
+    airoTask614FindReviewItemByQueueId_(
+      ss,
+      queueId
+    );
+
+  return {
+    ok: airoEabExistingRowMatchesManual_(
+      readback,
+      queueId,
+      amount,
+      fundingAccount,
+      pair.category,
+      pair.subcategory,
+      rawText
+    ),
+    eligible: true,
+    readback: readback || null,
+    validation_changed:
+      validation.changed === true
+  };
+}
+
 /* EAB_DIRECT_V1_RECEIVER_START */
 function airoEabMaybeHandleDirectRequest_(e) {
   if (!e || !e.postData || !e.postData.contents) {
@@ -18796,6 +19200,35 @@ function airoEabMaybeHandleDirectRequest_(e) {
       });
     }
 
+    var categoryPair =
+      airoEabCanonicalCategoryPair_(
+        category,
+        subcategory
+      );
+
+    if (!categoryPair.valid) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'NEEDS_CLARIFICATION',
+        application_error_code:
+          'ERR_INVALID_CATEGORY_SUBCATEGORY',
+        payload: {
+          mode: 'needs_clarification',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false,
+          invalid_fields: {
+            category: true,
+            subcategory: true
+          }
+        }
+      });
+    }
+
+    category = categoryPair.category;
+    subcategory = categoryPair.subcategory;
+
     var ss = typeof SpreadsheetApp !== 'undefined' ? SpreadsheetApp.getActiveSpreadsheet() : null;
     var reviewTab = (typeof AIRO_CONFIG !== 'undefined' && AIRO_CONFIG.tabs && AIRO_CONFIG.tabs.review) ? AIRO_CONFIG.tabs.review : '🧾 Review Queue';
     var parsedObj = {
@@ -18857,25 +19290,68 @@ function airoEabMaybeHandleDirectRequest_(e) {
 
     if (existing) {
       var existingVerified =
-        String(existing.queue_id || '') === queueId &&
-        Number(existing.parsed_amount) === amtNum &&
-        airoEabCanonicalFundingAccount_(existing.parsed_account) ===
-          airoEabCanonicalFundingAccount_(fundingAccount) &&
-        String(existing.parsed_category || '') ===
-          String(category) &&
-        String(existing.parsed_subcategory || '') ===
-          String(subcategory) &&
-        (
-          String(existing.write_status || '') === 'pending' ||
-          String(existing.review_status || '') === 'pending'
+        airoEabExistingRowMatchesManual_(
+          existing,
+          queueId,
+          amtNum,
+          fundingAccount,
+          category,
+          subcategory,
+          rawText
         );
+
+      var selfHealedSubcategory = false;
+
+      if (
+        !existingVerified &&
+        airoEabExistingRowEligibleForSubcategoryHeal_(
+          existing,
+          queueId,
+          amtNum,
+          fundingAccount,
+          category,
+          subcategory,
+          rawText
+        )
+      ) {
+        var healResult =
+          airoEabSelfHealReviewSubcategory_(
+            ss,
+            existing,
+            queueId,
+            amtNum,
+            fundingAccount,
+            category,
+            subcategory,
+            rawText
+          );
+
+        if (healResult.ok) {
+          existing = healResult.readback;
+
+          existingVerified =
+            airoEabExistingRowMatchesManual_(
+              existing,
+              queueId,
+              amtNum,
+              fundingAccount,
+              category,
+              subcategory,
+              rawText
+            );
+
+          selfHealedSubcategory =
+            existingVerified === true;
+        }
+      }
 
       if (!existingVerified) {
         return airoEabJson_({
           schema_version: '1.0',
           request_id: String(meta.request_id),
           application_status: 'FAILED',
-          application_error_code: 'ERR_IDEMPOTENCY_CONFLICT',
+          application_error_code:
+            'ERR_IDEMPOTENCY_CONFLICT',
           payload: {
             mode: 'review_queue_staged',
             staged: false,
@@ -18897,8 +19373,53 @@ function airoEabMaybeHandleDirectRequest_(e) {
           write_verified: true,
           direct_ledger_write: false,
           idempotent_replay: true,
+          self_healed_subcategory:
+            selfHealedSubcategory,
           review_queue_ref: queueId,
-          review_queue_row: existing.rowNumber || 0
+          review_queue_row:
+            existing.rowNumber || 0
+        }
+      });
+    }
+
+    var reviewSheet =
+      getSheetLoose_(ss, reviewTab);
+
+    if (!reviewSheet) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code:
+          'ERR_REVIEW_QUEUE_UNAVAILABLE',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    var subcategoryValidation =
+      airoEabEnsureSubcategoryCellAccepts_(
+        reviewSheet,
+        reviewSheet.getLastRow() + 1,
+        subcategory
+      );
+
+    if (!subcategoryValidation.ok) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code:
+          'ERR_REVIEW_QUEUE_SUBCATEGORY_VALIDATION_UNAVAILABLE',
+        payload: {
+          mode: 'review_queue_staged',
+          staged: false,
+          write_verified: false,
+          direct_ledger_write: false
         }
       });
     }
