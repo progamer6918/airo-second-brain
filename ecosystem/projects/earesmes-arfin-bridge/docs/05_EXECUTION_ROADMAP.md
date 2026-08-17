@@ -5,10 +5,11 @@ ROADMAP_STATUS=CANONICAL
 OWNER_APPROVAL_SOURCE=OWNER_INSTRUCTION_2026_07_29
 MVP_SCOPE=PRODUCT_PHASE_1
 PHASE_2_SCOPE=DEFERRED_OPTIONAL
-IMPLEMENTATION_STATE=NOT_STARTED
-IMPLEMENTATION_ALLOWED=NO
-CURRENT_MILESTONE=M2
-CURRENT_GATE=EAB_G1_1
+IMPLEMENTATION_STATE=COMPLETE
+IMPLEMENTATION_ALLOWED=YES
+CURRENT_MILESTONE=M14
+CURRENT_GATE=EAB_G2_7
+PHASE1_MVP_STATUS=COMPLETE
 
 PRE_EXISTING_CANONICAL_GATES=EAB_G1_0,EAB_G1_1,EAB_G1_2,EAB_G1_3,EAB_G1_4,EAB_G1_6
 G1_5_STATUS=INTENTIONALLY_NOT_USED
@@ -45,15 +46,10 @@ REQ_014_REQUIRED_FOR_MVP=NO
 
 ### M1 — Runtime and Workspace Readiness
 - **Gate**: `EAB_G1_0`
-- **Status**: `PASS_WITH_LIMITATIONS`
+- **Status**: `DONE`
 - **Deliverables**: Dedicated clean implementation workspace strategy, local process ownership evidence, local getUpdates single-owner evidence, queue isolation evidence.
-- **Current Evidence**: G1.0 discovery procedure completed with `RESULT=PASS`. Local Earesmes getUpdates single owner proven (PID 476). Local queue isolation proven.
-- **Limitations & Transition Rule**: Production Cloudflare webhook binding explicitly unknown. Runtime `owner_chat_id` allowlist not implemented in code. Bounded adapter not implemented. `AFPD-INC-011` remains `OPEN_CONTAINED`.
-  - M1 may transition to `DONE` only after: (1) bounded adapter `owner_chat_id` allowlist is implemented and verified; (2) production route isolation is directly verified through controlled live canary evidence; (3) `AFPD-INC-011` canonical close condition passes.
-  - Expected M1 closure evidence milestone: `M12` (Fresh Live Canary).
-  - M1 status remains `PASS_WITH_LIMITATIONS` until M12 evidence exists. This does not block work on M2 through M11 where dependencies permit.
-  - M14 completion requires M1 to have transitioned to `DONE`.
-
+- **Final Closure Evidence**: M12 signed live canary PASS; bounded owner_chat_id enforcement and production route isolation verified; `AFPD-INC-011` RESOLVED.
+- **Transition Result**: M1 transitioned to `DONE` at M12 and remains `DONE` at M14 Phase 1 closeout.
 ### M2 — Stable Pending Identity and Concurrency Contract
 - **Gate**: `EAB_G1_1`
 - **Status**: `DONE`
@@ -78,61 +74,61 @@ REQ_014_REQUIRED_FOR_MVP=NO
 
 ### M5 — Rollback, Observability, Attribution and Consolidated Readiness
 - **Gate**: `EAB_G1_4`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Rollback topology, source/runtime/deployment attribution, trace IDs and safe logging, exact implementation source paths, implementation slices, test map, canary/rollback plan.
 - **Exit Criteria**: PREREQ-009 and PREREQ-010 `PASS`. All design packages internally consistent.
 
 ### M6 — Owner Implementation Authorization
 - **Gate**: `EAB_G1_6`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Exact remote baseline hash, exact source and test paths, exact mutation scope, exact commit/deployment scope, exact rollback boundary, explicit Owner authorization receipt.
 - **Exit Criteria**: PREREQ-011 `PASS`. Source code implementation explicitly authorized by Owner.
 
 ### M7 — Arfin Pending Model Implementation
 - **Gate**: `EAB_G2_0`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Stable `pending_id`, `short_ref`, `pending_version`, state lifecycle, TTL and backlog management, safe migration/backfill scripts.
 - **Exit Criteria**: Pending model unit tests `PASS`. Stale write creates zero Review Queue effect.
 
 ### M8 — Bounded Arfin Adapter Implementation
 - **Gate**: `EAB_G2_1`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Implementation of 4 bounded methods, `owner_chat_id` enforcement, least-privilege capability boundary.
 - **Exit Criteria**: Unauthorized callers rejected. Direct ledger and approval methods absent. Review Queue staging only.
 
 ### M9 — Earesmes and Hermes Bridge Implementation
 - **Gate**: `EAB_G2_2`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Pending list renderer, short reference resolver, natural-language clarification parser, multiline batch parser, manual catat parser, pre-submission revalidation client, itemized receipts.
 - **Exit Criteria**: Earesmes Gateway remains sole getUpdates owner. Hermes worker remains bounded queue consumer.
 
 ### M10 — Automated Verification
 - **Gate**: `EAB_G2_3`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Static/syntax tests, contract tests, parser tests, concurrency tests, allowlist/security tests, idempotency tests, expiry tests, direct-ledger denial tests.
 - **Exit Criteria**: All 13 MVP-required requirements REQ-001 through REQ-013 have automated test evidence (`PASS`). Zero critical regression failures.
 
 ### M11 — Controlled Integration Dry Run
 - **Gate**: `EAB_G2_4`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Synthetic pending flow, synthetic stale flow, synthetic batch partial success, synthetic unauthorized caller, synthetic manual catat, Review Queue-only effect verification.
 - **Exit Criteria**: Integration test suite `PASS`. Account Ledger receives zero pre-approval writes. Rollback rehearsal `PASS`.
 
 ### M12 — Fresh Live Canary
 - **Gate**: `EAB_G2_5`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Live pending clarification, stale/replay rejection, manual catat, batch partial success, unauthorized message rejection, direct-Arfin fallback check.
 - **Exit Criteria**: Live canary test suite `PASS`. Review Queue mandatory. Zero direct Account Ledger write. `AFPD-INC-011` close condition directly verified. M1 transitions to `DONE`.
 
 ### M13 — Owner Acceptance
 - **Gate**: `EAB_G2_6`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Owner tests primary Earesmes flow, direct Arfin fallback, Review Queue approval, and final ledger effect.
 - **Exit Criteria**: Explicit Owner acceptance receipt signed.
 
 ### M14 — Production Activation and Project Closeout
 - **Gate**: `EAB_G2_7`
-- **Status**: `NOT_STARTED`
+- **Status**: `DONE`
 - **Deliverables**: Production source/runtime/deployment attribution, health monitoring, rollback target, canonical progress and handoff closeout.
 - **Exit Criteria**: All required milestones M0–M14 `DONE`. M1 transitioned to `DONE`. All 13 MVP-required requirements REQ-001 through REQ-013 `PASS`. Live canary `PASS`. Owner acceptance `PASS`.
 

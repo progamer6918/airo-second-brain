@@ -473,3 +473,35 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **Real Owner E2E Acceptance:** `PASS`.
 - **Project Completion:** `NOT_YET`; M14 production attribution and canonical closeout remain.
 - **Next Gate:** `M14 / EAB_G2_7 — Production Activation & Project Closeout`.
+
+## [2026-08-17] EAB_G2_7 / M14 — Production Activation & Phase 1 Project Closeout
+
+- **Owner Authorization:** `YA LANJUT M14 PRODUCTION ACTIVATION + PROJECT CLOSEOUT`.
+- **Production Redeploy During M14:** `NO`; v407 was already active.
+- **Production Apps Script Version:** `407`.
+- **Production Implementation Source Commit:** `6cfafab7b2daba206cef6b8c7998fe6e5b2c6bb7`.
+- **M14 Test Repair Commit:** `4468694fc37749278bba853aa885a229101446d2`.
+- **Fresh Current-Source Automated Tests:** `PASS` (82 tests).
+- **Apps Script Backend Syntax:** `PASS`.
+- **Prompt TTL 24h / Durable Backlog Regression:** `PASS`.
+- **Production Source/Runtime/Deployment Attribution:** `PASS`.
+- **Apps Script HEAD = v407 = Canonical Production Backend:** `PASS`.
+- **Fresh Authenticated Production LIST_PENDING:** `PASS`.
+- **Hermes Worker Health:** `PASS`.
+- **Rollback Target:** immutable version `404`.
+- **Rollback Rehearsal to v404:** `PASS`.
+- **M13 Primary Flow:** Earesmes -> Review Queue -> Arfin approval -> Ledger evidence `PASS`.
+- **M13 Owner Acceptance:** `PASS`.
+- **REQ-001 through REQ-013 Final State:** `PASS`.
+- **REQ-014 / M15:** optional/deferred; not blocking Phase 1.
+- **M0 through M14 Final State:** `DONE`.
+- **AFPD-INC-009 TTL Close Condition:** `RESOLVED`.
+- **AFPD-INC-011 Runtime Isolation:** `RESOLVED`.
+- **Direct Account Ledger Write During M14:** `NO`.
+- **New Deployment Created During M14:** `NO`.
+- **Worker Restart During M14:** `NO`.
+- **Credential Mutation During M14:** `NO`.
+- **M14 Receipt:** `/tmp/eab_m14_final_phase1_closeout_resume_20260817_101551.txt`.
+- **Phase 1 MVP Completion:** `PASS`.
+- **Next Required Gate:** `NONE`.
+- **Optional Next Product Gate:** `M15 / EAB_PHASE_2` remains `DEFERRED`.
