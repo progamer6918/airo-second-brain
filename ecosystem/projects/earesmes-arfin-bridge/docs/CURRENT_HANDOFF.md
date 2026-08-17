@@ -1,9 +1,9 @@
 # Earesmes-Arfin Bridge (EAB) — Current Handoff
 
 last_updated: 2026-08-17
-updated_by: m14-phase1-production-closeout
+updated_by: m16-proactive-frontdesk-candidate
 status: PHASE1_MVP_COMPLETE
-current_milestone: M15 (Optional Product Phase 2 - DEFERRED)
+current_milestone: M16 (Proactive Front Desk - IN_PROGRESS)
 previous_milestone: M14 (Production Activation & Project Closeout - DONE)
 phase1_mvp_status: COMPLETE
 
@@ -74,3 +74,18 @@ Phase 1 has no remaining required milestone.
 M15 / Product Phase 2 remains optional and `DEFERRED`.
 
 Any Phase 2 implementation requires a new explicit Owner authorization and a new AIRO session/objective.
+
+
+---
+
+## ACTIVE M16 — PROACTIVE FRONT DESK
+
+- **Phase 1 MVP:** remains `COMPLETE`; M0-M14 are not reopened.
+- **M15 Cloud Inbox:** remains `DEFERRED`.
+- **M16 Gate:** `EAB_PFD_G1`.
+- **Owner Authorization:** source/test candidate approved on 2026-08-17.
+- **Candidate Runtime Design:** existing Hermes worker performs a signed EAB poll every 60 seconds while online; no second Telegram `getUpdates` consumer.
+- **Canonical Reply Binding:** `pending_id` + current `pending_version`.
+- **Duplicate Arfin Telegram Outbound:** must be suppressed by execution-local capture during EAB delegated clarification.
+- **Candidate Receipt:** `/tmp/eab_m16_source_test_candidate_resume_v4_20260817_134754.txt`.
+- **Production State:** unchanged from Phase 1 until separate deployment authorization.

@@ -108,6 +108,83 @@ function airoEabPruneReplay_(props, nowSeconds) {
   });
 }
 
+/* EAB_M16_PROACTIVE_FRONTDESK_V1 */
+function airoEabStableShortRef_(pendingId) {
+  var raw = String(pendingId || '');
+  if (!raw) return '';
+  var digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    raw,
+    Utilities.Charset.UTF_8
+  );
+  var b0 = (Number(digest[0]) + 256) % 256;
+  var b1 = (Number(digest[1]) + 256) % 256;
+  var value = 1000 + (((b0 * 256) + b1) % 9000);
+  return 'AF-' + String(value);
+}
+
+function airoEabBuildPendingPrompt_(pending) {
+  pending = pending || {};
+  var type = String(pending.type || '');
+
+  try {
+    if (
+      type === 'outgoing_confirmation' &&
+      typeof airoBuildOutgoingAccountPromptMessage_ === 'function'
+    ) {
+      return airoBuildOutgoingAccountPromptMessage_(
+        pending.amount,
+        pending.description || pending.rawText || pending.original_text || '',
+        pending.account || 'Unknown',
+        pending.category || 'Lainnya',
+        pending.subcategory || '',
+        getEligibleFundingSourceAccounts_()
+      );
+    }
+    if (
+      type === 'missing_account' &&
+      typeof buildMissingAccountClarificationMessage_ === 'function'
+    ) {
+      return buildMissingAccountClarificationMessage_(pending);
+    }
+    if (
+      type === 'missing_category' &&
+      typeof buildMissingCategoryClarificationMessage_ === 'function'
+    ) {
+      return buildMissingCategoryClarificationMessage_(pending);
+    }
+    if (
+      type === 'missing_amount_account' &&
+      typeof buildMissingAmountAccountClarificationMessage_ === 'function'
+    ) {
+      return buildMissingAmountAccountClarificationMessage_(pending);
+    }
+    if (
+      type === 'direction_ambiguous' &&
+      typeof buildDirectionAmbiguousClarificationMessage_ === 'function'
+    ) {
+      return buildDirectionAmbiguousClarificationMessage_(pending);
+    }
+    if (
+      type === 'cash_ambiguous' &&
+      typeof buildCashAmbiguousClarificationMessage_ === 'function'
+    ) {
+      return buildCashAmbiguousClarificationMessage_(pending);
+    }
+  } catch (err) {}
+
+  if (type === 'missing_account' || type === 'outgoing_confirmation') {
+    return 'Sumber dana / akun yang benar apa?';
+  }
+  if (type === 'missing_category') {
+    return 'Kategori atau subkategori yang benar apa?';
+  }
+  if (type === 'missing_amount_account') {
+    return 'Nominal dan akun yang benar apa?';
+  }
+  return 'Arfin membutuhkan klarifikasi untuk transaksi ini.';
+}
+
 function airoEabProjectPending_(pending) {
   return {
     pending_id: String(pending.pending_id || ''),
@@ -126,6 +203,9 @@ function airoEabProjectPending_(pending) {
       pending.rawText ||
       ''
     ).slice(0, 240),
+    prompt: String(
+      airoEabBuildPendingPrompt_(pending) || ''
+    ).slice(0, 1200),
     created_at: String(pending.created_at || ''),
     updated_at: String(pending.updated_at || '')
   };
@@ -335,12 +415,47 @@ function getPendingClarification_(chatId) {
 
 function savePendingClarification_(chatId, pending) {
   if (!chatId || !pending) return;
+
+  var existing = getPendingClarification_(chatId);
+
   if (!pending.created_at) {
     pending.created_at = new Date().toISOString();
   }
+
   if (!pending.pending_id) {
-    pending.pending_id = "pending:" + new Date().getTime() + ":" + Math.floor(Math.random() * 1000000);
+    pending.pending_id =
+      "pending:" +
+      new Date().getTime() +
+      ":" +
+      Math.floor(Math.random() * 1000000);
   }
+
+  if (!pending.short_ref) {
+    pending.short_ref =
+      airoEabStableShortRef_(pending.pending_id);
+  }
+
+  var samePending = (
+    existing &&
+    String(existing.pending_id || '') ===
+      String(pending.pending_id || '')
+  );
+
+  if (samePending) {
+    pending.pending_version =
+      Number(
+        existing.pending_version ||
+        pending.pending_version ||
+        1
+      ) + 1;
+  } else {
+    pending.pending_version =
+      Math.max(
+        1,
+        Number(pending.pending_version || 1)
+      );
+  }
+
   PropertiesService.getScriptProperties().setProperty(
     clarificationPropKey_(chatId),
     JSON.stringify({
@@ -5374,10 +5489,25 @@ function getProp_(key) {
   return value;
 }
 
+var AIRO_EAB_TELEGRAM_CAPTURE_ = null;
+
 function sendTelegram_(chatId, text) {
+  if (
+    AIRO_EAB_TELEGRAM_CAPTURE_ &&
+    AIRO_EAB_TELEGRAM_CAPTURE_.active === true
+  ) {
+    AIRO_EAB_TELEGRAM_CAPTURE_.messages.push({
+      chat_id: String(chatId || ''),
+      text: String(text || '')
+    });
+    return {
+      ok: true,
+      captured: true
+    };
+  }
+
   const token = getProp_('BOT_TOKEN');
   const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
-
   UrlFetchApp.fetch(url, {
     method: 'post',
     contentType: 'application/json',
@@ -19010,6 +19140,63 @@ function airoEabSelfHealReviewSubcategory_(
   };
 }
 
+
+function airoEabRunCapturedTelegramReply_(chatId, clarificationText) {
+  var previous = AIRO_EAB_TELEGRAM_CAPTURE_;
+  var capture = {
+    active: true,
+    messages: []
+  };
+
+  AIRO_EAB_TELEGRAM_CAPTURE_ = capture;
+
+  try {
+    var response = doPost({
+      postData: {
+        type: 'application/json',
+        contents: JSON.stringify({
+          update_id: new Date().getTime(),
+          message: {
+            message_id: new Date().getTime(),
+            date: Math.floor(new Date().getTime() / 1000),
+            chat: {
+              id: String(chatId),
+              type: 'private'
+            },
+            text: String(clarificationText || '')
+          }
+        })
+      }
+    });
+
+    var responseText = '';
+    try {
+      if (
+        response &&
+        typeof response.getContent === 'function'
+      ) {
+        responseText = String(response.getContent() || '');
+      } else {
+        responseText = String(response || '');
+      }
+    } catch (readErr) {}
+
+    var responseObject = {};
+    if (responseText) {
+      try {
+        responseObject = JSON.parse(responseText);
+      } catch (parseErr) {}
+    }
+
+    return {
+      messages: capture.messages.slice(),
+      response: responseObject
+    };
+  } finally {
+    AIRO_EAB_TELEGRAM_CAPTURE_ = previous;
+  }
+}
+
 /* EAB_DIRECT_V1_RECEIVER_START */
 function airoEabMaybeHandleDirectRequest_(e) {
   if (!e || !e.postData || !e.postData.contents) {
@@ -19144,15 +19331,196 @@ function airoEabMaybeHandleDirectRequest_(e) {
       payload: { items: items }
     });
   } else if (op === 'EAB_GET_PENDING') {
-    var targetId = envelope.pending_id || (envelope.payload && envelope.payload.pending_id);
+    var getPayload = envelope.payload || envelope;
+    var targetId = String(getPayload.pending_id || '');
+    var pendingNow = getPendingClarification_(
+      String(meta.owner_chat_id)
+    );
+    var projectedNow = pendingNow
+      ? airoEabProjectPending_(pendingNow)
+      : null;
+    var found = Boolean(
+      projectedNow &&
+      targetId &&
+      String(projectedNow.pending_id) === targetId
+    );
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
       application_status: 'SUCCESS',
       application_error_code: 'NONE',
-      payload: { pending_id: targetId || null, found: false, record: null }
+      payload: {
+        pending_id: targetId || null,
+        found: found,
+        record: found ? projectedNow : null
+      }
     });
-  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_SUBMIT_CLARIFICATION' || op === 'EAB_CREATE_MANUAL') {
+
+  } else if (op === 'EAB_SUBMIT_CLARIFICATION') {
+    var clarificationPayload =
+      envelope.payload || envelope;
+
+    var targetPendingId = String(
+      clarificationPayload.pending_id || ''
+    );
+
+    var expectedVersion = Number(
+      clarificationPayload.expected_pending_version
+    );
+
+    var clarificationText = String(
+      clarificationPayload.clarification_text || ''
+    ).trim();
+
+    if (
+      !targetPendingId ||
+      !isFinite(expectedVersion) ||
+      expectedVersion < 1 ||
+      !clarificationText
+    ) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code:
+          'ERR_INVALID_CLARIFICATION_REQUEST',
+        payload: {
+          resolved: false,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    var currentPending = getPendingClarification_(
+      String(meta.owner_chat_id)
+    );
+
+    if (!currentPending) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_PENDING_NOT_FOUND',
+        payload: {
+          resolved: false,
+          pending: null,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    var currentProjected =
+      airoEabProjectPending_(currentPending);
+
+    if (
+      String(currentProjected.pending_id) !==
+      targetPendingId
+    ) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code: 'ERR_PENDING_NOT_FOUND',
+        payload: {
+          resolved: false,
+          pending: currentProjected,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    if (
+      Number(currentProjected.pending_version) !==
+      expectedVersion
+    ) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code:
+          'ERR_STALE_PENDING_VERSION',
+        payload: {
+          resolved: false,
+          pending: currentProjected,
+          direct_ledger_write: false
+        }
+      });
+    }
+
+    var captured =
+      airoEabRunCapturedTelegramReply_(
+        String(meta.owner_chat_id),
+        clarificationText
+      );
+
+    var routeResult =
+      captured && captured.response
+        ? captured.response
+        : {};
+
+    if (routeResult && routeResult.ok === false) {
+      return airoEabJson_({
+        schema_version: '1.0',
+        request_id: String(meta.request_id),
+        application_status: 'FAILED',
+        application_error_code:
+          'ERR_CLARIFICATION_ROUTE_FAILED',
+        payload: {
+          resolved: false,
+          direct_ledger_write: false,
+          arfin_telegram_outbound_suppressed: true
+        }
+      });
+    }
+
+    var pendingAfter = getPendingClarification_(
+      String(meta.owner_chat_id)
+    );
+
+    var projectedAfter = pendingAfter
+      ? airoEabProjectPending_(pendingAfter)
+      : null;
+
+    var messages = (
+      captured &&
+      Array.isArray(captured.messages)
+    )
+      ? captured.messages
+      : [];
+
+    var lastMessage = messages.length
+      ? String(
+          messages[messages.length - 1].text || ''
+        )
+      : '';
+
+    return airoEabJson_({
+      schema_version: '1.0',
+      request_id: String(meta.request_id),
+      application_status: 'SUCCESS',
+      application_error_code: 'NONE',
+      payload: {
+        resolved: projectedAfter === null,
+        pending: projectedAfter,
+        next_prompt:
+          projectedAfter
+            ? (
+                lastMessage ||
+                String(projectedAfter.prompt || '')
+              )
+            : '',
+        completion_message:
+          projectedAfter === null
+            ? lastMessage
+            : '',
+        captured_message_count: messages.length,
+        arfin_telegram_outbound_suppressed: true,
+        earesmes_direct_ledger_write: false,
+        direct_ledger_write: false
+      }
+    });
+
+  } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_CREATE_MANUAL') {
     var payload = envelope.payload || envelope;
     var rawText = payload.description || payload.raw_text || payload.clarification_text || '';
     var amtNum = Number(payload.amount);

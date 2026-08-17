@@ -138,6 +138,16 @@ REQ_014_REQUIRED_FOR_MVP=NO
 - **Required for MVP**: `NO`
 - **Deliverables**: Cloud inbox integration, free-form comma-separated batch parsing (REQ-014).
 
+### M16 — Proactive Front Desk
+- **Gate**: `EAB_PFD_G1`
+- **Status**: `IN_PROGRESS`
+- **Required for Phase 1 MVP**: `NO`
+- **Dependency**: `M14`
+- **Owner Authorization**: `APPROVED 2026-08-17`
+- **Deliverables**: proactive signed `LIST_PENDING` poller in existing Hermes worker, durable pending/version dedupe state, canonical `GET_PENDING`, stale-version fail-closed submit, captured Arfin clarification transport, natural Owner reply through Earesmes.
+- **Exit Criteria**: REQ-015 through REQ-017 `PASS`; existing Phase 1 regression remains PASS; real Owner acceptance proves Arfin pending -> proactive Earesmes prompt -> Owner reply in Earesmes -> verified Arfin result; no duplicate Arfin Telegram conversation.
+- **Production Boundary**: local worker online only. M15 Cloud Inbox remains deferred for PC-off/24x7 delivery.
+
 ---
 
 ## EAB Definition of Done (DoD)

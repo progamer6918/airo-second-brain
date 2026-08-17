@@ -105,6 +105,16 @@ class EABLiveSignedClient:
         }
         return self._send_signed_request("EAB_LIST_PENDING", payload)
 
+    def get_pending(self, pending_id: str, owner_chat_id: str) -> Dict[str, Any]:
+        payload = {
+            "schema_version": "1.0",
+            "request_id": f"req_get_{int(time.time())}",
+            "operation_id": "EAB_GET_PENDING",
+            "owner_chat_id": str(owner_chat_id),
+            "pending_id": str(pending_id),
+        }
+        return self._send_signed_request("EAB_GET_PENDING", payload)
+
     def submit_clarification(self, pending_id: str, pending_version: int, clarification_text: str, owner_chat_id: str) -> Dict[str, Any]:
         payload = {
             "schema_version": "1.0",

@@ -505,3 +505,19 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **Phase 1 MVP Completion:** `PASS`.
 - **Next Required Gate:** `NONE`.
 - **Optional Next Product Gate:** `M15 / EAB_PHASE_2` remains `DEFERRED`.
+
+
+## [2026-08-17] M16 / EAB_PFD_G1 — Proactive Front Desk Source + Test Candidate
+
+- **Owner Authorization:** `YA PATCH EAB M16 PROACTIVE FRONT DESK SOURCE + TEST CANDIDATE, NO DEPLOYMENT`.
+- **Phase 1 Reopened:** `NO`.
+- **M15 Cloud Inbox:** `DEFERRED` unchanged.
+- **M16:** `IN_PROGRESS`.
+- **REQ-015..017:** canonicalized as approved M16 requirements.
+- **Worker Design:** existing `airo-hermes-worker.service`; 60-second bounded signed pending poll; no second Telegram poller.
+- **Durable Dedupe State:** `eab-proactive-frontdesk.json`.
+- **Reply Binding:** canonical `pending_id` + current `pending_version`.
+- **Backend:** real `EAB_GET_PENDING`; distinct `EAB_SUBMIT_CLARIFICATION`; stale version fail-closed.
+- **Arfin Transport:** existing clarification semantics reused under execution-local Telegram capture.
+- **Candidate Only:** no Apps Script push/version/deployment and no worker restart in this task.
+- **Receipt:** `/tmp/eab_m16_source_test_candidate_resume_v4_20260817_134754.txt`.

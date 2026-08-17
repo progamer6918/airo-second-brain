@@ -112,7 +112,8 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
                 "transaksi pending."
             )
 
-    # Existing AF-XXXX clarification path.
+    # Existing explicit AF-XXXX clarification path.
+    # M16 resolves display short_ref to canonical pending_id/version first.
     af_match = re.match(
         r"^(AF-\d+)\s+(.+)$",
         text.strip(),
@@ -121,32 +122,59 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
     if af_match:
         short_ref = af_match.group(1).upper()
         clarification_text = af_match.group(2).strip()
-
         try:
-            client = EABLiveSignedClient(fake_mode=False)
-            res = client.submit_clarification(
-                pending_id=short_ref,
-                pending_version=1,
-                clarification_text=clarification_text,
-                owner_chat_id=owner_chat_id,
-            )
-
-            application_status = str(
-                res.get("application_status", "")
-            ).upper()
-            if (
-                res.get("status") == "error"
-                or res.get("ok") is False
-                or application_status != "SUCCESS"
-            ):
+            client = _eab_new_live_client()
+            pending_res = client.list_pending(owner_chat_id)
+            if not _eab_application_success(pending_res):
                 return (
                     f"⚠️ Klarifikasi {short_ref} "
                     "belum terkonfirmasi terkirim."
                 )
-
+            matches = []
+            for item in _eab_extract_pending_items(
+                pending_res
+            ):
+                record = _eab_pending_record(item)
+                if (
+                    record is not None
+                    and record["short_ref"].upper()
+                    == short_ref
+                ):
+                    matches.append(record)
+            if len(matches) != 1:
+                return (
+                    f"⚠️ Referensi {short_ref} tidak bisa "
+                    "dipetakan ke satu pending Arfin aktif."
+                )
+            record = matches[0]
+            res = client.submit_clarification(
+                pending_id=record["pending_id"],
+                pending_version=record["pending_version"],
+                clarification_text=clarification_text,
+                owner_chat_id=owner_chat_id,
+            )
+            if not _eab_application_success(res):
+                return (
+                    f"⚠️ Klarifikasi {short_ref} "
+                    "belum terkonfirmasi terkirim."
+                )
+            payload = res.get("payload")
+            if not isinstance(payload, dict):
+                payload = {}
+            if payload.get(
+                "arfin_telegram_outbound_suppressed"
+            ) is not True:
+                return (
+                    f"⚠️ Klarifikasi {short_ref} "
+                    "tidak memenuhi kontrak EAB."
+                )
             return (
-                f"✅ Klarifikasi untuk {short_ref} "
-                "berhasil dikirim."
+                str(
+                    payload.get("next_prompt")
+                    or payload.get("completion_message")
+                    or ""
+                ).strip()
+                or f"✅ Klarifikasi {short_ref} diproses Arfin."
             )
         except Exception:
             return (
@@ -255,13 +283,20 @@ def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
             "untuk retry; saya tidak mengklaim transaksi berhasil."
         )
 
+    active_reply = _eab_handle_active_prompt_reply(
+        text,
+        owner_chat_id,
+    )
+    if active_reply is not None:
+        return active_reply
+
     return None
 
 from datetime import datetime
 from pathlib import Path
 
 # ??? Paths ???????????????????????????????????????????????????????????????????
-REPO_DIR       = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
+REPO_DIR       = str(Path(__file__).resolve().parents[1])
 HERMES_ROOT    = "/home/egitaristorandas/.hermes/hermes-agent"
 ENV_FILE       = "/home/egitaristorandas/.airo/telegram.env"
 
@@ -287,6 +322,14 @@ EAB_MANUAL_DRAFTS_FILE = os.path.join(
     LOCAL_STATE_DIR,
     "eab-manual-drafts.json",
 )
+
+# EAB_M16_PROACTIVE_FRONTDESK_V1
+EAB_PROACTIVE_STATE_FILE = os.path.join(
+    LOCAL_STATE_DIR,
+    "eab-proactive-frontdesk.json",
+)
+EAB_PROACTIVE_POLL_SECONDS = 60
+EAB_PROACTIVE_ERROR_BACKOFF_SECONDS = 300
 
 def _eab_load_manual_drafts() -> dict:
     try:
@@ -321,6 +364,450 @@ def _eab_save_manual_drafts(drafts: dict) -> None:
             sort_keys=True,
         )
     os.replace(tmp, EAB_MANUAL_DRAFTS_FILE)
+
+def _eab_new_live_client():
+    eab_project_dir = os.path.join(
+        REPO_DIR,
+        "ecosystem/projects/earesmes-arfin-bridge",
+    )
+    if eab_project_dir not in sys.path:
+        sys.path.insert(0, eab_project_dir)
+    from src.adapter.eab_live_client import EABLiveSignedClient
+    return EABLiveSignedClient(fake_mode=False)
+
+
+def _eab_application_success(res: dict) -> bool:
+    return (
+        isinstance(res, dict)
+        and res.get("status") != "error"
+        and res.get("ok") is not False
+        and str(
+            res.get("application_status", "")
+        ).upper() == "SUCCESS"
+    )
+
+
+def _eab_extract_pending_items(res: dict) -> list:
+    if not _eab_application_success(res):
+        return []
+    payload = res.get("payload")
+    if not isinstance(payload, dict):
+        payload = {}
+    items = (
+        res.get("pending_items")
+        or payload.get("items")
+        or []
+    )
+    return items if isinstance(items, list) else []
+
+
+def _eab_load_proactive_state() -> dict:
+    default = {
+        "schema_version": 1,
+        "next_poll_at": 0,
+        "active_prompt": None,
+        "delivered": {},
+    }
+    try:
+        if os.path.isfile(EAB_PROACTIVE_STATE_FILE):
+            with open(
+                EAB_PROACTIVE_STATE_FILE,
+                encoding="utf-8",
+            ) as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                default.update(data)
+    except Exception:
+        pass
+    if not isinstance(default.get("delivered"), dict):
+        default["delivered"] = {}
+    return default
+
+
+def _eab_save_proactive_state(state: dict) -> None:
+    os.makedirs(
+        os.path.dirname(EAB_PROACTIVE_STATE_FILE),
+        exist_ok=True,
+    )
+    tmp = (
+        EAB_PROACTIVE_STATE_FILE
+        + "."
+        + uuid.uuid4().hex
+        + ".tmp"
+    )
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(
+            state,
+            f,
+            indent=2,
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    os.replace(tmp, EAB_PROACTIVE_STATE_FILE)
+
+
+def _eab_pending_record(item: dict):
+    if not isinstance(item, dict):
+        return None
+    pending_id = str(item.get("pending_id") or "").strip()
+    try:
+        version = int(item.get("pending_version") or 0)
+    except Exception:
+        version = 0
+    if not pending_id or version < 1:
+        return None
+    return {
+        "pending_id": pending_id,
+        "pending_version": version,
+        "short_ref": str(item.get("short_ref") or "").strip(),
+        "type": str(item.get("type") or "").strip(),
+        "amount": item.get("amount"),
+        "account": str(item.get("account") or "").strip(),
+        "category": str(item.get("category") or "").strip(),
+        "description": str(
+            item.get("description") or ""
+        ).strip(),
+        "prompt": str(item.get("prompt") or "").strip(),
+    }
+
+
+def _eab_format_proactive_prompt(item: dict) -> str:
+    record = _eab_pending_record(item)
+    if record is None:
+        return ""
+    desc = record["description"] or "Transaksi Arfin"
+    amount = record.get("amount")
+    try:
+        amount_line = (
+            f"Rp{float(amount):,.0f} · {desc}"
+            if amount is not None
+            else desc
+        )
+    except Exception:
+        amount_line = desc
+
+    prompt = record["prompt"]
+    if not prompt:
+        ptype = record["type"]
+        if ptype in {
+            "missing_account",
+            "outgoing_confirmation",
+        }:
+            prompt = "Sumber dana / akun yang benar apa?"
+        elif ptype == "missing_category":
+            prompt = "Kategori atau subkategori yang benar apa?"
+        elif ptype == "missing_amount_account":
+            prompt = "Nominal dan akun yang benar apa?"
+        else:
+            prompt = "Arfin membutuhkan klarifikasi untuk transaksi ini."
+
+    return (
+        "📥 Ada transaksi Arfin yang butuh klarifikasi.\n\n"
+        + amount_line
+        + "\n\n"
+        + prompt
+        + "\n\nBalas langsung di sini."
+    )
+
+
+def _eab_set_active_record(
+    state: dict,
+    record: dict | None,
+    *,
+    mark_delivered: bool = False,
+    now_sec: int | None = None,
+) -> None:
+    state["active_prompt"] = record
+    if record is None or not mark_delivered:
+        return
+    delivered = state.setdefault("delivered", {})
+    delivered[record["pending_id"]] = {
+        "pending_version": int(record["pending_version"]),
+        "sent_at": int(
+            time.time()
+            if now_sec is None
+            else now_sec
+        ),
+    }
+    if len(delivered) > 50:
+        ordered = sorted(
+            delivered.items(),
+            key=lambda kv: int(
+                (kv[1] or {}).get("sent_at", 0)
+            ),
+        )
+        for key, _ in ordered[:-50]:
+            delivered.pop(key, None)
+
+
+def _eab_proactive_tick(
+    token: str,
+    owner_chat_id: str,
+    *,
+    now_sec: int | None = None,
+    client=None,
+    sender=None,
+) -> dict:
+    now = int(
+        time.time()
+        if now_sec is None
+        else now_sec
+    )
+    state = _eab_load_proactive_state()
+    if now < int(state.get("next_poll_at") or 0):
+        return {"checked": False, "reason": "not_due"}
+
+    state["next_poll_at"] = (
+        now + EAB_PROACTIVE_POLL_SECONDS
+    )
+
+    try:
+        live_client = client or _eab_new_live_client()
+        res = live_client.list_pending(owner_chat_id)
+    except Exception:
+        state["next_poll_at"] = (
+            now + EAB_PROACTIVE_ERROR_BACKOFF_SECONDS
+        )
+        _eab_save_proactive_state(state)
+        return {"checked": True, "status": "backend_error"}
+
+    if not _eab_application_success(res):
+        state["next_poll_at"] = (
+            now + EAB_PROACTIVE_ERROR_BACKOFF_SECONDS
+        )
+        _eab_save_proactive_state(state)
+        return {"checked": True, "status": "backend_error"}
+
+    items = _eab_extract_pending_items(res)
+    if not items:
+        _eab_set_active_record(state, None)
+        _eab_save_proactive_state(state)
+        return {"checked": True, "status": "no_pending"}
+
+    record = _eab_pending_record(items[0])
+    if record is None:
+        state["next_poll_at"] = (
+            now + EAB_PROACTIVE_ERROR_BACKOFF_SECONDS
+        )
+        _eab_save_proactive_state(state)
+        return {"checked": True, "status": "malformed_pending"}
+
+    delivered = state.setdefault("delivered", {})
+    previous = delivered.get(record["pending_id"])
+    previous_version = 0
+    if isinstance(previous, dict):
+        try:
+            previous_version = int(
+                previous.get("pending_version") or 0
+            )
+        except Exception:
+            previous_version = 0
+
+    _eab_set_active_record(state, record)
+
+    if previous_version == record["pending_version"]:
+        _eab_save_proactive_state(state)
+        return {
+            "checked": True,
+            "status": "deduped",
+            "pending_id": record["pending_id"],
+        }
+
+    message = _eab_format_proactive_prompt(record)
+    if not message:
+        state["next_poll_at"] = (
+            now + EAB_PROACTIVE_ERROR_BACKOFF_SECONDS
+        )
+        _eab_save_proactive_state(state)
+        return {"checked": True, "status": "malformed_pending"}
+
+    send = sender or tg_send_message
+    sent = bool(
+        send(
+            token,
+            str(owner_chat_id),
+            message,
+        )
+    )
+
+    if not sent:
+        _eab_save_proactive_state(state)
+        return {
+            "checked": True,
+            "status": "send_failed",
+            "pending_id": record["pending_id"],
+        }
+
+    _eab_set_active_record(
+        state,
+        record,
+        mark_delivered=True,
+        now_sec=now,
+    )
+    _eab_save_proactive_state(state)
+    return {
+        "checked": True,
+        "status": "sent",
+        "pending_id": record["pending_id"],
+        "pending_version": record["pending_version"],
+    }
+
+
+def _eab_active_reply_reserved(text: str) -> bool:
+    value = str(text or "").strip().lower()
+    return (
+        value.startswith("/")
+        or value.startswith("catat ")
+        or value.startswith("cek ")
+        or value in {
+            "batal",
+            "cancel",
+            "batalkan",
+            "help",
+            "bantuan",
+        }
+    )
+
+
+def _eab_handle_active_prompt_reply(
+    text: str,
+    owner_chat_id: str,
+    *,
+    client=None,
+):
+    if _eab_active_reply_reserved(text):
+        return None
+
+    state = _eab_load_proactive_state()
+    active = state.get("active_prompt")
+    if not isinstance(active, dict):
+        return None
+
+    active_record = _eab_pending_record(active)
+    if active_record is None:
+        _eab_set_active_record(state, None)
+        _eab_save_proactive_state(state)
+        return None
+
+    live_client = client or _eab_new_live_client()
+
+    try:
+        get_res = live_client.get_pending(
+            active_record["pending_id"],
+            owner_chat_id,
+        )
+    except Exception:
+        return (
+            "⚠️ Saya belum bisa memverifikasi status "
+            "klarifikasi Arfin. Jawaban belum saya kirim."
+        )
+
+    if not _eab_application_success(get_res):
+        return (
+            "⚠️ Saya belum bisa memverifikasi status "
+            "klarifikasi Arfin. Jawaban belum saya kirim."
+        )
+
+    payload = get_res.get("payload")
+    if not isinstance(payload, dict):
+        payload = {}
+
+    if payload.get("found") is not True:
+        _eab_set_active_record(state, None)
+        _eab_save_proactive_state(state)
+        return (
+            "ℹ️ Klarifikasi Arfin ini sudah tidak pending. "
+            "Tidak ada jawaban yang dikirim."
+        )
+
+    current = _eab_pending_record(
+        payload.get("record")
+    )
+    if current is None:
+        return (
+            "⚠️ Status klarifikasi Arfin tidak valid. "
+            "Jawaban belum saya kirim."
+        )
+
+    if (
+        current["pending_version"]
+        != active_record["pending_version"]
+    ):
+        _eab_set_active_record(state, current)
+        _eab_save_proactive_state(state)
+        return (
+            "⚠️ Klarifikasi Arfin berubah sejak prompt terakhir. "
+            "Saya tidak mengirim jawaban lama.\n\n"
+            + _eab_format_proactive_prompt(current)
+        )
+
+    try:
+        submit = live_client.submit_clarification(
+            pending_id=current["pending_id"],
+            pending_version=current["pending_version"],
+            clarification_text=str(text).strip(),
+            owner_chat_id=owner_chat_id,
+        )
+    except Exception:
+        return (
+            "⚠️ Jawaban belum terkonfirmasi diproses Arfin. "
+            "Prompt tetap aktif untuk retry."
+        )
+
+    if not _eab_application_success(submit):
+        return (
+            "⚠️ Jawaban belum terkonfirmasi diproses Arfin. "
+            "Prompt tetap aktif untuk retry."
+        )
+
+    result = submit.get("payload")
+    if not isinstance(result, dict):
+        result = {}
+
+    if result.get(
+        "arfin_telegram_outbound_suppressed"
+    ) is not True:
+        return (
+            "⚠️ Respons Arfin tidak memenuhi kontrak EAB. "
+            "Saya tidak mengklaim klarifikasi berhasil."
+        )
+
+    next_record = _eab_pending_record(
+        result.get("pending")
+    )
+
+    if next_record is not None:
+        _eab_set_active_record(
+            state,
+            next_record,
+            mark_delivered=True,
+        )
+        _eab_save_proactive_state(state)
+        next_prompt = str(
+            result.get("next_prompt")
+            or next_record.get("prompt")
+            or ""
+        ).strip()
+        return (
+            next_prompt
+            or _eab_format_proactive_prompt(
+                next_record
+            )
+        )
+
+    _eab_set_active_record(state, None)
+    _eab_save_proactive_state(state)
+
+    completion = str(
+        result.get("completion_message") or ""
+    ).strip()
+
+    return (
+        completion
+        or "✅ Klarifikasi Arfin sudah diproses dan "
+           "tidak lagi tercatat sebagai pending."
+    )
+
 
 def _eab_parse_manual_catat(text: str):
     value = str(text or "").strip()
@@ -1021,6 +1508,20 @@ def main():
                     f.write(datetime.now().isoformat())
             except Exception:
                 pass
+
+            # M16 proactive front-desk timer.
+            # No Telegram getUpdates: signed EAB reads plus
+            # outbound sendMessage only for a new pending/version.
+            try:
+                _eab_proactive_tick(
+                    token,
+                    owner_chat_id,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "EAB proactive tick failed closed: %s",
+                    exc,
+                )
 
             # Scan queue for pending and retryable-failed items
             try:
