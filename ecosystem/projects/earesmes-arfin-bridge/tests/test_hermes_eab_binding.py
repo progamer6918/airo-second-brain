@@ -7,7 +7,7 @@ from pathlib import Path
 from importlib.machinery import SourceFileLoader
 import importlib.util
 
-repo_root = Path("/home/egitaristorandas/AI_WORKSPACES/airo-second-brain")
+repo_root = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(repo_root / "scripts"))
 sys.path.insert(0, str(repo_root / "ecosystem/projects/earesmes-arfin-bridge"))
 
@@ -22,7 +22,11 @@ class TestHermesEabBinding(unittest.TestCase):
         mock_instance = MagicMock()
         mock_instance.list_pending.return_value = {
             "status": "ok",
-            "pending_items": []
+            "application_status": "SUCCESS",
+            "application_error_code": "NONE",
+            "payload": {
+                "items": [],
+            },
         }
         mock_client_cls.return_value = mock_instance
 
