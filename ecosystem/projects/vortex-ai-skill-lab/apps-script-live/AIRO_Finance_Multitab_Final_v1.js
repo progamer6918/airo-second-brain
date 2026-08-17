@@ -18631,7 +18631,8 @@ function airoEabCanonicalCategoryPair_(category, subcategory) {
   if (
     !rawCategory ||
     !rawSubcategory ||
-    typeof airoSprint7CategoryContractGetRegistry_ !== 'function'
+    typeof airoSprint7CategoryContractResolve_ !==
+      'function'
   ) {
     return {
       valid: false,
@@ -18641,21 +18642,18 @@ function airoEabCanonicalCategoryPair_(category, subcategory) {
   }
 
   try {
-    var registry = airoSprint7CategoryContractGetRegistry_() || {};
-    var categories = Object.keys(registry);
-    var matchedCategory = '';
+    var resolved =
+      airoSprint7CategoryContractResolve_(
+        rawCategory,
+        rawSubcategory
+      );
 
-    for (var i = 0; i < categories.length; i++) {
-      if (
-        String(categories[i]).toLowerCase() ===
-        rawCategory.toLowerCase()
-      ) {
-        matchedCategory = String(categories[i]);
-        break;
-      }
-    }
-
-    if (!matchedCategory) {
+    if (
+      !resolved ||
+      resolved.valid !== true ||
+      !String(resolved.category || '').trim() ||
+      !String(resolved.subcategory || '').trim()
+    ) {
       return {
         valid: false,
         category: rawCategory,
@@ -18663,27 +18661,12 @@ function airoEabCanonicalCategoryPair_(category, subcategory) {
       };
     }
 
-    var catData = registry[matchedCategory] || {};
-    var subs = Array.isArray(catData.subcategories)
-      ? catData.subcategories
-      : [];
-
-    var matchedSubcategory = '';
-
-    for (var j = 0; j < subs.length; j++) {
-      if (
-        String(subs[j]).toLowerCase() ===
-        rawSubcategory.toLowerCase()
-      ) {
-        matchedSubcategory = String(subs[j]);
-        break;
-      }
-    }
-
     return {
-      valid: !!matchedSubcategory,
-      category: matchedCategory,
-      subcategory: matchedSubcategory || rawSubcategory
+      valid: true,
+      category:
+        String(resolved.category).trim(),
+      subcategory:
+        String(resolved.subcategory).trim()
     };
 
   } catch (err) {
