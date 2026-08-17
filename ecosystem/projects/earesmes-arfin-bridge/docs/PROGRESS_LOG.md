@@ -450,3 +450,26 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **M13_TECHNICAL_EVIDENCE:** `PARTIAL`.
 - **M13_OWNER_ACCEPTANCE:** `NOT_YET_COMPLETE`.
 - **Next Safe Gate:** `P2` (`CANONICAL_HEADER_ADAPTER_VIABILITY_READONLY`).
+
+## [2026-08-17] EAB_G2_6 / M13 — Final Owner Acceptance Closeout
+
+- **M12 Status:** `DONE`.
+- **M13 Status:** `DONE`.
+- **M14 Status:** `READY`.
+- **Production Apps Script Version:** `407`.
+- **Canonical Production Source Commit:** `6cfafab7b2daba206cef6b8c7998fe6e5b2c6bb7`.
+- **Owner Live Test:** Owner replied `blu` to the retained Rp1 `bensin` Earesmes funding clarification.
+- **Earesmes Result:** verified Review Queue success.
+- **Direct Account Ledger Write:** `NO`.
+- **Existing Review Queue Row Self-Heal:** `PASS`.
+- **Canonical Review Queue Subcategory:** `Review`.
+- **Same-Draft Idempotent Replay:** `PASS`.
+- **Duplicate Review Queue Row Created:** `NO`.
+- **Final Durable Draft Removal:** `PASS`.
+- **Worker Health at Final M13 Post-State:** `PASS`.
+- **Runtime Repair Receipt:** `/tmp/eab_live_registry_subcategory_resolver_repair_20260817_085752.txt`.
+- **Final Owner Acceptance Receipt:** `/tmp/eab_m13_final_owner_acceptance_poststate_20260817_093910.txt`.
+- **M13 Exit Criterion:** `PASS`.
+- **Real Owner E2E Acceptance:** `PASS`.
+- **Project Completion:** `NOT_YET`; M14 production attribution and canonical closeout remain.
+- **Next Gate:** `M14 / EAB_G2_7 — Production Activation & Project Closeout`.
