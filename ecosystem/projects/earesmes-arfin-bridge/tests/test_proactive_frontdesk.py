@@ -347,17 +347,25 @@ class TestProactiveFrontDesk(unittest.TestCase):
             "EAB_M16_PROACTIVE_FRONTDESK_V1",
             backend,
         )
-        self.assertIn(
+        self.assertNotIn(
             "airoEabRunCapturedTelegramReply_",
+            backend,
+        )
+        self.assertIn(
+            "airoEabRunCapturedPendingResolver_",
+            backend,
+        )
+        self.assertIn(
+            "airoEabRunBoundedClarification_",
             backend,
         )
         self.assertIn(
             "ERR_STALE_PENDING_VERSION",
             backend,
         )
-        self.assertIn(
-            "arfin_telegram_outbound_suppressed: true",
+        self.assertRegex(
             backend,
+            r"arfin_telegram_outbound_suppressed\s*:\s*true",
         )
         self.assertIn(
             "pending.short_ref =",
@@ -396,6 +404,215 @@ class TestProactiveFrontDesk(unittest.TestCase):
         self.assertNotIn(
             'REPO_DIR       = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"',
             worker_source,
+        )
+
+
+    def test_backend_capture_no_longer_calls_full_dopost(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        start = backend.index(
+            "function airoEabRunCapturedPendingResolver_("
+        )
+        end = backend.index(
+            "function airoEabRunBoundedClarification_(",
+            start,
+        )
+        section = backend[start:end]
+
+        self.assertIn(
+            "tryHandlePendingClarificationReply_(",
+            section,
+        )
+        self.assertNotIn("doPost(", section)
+        self.assertNotIn("writeRouted_(", section)
+        self.assertNotIn(
+            "reprocessClarifiedTelegramText_(",
+            section,
+        )
+
+
+    def test_submit_branch_uses_bounded_resolver_only(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        effective = backend[
+            backend.rfind(
+                "/* EAB_DIRECT_V1_RECEIVER_START */"
+            ):
+        ]
+
+        start = effective.index(
+            "} else if (op === 'EAB_SUBMIT_CLARIFICATION') {"
+        )
+        end = effective.index(
+            "} else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION'",
+            start,
+        )
+
+        section = effective[start:end]
+
+        self.assertIn(
+            "airoEabRunBoundedClarification_(",
+            section,
+        )
+        self.assertNotIn(
+            "airoEabRunCapturedTelegramReply_(",
+            section,
+        )
+        self.assertNotIn("doPost(", section)
+        self.assertNotIn("writeRouted_(", section)
+
+
+    def test_bounded_review_stage_never_calls_write_routed(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        start = backend.index(
+            "function airoEabStagePendingToReview_("
+        )
+        end = backend.index(
+            "function airoEabRunCapturedPendingResolver_(",
+            start,
+        )
+        section = backend[start:end]
+
+        self.assertIn(
+            "appendByHeader_(",
+            section,
+        )
+        self.assertIn(
+            "AIRO_CONFIG.tabs.review",
+            section,
+        )
+        self.assertIn(
+            "airoTask614FindReviewItemByQueueId_(",
+            section,
+        )
+        self.assertNotIn(
+            "writeRouted_(",
+            section,
+        )
+        self.assertNotIn(
+            "accountLedger",
+            section,
+        )
+
+
+    def test_bounded_review_requires_zero_ledger_links(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        start = backend.index(
+            "function airoEabReviewQueueRowSafe_("
+        )
+        end = backend.index(
+            "function airoEabStagePendingToReview_(",
+            start,
+        )
+        section = backend[start:end]
+
+        self.assertIn(
+            "linked_account_ledger_entry_id",
+            section,
+        )
+        self.assertIn(
+            "linked_event_id",
+            section,
+        )
+        self.assertIn(
+            "approved_transaction_id",
+            section,
+        )
+        self.assertIn(
+            "write_policy",
+            section,
+        )
+        self.assertIn(
+            "staging",
+            section,
+        )
+
+
+    def test_bounded_resolver_blocks_unsafe_reprocess_type(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        start = backend.index(
+            "function airoEabRunBoundedClarification_("
+        )
+        end = backend.index(
+            "/* EAB_DIRECT_V1_RECEIVER_START */",
+            start,
+        )
+        section = backend[start:end]
+
+        self.assertIn(
+            "ERR_UNSUPPORTED_BOUNDED_PENDING_TYPE",
+            section,
+        )
+        self.assertNotIn(
+            "asset_gold_ambiguous: true",
+            section,
+        )
+        self.assertIn(
+            "executionPending.attempts = 0",
+            section,
+        )
+        self.assertIn(
+            "ERR_UNSAFE_REPROCESS_BLOCKED",
+            section,
+        )
+
+
+    def test_bounded_resolver_restores_snapshot_on_stage_failure(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        start = backend.index(
+            "function airoEabRunBoundedClarification_("
+        )
+        end = backend.index(
+            "/* EAB_DIRECT_V1_RECEIVER_START */",
+            start,
+        )
+        section = backend[start:end]
+
+        self.assertGreaterEqual(
+            section.count(
+                "airoEabSetPendingExact_("
+            ),
+            3,
+        )
+        self.assertIn(
+            "ERR_REVIEW_QUEUE_STAGE_FAILED",
+            section,
+        )
+        self.assertIn(
+            "ERR_REVIEW_QUEUE_READBACK_MISMATCH",
+            section,
+        )
+        self.assertNotIn(
+            "function airoEabRunCapturedTelegramReply_(",
+            backend,
         )
 
 

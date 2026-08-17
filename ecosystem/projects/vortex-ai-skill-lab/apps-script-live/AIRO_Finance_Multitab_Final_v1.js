@@ -19141,60 +19141,993 @@ function airoEabSelfHealReviewSubcategory_(
 }
 
 
-function airoEabRunCapturedTelegramReply_(chatId, clarificationText) {
-  var previous = AIRO_EAB_TELEGRAM_CAPTURE_;
+/* EAB_M16_BOUNDED_CLARIFICATION_ONLY_V2 */
+function airoEabSetPendingExact_(chatId, pending) {
+  if (!chatId || !pending) return false;
+
+  var copy;
+
+  try {
+    copy = JSON.parse(JSON.stringify(pending));
+  } catch (err) {
+    return false;
+  }
+
+  if (!copy.pending_id) return false;
+
+  if (!copy.short_ref) {
+    copy.short_ref =
+      airoEabStableShortRef_(copy.pending_id);
+  }
+
+  copy.pending_version = Math.max(
+    1,
+    Number(copy.pending_version || 1)
+  );
+
+  copy.updated_at = new Date().toISOString();
+
+  PropertiesService
+    .getScriptProperties()
+    .setProperty(
+      clarificationPropKey_(chatId),
+      JSON.stringify(copy)
+    );
+
+  return true;
+}
+
+
+function airoEabReviewQueueRowSafe_(row, queueId) {
+  if (!row) return false;
+
+  var actualId = String(
+    row.queue_id ||
+    row.duplicate_key ||
+    ''
+  ).trim();
+
+  var status = String(
+    row.write_status ||
+    row.review_status ||
+    row.status ||
+    ''
+  ).trim().toLowerCase();
+
+  return (
+    actualId === String(queueId || '') &&
+    String(
+      row.write_policy || ''
+    ).trim().toLowerCase() === 'staging' &&
+    status === 'pending' &&
+    !String(
+      row.linked_account_ledger_entry_id || ''
+    ).trim() &&
+    !String(
+      row.linked_event_id || ''
+    ).trim() &&
+    !String(
+      row.approved_transaction_id || ''
+    ).trim()
+  );
+}
+
+
+function airoEabStagePendingToReview_(
+  meta,
+  pending,
+  resolvedText,
+  clarificationText,
+  reason
+) {
+  pending = pending || {};
+
+  var pendingId = String(
+    pending.pending_id || ''
+  ).trim();
+
+  if (!pendingId) {
+    return {
+      ok: false,
+      error: 'ERR_PENDING_ID_MISSING'
+    };
+  }
+
+  if (
+    typeof SpreadsheetApp === 'undefined' ||
+    typeof appendByHeader_ !== 'function' ||
+    typeof airoTask614FindReviewItemByQueueId_ !==
+      'function'
+  ) {
+    return {
+      ok: false,
+      error: 'ERR_REVIEW_QUEUE_UNAVAILABLE'
+    };
+  }
+
+  var ss;
+
+  try {
+    ss = SpreadsheetApp.openById(
+      getProp_('SPREADSHEET_ID')
+    );
+  } catch (openErr) {
+    return {
+      ok: false,
+      error: 'ERR_REVIEW_QUEUE_UNAVAILABLE'
+    };
+  }
+
+  if (!ss) {
+    return {
+      ok: false,
+      error: 'ERR_REVIEW_QUEUE_UNAVAILABLE'
+    };
+  }
+
+  var reviewTab =
+    (
+      typeof AIRO_CONFIG !== 'undefined' &&
+      AIRO_CONFIG.tabs &&
+      AIRO_CONFIG.tabs.review
+    )
+      ? AIRO_CONFIG.tabs.review
+      : '🧾 Review Queue';
+
+  var queueId =
+    'review:eab:pending:' + pendingId;
+
+  var originalText = String(
+    pending.original_text ||
+    pending.rawText ||
+    pending.text ||
+    pending.description ||
+    ''
+  ).trim();
+
+  var effectiveText = String(
+    resolvedText ||
+    originalText ||
+    clarificationText ||
+    ''
+  ).trim();
+
+  var existing =
+    airoTask614FindReviewItemByQueueId_(
+      ss,
+      queueId
+    );
+
+  if (existing) {
+    var expectedAmount = Number(
+      pending.amount || 0
+    );
+
+    var existingAmount = Number(
+      existing.parsed_amount ||
+      existing.amount ||
+      0
+    );
+
+    var existingRaw = String(
+      existing.raw_text || ''
+    ).trim();
+
+    var conflict =
+      !airoEabReviewQueueRowSafe_(
+        existing,
+        queueId
+      ) ||
+      (
+        expectedAmount > 0 &&
+        existingAmount > 0 &&
+        expectedAmount !== existingAmount
+      ) ||
+      (
+        originalText &&
+        existingRaw &&
+        originalText !== existingRaw
+      );
+
+    if (conflict) {
+      return {
+        ok: false,
+        error: 'ERR_IDEMPOTENCY_CONFLICT',
+        review_queue_ref: queueId
+      };
+    }
+
+    return {
+      ok: true,
+      staged: true,
+      write_verified: true,
+      idempotent_replay: true,
+      review_queue_ref: queueId,
+      review_queue_row:
+        Number(existing.rowNumber || 0),
+      review_queue_write_performed: false,
+      account_ledger_write_performed: false,
+      direct_ledger_write: false
+    };
+  }
+
+  var parsed = {};
+
+  if (
+    effectiveText &&
+    typeof parseFinanceText_ === 'function'
+  ) {
+    try {
+      parsed =
+        parseFinanceText_(effectiveText) || {};
+    } catch (parseErr) {
+      parsed = {};
+    }
+  }
+
+  var amount = Number(
+    parsed.amount ||
+    pending.amount ||
+    0
+  );
+
+  var fundingAccount = String(
+    parsed.funding_source_account ||
+    pending.confirmed_account ||
+    pending.funding_source ||
+    parsed.account ||
+    pending.account ||
+    ''
+  ).trim();
+
+  if (
+    fundingAccount &&
+    typeof airoEabCanonicalFundingAccount_ ===
+      'function'
+  ) {
+    fundingAccount =
+      airoEabCanonicalFundingAccount_(
+        fundingAccount
+      ) || fundingAccount;
+  }
+
+  var inputCategory = String(
+    pending.selected_category ||
+    parsed.category ||
+    pending.category ||
+    'Other / Review'
+  ).trim();
+
+  var inputSubcategory = String(
+    pending.selected_subcategory ||
+    parsed.subcategory ||
+    pending.subcategory ||
+    'Review'
+  ).trim();
+
+  var pair = null;
+
+  if (
+    typeof airoEabCanonicalCategoryPair_ ===
+    'function'
+  ) {
+    try {
+      pair =
+        airoEabCanonicalCategoryPair_(
+          inputCategory,
+          inputSubcategory
+        );
+    } catch (pairErr) {
+      pair = null;
+    }
+  }
+
+  if (!pair || pair.valid !== true) {
+    if (
+      typeof airoEabCanonicalCategoryPair_ ===
+      'function'
+    ) {
+      try {
+        pair =
+          airoEabCanonicalCategoryPair_(
+            'Other / Review',
+            'Review'
+          );
+      } catch (fallbackPairErr) {
+        pair = null;
+      }
+    }
+  }
+
+  var category =
+    pair && pair.valid === true
+      ? String(pair.category)
+      : 'Other / Review';
+
+  var subcategory =
+    pair && pair.valid === true
+      ? String(pair.subcategory)
+      : 'Review';
+
+  var reviewSheet =
+    getSheetLoose_(ss, reviewTab);
+
+  if (!reviewSheet) {
+    return {
+      ok: false,
+      error: 'ERR_REVIEW_QUEUE_UNAVAILABLE'
+    };
+  }
+
+  if (
+    typeof airoEabEnsureSubcategoryCellAccepts_ ===
+      'function'
+  ) {
+    var validation =
+      airoEabEnsureSubcategoryCellAccepts_(
+        reviewSheet,
+        reviewSheet.getLastRow() + 1,
+        subcategory
+      );
+
+    if (!validation || validation.ok !== true) {
+      return {
+        ok: false,
+        error:
+          'ERR_REVIEW_QUEUE_SUBCATEGORY_VALIDATION_UNAVAILABLE'
+      };
+    }
+  }
+
+  var rowData = {
+    queue_id: queueId,
+    duplicate_key: queueId,
+    created_at: Utilities.formatDate(
+      new Date(),
+      Session.getScriptTimeZone(),
+      'yyyy-MM-dd HH:mm:ss'
+    ),
+    source:
+      'Earesmes proactive clarification',
+    raw_text:
+      originalText || effectiveText,
+    parsed_type: String(
+      parsed.type ||
+      pending.type ||
+      'review'
+    ),
+    parsed_category: category,
+    parsed_subcategory: subcategory,
+    parsed_amount:
+      isFinite(amount) ? amount : 0,
+    parsed_currency: 'IDR',
+    parsed_account: fundingAccount,
+    write_policy: 'staging',
+    write_status: 'pending',
+    review_status: 'pending',
+    status: 'pending',
+    linked_event_id: '',
+    linked_account_ledger_entry_id: '',
+    approved_transaction_id: '',
+    target_tab: reviewTab,
+    reason: String(
+      reason ||
+      'eab_proactive_clarification_resolved'
+    ),
+    request_id: String(
+      (meta && meta.request_id) || ''
+    ),
+    owner_chat_id: String(
+      (meta && meta.owner_chat_id) || ''
+    ),
+    pending_id: pendingId,
+    pending_version: Number(
+      pending.pending_version || 1
+    ),
+    notes:
+      'EAB M16 bounded clarification. ' +
+      'Resolved text: ' +
+      effectiveText
+  };
+
+  var appendRes;
+
+  try {
+    appendRes = appendByHeader_(
+      ss,
+      reviewTab,
+      rowData,
+      {
+        createIfMissing: false
+      }
+    );
+  } catch (appendErr) {
+    return {
+      ok: false,
+      error:
+        'ERR_REVIEW_QUEUE_WRITE_EXCEPTION'
+    };
+  }
+
+  if (
+    !appendRes ||
+    appendRes.status !== 'written' ||
+    Number(appendRes.row || 0) <= 0
+  ) {
+    return {
+      ok: false,
+      error:
+        'ERR_REVIEW_QUEUE_WRITE_UNVERIFIED'
+    };
+  }
+
+  var readback =
+    airoTask614FindReviewItemByQueueId_(
+      ss,
+      queueId
+    );
+
+  if (
+    !airoEabReviewQueueRowSafe_(
+      readback,
+      queueId
+    )
+  ) {
+    return {
+      ok: false,
+      error:
+        'ERR_REVIEW_QUEUE_READBACK_MISMATCH',
+      review_queue_ref: queueId
+    };
+  }
+
+  var readAmount = Number(
+    readback.parsed_amount ||
+    readback.amount ||
+    0
+  );
+
+  if (
+    amount > 0 &&
+    readAmount !== amount
+  ) {
+    return {
+      ok: false,
+      error:
+        'ERR_REVIEW_QUEUE_READBACK_MISMATCH',
+      review_queue_ref: queueId
+    };
+  }
+
+  return {
+    ok: true,
+    staged: true,
+    write_verified: true,
+    idempotent_replay: false,
+    review_queue_ref: queueId,
+    review_queue_row:
+      Number(
+        readback.rowNumber ||
+        appendRes.row ||
+        0
+      ),
+    review_queue_write_performed: true,
+    account_ledger_write_performed: false,
+    direct_ledger_write: false
+  };
+}
+
+
+function airoEabRunCapturedPendingResolver_(
+  chatId,
+  clarificationText
+) {
+  var previous =
+    AIRO_EAB_TELEGRAM_CAPTURE_;
+
   var capture = {
     active: true,
     messages: []
   };
 
-  AIRO_EAB_TELEGRAM_CAPTURE_ = capture;
+  AIRO_EAB_TELEGRAM_CAPTURE_ =
+    capture;
 
   try {
-    var response = doPost({
-      postData: {
-        type: 'application/json',
-        contents: JSON.stringify({
-          update_id: new Date().getTime(),
-          message: {
-            message_id: new Date().getTime(),
-            date: Math.floor(new Date().getTime() / 1000),
-            chat: {
-              id: String(chatId),
-              type: 'private'
-            },
-            text: String(clarificationText || '')
-          }
-        })
-      }
-    });
-
-    var responseText = '';
-    try {
-      if (
-        response &&
-        typeof response.getContent === 'function'
-      ) {
-        responseText = String(response.getContent() || '');
-      } else {
-        responseText = String(response || '');
-      }
-    } catch (readErr) {}
-
-    var responseObject = {};
-    if (responseText) {
-      try {
-        responseObject = JSON.parse(responseText);
-      } catch (parseErr) {}
-    }
+    var result =
+      tryHandlePendingClarificationReply_(
+        String(chatId),
+        String(clarificationText || '')
+      );
 
     return {
       messages: capture.messages.slice(),
-      response: responseObject
+      result: result
     };
   } finally {
-    AIRO_EAB_TELEGRAM_CAPTURE_ = previous;
+    AIRO_EAB_TELEGRAM_CAPTURE_ =
+      previous;
   }
+}
+
+
+function airoEabRunBoundedClarification_(
+  meta,
+  pending,
+  clarificationText
+) {
+  pending = pending || {};
+
+  var chatId = String(
+    (meta && meta.owner_chat_id) || ''
+  );
+
+  var type = String(
+    pending.type || ''
+  );
+
+  var supported = {
+    missing_amount_account: true,
+    cc_ambiguous: true,
+    debt_ambiguous: true,
+    outgoing_confirmation: true,
+    missing_category: true,
+    transfer_incomplete: true,
+    direction_ambiguous: true,
+    cash_ambiguous: true,
+    missing_account: true
+  };
+
+  if (!supported[type]) {
+    return {
+      ok: false,
+      error:
+        'ERR_UNSUPPORTED_BOUNDED_PENDING_TYPE',
+      payload: {
+        resolved: false,
+        pending:
+          airoEabProjectPending_(pending),
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          false,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  var snapshot;
+
+  try {
+    snapshot =
+      JSON.parse(JSON.stringify(pending));
+  } catch (copyErr) {
+    return {
+      ok: false,
+      error: 'ERR_PENDING_SNAPSHOT_FAILED'
+    };
+  }
+
+  var normalized = String(
+    clarificationText || ''
+  ).trim().toLowerCase();
+
+  var step = Number(
+    pending.step || 1
+  );
+
+  var directReview =
+    (
+      normalized === 'review' ||
+      normalized === 'batal' ||
+      normalized === 'cancel'
+    ) ||
+    (
+      type ===
+        'outgoing_confirmation' &&
+      (
+        normalized === '0' ||
+        normalized === '0.'
+      )
+    ) ||
+    (
+      type === 'missing_category' &&
+      step <= 1 &&
+      (
+        normalized === '0' ||
+        normalized === '0.' ||
+        normalized === 'back' ||
+        normalized === 'kembali'
+      )
+    );
+
+  if (directReview) {
+    var directStage =
+      airoEabStagePendingToReview_(
+        meta,
+        snapshot,
+        '',
+        clarificationText,
+        'eab_bounded_owner_review_choice'
+      );
+
+    if (!directStage.ok) {
+      return {
+        ok: false,
+        error:
+          directStage.error ||
+          'ERR_REVIEW_QUEUE_STAGE_FAILED',
+        payload: {
+          resolved: false,
+          pending:
+            airoEabProjectPending_(
+              snapshot
+            ),
+          direct_ledger_write: false,
+          account_ledger_write_performed:
+            false,
+          review_queue_write_performed:
+            false,
+          arfin_telegram_outbound_suppressed:
+            true
+        }
+      };
+    }
+
+    clearPendingClarification_(chatId);
+
+    return {
+      ok: true,
+      payload: {
+        resolved: true,
+        pending: null,
+        staged: true,
+        write_verified: true,
+        review_queue_ref:
+          directStage.review_queue_ref,
+        review_queue_row:
+          directStage.review_queue_row,
+        completion_message:
+          'Transaksi dikirim ke Review Queue ' +
+          'untuk ditinjau manual. Belum ada ' +
+          'direct ledger write.',
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          directStage
+            .review_queue_write_performed ===
+            true,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  /*
+   * Legacy resolver has an automatic writeRouted_(Review)
+   * fallback after repeated invalid clarification replies.
+   * EAB must never reach that path. Reset attempts exactly
+   * for this bounded invocation; a waiting result will save
+   * a new pending version normally.
+   */
+  var executionPending =
+    JSON.parse(JSON.stringify(snapshot));
+
+  executionPending.attempts = 0;
+
+  if (
+    !airoEabSetPendingExact_(
+      chatId,
+      executionPending
+    )
+  ) {
+    return {
+      ok: false,
+      error: 'ERR_PENDING_PREPARE_FAILED'
+    };
+  }
+
+  var captured;
+
+  try {
+    captured =
+      airoEabRunCapturedPendingResolver_(
+        chatId,
+        clarificationText
+      );
+  } catch (resolverErr) {
+    airoEabSetPendingExact_(
+      chatId,
+      snapshot
+    );
+
+    return {
+      ok: false,
+      error: 'ERR_CLARIFICATION_ROUTE_FAILED'
+    };
+  }
+
+  var result =
+    captured && captured.result
+      ? captured.result
+      : null;
+
+  var messages =
+    captured &&
+    Array.isArray(captured.messages)
+      ? captured.messages
+      : [];
+
+  var lastMessage =
+    messages.length > 0
+      ? String(
+          messages[
+            messages.length - 1
+          ].text || ''
+        )
+      : '';
+
+  if (
+    result &&
+    result.reprocessed === true
+  ) {
+    airoEabSetPendingExact_(
+      chatId,
+      snapshot
+    );
+
+    return {
+      ok: false,
+      error:
+        'ERR_UNSAFE_REPROCESS_BLOCKED'
+    };
+  }
+
+  var pendingAfter =
+    getPendingClarification_(chatId);
+
+  if (pendingAfter) {
+    return {
+      ok: true,
+      payload: {
+        resolved: false,
+        pending:
+          airoEabProjectPending_(
+            pendingAfter
+          ),
+        next_prompt:
+          lastMessage ||
+          airoEabBuildPendingPrompt_(
+            pendingAfter
+          ),
+        completion_message: '',
+        captured_message_count:
+          messages.length,
+        staged: false,
+        write_verified: true,
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          false,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  if (
+    result &&
+    result.resolved === true &&
+    String(
+      result.resolved_text || ''
+    ).trim()
+  ) {
+    var stage =
+      airoEabStagePendingToReview_(
+        meta,
+        snapshot,
+        String(result.resolved_text),
+        clarificationText,
+        'eab_bounded_clarification_resolved'
+      );
+
+    if (!stage.ok) {
+      airoEabSetPendingExact_(
+        chatId,
+        snapshot
+      );
+
+      return {
+        ok: false,
+        error:
+          stage.error ||
+          'ERR_REVIEW_QUEUE_STAGE_FAILED',
+        payload: {
+          resolved: false,
+          pending:
+            airoEabProjectPending_(
+              snapshot
+            ),
+          direct_ledger_write: false,
+          account_ledger_write_performed:
+            false,
+          review_queue_write_performed:
+            false,
+          arfin_telegram_outbound_suppressed:
+            true
+        }
+      };
+    }
+
+    clearPendingClarification_(chatId);
+
+    return {
+      ok: true,
+      payload: {
+        resolved: true,
+        pending: null,
+        staged: true,
+        write_verified: true,
+        review_queue_ref:
+          stage.review_queue_ref,
+        review_queue_row:
+          stage.review_queue_row,
+        completion_message:
+          'Klarifikasi selesai dan transaksi ' +
+          'terverifikasi masuk Review Queue ' +
+          'Arfin. Belum ada direct ledger write.',
+        captured_message_count:
+          messages.length,
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          stage.review_queue_write_performed ===
+          true,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  /*
+   * outgoing_confirmation final step already uses
+   * appendByHeader_(Review Queue) + readback verification.
+   * Accept it only after independent queue-row verification.
+   */
+  if (
+    result &&
+    (
+      result.write_verified === true ||
+      result.appended === true
+    ) &&
+    String(
+      result.written_tab || ''
+    ) === String(
+      AIRO_CONFIG.tabs.review
+    )
+  ) {
+    var outgoingQueueId = String(
+      result.row_id ||
+      (
+        'review:telegram:' +
+        String(snapshot.pending_id || '')
+      )
+    );
+
+    var ss = SpreadsheetApp.openById(
+      getProp_('SPREADSHEET_ID')
+    );
+
+    var outgoingReadback =
+      airoTask614FindReviewItemByQueueId_(
+        ss,
+        outgoingQueueId
+      );
+
+    if (
+      !airoEabReviewQueueRowSafe_(
+        outgoingReadback,
+        outgoingQueueId
+      )
+    ) {
+      airoEabSetPendingExact_(
+        chatId,
+        snapshot
+      );
+
+      return {
+        ok: false,
+        error:
+          'ERR_REVIEW_QUEUE_READBACK_MISMATCH'
+      };
+    }
+
+    return {
+      ok: true,
+      payload: {
+        resolved: true,
+        pending: null,
+        staged: true,
+        write_verified: true,
+        review_queue_ref:
+          outgoingQueueId,
+        review_queue_row:
+          Number(
+            outgoingReadback.rowNumber ||
+            result.row ||
+            0
+          ),
+        completion_message:
+          lastMessage ||
+          (
+            'Klarifikasi selesai dan transaksi ' +
+            'terverifikasi masuk Review Queue ' +
+            'Arfin. Belum ada direct ledger write.'
+          ),
+        captured_message_count:
+          messages.length,
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          true,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  /*
+   * Existing Arfin resolver has intentional cancellation/help
+   * outcomes for some finance types. Those perform no finance
+   * write and are safe to relay.
+   */
+  if (
+    result &&
+    (
+      result.cancelled === true ||
+      String(result.status || '') ===
+        'ignored'
+    )
+  ) {
+    return {
+      ok: true,
+      payload: {
+        resolved: true,
+        pending: null,
+        staged: false,
+        write_verified: true,
+        completion_message:
+          lastMessage ||
+          'Klarifikasi ditutup tanpa transaksi baru.',
+        captured_message_count:
+          messages.length,
+        direct_ledger_write: false,
+        account_ledger_write_performed:
+          false,
+        review_queue_write_performed:
+          false,
+        arfin_telegram_outbound_suppressed:
+          true
+      }
+    };
+  }
+
+  airoEabSetPendingExact_(
+    chatId,
+    snapshot
+  );
+
+  return {
+    ok: false,
+    error:
+      'ERR_BOUNDED_CLARIFICATION_UNVERIFIED'
+  };
 }
 
 /* EAB_DIRECT_V1_RECEIVER_START */
@@ -19447,77 +20380,53 @@ function airoEabMaybeHandleDirectRequest_(e) {
       });
     }
 
-    var captured =
-      airoEabRunCapturedTelegramReply_(
-        String(meta.owner_chat_id),
+    var boundedResult =
+      airoEabRunBoundedClarification_(
+        meta,
+        currentPending,
         clarificationText
       );
 
-    var routeResult =
-      captured && captured.response
-        ? captured.response
-        : {};
-
-    if (routeResult && routeResult.ok === false) {
+    if (
+      !boundedResult ||
+      boundedResult.ok !== true
+    ) {
       return airoEabJson_({
         schema_version: '1.0',
         request_id: String(meta.request_id),
         application_status: 'FAILED',
         application_error_code:
-          'ERR_CLARIFICATION_ROUTE_FAILED',
-        payload: {
-          resolved: false,
-          direct_ledger_write: false,
-          arfin_telegram_outbound_suppressed: true
-        }
+          String(
+            (
+              boundedResult &&
+              boundedResult.error
+            ) ||
+            'ERR_BOUNDED_CLARIFICATION_FAILED'
+          ),
+        payload:
+          (
+            boundedResult &&
+            boundedResult.payload
+          ) ||
+          {
+            resolved: false,
+            direct_ledger_write: false,
+            account_ledger_write_performed:
+              false,
+            review_queue_write_performed:
+              false,
+            arfin_telegram_outbound_suppressed:
+              true
+          }
       });
     }
-
-    var pendingAfter = getPendingClarification_(
-      String(meta.owner_chat_id)
-    );
-
-    var projectedAfter = pendingAfter
-      ? airoEabProjectPending_(pendingAfter)
-      : null;
-
-    var messages = (
-      captured &&
-      Array.isArray(captured.messages)
-    )
-      ? captured.messages
-      : [];
-
-    var lastMessage = messages.length
-      ? String(
-          messages[messages.length - 1].text || ''
-        )
-      : '';
 
     return airoEabJson_({
       schema_version: '1.0',
       request_id: String(meta.request_id),
       application_status: 'SUCCESS',
       application_error_code: 'NONE',
-      payload: {
-        resolved: projectedAfter === null,
-        pending: projectedAfter,
-        next_prompt:
-          projectedAfter
-            ? (
-                lastMessage ||
-                String(projectedAfter.prompt || '')
-              )
-            : '',
-        completion_message:
-          projectedAfter === null
-            ? lastMessage
-            : '',
-        captured_message_count: messages.length,
-        arfin_telegram_outbound_suppressed: true,
-        earesmes_direct_ledger_write: false,
-        direct_ledger_write: false
-      }
+      payload: boundedResult.payload
     });
 
   } else if (op === 'EAB_SUBMIT_BATCH_CLARIFICATION' || op === 'EAB_CREATE_MANUAL_TRANSACTION' || op === 'EAB_CREATE_MANUAL') {

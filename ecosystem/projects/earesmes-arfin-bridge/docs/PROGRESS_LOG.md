@@ -521,3 +521,19 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **Arfin Transport:** existing clarification semantics reused under execution-local Telegram capture.
 - **Candidate Only:** no Apps Script push/version/deployment and no worker restart in this task.
 - **Receipt:** `/tmp/eab_m16_source_test_candidate_resume_v4_20260817_134754.txt`.
+
+
+## [2026-08-17] M16 / EAB_PFD_G1 — Bounded Clarification Semantic-Security Repair Candidate
+
+- **Predecessor Candidate:** `4b20be23c9963361e431c08991153c279178eba2`.
+- **Pre-deploy Verdict:** `BLOCKED`; 91/91 regression PASS was insufficient for deployment.
+- **Defect:** EAB submit delegated to full `doPost()`, allowing special-command dispatch and transitive `writeRouted_` / Account Ledger paths while reporting `direct_ledger_write=false`.
+- **Repair:** replace full-`doPost()` delegation with direct bounded pending resolver.
+- **Retry Guard:** EAB execution resets legacy clarification attempts before resolver invocation so automatic `writeRouted_(Review)` retry fallback is not reachable.
+- **Unsafe Reprocess Guard:** unsupported reprocessing pending types fail closed.
+- **Completion Write:** `resolved_text` stages by direct `appendByHeader_()` to Review Queue with queue-id readback and zero ledger/event/approval links.
+- **Failure Recovery:** exact pending snapshot restored if bounded resolution/staging cannot be verified.
+- **Runtime Mutation:** `NO`.
+- **Apps Script Deployment:** remains production v407.
+- **Worker Restart:** `NO`.
+- **Receipt:** `/tmp/eab_m16_bounded_repair_semantic_test_resume_v4_20260817_160059.txt`.
