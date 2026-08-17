@@ -111,3 +111,15 @@ The repaired candidate therefore enforces:
 - Review Queue row must retain `write_policy=staging`, pending status,
   empty ledger/event/approval links, and verified queue-id readback;
 - production remains unchanged until a separate activation gate passes.
+
+## Single live direct receiver invariant
+
+Runtime canary against immutable v408 proved that duplicate Apps Script
+definitions of `airoEabMaybeHandleDirectRequest_()` are not an acceptable
+dispatch contract. M16 therefore requires exactly one live function with that
+name and exactly one direct-receiver invocation at the start of `doPost()`.
+
+Any historical direct receiver retained for forensic context must use a
+non-live disabled function name and must not be invoked from `doPost()`.
+Live `EAB_SUBMIT_CLARIFICATION` must resolve only through the bounded M16
+receiver before production activation.

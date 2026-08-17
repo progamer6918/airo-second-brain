@@ -537,3 +537,10 @@ PREREQUISITE_STATUS_MUTATION_COUNT=0
 - **Apps Script Deployment:** remains production v407.
 - **Worker Restart:** `NO`.
 - **Receipt:** `/tmp/eab_m16_bounded_repair_semantic_test_resume_v4_20260817_160059.txt`.
+
+### M16 v408 Live Canary Receiver Attribution / Repair
+- **Result**: `REPAIR_REQUIRED`
+- **Runtime evidence**: immutable v408 returned `NEEDS_CLARIFICATION / ERR_MISSING_REQUIRED_FIELDS` for a nonexistent `EAB_SUBMIT_CLARIFICATION` canary.
+- **Attribution**: source contained two live `airoEabMaybeHandleDirectRequest_()` definitions; the legacy receiver contained the exact observed response contract.
+- **Safety action**: production rolled back to v407; v408 remains inactive; worker remained exact M16 runtime.
+- **Repair**: retain exactly one live direct receiver, disable legacy receiver identity, and dispatch it exactly once from `doPost()`.

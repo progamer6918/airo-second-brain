@@ -393,6 +393,56 @@ class TestProactiveFrontDesk(unittest.TestCase):
         )
         self.assertIn(manual_line, effective)
 
+    def test_backend_has_exactly_one_live_direct_receiver(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        self.assertEqual(
+            backend.count(
+                "function airoEabMaybeHandleDirectRequest_(e) {"
+            ),
+            1,
+        )
+        self.assertEqual(
+            backend.count(
+                "/* EAB_DIRECT_V1_RECEIVER_START */"
+            ),
+            1,
+        )
+        self.assertEqual(
+            backend.count(
+                "function "
+                "airoEabMaybeHandleDirectRequestLegacyDisabled_(e) {"
+            ),
+            1,
+        )
+
+    def test_dopost_dispatches_live_direct_receiver_once(self):
+        backend = (
+            REPO_ROOT
+            / "ecosystem/projects/vortex-ai-skill-lab"
+            / "apps-script-live/AIRO_Finance_Multitab_Final_v1.js"
+        ).read_text(encoding="utf-8")
+
+        do_post = backend[
+            backend.index("function doPost(e) {"):
+        ]
+
+        self.assertEqual(
+            do_post.count(
+                "var eabDirectResult = "
+                "airoEabMaybeHandleDirectRequest_(e);"
+            ),
+            1,
+        )
+        self.assertNotIn(
+            "airoEabMaybeHandleDirectRequestLegacyDisabled_(e);",
+            do_post,
+        )
+
     def test_worker_repo_root_is_runtime_relative(self):
         worker_source = WORKER_PATH.read_text(
             encoding="utf-8"

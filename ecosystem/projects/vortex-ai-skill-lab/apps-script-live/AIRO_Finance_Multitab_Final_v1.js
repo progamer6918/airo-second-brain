@@ -18508,8 +18508,8 @@ function airoTask103BalanceCommandMaybeHandleRoute_(e) {
 }
 /* AIRO_TASK_10_3_CEK_SALDO_COMMAND_V1_END */
 
-/* EAB_DIRECT_V1_RECEIVER_START */
-function airoEabMaybeHandleDirectRequest_(e) {
+/* EAB_LEGACY_DIRECT_RECEIVER_DISABLED_START */
+function airoEabMaybeHandleDirectRequestLegacyDisabled_(e) {
   if (!e || !e.postData || !e.postData.contents) {
     return null;
   }
@@ -18732,7 +18732,7 @@ function airoEabMaybeHandleDirectRequest_(e) {
     error: 'ERR_UNSUPPORTED_OPERATION'
   });
 }
-/* EAB_DIRECT_V1_RECEIVER_END */
+/* EAB_LEGACY_DIRECT_RECEIVER_DISABLED_END */
 
 
 
@@ -20791,11 +20791,6 @@ function airoEabMaybeHandleDirectRequest_(e) {
 
 
 function doPost(e) {
-  var eabDirectResult = airoEabMaybeHandleDirectRequest_(e);
-  if (eabDirectResult !== null) {
-    return eabDirectResult;
-  }
-
   var eabDirectResult = airoEabMaybeHandleDirectRequest_(e);
   if (eabDirectResult !== null) {
     return eabDirectResult;
