@@ -1,0 +1,4 @@
+raw_field	canonical_entity	canonical_attribute	transformation
+dealer_code	Dealer	dealer_id	EXACT_MATCH
+pos_code	POS	pos_id	EXACT_MATCH
+flp_name	FLP	flp_name	SANITY_CHECK

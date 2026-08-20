@@ -10,7 +10,7 @@ Global ASB BOOT/governance is higher authority.
 
 ## Required read order after ASB global boot
 
-1. `projects/airo-workdesk.md`
+1. `control/airo-workdesk.md`
 2. `wiki/workdesk/CURRENT.md`
 3. `wiki/workdesk/SOURCE_AUTHORITY.md`
 4. `wiki/workdesk/KNOWLEDGE_MAP.md`

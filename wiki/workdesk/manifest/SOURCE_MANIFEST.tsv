@@ -1,0 +1,5 @@
+source_id	source_name	format	authority_level	status
+SRC-001	AHM Award Q3 2026 Formal Guidance (081, 086, 087)	PDF	FORMAL_AHM_GUIDANCE	VERIFIED
+SRC-002	AHM Award Q3 2026 Transfer Archive	ZIP	OWNER_TRANSFER	VERIFIED
+SRC-003	Integrated TTM & POS Baseline State	MD	OPERATIONAL_EVIDENCE	CANONICAL
+SRC-004	Market Info Tools Weekly Sensing	MD	OPERATIONAL_EVIDENCE	CANONICAL
