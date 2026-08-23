@@ -150,3 +150,19 @@ Use:
 - Backbone dealer identification
 - Growth opportunity detection
 - Attention & corrective action routing
+
+---
+
+### Territory Coverage Authority
+
+Source:
+wiki/workdesk/intelligence/TERRITORY_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/TERRITORY_COVERAGE_CLASSIFICATION_MODEL.tsv
+
+Coverage:
+Kabupaten & Kecamatan Territory Classification (BACKBONE, GROWTH_OPPORTUNITY, ATTENTION)
+
+Use:
+- Backbone kecamatan identification
+- Growth opportunity territory routing
+- White-space / attention territory action mapping

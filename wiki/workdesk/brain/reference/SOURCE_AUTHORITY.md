@@ -38,3 +38,5 @@ Use this before applying a dated/current rule. The underlying TSV is the machine
 | Market Info Tools | 2026-08-11 Sinsen meeting transcript (first 30 min) + 2 screenshots | weekly field-market sensing / transitional submission workflow | CURRENT_SUPPLIED_PARTIAL_MEETING | Use for current weekly workflow and feature boundaries; transcript is incomplete after 30 min; access URLs/credentials excluded; later formal AHM guidance supersedes if supplied |
 
 | Dealer performance classification | RETAIL_DEALER_INTELLIGENCE_V1.md / DEALER_RETAIL_CLASSIFICATION_MODEL.tsv | FY2025 / 2026 | Decision-support intelligence layer classifying BACKBONE, GROWTH_OPPORTUNITY, ATTENTION dealers. |
+
+| Territory coverage classification | TERRITORY_INTELLIGENCE_V1.md / TERRITORY_COVERAGE_CLASSIFICATION_MODEL.tsv | POLREG 2026 / FY2025 | Decision-support intelligence layer classifying territory penetration & ring coverage. |
