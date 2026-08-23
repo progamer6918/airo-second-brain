@@ -156,6 +156,26 @@ Use:
 
 ---
 
+### Sales Activity Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/SALES_ACTIVITY_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/SALES_ACTIVITY_MODEL.tsv
+wiki/workdesk/business-memory/operational/SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv
+wiki/workdesk/brain/modules/B07__LEADS_MANAGEMENT_END_TO_END.md
+
+Coverage:
+Retail Sales Activity & Source of Sale Intelligence (2024, 2025, 2026) covering Lead Channels, Conversion Rates, Funnel Health, and FLP Activity Effectiveness
+
+Use:
+- lead source analysis & channel mix evaluation (WALK_IN, BTL_CANVASSING, BTL_EVENT, VIRTUAL_EXHIBITION, SOCIAL_MEDIA, APPS_REFERRAL, FINCOY, REPEAT_ORDER_CRM, CALL_WA)
+- channel conversion rate tracking (Retail Deal / Total Leads)
+- funnel health monitoring (Touchpoint -> Prospect -> Follow Up -> SPK -> Retail SSU)
+- FLP activity effectiveness evaluation (NOS daily lead allocation SLA and contact rates)
+- dealer acquisition performance and funnel bottleneck diagnosis
+
+---
+
 ### Market Share Authority
 
 Source:
