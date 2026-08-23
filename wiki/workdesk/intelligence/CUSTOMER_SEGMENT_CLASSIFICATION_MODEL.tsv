@@ -1,0 +1,5 @@
+customer_segment	segment_name	primary_age_group	primary_occupation	primary_spending_tier	preferred_product_category	top_preferred_model	avg_credit_ratio_pct	ro_ratio_pct	strategic_action
+YOUNG_COMMUTER	Young Commuter Segment	20-29	PELAJAR_MAHASISWA	LOW_SPENDING	MATIK_LOW	BEAT STREET (MM1/MM2)	76.8	22.4	Target digital social media promo and low-DP student packages
+COMMERCIAL_AGRI_WORKER	Commercial Agri & Farmer Segment	30-39	PETANI_PERKEBUNAN	MID_SPENDING	CUB_LOW	REVO X (GD4)	74.2	38.5	Align promo installment cycles with palm oil harvest seasons in Merangin/Tebo
+FAMILY_STABILITY_BUYER	Family & Professional Buyer	30-49	PNS_BUMN	UPPER_MID_SPENDING	MATIK_MID	VARIO 125 (NE0)	70.5	48.2	Promote trade-in programs, ABS safety features, and family comfort
+FLEET_CORPORATE_CLIENT	Corporate & Fleet Client	30-49	SWASTA	HIGH_SPENDING	CUB_LOW	REVO FIT (GB4)	45.0	65.0	Offer corporate bulk discount and integrated AHASS maintenance contract

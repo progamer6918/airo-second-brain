@@ -99,6 +99,25 @@ Use:
 
 ---
 
+### Customer Segment Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/CUSTOMER_SEGMENT_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/CUSTOMER_SEGMENT_CLASSIFICATION_MODEL.tsv
+wiki/workdesk/business-memory/operational/CUSTOMER_SEGMENT_2026_CURRENT_SUMMARY.tsv
+
+Coverage:
+Retail Customer Segment Intelligence (2024, 2025, 2026) covering Age Groups, Occupation Mix, Expenditure Tiers, and Repeat Order Ratios
+
+Use:
+- customer profile & demographic sensing
+- occupation share & alias resolution
+- expenditure tier evaluation
+- repeat order (RO) vs first-time buyer analysis
+- customer profile classification (YOUNG_COMMUTER, COMMERCIAL_AGRI_WORKER, FAMILY_STABILITY_BUYER, FLEET_CORPORATE_CLIENT)
+
+---
+
 ### Market Share Authority
 
 Source:
