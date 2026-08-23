@@ -118,6 +118,25 @@ Use:
 
 ---
 
+### FLP Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/FLP_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/DEALER_MANPOWER_PRODUCTIVITY_MODEL.tsv
+wiki/workdesk/business-memory/operational/FLP_2026_CURRENT_SUMMARY.tsv
+wiki/workdesk/intelligence/FLP_INTELLIGENCE.md (Legacy Reference)
+
+Coverage:
+Retail FLP & Manpower Productivity Intelligence (2024, 2025, 2026) covering Sales Force Headcount, NOS Role Benchmarks, Productivity Indexes, and Manpower Lifecycle
+
+Use:
+- manpower headcount & role mix evaluation (SALES_COUNTER, FIELD_SALES_CANVASSER, WING_SALES_PEOPLE, SPV_TL)
+- NOS H1 People benchmark tracking & productivity index calculation
+- FLP manpower lifecycle sensing (ACTIVE, NEW_ONBOARDING, DORMANT_INACTIVE)
+- manpower performance classification (ABOVE_EXPECTATION, WITHIN_EXPECTATION, BELOW_EXPECTATION, CRITICAL_GAP)
+
+---
+
 ### Market Share Authority
 
 Source:
