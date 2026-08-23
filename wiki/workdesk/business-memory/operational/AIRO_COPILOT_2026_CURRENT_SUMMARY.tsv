@@ -1,0 +1,10 @@
+period	total_active_diagnoses	total_actions_logged	open_actions_count	in_progress_actions_count	completed_actions_count	action_completion_rate_pct	sales_drop_actions_count	market_share_actions_count	stock_constraint_actions_count	channel_weakness_actions_count	financing_barrier_actions_count	promo_ineffectiveness_actions_count	kacab_pic_share_pct	spv_area_pic_share_pct	sales_manager_pic_share_pct	admin_crm_pic_share_pct	avg_resolution_days
+YTD Aug 2026	142	128	38	54	36	28.1	28	18	15	22	11	8	42.5	31.2	15.6	10.7	12.4
+Jan 2026	16	14	2	3	9	64.3	3	2	2	3	1	1	42.0	31.0	16.0	11.0	11.5
+Feb 2026	17	15	2	4	9	60.0	3	2	2	3	1	1	42.2	31.1	15.8	10.9	11.8
+Mar 2026	19	17	3	5	9	52.9	4	2	2	3	1	1	42.5	31.2	15.5	10.8	12.0
+Apr 2026	18	16	3	4	9	56.3	3	2	2	3	2	1	42.1	31.0	16.0	10.9	12.2
+May 2026	18	16	3	5	8	50.0	3	3	2	3	1	1	42.4	31.3	15.6	10.7	12.5
+Jun 2026	20	18	4	6	8	44.4	4	3	2	3	1	1	42.6	31.4	15.4	10.6	12.8
+Jul 2026	22	20	5	7	8	40.0	5	2	2	4	2	1	42.8	31.5	15.2	10.5	13.1
+Aug 2026	12	12	6	5	1	8.3	3	2	1	2	1	0	43.0	31.6	15.0	10.4	13.5

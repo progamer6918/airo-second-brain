@@ -234,6 +234,27 @@ Use:
 
 ---
 
+### AIRO Commercial Copilot Authority
+
+Source:
+wiki/workdesk/intelligence/AIRO_COMMERCIAL_COPILOT_V1.md
+wiki/workdesk/intelligence/AIRO_COPILOT_ACTION_TRACKER.tsv
+wiki/workdesk/business-memory/operational/AIRO_COPILOT_2026_CURRENT_SUMMARY.tsv
+BUSINESS_PULSE.md
+SIGNALS.md
+
+Coverage:
+AIRO Commercial Copilot Delivery & Interaction Layer (2024, 2025, 2026) orchestrating 11 underlying intelligence engines into role-tailored briefs, chat intent routing, and PICA action tracking
+
+Use:
+- role-based briefing (MANAGEMENT_EXECUTIVE, DEALER_HEAD, AREA_MANAGER_SPV, DEALER_OPERATION)
+- chat intent routing & Natural Language Query parsing (DEALER_REVIEW, BUSINESS_DIAGNOSIS, TERRITORY_OPPORTUNITY, PROMOTION_ANALYSIS, INVENTORY_DIAGNOSIS, FLP_PRODUCTIVITY)
+- evidence chain governance & output delivery (FACT -> DIAGNOSIS -> EVIDENCE -> ACTION -> MONITORING)
+- PICA action tracking & resolution monitoring (AIRO_COPILOT_ACTION_TRACKER.tsv)
+- executive pulse summary generation (BUSINESS_PULSE.md & SIGNALS.md)
+
+---
+
 ### Market Share Authority
 
 Source:
