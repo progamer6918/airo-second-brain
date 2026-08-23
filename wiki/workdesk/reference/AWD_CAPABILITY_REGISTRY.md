@@ -63,6 +63,24 @@ Use:
 
 ---
 
+### Financing Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/FINANCING_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/DEALER_FINANCING_CLASSIFICATION_MODEL.tsv
+wiki/workdesk/business-memory/operational/FINANCING_2026_CURRENT_SUMMARY.tsv
+
+Coverage:
+Retail Financing Intelligence (2024, 2025, 2026) covering Cash vs Credit ratio, Finco market share, DP Real %, and Tenor distribution
+
+Use:
+- financing schema sensing
+- Finco market share & partnership analysis
+- DP % & tenor bucket evaluation
+- dealer financing classification (CASH_DOMINANT, BALANCED_FINANCING, CREDIT_EXPANSION_OPPORTUNITY, HIGH_RISK_FINANCING_GAP)
+
+---
+
 ### Market Share Authority
 
 Source:
