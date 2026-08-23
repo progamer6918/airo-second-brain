@@ -50,3 +50,18 @@ $$	ext{Retail Share Pct (\%)} = \left( rac{	ext{Dealer FY2025 Retail Volume}}{	
   - **Jawaban AIRO Sync**: Menampilkan outlet `GROWTH_OPPORTUNITY` beserta territory target (misal: POS Singkut, POS Pelawan).
 - **Kueri**: *"Outlet mana yang memerlukan attention?"*
   - **Jawaban AIRO Sync**: Menyajikan daftar outlet `ATTENTION` beserta indikasi root cause (gap produktivitas FLP / BTL).
+
+---
+
+## 5. Permanent Dealer Entity Resolution Rule & Scope Validation
+
+Setiap proses analitik, diagnostik, dan agregasi inteligensi diler **WAJIB OBEY** aturan tata kelola entitas (*Permanent Entity Resolution Rule*):
+
+1. **`Dealer Group Matching Rule`**: Keanggotaan diler di dalam suatu grup (*Dealer Group*) **WAJIB HANYA ACU** ke field `Dealer_Master.Group`. Dilarang keras melakukan inferensi dari nama PT, nama diler, pola kepemilikan (*ownership*), perusahaan induk (*parent company*), atau sister company.
+2. **`Area Definition Rule`**: Penentuan wilayah diler (*Area*) **WAJIB HANYA ACU** ke field `Dealer_Master.Area` administratif resmi (misal: `KOTA JAMBI`, `KAB. MUARO JAMBI`, `KAB. BATANG HARI`, `KAB. TANJUNG JABUNG BARAT`). Dilarang membuat penamaan area manual (misal: Jambi 1/Jambi 2) atau menginferensi dari lokasi kecamatan.
+3. **`Forbidden Inference Boundary`**:
+   - Dilarang memperluas keanggotaan diler berdasarkan kesamaan merek/lokasi.
+   - Dilarang menggabungkan entitas independen ke dalam grup utama tanpa basis `Dealer_Master.Group`.
+4. **`Scope Validation Flag`**:
+   `ENTITY_SCOPE_VALIDATION_REQUIRED=YES`
+

@@ -133,3 +133,18 @@ Untuk memastikan perbandingan antar-tahun yang valid dan bebas dari bias data:
 1. **Zero Duplicate Rule**: Tidak boleh ada 2 sumber retail yang saling mengeklaim sebagai Otoritas Utama untuk periode yang sama.
 2. **No Memory Drift**: Hasil agregasi publik ASB harus selalu dapat ditelusuri ke checksum SHA256 berkas sumber mentah di `OPERATIONAL_DATA_INVENTORY.tsv`.
 3. **Strict Path Execution**: Seluruh pembacaan data dan pengoperasian engine wajib mematuhi aturan penulisan repositori ASB.
+
+---
+
+## 7. Permanent Dealer Entity Resolution Governance & Scope Safeguards
+
+Seluruh child capability dan mesin penalaran diagnostik yang beroperasi di bawah Retail Intelligence Engine v2 **WAJIB MENENTUKAN DILER & AREA BERDASARKAN DEALER MASTER SAH**:
+
+1. **`Dealer Group Resolution`**: Keanggotaan diler di dalam suatu grup (*Dealer Group*) **WAJIB MENGGUNAKAN** `Dealer_Master.Group`.
+2. **`Area Administrative Validation`**: Penentuan wilayah (*Area*) **WAJIB MENGGUNAKAN** `Dealer_Master.Area` administratif resmi.
+3. **`Forbidden Inference Boundary`**:
+   - Dilarang keras melakukan inferensi dari nama perusahaan (PT/CV), nama diler, kepemilikan saham (*ownership*), perusahaan sister/induk, maupun lokasi geografis.
+   - Dilarang membuat pengelompokan wilayah manual (misal: Jambi 1/Jambi 2) yang tidak bersumber dari `Dealer_Master.Area`.
+4. **`Scope Validation Requirement`**:
+   `ENTITY_SCOPE_VALIDATION_REQUIRED=YES`
+
