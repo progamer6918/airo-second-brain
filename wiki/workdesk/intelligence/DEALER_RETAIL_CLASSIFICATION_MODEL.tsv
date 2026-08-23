@@ -1,0 +1,8 @@
+DEALER_CODE	DEALER_NAME	HIERARCHY	PARENT_DEALER	TERRITORY_RING	FY2025_RETAIL_VOLUME	RETAIL_SHARE_PCT	CLASSIFICATION	STATUS_NOTE
+DLR-SRL-01	Sinsen Sarolangun Main Outlet	Dealer (H123)	Sinsen Main Dealer Group	Ring 1 (Sarolangun Kota)	17420	16.26%	BACKBONE	Main regional retail volume pillar
+DLR-JMB-01	Sinsen Jambi City Main Outlet	Dealer (H123)	Sinsen Main Dealer Group	Ring 1 (Jambi Kota)	24850	23.20%	BACKBONE	Capital city volume backbone
+DLR-MRG-01	Sinsen Bangko Main Outlet	Dealer (H123)	Sinsen Main Dealer Group	Ring 1 (Merangin/Bangko)	15300	14.28%	BACKBONE	Western territory backbone
+POS-SRL-01	POS Singkut Outlet	POS Outlet	Sinsen Sarolangun Main Outlet	Ring 2 (Singkut)	6250	5.83%	GROWTH_OPPORTUNITY	High market potential in Singkut market hub
+POS-SRL-02	POS Pelawan Outlet	POS Outlet	Sinsen Sarolangun Main Outlet	Ring 2 (Pelawan)	4120	3.85%	ATTENTION	Requires BTL activation and FLP productivity review
+POS-MRG-02	POS Tabir Outlet	POS Outlet	Sinsen Bangko Main Outlet	Ring 3 (Tabir)	3890	3.63%	ATTENTION	White-space territory needing coverage expansion
+OTH-NET-01	Other Network Outlets Combined	Dealer/POS Aggregated	Sinsen Main Dealer Group	Various Rings	35278	32.95%	BACKBONE	Combined network baseline

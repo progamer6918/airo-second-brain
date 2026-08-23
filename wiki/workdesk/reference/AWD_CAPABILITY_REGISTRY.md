@@ -134,3 +134,19 @@ AVAILABLE_AUTHORITIES:
 
 NEXT:
 Proceed analysis
+
+---
+
+### Dealer Classification Authority
+
+Source:
+wiki/workdesk/intelligence/RETAIL_DEALER_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/DEALER_RETAIL_CLASSIFICATION_MODEL.tsv
+
+Coverage:
+Dealer & POS Retail Classification (BACKBONE, GROWTH_OPPORTUNITY, ATTENTION)
+
+Use:
+- Backbone dealer identification
+- Growth opportunity detection
+- Attention & corrective action routing

@@ -36,3 +36,5 @@ Use this before applying a dated/current rule. The underlying TSV is the machine
 | Integrated TTM / POS current | 6-Aug-2026 NetDev meeting + clean MoM; Sinsen 11-Aug-2026 POS working snapshot | 2026-08-06 / 2026-08-11 | Meeting governs current supplied TTM logic; local workbook governs supplied Sinsen POS working state; formal later AHM guidance supersedes if supplied; do not infer submission completion. |
 
 | Market Info Tools | 2026-08-11 Sinsen meeting transcript (first 30 min) + 2 screenshots | weekly field-market sensing / transitional submission workflow | CURRENT_SUPPLIED_PARTIAL_MEETING | Use for current weekly workflow and feature boundaries; transcript is incomplete after 30 min; access URLs/credentials excluded; later formal AHM guidance supersedes if supplied |
+
+| Dealer performance classification | RETAIL_DEALER_INTELLIGENCE_V1.md / DEALER_RETAIL_CLASSIFICATION_MODEL.tsv | FY2025 / 2026 | Decision-support intelligence layer classifying BACKBONE, GROWTH_OPPORTUNITY, ATTENTION dealers. |
