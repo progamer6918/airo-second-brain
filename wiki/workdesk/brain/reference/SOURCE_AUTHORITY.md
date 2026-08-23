@@ -24,6 +24,7 @@ Use this before applying a dated/current rule. The underlying TSV is the machine
 |---|---|---|---|
 | Market share actual | SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx raw databases | YTD Jan-Jun 2026 | Use same-period Honda numerator + total-market denominator; 2025 comparable derived Jan-Jun from raw DB because summary label conflicts. |
 | Retail actual | SSU.2026.xlsx aggregate memory | through Jul 2026 | Current 2026 authority. Raw customer PII excluded. |
+| Retail comparable (FY2025) | SSU 2025 Full Year Summary / WD-SRC-057 | Jan-Dec 2025 | Preferred full-year historical comparable baseline (107,108 units). |
 | Retail comparable | Record Sales 2008-2025.xlsx / Monthly | Jan-Jul 2025 | Use only as historical comparable; do not use stale cached 2026 cells. |
 | Dealer stock | Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls | 2026-08-06 08:03:42 | Aggregate status/aging; raw engine identifiers excluded. |
 | MD stock | StokMD - 2026-08-06T080446.204.xls | 2026-08-06 08:04:46 | Status/type/location available; aging absent. |

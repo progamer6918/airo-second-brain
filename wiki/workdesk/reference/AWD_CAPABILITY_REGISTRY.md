@@ -37,7 +37,8 @@ Source:
 Retail Sales/SSU.2026.xlsx
 
 Coverage:
-Jan-Jul 2026 aggregate
+Jan-Jul 2026 aggregate (Current Operating Authority)
+Full Year 2025 Baseline (107,108 units - Historical Authority)
 
 Use:
 - retail performance

@@ -50,3 +50,8 @@
 | MK1 | 3.126 |
 | ESL | 3.124 |
 | GF5 | 3.060 |
+
+
+## Historical Authority Baseline (FY2025)
+- **FY2025 Total Retail**: 107,108 units (Dec 2025: 12,381 units)
+- **Authority Status**: FULL_YEAR_2025_HISTORICAL_AUTHORITY (`WD-SRC-057__SSU_2025_FULL_YEAR.md`).
