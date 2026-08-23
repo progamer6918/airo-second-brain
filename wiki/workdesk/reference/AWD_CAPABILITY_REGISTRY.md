@@ -176,6 +176,25 @@ Use:
 
 ---
 
+### Inventory Stock Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/INVENTORY_STOCK_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/INVENTORY_STOCK_MODEL.tsv
+wiki/workdesk/business-memory/operational/INVENTORY_STOCK_2026_CURRENT_SUMMARY.tsv
+wiki/workdesk/business-memory/operational/STOCK_CURRENT_STATE.md
+
+Coverage:
+Retail Inventory Stock & Supply Intelligence (2024, 2025, 2026) covering Stock Position, Stock Days, Dealer Stock Aging (>150 Days), and Demand vs Supply Bottleneck Diagnosis
+
+Use:
+- stock availability monitoring & status breakdown (Ready, Soft Booking, Unfill, Intransit, MD Stock)
+- stock days calculation and stock health evaluation (OPTIMAL, UNDER_STOCKED, OVER_STOCKED, CRITICAL_AGING)
+- aging stock sensing (>150 days aging hazard)
+- demand vs supply bottleneck diagnosis (Demand Problem vs Supply Bottleneck)
+
+---
+
 ### Market Share Authority
 
 Source:
