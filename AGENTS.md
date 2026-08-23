@@ -45,6 +45,15 @@ If context conflicts, follow this priority:
 
 Never let model memory override project reality.
 
+## Execution Role Separation & Layers
+
+All AIRO consumers, planning engines, and execution environments MUST obey the canonical [`AIRO Agent Role & Execution Separation Contract`](docs/governance/AIRO_AGENT_ROLE_CONTRACT.md):
+
+- **ChatGPT (Intelligence / Planning Layer)**: Responsible for objective comprehension, strategic reasoning, plan decomposition, architecture decisions, and evidence verification. Does NOT execute terminal mutations directly or delegate strategic thinking to the executor layer.
+- **Antigravity (Executor Only Layer)**: Responsible for executing approved plans, terminal automation, multi-step execution, evidence collection, and returning status receipts (`🧭 AIRO STATUS`). Must follow strict rules: no independent strategic reasoning, no changing objectives, no token waste, automate full steps without forcing manual user repeats, and preserve session continuity.
+- **WSL (Runtime Execution Layer)**: Responsible for executing shell/Python scripts, maintaining runtime environment/state, and returning raw logs/receipts. Does NOT make project architecture decisions.
+
+
 ## Sustainable Input & Intake Rules
 
 When receiving new Owner input, materials, or files:

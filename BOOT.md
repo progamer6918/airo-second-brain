@@ -177,6 +177,7 @@ For every remote mutation attempt:
 - Chat-Stability Protocol Pointer: [`state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`](state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md)
 - Direct WSL Execution Contract: [`docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md`](docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md)
 - Acceptance Evidence Contract: [`docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md`](docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md)
+- AIRO Agent Role Contract: [`docs/governance/AIRO_AGENT_ROLE_CONTRACT.md`](docs/governance/AIRO_AGENT_ROLE_CONTRACT.md)
 
 ## Mandatory Project Boot Guards
 
