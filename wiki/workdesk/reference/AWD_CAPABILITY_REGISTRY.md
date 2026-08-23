@@ -195,6 +195,26 @@ Use:
 
 ---
 
+### Promotion Program Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/PROMOTION_PROGRAM_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/PROMOTION_PROGRAM_MODEL.tsv
+wiki/workdesk/business-memory/operational/PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv
+wiki/workdesk/domains/pricing-financing/COMMERCIAL_PROGRAM_INTELLIGENCE.md
+
+Coverage:
+Retail Promotion & Commercial Sales Program Intelligence (2024, 2025, 2026) covering Program Adoption, Sales Uplift, Incremental Units, and Program Conversion Rates
+
+Use:
+- sales program monitoring & classification (VOUCHER_DISCOUNT, POTONGAN_ANGSURAN, POTONGAN_DP, DIRECT_GIFT_APPAREL, FINCOY_SUPPORT, LOYALTY_RETENTION_PROGRAM)
+- dealer program adoption rate tracking (Participating Dealer / Total Dealer)
+- promotion effectiveness & sales uplift analysis (Sales Uplift % & Incremental Units)
+- program conversion rate evaluation (Claimed Retail Deals / Program Leads)
+- multi-domain integration (Promotion + Sales Activity + Financing + Product + Retail Sales)
+
+---
+
 ### Market Share Authority
 
 Source:
