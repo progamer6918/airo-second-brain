@@ -137,6 +137,25 @@ Use:
 
 ---
 
+### Customer Lifecycle Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/CUSTOMER_LIFECYCLE_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/CUSTOMER_LIFECYCLE_MODEL.tsv
+wiki/workdesk/business-memory/operational/CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv
+
+Coverage:
+Retail Customer Lifecycle & Repurchase Intelligence (2024, 2025, 2026) covering Repeat Gap Months, Tenor Repurchase Behavior, Model Migration, and Dealer Retention
+
+Use:
+- repeat purchase analysis & repurchase timing distribution (Repeat Gap Months)
+- ownership timeline tracking & sequence ordering (First Purchase vs Repeat Order)
+- tenor-to-repurchase relationship evaluation (PREMATURE_UPGRADE, MATURITY_REPLACEMENT, DELAYED_RETENTION)
+- model migration path sensing (SAME_MODEL_REFRESH, SEGMENT_UPGRADE, CROSS_SEGMENT_EXPANSION)
+- dealer retention & POS migration analysis (DEALER_RETAINED, POS_MIGRATED, DEALER_SWITCHED)
+
+---
+
 ### Market Share Authority
 
 Source:
