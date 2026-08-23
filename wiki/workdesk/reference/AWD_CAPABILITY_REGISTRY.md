@@ -215,6 +215,25 @@ Use:
 
 ---
 
+### Retail Diagnosis Engine Authority
+
+Source:
+wiki/workdesk/intelligence/RETAIL_DIAGNOSIS_ENGINE_V1.md
+wiki/workdesk/intelligence/RETAIL_DIAGNOSIS_MODEL.tsv
+wiki/workdesk/business-memory/operational/RETAIL_DIAGNOSIS_2026_CURRENT_SUMMARY.tsv
+wiki/workdesk/playbooks/DIAGNOSE_BUSINESS_PROBLEM.md
+
+Coverage:
+Multi-Domain Retail Diagnosis & Prescriptive Action Engine (2024, 2025, 2026) combining 10 Retail Intelligence layers into evidence-based root cause diagnosis and PICA action recommendations
+
+Use:
+- multi-domain root cause diagnosis & evidence chain enforcement (FACT -> SYMPTOM -> HYPOTHESIS -> EVIDENCE -> ROOT CAUSE -> ACTION)
+- business problem taxonomy classification (SALES_DROP, MARKET_SHARE_LOSS, STOCK_CONSTRAINT, PRODUCT_MISMATCH, CHANNEL_WEAKNESS, FLP_PRODUCTIVITY_GAP, FINANCING_BARRIER, PROMOTION_INEFFECTIVENESS, TERRITORY_OPPORTUNITY)
+- demand vs supply bottleneck isolation (Stock Days < 10d vs > 20d & Aging > 150d)
+- prescriptive PICA action recommendation (Initiative, PIC, Timeline, Leading Metric)
+
+---
+
 ### Market Share Authority
 
 Source:

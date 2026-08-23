@@ -1,0 +1,10 @@
+period	total_diagnoses_executed	sales_drop_freq	market_share_loss_freq	stock_constraint_freq	product_mismatch_freq	channel_weakness_freq	flp_productivity_gap_freq	financing_barrier_freq	promotion_ineffectiveness_freq	territory_opportunity_freq	competency_rc_pct	supply_bottleneck_rc_pct	channel_sla_rc_pct	credit_term_rc_pct	promo_fit_rc_pct	flp_retraining_action_pct	stock_allocation_action_pct	lead_sla_enforcement_action_pct	finco_diversification_action_pct	btl_territory_push_action_pct
+YTD Aug 2026	142	28	18	15	12	22	24	11	8	4	28.2	10.6	15.5	7.7	5.6	28.2	10.6	15.5	7.7	38.0
+Jan 2026	16	3	2	2	1	3	3	1	1	0	28.0	10.5	15.0	7.5	5.5	28.0	10.5	15.0	7.5	38.5
+Feb 2026	17	3	2	2	1	3	3	1	1	1	28.1	10.5	15.2	7.6	5.5	28.1	10.5	15.2	7.6	38.1
+Mar 2026	19	4	2	2	2	3	3	1	1	1	28.3	10.6	15.4	7.7	5.6	28.3	10.6	15.4	7.7	37.8
+Apr 2026	18	3	2	2	1	3	3	2	1	1	28.0	10.5	15.3	7.8	5.5	28.0	10.5	15.3	7.8	38.4
+May 2026	18	3	3	2	1	3	3	1	1	1	28.2	10.6	15.5	7.6	5.6	28.2	10.6	15.5	7.6	38.1
+Jun 2026	20	4	3	2	2	3	3	1	1	1	28.5	10.7	15.6	7.7	5.7	28.5	10.7	15.6	7.7	37.5
+Jul 2026	22	5	2	2	2	4	3	2	1	1	28.4	10.6	15.8	7.8	5.6	28.4	10.6	15.8	7.8	37.4
+Aug 2026	12	3	2	1	1	2	2	1	0	0	28.3	10.6	15.7	7.7	5.6	28.3	10.6	15.7	7.7	37.7
