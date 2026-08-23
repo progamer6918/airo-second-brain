@@ -81,6 +81,24 @@ Use:
 
 ---
 
+### Product Intelligence Authority
+
+Source:
+wiki/workdesk/intelligence/PRODUCT_INTELLIGENCE_V1.md
+wiki/workdesk/intelligence/PRODUCT_PORTFOLIO_CLASSIFICATION_MODEL.tsv
+wiki/workdesk/business-memory/operational/PRODUCT_2026_CURRENT_SUMMARY.tsv
+
+Coverage:
+Retail Product Intelligence (2024, 2025, 2026) covering Model Volume Share, Segment Mix, Price Bands, and Facelift Transitions
+
+Use:
+- product performance & model mix analysis
+- segment share sensing (Matik, Cub, Sport, EV)
+- price band evaluation (ENTRY, MID, UPPER_MID, PREMIUM)
+- product portfolio classification (BACKBONE_VOLUME_LEADER, GROWTH_LAUNCH_MODEL, NICHE_SPECIALTY_MODEL, PHASING_OUT_LEGACY)
+
+---
+
 ### Market Share Authority
 
 Source:
