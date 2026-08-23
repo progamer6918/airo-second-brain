@@ -1,0 +1,28 @@
+canonical_field	raw_field_name	domain	available_2024	available_2025	available_2026	pii_status	storage_rule	intelligence_usage
+transaction_id	NO_TRANSAKSI	TRANSACTION	YES	YES	YES	SENSITIVE_ID	PRIVATE_RAW_ONLY	Unique transaction identification and claim auditing
+transaction_date	TGL_SALES	TRANSACTION	YES	YES	YES	NON_PII	SANITIZED_AGGREGATE	Daily and monthly sales trend analysis
+engine_number	NO_MESIN	TRANSACTION	YES	YES	YES	SENSITIVE_ID	PRIVATE_RAW_ONLY	Unit level reconciliation (1 No Mesin = 1 SSU Unit)
+frame_number	NO_RANGKA	TRANSACTION	YES	YES	YES	SENSITIVE_ID	PRIVATE_RAW_ONLY	Unit asset tracking and warranty/claim validation
+dealer_code	KD_DEALER	DEALER	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Main outlet identification and attribution
+dealer_name	NAMA_DEALER	DEALER	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Dealer volume contribution and performance classification
+pos_code	KD_POS	DEALER	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Sub-outlet and POS network identification
+pos_name	NAMA_POS	DEALER	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	POS standardization and coverage performance
+kabupaten_name	KABUPATEN	TERRITORY	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Kabupaten level market share and sales contribution
+kecamatan_name	KECAMATAN	TERRITORY	PARTIAL	YES	YES	NON_PII	CANONICAL_PUBLIC	Kecamatan territory coverage and Ring 1/2 classification
+kelurahan_name	KELURAHAN	TERRITORY	NO	PARTIAL	YES	NON_PII	CANONICAL_PUBLIC	Micro-territory mapping across 1223 Kelurahan-Desa rows
+model_code	KD_TIPE	PRODUCT	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Product model code sales tracking (MM1, MJ1, etc.)
+model_name	NAMA_TIPE	PRODUCT	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Commercial model performance and volume ranking
+product_segment	SERIES_SEGMENT	PRODUCT	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Category analysis (Matik, Sport, Cub, EV)
+color_code	KD_WARNA	PRODUCT	YES	YES	YES	NON_PII	CANONICAL_PUBLIC	Color variant distribution and stock matching
+payment_type	CASH_CREDIT	FINANCING	YES	YES	YES	NON_PII	SANITIZED_AGGREGATE	Cash vs Credit purchasing ratio analysis
+finco_name	LEASING	FINANCING	YES	YES	YES	NON_PII	SANITIZED_AGGREGATE	Financing company market share and partnership evaluation
+tenor_months	TENOR	FINANCING	PARTIAL	YES	YES	NON_PII	SANITIZED_AGGREGATE	Credit term length distribution analysis
+down_payment_real	DP_REAL	FINANCING	PARTIAL	YES	YES	NON_PII	SANITIZED_AGGREGATE	Customer financial affordability sensing
+customer_name	NAMA_KONSUMEN	CUSTOMER	YES	YES	YES	PII_PRIVATE	PRIVATE_RAW_ONLY	Individual customer identity (EXCLUDED from public ASB)
+customer_nik	NIK	CUSTOMER	YES	YES	YES	PII_PRIVATE	PRIVATE_RAW_ONLY	National ID number (EXCLUDED from public ASB)
+customer_phone	NO_TELP	CUSTOMER	YES	YES	YES	PII_PRIVATE	PRIVATE_RAW_ONLY	Customer phone number (EXCLUDED from public ASB)
+customer_address	ALAMAT	CUSTOMER	YES	YES	YES	PII_PRIVATE	PRIVATE_RAW_ONLY	Street address (EXCLUDED from public ASB)
+customer_age_group	KELOMPOK_UMUR	CUSTOMER	PARTIAL	YES	YES	PII_SAFE_DERIVED	SANITIZED_AGGREGATE	Demographic age group distribution
+customer_occupation	PEKERJAAN	CUSTOMER	PARTIAL	YES	YES	PII_SAFE_DERIVED	SANITIZED_AGGREGATE	Occupation profile distribution analysis
+salesman_id	KD_SALES	SALES_FORCE	PARTIAL	YES	YES	NON_PII	SANITIZED_AGGREGATE	FLP productivity index and sales attribution
+salesman_name	NAMA_SALES	SALES_FORCE	PARTIAL	YES	YES	PII_PRIVATE	PRIVATE_RAW_ONLY	Sales force individual name (sanitized in public ASB)

@@ -47,6 +47,22 @@ Use:
 
 ---
 
+### Retail Intelligence Engine v2 Authority
+
+Source:
+wiki/workdesk/intelligence/RETAIL_INTELLIGENCE_ENGINE_V2.md
+wiki/workdesk/reference/RETAIL_RAW_FIELD_INVENTORY.tsv
+
+Coverage:
+Unified Retail Sales Intelligence (2024, 2025, 2026) across 7 Domains (Sales, Dealer, Territory, Product, Financing, Customer Segment, FLP)
+
+Use:
+- cross-year retail sales comparability
+- raw field schema resolution & PII storage boundary
+- multi-domain intelligence routing
+
+---
+
 ### Market Share Authority
 
 Source:

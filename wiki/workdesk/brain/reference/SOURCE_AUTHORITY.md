@@ -40,3 +40,4 @@ Use this before applying a dated/current rule. The underlying TSV is the machine
 | Dealer performance classification | RETAIL_DEALER_INTELLIGENCE_V1.md / DEALER_RETAIL_CLASSIFICATION_MODEL.tsv | FY2025 / 2026 | Decision-support intelligence layer classifying BACKBONE, GROWTH_OPPORTUNITY, ATTENTION dealers. |
 
 | Territory coverage classification | TERRITORY_INTELLIGENCE_V1.md / TERRITORY_COVERAGE_CLASSIFICATION_MODEL.tsv | POLREG 2026 / FY2025 | Decision-support intelligence layer classifying territory penetration & ring coverage. |
+| Retail Intelligence Engine v2 | RETAIL_INTELLIGENCE_ENGINE_V2.md / RETAIL_RAW_FIELD_INVENTORY.tsv | 2024-2026 | Multi-domain retail intelligence architecture defining raw vs sanitized separation and 7-domain hierarchy. |
