@@ -172,8 +172,75 @@ def render_live_session_markdown(repo_root, session_data):
 
     with open(worklog_path_str, "w", encoding="utf-8") as f:
         f.write(md_content)
+def render_active_session_projection(repo_root, session_data):
+    import tempfile
+    is_test = (
+        os.environ.get("AIRO_TEST_MODE") == "1"
+        or (session_data and (
+            session_data.get("project_id", "") in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test")
+            or session_data.get("project_id", "").startswith("TEST")
+            or session_data.get("project_id", "").endswith("_TEST")
+        ))
+    )
+
+    if is_test:
+        proj_file = os.path.join(tempfile.gettempdir(), "airo_test_active_session.md")
+    else:
+        proj_dir = os.path.join(repo_root, "state")
+        os.makedirs(proj_dir, exist_ok=True)
+        proj_file = os.path.join(proj_dir, "active-session.md")
+
+    if not session_data:
+        content = "# ⚪ Tidak Ada Sesi Aktif\n\nBelum ada pekerjaan aktif yang perlu dilanjutkan.\n"
+        with open(proj_file, "w", encoding="utf-8") as f:
+            f.write(content)
+        return
+
+    proj_id = session_data.get("project_id", "")
+    proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
+    owner_req = session_data.get("owner_request", "-")
+    curr_pos = session_data.get("position", session_data.get("current_position", "-"))
+    curr_prog = session_data.get("progress", session_data.get("current_progress", "-"))
+    blocker_val = session_data.get("blocker", "NONE")
+    if isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
+        blocker_val = ", ".join(session_data["blockers"])
+    
+    if not blocker_val or str(blocker_val).upper() in ("NONE", "NONE.", "TIDAK ADA"):
+        blocker_str = "Tidak ada blocker aktif."
+    else:
+        blocker_str = str(blocker_val)
+
+    next_act = session_data.get("next_action", "-")
+
+    proj_link = _resolve_project_link(proj_id, proj_name, repo_root) or proj_name
+
+    live_path = session_data.get("planned_closeout_path", "")
+    if live_path and repo_root in live_path:
+        rel_live = os.path.relpath(live_path, repo_root)
+    else:
+        rel_live = live_path
+
+    nl = chr(10)
+    lines = [
+        "# 🟢 Lagi di: " + str(curr_pos),
+        "",
+        "**Proyek**: [[" + str(proj_link) + "|" + str(proj_name) + "]]  ",
+        "**Yang Saya Minta**: " + str(owner_req) + "  ",
+        "**Progress Terakhir**: " + str(curr_prog) + "  ",
+        "**Hambatan**: " + str(blocker_str) + "  ",
+        "**Berikutnya**: " + str(next_act) + "  ",
+        "",
+        "→ [[" + str(rel_live) + "|Buka Sesi Aktif]]"
+    ]
+    proj_content = nl.join(lines) + nl
+
+    with open(proj_file, "w", encoding="utf-8") as f:
+        f.write(proj_content)
+
+
 def save_active_session(repo_root, session_data):
     render_live_session_markdown(repo_root, session_data)
+    render_active_session_projection(repo_root, session_data)
     state_file = get_state_file(repo_root)
     os.makedirs(os.path.dirname(state_file), exist_ok=True)
     with open(state_file, "w", encoding="utf-8") as f:
@@ -352,8 +419,10 @@ def cmd_event(args, repo_root):
 def cmd_status(args, repo_root):
     active = load_active_session(repo_root)
     if not active:
+        render_active_session_projection(repo_root, None)
         print("ACTIVE_SESSION=NONE")
         return 0
+    render_active_session_projection(repo_root, active)
 
     last_act_dt = datetime.fromisoformat(active["last_activity_at"])
     now_dt = datetime.now(timezone.utc)

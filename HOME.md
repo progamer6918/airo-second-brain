@@ -15,7 +15,7 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 
 ### ▶️ Lanjut Kerja
 
-Belum ada pekerjaan aktif spesifik yang perlu dilanjutkan otomatis.
+![[state/active-session]]
 
 ### 📅 Hari Ini
 
