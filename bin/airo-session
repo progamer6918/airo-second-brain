@@ -88,7 +88,76 @@ def load_active_session(repo_root):
             return None
     return None
 
+
+def render_live_session_markdown(repo_root, session_data):
+    sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
+    proj_name = session_data.get("project_name", session_data.get("project_id", "AIRO Ecosystem"))
+    objective = session_data.get("objective", "Unspecified objective")
+    owner_req = session_data.get("owner_request", "-")
+    curr_pos = session_data.get("position", session_data.get("current_position", "-"))
+    curr_prog = session_data.get("progress", session_data.get("current_progress", "-"))
+    blocker = session_data.get("blocker", "NONE")
+    if isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
+        blocker = ", ".join(session_data["blockers"])
+    next_act = session_data.get("next_action", "-")
+    last_upd = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    events = session_data.get("events", [])
+    latest_evt_summary = "-"
+    if events:
+        latest_evt = events[-1]
+        latest_evt_summary = latest_evt.get("summary", latest_evt.get("event_type", "-"))
+
+    worklog_path_str = session_data.get("planned_closeout_path")
+    if not worklog_path_str:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
+        worklog_dir = os.path.join(repo_root, "worklog", "sessions", date_str, safe_proj)
+        os.makedirs(worklog_dir, exist_ok=True)
+        worklog_path_str = os.path.join(worklog_dir, f"SESSION_{sid[:8]}.md")
+        session_data["planned_closeout_path"] = worklog_path_str
+    else:
+        os.makedirs(os.path.dirname(worklog_path_str), exist_ok=True)
+
+    md_content = f"""# 🧭 AIRO LIVE SESSION STATE: {proj_name}
+
+**Session ID**: `{sid}`  
+**Last Updated**: `{last_upd}`  
+**Status**: `ACTIVE`  
+
+---
+
+### Objective & Intent
+- **Objective**: {objective}
+- **Owner Request**: {owner_req}
+
+### Execution Progress
+- **Current Position**: {curr_pos}
+- **Current Progress**: {curr_prog}
+- **Latest Semantic Event**: {latest_evt_summary}
+
+### Lifecycle Controls
+- **Blocker**: `{blocker}`
+- **Next Action**: {next_act}
+
+---
+
+### Event History ({len(events)} events)
+"""
+    for idx, evt in enumerate(events, 1):
+        e_type = evt.get("event_type", "event")
+        e_sum = evt.get("summary", "")
+        e_ev = evt.get("evidence", "")
+        md_content += f"- **[{e_type.upper()}]** {e_sum}"
+        if e_ev:
+            md_content += f" *(Evidence: `{e_ev}`)*"
+        md_content += "\n"
+
+    with open(worklog_path_str, "w", encoding="utf-8") as f:
+        f.write(md_content)
+
 def save_active_session(repo_root, session_data):
+    render_live_session_markdown(repo_root, session_data)
     state_file = get_state_file(repo_root)
     os.makedirs(os.path.dirname(state_file), exist_ok=True)
     with open(state_file, "w", encoding="utf-8") as f:
@@ -193,6 +262,10 @@ def cmd_start(args, repo_root):
         "objective": args.objective,
         "title": args.title or args.objective,
         "position": args.position or "IN_PROGRESS",
+        "owner_request": getattr(args, "owner_request", None) or "Unspecified owner request",
+        "progress": "Active session started",
+        "blocker": "NONE",
+        "next_action": args.objective,
         "created_at": now_iso,
         "last_activity_at": now_iso,
         "events": [],
@@ -234,6 +307,18 @@ def cmd_event(args, repo_root):
         "evidence": args.evidence or ""
     }
 
+    if getattr(args, "owner_request", None):
+        active["owner_request"] = args.owner_request
+    if getattr(args, "position", None):
+        active["position"] = args.position
+    if getattr(args, "progress", None):
+        active["progress"] = args.progress
+    if getattr(args, "blocker", None):
+        active["blocker"] = args.blocker
+        if args.blocker != "NONE" and args.blocker not in active["blockers"]:
+            active["blockers"].append(args.blocker)
+    if getattr(args, "next_action", None):
+        active["next_action"] = args.next_action
     active["events"].append(evt)
     active["last_activity_at"] = now_iso
     save_active_session(repo_root, active)
@@ -732,11 +817,17 @@ def main():
     p_start.add_argument("--project-name", required=True)
     p_start.add_argument("--objective", required=True)
     p_start.add_argument("--title", default=None)
+    p_start.add_argument("--owner-request", help="Active owner request")
     p_start.add_argument("--position", default=None)
 
     p_event = subparsers.add_parser("event")
     p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])
     p_event.add_argument("--summary", required=True)
+    p_event.add_argument("--owner-request", help="Active owner request")
+    p_event.add_argument("--position", help="Current position")
+    p_event.add_argument("--progress", help="Current progress")
+    p_event.add_argument("--blocker", help="Active blocker")
+    p_event.add_argument("--next-action", help="Next action")
     p_event.add_argument("--evidence", default=None)
 
     p_status = subparsers.add_parser("status")
