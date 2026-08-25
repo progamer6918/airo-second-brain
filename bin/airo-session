@@ -71,7 +71,8 @@ def get_state_dir(repo_root):
     if os.environ.get("AIRO_SESSION_STATE_DIR"):
         return os.environ.get("AIRO_SESSION_STATE_DIR")
     xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
-    repo_hash = hashlib.sha256(repo_root.encode("utf-8")).hexdigest()[:12]
+    canon_root = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain" if "airo-second-brain" in repo_root else repo_root
+    repo_hash = hashlib.sha256(canon_root.encode("utf-8")).hexdigest()[:12]
     path = os.path.join(xdg_state, "airo", "second-brain", repo_hash)
     os.makedirs(path, exist_ok=True)
     return path
