@@ -192,10 +192,7 @@ def render_active_session_projection(repo_root, session_data):
         proj_file = os.path.join(proj_dir, "active-session.md")
 
     if not session_data:
-        content = "# ⚪ Tidak Ada Sesi Aktif
-
-Belum ada pekerjaan aktif yang perlu dilanjutkan.
-"
+        content = "# ⚪ Tidak Ada Sesi Aktif\n\nBelum ada pekerjaan aktif yang perlu dilanjutkan.\n"
         with open(proj_file, "w", encoding="utf-8") as f:
             f.write(content)
         return
