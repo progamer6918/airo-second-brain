@@ -191,11 +191,15 @@ def render_active_session_projection(repo_root, session_data):
         proj_file = os.path.join(proj_dir, "active-session.md")
 
     if not session_data:
-        content = "# ⚪ Tidak Ada Sesi Aktif\n\nBelum ada pekerjaan aktif yang perlu dilanjutkan.\n"
+        content = "# ⚪ Tidak Ada Sesi Aktif
+
+Belum ada pekerjaan aktif yang perlu dilanjutkan.
+"
         with open(proj_file, "w", encoding="utf-8") as f:
             f.write(content)
         return
 
+    sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
     proj_id = session_data.get("project_id", "")
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
     owner_req = session_data.get("owner_request", "-")
@@ -215,6 +219,11 @@ def render_active_session_projection(repo_root, session_data):
     proj_link = _resolve_project_link(proj_id, proj_name, repo_root) or proj_name
 
     live_path = session_data.get("planned_closeout_path", "")
+    if not live_path:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
+        live_path = os.path.join("worklog", "sessions", date_str, safe_proj, f"SESSION_{sid[:8]}.md")
+
     if live_path and repo_root in live_path:
         rel_live = os.path.relpath(live_path, repo_root)
     else:
@@ -236,8 +245,6 @@ def render_active_session_projection(repo_root, session_data):
 
     with open(proj_file, "w", encoding="utf-8") as f:
         f.write(proj_content)
-
-
 def save_active_session(repo_root, session_data):
     render_live_session_markdown(repo_root, session_data)
     render_active_session_projection(repo_root, session_data)
