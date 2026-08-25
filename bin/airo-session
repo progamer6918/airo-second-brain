@@ -218,11 +218,13 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
 
     proj_link = _resolve_project_link(proj_id, proj_name, repo_root) or proj_name
 
-    live_path = session_data.get("planned_closeout_path")
-    if not live_path or live_path == "None":
+    raw_live = session_data.get("planned_closeout_path")
+    if not raw_live or str(raw_live) == "None":
         date_str = datetime.now().strftime("%Y-%m-%d")
         safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
         live_path = os.path.join("worklog", "sessions", date_str, safe_proj, f"SESSION_{sid[:8]}.md")
+    else:
+        live_path = str(raw_live)
 
     if live_path and repo_root in live_path:
         rel_live = os.path.relpath(live_path, repo_root)
