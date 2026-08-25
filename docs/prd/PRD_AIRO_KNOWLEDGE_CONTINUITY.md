@@ -83,3 +83,15 @@ When querying historical or continuity context (e.g. *"pernah bahas X?"*, *"kena
 - Continuity behavior requires loading canonical bootstrap rules (`BOOT.md` & `AGENTS.md`) into context.
 - **Executor Transport Status**: `VALIDATED` (WSL & Antigravity clipboard transport verified with `CLIPBOARD_READBACK=PASS`).
 - **Executor Formal Contract**: Formally defined under `docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md` and `docs/contracts/AIRO_AGENT_ROLE_CONTRACT.md`.
+
+
+## Current V1 Operational Policy (2026-08-25)
+- **Operational Capture**: Automatic & lightweight at every meaningful execution.
+- **Knowledge Promotion**: Selective (PRD / Decision).
+- **Manual Trigger**: Override / failsafe.
+
+
+## Current V1 Operational Policy (2026-08-25)
+- **Operational Capture**: Automatic & lightweight at every meaningful execution.
+- **Knowledge Promotion**: Selective (PRD / Decision).
+- **Manual Trigger**: Override / failsafe.

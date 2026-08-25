@@ -31,3 +31,8 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 - `COPIED_TO_CLIPBOARD=YES`
 - `CLIPBOARD_READBACK=PASS`
 - `CLIPBOARD_CONTENT_HASH=PASS`
+
+
+## Current V1 Operational SOP (2026-08-25)
+- **Cadence**: Operational capture runs automatically at `EVERY_MEANINGFUL_EXECUTION`.
+- **Live Markdown**: Running session state is continuously updated in Obsidian.

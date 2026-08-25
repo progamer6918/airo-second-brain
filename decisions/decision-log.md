@@ -152,3 +152,49 @@ Superseded by:
   - `NEXT_EAB_ACTION`: `NONE`
 - **Authority:** EAB Master Bundle 2026-08-16 R5 Correction Decision.
 - **Status:** APPROVED.
+
+
+### DEC-20260825-01: Semantic State as Primary Knowledge Record
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Raw chat/command/prompt is not the primary AIRO knowledge record; semantic state (owner request, position, progress, blocker, next action) is.
+
+### DEC-20260825-02: Fresh-AI Contextual Readiness Retrieval Target
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Fresh-AI target is contextual readiness via canonical BOOT/retrieval order, not brute-force consumption of 100% ASB.
+
+### DEC-20260825-03: Operational Capture vs Knowledge Promotion Separation
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Operational capture is automatic/lightweight at every meaningful executor boundary; knowledge promotion to DECISION/PRD is selective.
+
+### DEC-20260825-04: Manual Session Capture Command as Failsafe Override
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: 'catat sesi ini ke ASB' is a manual override/failsafe, not the primary operational capture mechanism.
+
+### DEC-20260825-05: Live Obsidian Session Visibility Prior to Close
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Running session state and Owner Request must be human-readable in Obsidian before session close via live markdown rendering.
+
+### DEC-20260825-06: Bidirectional Decision Lifecycle Supersession
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Historical decision retrieval must inspect ACTIVE/SUPERSEDED status and use bidirectional supersession (DEC-YYYYMMDD-NN).
+
+### DEC-20260825-07: Scoped Retrieval Claims for Negative Findings
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Negative historical retrieval claims must state actual search scope rather than unsupported 'tidak pernah dibahas'.
+
+### DEC-20260825-08: V1 Remote Persistence Policy
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: Operational capture local=AUTO; GitHub auto-push per execution=NO; remote durability uses checkpoint/session Git flow.
+
+### DEC-20260825-09: Verified Clipboard Receipt Transport Contract
+- **Date**: 2026-08-25
+- **Status**: `ACTIVE`
+- **Summary**: AIRO executor evidence transport uses final receipt + clipboard readback/hash, not raw terminal output as proof of successful handoff.
