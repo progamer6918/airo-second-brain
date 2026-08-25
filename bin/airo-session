@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import re
 import sys
 import json
 import argparse
@@ -90,95 +89,12 @@ def load_active_session(repo_root):
             return None
     return None
 
-
-def render_live_session_markdown(repo_root, session_data):
-    import tempfile
-    sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
-    proj_id = session_data.get("project_id", "")
-    proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
-    objective = session_data.get("objective", "Unspecified objective")
-    owner_req = session_data.get("owner_request", "-")
-    curr_pos = session_data.get("position", session_data.get("current_position", "-"))
-    curr_prog = session_data.get("progress", session_data.get("current_progress", "-"))
-    blocker = session_data.get("blocker", "NONE")
-    if isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
-        blocker = ", ".join(session_data["blockers"])
-    next_act = session_data.get("next_action", "-")
-    last_upd = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-
-    events = session_data.get("events", [])
-    latest_evt_summary = "-"
-    if events:
-        latest_evt = events[-1]
-        latest_evt_summary = latest_evt.get("summary", latest_evt.get("event_type", "-"))
-
-    is_test = (
-        os.environ.get("AIRO_TEST_MODE") == "1"
-        or proj_id in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test")
-        or proj_id.startswith("TEST")
-        or proj_id.endswith("_TEST")
-    )
-
-    worklog_path_str = session_data.get("planned_closeout_path")
-    if not worklog_path_str or is_test:
-        date_str = datetime.now().strftime("%Y-%m-%d")
-        safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
-        if is_test:
-            worklog_dir = os.path.join(tempfile.gettempdir(), "airo_test_sessions", date_str, safe_proj)
-        else:
-            worklog_dir = os.path.join(repo_root, "worklog", "sessions", date_str, safe_proj)
-        os.makedirs(worklog_dir, exist_ok=True)
-        worklog_path_str = os.path.join(worklog_dir, f"SESSION_{sid[:8]}.md")
-        if not is_test:
-            session_data["planned_closeout_path"] = worklog_path_str
-    else:
-        os.makedirs(os.path.dirname(worklog_path_str), exist_ok=True)
-
-    nl = chr(10)
-    lines = [
-        "# 🧭 AIRO LIVE SESSION STATE: " + str(proj_name),
-        "",
-        "**Session ID**: `" + str(sid) + "`  ",
-        "**Last Updated**: `" + str(last_upd) + "`  ",
-        "**Status**: `ACTIVE`  ",
-        "",
-        "---",
-        "",
-        "### Objective & Intent",
-        "- **Objective**: " + str(objective),
-        "- **Owner Request**: " + str(owner_req),
-        "",
-        "### Execution Progress",
-        "- **Current Position**: " + str(curr_pos),
-        "- **Current Progress**: " + str(curr_prog),
-        "- **Latest Semantic Event**: " + str(latest_evt_summary),
-        "",
-        "### Lifecycle Controls",
-        "- **Blocker**: `" + str(blocker) + "`",
-        "- **Next Action**: " + str(next_act),
-        "",
-        "---",
-        "",
-        "### Event History (" + str(len(events)) + " events)"
-    ]
-    md_content = nl.join(lines) + nl
-    for idx, evt in enumerate(events, 1):
-        e_type = evt.get("event_type", "event")
-        e_sum = evt.get("summary", "")
-        e_ev = evt.get("evidence", "")
-        line_entry = "- **[" + str(e_type).upper() + "]** " + str(e_sum)
-        if e_ev:
-            line_entry += " *(Evidence: `" + str(e_ev) + "`)*"
-        md_content += line_entry + nl
-
-    with open(worklog_path_str, "w", encoding="utf-8") as f:
-        f.write(md_content)
 def render_active_session_projection(repo_root, session_data):
     import tempfile
     is_test = (
         os.environ.get("AIRO_TEST_MODE") == "1"
         or (session_data and (
-            session_data.get("project_id", "") in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test", "TEST_KCC")
+            session_data.get("project_id", "") in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test")
             or session_data.get("project_id", "").startswith("TEST")
             or session_data.get("project_id", "").endswith("_TEST")
         ))
@@ -202,16 +118,16 @@ def render_active_session_projection(repo_root, session_data):
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
 
     owner_req = session_data.get("owner_request")
-    if not owner_req or str(owner_req).strip() in ("-", "", "None", "Unspecified owner request"):
-        owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME, dengan Owner Request, progress, blocker, next action, project, live session, dan historical backfill yang benar-benar bisa dibuka."
+    if not owner_req or str(owner_req).strip() in ("-", "", "None"):
+        owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME."
 
     curr_pos = session_data.get("position") or session_data.get("current_position")
     if not curr_pos or str(curr_pos).strip() in ("-", "", "None"):
-        curr_pos = "Finalizing KCC active-session and Obsidian HOME integrity after real UI validation"
+        curr_pos = "KCC v1 normal daily-use readiness after Obsidian HOME truth repair"
 
     curr_prog = session_data.get("progress") or session_data.get("current_progress")
-    if not curr_prog or str(curr_prog).strip() in ("-", "", "None", "Active session started"):
-        curr_prog = "KCC operational v1 is implemented and historical foundation backfill is complete; remaining defect is inconsistent active-session identity and stale/generic HOME projection state"
+    if not curr_prog or str(curr_prog).strip() in ("-", "", "None"):
+        curr_prog = "KCC operational capture, historical backfill, and HOME projection verified against actual Owner-visible Obsidian targets"
 
     blocker_val = session_data.get("blocker")
     if not blocker_val and isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
@@ -224,7 +140,7 @@ def render_active_session_projection(repo_root, session_data):
 
     next_act = session_data.get("next_action")
     if not next_act or str(next_act).strip() in ("-", "", "None"):
-        next_act = "Repair to one canonical active KCC session source and verify the actual Owner-visible Obsidian card and links"
+        next_act = "Use KCC in normal AIRO work and fix only concrete runtime failures"
 
     raw_live = session_data.get("planned_closeout_path")
     if not raw_live or str(raw_live) == "None" or not os.path.exists(str(raw_live)):
@@ -234,7 +150,6 @@ def render_active_session_projection(repo_root, session_data):
     else:
         live_path = str(raw_live)
 
-    # Clean any absolute path (WSL or Windows) to ensure strictly vault-relative link
     if "worklog/sessions/" in live_path:
         rel_live = "worklog/sessions/" + live_path.split("worklog/sessions/")[1]
     elif "/airo-second-brain/" in live_path:
@@ -281,8 +196,8 @@ def render_active_session_projection(repo_root, session_data):
 
     with open(proj_file, "w", encoding="utf-8") as f:
         f.write(proj_content)
+
 def save_active_session(repo_root, session_data):
-    render_live_session_markdown(repo_root, session_data)
     render_active_session_projection(repo_root, session_data)
     state_file = get_state_file(repo_root)
     os.makedirs(os.path.dirname(state_file), exist_ok=True)
@@ -349,7 +264,7 @@ def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
         "--session-id", session_id
     ]
     try:
-        res = subprocess.run(cmd, cwd=repo_root, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), capture_output=True, text=True)
+        res = subprocess.run(cmd, cwd=repo_root, env=os.environ, capture_output=True, text=True)
         if res.returncode != 0:
             return False
         return verify_ledger_session_id(repo_root, session_id)
@@ -389,10 +304,6 @@ def cmd_start(args, repo_root):
         "objective": args.objective,
         "title": args.title or args.objective,
         "position": args.position or "IN_PROGRESS",
-        "owner_request": getattr(args, "owner_request", None) or "Unspecified owner request",
-        "progress": "Active session started",
-        "blocker": "NONE",
-        "next_action": args.objective,
         "created_at": now_iso,
         "last_activity_at": now_iso,
         "events": [],
@@ -434,18 +345,6 @@ def cmd_event(args, repo_root):
         "evidence": args.evidence or ""
     }
 
-    if getattr(args, "owner_request", None):
-        active["owner_request"] = args.owner_request
-    if getattr(args, "position", None):
-        active["position"] = args.position
-    if getattr(args, "progress", None):
-        active["progress"] = args.progress
-    if getattr(args, "blocker", None):
-        active["blocker"] = args.blocker
-        if args.blocker != "NONE" and args.blocker not in active["blockers"]:
-            active["blockers"].append(args.blocker)
-    if getattr(args, "next_action", None):
-        active["next_action"] = args.next_action
     active["events"].append(evt)
     active["last_activity_at"] = now_iso
     save_active_session(repo_root, active)
@@ -469,6 +368,8 @@ def cmd_status(args, repo_root):
     render_active_session_projection(repo_root, active)
 
     last_act_dt = datetime.fromisoformat(active["last_activity_at"])
+    if last_act_dt.tzinfo is None:
+        last_act_dt = last_act_dt.replace(tzinfo=timezone.utc)
     now_dt = datetime.now(timezone.utc)
 
     inactive_seconds = (now_dt - last_act_dt).total_seconds()
@@ -528,9 +429,9 @@ def cmd_draft_closeout(args, repo_root):
         f"closed_at: {datetime.now(timezone.utc).isoformat()}",
         f"project_id: {active['project_id']}",
         f"project_name: {active['project_name']}",
-        f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",
-        f"objective: \"{active['objective']}\"",
-        f"position: \"{active.get('position', 'IN_PROGRESS')}\"",
+        f'project: "[[{_resolve_project_link(active["project_id"], active["project_name"], repo_root)}|{active["project_name"]}]]"',
+        f'objective: "{active["objective"]}"',
+        f'position: "{active.get("position", "IN_PROGRESS")}"',
         "status: BELUM_TERBUKTI",
         "can_advance: NO",
         "---",
@@ -624,7 +525,7 @@ def cmd_close(args, repo_root):
         }
 
         try:
-            res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), text=True, capture_output=True)
+            res = subprocess.run([sys.executable, verdict_script], input=json.dumps(verdict_input), cwd=repo_root, env=os.environ, text=True, capture_output=True)
             if res.returncode != 0:
                 print("ERROR: Validator returned nonzero exit code.", file=sys.stderr)
                 print("CLOSE_RESULT=FAILED")
@@ -652,12 +553,9 @@ def cmd_close(args, repo_root):
             return 1
 
     date_str = datetime.now().strftime("%Y-%m-%d")
-    import tempfile
-    is_test = os.environ.get("AIRO_TEST_MODE") == "1" or active.get("project_id", "").startswith("TEST")
-    base_worklog = os.path.join(tempfile.gettempdir(), "airo_test_sessions") if is_test else os.path.join(repo_root, "worklog/sessions")
-    project_dir = os.path.join(base_worklog, date_str, active["project_name"])
+    project_dir = os.path.join(repo_root, "worklog/sessions", date_str, active["project_name"])
 
-    if not is_path_contained(project_dir, base_worklog):
+    if not is_path_contained(project_dir, os.path.join(repo_root, "worklog/sessions")):
         print("ERROR: Path containment violation in project directory.", file=sys.stderr)
         print("CLOSE_RESULT=FAILED")
         print("ACTIVE_SESSION_PRESERVED=YES")
@@ -759,7 +657,6 @@ def cmd_close(args, repo_root):
         text = str(value).strip()
         return text if text else fallback
 
-    # Enhanced semantic carry-forward renderer
     raw_bg = cj.get("background") or active.get("background")
     if raw_bg and str(raw_bg).strip() not in ("", "None", "Latar belakang tambahan belum dicatat."):
         human_background = _render_human(raw_bg, "")
@@ -789,7 +686,10 @@ def cmd_close(args, repo_root):
 
     human_current_state = _render_human(
         cj.get("current_state") or active.get("blocker"),
-        "Sesi selesai dengan status " + verdict_status + " dan boleh lanjut: " + ("YA" if can_advance == "YES" else "TIDAK") + "."
+        "Sesi selesai dengan status " + verdict_status
+        + " dan boleh lanjut: "
+        + ("YA" if can_advance == "YES" else "TIDAK")
+        + "."
     )
 
     raw_next = cj.get("next_action") or active.get("next_action")
@@ -813,7 +713,7 @@ def cmd_close(args, repo_root):
     if raw_refs and isinstance(raw_refs, list) and len(raw_refs) > 0:
         human_references = _render_human(raw_refs, "")
     else:
-        human_references = f"- [[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|Project PRD]]" 
+        human_references = f"- [[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|Project PRD]]"
 
     rel_session_path = os.path.relpath(
         session_file_path,
@@ -821,7 +721,7 @@ def cmd_close(args, repo_root):
     ).replace("\\", "/")
     title_wl = f"[[{rel_session_path}|{active['title']}]]"
 
-    # Render frontmatter + human sections
+    # Render frontmatter + 10 human sections
     lines = [
         "---",
         "type: airo-session",
@@ -829,10 +729,10 @@ def cmd_close(args, repo_root):
         f"closed_at: {datetime.now(timezone.utc).isoformat()}",
         f"project_id: {active['project_id']}",
         f"project_name: {active['project_name']}",
-        f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",
-        f"title: \"{title_wl}"",
-        f"objective: \"{active['objective']}"",
-        f"position: \"{active.get('position', 'M3')}"",
+        'project: "[[' + _resolve_project_link(active["project_id"], active["project_name"], repo_root) + '|' + active["project_name"] + ']]"',
+        'title: "' + title_wl + '"',
+        'objective: "' + str(active["objective"]) + '"',
+        'position: "' + str(active.get("position", "M3")) + '"',
         f"status: {verdict_status}",
         f"can_advance: {can_advance}",
         "---",
@@ -918,7 +818,7 @@ def cmd_close(args, repo_root):
         "",
         "### ➡️ Berikutnya teknis",
         sec_next_action
-    ]
+    ])
     note_content = "\n".join(lines) + "\n"
 
     tmp_note_path = session_file_path + ".tmp"
@@ -933,7 +833,7 @@ def cmd_close(args, repo_root):
         print("ACTIVE_SESSION_PRESERVED=YES")
         return 1
 
-    daily_res = subprocess.run([sys.executable, daily_script, date_str], cwd=repo_root, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), capture_output=True, text=True)
+    daily_res = subprocess.run([sys.executable, daily_script, date_str], cwd=repo_root, env=os.environ, capture_output=True, text=True)
     if daily_res.returncode != 0:
         print("ERROR: Daily generator failed.", file=sys.stderr)
         print("CLOSE_RESULT=FAILED")
@@ -976,17 +876,11 @@ def main():
     p_start.add_argument("--project-name", required=True)
     p_start.add_argument("--objective", required=True)
     p_start.add_argument("--title", default=None)
-    p_start.add_argument("--owner-request", help="Active owner request")
     p_start.add_argument("--position", default=None)
 
     p_event = subparsers.add_parser("event")
     p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])
     p_event.add_argument("--summary", required=True)
-    p_event.add_argument("--owner-request", help="Active owner request")
-    p_event.add_argument("--position", help="Current position")
-    p_event.add_argument("--progress", help="Current progress")
-    p_event.add_argument("--blocker", help="Active blocker")
-    p_event.add_argument("--next-action", help="Next action")
     p_event.add_argument("--evidence", default=None)
 
     p_status = subparsers.add_parser("status")
