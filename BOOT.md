@@ -172,6 +172,7 @@ For every remote mutation attempt:
    tested-resource count, cleanup count, and final remote parity.
 
 ## Operating Protocol Pointers
+- Global PR / Deferred Work Contract: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md#6-deferred-work--pr-lifecycle-contract)
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
 - Chat-Stability Protocol Pointer: [`state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`](state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md)

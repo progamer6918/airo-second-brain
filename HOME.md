@@ -17,6 +17,10 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 
 ![[state/active-session]]
 
+### 📌 PR / Mau Dikerjain
+
+![[state/deferred-work]]
+
 ### 📅 Hari Ini
 
 ![[worklog/views/AIRO Worklog.base#Hari Ini]]

@@ -59,3 +59,19 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 8. **New Maintenance Objective Boundary**: If a concrete defect is discovered AFTER the original objective was legitimately completed and closed, one NEW maintenance objective/session may be opened. All diagnosis, repair, regression, and verifier work for THAT defect remains inside that single maintenance session.
 9. **Synthetic Test Event Promotion**: Synthetic/test outcomes are evidence/events belonging to the owning production session. Synthetic session notes are not promoted into human worklogs.
 10. **Non-Session Boundaries**: Chat boundary, command boundary, executor boundary, and verifier boundary are NOT production session boundaries.
+---
+
+## 6. DEFERRED WORK / PR LIFECYCLE CONTRACT
+
+1. **PR Definition**: A PR (Pekerjaan Rumah) is an actionable piece of work intentionally deferred for future execution.
+2. **Exclusions**: A PR is NOT an idea, brainstorming possibility, generic recommendation, informational observation, or vague someday thought.
+3. **Owner Explicit Deferral**: Direct Owner explicit deferrals or commitments ("nanti kerjain ini", "masukin PR", "next aja", "ini jangan lupa", "buat todo") MUST generate a PR.
+4. **Conservative AI Capture**: AI may capture a PR without explicit user prompt ONLY when current discussion establishes a concrete future work commitment or explicit deferral. AI wording must be conservative and factual.
+5. **Ambiguity Guard**: If intent is ambiguous or speculative, do NOT create a PR automatically. Ask Owner if clarification is needed.
+6. **Deduplication Check**: Before creating a PR, inspect current open PRs in `state/deferred-work.json` to prevent obvious duplicate entries.
+7. **Creation Timestamp**: Every PR MUST record a single `created_at` date (ISO YYYY-MM-DD) which is set once at creation and never reset upon priority or text updates.
+8. **No Silent Session Creation**: A PR does NOT create a production session merely by existing.
+9. **Start-Work Transition**: When work on a PR begins, its status transitions `TODO` → `ACTIVE`. It disappears from the HOME PR projection (which displays `TODO` items only) as the owning production session starts/continues.
+10. **Completion**: Upon successful objective completion, the PR is marked `DONE` and removed from the active view as durable session history records its completion.
+11. **Selective Closeout Promotion**: Session closeout creates a new PR only selectively when `next_action` describes concrete, actionable deferred work. Generic operational postures ("Use normally", "Monitor", "No further action") MUST NOT generate a PR.
+12. **Git Policy**: PR register updates follow normal ASB checkpoint Git policy. No dedicated auto-push-per-PR behavior is required.

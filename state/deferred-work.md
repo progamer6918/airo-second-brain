@@ -1,0 +1,1 @@
+- 🟡 **ASB Global** — Standardize continuity entrypoints for existing ASB projects *(25 Aug 2026)*

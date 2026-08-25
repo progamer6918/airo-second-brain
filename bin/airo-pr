@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""
+bin/airo-pr
+Canonical CLI and helper engine for AIRO Global Deferred Work (PR Register).
+"""
+
+import sys
+import os
+import json
+import argparse
+from datetime import datetime, timezone
+from pathlib import Path
+
+def get_repo_root():
+    script_dir = Path(__file__).resolve().parent
+    return script_dir.parent
+
+def get_authority_path(repo_root):
+    state_dir = os.environ.get("AIRO_SESSION_STATE_DIR")
+    if state_dir:
+        return Path(state_dir) / "deferred-work.json"
+    return repo_root / "state/deferred-work.json"
+
+def get_projection_path(repo_root):
+    state_dir = os.environ.get("AIRO_SESSION_STATE_DIR")
+    if state_dir:
+        return Path(state_dir) / "deferred-work.md"
+    return repo_root / "state/deferred-work.md"
+
+def load_pr_data(auth_path):
+    if not auth_path.exists():
+        return {"version": 1, "prs": []}
+    try:
+        with open(auth_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"version": 1, "prs": []}
+
+def save_pr_data(auth_path, data):
+    auth_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(auth_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+def format_friendly_date(date_str):
+    try:
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        return dt.strftime("%d %b %Y")
+    except Exception:
+        return date_str
+
+def render_projection(repo_root, data):
+    proj_path = get_projection_path(repo_root)
+    todo_items = [p for p in data.get("prs", []) if p.get("status") == "TODO"]
+
+    priority_map = {"IMPORTANT": 1, "NORMAL": 2, "SOMEDAY": 3}
+    icon_map = {"IMPORTANT": "🔴", "NORMAL": "🟡", "SOMEDAY": "⚪"}
+
+    todo_items.sort(key=lambda x: (priority_map.get(x.get("priority", "NORMAL"), 99), x.get("created_at", "")))
+
+    proj_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not todo_items:
+        content = "Belum ada PR yang menunggu dikerjakan.\n"
+    else:
+        lines = []
+        for item in todo_items:
+            prio = item.get("priority", "NORMAL")
+            icon = icon_map.get(prio, "🟡")
+            proj = item.get("project", "Global")
+            summary = item.get("summary", "")
+            date_fmt = format_friendly_date(item.get("created_at", ""))
+            lines.append(f"- {icon} **{proj}** — {summary} *({date_fmt})*")
+        content = "\n".join(lines) + "\n"
+
+    with open(proj_path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    win_proj = Path("/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain/state/deferred-work.md")
+    if win_proj.parent.exists() and proj_path != win_proj:
+        try:
+            with open(win_proj, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception:
+            pass
+
+def cmd_add(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+
+    prs = data.get("prs", [])
+    next_num = len(prs) + 1
+    pr_id = f"PR-{next_num:03d}"
+
+    now_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    created_at = args.created_at or now_date
+
+    item = {
+        "id": pr_id,
+        "summary": args.summary,
+        "project": args.project or "Global",
+        "priority": args.priority.upper(),
+        "created_at": created_at,
+        "source": args.source.upper(),
+        "status": "TODO"
+    }
+    if args.description:
+        item["description"] = args.description
+
+    prs.append(item)
+    data["prs"] = prs
+    save_pr_data(auth_path, data)
+    render_projection(repo_root, data)
+
+    print(f"PR_ADDED=YES")
+    print(f"PR_ID={pr_id}")
+    return 0
+
+def cmd_start(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+
+    prs = data.get("prs", [])
+    target = None
+    for p in prs:
+        if p.get("id") == args.id or p.get("summary") == args.id:
+            target = p
+            break
+
+    if not target:
+        print(f"ERROR: PR '{args.id}' not found.", file=sys.stderr)
+        return 1
+
+    target["status"] = "ACTIVE"
+    data["prs"] = prs
+    save_pr_data(auth_path, data)
+    render_projection(repo_root, data)
+
+    print(f"PR_STATUS_UPDATED=YES")
+    print(f"PR_ID={target['id']}")
+    print(f"PR_NEW_STATUS=ACTIVE")
+    return 0
+
+def cmd_complete(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+
+    prs = data.get("prs", [])
+    target = None
+    for p in prs:
+        if p.get("id") == args.id:
+            target = p
+            break
+
+    if not target:
+        print(f"ERROR: PR '{args.id}' not found.", file=sys.stderr)
+        return 1
+
+    target["status"] = "DONE"
+    target["completed_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    data["prs"] = prs
+    save_pr_data(auth_path, data)
+    render_projection(repo_root, data)
+
+    print(f"PR_STATUS_UPDATED=YES")
+    print(f"PR_ID={target['id']}")
+    print(f"PR_NEW_STATUS=DONE")
+    return 0
+
+def cmd_render(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+    render_projection(repo_root, data)
+    print("PR_PROJECTION_RENDERED=YES")
+    return 0
+
+def main():
+    repo_root = get_repo_root()
+    parser = argparse.ArgumentParser(description="AIRO Global PR Manager")
+    subparsers = parser.add_subparsers(dest="command")
+
+    add_p = subparsers.add_parser("add")
+    add_p.add_argument("--summary", required=True)
+    add_p.add_argument("--project", default="Global")
+    add_p.add_argument("--priority", choices=["IMPORTANT", "NORMAL", "SOMEDAY"], default="NORMAL")
+    add_p.add_argument("--source", choices=["OWNER", "AI_CAPTURED", "SESSION_CLOSEOUT"], default="AI_CAPTURED")
+    add_p.add_argument("--created-at")
+    add_p.add_argument("--description")
+
+    start_p = subparsers.add_parser("start")
+    start_p.add_argument("--id", required=True)
+
+    comp_p = subparsers.add_parser("complete")
+    comp_p.add_argument("--id", required=True)
+
+    subparsers.add_parser("render")
+
+    args = parser.parse_args()
+    if args.command == "add":
+        sys.exit(cmd_add(args, repo_root))
+    elif args.command == "start":
+        sys.exit(cmd_start(args, repo_root))
+    elif args.command == "complete":
+        sys.exit(cmd_complete(args, repo_root))
+    elif args.command == "render":
+        sys.exit(cmd_render(args, repo_root))
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
