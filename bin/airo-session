@@ -91,8 +91,10 @@ def load_active_session(repo_root):
 
 
 def render_live_session_markdown(repo_root, session_data):
+    import tempfile
     sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
-    proj_name = session_data.get("project_name", session_data.get("project_id", "AIRO Ecosystem"))
+    proj_id = session_data.get("project_id", "")
+    proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
     objective = session_data.get("objective", "Unspecified objective")
     owner_req = session_data.get("owner_request", "-")
     curr_pos = session_data.get("position", session_data.get("current_position", "-"))
@@ -109,54 +111,67 @@ def render_live_session_markdown(repo_root, session_data):
         latest_evt = events[-1]
         latest_evt_summary = latest_evt.get("summary", latest_evt.get("event_type", "-"))
 
+    is_test = (
+        os.environ.get("AIRO_TEST_MODE") == "1"
+        or proj_id in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test")
+        or proj_id.startswith("TEST")
+        or proj_id.endswith("_TEST")
+    )
+
     worklog_path_str = session_data.get("planned_closeout_path")
-    if not worklog_path_str:
+    if not worklog_path_str or is_test:
         date_str = datetime.now().strftime("%Y-%m-%d")
         safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
-        worklog_dir = os.path.join(repo_root, "worklog", "sessions", date_str, safe_proj)
+        if is_test:
+            worklog_dir = os.path.join(tempfile.gettempdir(), "airo_test_sessions", date_str, safe_proj)
+        else:
+            worklog_dir = os.path.join(repo_root, "worklog", "sessions", date_str, safe_proj)
         os.makedirs(worklog_dir, exist_ok=True)
         worklog_path_str = os.path.join(worklog_dir, f"SESSION_{sid[:8]}.md")
-        session_data["planned_closeout_path"] = worklog_path_str
+        if not is_test:
+            session_data["planned_closeout_path"] = worklog_path_str
     else:
         os.makedirs(os.path.dirname(worklog_path_str), exist_ok=True)
 
-    md_content = f"""# 🧭 AIRO LIVE SESSION STATE: {proj_name}
-
-**Session ID**: `{sid}`  
-**Last Updated**: `{last_upd}`  
-**Status**: `ACTIVE`  
-
----
-
-### Objective & Intent
-- **Objective**: {objective}
-- **Owner Request**: {owner_req}
-
-### Execution Progress
-- **Current Position**: {curr_pos}
-- **Current Progress**: {curr_prog}
-- **Latest Semantic Event**: {latest_evt_summary}
-
-### Lifecycle Controls
-- **Blocker**: `{blocker}`
-- **Next Action**: {next_act}
-
----
-
-### Event History ({len(events)} events)
-"""
+    nl = chr(10)
+    lines = [
+        "# 🧭 AIRO LIVE SESSION STATE: " + str(proj_name),
+        "",
+        "**Session ID**: `" + str(sid) + "`  ",
+        "**Last Updated**: `" + str(last_upd) + "`  ",
+        "**Status**: `ACTIVE`  ",
+        "",
+        "---",
+        "",
+        "### Objective & Intent",
+        "- **Objective**: " + str(objective),
+        "- **Owner Request**: " + str(owner_req),
+        "",
+        "### Execution Progress",
+        "- **Current Position**: " + str(curr_pos),
+        "- **Current Progress**: " + str(curr_prog),
+        "- **Latest Semantic Event**: " + str(latest_evt_summary),
+        "",
+        "### Lifecycle Controls",
+        "- **Blocker**: `" + str(blocker) + "`",
+        "- **Next Action**: " + str(next_act),
+        "",
+        "---",
+        "",
+        "### Event History (" + str(len(events)) + " events)"
+    ]
+    md_content = nl.join(lines) + nl
     for idx, evt in enumerate(events, 1):
         e_type = evt.get("event_type", "event")
         e_sum = evt.get("summary", "")
         e_ev = evt.get("evidence", "")
-        md_content += f"- **[{e_type.upper()}]** {e_sum}"
+        line_entry = "- **[" + str(e_type).upper() + "]** " + str(e_sum)
         if e_ev:
-            md_content += f" *(Evidence: `{e_ev}`)*"
-        md_content += "\n"
+            line_entry += " *(Evidence: `" + str(e_ev) + "`)*"
+        md_content += line_entry + nl
 
     with open(worklog_path_str, "w", encoding="utf-8") as f:
         f.write(md_content)
-
 def save_active_session(repo_root, session_data):
     render_live_session_markdown(repo_root, session_data)
     state_file = get_state_file(repo_root)
