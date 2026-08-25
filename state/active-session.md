@@ -1,7 +1,7 @@
 ### 🟢 AIRO Second Brain
 
 **Lagi di**
-KCC / Event Capture Integrity
+KCC / Final Canonical Persistence
 
 **Yang Saya Minta**
 Active session harus terlihat human-friendly langsung dari Obsidian HOME.
