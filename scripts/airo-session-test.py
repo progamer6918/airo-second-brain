@@ -50,9 +50,9 @@ def run_test_suite():
     env["AIRO_REPO_ROOT"] = tmp_repo
 
     passed = 0
-    total = 37
+    total = 44
 
-    print("Running 30 AIRO session & worklog test cases...")
+    print("Running 44 AIRO session & worklog test cases...")
 
     state_file = os.path.join(tmp_state, "active_session.json")
 
@@ -280,8 +280,8 @@ def run_test_suite():
         with open(sample_file, "r", encoding="utf-8") as f:
             stxt = f.read()
         req_sections = [
-            "## 🧭 AIRO STATUS", "## 🎯 Tujuan sesi", "## 🛠 Yang dilakukan",
-            "## 📌 Hasil", "## 🧪 Bukti", "## ⛔ Masalah / hambatan",
+            "## 🧭 AIRO STATUS", "## 🎯 Tujuan Sesi", "## 🛠 Yang dikerjakan",
+            "## 📌 Hasil", "## 🧪 Bukti", "## ⛔ Masalah / Hambatan",
             "## ✅ Keputusan", "## 📁 Yang berubah", "## 📝 Yang belum selesai", "## ➡️ Berikutnya"
         ]
         if all(sec in stxt for sec in req_sections):
@@ -403,7 +403,7 @@ def run_test_suite():
     # T28: close retry uses same path and creates no duplicate
     with open(state_file, "r") as f:
         planned_path_28 = json.load(f).get("planned_closeout_path")
-    res28 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close"], env=env, cwd=tmp_repo, capture_output=True, text=True)
+    res28 = subprocess.run([sys.executable, os.path.join(tmp_repo, "bin/airo-session"), "close", "--required-evidence", '["E1"]', "--actual-evidence", '["E1"]'], env=env, cwd=tmp_repo, capture_output=True, text=True)
     final_path_28 = res28.stdout.split("PERMANENT_SESSION_NOTE=")[-1].splitlines()[0] if "PERMANENT_SESSION_NOTE=" in res28.stdout else ""
     if planned_path_28 == final_path_28 and os.path.exists(final_path_28):
         print("  [PASS] T28: Close retry uses same path without duplicate creation (CLOSE_RETRY_IDEMPOTENT=PASS)")
@@ -561,6 +561,109 @@ def run_test_suite():
         passed += 1
     else:
         print("  [FAIL] T37: closed_at emission failed")
+
+    # T38: Session start produces exactly 1 session-start ledger checkpoint
+    tmp_repo_38 = os.path.join(tmp_dir, "repo_38")
+    shutil.copytree(tmp_repo, tmp_repo_38, ignore=shutil.ignore_patterns(".git", "worklog", "state", "events", "logs"))
+    os.makedirs(os.path.join(tmp_repo_38, "state"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_repo_38, "events/raw"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_repo_38, "logs"), exist_ok=True)
+    env_38 = dict(os.environ, HOME=tmp_dir, AIRO_SESSION_ID="", AIRO_SESSION_STATE_DIR=os.path.join(tmp_repo_38, "state"))
+    events_file_38 = os.path.join(tmp_repo_38, "events/raw/events.ndjson")
+    lines_before_38 = len(open(events_file_38).readlines()) if os.path.exists(events_file_38) else 0
+    res38 = subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "start", "--project-id", "ASB_38", "--project-name", "ASB 38", "--objective", "Obj 38"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_38 = len(open(events_file_38).readlines()) if os.path.exists(events_file_38) else 0
+    active_sf = os.path.join(tmp_repo_38, "state/active_session.json")
+    s38 = json.load(open(active_sf)) if os.path.exists(active_sf) else {}
+    if "SESSION_ACTION=STARTED" in res38.stdout and (lines_after_38 - lines_before_38 == 1) and len(s38.get("events", [])) == 0:
+        print("  [PASS] T38: Session start produces exactly 1 ledger checkpoint (SESSION_START_SINGLE_WRITE=PASS)")
+        passed += 1
+    else:
+        print(f"  [FAIL] T38: Session start single write failed (out={res38.stdout.strip()}, err={res38.stderr.strip()})")
+
+    # T39: airo-session event single write (ACTIVE_SESSION_EVENT_DELTA=1, LEDGER_EVENT_DELTA=1)
+    sess_evts_before_39 = len(s38.get("events", []))
+    lines_before_39 = len(open(events_file_38).readlines())
+    res39 = subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "event", "--event-type", "validation", "--summary", "Single write event test"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_39 = len(open(events_file_38).readlines())
+    with open(os.path.join(tmp_repo_38, "state/active_session.json")) as sf: s39 = json.load(sf)
+    sess_evts_after_39 = len(s39.get("events", []))
+    if "EVENT_RECORDED=YES" in res39.stdout and (sess_evts_after_39 - sess_evts_before_39 == 1) and (lines_after_39 - lines_before_39 == 1):
+        print("  [PASS] T39: airo-session event produces exactly 1 active event & 1 ledger record (SESSION_EVENT_SINGLE_WRITE=PASS)")
+        passed += 1
+    else:
+        print(f"  [FAIL] T39: airo-session event single write failed (sess_delta={sess_evts_after_39 - sess_evts_before_39}, ledger_delta={lines_after_39 - lines_before_39})")
+
+    # T40: Direct scripts/airo-capture with active session (ACTIVE_SESSION_EVENT_DELTA=1, LEDGER_EVENT_DELTA=1)
+    sess_evts_before_40 = len(s39.get("events", []))
+    lines_before_40 = len(open(events_file_38).readlines())
+    res40 = subprocess.run([sys.executable, os.path.join(tmp_repo_38, "scripts/airo-capture"), "--event", "checkpoint", "--summary", "Direct capture active session test"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_40 = len(open(events_file_38).readlines())
+    with open(os.path.join(tmp_repo_38, "state/active_session.json")) as sf: s40 = json.load(sf)
+    sess_evts_after_40 = len(s40.get("events", []))
+    if res40.returncode == 0 and (sess_evts_after_40 - sess_evts_before_40 == 1) and (lines_after_40 - lines_before_40 == 1):
+        print("  [PASS] T40: Direct airo-capture with active session delegates cleanly (DIRECT_CAPTURE_SINGLE_WRITE=PASS)")
+        passed += 1
+    else:
+        print(f"  [FAIL] T40: Direct airo-capture single write failed (sess_delta={sess_evts_after_40 - sess_evts_before_40}, ledger_delta={lines_after_40 - lines_before_40})")
+
+    # T41: Extended semantic fields propagation
+    res41 = subprocess.run([
+        sys.executable, os.path.join(tmp_repo_38, "scripts/airo-capture"),
+        "--event", "validation", "--summary", "Extended metadata test",
+        "--phase", "POST_EXECUTION", "--owner-request", "Test request",
+        "--position", "Test Position", "--progress", "50%", "--blocker", "None",
+        "--next-action", "Next step", "--evidence", "docs/test.md"
+    ], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    with open(events_file_38) as ef38: last_ledger_line = json.loads(ef38.readlines()[-1])
+    with open(os.path.join(tmp_repo_38, "state/active_session.json")) as sf: s41 = json.load(sf)
+    last_sess_evt = s41.get("events", [])[-1]
+    t41_pass = (
+        last_ledger_line.get("phase") == "POST_EXECUTION" and
+        last_ledger_line.get("owner_request") == "Test request" and
+        last_ledger_line.get("position") == "Test Position" and
+        last_sess_evt.get("phase") == "POST_EXECUTION" and
+        s41.get("position") == "Test Position"
+    )
+    if t41_pass:
+        print("  [PASS] T41: Extended semantic metadata propagated correctly (EXTENDED_SEMANTIC_PROPAGATION=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T41: Extended metadata propagation failed")
+
+    # T42: Standalone capture when no session active
+    subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "close"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_before_42 = len(open(events_file_38).readlines())
+    res42 = subprocess.run([sys.executable, os.path.join(tmp_repo_38, "scripts/airo-capture"), "--event", "checkpoint", "--summary", "Standalone capture test"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_42 = len(open(events_file_38).readlines())
+    if res42.returncode == 0 and (lines_after_42 - lines_before_42 == 1):
+        print("  [PASS] T42: Standalone capture appends exactly 1 ledger record when no active session (STANDALONE_CAPTURE=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T42: Standalone capture failed")
+
+    # T43: Recursion guard & no double-write
+    subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "start", "--project-id", "ASB_43", "--project-name", "ASB 43", "--objective", "Obj 43"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_before_43 = len(open(events_file_38).readlines())
+    res43 = subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "event", "--event-type", "validation", "--summary", "Recursion test"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_43 = len(open(events_file_38).readlines())
+    if res43.returncode == 0 and (lines_after_43 - lines_before_43 == 1):
+        print("  [PASS] T43: Recursion guard prevents loop & double write (NO_RECURSIVE_DOUBLE_WRITE=PASS)")
+        passed += 1
+    else:
+        print("  [FAIL] T43: Recursion guard test failed")
+
+    # T44: Repeated explicit calls with identical summary produce 2 separate events
+    lines_before_44 = len(open(events_file_38).readlines())
+    subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "event", "--event-type", "validation", "--summary", "Identical summary text"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    subprocess.run([sys.executable, os.path.join(tmp_repo_38, "bin/airo-session"), "event", "--event-type", "validation", "--summary", "Identical summary text"], env=env_38, cwd=tmp_repo_38, capture_output=True, text=True)
+    lines_after_44 = len(open(events_file_38).readlines())
+    if lines_after_44 - lines_before_44 == 2:
+        print("  [PASS] T44: Repeated explicit invocations produce separate events (GENUINE_REPEAT_CALLS_PRESERVED=PASS)")
+        passed += 1
+    else:
+        print(f"  [FAIL] T44: Repeated calls test failed (delta={lines_after_44 - lines_before_44})")
+
 
     # Cleanup temp
 

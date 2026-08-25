@@ -338,7 +338,7 @@ def _resolve_project_link(project_id, project_name, repo_root):
     return "control/" + project_name.lower().replace(" ", "-")
 
 
-def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
+def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary, evidence=None, phase=None, owner_request=None, position=None, progress=None, blocker=None, next_action=None):
     capture_script = os.path.join(repo_root, "scripts/airo-capture")
     if not os.path.exists(capture_script):
         return False
@@ -349,8 +349,17 @@ def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary):
         "--project", project_id,
         "--session-id", session_id
     ]
+    if evidence: cmd.extend(["--evidence", evidence])
+    if phase: cmd.extend(["--phase", phase])
+    if owner_request: cmd.extend(["--owner-request", owner_request])
+    if position: cmd.extend(["--position", position])
+    if progress: cmd.extend(["--progress", progress])
+    if blocker: cmd.extend(["--blocker", blocker])
+    if next_action: cmd.extend(["--next-action", next_action])
+
+    env = dict(os.environ, AIRO_CAPTURE_INTERNAL="1")
     try:
-        res = subprocess.run(cmd, cwd=repo_root, env=os.environ, capture_output=True, text=True)
+        res = subprocess.run(cmd, cwd=repo_root, env=env, capture_output=True, text=True)
         if res.returncode != 0:
             return False
         return verify_ledger_session_id(repo_root, session_id)
@@ -418,7 +427,14 @@ def cmd_event(args, repo_root):
         print("ERROR: No active session found. Start a session first.", file=sys.stderr)
         return 1
 
-    safe, pat = check_public_safety(args.summary, args.evidence)
+    phase = getattr(args, "phase", None)
+    owner_request = getattr(args, "owner_request", None)
+    position = getattr(args, "position", None)
+    progress = getattr(args, "progress", None)
+    blocker = getattr(args, "blocker", None)
+    next_action = getattr(args, "next_action", None)
+
+    safe, pat = check_public_safety(args.summary, args.evidence, phase, owner_request, position, progress, blocker, next_action)
     if not safe:
         print(f"ERROR: Event summary contains potential secret keyword '{pat}'", file=sys.stderr)
         return 2
@@ -430,12 +446,30 @@ def cmd_event(args, repo_root):
         "summary": args.summary,
         "evidence": args.evidence or ""
     }
+    if phase: evt["phase"] = phase
+    if owner_request: evt["owner_request"] = owner_request
+    if position:
+        evt["position"] = position
+        active["position"] = position
+    if progress: evt["progress"] = progress
+    if blocker:
+        evt["blocker"] = blocker
+        if blocker not in active.get("blockers", []):
+            active.setdefault("blockers", []).append(blocker)
+    if next_action: evt["next_action"] = next_action
+
+    if args.evidence and args.evidence not in active.get("evidence_list", []):
+        active.setdefault("evidence_list", []).append(args.evidence)
 
     active["events"].append(evt)
     active["last_activity_at"] = now_iso
     save_active_session(repo_root, active)
 
-    capture_ok = invoke_airo_capture(repo_root, active["internal_session_id"], active["project_id"], args.event_type, args.summary)
+    capture_ok = invoke_airo_capture(
+        repo_root, active["internal_session_id"], active["project_id"], args.event_type, args.summary,
+        evidence=args.evidence, phase=phase, owner_request=owner_request, position=position,
+        progress=progress, blocker=blocker, next_action=next_action
+    )
     if not capture_ok:
         print("EVENT_RECORDED=NO")
         print("CAPTURE_STATUS=FAILED")
@@ -968,6 +1002,12 @@ def main():
     p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])
     p_event.add_argument("--summary", required=True)
     p_event.add_argument("--evidence", default=None)
+    p_event.add_argument("--phase", choices=["PRE_EXECUTION", "POST_EXECUTION"], default=None)
+    p_event.add_argument("--owner-request", default=None)
+    p_event.add_argument("--position", default=None)
+    p_event.add_argument("--progress", default=None)
+    p_event.add_argument("--blocker", default=None)
+    p_event.add_argument("--next-action", default=None)
 
     p_status = subparsers.add_parser("status")
     p_draft = subparsers.add_parser("draft-closeout")

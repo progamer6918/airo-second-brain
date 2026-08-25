@@ -61,6 +61,15 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 10. **Non-Session Boundaries**: Chat boundary, command boundary, executor boundary, and verifier boundary are NOT production session boundaries.
 ---
 
+### 5.1 Event Single-Write Invariant
+
+1. **One Invocation = One Record**: One semantic capture invocation MUST produce exactly one active-session event and one durable ledger record (`events/raw/events.ndjson`).
+2. **Recursion Prohibition**: `airo-session` ↔ `airo-capture` bidirectional recursion/double-write is strictly forbidden.
+3. **Delegation Architecture**: Active-session capture uses a single high-level delegation path (`airo-capture` -> `airo-session event`) and a low-level internal writer (`AIRO_CAPTURE_INTERNAL=1`).
+4. **Exact-Count Assertions**: Regression test acceptance MUST assert exact event deltas (`ACTIVE_SESSION_EVENT_DELTA=1`, `LEDGER_EVENT_DELTA=1`), never loose `>=` bounds.
+5. **Invocation-Based Identity**: Genuinely separate explicit invocations with identical summary text MUST remain separate legitimate events (`one invocation = one record`). Automated deduplication MUST NOT collapse genuine repeated invocations based merely on summary text or time windows.
+
+
 ## 6. DEFERRED WORK / PR LIFECYCLE CONTRACT
 
 1. **PR Definition**: A PR (Pekerjaan Rumah) is an actionable piece of work intentionally deferred for future execution.

@@ -59,20 +59,32 @@ def main():
     if getattr(args, 'evidence', None): event["evidence"] = args.evidence
 
     if os.environ.get("AIRO_CAPTURE_INTERNAL") != "1":
-        try:
-            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            session_bin = os.path.join(repo_root, "bin", "airo-session")
-            if os.path.exists(session_bin):
-                s_cmd = [sys.executable, session_bin, "event", "--event-type", args.event, "--summary", args.summary]
-                if getattr(args, 'evidence', None): s_cmd.extend(["--evidence", args.evidence])
-                if getattr(args, 'owner_request', None): s_cmd.extend(["--owner-request", args.owner_request])
-                if getattr(args, 'position', None): s_cmd.extend(["--position", args.position])
-                if getattr(args, 'progress', None): s_cmd.extend(["--progress", args.progress])
-                if getattr(args, 'blocker', None): s_cmd.extend(["--blocker", args.blocker])
-                if getattr(args, 'next_action', None): s_cmd.extend(["--next-action", args.next_action])
-                subprocess.run(s_cmd, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), capture_output=True)
-        except Exception:
-            pass
+        repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        session_bin = os.path.join(repo_root, "bin", "airo-session")
+        active_session_file = os.path.join(repo_root, "state", "active_session.json")
+        if os.path.exists(active_session_file) and os.path.exists(session_bin):
+            try:
+                with open(active_session_file, "r", encoding="utf-8") as sf:
+                    s_data = json.load(sf)
+                if s_data and s_data.get("internal_session_id"):
+                    s_cmd = [sys.executable, session_bin, "event", "--event-type", args.event, "--summary", args.summary]
+                    if getattr(args, 'evidence', None): s_cmd.extend(["--evidence", args.evidence])
+                    if getattr(args, 'phase', None): s_cmd.extend(["--phase", args.phase])
+                    if getattr(args, 'owner_request', None): s_cmd.extend(["--owner-request", args.owner_request])
+                    if getattr(args, 'position', None): s_cmd.extend(["--position", args.position])
+                    if getattr(args, 'progress', None): s_cmd.extend(["--progress", args.progress])
+                    if getattr(args, 'blocker', None): s_cmd.extend(["--blocker", args.blocker])
+                    if getattr(args, 'next_action', None): s_cmd.extend(["--next-action", args.next_action])
+
+                    res = subprocess.run(s_cmd, cwd=repo_root, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), capture_output=True, text=True)
+                    if res.returncode == 0:
+                        sys.exit(0)
+                    else:
+                        log_error(f"Delegated airo-session event failed: {res.stderr}")
+                        sys.exit(res.returncode)
+            except Exception as e:
+                log_error(f"Delegation error: {e}")
+                sys.exit(1)
 
     if args.json:
         print(json.dumps(event))
