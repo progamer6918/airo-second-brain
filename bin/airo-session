@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import re
 import argparse
 import uuid
 import hashlib
@@ -66,12 +67,28 @@ def get_repo_root():
         pass
     return os.path.abspath(cwd)
 
+def get_canonical_repo_identity(repo_root):
+    """Derive stable normalized Git repository identity (canonical remote origin URL or normalized realpath)."""
+    try:
+        res = subprocess.run(["git", "config", "--get", "remote.origin.url"], cwd=repo_root, capture_output=True, text=True)
+        if res.returncode == 0 and res.stdout.strip():
+            raw_url = res.stdout.strip()
+            url = raw_url.strip().rstrip("/").removesuffix(".git")
+            url = re.sub(r"^git@([^:]+):", r"https://\1/", url)
+            return url.lower()
+    except Exception:
+        pass
+    try:
+        return os.path.realpath(repo_root).lower()
+    except Exception:
+        return os.path.abspath(repo_root).lower()
+
 def get_state_dir(repo_root):
     if os.environ.get("AIRO_SESSION_STATE_DIR"):
         return os.environ.get("AIRO_SESSION_STATE_DIR")
     xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
-    canon_root = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain" if "airo-second-brain" in repo_root else repo_root
-    repo_hash = hashlib.sha256(canon_root.encode("utf-8")).hexdigest()[:12]
+    repo_id = get_canonical_repo_identity(repo_root)
+    repo_hash = hashlib.sha256(repo_id.encode("utf-8")).hexdigest()[:12]
     path = os.path.join(xdg_state, "airo", "second-brain", repo_hash)
     os.makedirs(path, exist_ok=True)
     return path
@@ -79,12 +96,81 @@ def get_state_dir(repo_root):
 def get_state_file(repo_root):
     return os.path.join(get_state_dir(repo_root), "active_session.json")
 
+def _is_session_active(repo_root, session_data):
+    if not session_data or not isinstance(session_data, dict):
+        return False
+    sid = session_data.get("internal_session_id") or session_data.get("session_id")
+    if not sid:
+        return False
+    
+    planned_path = session_data.get("planned_closeout_path")
+    if planned_path:
+        full_planned = planned_path if os.path.isabs(planned_path) else os.path.join(repo_root, planned_path)
+        if os.path.exists(full_planned):
+            try:
+                with open(full_planned, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if "closed_at:" in content or "status: BERHASIL" in content:
+                        return False
+            except Exception:
+                pass
+    return True
+
+def check_and_migrate_legacy_active_session(repo_root, canonical_state_file):
+    if os.path.exists(canonical_state_file):
+        return
+    if os.environ.get("AIRO_SESSION_STATE_DIR"):
+        return
+    xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+    base_dir = os.path.join(xdg_state, "airo", "second-brain")
+    if not os.path.exists(base_dir):
+        return
+
+    legacy_candidates = []
+    raw_paths = [repo_root, os.path.realpath(repo_root), "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain", "/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain"]
+    for rp in raw_paths:
+        h = hashlib.sha256(rp.encode("utf-8")).hexdigest()[:12]
+        sf = os.path.join(base_dir, h, "active_session.json")
+        if sf != canonical_state_file and os.path.exists(sf):
+            try:
+                with open(sf, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if data and isinstance(data, dict):
+                        legacy_candidates.append((sf, data))
+            except Exception:
+                pass
+
+    for sf, ldata in legacy_candidates:
+        if not _is_session_active(repo_root, ldata):
+            try:
+                os.remove(sf)
+            except Exception:
+                pass
+        else:
+            if not os.path.exists(canonical_state_file):
+                os.makedirs(os.path.dirname(canonical_state_file), exist_ok=True)
+                with open(canonical_state_file, "w", encoding="utf-8") as f:
+                    json.dump(ldata, f, indent=2)
+                try:
+                    os.remove(sf)
+                except Exception:
+                    pass
+
 def load_active_session(repo_root):
     state_file = get_state_file(repo_root)
+    check_and_migrate_legacy_active_session(repo_root, state_file)
     if os.path.exists(state_file):
         try:
             with open(state_file, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if not _is_session_active(repo_root, data):
+                    try:
+                        os.remove(state_file)
+                    except Exception:
+                        pass
+                    render_active_session_projection(repo_root, None)
+                    return None
+                return data
         except Exception:
             return None
     return None
