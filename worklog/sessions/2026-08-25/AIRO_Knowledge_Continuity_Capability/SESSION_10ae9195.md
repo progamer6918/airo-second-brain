@@ -43,7 +43,7 @@ KCC v1 build selesai dengan status BERHASIL (CAN_ADVANCE=YES).
 
 Gunakan KCC sebagai infrastruktur AIRO normal; buka sesi pemeliharaan KCC baru hanya jika terdapat cacat runtime konkret atau scope v2 yang disetujui.
 
-## <ctrl42> Riwayat / Referensi
+## 🕘 Riwayat / Referensi
 
 - [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|PRD]]
 - [[docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP|SOP]]
