@@ -17,6 +17,6 @@ Use KCC in normal AIRO work and fix only concrete runtime failures
 
 → [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|Buka Project / PRD]]
 
-→ [[worklog/sessions/2026-08-25/AIRO_Second_Brain/SESSION_d9559c31|Buka Sesi Aktif]]
+→ [[worklog/sessions/2026-08-25/AIRO_Second_Brain/SESSION_633b9046|Buka Sesi Aktif]]
 
 → [[worklog/sessions/2026-08-25/AIRO_Knowledge_Continuity_Capability/KCC_Foundation_Historical_Backfill|Riwayat Project]]
