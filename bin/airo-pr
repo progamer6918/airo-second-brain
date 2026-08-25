@@ -57,12 +57,19 @@ def is_valid_link_target(repo_root, ref_path):
     clean_path = str(ref_path).strip()
     if not clean_path.endswith(".md"):
         clean_path += ".md"
-    full_path = repo_root / clean_path
+    
+    p = Path(clean_path)
+    full_path = p if p.is_absolute() else (repo_root / clean_path)
+
     if not full_path.exists():
         return False
     try:
-        # Require file to exist and be non-empty (> 10 bytes)
-        if full_path.stat().st_size <= 10:
+        content = full_path.read_text(encoding="utf-8").strip()
+        if len(content) <= 10:
+            return False
+        # Reject heading-only or placeholder-only notes
+        meaningful_lines = [l for l in content.splitlines() if l.strip() and not l.startswith("---") and not l.startswith("type:") and not l.startswith("date:")]
+        if len(meaningful_lines) <= 1 and all(l.startswith("#") for l in meaningful_lines):
             return False
     except Exception:
         return False
