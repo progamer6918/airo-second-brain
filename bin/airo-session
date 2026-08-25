@@ -288,6 +288,7 @@ def save_active_session(repo_root, session_data):
         json.dump(session_data, f, indent=2)
 
 def clear_active_session(repo_root):
+    render_active_session_projection(repo_root, None)
     state_file = get_state_file(repo_root)
     if os.path.exists(state_file):
         os.remove(state_file)
