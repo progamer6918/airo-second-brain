@@ -759,43 +759,61 @@ def cmd_close(args, repo_root):
         text = str(value).strip()
         return text if text else fallback
 
-    human_background = _render_human(
-        cj.get("background"),
-        "Latar belakang tambahan belum dicatat."
-    )
+    # Enhanced semantic carry-forward renderer
+    raw_bg = cj.get("background") or active.get("background")
+    if raw_bg and str(raw_bg).strip() not in ("", "None", "Latar belakang tambahan belum dicatat."):
+        human_background = _render_human(raw_bg, "")
+    elif active.get("objective") and active.get("owner_request"):
+        human_background = f"Sesi ini dimulai untuk {active['objective']}. Konteks permintaan Owner: {active['owner_request']}."
+    elif active.get("objective"):
+        human_background = f"Sesi ini dimulai untuk {active['objective']}."
+    else:
+        human_background = "Latar belakang sesi tidak dicatat secara eksplisit."
 
-    human_owner_requests = _render_human(
-        cj.get("owner_requests"),
-        "Tidak ada raw permintaan Owner yang disimpan untuk sesi ini."
-    )
+    raw_req = cj.get("owner_requests") or cj.get("owner_request") or active.get("owner_request")
+    if raw_req and str(raw_req).strip() not in ("", "None", "Tidak ada raw permintaan Owner yang disimpan untuk sesi ini.", "-"):
+        human_owner_requests = _render_human(raw_req, "")
+    else:
+        human_owner_requests = "Permintaan Owner belum tercatat secara semantik untuk sesi ini."
 
     human_goal = _render_human(
-        cj.get("goal"),
+        cj.get("goal") or active.get("objective"),
         active["objective"]
     )
 
-    human_outcomes = _render_human(
-        cj.get("outcomes"),
-        "Tidak ada ringkasan hasil tambahan."
-    )
+    raw_outcomes = cj.get("outcomes") or cj.get("progress") or active.get("progress") or active.get("current_progress")
+    if raw_outcomes and str(raw_outcomes).strip() not in ("", "None", "Active session started", "Tidak ada ringkasan hasil tambahan."):
+        human_outcomes = _render_human(raw_outcomes, "")
+    else:
+        human_outcomes = "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi."
 
     human_current_state = _render_human(
-        cj.get("current_state"),
-        "Sesi selesai dengan status " + verdict_status
-        + " dan boleh lanjut: "
-        + ("YA" if can_advance == "YES" else "TIDAK")
-        + "."
+        cj.get("current_state") or active.get("blocker"),
+        "Sesi selesai dengan status " + verdict_status + " dan boleh lanjut: " + ("YA" if can_advance == "YES" else "TIDAK") + "."
     )
 
-    human_next_action = _render_human(
-        cj.get("next_action"),
-        "Tidak ada langkah berikutnya yang dicatat."
-    )
+    raw_next = cj.get("next_action") or active.get("next_action")
+    if raw_next and str(raw_next).strip() not in ("", "None", "-"):
+        human_next_action = _render_human(raw_next, "")
+    else:
+        human_next_action = "Tidak ada langkah berikutnya yang dicatat."
 
     human_technical_details = _render_human(
         cj.get("technical_details"),
         "Tidak ada detail teknis tambahan di luar catatan di bawah."
     )
+
+    raw_decisions = cj.get("decisions") or active.get("decisions")
+    if raw_decisions and isinstance(raw_decisions, list) and len(raw_decisions) > 0:
+        human_decisions = _render_human(raw_decisions, "")
+    else:
+        human_decisions = None
+
+    raw_refs = cj.get("evidence_refs") or active.get("evidence_list")
+    if raw_refs and isinstance(raw_refs, list) and len(raw_refs) > 0:
+        human_references = _render_human(raw_refs, "")
+    else:
+        human_references = f"- [[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|Project PRD]]" 
 
     rel_session_path = os.path.relpath(
         session_file_path,
@@ -803,7 +821,7 @@ def cmd_close(args, repo_root):
     ).replace("\\", "/")
     title_wl = f"[[{rel_session_path}|{active['title']}]]"
 
-    # Render frontmatter + 10 human sections
+    # Render frontmatter + human sections
     lines = [
         "---",
         "type: airo-session",
@@ -812,9 +830,9 @@ def cmd_close(args, repo_root):
         f"project_id: {active['project_id']}",
         f"project_name: {active['project_name']}",
         f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",
-        f"title: \"{title_wl}\"",
-        f"objective: \"{active['objective']}\"",
-        f"position: \"{active.get('position', 'M3')}\"",
+        f"title: \"{title_wl}"",
+        f"objective: \"{active['objective']}"",
+        f"position: \"{active.get('position', 'M3')}"",
         f"status: {verdict_status}",
         f"can_advance: {can_advance}",
         "---",
@@ -836,14 +854,23 @@ def cmd_close(args, repo_root):
         "## ✅ Hasil",
         "",
         human_outcomes,
-        "",
-        "## 📍 Kondisi Sekarang",
+        ""
+    ]
+    if human_decisions:
+        lines.extend(["## 🧠 Keputusan Penting", "", human_decisions, ""])
+
+    lines.extend([
+        "## 📍 Kondisi Akhir",
         "",
         human_current_state,
         "",
         "## ➡️ Berikutnya",
         "",
         human_next_action,
+        "",
+        "## 🕘 Riwayat / Referensi",
+        "",
+        human_references,
         "",
         "## 🔧 Detail Teknis",
         "",

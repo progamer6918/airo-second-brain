@@ -36,3 +36,12 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 ## Current V1 Operational SOP (2026-08-25)
 - **Cadence**: Operational capture runs automatically at `EVERY_MEANINGFUL_EXECUTION`.
 - **Live Markdown**: Running session state is continuously updated in Obsidian.
+---
+
+## 4. Closeout Semantic Carry-Forward Contract
+
+1. **Active Semantic Envelope Snapshot**: Before `bin/airo-session close` clears runtime active state, a final semantic envelope (containing `owner_request`, `objective`, `position`, `progress`, `blocker`, `next_action`, and recorded decisions) MUST be snapshotted.
+2. **Durable Historical Session Representation**: The permanent historical session Markdown artifact (`worklog/sessions/.../SESSION_<sid>.md`) MUST carry forward the active semantic context when available.
+3. **Owner Request Priority**: The closeout renderer MUST use the semantic `owner_request` when available. Absence of raw chat/prompt transcript MUST NEVER be rendered as absence of Owner Request when a semantic `owner_request` is recorded.
+4. **Deterministic Background Context**: When an explicit background is not provided in closeout JSON, background context MUST be deterministically derived from the session `objective` and semantic `owner_request`. Generic fallback ("Latar belakang tambahan belum dicatat") is forbidden when objective or owner request exist.
+5. **Fresh-AI Reconstructability**: Closeout success requires that a fresh AI reader, reading ONLY the durable repository artifact, can fully reconstruct the session's background, Owner intent, objective, implemented outcomes, decisions, and next operating posture.
