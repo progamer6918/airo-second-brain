@@ -40,7 +40,7 @@ Resolve canonical project pointer, normalize KCC worklog metadata, remove only p
 
 ## 🕘 Riwayat / Referensi
 
-- [[control/airo-knowledge-continuity-capability|Project PRD]]
+- [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|Project PRD]]
 
 ## 🔧 Detail Teknis
 
@@ -48,7 +48,7 @@ Tidak ada detail teknis tambahan di luar catatan di bawah.
 
 ### 🧭 Status Teknis
 
-📍 Project — [[control/airo-knowledge-continuity-capability|AIRO Knowledge Continuity Capability]]
+📍 Project — [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|AIRO Knowledge Continuity Capability]]
 📌 Lagi di — Auditing KCC project-reference identity and accidental orphan note
 📈 Progress — Sesi selesai dengan status BERHASIL
 

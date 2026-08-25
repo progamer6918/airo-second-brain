@@ -44,7 +44,7 @@ Tidak ada detail teknis tambahan di luar catatan di bawah.
 
 ### 🧭 Status Teknis
 
-📍 Project — [[control/airo-knowledge-continuity-capability|AIRO Knowledge Continuity Capability]]
+📍 Project — [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|AIRO Knowledge Continuity Capability]]
 📌 Lagi di — Post-review / v1 implementation
 📈 Progress — Sesi selesai dengan status BELUM_TERBUKTI
 
