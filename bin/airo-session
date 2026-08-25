@@ -539,9 +539,12 @@ def cmd_close(args, repo_root):
             return 1
 
     date_str = datetime.now().strftime("%Y-%m-%d")
-    project_dir = os.path.join(repo_root, "worklog/sessions", date_str, active["project_name"])
+    import tempfile
+    is_test = os.environ.get("AIRO_TEST_MODE") == "1" or active.get("project_id", "").startswith("TEST")
+    base_worklog = os.path.join(tempfile.gettempdir(), "airo_test_sessions") if is_test else os.path.join(repo_root, "worklog/sessions")
+    project_dir = os.path.join(base_worklog, date_str, active["project_name"])
 
-    if not is_path_contained(project_dir, os.path.join(repo_root, "worklog/sessions")):
+    if not is_path_contained(project_dir, base_worklog):
         print("ERROR: Path containment violation in project directory.", file=sys.stderr)
         print("CLOSE_RESULT=FAILED")
         print("ACTIVE_SESSION_PRESERVED=YES")
