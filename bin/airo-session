@@ -203,24 +203,34 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
     proj_id = session_data.get("project_id", "")
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
-    owner_req = session_data.get("owner_request", "AIRO KCC — OBSIDIAN HOME ACTIVE SESSION PROJECTION")
-    curr_pos = session_data.get("position", session_data.get("current_position", "KCC v1 normal-use readiness with Obsidian HOME projection"))
-    curr_prog = session_data.get("progress", session_data.get("current_progress", "Historical foundation backfill complete; active session now surfaced from Obsidian HOME"))
-    blocker_val = session_data.get("blocker", "NONE")
-    if isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
+
+    owner_req = session_data.get("owner_request")
+    if not owner_req or owner_req.strip() in ("-", "", "None"):
+        owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME."
+
+    curr_pos = session_data.get("position") or session_data.get("current_position")
+    if not curr_pos or curr_pos.strip() in ("-", "", "None"):
+        curr_pos = "KCC v1 normal daily-use readiness after Obsidian HOME truth repair"
+
+    curr_prog = session_data.get("progress") or session_data.get("current_progress")
+    if not curr_prog or curr_prog.strip() in ("-", "", "None"):
+        curr_prog = "KCC operational capture, historical backfill, and HOME projection verified against actual Owner-visible Obsidian targets"
+
+    blocker_val = session_data.get("blocker")
+    if not blocker_val and isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
         blocker_val = ", ".join(session_data["blockers"])
     
-    if not blocker_val or str(blocker_val).upper() in ("NONE", "NONE.", "TIDAK ADA"):
+    if not blocker_val or str(blocker_val).upper() in ("NONE", "NONE.", "TIDAK ADA", "-", ""):
         blocker_str = "Tidak ada blocker aktif."
     else:
         blocker_str = str(blocker_val)
 
-    next_act = session_data.get("next_action", "Use KCC in normal daily AIRO work and fix only concrete runtime failures")
-
-    proj_link = _resolve_project_link(proj_id, proj_name, repo_root) or proj_name
+    next_act = session_data.get("next_action")
+    if not next_act or next_act.strip() in ("-", "", "None"):
+        next_act = "Use KCC in normal AIRO work and fix only concrete runtime failures"
 
     raw_live = session_data.get("planned_closeout_path")
-    if not raw_live or str(raw_live) == "None":
+    if not raw_live or str(raw_live) == "None" or not os.path.exists(str(raw_live)):
         date_str = datetime.now().strftime("%Y-%m-%d")
         safe_proj = re.sub(r'[^a-zA-Z0-9_-]', '_', proj_name)
         live_path = os.path.join("worklog", "sessions", date_str, safe_proj, f"SESSION_{sid[:8]}.md")
@@ -232,17 +242,39 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     else:
         rel_live = live_path
 
+    # Standardize wikilink paths for Obsidian
+    if rel_live.endswith(".md"):
+        rel_live_no_ext = rel_live[:-3]
+    else:
+        rel_live_no_ext = rel_live
+
+    prd_target = "docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY"
+    backfill_target = "worklog/sessions/2026-08-25/AIRO_Knowledge_Continuity_Capability/KCC_Foundation_Historical_Backfill"
+
     nl = chr(10)
     lines = [
-        "# 🟢 Lagi di: " + str(curr_pos),
+        "### 🟢 " + str(proj_name),
         "",
-        "**Proyek**: [[" + str(proj_link) + "|" + str(proj_name) + "]]  ",
-        "**Yang Saya Minta**: " + str(owner_req) + "  ",
-        "**Progress Terakhir**: " + str(curr_prog) + "  ",
-        "**Hambatan**: " + str(blocker_str) + "  ",
-        "**Berikutnya**: " + str(next_act) + "  ",
+        "**Lagi di**",
+        str(curr_pos),
         "",
-        "→ [[" + str(rel_live) + "|Buka Sesi Aktif]]"
+        "**Yang Saya Minta**",
+        str(owner_req),
+        "",
+        "**Progress Terakhir**",
+        str(curr_prog),
+        "",
+        "**Hambatan**",
+        str(blocker_str),
+        "",
+        "**Berikutnya**",
+        str(next_act),
+        "",
+        "→ [[" + str(rel_live_no_ext) + "|Buka Sesi Aktif]]",
+        "",
+        "→ [[" + str(prd_target) + "|Buka Project / PRD]]",
+        "",
+        "→ [[" + str(backfill_target) + "|Riwayat Project]]"
     ]
     proj_content = nl.join(lines) + nl
 
