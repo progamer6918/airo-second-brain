@@ -4,7 +4,7 @@ date: 2026-08-25
 closed_at: 2026-08-25T11:09:14.259723+00:00
 project_id: AIRO_KNOWLEDGE_CONTINUITY
 project_name: AIRO Knowledge Continuity Capability
-project: "[[control/airo-knowledge-continuity-capability|AIRO Knowledge Continuity Capability]]"
+project: "[[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|AIRO Knowledge Continuity Capability]]"
 title: "[[worklog/sessions/2026-08-25/AIRO_Knowledge_Continuity_Capability/SESSION_56583c52.md|KCC Closeout Carry-Forward Repair]]"
 objective: "Fix KCC closeout semantic carry-forward so durable closed-session artifacts preserve Owner intent and are reconstructable by fresh AI"
 position: "KCC closeout semantic carry-forward repaired and verified"

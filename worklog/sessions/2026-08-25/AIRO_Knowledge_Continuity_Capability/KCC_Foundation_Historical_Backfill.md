@@ -1,3 +1,7 @@
+---
+project: "[[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|AIRO Knowledge Continuity Capability]]"
+---
+
 # 🏛️ KCC Foundation Historical Backfill — From Session Loss to Operational Continuity
 
 **Document ID**: `DOC-KCC-FOUNDATION-HISTORICAL-BACKFILL`  
