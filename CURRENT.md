@@ -757,3 +757,9 @@ Marker: `AIRO_EAB_POST_CLOSE_PRODUCT_OUTCOME_CORRECTION_RECORD_20260816`
 - **EAB_MANUAL_CREATE_VIA_EARESMES**: `NOT_OPERATIONAL`
 - **NEXT_EAB_ACTION**: `NONE`
 <!-- AIRO_EAB_POST_CLOSE_PRODUCT_OUTCOME_CORRECTION_RECORD_20260816_END -->
+
+
+## Active Capability: AIRO Knowledge Continuity
+- **PRD**: [docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md)
+- **SOP**: [docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md)
+- **Status**: Post-review / Canonicalized
