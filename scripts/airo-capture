@@ -67,7 +67,7 @@ def main():
     # Route semantic update to bin/airo-session if present
     try:
         session_bin = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin", "airo-session")
-        if os.path.exists(session_bin):
+        if os.path.exists(session_bin) and os.environ.get("AIRO_CAPTURE_INTERNAL") != "1":
             s_cmd = [sys.executable, session_bin, "event", "--event-type", args.event, "--summary", args.summary]
             if getattr(args, 'evidence', None): s_cmd.extend(["--evidence", args.evidence])
             if getattr(args, 'owner_request', None): s_cmd.extend(["--owner-request", args.owner_request])
