@@ -4,7 +4,7 @@ date: 2026-08-25
 closed_at: 2026-08-25T12:16:58.116077+00:00
 project_id: AIRO_KNOWLEDGE_CONTINUITY
 project_name: AIRO Knowledge Continuity Capability
-project: "[[control/airo-knowledge-continuity-capability|AIRO Knowledge Continuity Capability]]"
+project: "[[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|AIRO Knowledge Continuity Capability]]"
 title: "[[worklog/sessions/2026-08-25/AIRO Knowledge Continuity Capability/11 - KCC Session Materiality and Isolation Guard.md|KCC Session Materiality and Isolation Guard]]"
 objective: "Prevent AIRO production session pollution by defining and enforcing session materiality, same-objective continuation, verifier/retry discipline, and synthetic-test isolation"
 position: "KCC session materiality and test-isolation guard verified"
