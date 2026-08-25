@@ -1,0 +1,294 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-deferred-work
+Canonical CLI and helper engine for AIRO Deferred Work (PR Register).
+Manages state/deferred-work.json authority and state/deferred-work.md projection atomically.
+Renders TODO items as Obsidian-native collapsed callouts (> [!todo]-).
+Supports AIRO_DEFERRED_WORK_ROOT environment variable for test isolation.
+"""
+
+import sys
+import os
+import json
+import argparse
+from datetime import datetime, timezone
+from pathlib import Path
+
+def get_repo_root():
+    env_root = os.environ.get("AIRO_DEFERRED_WORK_ROOT")
+    if env_root and str(env_root).strip():
+        return Path(env_root).resolve()
+    script_dir = Path(__file__).resolve().parent
+    return script_dir.parent
+
+def get_authority_path(repo_root):
+    return repo_root / "state/deferred-work.json"
+
+def get_projection_path(repo_root):
+    return repo_root / "state/deferred-work.md"
+
+def load_pr_data(auth_path):
+    if not auth_path.exists():
+        return {"version": 1, "prs": []}
+    try:
+        with open(auth_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        raise ValueError(f"Failed to parse JSON authority: {e}")
+
+def save_pr_data_atomic(auth_path, data):
+    auth_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = auth_path.with_suffix(".json.tmp")
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        f.write("\n")
+    os.replace(temp_path, auth_path)
+
+def format_friendly_date(date_str):
+    try:
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+        return f"{dt.day} {months[dt.month - 1]} {dt.year}"
+    except Exception:
+        return date_str
+
+def is_valid_link_target(repo_root, ref_path):
+    if not ref_path or not str(ref_path).strip() or str(ref_path).upper() == "NONE":
+        return False
+    clean_path = str(ref_path).strip()
+    if not clean_path.endswith(".md"):
+        clean_path += ".md"
+    p = Path(clean_path)
+    full_path = p if p.is_absolute() else (repo_root / clean_path)
+    if not full_path.exists():
+        return False
+    try:
+        content = full_path.read_text(encoding="utf-8").strip()
+        if len(content) <= 10:
+            return False
+        meaningful_lines = [l for l in content.splitlines() if l.strip() and not l.startswith("---") and not l.startswith("type:") and not l.startswith("date:")]
+        if len(meaningful_lines) <= 1 and all(l.startswith("#") for l in meaningful_lines):
+            return False
+    except Exception:
+        return False
+    return True
+
+def generate_projection_markdown(repo_root, data):
+    todo_items = [p for p in data.get("prs", []) if p.get("status") == "TODO"]
+
+    priority_map = {"HIGH": "🔴", "URGENT": "🔴", "NORMAL": "🟡", "LOW": "⚪", "SOMEDAY": "⚪"}
+
+    if not todo_items:
+        return "Tidak ada PR yang menunggu dikerjakan.\n"
+
+    blocks = []
+    for item in todo_items:
+        prio = str(item.get("priority", "NORMAL")).upper()
+        icon = priority_map.get(prio, "⚪")
+        proj = item.get("project", "Global")
+        summary = item.get("summary", "")
+        pr_id = item.get("id", "PR-???")
+        date_fmt = format_friendly_date(item.get("created_at", ""))
+
+        card_summary = f"{icon} **{summary}** · {proj} · {pr_id} · {date_fmt}"
+
+        lines = [f"> [!todo]- {card_summary}"]
+
+        ctx = item.get("context") or item.get("description", "")
+        if ctx and str(ctx).strip():
+            lines.append("> **Kenapa**")
+            for c_line in str(ctx).strip().splitlines():
+                lines.append(f"> {c_line}")
+            lines.append(">")
+
+        det = item.get("detail") or item.get("description", "")
+        if det and str(det).strip():
+            lines.append("> **Yang perlu dikerjakan**")
+            for d_line in str(det).strip().splitlines():
+                lines.append(f"> {d_line}")
+            lines.append(">")
+
+        orig = item.get("origin_text")
+        if orig and isinstance(orig, list) and len(orig) > 0:
+            lines.append("> **Awalnya Owner bilang**")
+            for o_item in orig[:2]:
+                lines.append(f"> > “{o_item}”")
+            lines.append(">")
+
+        links = []
+        pref = item.get("project_ref")
+        if pref and is_valid_link_target(repo_root, pref):
+            clean_pref = str(pref).replace(".md", "")
+            links.append(f"↗ [[{clean_pref}|Buka Detail PR]]")
+
+        sref = item.get("source_ref")
+        if sref and is_valid_link_target(repo_root, sref):
+            clean_sref = str(sref).replace(".md", "")
+            if f"↗ [[{clean_sref}|Buka Detail PR]]" not in links:
+                links.append(f"↗ [[{clean_sref}|Konteks Asal]]")
+
+        if links:
+            lines.append(f"> {' '.join(links)}")
+            lines.append(">")
+
+        if lines and lines[-1] == ">":
+            lines.pop()
+
+        blocks.append("\n".join(lines))
+
+    return "\n\n".join(blocks) + "\n"
+
+def render_projection_atomic(repo_root, data):
+    proj_path = get_projection_path(repo_root)
+    content = generate_projection_markdown(repo_root, data)
+    proj_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = proj_path.with_suffix(".md.tmp")
+    with open(temp_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    os.replace(temp_path, proj_path)
+
+    # Update Windows mirror ONLY if in production mode (AIRO_DEFERRED_WORK_ROOT not set)
+    if not os.environ.get("AIRO_DEFERRED_WORK_ROOT"):
+        win_proj = Path("/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain/state/deferred-work.md")
+        if win_proj.parent.exists() and proj_path != win_proj:
+            try:
+                with open(win_proj, "w", encoding="utf-8") as f:
+                    f.write(content)
+            except Exception:
+                pass
+
+def cmd_render(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+    render_projection_atomic(repo_root, data)
+    print("DEFERRED_WORK_RENDER=SUCCESS")
+    return 0
+
+def cmd_check(args, repo_root):
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+    expected_md = generate_projection_markdown(repo_root, data)
+
+    proj_path = get_projection_path(repo_root)
+    if not proj_path.exists():
+        print("ERROR: Projection file missing.", file=sys.stderr)
+        return 1
+
+    actual_md = proj_path.read_text(encoding="utf-8")
+    if actual_md == expected_md:
+        print("DEFERRED_WORK_CHECK=PASS")
+        return 0
+    else:
+        print("ERROR: Projection file state/deferred-work.md is stale.", file=sys.stderr)
+        return 1
+
+def cmd_put(args, repo_root):
+    if not args.file or not Path(args.file).exists():
+        print("ERROR: Input file for put missing.", file=sys.stderr)
+        return 1
+
+    try:
+        with open(args.file, "r", encoding="utf-8") as f:
+            new_pr = json.load(f)
+    except Exception as e:
+        print(f"ERROR: Invalid JSON input file: {e}", file=sys.stderr)
+        return 1
+
+    req_fields = ["id", "summary", "project", "priority", "created_at", "source", "status", "description"]
+    for field in req_fields:
+        if field not in new_pr:
+            print(f"ERROR: Missing required field '{field}' in PR object.", file=sys.stderr)
+            return 1
+
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+    prs = data.get("prs", [])
+
+    existing_idx = None
+    for i, p in enumerate(prs):
+        if p.get("id") == new_pr["id"]:
+            existing_idx = i
+            break
+
+    if existing_idx is not None:
+        new_pr["created_at"] = prs[existing_idx].get("created_at", new_pr["created_at"])
+        prs[existing_idx] = new_pr
+    else:
+        prs.append(new_pr)
+
+    data["prs"] = prs
+    save_pr_data_atomic(auth_path, data)
+    render_projection_atomic(repo_root, data)
+
+    print(f"DEFERRED_WORK_PUT=SUCCESS")
+    print(f"PR_ID={new_pr['id']}")
+    return 0
+
+def cmd_set_status(args, repo_root):
+    if not args.id or not args.status:
+        print("ERROR: Missing --id or --status.", file=sys.stderr)
+        return 1
+
+    valid_statuses = ["TODO", "ACTIVE", "DONE"]
+    status_upper = args.status.upper()
+    if status_upper not in valid_statuses:
+        print(f"ERROR: Invalid status '{args.status}'. Must be one of {valid_statuses}", file=sys.stderr)
+        return 1
+
+    auth_path = get_authority_path(repo_root)
+    data = load_pr_data(auth_path)
+    prs = data.get("prs", [])
+
+    target = None
+    for p in prs:
+        if p.get("id") == args.id:
+            target = p
+            break
+
+    if not target:
+        print(f"ERROR: PR ID '{args.id}' not found.", file=sys.stderr)
+        return 1
+
+    target["status"] = status_upper
+    if status_upper == "DONE":
+        target["completed_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    data["prs"] = prs
+    save_pr_data_atomic(auth_path, data)
+    render_projection_atomic(repo_root, data)
+
+    print(f"DEFERRED_WORK_SET_STATUS=SUCCESS")
+    print(f"PR_ID={target['id']}")
+    print(f"NEW_STATUS={status_upper}")
+    return 0
+
+def main():
+    repo_root = get_repo_root()
+    parser = argparse.ArgumentParser(description="AIRO Deferred Work Helper Engine")
+    subparsers = parser.add_subparsers(dest="command")
+
+    subparsers.add_parser("render")
+    subparsers.add_parser("check")
+
+    put_p = subparsers.add_parser("put")
+    put_p.add_argument("--file", required=True)
+
+    status_p = subparsers.add_parser("set-status")
+    status_p.add_argument("--id", required=True)
+    status_p.add_argument("--status", required=True, choices=["TODO", "ACTIVE", "DONE"])
+
+    args = parser.parse_args()
+    if args.command == "render":
+        sys.exit(cmd_render(args, repo_root))
+    elif args.command == "check":
+        sys.exit(cmd_check(args, repo_root))
+    elif args.command == "put":
+        sys.exit(cmd_put(args, repo_root))
+    elif args.command == "set-status":
+        sys.exit(cmd_set_status(args, repo_root))
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

@@ -96,3 +96,13 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 4. **project_ref Validity Criteria**: `project_ref` is valid ONLY if the target artifact represents the actual current project/context named by the PR. A capability-specific PRD (e.g. KCC PRD) MUST NOT be used as `project_ref` for "ASB Global" unless canonical ASB explicitly defines it as ASB-global authority.
 5. **No Speculative Notes**: If no valid canonical project or source target exists, the link MUST be omitted. Creating speculative or placeholder notes merely to satisfy a link is strictly forbidden.
 6. **Fresh-AI Preference**: A fresh AI reader MUST prefer NO LINK over a MISLEADING LINK.
+### 6.3 Deferred-Work Projection Invariant
+
+1. **Authority vs Projection**: `state/deferred-work.json` is the canonical deferred-work/PR authority. `state/deferred-work.md` is a generated human projection and MUST NOT become an independently maintained authority.
+2. **Lifecycle Sync**: PR create/update/status operations MUST use `scripts/airo-deferred-work` or otherwise complete deterministic `render` + `check` before the lifecycle operation can be considered successful.
+3. **HOME View Scope**: `HOME.md` deferred-work projection displays `TODO` items only.
+4. **Status Transitions**: `TODO -> ACTIVE` removes a PR from HOME; `ACTIVE -> DONE` keeps it out of the active HOME list.
+5. **No Eventual Sync**: A stale JSON-vs-Markdown projection is a FAILURE, not an acceptable eventual-sync state.
+6. **Test Isolation**: Deferred-work synthetic fixtures/tests MUST execute against an isolated temporary root (`AIRO_DEFERRED_WORK_ROOT`) and MUST NOT mutate production `state/deferred-work.json` or `state/deferred-work.md`.
+7. **Hash Invariance**: Test success MUST prove production JSON and Markdown projection hashes remain unchanged during synthetic testing.
+8. **Final Writer Rule**: Final acceptance MUST verify the FINAL production state after tests, including a production `render`/`check` and synthetic-contamination guard. A test fixture must never be the last writer of the production projection.
