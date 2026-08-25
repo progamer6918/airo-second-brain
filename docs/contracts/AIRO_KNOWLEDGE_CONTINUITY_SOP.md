@@ -75,3 +75,16 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 10. **Completion**: Upon successful objective completion, the PR is marked `DONE` and removed from the active view as durable session history records its completion.
 11. **Selective Closeout Promotion**: Session closeout creates a new PR only selectively when `next_action` describes concrete, actionable deferred work. Generic operational postures ("Use normally", "Monitor", "No further action") MUST NOT generate a PR.
 12. **Git Policy**: PR register updates follow normal ASB checkpoint Git policy. No dedicated auto-push-per-PR behavior is required.
+### 6.1 Owner Origin & Provenance Contracts
+
+1. **Owner Origin Preservation**: A PR should preserve enough original Owner language for later recognition. When direct Owner wording is available and relevant, store a bounded exact excerpt in `origin_text` (up to 2 short utterances or equivalent).
+2. **No Raw-Chat Archive**: `origin_text` is NOT a raw-chat archive; store only the minimum excerpt necessary for recognition. Never paraphrase and label it as exact Owner wording. If exact wording is unavailable, `origin_text` may be omitted.
+3. **Owner vs AI_CAPTURED Source**: If the Owner explicitly requests a to-do/PR ("masukin PR", "buat todo", "next aja", "nanti kerjain ini"), `source` MUST be `OWNER`. `AI_CAPTURED` is reserved only for conservative AI identification without explicit Owner registration commands.
+4. **Human-Familiar Title**: Owner-facing PR `summary` should prefer terminology recognizable from the Owner discussion. Avoid transforming familiar Owner language into abstract technical jargon in the primary title. Technical normalization belongs in `detail` and `context`.
+5. **Sufficient Context**: A PR is not sufficiently captured by title alone. Authority data must allow an Owner or fresh AI to answer:
+   - **WHAT**: Concrete work required (`detail`)
+   - **WHY**: Why the work exists (`context`)
+   - **OWNER_ORIGIN**: Bounded exact Owner utterances (`origin_text`)
+   - **PROJECT**: Project / context mapping (`project` / `project_ref`)
+   - **WHEN**: Creation date (`created_at`)
+   - **SOURCE**: Durable reference link if available (`source_ref`)

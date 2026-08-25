@@ -2,6 +2,7 @@
 """
 bin/airo-pr
 Canonical CLI and helper engine for AIRO Global Deferred Work (PR Register).
+Supports Owner origin text, context, detail, project_ref, and source_ref.
 """
 
 import sys
@@ -44,7 +45,8 @@ def save_pr_data(auth_path, data):
 def format_friendly_date(date_str):
     try:
         dt = datetime.strptime(date_str, "%Y-%m-%d")
-        return dt.strftime("%d %b %Y")
+        months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+        return f"{dt.day} {months[dt.month - 1]} {dt.year}"
     except Exception:
         return date_str
 
@@ -62,15 +64,54 @@ def render_projection(repo_root, data):
     if not todo_items:
         content = "Belum ada PR yang menunggu dikerjakan.\n"
     else:
-        lines = []
+        blocks = []
         for item in todo_items:
             prio = item.get("priority", "NORMAL")
             icon = icon_map.get(prio, "🟡")
             proj = item.get("project", "Global")
             summary = item.get("summary", "")
             date_fmt = format_friendly_date(item.get("created_at", ""))
-            lines.append(f"- {icon} **{proj}** — {summary} *({date_fmt})*")
-        content = "\n".join(lines) + "\n"
+
+            lines = [f"- {icon} **{summary}**"]
+            lines.append(f"  *{proj} · Dicatat {date_fmt}*")
+
+            orig = item.get("origin_text")
+            if orig and isinstance(orig, list) and len(orig) > 0:
+                lines.append("")
+                lines.append("  **Awalnya Owner bilang**")
+                for line in orig[:2]:
+                    lines.append(f"  > “{line}”")
+
+            ctx = item.get("context")
+            if ctx and str(ctx).strip():
+                lines.append("")
+                lines.append("  **Kenapa**")
+                lines.append(f"  {ctx}")
+
+            det = item.get("detail")
+            if det and str(det).strip():
+                lines.append("")
+                lines.append("  **Yang perlu dikerjakan**")
+                lines.append(f"  {det}")
+
+            links = []
+            pref = item.get("project_ref")
+            if pref and str(pref).strip():
+                clean_pref = pref.replace(".md", "")
+                links.append(f"→ [[{clean_pref}|Buka Project]]")
+
+            sref = item.get("source_ref")
+            if sref and str(sref).strip():
+                clean_sref = sref.replace(".md", "")
+                links.append(f"→ [[{clean_sref}|Konteks Asal]]")
+
+            if links:
+                lines.append("")
+                lines.append("  " + "  ".join(links))
+
+            blocks.append("\n".join(lines))
+
+        content = "\n\n".join(blocks) + "\n"
 
     with open(proj_path, "w", encoding="utf-8") as f:
         f.write(content)
@@ -103,8 +144,16 @@ def cmd_add(args, repo_root):
         "source": args.source.upper(),
         "status": "TODO"
     }
-    if args.description:
-        item["description"] = args.description
+    if args.detail:
+        item["detail"] = args.detail
+    if args.context:
+        item["context"] = args.context
+    if args.origin_text:
+        item["origin_text"] = json.loads(args.origin_text) if args.origin_text.startswith("[") else [args.origin_text]
+    if args.project_ref:
+        item["project_ref"] = args.project_ref
+    if args.source_ref:
+        item["source_ref"] = args.source_ref
 
     prs.append(item)
     data["prs"] = prs
@@ -184,7 +233,11 @@ def main():
     add_p.add_argument("--priority", choices=["IMPORTANT", "NORMAL", "SOMEDAY"], default="NORMAL")
     add_p.add_argument("--source", choices=["OWNER", "AI_CAPTURED", "SESSION_CLOSEOUT"], default="AI_CAPTURED")
     add_p.add_argument("--created-at")
-    add_p.add_argument("--description")
+    add_p.add_argument("--detail")
+    add_p.add_argument("--context")
+    add_p.add_argument("--origin-text")
+    add_p.add_argument("--project-ref")
+    add_p.add_argument("--source-ref")
 
     start_p = subparsers.add_parser("start")
     start_p.add_argument("--id", required=True)

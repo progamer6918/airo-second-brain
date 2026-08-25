@@ -3,13 +3,21 @@
   "prs": [
     {
       "id": "PR-001",
-      "summary": "Standardize continuity entrypoints for existing ASB projects",
+      "summary": "Rapikan dokumentasi & history project-project ASB lama",
       "project": "ASB Global",
       "priority": "NORMAL",
       "created_at": "2026-08-25",
-      "source": "AI_CAPTURED",
+      "source": "OWNER",
       "status": "TODO",
-      "description": "Audit canonical ASB projects and ensure each project has a clear route from current truth to active decisions and meaningful historical sessions/history without turning project documentation into an append-only diary."
+      "description": "Audit canonical ASB projects and ensure each project has a clear route from current truth to active decisions and meaningful historical sessions/history without turning project documentation into an append-only diary.",
+      "origin_text": [
+        "dan itu belum dimiliki di project project di asb?",
+        "yaudah mungkin itu bisa jd to do list utk next nya"
+      ],
+      "context": "Owner menanyakan apakah project-project ASB sudah memiliki alur history dan kontinuitas yang jelas, lalu secara eksplisit meminta hal ini dijadikan to-do list berikutnya.",
+      "detail": "Audit canonical ASB projects dan pastikan setiap project memiliki jalur yang ringkas dan jelas dari current truth ke keputusan penting dan riwayat sesi, tanpa membuat dokumen project menjadi diary append-only.",
+      "project_ref": "docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY",
+      "source_ref": "worklog/sessions/2026-08-25/AIRO Knowledge Continuity Capability/05 - Global PR and Deferred Work v1.md"
     }
   ]
 }
