@@ -205,15 +205,15 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
 
     owner_req = session_data.get("owner_request")
-    if not owner_req or owner_req.strip() in ("-", "", "None"):
+    if not owner_req or str(owner_req).strip() in ("-", "", "None"):
         owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME."
 
     curr_pos = session_data.get("position") or session_data.get("current_position")
-    if not curr_pos or curr_pos.strip() in ("-", "", "None"):
+    if not curr_pos or str(curr_pos).strip() in ("-", "", "None"):
         curr_pos = "KCC v1 normal daily-use readiness after Obsidian HOME truth repair"
 
     curr_prog = session_data.get("progress") or session_data.get("current_progress")
-    if not curr_prog or curr_prog.strip() in ("-", "", "None"):
+    if not curr_prog or str(curr_prog).strip() in ("-", "", "None"):
         curr_prog = "KCC operational capture, historical backfill, and HOME projection verified against actual Owner-visible Obsidian targets"
 
     blocker_val = session_data.get("blocker")
@@ -226,7 +226,7 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
         blocker_str = str(blocker_val)
 
     next_act = session_data.get("next_action")
-    if not next_act or next_act.strip() in ("-", "", "None"):
+    if not next_act or str(next_act).strip() in ("-", "", "None"):
         next_act = "Use KCC in normal AIRO work and fix only concrete runtime failures"
 
     raw_live = session_data.get("planned_closeout_path")
@@ -242,7 +242,6 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     else:
         rel_live = live_path
 
-    # Standardize wikilink paths for Obsidian
     if rel_live.endswith(".md"):
         rel_live_no_ext = rel_live[:-3]
     else:
