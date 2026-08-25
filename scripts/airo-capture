@@ -4,6 +4,7 @@ import sys
 import json
 import argparse
 import uuid
+import subprocess
 from datetime import datetime, timezone
 
 def log_error(msg):
@@ -24,12 +25,12 @@ def main():
     parser.add_argument("--session-id", default=None, help="Session ID (UUID).")
     parser.add_argument("--source", default="consumer", choices=["system", "manual", "consumer"], help="Event source.")
     parser.add_argument("--phase", choices=["PRE_EXECUTION", "POST_EXECUTION"], default="POST_EXECUTION")
-    parser.add_argument("--owner-request")
-    parser.add_argument("--position")
-    parser.add_argument("--progress")
-    parser.add_argument("--blocker")
-    parser.add_argument("--next-action")
-    parser.add_argument("--evidence")
+    parser.add_argument("--owner-request", help="Active owner request")
+    parser.add_argument("--position", help="Current position")
+    parser.add_argument("--progress", help="Current progress")
+    parser.add_argument("--blocker", help="Active blocker")
+    parser.add_argument("--next-action", help="Next action")
+    parser.add_argument("--evidence", help="Evidence pointer")
     parser.add_argument("--sensitive", action="store_true", help="Mark event as sensitive.")
     parser.add_argument("--dry-run", action="store_true", help="Simulate write without appending to file.")
     parser.add_argument("--json", action="store_true", help="Output generated event in JSON format to stdout.")
@@ -49,38 +50,29 @@ def main():
         "sensitive": args.sensitive
     }
 
-    if getattr(args, 'phase', None):
-        event["phase"] = args.phase
-    if getattr(args, 'owner_request', None):
-        event["owner_request"] = args.owner_request
-    if getattr(args, 'position', None):
-        event["position"] = args.position
-    if getattr(args, 'progress', None):
-        event["progress"] = args.progress
-    if getattr(args, 'blocker', None):
-        event["blocker"] = args.blocker
-    if getattr(args, 'next_action', None):
-        event["next_action"] = args.next_action
-    if getattr(args, 'evidence', None):
-        event["evidence"] = args.evidence
+    if getattr(args, 'phase', None): event["phase"] = args.phase
+    if getattr(args, 'owner_request', None): event["owner_request"] = args.owner_request
+    if getattr(args, 'position', None): event["position"] = args.position
+    if getattr(args, 'progress', None): event["progress"] = args.progress
+    if getattr(args, 'blocker', None): event["blocker"] = args.blocker
+    if getattr(args, 'next_action', None): event["next_action"] = args.next_action
+    if getattr(args, 'evidence', None): event["evidence"] = args.evidence
 
-    # Route semantic update to bin/airo-session if present
-    try:
-        session_bin = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin", "airo-session")
-        if os.path.exists(session_bin) and os.environ.get("AIRO_CAPTURE_INTERNAL") != "1":
-            s_cmd = [sys.executable, session_bin, "event", "--event-type", args.event, "--summary", args.summary]
-            if getattr(args, 'evidence', None): s_cmd.extend(["--evidence", args.evidence])
-            if getattr(args, 'owner_request', None): s_cmd.extend(["--owner-request", args.owner_request])
-            if getattr(args, 'position', None): s_cmd.extend(["--position", args.position])
-            if getattr(args, 'progress', None): s_cmd.extend(["--progress", args.progress])
-            if getattr(args, 'blocker', None): s_cmd.extend(["--blocker", args.blocker])
-            if getattr(args, 'next_action', None): s_cmd.extend(["--next-action", args.next_action])
-            subprocess.run(s_cmd, capture_output=True)
-    except Exception:
-        pass
-
-    if True: #
-    }
+    if os.environ.get("AIRO_CAPTURE_INTERNAL") != "1":
+        try:
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            session_bin = os.path.join(repo_root, "bin", "airo-session")
+            if os.path.exists(session_bin):
+                s_cmd = [sys.executable, session_bin, "event", "--event-type", args.event, "--summary", args.summary]
+                if getattr(args, 'evidence', None): s_cmd.extend(["--evidence", args.evidence])
+                if getattr(args, 'owner_request', None): s_cmd.extend(["--owner-request", args.owner_request])
+                if getattr(args, 'position', None): s_cmd.extend(["--position", args.position])
+                if getattr(args, 'progress', None): s_cmd.extend(["--progress", args.progress])
+                if getattr(args, 'blocker', None): s_cmd.extend(["--blocker", args.blocker])
+                if getattr(args, 'next_action', None): s_cmd.extend(["--next-action", args.next_action])
+                subprocess.run(s_cmd, env=dict(os.environ, AIRO_CAPTURE_INTERNAL="1"), capture_output=True)
+        except Exception:
+            pass
 
     if args.json:
         print(json.dumps(event))
