@@ -178,7 +178,7 @@ def render_active_session_projection(repo_root, session_data):
     is_test = (
         os.environ.get("AIRO_TEST_MODE") == "1"
         or (session_data and (
-            session_data.get("project_id", "") in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test")
+            session_data.get("project_id", "") in ("TEST_PROJ", "MANUAL_TEST", "SEMANTIC_TEST", "Test Project", "Manual Test", "Semantic Test", "TEST_KCC")
             or session_data.get("project_id", "").startswith("TEST")
             or session_data.get("project_id", "").endswith("_TEST")
         ))
@@ -237,18 +237,15 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     else:
         live_path = str(raw_live)
 
-    # Clean absolute path leakage to ensure vault-relative link
-    if "/airo-second-brain/" in live_path:
+    # Clean any absolute path (WSL or Windows) to ensure strictly vault-relative link
+    if "worklog/sessions/" in live_path:
+        rel_live = "worklog/sessions/" + live_path.split("worklog/sessions/")[1]
+    elif "/airo-second-brain/" in live_path:
         rel_live = live_path.split("/airo-second-brain/")[1]
     elif repo_root in live_path:
         rel_live = os.path.relpath(live_path, repo_root)
     else:
         rel_live = live_path
-
-    if rel_live.startswith("/mnt/c/Users/") or rel_live.startswith("/home/"):
-        parts = rel_live.split("worklog/")
-        if len(parts) > 1:
-            rel_live = "worklog/" + parts[1]
 
     if rel_live.endswith(".md"):
         rel_live_no_ext = rel_live[:-3]
