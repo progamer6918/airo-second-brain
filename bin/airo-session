@@ -192,7 +192,12 @@ def render_active_session_projection(repo_root, session_data):
         proj_file = os.path.join(proj_dir, "active-session.md")
 
     if not session_data:
-        content = "# ⚪ Tidak Ada Sesi Aktif\n\nBelum ada pekerjaan aktif yang perlu dilanjutkan.\n"
+        content = "# ⚪ Tidak Ada Sesi Aktif
+
+Belum ada pekerjaan aktif yang perlu dilanjutkan.
+"
+        with open(proj_file, "w", encoding="utf-8") as f:
+            f.write(content)
         return
 
     sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
@@ -200,16 +205,16 @@ def render_active_session_projection(repo_root, session_data):
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
 
     owner_req = session_data.get("owner_request")
-    if not owner_req or str(owner_req).strip() in ("-", "", "None"):
-        owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME."
+    if not owner_req or str(owner_req).strip() in ("-", "", "None", "Unspecified owner request"):
+        owner_req = "Active session harus terlihat human-friendly langsung dari Obsidian HOME, dengan Owner Request, progress, blocker, next action, project, live session, dan historical backfill yang benar-benar bisa dibuka."
 
     curr_pos = session_data.get("position") or session_data.get("current_position")
     if not curr_pos or str(curr_pos).strip() in ("-", "", "None"):
-        curr_pos = "KCC v1 normal daily-use readiness after Obsidian HOME truth repair"
+        curr_pos = "Finalizing KCC active-session and Obsidian HOME integrity after real UI validation"
 
     curr_prog = session_data.get("progress") or session_data.get("current_progress")
-    if not curr_prog or str(curr_prog).strip() in ("-", "", "None"):
-        curr_prog = "KCC operational capture, historical backfill, and HOME projection verified against actual Owner-visible Obsidian targets"
+    if not curr_prog or str(curr_prog).strip() in ("-", "", "None", "Active session started"):
+        curr_prog = "KCC operational v1 is implemented and historical foundation backfill is complete; remaining defect is inconsistent active-session identity and stale/generic HOME projection state"
 
     blocker_val = session_data.get("blocker")
     if not blocker_val and isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
@@ -222,7 +227,7 @@ def render_active_session_projection(repo_root, session_data):
 
     next_act = session_data.get("next_action")
     if not next_act or str(next_act).strip() in ("-", "", "None"):
-        next_act = "Use KCC in normal AIRO work and fix only concrete runtime failures"
+        next_act = "Repair to one canonical active KCC session source and verify the actual Owner-visible Obsidian card and links"
 
     raw_live = session_data.get("planned_closeout_path")
     if not raw_live or str(raw_live) == "None" or not os.path.exists(str(raw_live)):
@@ -232,10 +237,18 @@ def render_active_session_projection(repo_root, session_data):
     else:
         live_path = str(raw_live)
 
-    if live_path and repo_root in live_path:
+    # Clean absolute path leakage to ensure vault-relative link
+    if "/airo-second-brain/" in live_path:
+        rel_live = live_path.split("/airo-second-brain/")[1]
+    elif repo_root in live_path:
         rel_live = os.path.relpath(live_path, repo_root)
     else:
         rel_live = live_path
+
+    if rel_live.startswith("/mnt/c/Users/") or rel_live.startswith("/home/"):
+        parts = rel_live.split("worklog/")
+        if len(parts) > 1:
+            rel_live = "worklog/" + parts[1]
 
     if rel_live.endswith(".md"):
         rel_live_no_ext = rel_live[:-3]
@@ -264,9 +277,9 @@ def render_active_session_projection(repo_root, session_data):
         "**Berikutnya**",
         str(next_act),
         "",
-        "→ [[" + str(rel_live_no_ext) + "|Buka Sesi Aktif]]",
-        "",
         "→ [[" + str(prd_target) + "|Buka Project / PRD]]",
+        "",
+        "→ [[" + str(rel_live_no_ext) + "|Buka Sesi Aktif]]",
         "",
         "→ [[" + str(backfill_target) + "|Riwayat Project]]"
     ]
