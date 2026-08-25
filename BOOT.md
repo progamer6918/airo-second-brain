@@ -204,6 +204,22 @@ Task status (`BERHASIL`, `BELUM_TERBUKTI`, `TERHAMBAT`, `GAGAL`) is computed ind
 
 ## Mandatory Session Workflow Guard
 
+### Session Boundary Invariant
+- Session boundary follows MAIN OWNER OBJECTIVE (`ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION`).
+- Same project + same main objective => `CONTINUE_EXISTING`.
+- Verifier/retry/sub-execution => owning session event, not `START_NEW`.
+- Synthetic tests => isolated state/worklog (`AIRO_SESSION_STATE_DIR`), never production worklog.
+- Close only after DoD + required verification + no known directly-related defect.
+- For detailed lifecycle rules read: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md).
+
+### ASB Overall Operating Authority
+- `BOOT.md` = canonical fresh-AI entrypoint / master procedural router
+- `AGENTS.md` = universal AI operating rules and source priority
+- `SECURITY.md` = security authority
+- `docs/contracts/` = specialized canonical operating contracts
+- `meta/how-to-use-this-brain.md` = usage guide only; not higher authority than BOOT/AGENTS/contracts
+
+
 For every meaningful AIRO execution:
 
 1. **Resolve project + main objective**: Identify `project_id`, `project_name`, `objective`, `title`, `position`.

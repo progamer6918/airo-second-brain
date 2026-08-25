@@ -131,6 +131,11 @@ Antigravity prompts must be detail-guarded, contain explicit allowed/forbidden d
 
 ## Mandatory Session Workflow Guard
 
+- Obey BOOT Session Boundary Invariant (`ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION`).
+- Verifier/retry/sub-execution does not imply `START_NEW`.
+- Detailed authority: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md).
+
+
 For every meaningful AIRO execution:
 
 1. **Resolve project + main objective**: Identify `project_id`, `project_name`, `objective`, `title`, `position`.
