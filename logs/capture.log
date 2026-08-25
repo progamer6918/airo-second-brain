@@ -267,3 +267,6 @@
 [2026-08-25T21:56:14.018951] [INFO] Appended event to events/raw/events.ndjson: PR-002 registration retry stopped before verified completion.
 [2026-08-25T21:56:14.192852] [INFO] Appended event to events/raw/events.ndjson: PR-002 registration retry stopped: CHECKPOINT_STAGE_FAILED
 [2026-08-25T21:56:14.204898] [INFO] Appended event to events/raw/events.ndjson: PR-002 registration retry stopped: CHECKPOINT_STAGE_FAILED
+[2026-08-25T21:56:19.389054] [INFO] Appended event to events/raw/events.ndjson: Remote main verified with PR-002 exactly once; PR remains TODO and no Earesmes runtime/model was changed.
+[2026-08-25T21:56:19.564725] [INFO] Appended event to events/raw/events.ndjson: Canonical remote verified at 6f1f510a2e31; PR-002 exists exactly once with TODO status.
+[2026-08-25T21:56:19.577107] [INFO] Appended event to events/raw/events.ndjson: Canonical remote verified at 6f1f510a2e31; PR-002 exists exactly once with TODO status.
