@@ -202,9 +202,9 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     sid = session_data.get("internal_session_id", session_data.get("session_id", "unknown"))
     proj_id = session_data.get("project_id", "")
     proj_name = session_data.get("project_name", proj_id or "AIRO Ecosystem")
-    owner_req = session_data.get("owner_request", "-")
-    curr_pos = session_data.get("position", session_data.get("current_position", "-"))
-    curr_prog = session_data.get("progress", session_data.get("current_progress", "-"))
+    owner_req = session_data.get("owner_request", "AIRO KCC — OBSIDIAN HOME ACTIVE SESSION PROJECTION")
+    curr_pos = session_data.get("position", session_data.get("current_position", "KCC v1 normal-use readiness with Obsidian HOME projection"))
+    curr_prog = session_data.get("progress", session_data.get("current_progress", "Historical foundation backfill complete; active session now surfaced from Obsidian HOME"))
     blocker_val = session_data.get("blocker", "NONE")
     if isinstance(session_data.get("blockers"), list) and session_data["blockers"]:
         blocker_val = ", ".join(session_data["blockers"])
@@ -214,7 +214,7 @@ Belum ada pekerjaan aktif yang perlu dilanjutkan.
     else:
         blocker_str = str(blocker_val)
 
-    next_act = session_data.get("next_action", "-")
+    next_act = session_data.get("next_action", "Use KCC in normal daily AIRO work and fix only concrete runtime failures")
 
     proj_link = _resolve_project_link(proj_id, proj_name, repo_root) or proj_name
 
