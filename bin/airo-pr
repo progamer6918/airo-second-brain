@@ -3,6 +3,7 @@
 bin/airo-pr
 Canonical CLI and helper engine for AIRO Global Deferred Work (PR Register).
 Supports Owner origin text, context, detail, project_ref, and source_ref.
+Enforces semantic validity & non-empty target checks for links.
 """
 
 import sys
@@ -50,6 +51,23 @@ def format_friendly_date(date_str):
     except Exception:
         return date_str
 
+def is_valid_link_target(repo_root, ref_path):
+    if not ref_path or not str(ref_path).strip() or str(ref_path).upper() == "NONE":
+        return False
+    clean_path = str(ref_path).strip()
+    if not clean_path.endswith(".md"):
+        clean_path += ".md"
+    full_path = repo_root / clean_path
+    if not full_path.exists():
+        return False
+    try:
+        # Require file to exist and be non-empty (> 10 bytes)
+        if full_path.stat().st_size <= 10:
+            return False
+    except Exception:
+        return False
+    return True
+
 def render_projection(repo_root, data):
     proj_path = get_projection_path(repo_root)
     todo_items = [p for p in data.get("prs", []) if p.get("status") == "TODO"]
@@ -96,12 +114,12 @@ def render_projection(repo_root, data):
 
             links = []
             pref = item.get("project_ref")
-            if pref and str(pref).strip():
+            if pref and is_valid_link_target(repo_root, pref):
                 clean_pref = pref.replace(".md", "")
                 links.append(f"→ [[{clean_pref}|Buka Project]]")
 
             sref = item.get("source_ref")
-            if sref and str(sref).strip():
+            if sref and is_valid_link_target(repo_root, sref):
                 clean_sref = sref.replace(".md", "")
                 links.append(f"→ [[{clean_sref}|Konteks Asal]]")
 
@@ -150,9 +168,9 @@ def cmd_add(args, repo_root):
         item["context"] = args.context
     if args.origin_text:
         item["origin_text"] = json.loads(args.origin_text) if args.origin_text.startswith("[") else [args.origin_text]
-    if args.project_ref:
+    if args.project_ref and str(args.project_ref).upper() != "NONE":
         item["project_ref"] = args.project_ref
-    if args.source_ref:
+    if args.source_ref and str(args.source_ref).upper() != "NONE":
         item["source_ref"] = args.source_ref
 
     prs.append(item)

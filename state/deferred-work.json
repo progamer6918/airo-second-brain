@@ -15,9 +15,7 @@
         "yaudah mungkin itu bisa jd to do list utk next nya"
       ],
       "context": "Owner menanyakan apakah project-project ASB sudah memiliki alur history dan kontinuitas yang jelas, lalu secara eksplisit meminta hal ini dijadikan to-do list berikutnya.",
-      "detail": "Audit canonical ASB projects dan pastikan setiap project memiliki jalur yang ringkas dan jelas dari current truth ke keputusan penting dan riwayat sesi, tanpa membuat dokumen project menjadi diary append-only.",
-      "project_ref": "docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY",
-      "source_ref": "worklog/sessions/2026-08-25/AIRO Knowledge Continuity Capability/05 - Global PR and Deferred Work v1.md"
+      "detail": "Audit canonical ASB projects dan pastikan setiap project memiliki jalur yang ringkas dan jelas dari current truth ke keputusan penting dan riwayat sesi, tanpa membuat dokumen project menjadi diary append-only."
     }
   ]
 }

@@ -88,3 +88,11 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
    - **PROJECT**: Project / context mapping (`project` / `project_ref`)
    - **WHEN**: Creation date (`created_at`)
    - **SOURCE**: Durable reference link if available (`source_ref`)
+### 6.2 PR Semantic Reference Contract
+
+1. **Optional References**: `project_ref` and `source_ref` are OPTIONAL metadata fields. A reference MUST NOT be stored or rendered merely because a path exists on the filesystem.
+2. **source_ref Validity Criteria**: `source_ref` is valid ONLY if the target file exists, is non-empty (>10 bytes), contains meaningful semantic content, and is materially relevant to the origin/context of that PR. Heading-only, placeholder-only, 0-byte, or unrelated session notes are INVALID.
+3. **Absence of Source Link**: If no semantically useful durable source artifact exists, `source_ref` MUST be set to `null` / absent. origin_text + context + detail remain complete durable provenance without a source link.
+4. **project_ref Validity Criteria**: `project_ref` is valid ONLY if the target artifact represents the actual current project/context named by the PR. A capability-specific PRD (e.g. KCC PRD) MUST NOT be used as `project_ref` for "ASB Global" unless canonical ASB explicitly defines it as ASB-global authority.
+5. **No Speculative Notes**: If no valid canonical project or source target exists, the link MUST be omitted. Creating speculative or placeholder notes merely to satisfy a link is strictly forbidden.
+6. **Fresh-AI Preference**: A fresh AI reader MUST prefer NO LINK over a MISLEADING LINK.

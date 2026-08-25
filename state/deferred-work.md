@@ -10,5 +10,3 @@
 
   **Yang perlu dikerjakan**
   Audit canonical ASB projects dan pastikan setiap project memiliki jalur yang ringkas dan jelas dari current truth ke keputusan penting dan riwayat sesi, tanpa membuat dokumen project menjadi diary append-only.
-
-  → [[docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY|Buka Project]]  → [[worklog/sessions/2026-08-25/AIRO Knowledge Continuity Capability/05 - Global PR and Deferred Work v1|Konteks Asal]]
