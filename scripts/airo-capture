@@ -61,7 +61,14 @@ def main():
     if os.environ.get("AIRO_CAPTURE_INTERNAL") != "1":
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         session_bin = os.path.join(repo_root, "bin", "airo-session")
-        active_session_file = os.path.join(repo_root, "state", "active_session.json")
+        if os.environ.get("AIRO_SESSION_STATE_DIR"):
+            active_session_file = os.path.join(os.environ["AIRO_SESSION_STATE_DIR"], "active_session.json")
+        else:
+            xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+            r_hash = hashlib.sha256("https://github.com/progamer6918/airo-second-brain".lower().encode("utf-8")).hexdigest()[:12]
+            active_session_file = os.path.join(xdg_state, "airo", "second-brain", r_hash, "active_session.json")
+            if not os.path.exists(active_session_file):
+                active_session_file = os.path.join(repo_root, "state", "active_session.json")
         if os.path.exists(active_session_file) and os.path.exists(session_bin):
             try:
                 with open(active_session_file, "r", encoding="utf-8") as sf:
