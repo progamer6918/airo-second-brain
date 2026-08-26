@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-workdesk-current-work
+Renders sanitized Owner current-work surface from canonical runtime session state.
+"""
+import os
+import sys
+import json
+import glob
+from pathlib import Path
+
+def resolve_owner_vault():
+    env_v = os.environ.get("AIRO_WORKDESK_OWNER_VAULT")
+    if env_v and Path(env_v).exists():
+        return Path(env_v)
+    
+    cfg_p = Path(os.path.expanduser("~/.config/airo-workdesk/owner-vault-path"))
+    if cfg_p.exists():
+        val = cfg_p.read_text(encoding="utf-8").strip()
+        if val and Path(val).exists():
+            return Path(val)
+    return None
+
+def get_active_session():
+    state_files = glob.glob(os.path.expanduser("~/.local/state/airo/second-brain/*/active_session.json"))
+    for sf in state_files:
+        try:
+            d = json.loads(Path(sf).read_text(encoding="utf-8"))
+            if d.get("internal_session_id") or d.get("session_id"):
+                return d
+        except Exception:
+            pass
+    return None
+
+def render_current_work(sess=None):
+    if not sess or not (sess.get("internal_session_id") or sess.get("session_id")):
+        return "# 🟢 Sedang Dikerjakan\n\nTidak ada pekerjaan aktif.\n"
+    
+    pname = sess.get("project_name", "AIRO WorkDesk")
+    pos = sess.get("position", "Sedang mengerjakan tugas WorkDesk")
+    
+    events = sess.get("events", [])
+    last_event = events[-1]["summary"] if events else "Sesi aktif dimulai"
+    hambatan = "Tidak ada"
+    next_act = sess.get("next_action") or "Melanjutkan pekerjaan sampai milestone selesai"
+
+    return f"""# 🟢 Sedang Dikerjakan
+
+| Project | Lagi di | Progress Terakhir | Hambatan | Berikutnya |
+|---|---|---|---|---|
+| {pname} | {pos} | {last_event} | {hambatan} | {next_act} |
+"""
+
+def main():
+    repo_dir = Path(__file__).resolve().parent.parent
+    sess = get_active_session()
+    content = render_current_work(sess)
+
+    # 1. WSL surface
+    wsl_cw = repo_dir / "runtime/workdesk/current-work.md"
+    wsl_cw.parent.mkdir(parents=True, exist_ok=True)
+    wsl_cw.write_text(content, encoding="utf-8")
+
+    # 2. Windows Mirror
+    ov = resolve_owner_vault()
+    if ov:
+        win_cw = ov / "runtime/workdesk/current-work.md"
+        win_cw.parent.mkdir(parents=True, exist_ok=True)
+        win_cw.write_text(content, encoding="utf-8")
+
+if __name__ == "__main__":
+    main()
