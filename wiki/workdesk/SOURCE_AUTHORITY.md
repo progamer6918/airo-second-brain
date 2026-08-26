@@ -44,3 +44,8 @@ Known conflicts/uncertainties are tracked in `evidence/workdesk/CONFLICT_REGISTE
 ## Public safety
 
 Owner-approved distilled business/training knowledge may be public. Never commit passwords/tokens/auth artifacts, raw private transcripts, or unnecessary sensitive personal/customer data.
+
+
+## Market Share Historical Authority Rule
+1. Dedicated single-year source authority (`DEDICATED_YEAR_SOURCE`) supersedes embedded multi-year comparison sheets (`EMBEDDED_COMPARISON_SHEET`).
+2. Embedded prior-year data in single-year workbooks may support comparison only after explicit cross-year reconciliation against dedicated-year authority.

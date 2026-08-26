@@ -13,6 +13,7 @@ User cukup menyebut gejala atau output. Tidak perlu tahu nama framework.
 | Bahasa user | Route |
 |---|---|
 | “Market share turun” | [[playbooks/MARKET_SHARE_DOWN]] |
+| “Market share 2025 / histori 2025” | [[intelligence/MARKET_SHARE_2025_HISTORICAL_RECOVERY]] |
 | “Sales turun” | [[playbooks/DIAGNOSE_BUSINESS_PROBLEM]] + [[business/SALES_STOCK_DISTRIBUTION]] |
 | “Activity banyak tapi hasil kecil” | [[playbooks/HIGH_ACTIVITY_LOW_RESULT]] |
 | “Dealer nggak perform” | [[playbooks/DEALER_REVIEW]] + [[network/NOS_2026_CORE]] jika execution standard relevan |
