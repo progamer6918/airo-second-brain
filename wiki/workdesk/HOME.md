@@ -8,6 +8,9 @@ project_id: AIRO_WORKDESK
 mode: expert-operational-cockpit
 ---
 
+> [!tip] Navigasi WorkDesk
+> 🗺 [[AWD_INDEX|AWD — Daftar Isi]] &nbsp;|&nbsp; 🩺 [[STATUS_DATA|Status Data]]
+
 🏠 [[HOME|AIRO Home]] → 💼 WorkDesk
 
 # 💼 AIRO WorkDesk
@@ -120,3 +123,7 @@ Dealer Review & Operational Readiness Automation.
 - [[docs/contracts/WORKDESK_HOME_OPERATING_SURFACE_CONTRACT|Home Surface Contract]]
 
 </details>
+
+## 🟢 Sedang Dikerjakan
+
+![[runtime/workdesk/current-work.md]]
