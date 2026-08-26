@@ -325,3 +325,23 @@
 [2026-08-26T20:10:33.770214] [INFO] Appended event to events/raw/events.ndjson: Gate 4 PRE: Applying Owner-approved Market 2025 public memory and local private sidecars
 [2026-08-26T20:10:41.097171] [INFO] Appended event to events/raw/events.ndjson: Gate 4 POST: Applied public Market 2025 intelligence memory and private local sidecars (F1-F4). Fresh retrieval 14/14 PASS. Commit/push pending Owner authorization.
 [2026-08-26T20:16:34.410688] [INFO] Appended event to events/raw/events.ndjson: Market Share 2025 sanitized canonical persistence is committed (10304f17), pushed, and remotely verified on origin/main; private micro-detail remains local sidecar by approved privacy boundary.
+[2026-08-26T20:28:56.378545] [INFO] Appended event to events/raw/events.ndjson: Registry Repair PRE: Validating regression and preparing base restoration with additive Market 2025 routing
+[2026-08-26T20:29:08.700377] [INFO] Appended event to events/raw/events.ndjson: Restored full AWD Capability Registry from pre-regression canonical baseline (1b34647f) and preserved Market Share 2025 routing additively; repair commit (423c4921) pushed and remotely verified.
+[2026-08-26T21:03:42.883074] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Gate 1 PRE: Reconciling current canonical state and preparing exact Owner Approval Draft V1
+[2026-08-26T21:03:45.836751] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Gate 1 POST: Reconciled current canonical state, created preview package under /tmp, generated Owner Approval Draft V1
+[2026-08-26T21:07:59.503724] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply PRE: Applying approved AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge
+[2026-08-26T21:08:00.368920] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
+[2026-08-26T21:08:00.887204] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
+[2026-08-26T21:08:16.173307] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply PRE: Applying approved AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge
+[2026-08-26T21:08:17.081412] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
+[2026-08-26T21:08:17.608385] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
+[2026-08-26T21:08:28.949614] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply PRE: Applying approved AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge
+[2026-08-26T21:08:29.751122] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
+[2026-08-26T21:08:30.238625] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
+[2026-08-26T21:08:44.929952] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply PRE: Applying approved AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge
+[2026-08-26T21:08:45.731101] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
+[2026-08-26T21:08:46.231535] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
+[2026-08-26T21:09:07.796872] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply PRE: Applying approved AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge
+[2026-08-26T21:09:08.580262] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
+[2026-08-26T21:09:09.083408] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
+[2026-08-26T21:29:17.419792] [INFO] Appended event to events/raw/events.ndjson: AWD Owner Experience implementation is committed (a04849a1), pushed, and remotely verified: HOME cockpit navigation, AWD Daftar Isi, Status Data, owner update SOP, and sanitized live-current-work bridge are durable while runtime content remains private/local.
