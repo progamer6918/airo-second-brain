@@ -1039,3 +1039,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def refresh_owner_bridge(repo_root: Path):
+    try:
+        bridge_script = repo_root / "scripts/airo-workdesk-current-work"
+        if bridge_script.exists():
+            subprocess.run([sys.executable, str(bridge_script)], check=False)
+    except Exception:
+        pass

@@ -2,12 +2,17 @@
 """
 scripts/airo-workdesk-current-work
 Renders sanitized Owner current-work surface from canonical runtime session state.
+Uses deterministic repo-specific runtime state directory matching bin/airo-session.
 """
 import os
 import sys
 import json
-import glob
+import hashlib
 from pathlib import Path
+
+def get_repo_hash(repo_dir: Path) -> str:
+    resolved_path = str(repo_dir.resolve())
+    return hashlib.sha256(resolved_path.encode("utf-8")).hexdigest()[:12]
 
 def resolve_owner_vault():
     env_v = os.environ.get("AIRO_WORKDESK_OWNER_VAULT")
@@ -21,13 +26,19 @@ def resolve_owner_vault():
             return Path(val)
     return None
 
-def get_active_session():
-    state_files = glob.glob(os.path.expanduser("~/.local/state/airo/second-brain/*/active_session.json"))
-    for sf in state_files:
+def get_active_session(repo_dir: Path):
+    override_dir = os.environ.get("AIRO_SESSION_STATE_DIR")
+    if override_dir and Path(override_dir).exists():
+        state_dir = Path(override_dir)
+    else:
+        repo_h = get_repo_hash(repo_dir)
+        xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+        state_dir = Path(xdg_state) / "airo/second-brain" / repo_h
+    
+    session_json = state_dir / "active_session.json"
+    if session_json.exists():
         try:
-            d = json.loads(Path(sf).read_text(encoding="utf-8"))
-            if d.get("internal_session_id") or d.get("session_id"):
-                return d
+            return json.loads(session_json.read_text(encoding="utf-8"))
         except Exception:
             pass
     return None
@@ -53,7 +64,7 @@ def render_current_work(sess=None):
 
 def main():
     repo_dir = Path(__file__).resolve().parent.parent
-    sess = get_active_session()
+    sess = get_active_session(repo_dir)
     content = render_current_work(sess)
 
     # 1. WSL surface
