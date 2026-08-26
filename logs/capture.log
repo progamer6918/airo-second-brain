@@ -345,3 +345,5 @@
 [2026-08-26T21:09:08.580262] [INFO] Appended event to events/raw/events.ndjson: Owner-facing HOME, MOC, Status Data, and live-current-work bridge applied locally
 [2026-08-26T21:09:09.083408] [INFO] Appended event to events/raw/events.ndjson: Owner Experience Apply POST: Applied AWD_INDEX, STATUS_DATA, SOP, HOME patch, and live bridge to WSL and Windows Obsidian vault
 [2026-08-26T21:29:17.419792] [INFO] Appended event to events/raw/events.ndjson: AWD Owner Experience implementation is committed (a04849a1), pushed, and remotely verified: HOME cockpit navigation, AWD Daftar Isi, Status Data, owner update SOP, and sanitized live-current-work bridge are durable while runtime content remains private/local.
+[2026-08-26T21:35:35.146131] [INFO] Appended event to events/raw/events.ndjson: Session started: Repair AWD Owner Experience live-bridge durability and correct its permanent KCC work history
+[2026-08-26T21:36:01.107635] [INFO] Appended event to events/raw/events.ndjson: AWD Owner Experience final durability repair implementation committed (df524e06), pushed, and remotely verified.
