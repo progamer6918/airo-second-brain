@@ -663,8 +663,13 @@ def cmd_close(args, repo_root):
     limitations = json.loads(args.limitations) if args.limitations else active.get("limitations", [])
 
     if not has_explicit_evidence:
-        verdict_status = "BELUM_TERBUKTI"
-        can_advance = "NO"
+        print("CLOSE_RESULT=FAILED")
+        print("TASK_STATUS=BELUM_TERBUKTI")
+        print("CAN_ADVANCE=NO")
+        print("ACTIVE_SESSION_PRESERVED=YES")
+        print("PERMANENT_SESSION_NOTE_CREATED=NO")
+        print("DAILY_REGENERATED=NO")
+        return 1
     else:
         verdict_script = os.path.join(repo_root, "scripts/airo-task-verdict")
         if not os.path.exists(verdict_script) or not os.access(verdict_script, os.X_OK):
@@ -705,6 +710,15 @@ def cmd_close(args, repo_root):
 
             verdict_status = v_data["task_status"]
             can_advance = v_data["can_advance"]
+
+            if can_advance != "YES" or verdict_status not in ["BERHASIL", "BERHASIL_DENGAN_BATASAN"]:
+                print("CLOSE_RESULT=FAILED")
+                print(f"TASK_STATUS={verdict_status}")
+                print(f"CAN_ADVANCE={can_advance}")
+                print("ACTIVE_SESSION_PRESERVED=YES")
+                print("PERMANENT_SESSION_NOTE_CREATED=NO")
+                print("DAILY_REGENERATED=NO")
+                return 1
         except Exception as e:
             print(f"ERROR: Validator execution/parsing failed: {e}", file=sys.stderr)
             print("CLOSE_RESULT=FAILED")
