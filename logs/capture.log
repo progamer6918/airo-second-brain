@@ -349,3 +349,8 @@
 [2026-08-26T21:36:01.107635] [INFO] Appended event to events/raw/events.ndjson: AWD Owner Experience final durability repair implementation committed (df524e06), pushed, and remotely verified.
 [2026-08-26T21:40:41.598745] [INFO] Appended event to events/raw/events.ndjson: Verifying automatic event lifecycle hook refresh on current work bridge
 [2026-08-26T21:40:50.053866] [INFO] Appended event to events/raw/events.ndjson: Canonical AWD session lifecycle now automatically refreshes the sanitized Owner live-current-work surface on start/event/close, uses deterministic repo-specific runtime state, and passes session identity/history regression checks (6f0053d4).
+[2026-08-27T18:04:39.158354] [INFO] Appended event to events/raw/events.ndjson: Backfill: Applied literal lifecycle source patch before session start because session tooling itself required repair.
+[2026-08-27T18:04:40.069232] [INFO] Appended event to events/raw/events.ndjson: Session started: Isolated Test Objective
+[2026-08-27T18:04:40.672780] [INFO] Appended event to events/raw/events.ndjson: Isolated Progress Event
+[2026-08-27T18:04:41.579872] [INFO] Appended event to events/raw/events.ndjson: Session started: Isolated Test Objective
+[2026-08-27T18:04:55.059410] [INFO] Appended event to events/raw/events.ndjson: Literal AWD lifecycle patch is committed, pushed, and verified directly from origin/main.
