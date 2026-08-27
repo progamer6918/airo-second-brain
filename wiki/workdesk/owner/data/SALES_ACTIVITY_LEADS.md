@@ -15,53 +15,51 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Seberapa efektif aktivitas sales dan bagaimana konversi leads menjadi penjualan?"*
 
-- **Status & Periode Data**: 🟢 Activity Log & Prospek 2026
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Log**: **Activity Log & Prospek 2026**
+- **Tahapan Funnel**: Touchpoint → Prospect → Follow Up → SPK → Retail
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Funnel Konversi**: Touchpoint → Prospect → Follow Up → SPK → Retail
-- **Lead Sources**: Pameran, Canvasing, Digital Leads, Walk-in, Referral
-- **Kelengkapan Input Data**: % Catatan prospek yang diisi lengkap oleh dealer
+- **Sumber Leads Utama**: Pameran, Canvasing, Digital Leads, Walk-in, Referral
+- **Tingkat Konversi (Conversion Rate)**: % Prospek yang berhasil menjadi SPK & Retail
+- **Kelengkapan Input Data**: Peringatan transparansi kelengkapan pengisian log oleh dealer
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Pergerakan prospek harian/mingguan per sumber aktivitas
-- Rasio konversi prospek menjadi SPK dan Retail per cabang
-- Catatan transparansi kelengkapan input data aktivitas dealer
+Funnel Aktivitas Penjualan:
+- Volume prospek masuk per sumber kegiatan
+- Tingkat konversi prospek menjadi transaksi penjualan aktual
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Conversion Rate per Source**: Perbandingan efektivitas Pameran vs Digital
-- **Activity Utilization per Dealer**: Keaktifan dealer dalam pengisian log
-- **Funnel Bottleneck**: Identifikasi tahap gugurnya prospek terbanyak
+Kemampuan eksplorasi activity & leads yang tersedia:
+1. **Conversion per Activity Source**: Efektivitas Pameran vs Canvasing vs Digital.
+2. **Activity Log Utilization**: Keaktifan dealer dalam pengisian data prospek harian.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#sales-activity--leads|Analisis Efektivitas Activity & Funnel Leads]]
-- Evaluasi ROI kegiatan pameran dan aktivitas lapangan
+- Permintaan analisis ROI kegiatan pameran dan aktivitas lapangan.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Activity & Leads
+### 📊 Riwayat Activity
 - **2026**: Log aktivitas dan pergerakan prospek tercatat secara sistematis.
-- **2025**: Data histori funnel kegiatan tersedia.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Kelengkapan pengisian log aktivitas bervariasi antar-dealer. Input yang belum lengkap tidak boleh langsung dianggap sebagai kinerja nol.
+- Kelengkapan pengisian log aktivitas bervariasi antar-dealer. Input yang belum lengkap tidak boleh langsung dianggap sebagai kinerja nol.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Sales Activity & Leads|Status Data Leads]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#leads|Registry Leads]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Leads]]
 
 ---
 

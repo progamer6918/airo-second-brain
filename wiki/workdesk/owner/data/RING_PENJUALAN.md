@@ -15,53 +15,53 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana pemetaan zona pemasaran Ring 1–3 antar Dealer/POS dan Kecamatan?"*
 
-- **Status & Periode Data**: ⚪ Historis 2022 · Acuan terkini belum terkonfirmasi
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Domain**: **⚪ HISTORIS (Acuan 2022)**
+- **Jumlah Record Mapping**: **803 Records** Dealer/POS-to-Kecamatan
+- **Peringatan**: Data ini berstatus acuan historis 2022. Acuan zonasi terkini 2026 belum terkonfirmasi.
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Status Domain**: ⚪ HISTORIS (Acuan 2022)
-- **Jumlah Record**: 803 Dealer/POS-Kecamatan Records
-- **Cakupan Ring**: Ring 1 (Utama), Ring 2 (Pendukung), Ring 3 (Luar)
+- **Ring 1 (Zona Utama)**: Kecamatan wilayah penjualan utama dealer
+- **Ring 2 (Zona Pendukung)**: Kecamatan wilayah jangkauan sekunder
+- **Ring 3 (Zona Perluasan)**: Kecamatan wilayah jangkauan luar
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Mapping Dealer/POS ke Kecamatan berdasarkan zonasi 2022
-- Klasifikasi prioritas alokasi pemasaran per ring
-- Peringatan transparan bahwa data berstatus acuan historis
+Pemetaan Ring 2022:
+- 803 baris relasi Dealer/POS ke Kecamatan
+- Zonasi alokasi pemasaran berdasarkan kedekatan geografis 2022
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Mapping Ring 1**: Kecamatan zona utama per Dealer
-- **Mapping Ring 2 & 3**: Kecamatan zona perluasan per POS
-- **Evaluasi Historis**: Profil alokasi zonasi 2022
+Kemampuan eksplorasi ring yang tersedia:
+1. **Mapping Ring 1**: List kecamatan utama per dealer (Acuan 2022).
+2. **Mapping Ring 2 & 3**: List kecamatan sekunder per POS (Acuan 2022).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#ring-penjualan|Analisis Evaluasi Zonasi Ring Penjualan]]
-- Re-evaluasi relevansi Ring 2022 terhadap distribusi POLREG terbaru
+- Permintaan evaluasi perbandingan zonasi Ring 2022 terhadap sebaran POLREG 2026.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Zonasi
-- **2022**: 803 Records Dealer/POS-Kecamatan (Acuan historis sah terkhir).
+- **2022**: 803 Records sah terdaftar.
 - **2023–2026**: Pembaruan acuan terkini belum terkonfirmasi.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Data Ring Penjualan secara eksplisit berstatus ⚪ HISTORIS 2022. Dilarang menyajikan data ini sebagai zonasi aktif 2026.
+- Data Ring Penjualan secara eksplisit berstatus **⚪ HISTORIS 2022**. Dilarang menyajikan data ini sebagai zonasi aktif 2026.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Ring Penjualan|Status Data Ring]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#ring|Registry Ring]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Ring]]
 
 ---
 

@@ -15,53 +15,72 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Jualan gue sekarang gimana dan apa yang mendorong perubahannya?"*
 
-- **Status & Periode Data**: 🟢 Jan–Jul 2026 · FY 2025 (107.108 unit)
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Pencapaian Juli 2026**: **12.241 unit** (Penjualan aktual bulanan tertinggi YTD)
+- **Total YTD (Jan–Jul 2026)**: **73.968 unit**
+- **Pembanding YTD (Jan–Jul 2025)**: **56.996 unit**
+- **Pertumbuhan YTD (YoY)**: **+29,78%** (+16.972 unit)
+- **Base FY 2025**: **107.108 unit**
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Volume Retail Current (YTD Jul 2026)**: Tersedia per cabang & dealer
-- **Base FY 2025**: 107.108 unit (acuan pembanding sah)
-- **Pertumbuhan YTD**: Positif pada segmen AT Main & Cub
+- **Penjualan Bulan Terakhir (Jul 2026)**: 12.241 unit
+- **Akumulasi YTD 2026**: 73.968 unit
+- **Rata-rata Retail Bulanan 2026**: 10.567 unit/bulan
+- **Puncak Pertumbuhan YoY**: Juli 2026 (+43,91% vs Jul 2025)
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Pergerakan retail bulanan Jan–Jul 2026
-- Breakdown kontribusi per kabupaten/kota & cabang
-- Ranking performa retail antar-dealer group
+Tabel Performa Penjualan Retail Bulanan (Jan–Jul 2026 vs 2025):
+
+| Bulan | 2026 Actual | 2025 Comparable | Selisih (Unit) | Growth YoY (%) |
+|---|---:|---:|---:|---:|
+| Jan | 10.545 | 8.441 | +2.104 | +24,93% |
+| Feb | 10.944 | 8.120 | +2.824 | +34,78% |
+| Mar | 11.761 | 8.512 | +3.249 | +38,17% |
+| Apr | 9.022 | 7.390 | +1.632 | +22,08% |
+| May | 9.479 | 7.912 | +1.567 | +19,81% |
+| Jun | 9.976 | 8.115 | +1.861 | +22,93% |
+| Jul | 12.241 | 8.506 | +3.735 | +43,91% |
+| **Total YTD** | **73.968** | **56.996** | **+16.972** | **+29,78%** |
+
+*Sinyal Utama*: Pertumbuhan retail konsisten positif YoY di seluruh bulan 2026, dengan lonjakan tertinggi terjadi pada bulan Juli 2026 (12.241 unit).
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Retail per Segmen/Tipe**: AT High, AT Main, Cub, Sport
-- **Retail per Cabang**: Top 10 cabang kontributor retail
-- **Tren Bulanan**: Evaluasi seasonality & dampak promo terhadap retail
+Kemampuan eksplorasi data retail yang tersedia:
+1. **Breakdown per Cabang/Dealer Group**: Distribusi volume retail per kontributor utama jaringan.
+2. **Breakdown per Kategori Produk**: Kontribusi AT Main, AT High, Cub, dan Sport.
+3. **Analisis Seasonality**: Perbandingan tren retail bulanan terhadap pola musiman 2025.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#penjualan-retail|Analisis Tren Penjualan Retail]]
-- Evaluasi gap pencapaian target retail bulanan per cabang
+- Permintaan analisis pencapaian retail per wilayah kabupaten/kota.
+- Permintaan perbandingan performa retail antar-dealer group utama.
+- Evaluasi gap pencapaian target retail bulanan per cabang.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Penjualan
-- **2025**: 107.108 unit (Rincian lengkap 12 bulan per dealer & cabang)
-- **2024**: Data historis pembanding sah tersedia
+### 📊 Riwayat Penjualan Sah
+- **FY 2025**: **107.108 unit** total retail sah 12 bulan.
+- **FY 2024**: Data historis pembanding sah tersedia dalam basis data.
+- **Tren Bulanan 2025**: Rata-rata 8.925 unit/bulan.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Data retail terkini mencakup hingga Juli 2026. Angka Agustus 2026 dalam proses rekonsiliasi.
+- Data retail terkini mencakup hingga **Juli 2026** (SSU.2026.xlsx).
+- Pembanding Jan–Jul 2025 bersumber dari `Record Sales 2008-2025.xlsx`.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Penjualan Retail|Status Data Retail]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#retail|Registry Retail]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Retail]]
 
 ---
 

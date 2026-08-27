@@ -15,53 +15,52 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Apa yang terjadi di lapangan dari sisi aktivitas kompetitor dan event pasar?"*
 
-- **Status & Periode Data**: 🟡 Proses Aug 2026 (Catatan Historis Belum Disediakan)
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Domain**: **🟡 Perlu Pembaruan (Proses Agustus 2026 berjalan)**
+- **Alur Kerja**: MD Google Form -> Pengujian Kualitas -> Input AHM Portal
+- **Batas Waktu Pengiriman**: Maksimal Hari Jumat minggu berjalan
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Status Domain**: 🟡 Perlu Pembaruan (Proses Agustus 2026 berjalan)
-- **Kategori Informasi**: Event Lokal, Promo Competitor, Market Intelligence
-- **Workflow**: Pending Follow-up & verifikasi sinyal lapangan
+- **Workflow**: Penangkapan sinyal kompetitor & event lokal per area
+- **Status Data Historis**: **NOT_SUPPLIED** (Catatan historis mingguan belum disediakan dalam basis data)
+- **Tindak Lanjut**: Tracking respons terhadap pergerakan pasar kompetitor
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Kalender kegiatan event lokal dan rencana pelaksanaan
-- Catatan indikatif pergerakan aktivitas kompetitor per area
-- Status tindak lanjut sinyal pasar oleh tim operasional
+Proses Informasi Pasar:
+- Kalender rencana event lokal dan pameran dealer
+- Catatan indikatif pergerakan promo & aktivitas kompetitor lapangan
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Event Calendar Aug 2026**: Daftar event yang sedang/akan berjalan
-- **Competitor Signal Log**: Ringkasan pengamatan promo & pameran kompetitor
-- **Action Tracking**: Status rekomendasi respons aktivitas pasar
+Kemampuan eksplorasi market info yang tersedia:
+1. **Event Calendar Aug 2026**: Daftar event lokal yang berjalan.
+2. **Competitor Signal Log**: Ringkasan pengamatan aktivitas kompetitor per wilayah.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#market-info--event|Analisis Sinyal Pasar & Pergerakan Kompetitor]]
-- Evaluasi kebutuhan penyesuaian event lokal responsif
+- Permintaan evaluasi kebutuhan penyesuaian event lokal responsif.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Informasi Pasar
-- **Aug 2026**: Pembaruan informasi pasar berjalan.
-- **Catatan Historis Mingguan**: Belum disediakan dalam basis data (NOT_SUPPLIED).
+- **Aug 2026**: Pembaruan alur kerja pasar berjalan. Catatan historis mingguan **TIDAK DISEDIAKAN (NOT_SUPPLIED)**.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Status domain 🟡 Perlu Pembaruan. Catatan historis mingguan yang belum disediakan dilarang direkayasa atau difabrikasi.
+- Status domain 🟡 Perlu Pembaruan. Catatan historis mingguan yang belum disediakan dilarang direkayasa atau difabrikasi.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Market Info & Event|Status Data Market Info]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#market_info|Registry Market Info]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Market Info]]
 
 ---
 

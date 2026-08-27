@@ -15,53 +15,51 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana pemenuhan standar NOS di jaringan dealer dan apa gap utamanya?"*
 
-- **Status & Periode Data**: 🟢 Audit NOS Q1–Q2 2026
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Audit**: **Hasil Audit NOS Q1–Q2 2026**
+- **Fokus Evaluasi**: Standar Fisik Outlet, Standar Pelayanan, Standar SDM Dealer
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Periode Audit**: Hasil Audit NOS Q1–Q2 2026
-- **Fokus Evaluasi**: Standar Fisik Outlet, Standar Pelayanan, Standar SDM
-- **Kategori Skor**: Gold, Silver, Bronze, Need Improvement
+- **Peringkat Kelulusan**: Gold, Silver, Bronze, Need Improvement
+- **Compliance Gap**: Item audit yang paling sering menjadi kendala dealer
+- **Corrective Action Plan**: Monitoring progres perbaikan dealer pasca-audit
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Hasil pencapaian skor NOS per Dealer
-- Daftar rincian persyaratan NOS yang belum terpenuhi (gap audit)
-- Rencana tindakan perbaikan (corrective action plan)
+Hasil Audit NOS Q1–Q2 2026:
+- Pencapaian skor audit NOS per jaringan dealer
+- Rincian item gap standar kualitas pelayanan dan fisik
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **NOS Score Distribution**: Sebaran peringkat kelulusan NOS jaringan
-- **Common Compliance Gap**: Top 5 item audit yang sering menjadi kendala
-- **Dealer Action Plan Status**: Monitoring progres perbaikan dealer
+Kemampuan eksplorasi NOS yang tersedia:
+1. **NOS Score Distribution**: Sebaran peringkat kelulusan NOS jaringan.
+2. **Dealer Action Plan Status**: Progres pelaksanaan perbaikan oleh dealer.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#standar-nos|Analisis Kepatuhan & Kualitas Standar NOS]]
-- Evaluasi hubungan antara skor NOS dan produktivitas penjualan
+- Permintaan evaluasi hubungan antara skor NOS dan produktivitas penjualan dealer.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Audit NOS
 - **Q1–Q2 2026**: Results audit resmi terdaftar sah.
-- **2025**: Data histori audit NOS tahun sebelumnya tersedia.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Nilai skor dan tanggal audit bersumber langsung dari hasil audit NOS resmi. Dilarang merumuskan tanggal atau skor tanpa bukti audit sah.
+- Nilai skor dan tanggal audit bersumber langsung dari hasil audit NOS resmi. Dilarang merumuskan tanggal atau skor tanpa bukti audit sah.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Standar NOS|Status Data NOS]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#nos|Registry NOS]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry NOS]]
 
 ---
 

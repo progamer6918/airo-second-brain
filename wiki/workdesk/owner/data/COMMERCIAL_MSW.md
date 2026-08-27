@@ -15,53 +15,51 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana performa penjualan fleet/instansi dan ketentuan program MSW?"*
 
-- **Status & Periode Data**: 🟢 Fleet Account & MSW Aug 2026
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Versi Terkini**: **MSW & Fleet Account Aug 2026 (Versi Terbaru)**
+- **Segmen Sasaran**: Perusahaan Swasta, Instansi Pemerintah, BUMN, Koperasi
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Versi Katalog**: Katalog MSW (Make Sure Winner) & Commercial Aug 2026 (Versi Terbaru)
-- **Segmen Sasaran**: Fleet Perusahaan, Instansi Pemerintah, BUMN, Koperasi
-- **Eligibility Model**: Tipe kendaraan yang diperbolehkan untuk skema fleet
+- **Versi Katalog Aktif**: Agustus 2026 (Wajib menggunakan resolver versi terbaru)
+- **Model Eligibility**: Tipe kendaraan yang diperbolehkan untuk skema komersial/fleet
+- **Skema Manfaat**: Diskon khusus unit & fasilitas pembiayaan institusi
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Ketentuan diskon khusus dan fasilitas pembiayaan fleet
-- Perbandingan penawaran komersial versi terbaru vs versi sebelumnya
-- Daftar kemitraan instansi aktif
+Penawaran Komersial & MSW:
+- Ketentuan diskon fleet berdasarkan jumlah unit (volume tier)
+- Syarat dan dokumen pengajuan skema MSW
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Commercial Volume per Account**: Kontribusi unit penjualan fleet
-- **Model Mix Commercial**: Model sepeda motor favorit untuk operasional
-- **MSW Terms & Conditions**: Persyaratan khusus pengajuan skema MSW
+Kemampuan eksplorasi komersial yang tersedia:
+1. **Commercial Volume per Account**: Kontribusi unit penjualan fleet instansi.
+2. **MSW Terms & Conditions**: Persyaratan khusus pengajuan skema MSW versi Agustus 2026.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#commercial--msw|Analisis Penjualan Komersial & Fleet MSW]]
-- Evaluasi potensi perluasan kerja sama instansi daerah
+- Permintaan evaluasi potensi perluasan kerja sama instansi daerah.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Skema Commercial
-- **Aug 2026**: Rilisan versi katalog MSW & Fleet terbaru sah.
-- **Versi Historis**: Arsip versi terdahulu disimpan terpisah.
+### 📊 Riwayat Commercial
+- **Aug 2026**: Versi katalog MSW & Fleet terbaru terdaftar sah.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Selalu menggunakan acuan versi katalog komersial terbaru (Aug 2026). Dilarang mencampur penawaran versi lama yang sudah tidak berlaku.
+- Selalu menggunakan acuan versi katalog komersial terbaru (Aug 2026). Dilarang mencampur penawaran versi lama yang sudah tidak berlaku.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Commercial & MSW|Status Data Commercial]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#commercial|Registry Commercial]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Commercial]]
 
 ---
 

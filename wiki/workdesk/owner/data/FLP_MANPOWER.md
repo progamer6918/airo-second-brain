@@ -15,53 +15,51 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Berapa kekuatan sales force (FLP) dan bagaimana produktivitasnya?"*
 
-- **Status & Periode Data**: 🟢 FLP Active Roster 2026
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Roster**: **FLP Active Roster 2026**
+- **Fokus Evaluasi**: Jumlah Headcount (HC) aktif & produktivitas rata-rata (Unit/FLP/Bulan)
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Headcount (HC) Aktif**: Jumlah Sales People / Front Line People (FLP) aktif 2026
-- **Produktivitas Rata-rata**: Unit retail per FLP per bulan (Sales/Headcount)
+- **Headcount FLP Aktif**: Roster sales aktif terdaftar 2026
+- **Produktivitas Rata-rata**: Rasio Sales per Headcount per bulan
 - **Komposisi Peran**: Sales Wing, Junior Sales, Senior Sales, Counter Sales
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Distribusi FLP aktif per Dealer dan POS
-- Rasio pencapaian target penjualan individu FLP
-- Status siklus FLP: Active, New Hire, Dormant/Turnover
+Struktur Tenaga Penjual:
+- Sebaran FLP aktif per Dealer & POS
+- Tingkat turnover & roster sales baru (New Hire vs Active vs Dormant)
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Productivity per Dealer**: Peringkat rata-rata produktivitas FLP per jaringan
-- **Sales Force Tenure**: Performa FLP berdasarkan masa kerja
-- **Active Roster Detail**: Agregat jumlah sales aktif per outlet
+Kemampuan eksplorasi manpower yang tersedia:
+1. **Produktivitas per Dealer**: Rata-rata penjualan per FLP per cabang.
+2. **Sales Force Tenure**: Produktivitas FLP berdasarkan masa kerja.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#flp--manpower|Analisis Manpower & Produktivitas FLP]]
-- Evaluasi kebutuhan penambahan tenaga penjual di area potensial
+- Permintaan evaluasi kebutuhan penambahan FLP di area dengan potensi penjualan tinggi.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Manpower
 - **2026**: Active Roster FLP terpetakan sah.
-- **2025**: Record produktivitas historis tersedia.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Data manpower berfokus pada produktivitas tim dan struktur roster tanpa mengekspos identitas pribadi karyawan.
+- Data berfokus pada produktivitas tim dan struktur roster tanpa mengekspos identitas pribadi sales.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#FLP & Manpower|Status Data FLP]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#flp|Registry FLP]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry FLP]]
 
 ---
 

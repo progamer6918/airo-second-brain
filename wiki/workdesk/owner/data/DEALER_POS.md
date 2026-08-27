@@ -15,52 +15,56 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Dealer/POS mana perform, bermasalah, dan kenapa?"*
 
-- **Status & Periode Data**: 🟠 Hierarki Dealer → POS → FLP tersedia; total jaringan acuan terkini belum terkonfirmasi
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Domain**: **🟠 Sebagian** (Hierarki Dealer → POS → FLP tersedia; total jaringan acuan terkini belum terkonfirmasi)
+- **Batas Periode Asinkron (Multi-domain)**:
+  - Retail: Juli 2026
+  - Market Share: Juni 2026
+  - Stock Kendaraan: 6 Agustus 2026
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Struktur Jaringan**: Dealer Group → Main Dealer → POS → Sales Force
-- **Status Data**: 🟠 Sebagian (Hierarki tersedia, konfirmasi total acuan terkini berjalan)
-- **Multi-domain Period**: Asinkron antara Sales, Stock, dan FLP Roster
+- **Hierarki Jaringan**: Dealer Group → Main Dealer → POS → Sales Force
+- **Integrasi Domain**: Penjualan, Stok, Manpower, dan Activity terikat pada kode Dealer/POS
+- **Status Konfirmasi Induk**: Dalam proses verifikasi acuan semesta jaringan
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Daftar Dealer Group dan jaringan POS bawahan
-- Kontribusi penjualan per outlet/POS
-- Pemetaan ketersediaan man power (FLP) per Dealer
+Struktur Jaringan Penjualan:
+- **Dealer Group**: Kelompok dealer utama
+- **POS (Point of Sales)**: Pos jualan cabang bawahan
+- **FLP Roster**: Alokasi tenaga sales per POS
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Performansi Dealer**: Profil Penjualan, Stok, dan Leads per Dealer
-- **POS Efficiency**: Evaluasi jangkauan dan produktivitas POS
-- **FLP Roster per Dealer**: Jumlah sales aktif vs target pencapaian
+Kemampuan eksplorasi jaringan yang tersedia:
+1. **Performa Retail per Dealer**: Volume kontribusi retail per dealer.
+2. **Evaluasi Stok per POS**: Identifikasi POS dengan stok berlebih atau kritis.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#dealer--pos|Analisis Produktivitas Dealer & POS]]
-- Diagnosa outlet bermasalah berdasarkan gabungan sinyal stok dan retail
+- Permintaan diagnosa outlet dengan produktivitas rendah.
+- Permintaan analisis kecukupan man power FLP per dealer group.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Jaringan
-- **2025–2026**: Rekaman hierarki jaringan tersimpan sesuai snapshot operasional.
+- **2025–2026**: Rekaman hierarki jaringan operasional tersimpan.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Status domain 🟠 Sebagian. Total semesta Dealer/POS terkini tidak boleh direkayasa sebelum konfirmasi data acuan induk final.
+- Status domain 🟠 Sebagian. Total semesta Dealer/POS terkini tidak boleh direkayasa sebelum konfirmasi data acuan induk final.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Dealer & POS|Status Data Dealer]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#dealer|Registry Dealer]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Dealer]]
 
 ---
 

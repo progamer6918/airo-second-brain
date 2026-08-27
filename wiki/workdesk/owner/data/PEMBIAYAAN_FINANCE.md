@@ -15,53 +15,54 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana struktur transaksi konsumen dari sisi Cash vs Kredit dan Leasing?"*
 
-- **Status & Periode Data**: 🟢 FY 2025–2026 Leasing & Cash Ratio
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Periode Terkini**: **FY 2025–2026**
+- **Dominasi Skema**: Transaksi Kredit merupakan porsi terbesar pembelian retail
+- **Mitra FINCO Utama**: FIF, Adira, Oto, Indomobil Finance, dll.
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Rasio Pembiayaan**: % Kredit vs % Tunai (Cash)
-- **Mitra FINCO Utama**: FIF, Adira, Oto, Indomobil Finance, dll.
-- **Profil Transaksi**: Rata-rata DP Real (%) & pilihan Tenor (bulan)
+- **Rasio Pembayaran**: % Kredit vs % Tunai (Cash)
+- **FINCO Share**: Pangsa penyaluran kredit per perusahaan pembiayaan
+- **Profil DP Real & Tenor**: Rata-rata % DP aktual dan sebaran tenor (12, 24, 36 bulan)
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Pangsa pembiayaan per perusahaan pembiayaan (FINCO Share)
-- Distribusi skema pembayaran per tipe kendaraan
-- Tingkat kelulusan/persetujuan pengajuan kredit
+Struktur Pembiayaan:
+- Rasio pembiayaan per kategori sepeda motor
+- Distribusi kontribusi FINCO utama
+- Profil rata-rata DP real konsumen
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **FINCO Performance**: Kontribusi unit dan approval rate per FINCO
-- **DP & Tenor Profile**: Sebaran tenor 12, 24, 36 bulan per model
-- **Dealer Financing Profile**: Rasio kredit per dealer group
+Kemampuan eksplorasi finance yang tersedia:
+1. **FINCO Share Breakdown**: Persentase kontribusi per mitra pembiayaan.
+2. **Tenor Distribution**: Sebaran durasi tenor kredit yang dipilih konsumen.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#pembiayaan--finance|Analisis Skema Pembiayaan & FINCO]]
-- Evaluasi dampak perubahan kebijakan DP terhadap volume penjualan
+- Permintaan analisis dampak skema DP rendah terhadap kelulusan kredit.
+- Permintaan evaluasi kinerja penyaluran per FINCO.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Pembiayaan
-- **2025–2026**: Data transaksi tunai vs kredit terpetakan lengkap.
-- **2024**: Data histori rasio pembiayaan tersedia.
+### 📊 Riwayat Finance
+- **2025–2026**: Rekam transaksi tunai vs kredit terpetakan sah.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Data agregat pembiayaan menyajikan tren rasio tanpa membuka identitas finansial pribadi konsumen.
+- Data finance disajikan secara agregat rasio tanpa mengekspos data keuangan individu.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Pembiayaan & Finance|Status Data Finance]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#finance|Registry Finance]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Finance]]
 
 ---
 

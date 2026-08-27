@@ -15,53 +15,51 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Program promo apa yang berjalan dan seberapa besar dampaknya ke penjualan?"*
 
-- **Status & Periode Data**: 🟢 YTD Aug 2026 Program Promo
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Katalog**: **YTD Aug 2026 Program Promo (Q1–Q3 2026)**
+- **Bentuk Promo**: Diskon Cash, Subsidi Kredit, Jaket/Gimmick, Promo DP Murah
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Program Aktif**: Katalog Program Promo Q1–Q3 2026
-- **Skema Promo**: Diskon Cash, Subsidi Kredit, Jaket/Gimmick, Promo DP
-- **Tingkat Adopsi**: Persentase unit retail yang memanfaatkan program promo
+- **Tingkat Adopsi Program**: Persentase unit retail yang memanfaatkan promo
+- **Inkremental Sales**: Estimasi tambahan unit yang tercipta akibat dorongan promo
+- **Effisiensi Biaya Promo**: Biaya subsidi per unit inkremental
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Daftar program promosi aktif per periode dan tipe kendaraan
-- Besaran insentif/subsidi per model sepeda motor
-- Perkiraan tambahan unit (incremental sales) dari program promo
+Katalog Program Promo Aktif:
+- Daftar promo aktif per tipe sepeda motor dan periode pelaksanaan
+- Besaran subsidi/insentif per model
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Program Eligibility**:Syarat dan ketentuan promo per tipe model
-- **Uplift Analysis**: Perbandingan penjualan sebelum vs saat promo berjalan
-- **Cost per Incremental Unit**: Evaluasi efisiensi biaya promosi
+Kemampuan eksplorasi promo yang tersedia:
+1. **Program Eligibility**: Syarat dan ketentuan promo per tipe model.
+2. **Uplift Analysis**: Perbandingan penjualan sebelum vs saat promo berjalan.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#promotion--program|Analisis Efektivitas Program Promosi]]
-- Evaluasi efisiensi skema promo terhadap pencapaian target retail
+- Permintaan evaluasi efisiensi skema promo terhadap pencapaian target retail.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Program Promo
+### 📊 Riwayat Promo
 - **Q1–Q3 2026**: Katalog program promo aktif terdaftar sah.
-- **2025**: Arsip program promosi historis tersimpan.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Evaluasi efektivitas program promosi disajikan secara khusus untuk rekaman program yang memiliki kelengkapan data hasil.
+- Evaluasi efektivitas program promosi disajikan secara khusus untuk rekaman program yang memiliki kelengkapan data hasil.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Promotion & Program|Status Data Promo]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#promo|Registry Promo]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry Promo]]
 
 ---
 

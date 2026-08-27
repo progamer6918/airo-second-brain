@@ -15,53 +15,53 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana peta pengembangan jaringan POS/TTM dan kesiapan pengajuannya?"*
 
-- **Status & Periode Data**: 🟠 Snapshot Aug 2026 (Kesiapan Pengajuan Belum Terbukti)
-- **Fokus Utama**: Menyajika gambaran operasional bisnis terkini dan riwayat acuan tanpa rekayasa fakta.
+- **Status Domain**: **🟠 Sebagian (Snapshot 11 Aug 2026 / Meeting 6 Aug 2026)**
+- **Target Locality 2026**: **89%**
+- **Target Input SSP 2026**: **3 Mega POS / 0 Selected POS**
+- **Status Kesiapan Pengajuan**: **NOT_PROVEN** (Dokumen pengajuan resmi belum terbukti lengkap)
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Status Domain**: 🟠 Sebagian (Snapshot Aug 2026)
-- **Working Map**: Peta kerja jaringan POS & cakupan wilayah
-- **Kesiapan Pengajuan**: Status pengajuan titik jaringan baru (Belum Terbukti / NOT_PROVEN)
+- **Achievement Lokasi (H1)**: Target ≥85%
+- **Achievement Ring 1 (H1)**: Target ≥85%
+- **Rincian Snapshot POS**: 14 Baris Data / 10 Parent Dealer Codes / 3 Revised/New Codes
 
 ---
 
 ## 👁️ Apa yang Terlihat
-- Pemetaan lokasi POS aktif dan calon titik pengembangan
-- Identifikasi wilayah whitespace berpotensi tinggi
-- Timeline dan tahap perencanaan aksi pengembangan jaringan
+Peta Perencanaan Jaringan:
+- Pemetaan lokasi POS aktif dan usulan titik lokasi baru H1-H2
+- Catatan status kelengkapan data koordinat dan klasifikasi POS
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-- **Network Coverage Map**: Sebaran POS terhadap kecamatan berpopulasi tinggi
-- **Whitespace Analysis**: Daftar kecamatan calon lokasi perluasan
-- **Development Readiness Status**: Evaluasi kesiapan administratif & operasional
+Kemampuan eksplorasi TTM yang tersedia:
+1. **Network Coverage Map**: Sebaran POS terhadap kecamatan berpopulasi tinggi.
+2. **Whitespace Analysis**: Daftar kecamatan calon lokasi perluasan jaringan.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- [[wiki/workdesk/STATUS_ANALISIS#integrated-ttm--network|Analisis Perencanaan & Perluasan Jaringan TTM]]
-- Evaluasi kelayakan pembukaan POS baru berdasarkan potensi POLREG
+- Permintaan evaluasi kelayakan pembukaan POS baru berdasarkan potensi POLREG.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Perencanaan Jaringan
-- **Aug 2026**: Snapshot peta kerja TTM & Network terpetakan.
-- **2025**: Record perkembangan jaringan terdahulu tersedia.
+### 📊 Riwayat TTM
+- **Snapshot 11 Aug 2026**: Peta kerja TTM & POS 2026 terdaftar sah.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-Status domain 🟠 Sebagian. Kesiapan pengajuan resmi titik jaringan baru berstatus NOT_PROVEN sebelum dokumen bukti sah diverifikasi.
+- Status domain 🟠 Sebagian. Kesiapan pengajuan resmi titik jaringan baru berstatus **NOT_PROVEN** sebelum dokumen bukti sah diverifikasi.
 
 ---
 
 ## 📚 Referensi Utama
 - [[wiki/workdesk/STATUS_DATA#Integrated TTM & Network|Status Data Network]]
-- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY#ttm|Registry TTM]]
+- [[wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY|Registry TTM]]
 
 ---
 
