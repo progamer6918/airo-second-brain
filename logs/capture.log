@@ -381,3 +381,4 @@
 [2026-08-27T20:08:20.272554] [INFO] Appended event to events/raw/events.ndjson: Session started: Actually harden canonical production session close eligibility and remove false-positive lifecycle verification
 [2026-08-27T20:37:26.643983] [INFO] Appended event to events/raw/events.ndjson: Session started: Repair Obsidian rendering of Owner-facing Markdown tables without changing business facts or navigation semantics
 [2026-08-27T21:09:00.039566] [INFO] Appended event to events/raw/events.ndjson: Session started: Repair Owner-facing Obsidian heading links so every Buka Data and Rincian link resolves to its real Markdown heading
+[2026-08-27T21:37:24.619685] [INFO] Appended event to events/raw/events.ndjson: Session started: Complete all 17 Owner-facing AWD Data Business domain hubs so every Buka link opens a usable business page, while Cek Status remains a separate health/currentness layer.
