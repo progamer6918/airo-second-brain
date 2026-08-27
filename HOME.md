@@ -1,52 +1,30 @@
 ---
+type: airo-home-cockpit
 aliases:
   - AIRO Home
-  - Beranda AIRO
-  - HOME
+  - Home
 ---
 
-# 🏠 AIRO
+# 🏠 AIRO Home
 
-External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dilanjutkan tanpa mulai dari nol.
-
----
-
-## Mau ngapain?
-
-### ▶️ Lanjut Kerja
-
-![[state/active-session]]
-
-### 📌 PR / Mau Dikerjain
-
-![[state/deferred-work]]
-
-### 📅 Hari Ini
-
-![[worklog/views/AIRO Worklog.base#Hari Ini]]
-
-### 🔎 Cari & Jelajah
-
-#### 💼 Kerja
-[[wiki/workdesk/HOME|AIRO WorkDesk]] — Brainstorming, analisa, dealer, pasar, sales, stock, problem solving, data, dan pembuat output kerja.
-➡️ **[[wiki/workdesk/HOME|Masuk WorkDesk]]**
-
-#### 💰 Keuangan
-[[ARFIN|AIRO Finance]] — Pengelolaan keuangan, pelaporan, dan kepatuhan finansial AIRO.
-➡️ **[[ARFIN|Masuk Keuangan]]**
-
-- 🗂 **[[wiki/AREAS_AND_PROJECTS|Semua Area & Project]]** — Lihat seluruh peta area kerja dan hirarki sistem AIRO.
-- 📜 **[[RIWAYAT_KERJA|Lihat seluruh Riwayat Kerja]]** — Catatan histori kerja lengkap.
+> **Pusat Kendali Utama Ekosistem AIRO**
 
 ---
 
-<details>
-<summary>⚙️ Sistem & Audit (Advanced)</summary>
+## ▶️ Sedang Dikerjakan
 
-- Status Sistem: [[wiki/workdesk/CURRENT|WorkDesk Current Status]]
-- Kebijakan Memori Bisnis: [[wiki/workdesk/BUSINESS_MEMORY_VISIBILITY|Business Memory Visibility Policy]]
-- Kontrak Navigasi: [[docs/contracts/ASB_HUMAN_NAVIGATION_CONTRACT|Human Navigation Contract]]
-- Direct WSL Workflow: [[docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT|Direct WSL Execution Contract]]
-- Kontrol Project: [[control/airo-workdesk|AIRO WorkDesk Control]] | [[control/d-ready|D-READY Control]]
+![[runtime/workdesk/current-work.md]]
 
-</details>
+*Kalau pekerjaan selesai, kartu ini otomatis kembali ke 'Tidak ada pekerjaan aktif'. Hasilnya tetap tercatat di Riwayat Hari Ini.*
+
+---
+
+## 💼 Area Kerja utama
+- [[wiki/workdesk/WORKDESK|AIRO WorkDesk]] — Cockpit Operasional, Pengetahuan & Data Bisnis
+- [[wiki/workdesk/AWD_INDEX|AWD — Daftar Isi]] — Navigasi Cepat Seluruh Data & Cara Kerja
+
+---
+
+## 🕘 Riwayat Hari Ini
+
+![[worklog/daily/2026-08-27]]
