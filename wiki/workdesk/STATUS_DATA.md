@@ -29,23 +29,23 @@ aliases:
 
 | Topik Data | Periode s.d. | Status | Riwayat | Buka Rincian |
 |---|---|---|---|---|
-| Penjualan Retail | Jul 2026 | 🟢 Tersedia | FY 2025 (107.108 unit) & 2024 | [[#penjualan-retail|Rincian Retail]] |
-| Market Share | Jun 2026 | 🟢 Tersedia | FY 2025 (127.244 Total Market) | [[#market-share|Rincian Market Share]] |
-| Territory & POLREG | Jun 2026 | 🟢 Tersedia | 118 Kecamatan / 1.223 Baris Kelurahan-Desa Terpetakan | [[#territory--polreg|Rincian Territory]] |
-| Dealer & POS | Belum terkonfirmasi | 🟠 Sebagian | Hierarki Dealer → POS → FLP Tersedia | [[#dealer--pos|Rincian Dealer]] |
-| Ring Penjualan | 2022 | ⚪ Historis | 803 Dealer/POS-Kecamatan Records | [[#ring-penjualan|Rincian Ring]] |
-| Stock Kendaraan | Snapshot 6 Aug 2026 | 🟢 Tersedia | Dealer 5.239 unit / MD 3.496 unit | [[#stock-kendaraan|Rincian Stock]] |
-| Produk & Model | Jul 2026 | 🟢 Tersedia | Lineup Sepeda Motor 2025–2026 | [[#produk--model|Rincian Produk]] |
-| Pembiayaan & Finance | Jul 2026 | 🟢 Tersedia | Transaksi Tunai & Kredit 2025–2026 | [[#pembiayaan--finance|Rincian Finance]] |
-| Customer Segment | Jul 2026 | 🟢 Tersedia | Demografi & Pekerjaan 2025–2026 | [[#customer-segment|Rincian Segmen]] |
-| Customer Lifecycle | Jul 2026 | 🟢 Tersedia | Database Consumer & Repeat Order | [[#customer-lifecycle--repeat-order|Rincian Lifecycle]] |
-| FLP & Manpower | Jul 2026 | 🟢 Tersedia | FLP Active Roster 2026 | [[#flp--manpower|Rincian FLP]] |
-| Sales Activity & Leads | Jul 2026 | 🟢 Tersedia | Activity Log & Prospek 2026 | [[#sales-activity--leads|Rincian Leads]] |
-| Promotion & Program | YTD Aug 2026 | 🟢 Tersedia | Katalog Program Promo Q1–Q3 2026 | [[#promotion--program|Rincian Promo]] |
-| Commercial & MSW | Aug 2026 | 🟢 Tersedia | Fleet Account & MSW Aug 2026 | [[#commercial--msw|Rincian Commercial]] |
-| Market Info & Event | Aug 2026 | 🟡 Perlu Pembaruan | Event Calendar 2026 (Catatan Historis Belum Disediakan) | [[#market-info--event|Rincian Event]] |
-| Standar NOS | Jul 2026 | 🟢 Tersedia | Hasil Audit Kualitas NOS 2026 | [[#standar-nos|Rincian NOS]] |
-| Integrated Network | Snapshot Aug 2026 | 🟠 Sebagian | Network Map (Kesiapan Pengajuan Belum Terbukti) | [[#integrated-ttm--network|Rincian Network]] |
+| Penjualan Retail | Jul 2026 | 🟢 Tersedia | FY 2025 (107.108 unit) & 2024 | [[#penjualan-retail\|Rincian Retail]] |
+| Market Share | Jun 2026 | 🟢 Tersedia | FY 2025 (127.244 Total Market) | [[#market-share\|Rincian Market Share]] |
+| Territory & POLREG | Jun 2026 | 🟢 Tersedia | 118 Kecamatan / 1.223 Baris Kelurahan-Desa Terpetakan | [[#territory--polreg\|Rincian Territory]] |
+| Dealer & POS | Belum terkonfirmasi | 🟠 Sebagian | Hierarki Dealer → POS → FLP Tersedia | [[#dealer--pos\|Rincian Dealer]] |
+| Ring Penjualan | 2022 | ⚪ Historis | 803 Dealer/POS-Kecamatan Records | [[#ring-penjualan\|Rincian Ring]] |
+| Stock Kendaraan | Snapshot 6 Aug 2026 | 🟢 Tersedia | Dealer 5.239 unit / MD 3.496 unit | [[#stock-kendaraan\|Rincian Stock]] |
+| Produk & Model | Jul 2026 | 🟢 Tersedia | Lineup Sepeda Motor 2025–2026 | [[#produk--model\|Rincian Produk]] |
+| Pembiayaan & Finance | Jul 2026 | 🟢 Tersedia | Transaksi Tunai & Kredit 2025–2026 | [[#pembiayaan--finance\|Rincian Finance]] |
+| Customer Segment | Jul 2026 | 🟢 Tersedia | Demografi & Pekerjaan 2025–2026 | [[#customer-segment\|Rincian Segmen]] |
+| Customer Lifecycle | Jul 2026 | 🟢 Tersedia | Database Consumer & Repeat Order | [[#customer-lifecycle--repeat-order\|Rincian Lifecycle]] |
+| FLP & Manpower | Jul 2026 | 🟢 Tersedia | FLP Active Roster 2026 | [[#flp--manpower\|Rincian FLP]] |
+| Sales Activity & Leads | Jul 2026 | 🟢 Tersedia | Activity Log & Prospek 2026 | [[#sales-activity--leads\|Rincian Leads]] |
+| Promotion & Program | YTD Aug 2026 | 🟢 Tersedia | Katalog Program Promo Q1–Q3 2026 | [[#promotion--program\|Rincian Promo]] |
+| Commercial & MSW | Aug 2026 | 🟢 Tersedia | Fleet Account & MSW Aug 2026 | [[#commercial--msw\|Rincian Commercial]] |
+| Market Info & Event | Aug 2026 | 🟡 Perlu Pembaruan | Event Calendar 2026 (Catatan Historis Belum Disediakan) | [[#market-info--event\|Rincian Event]] |
+| Standar NOS | Jul 2026 | 🟢 Tersedia | Hasil Audit Kualitas NOS 2026 | [[#standar-nos\|Rincian NOS]] |
+| Integrated Network | Snapshot Aug 2026 | 🟠 Sebagian | Network Map (Kesiapan Pengajuan Belum Terbukti) | [[#integrated-ttm--network\|Rincian Network]] |
 
 ---
 
