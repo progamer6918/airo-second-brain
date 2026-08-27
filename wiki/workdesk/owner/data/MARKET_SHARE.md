@@ -82,11 +82,11 @@ Tabel Pemetaan M/S Antar-Brand Full Year (FY) 2025:
 | **Lain-lain / Other** | **777** | **0,61%** | Lainnya |
 | **Total FY 2025 Market** | **127.244** | **100,00%** | **100% Exact Match** |
 
-*Cakupan Geografis Historis 2025*:
-- **Jumlah Kabupaten**: 9 Kabupaten (Batanghari, Bungo, Kota Jambi, Muaro Jambi, Merangin, Sarolangun, Tanjab Barat, Tanjab Timur, Tebo)
-- **Jumlah Kecamatan**: 100 Kecamatan terpetakan
-- **Micro-Geography**: 1.223 Area ID (`AREA 1` .. `AREA 1223`)
-- **Catatan Granulitas**: Data M/S 2025 pada tingkat Kelurahan/Desa berstatus **NOT_PROVEN** (Hierarki sah: `Area ID -> Kecamatan -> Kabupaten`).
+*Rincian Retrival Sah 2025*:
+- **Sampel Bulanan Total Market 2025**: Januari = 8.670 unit / Desember = 12.260 unit / FY Total = 127.244 unit.
+- **Sampel Kabupaten 2025 (Merangin)**: Total Market Merangin = 16.824 unit (Honda 13.408 / 79,69% vs Yamaha 3.416 / 20,31%).
+- **Cakupan Geografis**: 9 Kabupaten / 100 Kecamatan / 1.223 Area ID (`AREA 1` .. `AREA 1223`).
+- **Limitation Granulitas**: Data M/S 2025 pada tingkat Kelurahan/Desa berstatus **NOT_PROVEN** (Hierarki sah: `Area ID -> Kecamatan -> Kabupaten`).
 
 ---
 

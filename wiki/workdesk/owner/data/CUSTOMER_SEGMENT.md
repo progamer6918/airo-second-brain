@@ -64,10 +64,10 @@ Kemampuan eksplorasi segmen konsumen sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Rincian Historis Segmen Konsumen (2025–2026)
+### 📊 Rincian Historis Segmen Konsumen
 
-- **Kelompok Usia & Pekerjaan**: Kelompok usia 20–29 thn (38,4%) dan 30–39 thn (28,6%) secara historis konsisten membentuk 67,0% pasar utama (`CUSTOMER_SEGMENT_2026_CURRENT_SUMMARY.tsv`).
-- **Segmen Agraris**: Pekerjaan Petani/Perkebunan (28,5%) merupakan porsi historis terbesar kedua setelah Karyawan Swasta (36,2%).
+- **⚪ Kapabilitas Historis Segmen**: Struktur demografi menyimpan klasifikasi usia (kelompok 20–29 thn dan 30–39 thn), gender, serta kategori pekerjaan utama (Karyawan Swasta, Petani/Perkebunan, Wiraswasta).
+- **Limitation Period-Specific**: Angka rinci historis demografi per tahun terdahulu dikelola dalam basis acuan konsumen khusus.
 
 ---
 

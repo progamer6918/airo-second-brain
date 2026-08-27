@@ -76,7 +76,7 @@ Kemampuan eksplorasi stok kendaraan sah:
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Snapshot Stok Kendaraan
 
-- **Snapshot Mode**: Stok kendaraan dikelola berbasis snapshot point-in-time operasional (`DEALER_STOCK_2026-08-06_SUMMARY.tsv` & `INVENTORY_STOCK_2026_CURRENT_SUMMARY.tsv`).
+- **Snapshot Mode**: Stok kendaraan dikelola berbasis snapshot point-in-time operasional (`DEALER_STOCK_2026-08-06_SUMMARY.tsv`).
 - **Snapshot Point-in-Time 6 Aug 2026**: 5.239 unit Dealer / 3.496 unit MD. Snapshot historis sebelumnya diarsipkan sebagai pembanding per tanggal pengunduhan tanpa merekayasa tren tahunan buatan.
 
 ---

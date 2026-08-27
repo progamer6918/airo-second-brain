@@ -63,10 +63,10 @@ Kemampuan eksplorasi manpower sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Rincian Historis FLP Manpower (2025–2026)
+### 📊 Rincian Historis FLP Manpower
 
-- **Headcount Stability**: Headcount FLP terpantau stabil pada kisaran 378 – 384 orang across 28 dealer (`FLP_2026_CURRENT_SUMMARY.tsv`).
-- **Produktivitas Historis**: Rata-rata produktivitas FLP bertahan di angka 7,5 – 7,8 unit/FLP/bulan.
+- **⚪ Kapabilitas Historis Manpower**: Pemantauan roster FLP mengelola taksonomi peran resmi (Sales Counter, Field Sales, Wing Sales, SPV/TL) across 28 dealer.
+- **Limitation Period-Specific**: Rekam headcount dan produktivitas historis periode terdahulu dikelola dalam basis acuan roster man power.
 
 ---
 

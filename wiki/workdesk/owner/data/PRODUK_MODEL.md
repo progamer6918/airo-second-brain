@@ -60,10 +60,10 @@ Kemampuan eksplorasi produk sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Rincian Historis Produk & Model (2025–2026)
+### 📊 Rincian Historis Produk & Model
 
-- **Rekam Lineup 2025–2026**: Rekam bulanan penjualan per kategori produk (Matik, Cub, Sport, EV) tersimpan dalam `PRODUCT_2026_CURRENT_SUMMARY.tsv`.
-- **Top Model Leader 2025–2026**: Seri BeAT (BEAT STREET & BEAT SPORTY CBS) konsisten menjadi kontributor terbesar dengan porsi >22% dari total retail.
+- **⚪ Kapabilitas Historis Lineup**: Katalog produk menyimpan klasifikasi kategori (Matik, Cub, Sport, EV) dan model utama (BeAT, Vario, Scoopy, Revo).
+- **Limitation Period-Specific**: Rincian angka penjualan historis per tipe model untuk tahun-tahun terdahulu dikelola dalam berkas acuan `RETAIL_2026_YTD_JUL_TYPE.tsv` dan `Record Sales 2008-2025.xlsx`.
 
 ---
 

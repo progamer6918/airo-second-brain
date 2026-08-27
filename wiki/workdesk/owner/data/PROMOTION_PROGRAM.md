@@ -67,10 +67,10 @@ Kemampuan eksplorasi promo sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Rincian Historis Program Promo (2025–2026)
+### 📊 Rincian Historis Program Promo
 
-- **Promo Cycle Q1–Q3**: 9 program promo aktif tercatat dengan tingkat partisipasi dealer 90,5% – 92,8% (`PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`).
-- **Skema Favorit**: Diskon Cash dan Potongan Angsuran konsisten mendominasi >62% klaim promo.
+- **⚪ Kapabilitas Historis Promo**: Katalog program promo mengelola evaluasi skema diskon cash, potongan angsuran, insentif DP, serta dampak sales uplift.
+- **Limitation Period-Specific**: Rekam historis promo periode terdahulu diarsipkan secara khusus untuk program yang memiliki kelengkapan data hasil.
 
 ---
 

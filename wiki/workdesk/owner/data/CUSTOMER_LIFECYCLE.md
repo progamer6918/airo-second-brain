@@ -64,10 +64,10 @@ Kemampuan eksplorasi lifecycle sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Rincian Historis Customer Lifecycle (2025–2026)
+### 📊 Rincian Historis Customer Lifecycle
 
-- **Tren Repeat Order**: Rasio repeat order stabil pada kisaran 37,0% – 37,5% (`CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`).
-- **Jeda Penggantian**: Jeda 18–36 bulan konsisten menjadi jendela waktu utama repeat order (68,5%).
+- **⚪ Kapabilitas Historis Lifecycle**: Database mengelola pelacakan repeat order, jeda penggantian (repeat gap 18–36 bulan), serta rasio retensi dealer.
+- **Limitation Period-Specific**: Angka rasio historis per tahun terdahulu dikelola secara terpisah dalam basis data transaksi repeat order.
 
 ---
 
