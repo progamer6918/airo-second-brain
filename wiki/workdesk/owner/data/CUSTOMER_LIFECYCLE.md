@@ -15,40 +15,57 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Seberapa tinggi repeat order konsumen dan bagaimana pola migrasi modelnya?"*
 
-- **Basis Data**: **Database Consumer & Repeat Order 2025–2026**
-- **Fokus Evaluasi**: Tingkat pembelian ulang (repeat order) & loyalitas merek Honda
+- **Periode Data**: **YTD Jan–Jul 2026** (Sumber sah `CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`)
+- **Total Retail SSU**: **73.968 unit**
+- **Jumlah Repeat Order**: **27.738 unit**
+- **Tingkat Repeat Order (Overall)**: **37,50%**
+- **First-Time Buyer**: **46.230 unit (62,50%)**
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Rasio Repeat Order**: Persentase konsumen yang membeli kembali kendaraan Honda
-- **Repeat Gap**: Rata-rata durasi (tahun) antar-pembelian konsumen
-- **Retensi Dealer**: Persentase konsumen yang kembali ke dealer tempat pembelian awal
+- **Repeat Order per Kategori**:
+  - Perorangan RO: **37,2%**
+  - Perusahaan RO: **52,8%**
+- **Jeda Repeat Order (Repeat Gap)**:
+  - 18 – 36 Bulan: **68,5%** (Masa pergantian favorit)
+  - < 18 Bulan: **14,2%**
+  - > 36 Bulan: **17,3%**
+- **Perilaku Penggantian**:
+  - Maturity Replacement: **58,2%**
+  - Segment Upgrade: **54,2%**
+  - Retensi Dealer (Dealer Retained): **88,6%** (Konsumen kembali ke dealer yang sama)
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Pola Siklus Hidup Konsumen:
-- Matriks migrasi tipe (contoh: BeAT → Vario → PCX)
-- Rata-rata usia kendaraan saat konsumen melakukan repeat order
+Tabel Perilaku Lifecycle & Repeat Order (YTD Jan–Jul 2026):
+
+| Indikator Lifecycle | Nilai (%) | Catatan Perilaku |
+|---|---:|---|
+| Rasio Repeat Order | 37,50% | 27.738 unit dari total 73.968 retail |
+| Jeda Repeat 18–36 Bulan | 68,5% | Mayoritas konsumen ganti motor di usia 1,5–3 tahun |
+| Retensi Dealer | 88,6% | 88,6% konsumen repeat order di dealer yang sama |
+| Segment Upgrade | 54,2% | 54,2% konsumen naik kelas segmen kendaraan |
+| Same Model Refresh | 32,5% | 32,5% konsumen membeli tipe model yang sama |
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi lifecycle yang tersedia:
-1. **Model Migration Path**: Jalur upgrade model konsumen Honda.
-2. **Dealer Retention Rate**: Tingkat retensi konsumen per jaringan dealer.
+Kemampuan eksplorasi lifecycle sah:
+1. **Dealer Retention Rate**: Retensi dealer mencapai 88,6%, menunjukkan loyalitas tinggi terhadap outlet awal.
+2. **Upgrade Pattern**: 54,2% melakukan segment upgrade (misal: BeAT → Vario/PCX).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan analisis peluang program CRM trade-in dan penyapaan kembali.
+- Analisis peluang program CRM trade-in dan penyapaan kembali konsumen usia kendaraan 2-3 tahun.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Lifecycle
-- **2025–2026**: Database transaksi repeat order teranalisis secara agregat.
+### 📊 Riwayat Lifecycle Sah
+- **2025–2026**: Basis data repeat order terrekam dalam `CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`.
 
 ---
 

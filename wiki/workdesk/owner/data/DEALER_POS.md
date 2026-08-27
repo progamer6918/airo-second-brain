@@ -17,7 +17,7 @@ date: 2026-08-27
 
 - **Status Domain**: **🟠 Sebagian** (Hierarki Dealer → POS → FLP tersedia; total jaringan acuan terkini belum terkonfirmasi)
 - **Batas Periode Asinkron (Multi-domain)**:
-  - Retail: Juli 2026
+  - Retail: Juli 2026 (`RETAIL_2026_YTD_JUL_DEALER.tsv`)
   - Market Share: Juni 2026
   - Stock Kendaraan: 6 Agustus 2026
 
@@ -25,8 +25,8 @@ date: 2026-08-27
 
 ## 🎯 KPI & Status Domain
 - **Hierarki Jaringan**: Dealer Group → Main Dealer → POS → Sales Force
+- **Jumlah Dealer Dipantau (SSU)**: 28 Jaringan Dealer
 - **Integrasi Domain**: Penjualan, Stok, Manpower, dan Activity terikat pada kode Dealer/POS
-- **Status Konfirmasi Induk**: Dalam proses verifikasi acuan semesta jaringan
 
 ---
 
@@ -34,25 +34,25 @@ date: 2026-08-27
 Struktur Jaringan Penjualan:
 - **Dealer Group**: Kelompok dealer utama
 - **POS (Point of Sales)**: Pos jualan cabang bawahan
-- **FLP Roster**: Alokasi tenaga sales per POS
+- **FLP Roster**: Alokasi 384 headcount sales force per POS (`FLP_2026_CURRENT_SUMMARY.tsv`)
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
 Kemampuan eksplorasi jaringan yang tersedia:
-1. **Performa Retail per Dealer**: Volume kontribusi retail per dealer.
-2. **Evaluasi Stok per POS**: Identifikasi POS dengan stok berlebih atau kritis.
+1. **Performa Retail per Dealer**: Volume kontribusi retail per dealer dari 28 dealer terdaftar.
+2. **Evaluasi Stok per POS**: Identifikasi POS dengan stok berlebih atau kritis (`DEALER_STOCK_DAYS_2026-08-06_DERIVED.tsv`).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan diagnosa outlet dengan produktivitas rendah.
-- Permintaan analisis kecukupan man power FLP per dealer group.
+- Diagnosa outlet dengan produktivitas rendah.
+- Analisis kecukupan man power FLP per dealer group.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Jaringan
+### 📊 Riwayat Jaringan Sah
 - **2025–2026**: Rekaman hierarki jaringan operasional tersimpan.
 
 ---

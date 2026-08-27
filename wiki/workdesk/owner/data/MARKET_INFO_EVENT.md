@@ -16,34 +16,33 @@ date: 2026-08-27
 **Pertanyaan Utama Owner**: *"Apa yang terjadi di lapangan dari sisi aktivitas kompetitor dan event pasar?"*
 
 - **Status Domain**: **🟡 Perlu Pembaruan (Proses Agustus 2026 berjalan)**
-- **Alur Kerja**: MD Google Form -> Pengujian Kualitas -> Input AHM Portal
-- **Batas Waktu Pengiriman**: Maksimal Hari Jumat minggu berjalan
+- **Alur Kerja Pengiriman**: MD Google Form -> Quality Validation -> Input AHM Portal
+- **Batas Waktu**: Maksimal Hari Jumat minggu berjalan
+- **Catatan Data Historis**: **NOT_SUPPLIED** (Records historis mingguan belum disediakan dalam basis data)
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Workflow**: Penangkapan sinyal kompetitor & event lokal per area
-- **Status Data Historis**: **NOT_SUPPLIED** (Catatan historis mingguan belum disediakan dalam basis data)
-- **Tindak Lanjut**: Tracking respons terhadap pergerakan pasar kompetitor
+- **Workflow Tools**: Rollout 11 Aug 2026 (`MARKET_INFO_TOOLS_SUBMISSION_CONTRACT_2026-08-11.tsv`)
+- **Tindak Lanjut**: Tracking respons aktivitas kompetitor per area
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Proses Informasi Pasar:
-- Kalender rencana event lokal dan pameran dealer
-- Catatan indikatif pergerakan promo & aktivitas kompetitor lapangan
+Alur Informasi Pasar & Event:
+- Kalender rencana event lokal dealer
+- Pengamatan indikatif promo & aktivitas kompetitor lapangan
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi market info yang tersedia:
-1. **Event Calendar Aug 2026**: Daftar event lokal yang berjalan.
-2. **Competitor Signal Log**: Ringkasan pengamatan aktivitas kompetitor per wilayah.
+Kemampuan eksplorasi market info sah:
+1. **Submission Contract**: Aturan pengiriman mingguan MD Google Form ke AHM Portal.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi kebutuhan penyesuaian event lokal responsif.
+- Evaluasi kebutuhan penyesuaian event lokal responsif.
 
 ---
 

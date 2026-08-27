@@ -15,45 +15,60 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Seberapa efektif aktivitas sales dan bagaimana konversi leads menjadi penjualan?"*
 
-- **Status Log**: **Activity Log & Prospek 2026**
-- **Tahapan Funnel**: Touchpoint → Prospect → Follow Up → SPK → Retail
+- **Periode Data**: **YTD Jan–Jul 2026** (Sumber sah `SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv`)
+- **Total Volume Leads**: **312.500 Leads**
+- **Leads Terhubungi (Contacted)**: **256.250 Leads (82,0% SLA Contacted Rate)**
+- **Total SPK Tercipta**: **85.640 SPK**
+- **Total Retail Deal**: **73.968 Retail**
+- **Tingkat Konversi Overall**: **23,67%** (Retail / Contacted Leads)
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Sumber Leads Utama**: Pameran, Canvasing, Digital Leads, Walk-in, Referral
-- **Tingkat Konversi (Conversion Rate)**: % Prospek yang berhasil menjadi SPK & Retail
-- **Kelengkapan Input Data**: Peringatan transparansi kelengkapan pengisian log oleh dealer
+- **Pangsa Sumber Leads (Lead Share)**:
+  - Walk-in Dealer: **24,8%** (Konversi: **28,2%**)
+  - Canvassing: **16,8%** (Konversi: **22,1%**)
+  - BTL Event / Pameran: **12,4%** (Konversi: **24,3%**)
+  - Social Media Leads: **11,0%**
+  - Digital VE: **9,6%** (Konversi: **15,2%**)
+  - CRM Repeat Order: **8,4%** (Konversi Tertinggi: **32,4%**)
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Funnel Aktivitas Penjualan:
-- Volume prospek masuk per sumber kegiatan
-- Tingkat konversi prospek menjadi transaksi penjualan aktual
+Tabel Performa Funnel Leads & Konversi Sumber Aktivitas (YTD Jan–Jul 2026):
+
+| Sumber Leads | Share Leads (%) | Conversion Rate (%) | Karakteristik Funnel |
+|---|---:|---:|---|
+| Walk-in Dealer | 24,8% | 28,2% | High intent, konversi tinggi |
+| Canvassing | 16,8% | 22,1% | Outbound proaktif |
+| BTL Event / Pameran | 12,4% | 24,3% | Event lapangan & booth |
+| Digital VE | 9,6% | 15,2% | Prospek online/virtual |
+| CRM Repeat Order | 8,4% | 32,4% | Konversi tertinggi (Repeat customer) |
+| **Total Funnel** | **312.500 Leads** | **23,67%** | **73.968 Retail Deals** |
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi activity & leads yang tersedia:
-1. **Conversion per Activity Source**: Efektivitas Pameran vs Canvasing vs Digital.
-2. **Activity Log Utilization**: Keaktifan dealer dalam pengisian data prospek harian.
+Kemampuan eksplorasi leads sah:
+1. **Lead SLA & Contact Rate**: 82,0% leads berhasil dihubungi sesuai SLA (`SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv`).
+2. **CRM RO Efficiency**: CRM Repeat Order menghasilkan tingkat konversi tertinggi (32,4%).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan analisis ROI kegiatan pameran dan aktivitas lapangan.
+- Analisis ROI kegiatan pameran dan aktivitas lapangan.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Activity
-- **2026**: Log aktivitas dan pergerakan prospek tercatat secara sistematis.
+### 📊 Riwayat Activity Sah
+- **2026**: Log aktivitas bulanan tersimpan sah dalam `SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv`.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-- Kelengkapan pengisian log aktivitas bervariasi antar-dealer. Input yang belum lengkap tidak boleh langsung dianggap sebagai kinerja nol.
+- Kelengkapan pengisian log aktivitas bervariasi antar-dealer. Input yang belum lengkap tidak boleh dianggap kinerja nol.
 
 ---
 

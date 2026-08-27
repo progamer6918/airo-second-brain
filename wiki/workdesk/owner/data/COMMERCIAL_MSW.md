@@ -15,39 +15,39 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana performa penjualan fleet/instansi dan ketentuan program MSW?"*
 
-- **Versi Terkini**: **MSW & Fleet Account Aug 2026 (Versi Terbaru)**
-- **Segmen Sasaran**: Perusahaan Swasta, Instansi Pemerintah, BUMN, Koperasi
+- **Versi Katalog Terkini**: **Aug 2026 Commercial Offers & MSW Version Resolver**
+- **Sumber Data**: `MSW_2026_CURRENT_VERSION_RESOLVER.tsv` & `MSW_AUGUST_2026_COMMERCIAL_OFFERS.tsv`
+- **Segmen Sasaran**: Fleet Perusahaan, Instansi Pemerintah, BUMN, Koperasi
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Versi Katalog Aktif**: Agustus 2026 (Wajib menggunakan resolver versi terbaru)
-- **Model Eligibility**: Tipe kendaraan yang diperbolehkan untuk skema komersial/fleet
-- **Skema Manfaat**: Diskon khusus unit & fasilitas pembiayaan institusi
+- **Versi Katalog**: Agustus 2026 (Versi terbaru sah)
+- **Eligibility Model**: Tipe kendaraan yang diperbolehkan untuk skema komersial/fleet
+- **Skema Manfaat**: Diskon khusus volume unit & skema pembiayaan instansi
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Penawaran Komersial & MSW:
-- Ketentuan diskon fleet berdasarkan jumlah unit (volume tier)
+Katalog Penawaran Komersial & MSW Agustus 2026:
+- Daftar penawaran aktif versi Agustus 2026
 - Syarat dan dokumen pengajuan skema MSW
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi komersial yang tersedia:
-1. **Commercial Volume per Account**: Kontribusi unit penjualan fleet instansi.
-2. **MSW Terms & Conditions**: Persyaratan khusus pengajuan skema MSW versi Agustus 2026.
+Kemampuan eksplorasi komersial sah:
+1. **Current Version Resolver**: Memastikan penawaran menggunakan katalog Agustus 2026 (`MSW_AUGUST_2026_COMMERCIAL_OFFERS.tsv`).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi potensi perluasan kerja sama instansi daerah.
+- Evaluasi potensi perluasan kerja sama instansi daerah.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Commercial
+### 📊 Riwayat Commercial Sah
 - **Aug 2026**: Versi katalog MSW & Fleet terbaru terdaftar sah.
 
 ---

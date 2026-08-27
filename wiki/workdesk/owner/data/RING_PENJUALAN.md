@@ -15,7 +15,7 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Bagaimana pemetaan zona pemasaran Ring 1–3 antar Dealer/POS dan Kecamatan?"*
 
-- **Status Domain**: **⚪ HISTORIS (Acuan 2022)**
+- **Status Domain**: **⚪ HISTORIS (Acuan 2022)** (Sumber sah `RING_MAPPING_2022_HISTORICAL.tsv`)
 - **Jumlah Record Mapping**: **803 Records** Dealer/POS-to-Kecamatan
 - **Peringatan**: Data ini berstatus acuan historis 2022. Acuan zonasi terkini 2026 belum terkonfirmasi.
 
@@ -29,7 +29,7 @@ date: 2026-08-27
 ---
 
 ## 👁️ Apa yang Terlihat
-Pemetaan Ring 2022:
+Pemetaan Ring 2022 Sah:
 - 803 baris relasi Dealer/POS ke Kecamatan
 - Zonasi alokasi pemasaran berdasarkan kedekatan geografis 2022
 
@@ -37,18 +37,18 @@ Pemetaan Ring 2022:
 
 ## 🔍 Rincian & Eksplorasi
 Kemampuan eksplorasi ring yang tersedia:
-1. **Mapping Ring 1**: List kecamatan utama per dealer (Acuan 2022).
+1. **Mapping Ring 1**: List kecamatan utama per dealer (Acuan 2022 dalam `RING_MAPPING_2022_HISTORICAL.tsv`).
 2. **Mapping Ring 2 & 3**: List kecamatan sekunder per POS (Acuan 2022).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi perbandingan zonasi Ring 2022 terhadap sebaran POLREG 2026.
+- Evaluasi perbandingan zonasi Ring 2022 terhadap sebaran POLREG 2026.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Zonasi
+### 📊 Riwayat Zonasi Sah
 - **2022**: 803 Records sah terdaftar.
 - **2023–2026**: Pembaruan acuan terkini belum terkonfirmasi.
 

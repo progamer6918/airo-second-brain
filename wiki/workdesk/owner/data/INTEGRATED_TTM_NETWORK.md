@@ -16,40 +16,41 @@ date: 2026-08-27
 **Pertanyaan Utama Owner**: *"Bagaimana peta pengembangan jaringan POS/TTM dan kesiapan pengajuannya?"*
 
 - **Status Domain**: **🟠 Sebagian (Snapshot 11 Aug 2026 / Meeting 6 Aug 2026)**
-- **Target Locality 2026**: **89%**
+- **Target Locality 2026**: **89%** (`INTEGRATED_TTM_POS_CURRENT_STATE_2026-08-11.md`)
 - **Target Input SSP 2026**: **3 Mega POS / 0 Selected POS**
+- **Snapshot POS Standardization**: **14 Baris Data / 10 Parent Dealer Codes / 3 Revised/New Codes**
 - **Status Kesiapan Pengajuan**: **NOT_PROVEN** (Dokumen pengajuan resmi belum terbukti lengkap)
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Achievement Lokasi (H1)**: Target ≥85%
-- **Achievement Ring 1 (H1)**: Target ≥85%
-- **Rincian Snapshot POS**: 14 Baris Data / 10 Parent Dealer Codes / 3 Revised/New Codes
+- **Achievement Lokasi Target H1**: ≥ 85%
+- **Achievement Ring 1 Target H1**: ≥ 85%
+- **Deadline Timeline 2026**: POS Coding (13 Aug), Mapping Ring (24 Aug), Review Q2 (21 Sep), Review Q3 (30 Oct), Review Q4 (29 Jan 2027)
 
 ---
 
 ## 👁️ Apa yang Terlihat
 Peta Perencanaan Jaringan:
-- Pemetaan lokasi POS aktif dan usulan titik lokasi baru H1-H2
-- Catatan status kelengkapan data koordinat dan klasifikasi POS
+- Pemetaan lokasi POS aktif dan usulan titik lokasi baru
+- Catatan status kelengkapan data koordinat dan klasifikasi POS (`POS_STANDARDIZATION_DATA_QUALITY_ISSUES_2026-08-11.tsv`)
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi TTM yang tersedia:
-1. **Network Coverage Map**: Sebaran POS terhadap kecamatan berpopulasi tinggi.
-2. **Whitespace Analysis**: Daftar kecamatan calon lokasi perluasan jaringan.
+Kemampuan eksplorasi TTM sah:
+1. **POS Standardization Sinsen**: Data snapshot POS Sinsen (`POS_STANDARDIZATION_SINSEN_2026-08-11.tsv`).
+2. **Timeline Tracking**: Monitoring tanggal batas waktu pengajuan (`INTEGRATED_TTM_TIMELINE_2026.tsv`).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi kelayakan pembukaan POS baru berdasarkan potensi POLREG.
+- Evaluasi kelayakan pembukaan POS baru berdasarkan potensi POLREG.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat TTM
+### 📊 Riwayat TTM Sah
 - **Snapshot 11 Aug 2026**: Peta kerja TTM & POS 2026 terdaftar sah.
 
 ---

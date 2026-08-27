@@ -18,7 +18,7 @@ date: 2026-08-27
 - **Tanggal Snapshot**: **6 Agustus 2026 (08:03 WIB)**
 - **Total Stok Dealer**: **5.239 unit**
 - **Total Stok Main Dealer (MD)**: **3.496 unit**
-- **Estimasi Stock Days Dealer (DERIVED)**: **13,27 hari** *(dihitung dari Jul retail 12.241 unit)*
+- **Estimasi Stock Days Dealer (DERIVED)**: **13,27 hari** *(Formula: `Dealer Stock / (Jul Retail / 31)` = `5.239 / (12.241 / 31)`)*
 
 ---
 
@@ -33,6 +33,7 @@ date: 2026-08-27
   - RFS (Ready for Sale): **3.362 unit**
   - Booking: **105 unit**
   - NRFS (Not Ready for Sale): **29 unit**
+  - Rakitan: 2026 = 3.446 unit / 2025 = 50 unit
 
 ---
 
@@ -59,28 +60,27 @@ Tabel Distribusi Aging Stok Dealer (Snapshot 6 Aug 2026):
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi stok kendaraan yang tersedia:
-1. **Stok per Dealer / POS**: Rincian ketersediaan unit dan aging per lokasi jaringan.
-2. **Stok per Tipe Model**: Evaluasi stok unit fast-moving vs slow-moving.
-3. **Komposisi Stok MD**: RFS (3.362), Booking (105), NRFS (29) per 6 Aug 2026.
+Kemampuan eksplorasi stok kendaraan sah:
+1. **Dealer Stock Detail**: Breakdown per dealer & POS (`DEALER_STOCK_2026-08-06_AGGREGATE.tsv`).
+2. **Derived Stock Days**: Rasio kecukupan stok per outlet (`DEALER_STOCK_DAYS_2026-08-06_DERIVED.tsv`).
+3. **MD Stock Aggregate**: RFS, Booking, NRFS (`MD_STOCK_2026-08-06_AGGREGATE.tsv`).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan diagnosa stok penumpukan (>150 hari) per dealer.
-- Permintaan analisis keseimbangan pasokan MD vs kebutuhan dealer.
+- Diagnosa stok penumpukan (>150 hari) per dealer dan varian warna.
+- Analisis keseimbangan pasokan MD vs kebutuhan retail dealer.
 
 ---
 
 ## 🕘 Riwayat & Tren
 ### 📊 Riwayat Snapshot Stok
 - **6 Aug 2026**: Snapshot sah (Dealer 5.239 unit / MD 3.496 unit).
-- Snapshot historis disimpan berdasarkan tanggal pengunduhan data operasional.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-- Rincian aging stok MD **TIDAK TERSEDIA** dalam data sumber MD. Dilarang menggunakan tahun rakitan sebagai proxy aging stok MD.
+- Rincian aging stok MD **TIDAK TERSEDIA (NOT_AVAILABLE)** dalam data sumber MD. Dilarang menggunakan tahun rakitan sebagai proxy aging stok MD.
 - Angka Stock Days (13,27 hari) adalah hasil kalkulasi turunan (DERIVED) menggunakan retail Juli 2026.
 
 ---

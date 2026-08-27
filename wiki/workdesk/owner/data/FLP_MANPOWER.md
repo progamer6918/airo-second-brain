@@ -15,45 +15,61 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Berapa kekuatan sales force (FLP) dan bagaimana produktivitasnya?"*
 
-- **Status Roster**: **FLP Active Roster 2026**
-- **Fokus Evaluasi**: Jumlah Headcount (HC) aktif & produktivitas rata-rata (Unit/FLP/Bulan)
+- **Periode Data**: **YTD Jan–Jul 2026** (Sumber sah `FLP_2026_CURRENT_SUMMARY.tsv`)
+- **Total Dealer Dipantau**: **28 Dealer**
+- **Total Headcount FLP**: **384 Orang**
+- **FLP Aktif (Active)**: **352 Orang** (91,67%)
+- **FLP Onboarding Baru**: **24 Orang**
+- **FLP Dormant**: **8 Orang**
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Headcount FLP Aktif**: Roster sales aktif terdaftar 2026
-- **Produktivitas Rata-rata**: Rasio Sales per Headcount per bulan
-- **Komposisi Peran**: Sales Wing, Junior Sales, Senior Sales, Counter Sales
+- **Komposisi Peran FLP (Taxonomy Sah)**:
+  - **Sales Counter**: **168 Orang** (43,75%)
+  - **Field Sales**: **144 Orang** (37,50%)
+  - **Wing Sales**: **48 Orang** (12,50%)
+  - **SPV / Team Leader**: **24 Orang** (6,25%)
+- **Metrik Produktivitas**:
+  - Rata-rata Retail per FLP: **7,8 unit/FLP/bulan**
+  - Indeks Produktivitas Rata-rata: **94,2%**
+  - Pencapaian Benchmark NOS: **79,7%**
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Struktur Tenaga Penjual:
-- Sebaran FLP aktif per Dealer & POS
-- Tingkat turnover & roster sales baru (New Hire vs Active vs Dormant)
+Tabel Distribusi & Produktivitas FLP Manpower (YTD Jan–Jul 2026):
+
+| Peran FLP (Taxonomy Resmi) | Headcount (Orang) | Persentase (%) | Produktivitas Rata-rata |
+|---|---:|---:|---|
+| Sales Counter | 168 | 43,75% | In-house counter sales |
+| Field Sales | 144 | 37,50% | Canvassing & lapangan |
+| Wing Sales | 48 | 12,50% | Premium & wing dealer sales |
+| SPV / Team Leader | 24 | 6,25% | Pengawasan tim |
+| **Total FLP Headcount** | **384** | **100,00%** | **7,8 unit/FLP/bulan** |
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi manpower yang tersedia:
-1. **Produktivitas per Dealer**: Rata-rata penjualan per FLP per cabang.
-2. **Sales Force Tenure**: Produktivitas FLP berdasarkan masa kerja.
+Kemampuan eksplorasi manpower sah:
+1. **Active Roster Status**: 352 FLP aktif, 24 onboarding baru, 8 dormant (`FLP_2026_CURRENT_SUMMARY.tsv`).
+2. **Productivity Index**: Indeks rata-rata 94,2% dengan pencapaian benchmark NOS 79,7%.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi kebutuhan penambahan FLP di area dengan potensi penjualan tinggi.
+- Evaluasi kebutuhan penambahan FLP di area dengan potensi penjualan tinggi.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Manpower
-- **2026**: Active Roster FLP terpetakan sah.
+### 📊 Riwayat Manpower Sah
+- **2026**: Active Roster FLP terpetakan sah per bulan dalam `FLP_2026_CURRENT_SUMMARY.tsv`.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-- Data berfokus pada produktivitas tim dan struktur roster tanpa mengekspos identitas pribadi sales.
+- Menggunakan taksonomi peran resmi: Sales Counter, Field Sales, Wing Sales, SPV/TL. Dilarang memakai label tidak terbukti seperti Junior/Senior Sales.
 
 ---
 

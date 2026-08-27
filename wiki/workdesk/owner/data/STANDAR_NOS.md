@@ -22,7 +22,7 @@ date: 2026-08-27
 
 ## 🎯 KPI & Status Domain
 - **Peringkat Kelulusan**: Gold, Silver, Bronze, Need Improvement
-- **Compliance Gap**: Item audit yang paling sering menjadi kendala dealer
+- **Benchmark Achievement**: 79,7% pencapaian benchmark NOS jaringan
 - **Corrective Action Plan**: Monitoring progres perbaikan dealer pasca-audit
 
 ---
@@ -35,19 +35,18 @@ Hasil Audit NOS Q1–Q2 2026:
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi NOS yang tersedia:
-1. **NOS Score Distribution**: Sebaran peringkat kelulusan NOS jaringan.
-2. **Dealer Action Plan Status**: Progres pelaksanaan perbaikan oleh dealer.
+Kemampuan eksplorasi NOS sah:
+1. **Compliance Gap**: Monitoring progres perbaikan item audit dealer.
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi hubungan antara skor NOS dan produktivitas penjualan dealer.
+- Evaluasi hubungan antara skor NOS dan produktivitas penjualan dealer.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Audit NOS
+### 📊 Riwayat Audit NOS Sah
 - **Q1–Q2 2026**: Results audit resmi terdaftar sah.
 
 ---

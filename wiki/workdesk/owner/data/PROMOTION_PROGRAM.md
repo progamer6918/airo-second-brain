@@ -15,45 +15,65 @@ date: 2026-08-27
 ## 📊 Ringkasan Saat Ini
 **Pertanyaan Utama Owner**: *"Program promo apa yang berjalan dan seberapa besar dampaknya ke penjualan?"*
 
-- **Status Katalog**: **YTD Aug 2026 Program Promo (Q1–Q3 2026)**
-- **Bentuk Promo**: Diskon Cash, Subsidi Kredit, Jaket/Gimmick, Promo DP Murah
+- **Periode Data**: **YTD Aug 2026 (Q1–Q3 2026)** (Sumber sah `PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`)
+- **Jumlah Program Aktif**: **9 Program Promo**
+- **Partisipasi Dealer**: **92,8%**
+- **Total Unit Klaim Promo**: **14.820 unit**
+- **Tingkat Konversi Program**: **36,20%**
+- **Sales Uplift**: **17,80%**
+- **Total Inkremental Unit**: **2.240 unit**
 
 ---
 
 ## 🎯 KPI & Status Domain
-- **Tingkat Adopsi Program**: Persentase unit retail yang memanfaatkan promo
-- **Inkremental Sales**: Estimasi tambahan unit yang tercipta akibat dorongan promo
-- **Effisiensi Biaya Promo**: Biaya subsidi per unit inkremental
+- **Komposisi Skema Promo (Klaim)**:
+  - Voucher Diskon Cash: **34,2%**
+  - Potongan Angsuran Kredit: **28,5%**
+  - Potongan Uang Muka (DP): **14,1%**
+  - Direct Gift / Gimmick: **7,5%**
+  - Support FINCO: **9,2%**
+  - Loyalty Retention: **6,5%**
+- **Uplift per Kategori Produk**:
+  - Matik High Uplift: **22,4%**
+  - Matik Low Uplift: **19,2%**
+  - Sport Uplift: **14,8%**
+  - Cub Uplift: **11,5%**
 
 ---
 
 ## 👁️ Apa yang Terlihat
-Katalog Program Promo Aktif:
-- Daftar promo aktif per tipe sepeda motor dan periode pelaksanaan
-- Besaran subsidi/insentif per model
+Tabel Performa Program Promosi (YTD Aug 2026):
+
+| Metrik Program Promo | Nilai Sah | Catatan Dampak |
+|---|---:|---|
+| Jumlah Program Aktif | 9 Program | Cakupan Q1–Q3 2026 |
+| Partisipasi Dealer | 92,8% | 92,8% dealer aktif memanfaatkan promo |
+| Unit Klaim Promo | 14.820 unit | Unit retail yang menggunakan promo |
+| Sales Uplift | 17,80% | Kenaikan laju penjualan vs non-promo |
+| Inkremental Unit | 2.240 unit | Tambahan unit murni akibat promo |
 
 ---
 
 ## 🔍 Rincian & Eksplorasi
-Kemampuan eksplorasi promo yang tersedia:
-1. **Program Eligibility**: Syarat dan ketentuan promo per tipe model.
-2. **Uplift Analysis**: Perbandingan penjualan sebelum vs saat promo berjalan.
+Kemampuan eksplorasi promo sah:
+1. **Promo Skema Breakdown**: Voucher Diskon Cash (34,2%) & Potongan Angsuran (28,5%) mendominasi 62,7% klaim promo.
+2. **Uplift Matik High**: Matik High mencatat peningkatan penjualan tertinggi (+22,4%).
 
 ---
 
 ## 💡 Analisis yang Bisa Diminta
-- Permintaan evaluasi efisiensi skema promo terhadap pencapaian target retail.
+- Evaluasi efisiensi skema promo terhadap pencapaian target retail.
 
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Promo
-- **Q1–Q3 2026**: Katalog program promo aktif terdaftar sah.
+### 📊 Riwayat Promo Sah
+- **2026 (Q1–Q3)**: Rekam program promo bulanan tersimpan dalam `PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`.
 
 ---
 
 ## ⚠️ Status & Batasan Data
-- Evaluasi efektivitas program promosi disajikan secara khusus untuk rekaman program yang memiliki kelengkapan data hasil.
+- Evaluasi efektivitas program promosi disajikan khusus untuk program yang memiliki kelengkapan data hasil.
 
 ---
 
