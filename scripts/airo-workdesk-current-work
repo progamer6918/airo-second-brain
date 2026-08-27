@@ -2,17 +2,30 @@
 """
 scripts/airo-workdesk-current-work
 Renders sanitized Owner current-work surface from canonical runtime session state.
-Uses deterministic repo-specific runtime state directory matching bin/airo-session.
+Uses exact canonical repo identity matching bin/airo-session.
 """
 import os
 import sys
 import json
 import hashlib
+import subprocess
 from pathlib import Path
 
-def get_repo_hash(repo_dir: Path) -> str:
-    resolved_path = str(repo_dir.resolve())
-    return hashlib.sha256(resolved_path.encode("utf-8")).hexdigest()[:12]
+def get_canonical_repo_identity(repo_dir: Path) -> str:
+    try:
+        r = subprocess.run(["git", "config", "--get", "remote.origin.url"], cwd=repo_dir, capture_output=True, text=True)
+        url = r.stdout.strip()
+        if url:
+            normalized = url.rstrip("/")
+            if normalized.endswith(".git"):
+                normalized = normalized[:-4]
+            if normalized.startswith("git@"):
+                parts = normalized.split("@", 1)[1].split(":", 1)
+                normalized = f"https://{parts[0]}/{parts[1]}"
+            return normalized.lower()
+    except Exception:
+        pass
+    return str(repo_dir.resolve()).lower()
 
 def resolve_owner_vault():
     env_v = os.environ.get("AIRO_WORKDESK_OWNER_VAULT")
@@ -31,7 +44,8 @@ def get_active_session(repo_dir: Path):
     if override_dir and Path(override_dir).exists():
         state_dir = Path(override_dir)
     else:
-        repo_h = get_repo_hash(repo_dir)
+        repo_id = get_canonical_repo_identity(repo_dir)
+        repo_h = hashlib.sha256(repo_id.encode("utf-8")).hexdigest()[:12]
         xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
         state_dir = Path(xdg_state) / "airo/second-brain" / repo_h
     

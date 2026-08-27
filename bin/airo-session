@@ -366,6 +366,20 @@ def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary, 
     except Exception:
         return False
 
+
+def refresh_owner_bridge(repo_root: Path) -> str:
+    try:
+        bridge_script = repo_root / "scripts/airo-workdesk-current-work"
+        if bridge_script.exists():
+            r = subprocess.run([sys.executable, str(bridge_script)], cwd=repo_root, capture_output=True, text=True)
+            if r.returncode == 0:
+                return "PASS"
+            else:
+                return f"FAILED ({r.stderr.strip()})"
+    except Exception as e:
+        return f"FAILED ({str(e)})"
+    return "NOT_CONFIGURED"
+
 def cmd_start(args, repo_root):
     for val, name in [(args.project_id, "project_id"), (args.project_name, "project_name")]:
         valid, err = validate_identifier(val, name)
@@ -1036,6 +1050,8 @@ def main():
         sys.exit(cmd_close(args, repo_root))
     elif args.subcommand == "resume":
         sys.exit(cmd_resume(args, repo_root))
+
+
 
 if __name__ == "__main__":
     main()
