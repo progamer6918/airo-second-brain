@@ -26,14 +26,16 @@ aliases:
 ---
 
 ## 📊 Business Pulse
-- **Market Share**: Jan–Jun 2026 YTD & FY 2025 (🟢 Tersedia)
-- **Retail Sales**: Jan–Jul 2026 YTD & FY 2025 (🟢 Tersedia)
-- **Territory Coverage**: 22 Kabupaten/Kota, 185 Kecamatan, 1,326 Kelurahan/Desa (🟢 Tersedia)
+- **Market Share** — YTD Jan–Jun 2026; historis FY 2025 tersedia (127.244 Total Market)
+- **Retail Sales** — YTD Jan–Jul 2026 (73.968 unit); historis FY 2025 = 107.108 unit
+- **Stock** — Dealer Stock snapshot 6 Aug 2026 (5.239 unit) & MD Stock (3.496 unit)
+- **Territory / POLREG** — Jan–Jun 2026 pemetaan wilayah mendalam: 118 kecamatan / 1.223 baris kelurahan-desa terpetakan
+- **Ring Penjualan** — ⚪ Pemetaan terbaru yang tersedia 2022; acuan terkini belum terkonfirmasi
 
 ---
 
 ## 📌 Signal & Commitment
-- **Fokus Utama**: Pertumbuhan Market Share & Akselerasi Retail Sales
+- **Fokus Aktif:** Lihat kartu “Sedang Dikerjakan” di atas.
 - **Standar Eksekusi**: SOP Pembaruan Data & Pengetahuan v1.0
 - **Verifikasi**: Pengujian berbasis bukti eksekusi dan penerimaan tampilan Owner
 
@@ -57,4 +59,5 @@ aliases:
 ---
 
 ## 🕘 Riwayat Kerja
-- [[worklog/daily/2026-08-27|Riwayat Hari Ini]]
+
+![[worklog/views/AIRO Worklog.base#Hari Ini]]
