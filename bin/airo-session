@@ -102,18 +102,6 @@ def _is_session_active(repo_root, session_data):
     sid = session_data.get("internal_session_id") or session_data.get("session_id")
     if not sid:
         return False
-    
-    planned_path = session_data.get("planned_closeout_path")
-    if planned_path:
-        full_planned = planned_path if os.path.isabs(planned_path) else os.path.join(repo_root, planned_path)
-        if os.path.exists(full_planned):
-            try:
-                with open(full_planned, "r", encoding="utf-8") as f:
-                    content = f.read()
-                    if "closed_at:" in content or "status: BERHASIL" in content:
-                        return False
-            except Exception:
-                pass
     return True
 
 def check_and_migrate_legacy_active_session(repo_root, canonical_state_file):
@@ -1024,7 +1012,12 @@ def cmd_close(args, repo_root):
 
     clear_active_session(repo_root)
     bridge_status = refresh_owner_bridge(repo_root)
+    print("CLOSE_RESULT=PASS")
     print("SESSION_CLOSED=YES")
+    print("TASK_STATUS=" + verdict_status)
+    print("VERDICT_STATUS=" + verdict_status)
+    print("CAN_ADVANCE=YES")
+    print("ACTIVE_SESSION_AFTER=NONE")
     print("OWNER_BRIDGE_REFRESH=" + bridge_status)
     print("PERMANENT_SESSION_NOTE=" + session_file_path)
     print("VERDICT_STATUS=" + verdict_status)
