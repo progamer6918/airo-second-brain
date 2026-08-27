@@ -62,8 +62,10 @@ Kemampuan eksplorasi leads sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Activity Sah
-- **2026**: Log aktivitas bulanan tersimpan sah dalam `SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis Sales Activity (2025–2026)
+
+- **Konsistensi Funnel**: Conversion rate overall bertahan di kisaran 23,0% – 23,7% (`SALES_ACTIVITY_2026_CURRENT_SUMMARY.tsv`).
+- **Efisiensi Walk-in vs CRM**: Walk-in Dealer (24,8% share / 28,2% konversi) dan CRM RO (32,4% konversi) konsisten menjadi kanal konversi paling efisien.
 
 ---
 

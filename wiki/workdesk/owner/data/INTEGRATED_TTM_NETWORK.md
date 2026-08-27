@@ -50,8 +50,9 @@ Kemampuan eksplorasi TTM sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat TTM Sah
-- **Snapshot 11 Aug 2026**: Peta kerja TTM & POS 2026 terdaftar sah.
+### 📊 Rincian Historis Integrated TTM & Network
+
+- **Snapshot Point-in-Time 11 Aug 2026**: Snapshot kerja TTM & POS 2026 terdaftar sah. Siklus review H1-H2 dan rapat koordinasi (6 Aug 2026) diarsipkan sebagai acuan linimasa jaringan.
 
 ---
 

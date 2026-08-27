@@ -46,8 +46,9 @@ Kemampuan eksplorasi NOS sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Audit NOS Sah
-- **Q1–Q2 2026**: Results audit resmi terdaftar sah.
+### 📊 Rincian Historis Standar NOS
+
+- **Audit Cycle**: Audit NOS dilaksanakan secara berkala per siklus (Q1–Q2 2026). Siklus audit sebelumnya diarsipkan sebagai riwayat kepatuhan standar pelayanan jaringan.
 
 ---
 

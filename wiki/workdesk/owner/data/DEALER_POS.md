@@ -52,8 +52,13 @@ Kemampuan eksplorasi jaringan yang tersedia:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Jaringan Sah
-- **2025–2026**: Rekaman hierarki jaringan operasional tersimpan.
+### 📊 Rincian Historis Jaringan Dealer (2025)
+
+- **Rekam Jaringan 2025**: Jaringan 28 dealer terdaftar aktif (`RETAIL_2025_YTD_JUL_DEALER_HISTORICAL.tsv`).
+- **Top 3 Dealer Kontributor 2025 (YTD Jul)**:
+  1. **PT PATRIA ANUGRAH SENTOSA - JAMBI**: **3.125 unit**
+  2. **PT ASTRA INTERNATIONAL TBK - HONDA**: **2.964 unit**
+  3. **PT DAYA ANUGRAH MANDIRI - JAMBI**: **1.944 unit**
 
 ---
 

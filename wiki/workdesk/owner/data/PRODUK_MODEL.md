@@ -60,8 +60,10 @@ Kemampuan eksplorasi produk sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Lineup Sah
-- **2025–2026**: Rincian bulanan per kategori dan tipe model tersimpan sah dalam `PRODUCT_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis Produk & Model (2025–2026)
+
+- **Rekam Lineup 2025–2026**: Rekam bulanan penjualan per kategori produk (Matik, Cub, Sport, EV) tersimpan dalam `PRODUCT_2026_CURRENT_SUMMARY.tsv`.
+- **Top Model Leader 2025–2026**: Seri BeAT (BEAT STREET & BEAT SPORTY CBS) konsisten menjadi kontributor terbesar dengan porsi >22% dari total retail.
 
 ---
 

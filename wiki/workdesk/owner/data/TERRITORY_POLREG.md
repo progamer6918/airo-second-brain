@@ -51,9 +51,11 @@ Kemampuan eksplorasi territory yang tersedia:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Pemetaan Sah
-- **2026 (Jan–Jun)**: 1.223 baris Kelurahan/Desa terpetakan sah.
-- **2025**: Data POLREG historis terdaftar.
+### 📊 Rincian Historis Territory & POLREG (2024–2025)
+
+- **Cakupan Structure 2025**: Pemetaan registrasi POLREG 2025 mencakup **9 Kabupaten, 100 Kecamatan, dan 1.223 Micro-Geography Area ID** (`MARKET_SHARE_2025_HISTORICAL_RECOVERY.md`).
+- **Limitation Granulitas 2025**: Granulitas nama Kelurahan/Desa 2025 berstatus **NOT_PROVEN** (Acuan sah menggunakan Area ID).
+- **Historis 2024**: Potensi registrasi historis 2024 terdaftar pada level Kabupaten/Kecamatan.
 
 ---
 

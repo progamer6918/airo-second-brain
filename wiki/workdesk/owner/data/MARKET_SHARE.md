@@ -40,12 +40,12 @@ Tabel Performa Market Share per 9 Segmen (YTD Jan–Jun 2026 vs 2025 Sah):
 | AT High | 14.251 | 23.125 | 61,63% | 55,23% | +6,40 pp | 29,26% |
 | AT Low | 23.019 | 23.392 | 98,41% | 98,21% | +0,20 pp | 29,59% |
 | AT Mid | 13.539 | 14.396 | 94,05% | 92,50% | +1,55 pp | 18,21% |
-| Cub High | 234 | 1.368 | 17,11% | 24,27% | -7,17 pp | 1,73% |
+| Cub High | 234 | 1.368 | 17,11% | 24,27% | -7,17 pp | 1.73% |
 | Cub Low | 6.713 | 6.731 | 99,73% | 99,92% | -0,18 pp | 8,52% |
 | Cub Mid | 2.968 | 5.284 | 56,17% | 53,44% | +2.73 pp | 6,69% |
 | Sport High | 6 | 42 | 14,29% | 18,18% | -3,90 pp | 0,05% |
 | Sport Low | 717 | 719 | 99,72% | 99,80% | -0,08 pp | 0,91% |
-| Sport Mid | 3.584 | 3.981 | 90,03% | 87,48% | +2,55 pp | 5,04% |
+| Sport Mid | 3.584 | 3.981 | 90,03% | 87,48% | +2.55 pp | 5.04% |
 
 *Catatan Denominator*: Terdapat 4 unit pasar 2026 yang belum terklasifikasi segmen, sehingga total All Segment = 79.042 unit.
 
@@ -68,9 +68,25 @@ Kemampuan eksplorasi Market Share & POLREG sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Market Share Sah
-- **FY 2025 Total Market**: **127.244 unit** (Honda: **103.182 unit** / M/S: **81,09%** / Yamaha: **23.261 unit** / M/S: **18,28%**).
-- Sumber pemulihan historis: `MARKET_SHARE_2025_HISTORICAL_RECOVERY.md`.
+### 📊 Rincian Historis Market Share Sah FY 2025
+
+Sumber pemulihan historis: `MARKET_SHARE_2025_HISTORICAL_RECOVERY.md` (Bersumber sah dari `SINSEN_EVALPOLREG+MSPERKAB_DEC 2025.xlsx` & `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2025.xlsx`).
+
+Tabel Pemetaan M/S Antar-Brand Full Year (FY) 2025:
+
+| Brand / Merek | Volume Registrasi FY 2025 (Unit) | Pangsa Pasar (M/S %) | Peran Kompetisi |
+|---|---:|---:|---|
+| **Honda** | **103.182** | **81,09%** | Market Leader Utama |
+| **Yamaha** | **23.261** | **18,28%** | Kompetitor Utama |
+| **Suzuki** | **24** | **0,02%** | Niche Player |
+| **Lain-lain / Other** | **777** | **0,61%** | Lainnya |
+| **Total FY 2025 Market** | **127.244** | **100,00%** | **100% Exact Match** |
+
+*Cakupan Geografis Historis 2025*:
+- **Jumlah Kabupaten**: 9 Kabupaten (Batanghari, Bungo, Kota Jambi, Muaro Jambi, Merangin, Sarolangun, Tanjab Barat, Tanjab Timur, Tebo)
+- **Jumlah Kecamatan**: 100 Kecamatan terpetakan
+- **Micro-Geography**: 1.223 Area ID (`AREA 1` .. `AREA 1223`)
+- **Catatan Granulitas**: Data M/S 2025 pada tingkat Kelurahan/Desa berstatus **NOT_PROVEN** (Hierarki sah: `Area ID -> Kecamatan -> Kabupaten`).
 
 ---
 

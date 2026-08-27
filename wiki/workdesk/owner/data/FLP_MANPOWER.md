@@ -63,8 +63,10 @@ Kemampuan eksplorasi manpower sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Manpower Sah
-- **2026**: Active Roster FLP terpetakan sah per bulan dalam `FLP_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis FLP Manpower (2025–2026)
+
+- **Headcount Stability**: Headcount FLP terpantau stabil pada kisaran 378 – 384 orang across 28 dealer (`FLP_2026_CURRENT_SUMMARY.tsv`).
+- **Produktivitas Historis**: Rata-rata produktivitas FLP bertahan di angka 7,5 – 7,8 unit/FLP/bulan.
 
 ---
 

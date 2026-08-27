@@ -64,8 +64,10 @@ Kemampuan eksplorasi lifecycle sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Lifecycle Sah
-- **2025–2026**: Basis data repeat order terrekam dalam `CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis Customer Lifecycle (2025–2026)
+
+- **Tren Repeat Order**: Rasio repeat order stabil pada kisaran 37,0% – 37,5% (`CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`).
+- **Jeda Penggantian**: Jeda 18–36 bulan konsisten menjadi jendela waktu utama repeat order (68,5%).
 
 ---
 

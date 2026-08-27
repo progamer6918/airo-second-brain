@@ -47,8 +47,9 @@ Kemampuan eksplorasi komersial sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Commercial Sah
-- **Aug 2026**: Versi katalog MSW & Fleet terbaru terdaftar sah.
+### 📊 Rincian Historis Katalog Commercial & MSW
+
+- **Snapshot Program**: Katalog versi Agustus 2026 (`MSW_AUGUST_2026_COMMERCIAL_OFFERS.tsv`) disajikan sebagai acuan aktif. Versi terdahulu diarsipkan sebagai riwayat penawaran komersial institusi.
 
 ---
 

@@ -48,9 +48,10 @@ Kemampuan eksplorasi ring yang tersedia:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Zonasi Sah
-- **2022**: 803 Records sah terdaftar.
-- **2023–2026**: Pembaruan acuan terkini belum terkonfirmasi.
+### 📊 Rincian Historis Ring Penjualan (Acuan 2022)
+
+- **Record Mapping 2022**: 803 record Dealer/POS ke Kecamatan tersimpan sah dalam `RING_MAPPING_2022_HISTORICAL.tsv`.
+- **Status Zonasi 2026**: Pembaruan zonasi aktif 2026 belum terkonfirmasi, sehingga acuan 2022 dinyatakan secara eksplisit berstatus **⚪ HISTORIS 2022**.
 
 ---
 

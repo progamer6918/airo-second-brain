@@ -68,9 +68,30 @@ Rincian data retail sah yang tersedia untuk eksplorasi:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Penjualan Sah
-- **FY 2025 Total Sah**: **107.108 unit** (Rincian 12 bulan sah tersimpan).
-- **FY 2024 Total Sah**: Data historis pembanding sah terdaftar.
+### 📊 Rincian Historis Penjualan Sah (2024–2025)
+
+#### 1. Performa Bulanan Sah 2025 (YTD Jan–Jul)
+Tabel Rincian Retail Sah 2025 Bulanan (`Record Sales 2008-2025.xlsx` / `Monthly`):
+
+| Bulan | Retail 2025 Actual (Unit) | Porsi terhadap YTD (%) | Catatan Historis 2025 |
+|---|---:|---:|---|
+| Jan | 7.525 | 13,20% | Awal tahun 2025 |
+| Feb | 8.080 | 14,18% | Peningkatan bertahap |
+| Mar | 10.793 | 18,94% | Peak volume semester I 2025 |
+| Apr | 5.847 | 10,26% | Penyesuaian pasca-musiman |
+| May | 7.500 | 13,16% | Pemulihan volume normal |
+| Jun | 7.929 | 13,91% | Penutupan semester I 2025 |
+| Jul | 9.322 | 16,35% | Tren naik semester II 2025 |
+| **Total YTD (Jan–Jul 2025)** | **56.996** | **100,00%** | **Dasar Pembanding Sah 2026** |
+
+- **Total Full Year (FY) 2025**: **107.108 unit** total retail sah 12 bulan.
+- **Top 3 Dealer Kontributor 2025 (YTD Jul)**:
+  1. **PT PATRIA ANUGRAH SENTOSA - JAMBI**: **3.125 unit**
+  2. **PT ASTRA INTERNATIONAL TBK - HONDA**: **2.964 unit**
+  3. **PT DAYA ANUGRAH MANDIRI - JAMBI**: **1.944 unit**
+
+#### 2. Performa Sah 2024
+- **FY 2024 Total Sah**: Data historis sah terdaftar dalam basis acuan `Record Sales 2008-2025.xlsx`. Granulitas bulanan 2024 dibatasi pada level agregat wilayah.
 
 ---
 

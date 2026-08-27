@@ -47,8 +47,9 @@ Kemampuan eksplorasi market info sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Informasi Pasar
-- **Aug 2026**: Pembaruan alur kerja pasar berjalan. Catatan historis mingguan **TIDAK DISEDIAKAN (NOT_SUPPLIED)**.
+### 📊 Rincian Historis Market Info & Event
+
+- **Catatan Data Historis**: Catatan historis mingguan **TIDAK DISEDIAKAN (NOT_SUPPLIED)** dalam basis data operasional. Alur kerja aktif MD Google Form -> AHM Portal efektif berjalan sejak rollout 11 Agustus 2026 (`MARKET_INFO_TOOLS_SUBMISSION_CONTRACT_2026-08-11.tsv`).
 
 ---
 

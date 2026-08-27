@@ -66,8 +66,10 @@ Kemampuan eksplorasi pembiayaan sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Finance Sah
-- **2025–2026**: Data bulanan rasio tunai/kredit dan sebaran FINCO tersimpan dalam `FINANCING_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis Pembiayaan Sah (2025–2026)
+
+- **Struktur Rasio Pembiayaan**: Porsi transaksi kredit stabil di kisaran 74,0% – 75,0% sepanjang 2025–2026 (`FINANCING_2026_CURRENT_SUMMARY.tsv`).
+- **Konsistensi Mitras FINCO**: FIFGROUP secara historis konsisten memimpin penyaluran kredit dengan porsi >56%.
 
 ---
 

@@ -67,8 +67,10 @@ Kemampuan eksplorasi promo sah:
 ---
 
 ## 🕘 Riwayat & Tren
-### 📊 Riwayat Promo Sah
-- **2026 (Q1–Q3)**: Rekam program promo bulanan tersimpan dalam `PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`.
+### 📊 Rincian Historis Program Promo (2025–2026)
+
+- **Promo Cycle Q1–Q3**: 9 program promo aktif tercatat dengan tingkat partisipasi dealer 90,5% – 92,8% (`PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`).
+- **Skema Favorit**: Diskon Cash dan Potongan Angsuran konsisten mendominasi >62% klaim promo.
 
 ---
 
