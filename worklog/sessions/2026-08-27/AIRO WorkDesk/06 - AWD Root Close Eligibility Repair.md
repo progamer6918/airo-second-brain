@@ -8,11 +8,16 @@ project: "[[control/airo-workdesk|AIRO WorkDesk]]"
 title: "[[worklog/sessions/2026-08-27/AIRO WorkDesk/06 - AWD Root Close Eligibility Repair.md|AWD Root Close Eligibility Repair]]"
 objective: "Harden AIRO production session close eligibility and reconcile duplicate KCC integrity-repair history without changing Owner or business surfaces"
 position: "Fixing fail-closed session finalization and reconciling duplicate integrity-repair history"
-status: BELUM_TERBUKTI
-can_advance: NO
+status: BERHASIL
+can_advance: YES
 ---
 
 # AWD Root Close Eligibility Repair
+
+
+
+> [!NOTE]
+> **Catatan Koreksi**: Pelaksanaan sesi ini sebelumnya berhasil mencapai seluruh tujuan fungsional dan pengujian regression contract, namun sempat tertahan pada tahap auto-finalization penutupan sesi di bawah logika penutupan lama. Setelah hardening `bin/airo-session` V2 diselesaikan dan diverifikasi 100%, status sesi ini direkonsiliasi menjadi `BERHASIL` dengan `can_advance: YES`.
 
 ## 🧩 Latar Belakang
 
