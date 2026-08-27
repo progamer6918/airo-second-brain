@@ -52,6 +52,8 @@ aliases:
 ## 🔍 RINCIAN TOPIK DATA
 
 ### Penjualan Retail
+
+➡️ [[wiki/workdesk/owner/data/RETAIL|Buka Halaman Bisnis Penjualan Retail]]
 - **Data s.d.**: Juli 2026 (Juli = 12.241 unit, YTD Jan–Jul 2026 = 73.968 unit)
 - **Riwayat tersedia**: FY 2025 (107.108 unit) & FY 2024
 - **Status**: 🟢 Tersedia
@@ -65,6 +67,8 @@ aliases:
 ---
 
 ### Market Share
+
+➡️ [[wiki/workdesk/owner/data/MARKET_SHARE|Buka Halaman Bisnis Market Share]]
 - **Data s.d.**: Juni 2026 (YTD Jan–Jun 2026) & FY 2025 (Jan–Des 2025)
 - **Riwayat tersedia**: FY 2025 Total Market (127.244 unit) per Kabupaten, Brand, & Kompetitor
 - **Status**: 🟢 Tersedia
@@ -80,6 +84,8 @@ aliases:
 ---
 
 ### Territory & POLREG
+
+➡️ [[wiki/workdesk/owner/data/TERRITORY_POLREG|Buka Halaman Bisnis Territory & POLREG]]
 - **Data s.d.**: Juni 2026
 - **Riwayat tersedia**: 9 Market Areas, 118 Kecamatan, 1.223 Baris Kelurahan-Desa Terpetakan
 - **Status**: 🟢 Tersedia
@@ -93,6 +99,8 @@ aliases:
 ---
 
 ### Dealer & POS
+
+➡️ [[wiki/workdesk/owner/data/DEALER_POS|Buka Halaman Bisnis Dealer & POS]]
 - **Data s.d.**: Belum terkonfirmasi
 - **Riwayat tersedia**: Hierarki Dealer → POS → FLP Tersedia
 - **Status**: 🟠 Sebagian
@@ -106,6 +114,8 @@ aliases:
 ---
 
 ### Ring Penjualan
+
+➡️ [[wiki/workdesk/owner/data/RING_PENJUALAN|Buka Halaman Bisnis Ring Penjualan]]
 - **Data s.d.**: 2022 (Historis)
 - **Riwayat tersedia**: 803 catatan pemetaan Dealer/POS ke Kecamatan (Ring 1–3)
 - **Status**: ⚪ Historis
@@ -119,6 +129,8 @@ aliases:
 ---
 
 ### Stock Kendaraan
+
+➡️ [[wiki/workdesk/owner/data/STOCK_KENDARAAN|Buka Halaman Bisnis Stock Kendaraan]]
 - **Data s.d.**: Snapshot Dealer 6 Aug 2026 (08:03:42) & MD 6 Aug 2026 (08:04:46)
 - **Riwayat tersedia**: Stock Dealer (5.239 unit) & Stock MD (3.496 unit)
 - **Status**: 🟢 Tersedia
@@ -132,6 +144,8 @@ aliases:
 ---
 
 ### Produk & Model
+
+➡️ [[wiki/workdesk/owner/data/PRODUK_MODEL|Buka Halaman Bisnis Produk & Model]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: Lineup Sepeda Motor 2025–2026
 - **Status**: 🟢 Tersedia
@@ -145,6 +159,8 @@ aliases:
 ---
 
 ### Pembiayaan & Finance
+
+➡️ [[wiki/workdesk/owner/data/PEMBIAYAAN_FINANCE|Buka Halaman Bisnis Pembiayaan & Finance]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: FY 2025 & YTD 2026 per Leasing Partner
 - **Status**: 🟢 Tersedia
@@ -158,6 +174,8 @@ aliases:
 ---
 
 ### Customer Segment
+
+➡️ [[wiki/workdesk/owner/data/CUSTOMER_SEGMENT|Buka Halaman Bisnis Customer Segment]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: FY 2025 & YTD 2026
 - **Status**: 🟢 Tersedia
@@ -171,6 +189,8 @@ aliases:
 ---
 
 ### Customer Lifecycle & Repeat Order
+
+➡️ [[wiki/workdesk/owner/data/CUSTOMER_LIFECYCLE|Buka Halaman Bisnis Customer Lifecycle & Repeat Order]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: Database Consumer & Repeat Order
 - **Status**: 🟢 Tersedia
@@ -184,6 +204,8 @@ aliases:
 ---
 
 ### FLP & Manpower
+
+➡️ [[wiki/workdesk/owner/data/FLP_MANPOWER|Buka Halaman Bisnis FLP & Manpower]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: Roster Sales Force Active 2026
 - **Status**: 🟢 Tersedia
@@ -197,6 +219,8 @@ aliases:
 ---
 
 ### Sales Activity & Leads
+
+➡️ [[wiki/workdesk/owner/data/SALES_ACTIVITY_LEADS|Buka Halaman Bisnis Sales Activity & Leads]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: Activity Tracking & Prospect Leads 2026
 - **Status**: 🟢 Tersedia
@@ -210,6 +234,8 @@ aliases:
 ---
 
 ### Promotion & Program
+
+➡️ [[wiki/workdesk/owner/data/PROMOTION_PROGRAM|Buka Halaman Bisnis Promotion & Program]]
 - **Data s.d.**: YTD Agustus 2026
 - **Riwayat tersedia**: Program Promo Q1–Q3 2026
 - **Status**: 🟢 Tersedia
@@ -223,6 +249,8 @@ aliases:
 ---
 
 ### Commercial & MSW
+
+➡️ [[wiki/workdesk/owner/data/COMMERCIAL_MSW|Buka Halaman Bisnis Commercial & MSW]]
 - **Data s.d.**: Agustus 2026 (Program Family Aug 2026)
 - **Riwayat tersedia**: Fleet Account 2026
 - **Status**: 🟢 Tersedia
@@ -236,6 +264,8 @@ aliases:
 ---
 
 ### Market Info & Event
+
+➡️ [[wiki/workdesk/owner/data/MARKET_INFO_EVENT|Buka Halaman Bisnis Market Info & Event]]
 - **Data s.d.**: Agustus 2026 (Alur Proses per 11 Aug 2026)
 - **Riwayat tersedia**: Event Calendar 2026 (Catatan Historis Belum Disediakan)
 - **Status**: 🟡 Perlu Pembaruan
@@ -249,6 +279,8 @@ aliases:
 ---
 
 ### Standar NOS
+
+➡️ [[wiki/workdesk/owner/data/STANDAR_NOS|Buka Halaman Bisnis Standar NOS]]
 - **Data s.d.**: Juli 2026
 - **Riwayat tersedia**: Hasil Audit NOS Q1–Q2 2026
 - **Status**: 🟢 Tersedia
@@ -262,6 +294,8 @@ aliases:
 ---
 
 ### Integrated TTM & Network
+
+➡️ [[wiki/workdesk/owner/data/INTEGRATED_TTM_NETWORK|Buka Halaman Bisnis Integrated TTM & Network]]
 - **Data s.d.**: Snapshot Agustus 2026 (Sinsen POS Snapshot 11 Aug 2026)
 - **Riwayat tersedia**: Network Coverage Map 2026
 - **Status**: 🟠 Sebagian

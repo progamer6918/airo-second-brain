@@ -13,25 +13,25 @@ aliases:
 
 ## 📊 DATA BISNIS
 
-| Data | Status & Cakupan | Bisa Dipakai Untuk | Buka |
+| Data | Status & Cakupan | Bisa Dipakai Untuk | Aksi |
 |---|---|---|---|
-| Penjualan Retail | 🟢 Jan–Jul 2026 · FY 2025 (107.108 unit) | Evaluasi performa penjualan retail per wilayah & cabang | [[wiki/workdesk/STATUS_DATA#Penjualan Retail\|Buka Data Retail]] |
-| Market Share | 🟢 Jan–Jun 2026 · FY 2025 (127.244 Total Market) | Analisis posisi persaingan brand & penguasaan pasar | [[wiki/workdesk/STATUS_DATA#Market Share\|Buka Data Market Share]] |
-| Territory & POLREG | 🟢 118 Kecamatan / 1.223 Baris Kelurahan-Desa Terpetakan | Pemetaan wilayah potensi & populasi registrasi kendaraan | [[wiki/workdesk/STATUS_DATA#Territory & POLREG\|Buka Data Territory]] |
-| Dealer & POS | 🟠 Hierarki Dealer → POS → FLP tersedia; total jaringan acuan terkini belum terkonfirmasi | Penilaian kapasitas & jangkauan jaringan penjualan dealer | [[wiki/workdesk/STATUS_DATA#Dealer & POS\|Buka Data Dealer]] |
-| Ring Penjualan | ⚪ Historis 2022 · Acuan terkini belum terkonfirmasi | Prioritas alokasi sumber daya & pemetaan zona pemasaran | [[wiki/workdesk/STATUS_DATA#Ring Penjualan\|Buka Data Ring]] |
-| Stock Kendaraan | 🟢 Snapshot 6 Aug 2026 (5.239 Dealer / 3.496 MD) | Monitoring ketersediaan stok & keseimbangan supply-demand | [[wiki/workdesk/STATUS_DATA#Stock Kendaraan\|Buka Data Stock]] |
-| Produk & Model | 🟢 Lineup Sepeda Motor 2025–2026 | Analisis kontribusi penjualan per kategori & model | [[wiki/workdesk/STATUS_DATA#Produk & Model\|Buka Data Produk]] |
-| Pembiayaan & Finance | 🟢 FY 2025–2026 Leasing & Cash Ratio | Evaluasi tingkat persetujuan kredit & rasio pembiayaan | [[wiki/workdesk/STATUS_DATA#Pembiayaan & Finance\|Buka Data Finance]] |
-| Customer Segment | 🟢 Demografi & Pekerjaan 2025–2026 | Profiling pembeli & kesesuaian target pasar per segmen | [[wiki/workdesk/STATUS_DATA#Customer Segment\|Buka Data Segmen]] |
-| Customer Lifecycle & Repeat Order | 🟢 Database Consumer & Repeat Order | Program retensi & strategi pembelian ulang kendaraan | [[wiki/workdesk/STATUS_DATA#Customer Lifecycle & Repeat Order\|Buka Data Lifecycle]] |
-| FLP & Manpower | 🟢 FLP Active Roster 2026 | Produktivitas tim sales & analisis rasio pencapaian target | [[wiki/workdesk/STATUS_DATA#FLP & Manpower\|Buka Data FLP]] |
-| Sales Activity & Leads | 🟢 Activity Log & Prospek 2026 | Evaluasi efektivitas pameran, kanvasing, & konversi prospek | [[wiki/workdesk/STATUS_DATA#Sales Activity & Leads\|Buka Data Leads]] |
-| Promotion & Program | 🟢 YTD Aug 2026 Program Promo | Evaluasi efektivitas diskon, subsidi, & promo kuartalan | [[wiki/workdesk/STATUS_DATA#Promotion & Program\|Buka Data Promo]] |
-| Commercial & MSW | 🟢 Fleet Account & MSW Aug 2026 | Penjualan segmen komersial & kerja sama instansi | [[wiki/workdesk/STATUS_DATA#Commercial & MSW\|Buka Data Commercial]] |
-| Market Info & Event | 🟡 Proses Aug 2026 (Catatan Historis Belum Disediakan) | Pemantauan kegiatan kompetitor & kalender event lokal | [[wiki/workdesk/STATUS_DATA#Market Info & Event\|Buka Data Event]] |
-| Standar NOS | 🟢 Audit NOS Q1–Q2 2026 | Audit standar kualitas jaringan & standar pelayanan | [[wiki/workdesk/STATUS_DATA#Standar NOS\|Buka Data NOS]] |
-| Integrated TTM & Network | 🟠 Snapshot Aug 2026 (Kesiapan Pengajuan Belum Terbukti) | Perencanaan ekspansi jaringan & pemetaan jangkauan POS | [[wiki/workdesk/STATUS_DATA#Integrated TTM & Network\|Buka Data Network]] |
+| Penjualan Retail | 🟢 Jan–Jul 2026 · FY 2025 (107.108 unit) | Evaluasi performa penjualan retail per wilayah & cabang | [[wiki/workdesk/owner/data/RETAIL\|Buka Retail]] · [[wiki/workdesk/STATUS_DATA#Penjualan Retail\|Cek Status]] |
+| Market Share | 🟢 Jan–Jun 2026 · FY 2025 (127.244 Total Market) | Analisis posisi persaingan brand & penguasaan pasar | [[wiki/workdesk/owner/data/MARKET_SHARE\|Buka Market Share]] · [[wiki/workdesk/STATUS_DATA#Market Share\|Cek Status]] |
+| Territory & POLREG | 🟢 118 Kecamatan / 1.223 Baris Kelurahan-Desa Terpetakan | Pemetaan wilayah potensi & populasi registrasi kendaraan | [[wiki/workdesk/owner/data/TERRITORY_POLREG\|Buka Territory]] · [[wiki/workdesk/STATUS_DATA#Territory & POLREG\|Cek Status]] |
+| Dealer & POS | 🟠 Hierarki Dealer → POS → FLP tersedia; total jaringan acuan terkini belum terkonfirmasi | Penilaian kapasitas & jangkauan jaringan penjualan dealer | [[wiki/workdesk/owner/data/DEALER_POS\|Buka Dealer]] · [[wiki/workdesk/STATUS_DATA#Dealer & POS\|Cek Status]] |
+| Ring Penjualan | ⚪ Historis 2022 · Acuan terkini belum terkonfirmasi | Prioritas alokasi sumber daya & pemetaan zona pemasaran | [[wiki/workdesk/owner/data/RING_PENJUALAN\|Buka Ring]] · [[wiki/workdesk/STATUS_DATA#Ring Penjualan\|Cek Status]] |
+| Stock Kendaraan | 🟢 Snapshot 6 Aug 2026 (5.239 Dealer / 3.496 MD) | Monitoring ketersediaan stok & keseimbangan supply-demand | [[wiki/workdesk/owner/data/STOCK_KENDARAAN\|Buka Stock]] · [[wiki/workdesk/STATUS_DATA#Stock Kendaraan\|Cek Status]] |
+| Produk & Model | 🟢 Lineup Sepeda Motor 2025–2026 | Analisis kontribusi penjualan per kategori & model | [[wiki/workdesk/owner/data/PRODUK_MODEL\|Buka Produk]] · [[wiki/workdesk/STATUS_DATA#Produk & Model\|Cek Status]] |
+| Pembiayaan & Finance | 🟢 FY 2025–2026 Leasing & Cash Ratio | Evaluasi tingkat persetujuan kredit & rasio pembiayaan | [[wiki/workdesk/owner/data/PEMBIAYAAN_FINANCE\|Buka Finance]] · [[wiki/workdesk/STATUS_DATA#Pembiayaan & Finance\|Cek Status]] |
+| Customer Segment | 🟢 Demografi & Pekerjaan 2025–2026 | Profiling pembeli & kesesuaian target pasar per segmen | [[wiki/workdesk/owner/data/CUSTOMER_SEGMENT\|Buka Segmen]] · [[wiki/workdesk/STATUS_DATA#Customer Segment\|Cek Status]] |
+| Customer Lifecycle & Repeat Order | 🟢 Database Consumer & Repeat Order | Program retensi & strategi pembelian ulang kendaraan | [[wiki/workdesk/owner/data/CUSTOMER_LIFECYCLE\|Buka Lifecycle]] · [[wiki/workdesk/STATUS_DATA#Customer Lifecycle & Repeat Order\|Cek Status]] |
+| FLP & Manpower | 🟢 FLP Active Roster 2026 | Produktivitas tim sales & analisis rasio pencapaian target | [[wiki/workdesk/owner/data/FLP_MANPOWER\|Buka FLP]] · [[wiki/workdesk/STATUS_DATA#FLP & Manpower\|Cek Status]] |
+| Sales Activity & Leads | 🟢 Activity Log & Prospek 2026 | Evaluasi efektivitas pameran, kanvasing, & konversi prospek | [[wiki/workdesk/owner/data/SALES_ACTIVITY_LEADS\|Buka Leads]] · [[wiki/workdesk/STATUS_DATA#Sales Activity & Leads\|Cek Status]] |
+| Promotion & Program | 🟢 YTD Aug 2026 Program Promo | Evaluasi efektivitas diskon, subsidi, & promo kuartalan | [[wiki/workdesk/owner/data/PROMOTION_PROGRAM\|Buka Promo]] · [[wiki/workdesk/STATUS_DATA#Promotion & Program\|Cek Status]] |
+| Commercial & MSW | 🟢 Fleet Account & MSW Aug 2026 | Penjualan segmen komersial & kerja sama instansi | [[wiki/workdesk/owner/data/COMMERCIAL_MSW\|Buka Commercial]] · [[wiki/workdesk/STATUS_DATA#Commercial & MSW\|Cek Status]] |
+| Market Info & Event | 🟡 Proses Aug 2026 (Catatan Historis Belum Disediakan) | Pemantauan kegiatan kompetitor & kalender event lokal | [[wiki/workdesk/owner/data/MARKET_INFO_EVENT\|Buka Event]] · [[wiki/workdesk/STATUS_DATA#Market Info & Event\|Cek Status]] |
+| Standar NOS | 🟢 Audit NOS Q1–Q2 2026 | Audit standar kualitas jaringan & standar pelayanan | [[wiki/workdesk/owner/data/STANDAR_NOS\|Buka NOS]] · [[wiki/workdesk/STATUS_DATA#Standar NOS\|Cek Status]] |
+| Integrated TTM & Network | 🟠 Snapshot Aug 2026 (Kesiapan Pengajuan Belum Terbukti) | Perencanaan ekspansi jaringan & pemetaan jangkauan POS | [[wiki/workdesk/owner/data/INTEGRATED_TTM_NETWORK\|Buka Network]] · [[wiki/workdesk/STATUS_DATA#Integrated TTM & Network\|Cek Status]] |
 
 ---
 
