@@ -367,18 +367,35 @@ def invoke_airo_capture(repo_root, session_id, project_id, event_type, summary, 
         return False
 
 
-def refresh_owner_bridge(repo_root: Path) -> str:
+
+
+
+
+
+
+
+
+
+
+def refresh_owner_bridge(repo_root):
+    bridge_script = os.path.join(
+        repo_root,
+        "scripts",
+        "airo-workdesk-current-work",
+    )
+    if not os.path.isfile(bridge_script):
+        return "NOT_CONFIGURED"
     try:
-        bridge_script = repo_root / "scripts/airo-workdesk-current-work"
-        if bridge_script.exists():
-            r = subprocess.run([sys.executable, str(bridge_script)], cwd=repo_root, capture_output=True, text=True)
-            if r.returncode == 0:
-                return "PASS"
-            else:
-                return f"FAILED ({r.stderr.strip()})"
-    except Exception as e:
-        return f"FAILED ({str(e)})"
-    return "NOT_CONFIGURED"
+        res = subprocess.run(
+            [sys.executable, bridge_script],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        return "FAILED"
+    return "PASS" if res.returncode == 0 else "FAILED"
+
 
 def cmd_start(args, repo_root):
     for val, name in [(args.project_id, "project_id"), (args.project_name, "project_name")]:
@@ -394,9 +411,15 @@ def cmd_start(args, repo_root):
 
     active = load_active_session(repo_root)
     if active:
-        if active.get("project_id") == args.project_id and active.get("objective") == args.objective:
+        if (
+            active.get("project_id") == args.project_id
+            and active.get("project_name") == args.project_name
+            and active.get("objective") == args.objective
+        ):
+            bridge_status = refresh_owner_bridge(repo_root)
             print("SESSION_ACTION=CONTINUE_EXISTING")
             print("SESSION_ID=" + str(active.get('internal_session_id')))
+            print("OWNER_BRIDGE_REFRESH=" + bridge_status)
             return 0
         else:
             print("SESSION_SWITCH_REQUIRES_CLOSE=YES")
@@ -431,8 +454,10 @@ def cmd_start(args, repo_root):
         print("ACTIVE_SESSION_PRESERVED=YES")
         return 1
 
+    bridge_status = refresh_owner_bridge(repo_root)
     print("SESSION_ACTION=STARTED")
     print("SESSION_ID=" + internal_id)
+    print("OWNER_BRIDGE_REFRESH=" + bridge_status)
     return 0
 
 def cmd_event(args, repo_root):
@@ -490,7 +515,9 @@ def cmd_event(args, repo_root):
         print("ACTIVE_SESSION_PRESERVED=YES")
         return 1
 
+    bridge_status = refresh_owner_bridge(repo_root)
     print("EVENT_RECORDED=YES")
+    print("OWNER_BRIDGE_REFRESH=" + bridge_status)
     return 0
 
 def cmd_status(args, repo_root):
@@ -982,7 +1009,9 @@ def cmd_close(args, repo_root):
         return 1
 
     clear_active_session(repo_root)
+    bridge_status = refresh_owner_bridge(repo_root)
     print("SESSION_CLOSED=YES")
+    print("OWNER_BRIDGE_REFRESH=" + bridge_status)
     print("PERMANENT_SESSION_NOTE=" + session_file_path)
     print("VERDICT_STATUS=" + verdict_status)
     print("CAN_ADVANCE=" + can_advance)
@@ -1052,15 +1081,5 @@ def main():
         sys.exit(cmd_resume(args, repo_root))
 
 
-
 if __name__ == "__main__":
     main()
-
-
-def refresh_owner_bridge(repo_root: Path):
-    try:
-        bridge_script = repo_root / "scripts/airo-workdesk-current-work"
-        if bridge_script.exists():
-            subprocess.run([sys.executable, str(bridge_script)], check=False)
-    except Exception:
-        pass
