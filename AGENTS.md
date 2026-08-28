@@ -65,6 +65,16 @@ Canonical authority:
 
 Council Mode does not override AIRO source priority and does not transfer strategic reasoning, architecture authority, or decision ownership to Antigravity.
 
+## Senior Engineer Code Change Discipline
+
+Any AIRO task that materially changes executable code, scripts, automation logic, runtime behavior, deployment logic, or data-mutation behavior MUST follow the canonical:
+
+[`docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md`](docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md)
+
+The default engineering target is the smallest correct, safe, clear, maintainable change with minimum unnecessary complexity.
+
+Antigravity remains an executor-only layer. It must apply the approved engineering contract during implementation and bounded diff review, but must return unresolved material architecture decisions to the intelligence/planning layer.
+
 ## Sustainable Input & Intake Rules
 
 When receiving new Owner input, materials, or files:
