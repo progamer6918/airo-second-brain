@@ -53,6 +53,17 @@ All AIRO consumers, planning engines, and execution environments MUST obey the c
 - **Antigravity (Executor Only Layer)**: Responsible for executing approved plans, terminal automation, multi-step execution, evidence collection, and returning status receipts (`🧭 AIRO STATUS`). Must follow strict rules: no independent strategic reasoning, no changing objectives, no token waste, automate full steps without forcing manual user repeats, and preserve session continuity.
 - **WSL (Runtime Execution Layer)**: Responsible for executing shell/Python scripts, maintaining runtime environment/state, and returning raw logs/receipts. Does NOT make project architecture decisions.
 
+## Council Mode
+
+ChatGPT / AIRO Sync may use the canonical Council Mode when the Owner explicitly invokes `council`, `council deep`, or `chair`.
+
+ChatGPT / AIRO Sync may suggest Council for materially important decisions, but an automatically suggested Council MUST NOT run before Owner confirmation.
+
+Canonical authority:
+
+[`state/operating-rules/AIRO_COUNCIL_MODE.md`](state/operating-rules/AIRO_COUNCIL_MODE.md)
+
+Council Mode does not override AIRO source priority and does not transfer strategic reasoning, architecture authority, or decision ownership to Antigravity.
 
 ## Sustainable Input & Intake Rules
 

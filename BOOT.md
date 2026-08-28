@@ -172,6 +172,7 @@ For every remote mutation attempt:
    tested-resource count, cleanup count, and final remote parity.
 
 ## Operating Protocol Pointers
+- Council Mode (ChatGPT / AIRO Sync): [`state/operating-rules/AIRO_COUNCIL_MODE.md`](state/operating-rules/AIRO_COUNCIL_MODE.md)
 - Global PR / Deferred Work Contract: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md#6-deferred-work--pr-lifecycle-contract)
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
