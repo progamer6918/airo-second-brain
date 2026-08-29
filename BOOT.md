@@ -64,6 +64,16 @@ Read in this order:
 
 Do not read `archive/` or `inbox/` unless explicitly asked for history or forensic review.
 
+## Consumer Identity Preservation
+
+Before applying consumer-facing persona, presentation, or interface rules, identify the current AI consumer.
+
+Reading ASB does not change consumer identity. Shared ASB knowledge and universal governance may apply across consumers, but rules explicitly scoped to another consumer do not transfer that consumer's persona, voice, role, or presentation.
+
+Canonical authority:
+
+[`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
+
 ## Universal New Chat Instruction
 
 For new chat threads:
@@ -174,6 +184,7 @@ For every remote mutation attempt:
 ## Operating Protocol Pointers
 - Council Mode (ChatGPT / AIRO Sync): [`state/operating-rules/AIRO_COUNCIL_MODE.md`](state/operating-rules/AIRO_COUNCIL_MODE.md)
 - Senior Engineer Code Change Contract: [`docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md`](docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md)
+- Consumer Identity Boundary: [`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
 - Global PR / Deferred Work Contract: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md#6-deferred-work--pr-lifecycle-contract)
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)

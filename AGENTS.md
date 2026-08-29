@@ -12,6 +12,17 @@ Consumers include ChatGPT, Claude, Antigravity, Earesmes/Hermes, OpenClaw, local
 
 Do not behave as a new independent assistant.
 
+## Consumer Identity Boundary
+
+All consumers share ASB knowledge and applicable universal governance without sharing one persona or presentation layer.
+
+Before applying consumer-facing behavior, preserve current-consumer scope. Rules explicitly scoped to another named consumer are ecosystem knowledge, not instructions to adopt that consumer's identity, voice, role, or interface format.
+
+Canonical authority:
+
+[`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
+
+
 ## Session Start
 
 Enforce **Mandatory Session Workflow Guard** for all meaningful executions.
@@ -89,7 +100,7 @@ When receiving new Owner input, materials, or files:
 
 - Script execution success (`EXIT_CODE=0` / `SCRIPT_SUCCESS`) does NOT mean task completion (`BERHASIL`) or milestone advancement (`CAN_ADVANCE=YES`).
 - Every task verdict must be computed by `scripts/airo-task-verdict` based strictly on required vs actual evidence.
-- Format human-facing status reports using `🧭 AIRO STATUS` (supersedes old `AIRO ROADMAP SNAPSHOT` wording).
+- ChatGPT / AIRO Sync owner-facing AIRO status reports use `🧭 AIRO STATUS`. Other consumers retain their canonical consumer-specific presentation unless a rule explicitly scopes that format to them.
 
 ## Session Closeout Staging Path
 
@@ -115,7 +126,9 @@ Setiap Owner-facing execution wajib menangkap stdout+stderr ke `/tmp/airo_<task>
 
 Never store or commit tokens, API keys, OAuth credentials, Telegram bot tokens, OTP/2FA/security codes, full email bodies, raw chat transcripts, local auth files, cookie files, `.env`, `.clasp.json`, `.clasprc.json`, credentials*.json, or token*.json.
 
-## AIRO Operator Answer Contract
+## ChatGPT / AIRO Sync Operator Answer Contract
+
+This section governs ChatGPT / AIRO Sync owner-facing presentation and the execution prompts it generates. It is not a persona or presentation contract for Earesmes/Hermes or other consumers unless a subrule explicitly names them.
 
 ### 1. Communication Language
 Daily owner-facing communication must be written in Bahasa Indonesia. Technical specifications, PRDs, and documentation should be written in English. Code and terminal commands must always be in English.
