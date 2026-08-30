@@ -763,3 +763,9 @@ Marker: `AIRO_EAB_POST_CLOSE_PRODUCT_OUTCOME_CORRECTION_RECORD_20260816`
 - **PRD**: [docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md)
 - **SOP**: [docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md](file:///home/egitaristorandas/AI_WORKSPACES/airo-second-brain/docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md)
 - **Status**: Post-review / Canonicalized
+
+
+## 📌 Fresh Chat Continuity Handoff (2026-08-30)
+- **Active ASB Architecture**: A2-WG (Physical Windows NTFS `C:\Users\Admin\AI_WORKSPACES\airo-second-brain` + Scoped Windows Git Shim + WSL Symlink) -> [[docs/continuity/AIRO_FRESH_CHAT_HANDOFF_20260830|Buka Fresh Chat Handoff]]
+- **Next Engineering Objective**: `EARESMES_CAPABILITY_ROUTER_FOUNDATION` -> [[ecosystem/projects/earesmes-arfin-bridge/docs/EAB_POST_VNEXT_ORCHESTRATION_BOUNDARY_DECISION_20260830|Buka EAB Post-vNext Decision]]
+

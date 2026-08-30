@@ -115,3 +115,16 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 6. **Test Isolation**: Deferred-work synthetic fixtures/tests MUST execute against an isolated temporary root (`AIRO_DEFERRED_WORK_ROOT`) and MUST NOT mutate production `state/deferred-work.json` or `state/deferred-work.md`.
 7. **Hash Invariance**: Test success MUST prove production JSON and Markdown projection hashes remain unchanged during synthetic testing.
 8. **Final Writer Rule**: Final acceptance MUST verify the FINAL production state after tests, including a production `render`/`check` and synthetic-contamination guard. A test fixture must never be the last writer of the production projection.
+
+
+## 8. KCC Human-First Session Memory V2 Policy
+- **Primary Audience**: Owner (visible note must be written in non-technical, plain Indonesian).
+- **Structure**:
+  - `## Ringkasnya`: 1-3 plain sentences on what happened.
+  - `## Yang lo minta`: Actual Owner request summary.
+  - `## Yang dikerjakan`: 3-5 concise bullets.
+  - `## Hasil`: Concrete real outcome (never generic filler).
+  - `## Batasan / yang belum selesai`: Real limitations or "– Tidak ada batasan penting yang tersisa dari sesi ini."
+  - `## Berikutnya`: Exact next action or "– Tidak ada. Tujuan sesi ini selesai."
+- **Machine Metadata**: All audit/technical metadata (JSON) is stored in `<!-- AIRO_MACHINE_CONTEXT_BEGIN ... AIRO_MACHINE_CONTEXT_END -->`.
+

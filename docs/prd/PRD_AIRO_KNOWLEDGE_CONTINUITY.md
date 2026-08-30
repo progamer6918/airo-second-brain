@@ -95,3 +95,10 @@ When querying historical or continuity context (e.g. *"pernah bahas X?"*, *"kena
 - **Operational Capture**: Automatic & lightweight at every meaningful execution.
 - **Knowledge Promotion**: Selective (PRD / Decision).
 - **Manual Trigger**: Override / failsafe.
+
+
+## 10. Human-First V2 Note Contract
+- Obsidian permanent session notes are designed for human comprehension first.
+- Generic placeholders ("Permintaan Owner belum tercatat...", "Pekerjaan selesai...") are strictly banned and rejected by session closeout validation.
+- Technical evidence and structured payloads remain accessible to AI in background comments and canonical ledgers.
+

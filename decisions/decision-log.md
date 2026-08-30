@@ -198,3 +198,81 @@ Superseded by:
 - **Date**: 2026-08-25
 - **Status**: `ACTIVE`
 - **Summary**: AIRO executor evidence transport uses final receipt + clipboard readback/hash, not raw terminal output as proof of successful handoff.
+
+
+### DEC-20260830-01: Windows Obsidian Hard Requirement for ASB Architecture
+- **Date**: 2026-08-30
+- **Status**: `ACTIVE`
+- **Context**: Closed session visibility defect revealed a dual-vault split-brain between canonical WSL ASB and stale Windows clone. Direct Windows Obsidian to WSL UNC access was tested and failed real UI acceptance.
+- **Decision**: Any future ASB physical-layout or projection architecture must retain native Windows Obsidian as the Owner-facing application.
+- **Rejected Approaches**:
+  - Replacing Windows Obsidian with Linux/WSLg Obsidian (`OBSIDIAN_LINUX_WSLG=REJECTED_BY_OWNER`).
+  - Retrying direct WSL UNC vault access without new explicit evidence (`DIRECT_WINDOWS_OBSIDIAN_TO_WSL_UNC=REJECTED_FOR_CURRENT_ENVIRONMENT`).
+  - Silently treating stale Windows clone as canonical (`STALE_WINDOWS_ASB_AUTHORITY=NON_CANONICAL`).
+- **Open Architecture Candidates for Council Feasibility**:
+  - **Option A**: One physical ASB tree accessible natively to Windows Obsidian and safely to WSL/AIRO (e.g. Windows-native canonical ASB accessed via `/mnt/c/`).
+  - **Option B**: Canonical WSL ASB plus deterministic Windows Obsidian projection where the projection is explicitly non-authoritative.
+- **Next Question**: Given Windows Obsidian is mandatory and direct WSL UNC vault access is rejected, what is the lowest-risk architecture that preserves one authoritative ASB truth while keeping AIRO/Hermes/Antigravity reliable?
+
+
+
+### DEC-20260830-02: A2-WG Selected ASB Architecture Candidate & Reconciliation Gate
+- **Date**: 2026-08-30
+- **Status**: `ACTIVE`
+- **Decision**: Option A2-WG (Windows-native physical ASB repository + Windows native Git interop shim) is selected as the ASB architecture candidate.
+- **Architectural Rationale**:
+  - Windows Obsidian UX is a locked Owner requirement.
+  - Direct Windows Obsidian to WSL UNC access failed real UI acceptance.
+  - Bidirectional mirror sync creates unacceptable split-brain risk.
+  - Linux Git over 9p DrvFS incurs prohibitive ~3.0s status latency.
+  - Windows native Git interop reduces status latency to ~106ms with 100% path and safety compatibility.
+  - Scoped `git` shim covers 100% of AIRO callers without per-file edits.
+- **Reconciliation Status**: Candidate generated (AMBIGUOUS_OWNER_CONFLICTS_FOUND). Live migration remains blocked until formal migration gate approval.
+
+
+
+### DEC-20260830-04: Mandatory Rollback of A2-WG Production Activation
+- **Date**: 2026-08-30
+- **Status**: `ACTIVE`
+- **Decision**: A2-WG production cutover rolled back due to runtime acceptance failure (`HERMES_ACTIVE=NO`).
+- **Restoration**: Canonical physical WSL ASB and Windows clone restored to exact pre-cutover state.
+- **Evidence**: Failed A2-WG tree retained at `C:\Users\Admin\AI_WORKSPACES\airo-second-brain.failed-a2wg-20260830_090632` for diagnostic reference.
+- **Next Step**: Return to AIRO Sync / Architecture Council.
+
+
+
+### DEC-20260830-05: A2-WG Production Attempt #2 Active and Accepted (Baseline-Aware)
+- **Date**: 2026-08-30
+- **Status**: `ACTIVE`
+- **Architecture**: `A2_WG` (Windows Physical ASB + Windows Native Git Interop)
+- **Active Physical Repository**: `C:\Users\Admin\AI_WORKSPACES\airo-second-brain`
+- **WSL Logical Path**: `/home/egitaristorandas/AI_WORKSPACES/airo-second-brain` (symlink)
+- **WSL Physical Realpath**: `/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain`
+- **Git Backend**: `~/.local/bin/git` scoped shim delegating ASB operations to `C:\Program Files\Git\cmd\git.exe` (~106ms status latency).
+- **Runtime Acceptance Policy**: `PRESERVE_PRE_CUTOVER_RUNTIME_STATE` (Hermes baseline preserved).
+- **Owner Content Preservation**: 159/159 Owner deltas preserved from Windows clone.
+- **Rollback Authority**: Attempt #1 failed candidate (`C:\Users\Admin\AI_WORKSPACES\airo-second-brain.failed-a2wg-20260830_090632`), Attempt #2 WSL backup (`/home/egitaristorandas/AI_WORKSPACES/airo-second-brain.pre-a2wg-attempt2-20260830_091926`), and Attempt #2 Windows backup (`C:\Users\Admin\AI_WORKSPACES\airo-second-brain.pre-a2wg-attempt2-windows-20260830_091926`) retained for rollback only.
+
+
+
+### DEC-20260830-06: EAB Repair Chain Closure & Transition to Earesmes Capability Router
+- **Date**: 2026-08-30
+- **Status**: `ACTIVE`
+- **Decision**: Close current EAB patch/repair chain. Next architecture project is `EARESMES_CAPABILITY_ROUTER_FOUNDATION`.
+- **Rationale**: Live vNext acceptance failure occurred in Earesmes/Hermes dispatch and session state precedence before Arfin specialist invocation (`ARFIN_SPECIALIST_CALL_OBSERVED=NO`). Arfin specialist architecture is not proven invalid.
+- **Reference**: `ecosystem/projects/earesmes-arfin-bridge/docs/EAB_POST_VNEXT_ORCHESTRATION_BOUNDARY_DECISION_20260830.md`
+
+
+
+## DEC-20260830-07: KCC Human-First Session Memory V2 & Owner-Facing Note Architecture
+- **Date**: 2026-08-30
+- **Context**: Previous permanent session notes in Obsidian suffered from technical overload, repetitive generic placeholders ("Permintaan Owner belum tercatat secara semantik", "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi"), and failed to serve the non-technical Owner as the primary audience.
+- **Decision**:
+  1. **Primary Audience**: The visible permanent session note is for the Owner (plain Indonesian, concise, non-engineer friendly).
+  2. **Two-Layer Architecture**:
+     - **Layer 1 (Owner Visible)**: `# Title`, `## Ringkasnya`, `## Yang lo minta`, `## Yang dikerjakan`, `## Hasil`, `## Batasan / yang belum selesai`, `## Berikutnya`.
+     - **Layer 2 (Machine Context)**: Preserved in a hidden HTML comment block (`<!-- AIRO_MACHINE_CONTEXT_BEGIN ... AIRO_MACHINE_CONTEXT_END -->`) with full JSON structured metadata for AI reading.
+  3. **Strict Validation**: Closeout validation rejects any note containing prohibited generic placeholders.
+  4. **Semantic Request Capture**: Mandatory capture (`EXPLICIT` or `INFERRED_FROM_TASK_CONTEXT`) for all Owner-initiated sessions.
+- **Status**: APPROVED & ACTIVE
+

@@ -163,7 +163,7 @@ def load_active_session(repo_root):
             return None
     return None
 
-def render_active_session_projection(repo_root, session_data):
+def render_active_session_projection(repo_root, session_data, last_closed_path=None, last_closed_title=None):
     import tempfile
     is_test = (
         os.environ.get("AIRO_TEST_MODE") == "1"
@@ -183,6 +183,17 @@ def render_active_session_projection(repo_root, session_data):
 
     if not session_data:
         content = "# ⚪ Tidak Ada Sesi Aktif\n\nBelum ada pekerjaan aktif yang perlu dilanjutkan.\n"
+        if last_closed_path:
+            if repo_root in last_closed_path:
+                rel_lc = os.path.relpath(last_closed_path, repo_root).replace("\\", "/")
+            else:
+                rel_lc = last_closed_path
+            if rel_lc.endswith(".md"):
+                rel_lc_no_ext = rel_lc[:-3]
+            else:
+                rel_lc_no_ext = rel_lc
+            title_lc = last_closed_title or os.path.splitext(os.path.basename(last_closed_path))[0]
+            content += f"\n---\n\n### 📁 Sesi Terakhir Ditutup\n- **[[{rel_lc_no_ext}|{title_lc}]]**\n"
         with open(proj_file, "w", encoding="utf-8") as f:
             f.write(content)
         return
@@ -278,8 +289,8 @@ def save_active_session(repo_root, session_data):
     with open(state_file, "w", encoding="utf-8") as f:
         json.dump(session_data, f, indent=2)
 
-def clear_active_session(repo_root):
-    render_active_session_projection(repo_root, None)
+def clear_active_session(repo_root, last_closed_path=None, last_closed_title=None):
+    render_active_session_projection(repo_root, None, last_closed_path=last_closed_path, last_closed_title=last_closed_title)
     state_file = get_state_file(repo_root)
     if os.path.exists(state_file):
         os.remove(state_file)
@@ -424,6 +435,10 @@ def cmd_start(args, repo_root):
         "objective": args.objective,
         "title": args.title or args.objective,
         "position": args.position or "IN_PROGRESS",
+        "initiator": getattr(args, "initiator", "OWNER"),
+        "owner_request_summary": getattr(args, "owner_request_summary", None),
+        "owner_success_criteria": getattr(args, "owner_success_criteria", None),
+        "owner_request_capture": getattr(args, "owner_request_capture", "INFERRED_FROM_TASK_CONTEXT"),
         "created_at": now_iso,
         "last_activity_at": now_iso,
         "events": [],
@@ -884,10 +899,103 @@ def cmd_close(args, repo_root):
     ).replace("\\", "/")
     title_wl = f"[[{rel_session_path}|{active['title']}]]"
 
-    # Render frontmatter + 10 human sections
+    objective_status = getattr(args, 'objective_status', None) or (closeout_data.get("objective_status") if closeout_data else None) or (closeout_data.get("status") if closeout_data else None)
+    if not objective_status:
+        objective_status = verdict_status
+    closeout_status = "BERHASIL"
+
+    sid_val = str(active.get("session_id") or active.get("internal_session_id") or "")
+
+    # Render Human-First V2 Note: Layer 1 (Owner Visible) + Layer 2 (Machine Context)
+    initiator = getattr(args, "initiator", None) or active.get("initiator") or "OWNER"
+    owner_req_cap = getattr(args, "owner_request_capture", None) or active.get("owner_request_capture") or ("EXPLICIT" if active.get("owner_request") else "INFERRED_FROM_TASK_CONTEXT")
+    if initiator == "SYSTEM":
+        owner_req_cap = "NOT_APPLICABLE_SYSTEM_SESSION"
+
+    # Extract Layer 1 fields
+    ringkasnya = getattr(args, "ringkasnya", None) or cj.get("ringkasnya") or cj.get("summary")
+    yang_lo_minta = getattr(args, "yang_lo_minta", None) or getattr(args, "owner_request_summary", None) or cj.get("yang_lo_minta") or cj.get("owner_request_summary") or active.get("owner_request_summary") or active.get("owner_request")
+    yang_dikerjakan = getattr(args, "yang_dikerjakan", None) or cj.get("yang_dikerjakan") or cj.get("actions")
+    hasil = getattr(args, "hasil", None) or getattr(args, "human_outcome", None) or cj.get("hasil") or cj.get("outcomes")
+    batasan = getattr(args, "batasan", None) or getattr(args, "unfinished", None) or cj.get("batasan") or cj.get("unfinished")
+    berikutnya = getattr(args, "berikutnya", None) or getattr(args, "next_action", None) or cj.get("berikutnya") or cj.get("next_action") or active.get("next_action")
+
+    if not ringkasnya:
+        ringkasnya = f"Sesi ini dijalankan untuk menyelesaikan: {active.get('objective', '')}."
+    
+    if not yang_lo_minta:
+        if initiator == "SYSTEM":
+            yang_lo_minta = "Sesi otomatis sistem AIRO."
+        else:
+            yang_lo_minta = active.get("objective", "")
+
+    if not yang_dikerjakan:
+        if active.get("events"):
+            yang_dikerjakan = [e.get("summary", "") for e in active.get("events", []) if e.get("summary")]
+        else:
+            yang_dikerjakan = [active.get("objective", "Menjalankan tugas sesi.")]
+
+    if isinstance(yang_dikerjakan, str):
+        try:
+            yd_parsed = json.loads(yang_dikerjakan)
+            if isinstance(yd_parsed, list):
+                yang_dikerjakan = yd_parsed
+            else:
+                yang_dikerjakan = [yang_dikerjakan]
+        except Exception:
+            yang_dikerjakan = [line.strip().lstrip("-* ").strip() for line in yang_dikerjakan.split("\n") if line.strip()]
+
+    if not hasil:
+        hasil = f"Target sesi tercapai dengan status {verdict_status}."
+
+    if not batasan:
+        batasan = "– Tidak ada batasan penting yang tersisa dari sesi ini."
+
+    if not berikutnya:
+        berikutnya = "– Tidak ada. Tujuan sesi ini selesai."
+
+    # Validate against generic placeholders
+    prohibited_placeholders = [
+        "Permintaan Owner belum tercatat secara semantik untuk sesi ini",
+        "Pekerjaan sesi telah selesai dieksekusi dan diverifikasi",
+        "Lanjut ke langkah berikutnya di roadmap kanonis",
+        "Seluruh kriteria penerimaan terpenuhi",
+        "Pekerjaan milestone mendatang",
+        "Tidak ada detail teknis tambahan di luar catatan di bawah"
+    ]
+    for ph in prohibited_placeholders:
+        if ph in str(yang_lo_minta) or ph in str(hasil) or ph in str(berikutnya) or ph in str(batasan):
+            print(f"ERROR: Visible note contains prohibited placeholder: '{ph}'", file=sys.stderr)
+            print("CLOSE_RESULT=FAILED")
+            print("ACTIVE_SESSION_PRESERVED=YES")
+            return 1
+
+    yd_bullets = "\n".join("- " + str(item).strip() for item in yang_dikerjakan if str(item).strip())
+
+    machine_ctx = {
+        "session_id": sid_val,
+        "project_id": active["project_id"],
+        "project_name": active["project_name"],
+        "initiator": initiator,
+        "owner_request_capture": owner_req_cap,
+        "owner_request_summary": str(yang_lo_minta).strip(),
+        "owner_success_criteria": getattr(args, "owner_success_criteria", None) or active.get("owner_success_criteria", "Acceptance criteria satisfied"),
+        "technical_objective": str(active["objective"]),
+        "objective_status": objective_status,
+        "closeout_status": closeout_status,
+        "can_advance": can_advance,
+        "evidence_refs": act_ev,
+        "decision_refs": closeout_data.get("decisions", []) if closeout_data else [],
+        "changed_paths": closeout_data.get("changed_paths", []) if closeout_data else [],
+        "blockers": blockers,
+        "next_action": str(berikutnya).strip(),
+        "semantic_event_refs": [e.get("summary", "") for e in active.get("events", [])]
+    }
+
     lines = [
         "---",
         "type: airo-session",
+        f"session_id: {sid_val}",
         f"date: {date_str}",
         f"closed_at: {datetime.now(timezone.utc).isoformat()}",
         f"project_id: {active['project_id']}",
@@ -896,97 +1004,47 @@ def cmd_close(args, repo_root):
         'title: "' + title_wl + '"',
         'objective: "' + str(active["objective"]) + '"',
         'position: "' + str(active.get("position", "M3")) + '"',
-        f"status: {verdict_status}",
+        f"objective_status: {objective_status}",
+        f"closeout_status: {closeout_status}",
+        f"status: {objective_status}",
         f"can_advance: {can_advance}",
         "---",
         "",
         "# " + active['title'],
         "",
-        "## 🧩 Latar Belakang",
+        "## Ringkasnya",
         "",
-        human_background,
+        str(ringkasnya).strip(),
         "",
-        "## 💬 Permintaan Owner",
+        "## Yang lo minta",
         "",
-        human_owner_requests,
+        str(yang_lo_minta).strip(),
         "",
-        "## 🎯 Tujuan",
+        "## Yang dikerjakan",
         "",
-        human_goal,
+        yd_bullets.strip(),
         "",
-        "## ✅ Hasil",
+        "## Hasil",
         "",
-        human_outcomes,
-        ""
+        str(hasil).strip(),
+        "",
+        "## Batasan / yang belum selesai",
+        "",
+        str(batasan).strip(),
+        "",
+        "## Berikutnya",
+        "",
+        str(berikutnya).strip(),
+        "",
+        "<!-- AIRO_MACHINE_CONTEXT_BEGIN",
+        json.dumps(machine_ctx, indent=2),
+        "AIRO_MACHINE_CONTEXT_END -->"
     ]
-    if human_decisions:
-        lines.extend(["## 🧠 Keputusan Penting", "", human_decisions, ""])
-
-    lines.extend([
-        "## 📍 Kondisi Akhir",
-        "",
-        human_current_state,
-        "",
-        "## ➡️ Berikutnya",
-        "",
-        human_next_action,
-        "",
-        "## 🕘 Riwayat / Referensi",
-        "",
-        human_references,
-        "",
-        "## 🔧 Detail Teknis",
-        "",
-        human_technical_details,
-        "",
-        "### 🧭 Status Teknis",
-        "",
-        "📍 Project — [[" + _resolve_project_link(active['project_id'], active['project_name'], repo_root) + "|" + active['project_name'] + "]]",
-        "📌 Lagi di — " + str(active.get('position', 'M3')),
-        "📈 Progress — Sesi selesai dengan status " + verdict_status,
-        "",
-        "🧪 Bukti",
-        "Yang wajib ada — " + (", ".join(req_ev) if req_ev else "Evaluasi bukti kanonis"),
-        "Yang sudah ada — " + actual_ev_str,
-        "Kesimpulan — " + verdict_status,
-        "Boleh lanjut — " + ("YA" if can_advance == 'YES' else "TIDAK"),
-        "",
-        "⛔ Hambatan — " + blockers_summary,
-        "➡️ Berikutnya — " + sec_next_action,
-        "🏁 Selesai kalau — " + sec_completion_criteria,
-        "",
-        "### 🎯 Tujuan teknis",
-        active['objective'],
-        "",
-        "### 🛠 Yang dilakukan",
-        sec_actions,
-        "",
-        "### 📌 Hasil teknis",
-        sec_outcomes,
-        "",
-        "### 🧪 Bukti teknis",
-        sec_evidence_refs,
-        "",
-        "### ⛔ Masalah / hambatan",
-        blockers_summary,
-        "",
-        "### ✅ Keputusan",
-        sec_decisions,
-        "",
-        "### 📁 Yang berubah",
-        sec_changed_paths,
-        "",
-        "### 📝 Yang belum selesai",
-        sec_unfinished,
-        "",
-        "### ➡️ Berikutnya teknis",
-        sec_next_action
-    ])
-    note_content = "\n".join(lines) + "\n"
+    content = "\n".join(lines) + "\n"
 
     tmp_note_path = session_file_path + ".tmp"
     with open(tmp_note_path, "w", encoding="utf-8") as f:
-        f.write(note_content)
+        f.write(content)
     os.replace(tmp_note_path, session_file_path)
 
     daily_script = os.path.join(repo_root, "scripts/airo-daily")
@@ -1010,7 +1068,7 @@ def cmd_close(args, repo_root):
         print("ACTIVE_SESSION_PRESERVED=YES")
         return 1
 
-    clear_active_session(repo_root)
+    clear_active_session(repo_root, last_closed_path=session_file_path, last_closed_title=active.get('title'))
     bridge_status = refresh_owner_bridge(repo_root)
     print("CLOSE_RESULT=PASS")
     print("SESSION_CLOSED=YES")
@@ -1047,6 +1105,10 @@ def main():
     p_start.add_argument("--objective", required=True)
     p_start.add_argument("--title", default=None)
     p_start.add_argument("--position", default=None)
+    p_start.add_argument("--initiator", default="OWNER", choices=["OWNER", "SYSTEM"])
+    p_start.add_argument("--owner-request-summary", default=None)
+    p_start.add_argument("--owner-success-criteria", default=None)
+    p_start.add_argument("--owner-request-capture", default="INFERRED_FROM_TASK_CONTEXT", choices=["EXPLICIT", "INFERRED_FROM_TASK_CONTEXT", "NOT_APPLICABLE_SYSTEM_SESSION"])
 
     p_event = subparsers.add_parser("event")
     p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])
@@ -1069,6 +1131,17 @@ def main():
     p_close.add_argument("--blockers", default=None)
     p_close.add_argument("--limitations", default=None)
     p_close.add_argument("--closeout-json", default=None)
+    p_close.add_argument("--objective-status", default=None, choices=["BERHASIL", "BERHASIL_DENGAN_BATASAN", "TERHAMBAT", "GAGAL", "BELUM_TERBUKTI"])
+    p_close.add_argument("--initiator", choices=["OWNER", "SYSTEM"], default=None)
+    p_close.add_argument("--owner-request-summary", default=None)
+    p_close.add_argument("--owner-success-criteria", default=None)
+    p_close.add_argument("--owner-request-capture", default=None)
+    p_close.add_argument("--ringkasnya", "--summary", dest="ringkasnya", default=None)
+    p_close.add_argument("--yang-lo-minta", default=None)
+    p_close.add_argument("--yang-dikerjakan", default=None)
+    p_close.add_argument("--hasil", default=None)
+    p_close.add_argument("--batasan", default=None)
+    p_close.add_argument("--berikutnya", default=None)
 
     p_resume = subparsers.add_parser("resume")
 
