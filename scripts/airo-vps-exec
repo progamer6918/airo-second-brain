@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# scripts/airo-vps-exec — Native VPS execution receipt wrapper.
+# Interface: scripts/airo-vps-exec --task <safe-slug> -- <command> [args...]
+#
+# Requirements met:
+#   1. Bash executable.
+#   2. safe-slug: only [A-Za-z0-9._-]
+#   3. Requires command after --
+#   4. NEVER eval command text; executes argv directly.
+#   5. Captures stdout+stderr with tee.
+#   6. Preserves real command exit code through pipeline (pipefail).
+#   7. Creates /tmp/airo_<task>_<timestamp>.txt
+#   8. Receipt contains: TASK, RESULT, EXIT_CODE, LOG_PATH
+#   9. Calls python3 scripts/airo-clipboard-receipt --receipt-file <receipt>
+#  10. NEVER fakes clipboard PASS.
+#  11. Creates/updates /home/ubuntu/AIRO_LAST_RECEIPT.txt
+#  12. AIRO_LAST_RECEIPT contains exactly the canonical fields.
+#  13. Prints AIRO_LAST_RECEIPT at very end.
+#  14. Wrapper exit code equals underlying command exit code.
+#  15. Clipboard failure on native VPS does NOT change SCRIPT_SUCCESS into SCRIPT_FAILED.
+
+set -uo pipefail
+
+# ── locate repo root (scripts/ is sibling to bin/) ──────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# ── parse arguments ──────────────────────────────────────────────────────────
+TASK=""
+CMD_ARGS=()
+PARSING_CMD=0
+
+while [[ $# -gt 0 ]]; do
+    if [[ "$1" == "--" ]]; then
+        PARSING_CMD=1
+        shift
+        break
+    elif [[ "$1" == "--task" ]]; then
+        shift
+        if [[ $# -eq 0 ]]; then
+            echo "ERROR: --task requires a value" >&2
+            exit 1
+        fi
+        TASK="$1"
+        shift
+    else
+        echo "ERROR: Unknown argument: $1" >&2
+        exit 1
+    fi
+done
+
+# Collect remaining argv as command
+if [[ $PARSING_CMD -eq 1 ]]; then
+    CMD_ARGS=("$@")
+fi
+
+# ── validate task slug ───────────────────────────────────────────────────────
+if [[ -z "$TASK" ]]; then
+    echo "ERROR: --task <safe-slug> is required" >&2
+    exit 1
+fi
+
+if [[ ! "$TASK" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    echo "ERROR: --task value contains invalid characters (only A-Z a-z 0-9 . _ - allowed): $TASK" >&2
+    exit 1
+fi
+
+# ── validate command ─────────────────────────────────────────────────────────
+if [[ ${#CMD_ARGS[@]} -eq 0 ]]; then
+    echo "ERROR: A command after -- is required" >&2
+    exit 1
+fi
+
+# ── setup paths ──────────────────────────────────────────────────────────────
+TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
+LOG_PATH="/tmp/airo_${TASK}_${TIMESTAMP}.txt"
+RECEIPT_PATH="${LOG_PATH}"
+LAST_RECEIPT_PATH="/home/ubuntu/AIRO_LAST_RECEIPT.txt"
+
+# ── execute command (argv directly; no eval) ─────────────────────────────────
+# Use pipefail-safe approach: capture exit code from left side of pipe.
+set -o pipefail
+"${CMD_ARGS[@]}" 2>&1 | tee "${LOG_PATH}"
+CMD_EXIT=${PIPESTATUS[0]}
+
+# ── determine RESULT ─────────────────────────────────────────────────────────
+if [[ "$CMD_EXIT" -eq 0 ]]; then
+    RESULT="SCRIPT_SUCCESS"
+else
+    RESULT="SCRIPT_FAILED"
+fi
+
+# ── write initial receipt file (no clipboard fields) ─────────────────────────
+{
+    echo "TASK=${TASK}"
+    echo "RESULT=${RESULT}"
+    echo "EXIT_CODE=${CMD_EXIT}"
+    echo "LOG_PATH=${LOG_PATH}"
+} > "${RECEIPT_PATH}"
+
+# ── call canonical clipboard helper ─────────────────────────────────────────
+# Requirement 10: NEVER fake clipboard PASS.
+# Requirement 15: Clipboard failure does NOT change SCRIPT_SUCCESS → SCRIPT_FAILED.
+CLIPBOARD_HELPER="${REPO_ROOT}/scripts/airo-clipboard-receipt"
+CLIPBOARD_HELPER_EXIT=0
+
+python3 "${CLIPBOARD_HELPER}" --receipt-file "${RECEIPT_PATH}" > /dev/null 2>&1 || CLIPBOARD_HELPER_EXIT=$?
+
+# ── read back receipt (clipboard helper updates the file in place) ────────────
+# Parse only the canonical fields we need.
+_get_field() {
+    local field="$1"
+    grep -m1 "^${field}=" "${RECEIPT_PATH}" | cut -d'=' -f2- || true
+}
+
+COPIED_TO_CLIPBOARD="$(_get_field "COPIED_TO_CLIPBOARD")"
+CLIPBOARD_METHOD="$(_get_field "CLIPBOARD_METHOD")"
+CLIPBOARD_ERROR="$(_get_field "CLIPBOARD_ERROR")"
+CLIPBOARD_READBACK="$(_get_field "CLIPBOARD_READBACK")"
+CLIPBOARD_CONTENT_HASH="$(_get_field "CLIPBOARD_CONTENT_HASH")"
+
+# Provide fallback values if clipboard helper produced no fields
+# (native VPS without clip.exe/powershell.exe will not have Windows clipboard)
+if [[ -z "$COPIED_TO_CLIPBOARD" ]]; then
+    COPIED_TO_CLIPBOARD="NO"
+fi
+if [[ -z "$CLIPBOARD_METHOD" ]]; then
+    CLIPBOARD_METHOD="NONE"
+fi
+if [[ -z "$CLIPBOARD_ERROR" ]]; then
+    CLIPBOARD_ERROR="NO_WINDOWS_CLIPBOARD_AVAILABLE"
+fi
+if [[ -z "$CLIPBOARD_READBACK" ]]; then
+    CLIPBOARD_READBACK="FAIL"
+fi
+if [[ -z "$CLIPBOARD_CONTENT_HASH" ]]; then
+    CLIPBOARD_CONTENT_HASH="FAIL"
+fi
+
+# ── write AIRO_LAST_RECEIPT.txt (exactly the canonical fields) ───────────────
+{
+    echo "TASK=${TASK}"
+    echo "RESULT=${RESULT}"
+    echo "EXIT_CODE=${CMD_EXIT}"
+    echo "LOG_PATH=${LOG_PATH}"
+    echo "COPIED_TO_CLIPBOARD=${COPIED_TO_CLIPBOARD}"
+    echo "CLIPBOARD_METHOD=${CLIPBOARD_METHOD}"
+    echo "CLIPBOARD_ERROR=${CLIPBOARD_ERROR}"
+    echo "CLIPBOARD_READBACK=${CLIPBOARD_READBACK}"
+    echo "CLIPBOARD_CONTENT_HASH=${CLIPBOARD_CONTENT_HASH}"
+} > "${LAST_RECEIPT_PATH}"
+
+# ── print AIRO_LAST_RECEIPT ──────────────────────────────────────────────────
+echo ""
+echo "=== AIRO_LAST_RECEIPT ==="
+cat "${LAST_RECEIPT_PATH}"
+echo "========================="
+
+# ── exit with underlying command exit code ───────────────────────────────────
+exit "${CMD_EXIT}"
