@@ -241,5 +241,28 @@ echo "=== AIRO_LAST_RECEIPT ==="
 cat "${LAST_RECEIPT_PATH}"
 echo "========================="
 
+# ── publish receipt to .airo/receipts/ (requirement 18) ─────────────────────
+# Receipt publishing failure MUST NOT change the underlying command result.
+# RECEIPT_PUBLISH is reported separately.
+RECEIPT_PUBLISHER="${REPO_ROOT}/scripts/airo-receipt-publish"
+RECEIPT_PUBLISH_STATUS="FAIL"
+
+if [[ -x "${RECEIPT_PUBLISHER}" ]]; then
+    _publish_out=""
+    _publish_exit=0
+    _publish_out=$(python3 "${RECEIPT_PUBLISHER}" --receipt-file "${LAST_RECEIPT_PATH}" 2>&1) || _publish_exit=$?
+    if [[ "${_publish_exit}" -eq 0 ]]; then
+        RECEIPT_PUBLISH_STATUS="PASS"
+    fi
+    # Surface publish output for visibility
+    if [[ -n "${_publish_out}" ]]; then
+        echo "${_publish_out}"
+    fi
+else
+    echo "RECEIPT_PUBLISH_WARN: publisher not executable or missing: ${RECEIPT_PUBLISHER}" >&2
+fi
+
+echo "RECEIPT_PUBLISH=${RECEIPT_PUBLISH_STATUS}"
+
 # ── exit with underlying command exit code ───────────────────────────────────
 exit "${CMD_EXIT}"
