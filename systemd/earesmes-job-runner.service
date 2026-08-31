@@ -1,0 +1,36 @@
+[Unit]
+Description=EARESMES Controlled Job Runner V1
+Documentation=file:///home/ubuntu/AI_WORKSPACES/airo-second-brain/earesmes/README.md
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+
+WorkingDirectory=/home/ubuntu/AI_WORKSPACES/airo-second-brain
+
+ExecStart=/usr/bin/python3 earesmes/runner.py \
+    --jobs-dir earesmes/jobs \
+    --state-dir earesmes/state \
+    --poll-interval 5
+
+# Safe shutdown: allow runner to finish current job before SIGKILL
+TimeoutStopSec=30
+KillMode=control-group
+
+# Restart on failure — not on clean exit (ExitCodeMode=success exits 0)
+Restart=on-failure
+RestartSec=10
+
+# Never run as root
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=earesmes-job-runner
+
+[Install]
+WantedBy=multi-user.target

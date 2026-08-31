@@ -1,0 +1,7 @@
+{
+  "job_id": "example",
+  "objective": "Verify EARESMES job runner skeleton is operational",
+  "executor": "manual",
+  "approval": "approved",
+  "status": "pending"
+}
