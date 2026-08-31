@@ -12,6 +12,7 @@ Governance limits enforced:
   - User input stored ONLY as job objective (never executed)
   - Task boundary classification is deterministic metadata only (never triggers execution)
   - Capability resolution is deterministic metadata only (never triggers execution)
+  - Executor adapter creates handoff packages ONLY — never launches execution
 
 Standard library only. No external dependencies.
 
@@ -30,6 +31,8 @@ if str(_BOUNDARY_DIR) not in sys.path:
     sys.path.insert(0, str(_BOUNDARY_DIR))
 from task_boundary import classify as _classify_boundary  # noqa: E402
 from capability_resolution import resolve as _resolve_capability  # noqa: E402
+from executor_adapter import create_execution_package as _create_package  # noqa: E402
+from executor_adapter import should_create_package as _should_create_package  # noqa: E402
 
 
 
@@ -121,7 +124,26 @@ def cmd_submit(args: list[str], jobs_dir: Path) -> int:
     print(f"CAPABILITY={job['capability']['capability']}")
     print(f"CAPABILITY_EXECUTOR_HINT={job['capability']['executor_hint']}")
     print(f"CAPABILITY_AUTHORITY={job['capability']['authority']}")
+
+    # -- Execution package (metadata only — does NOT launch executor) ----------
+    if _should_create_package(job):
+        try:
+            packages_base = jobs_dir.parent / "execution_packages"
+            package_dir = _create_package(job, packages_base_dir=packages_base)
+            print(f"EXECUTION_PACKAGE_CREATED=YES")
+            print(f"EXECUTION_PACKAGE_PATH={package_dir}")
+            print(f"STATUS=READY_FOR_EXECUTION")
+        except (ValueError, OSError) as exc:
+            # Package creation failure is non-fatal — job is still queued.
+            print(f"EXECUTION_PACKAGE_CREATED=NO", file=sys.stderr)
+            print(f"EXECUTION_PACKAGE_ERROR={exc}", file=sys.stderr)
+    else:
+        cap = job['capability']['capability']
+        print(f"EXECUTION_PACKAGE_CREATED=NO")
+        print(f"EXECUTION_PACKAGE_REASON=capability '{cap}' requires owner action")
+
     return 0
+
 
 
 # ---------------------------------------------------------------------------
