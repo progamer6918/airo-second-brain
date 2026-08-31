@@ -11,6 +11,7 @@ Governance limits enforced:
   - No runner modification
   - User input stored ONLY as job objective (never executed)
   - Task boundary classification is deterministic metadata only (never triggers execution)
+  - Capability resolution is deterministic metadata only (never triggers execution)
 
 Standard library only. No external dependencies.
 
@@ -28,6 +29,7 @@ _BOUNDARY_DIR = Path(__file__).parent
 if str(_BOUNDARY_DIR) not in sys.path:
     sys.path.insert(0, str(_BOUNDARY_DIR))
 from task_boundary import classify as _classify_boundary  # noqa: E402
+from capability_resolution import resolve as _resolve_capability  # noqa: E402
 
 
 
@@ -56,6 +58,7 @@ def _generate_job_id(ts: str) -> str:
 def _build_job(job_id: str, objective: str) -> dict:
     """Construct a validated job dict. No execution, no model calls."""
     boundary = _classify_boundary(objective)
+    capability = _resolve_capability(objective)
     return {
         "job_id": job_id,
         "objective": objective,
@@ -64,6 +67,7 @@ def _build_job(job_id: str, objective: str) -> dict:
         "status": "pending",
         "created_by": CREATED_BY,
         "boundary": boundary.to_dict(),
+        "capability": capability.to_dict(),
     }
 
 
@@ -114,6 +118,9 @@ def cmd_submit(args: list[str], jobs_dir: Path) -> int:
     print(f"BOUNDARY_RISK={job['boundary']['risk']}")
     print(f"BOUNDARY_APPROVAL_REQUIRED={job['boundary']['approval_required']}")
     print(f"BOUNDARY_EXECUTOR_HINT={job['boundary']['executor_hint']}")
+    print(f"CAPABILITY={job['capability']['capability']}")
+    print(f"CAPABILITY_EXECUTOR_HINT={job['capability']['executor_hint']}")
+    print(f"CAPABILITY_AUTHORITY={job['capability']['authority']}")
     return 0
 
 
