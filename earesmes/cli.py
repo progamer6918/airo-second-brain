@@ -10,6 +10,7 @@ Governance limits enforced:
   - No external API calls
   - No runner modification
   - User input stored ONLY as job objective (never executed)
+  - Task boundary classification is deterministic metadata only (never triggers execution)
 
 Standard library only. No external dependencies.
 
@@ -21,6 +22,14 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Task boundary import — deterministic classifier, no model calls
+_BOUNDARY_DIR = Path(__file__).parent
+if str(_BOUNDARY_DIR) not in sys.path:
+    sys.path.insert(0, str(_BOUNDARY_DIR))
+from task_boundary import classify as _classify_boundary  # noqa: E402
+
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -46,6 +55,7 @@ def _generate_job_id(ts: str) -> str:
 
 def _build_job(job_id: str, objective: str) -> dict:
     """Construct a validated job dict. No execution, no model calls."""
+    boundary = _classify_boundary(objective)
     return {
         "job_id": job_id,
         "objective": objective,
@@ -53,6 +63,7 @@ def _build_job(job_id: str, objective: str) -> dict:
         "approval": "approved",
         "status": "pending",
         "created_by": CREATED_BY,
+        "boundary": boundary.to_dict(),
     }
 
 
@@ -99,6 +110,10 @@ def cmd_submit(args: list[str], jobs_dir: Path) -> int:
     print(f"JOB_CREATED=PASS")
     print(f"JOB_ID={job_id}")
     print(f"JOB_PATH={job_path}")
+    print(f"BOUNDARY_CATEGORY={job['boundary']['category']}")
+    print(f"BOUNDARY_RISK={job['boundary']['risk']}")
+    print(f"BOUNDARY_APPROVAL_REQUIRED={job['boundary']['approval_required']}")
+    print(f"BOUNDARY_EXECUTOR_HINT={job['boundary']['executor_hint']}")
     return 0
 
 
