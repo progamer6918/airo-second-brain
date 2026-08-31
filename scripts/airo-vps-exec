@@ -18,6 +18,9 @@
 #  13. Prints AIRO_LAST_RECEIPT at very end.
 #  14. Wrapper exit code equals underlying command exit code.
 #  15. Clipboard failure on native VPS does NOT change SCRIPT_SUCCESS into SCRIPT_FAILED.
+#  16. If canonical Windows clipboard path is not verified, invokes
+#      scripts/airo-remote-clipboard on the concise receipt.
+#  17. Remote clipboard result is reported separately; does NOT change RESULT.
 
 set -uo pipefail
 
@@ -76,6 +79,7 @@ TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 LOG_PATH="/tmp/airo_${TASK}_${TIMESTAMP}.txt"
 RECEIPT_PATH="${LOG_PATH}"
 LAST_RECEIPT_PATH="/home/ubuntu/AIRO_LAST_RECEIPT.txt"
+CONCISE_RECEIPT_PATH="/tmp/airo_${TASK}_${TIMESTAMP}_concise.txt"
 
 # ── execute command (argv directly; no eval) ─────────────────────────────────
 # Use pipefail-safe approach: capture exit code from left side of pipe.
@@ -98,7 +102,7 @@ fi
     echo "LOG_PATH=${LOG_PATH}"
 } > "${RECEIPT_PATH}"
 
-# ── call canonical clipboard helper ─────────────────────────────────────────
+# ── call canonical clipboard helper (Windows path) ──────────────────────────
 # Requirement 10: NEVER fake clipboard PASS.
 # Requirement 15: Clipboard failure does NOT change SCRIPT_SUCCESS → SCRIPT_FAILED.
 CLIPBOARD_HELPER="${REPO_ROOT}/scripts/airo-clipboard-receipt"
@@ -135,6 +139,87 @@ if [[ -z "$CLIPBOARD_READBACK" ]]; then
 fi
 if [[ -z "$CLIPBOARD_CONTENT_HASH" ]]; then
     CLIPBOARD_CONTENT_HASH="FAIL"
+fi
+
+# ── build concise receipt for remote clipboard attempt ───────────────────────
+REMOTE_CLIPBOARD_METHOD="NOT_ATTEMPTED"
+REMOTE_CLIPBOARD_ERROR="SKIPPED_WINDOWS_CLIPBOARD_VERIFIED"
+REMOTE_CLIPBOARD_READBACK="FAIL"
+REMOTE_CLIPBOARD_CONTENT_HASH="FAIL"
+
+# Only invoke remote adapter if Windows clipboard path was NOT verified
+if [[ "$COPIED_TO_CLIPBOARD" != "YES" || "$CLIPBOARD_READBACK" != "PASS" || "$CLIPBOARD_CONTENT_HASH" != "PASS" ]]; then
+
+    REMOTE_CLIPBOARD_ADAPTER="${REPO_ROOT}/scripts/airo-remote-clipboard"
+
+    if [[ -x "$REMOTE_CLIPBOARD_ADAPTER" ]]; then
+
+        # Build concise receipt (canonical fields only, no raw execution log)
+        {
+            echo "TASK=${TASK}"
+            echo "RESULT=${RESULT}"
+            echo "EXIT_CODE=${CMD_EXIT}"
+            echo "LOG_PATH=${LOG_PATH}"
+        } > "${CONCISE_RECEIPT_PATH}"
+
+        # Invoke remote clipboard adapter
+        REMOTE_ADAPTER_EXIT=0
+        python3 "${REMOTE_CLIPBOARD_ADAPTER}" \
+            --receipt-file "${CONCISE_RECEIPT_PATH}" \
+            --copy-file "${CONCISE_RECEIPT_PATH}" \
+            > /dev/null 2>&1 || REMOTE_ADAPTER_EXIT=$?
+
+        # Read back remote clipboard result fields from updated concise receipt
+        _get_concise_field() {
+            local field="$1"
+            grep -m1 "^${field}=" "${CONCISE_RECEIPT_PATH}" | cut -d'=' -f2- || true
+        }
+
+        _rc_copied="$(_get_concise_field "COPIED_TO_CLIPBOARD")"
+        REMOTE_CLIPBOARD_METHOD="$(_get_concise_field "CLIPBOARD_METHOD")"
+        _rc_error="$(_get_concise_field "CLIPBOARD_ERROR")"
+        _rc_readback="$(_get_concise_field "CLIPBOARD_READBACK")"
+        _rc_hash="$(_get_concise_field "CLIPBOARD_CONTENT_HASH")"
+
+        # Normalize fields
+        if [[ -z "$REMOTE_CLIPBOARD_METHOD" ]]; then
+            REMOTE_CLIPBOARD_METHOD="NONE"
+        fi
+        if [[ -z "$_rc_error" ]]; then
+            REMOTE_CLIPBOARD_ERROR="UNKNOWN"
+        else
+            REMOTE_CLIPBOARD_ERROR="${_rc_error}"
+        fi
+        if [[ -z "$_rc_readback" ]]; then
+            REMOTE_CLIPBOARD_READBACK="FAIL"
+        else
+            REMOTE_CLIPBOARD_READBACK="${_rc_readback}"
+        fi
+        if [[ -z "$_rc_hash" ]]; then
+            REMOTE_CLIPBOARD_CONTENT_HASH="FAIL"
+        else
+            REMOTE_CLIPBOARD_CONTENT_HASH="${_rc_hash}"
+        fi
+
+        # If remote adapter succeeded, use its result as the authoritative
+        # clipboard delivery (promote to COPIED_TO_CLIPBOARD for AIRO_LAST_RECEIPT)
+        if [[ "$REMOTE_ADAPTER_EXIT" -eq 0 && \
+              "$REMOTE_CLIPBOARD_READBACK" == "PASS" && \
+              "$REMOTE_CLIPBOARD_CONTENT_HASH" == "PASS" ]]; then
+            COPIED_TO_CLIPBOARD="YES"
+            CLIPBOARD_METHOD="${REMOTE_CLIPBOARD_METHOD}"
+            CLIPBOARD_ERROR="NONE"
+            CLIPBOARD_READBACK="PASS"
+            CLIPBOARD_CONTENT_HASH="PASS"
+        fi
+
+        # Clean up concise file
+        rm -f "${CONCISE_RECEIPT_PATH}" 2>/dev/null || true
+
+    else
+        REMOTE_CLIPBOARD_METHOD="NOT_AVAILABLE"
+        REMOTE_CLIPBOARD_ERROR="ADAPTER_NOT_EXECUTABLE"
+    fi
 fi
 
 # ── write AIRO_LAST_RECEIPT.txt (exactly the canonical fields) ───────────────

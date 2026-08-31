@@ -1,0 +1,533 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-remote-clipboard — AIRO Native VPS Verified Remote Clipboard Adapter.
+
+Attempts verified OSC52 clipboard delivery of a concise AIRO receipt through the
+currently attached terminal, with verified readback+hash match.
+
+Interface:
+  python3 scripts/airo-remote-clipboard \
+    --receipt-file <full-receipt-path> \
+    --copy-file <concise-file-path>
+
+Exit:
+  0  — verified clipboard success (readback + hash match)
+  nonzero — any other outcome (truthfully reported)
+"""
+
+import argparse
+import base64
+import hashlib
+import os
+import re
+import select
+import subprocess
+import sys
+import termios
+import tty
+
+
+# ── constants ─────────────────────────────────────────────────────────────────
+OSC52_MAX_BYTES = 74994          # conservative safe limit for OSC52 payload
+READBACK_TIMEOUT_SEC = 3.0       # bounded read timeout; do not hang
+READBACK_CHUNK = 4096
+
+# OSC / ST / BEL sequences
+ESC  = "\x1b"
+BEL  = "\x07"
+ST   = ESC + "\\"
+
+
+def normalize_text(text: str) -> str:
+    """Normalize CRLF/CR → LF and strip trailing newlines."""
+    if text is None:
+        return ""
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    normalized = normalized.rstrip("\n")
+    return normalized
+
+
+def sha256_of(text: str) -> str:
+    norm = normalize_text(text)
+    return hashlib.sha256(norm.encode("utf-8")).hexdigest()
+
+
+# ── tmux helpers ──────────────────────────────────────────────────────────────
+
+def tmux_version() -> str:
+    """Return tmux version string, or '' if not available."""
+    try:
+        r = subprocess.run(
+            ["tmux", "-V"],
+            capture_output=True, text=True, timeout=3
+        )
+        if r.returncode == 0:
+            return r.stdout.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def tmux_get_option(name: str) -> str:
+    """Get a global tmux option value, or '' on failure."""
+    try:
+        r = subprocess.run(
+            ["tmux", "show-options", "-gv", name],
+            capture_output=True, text=True, timeout=3
+        )
+        if r.returncode == 0:
+            return r.stdout.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def tmux_set_option(name: str, value: str) -> bool:
+    """Set a global tmux option. Returns True on success."""
+    try:
+        r = subprocess.run(
+            ["tmux", "set-option", "-g", name, value],
+            capture_output=True, text=True, timeout=3
+        )
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+def tmux_load_buffer(data: bytes) -> bool:
+    """Load bytes into tmux paste buffer and write to clipboard (tmux 3.3+)."""
+    try:
+        r = subprocess.run(
+            ["tmux", "load-buffer", "-w", "-"],
+            input=data,
+            capture_output=True,
+            timeout=5
+        )
+        return r.returncode == 0
+    except Exception:
+        pass
+    # Fallback: load-buffer without -w
+    try:
+        r = subprocess.run(
+            ["tmux", "load-buffer", "-"],
+            input=data,
+            capture_output=True,
+            timeout=5
+        )
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+def ms_capability_present() -> bool:
+    """Probe whether tmux info reports Ms capability."""
+    try:
+        r = subprocess.run(
+            ["tmux", "info"],
+            capture_output=True, text=True, timeout=5
+        )
+        if r.returncode == 0:
+            return bool(re.search(r"\bMs\b", r.stdout))
+    except Exception:
+        pass
+    return False
+
+
+# ── OSC52 write/query helpers ─────────────────────────────────────────────────
+
+def osc52_set_sequence(encoded_b64: bytes, use_bel: bool = False) -> bytes:
+    """Build an OSC52 clipboard-set byte sequence."""
+    terminator = BEL.encode() if use_bel else ST.encode()
+    return ESC.encode() + b"]52;c;" + encoded_b64 + terminator
+
+
+def osc52_query_sequence(use_bel: bool = False) -> bytes:
+    """Build an OSC52 clipboard-query byte sequence (? payload)."""
+    terminator = BEL.encode() if use_bel else ST.encode()
+    return ESC.encode() + b"]52;c;?" + terminator
+
+
+def write_to_tty(data: bytes) -> bool:
+    """Write raw bytes to /dev/tty. Returns True on success."""
+    try:
+        fd = os.open("/dev/tty", os.O_WRONLY | os.O_NOCTTY)
+        try:
+            written = 0
+            while written < len(data):
+                n = os.write(fd, data[written:])
+                if n <= 0:
+                    return False
+                written += n
+            return True
+        finally:
+            os.close(fd)
+    except Exception:
+        return False
+
+
+def read_osc52_response(timeout: float) -> str:
+    """
+    Open /dev/tty for reading, put terminal in raw mode, read until
+    a valid OSC52 response is found or timeout expires.
+
+    Valid OSC52 response forms:
+      ESC ] 52 ; c ; <base64> ST
+      ESC ] 52 ; c ; <base64> BEL
+      or the DCS passthrough wrapping used by some terminals.
+
+    Returns the raw decoded text or '' if nothing valid was found.
+    Does NOT log raw payload.
+    """
+    old_settings = None
+    tty_fd = None
+    try:
+        tty_fd = os.open("/dev/tty", os.O_RDWR | os.O_NOCTTY)
+        # Save and set raw mode so control sequences pass through
+        old_settings = termios.tcgetattr(tty_fd)
+        tty.setraw(tty_fd)
+
+        buf = b""
+        import time
+        deadline = time.monotonic() + timeout
+
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            ready, _, _ = select.select([tty_fd], [], [], min(remaining, 0.2))
+            if not ready:
+                # Check if buffer already has a complete response
+                decoded = _try_parse_osc52(buf)
+                if decoded is not None:
+                    return decoded
+                continue
+            chunk = os.read(tty_fd, READBACK_CHUNK)
+            if not chunk:
+                break
+            buf += chunk
+            decoded = _try_parse_osc52(buf)
+            if decoded is not None:
+                return decoded
+
+        # Final parse attempt on whatever accumulated
+        decoded = _try_parse_osc52(buf)
+        return decoded if decoded is not None else ""
+
+    except Exception:
+        return ""
+    finally:
+        if tty_fd is not None:
+            if old_settings is not None:
+                try:
+                    termios.tcsetattr(tty_fd, termios.TCSANOW, old_settings)
+                except Exception:
+                    pass
+            try:
+                os.close(tty_fd)
+            except Exception:
+                pass
+
+
+def _try_parse_osc52(buf: bytes) -> str | None:
+    """
+    Parse OSC52 response from buffer.
+    Returns decoded string if found, None if incomplete/absent.
+    """
+    # Match: ESC ] 52 ; c ; <b64> (ST or BEL)
+    pattern = rb"\x1b\]52;c;([A-Za-z0-9+/=]*)(?:\x1b\\|\x07)"
+    m = re.search(pattern, buf)
+    if m:
+        b64_data = m.group(1)
+        try:
+            decoded_bytes = base64.b64decode(b64_data + b"==")
+            return decoded_bytes.decode("utf-8", errors="replace")
+        except Exception:
+            return None
+    return None
+
+
+# ── result field builder ──────────────────────────────────────────────────────
+
+def build_result_fields(
+    copied: bool,
+    method: str,
+    error: str,
+    readback: bool,
+    content_hash: bool
+) -> dict:
+    return {
+        "COPIED_TO_CLIPBOARD": "YES" if copied else "NO",
+        "CLIPBOARD_METHOD":    method,
+        "CLIPBOARD_ERROR":     error,
+        "CLIPBOARD_READBACK":  "PASS" if readback else "FAIL",
+        "CLIPBOARD_CONTENT_HASH": "PASS" if content_hash else "FAIL",
+    }
+
+
+# ── main adapter logic ────────────────────────────────────────────────────────
+
+def run(receipt_file: str, copy_file: str) -> int:
+    """
+    Main adapter flow.
+    Returns 0 on verified success, nonzero otherwise.
+    """
+
+    # ── validate inputs ───────────────────────────────────────────────────────
+    for path, label in [(receipt_file, "--receipt-file"), (copy_file, "--copy-file")]:
+        if not path or not os.path.exists(path):
+            print(f"ERROR: {label} path does not exist: {path!r}", file=sys.stderr)
+            return 2
+
+    try:
+        with open(copy_file, "r", encoding="utf-8") as f:
+            candidate_text = f.read()
+    except Exception as e:
+        print(f"ERROR: Cannot read --copy-file: {e}", file=sys.stderr)
+        return 2
+
+    if not candidate_text or not candidate_text.strip():
+        print("ERROR: --copy-file is empty", file=sys.stderr)
+        return 2
+
+    candidate_norm = normalize_text(candidate_text)
+    candidate_hash = sha256_of(candidate_norm)
+
+    # ── guard: candidate must not exceed safe OSC52 limit ────────────────────
+    candidate_bytes = candidate_norm.encode("utf-8")
+    if len(candidate_bytes) > OSC52_MAX_BYTES:
+        _write_receipt_failure(
+            receipt_file,
+            method="NONE",
+            error=f"COPY_FILE_TOO_LARGE_{len(candidate_bytes)}_BYTES"
+        )
+        print(f"ERROR: copy-file content too large for safe OSC52 ({len(candidate_bytes)} bytes)", file=sys.stderr)
+        return 3
+
+    # ── check /dev/tty availability ───────────────────────────────────────────
+    if not os.access("/dev/tty", os.R_OK | os.W_OK):
+        _write_receipt_failure(
+            receipt_file,
+            method="NONE",
+            error="DEV_TTY_UNAVAILABLE"
+        )
+        print("ERROR: /dev/tty not accessible", file=sys.stderr)
+        return 3
+
+    # ── detect tmux context ───────────────────────────────────────────────────
+    in_tmux = bool(os.environ.get("TMUX", "").strip())
+    tmux_ver = ""
+    tmux_set_clip = ""
+    tmux_ms = False
+    tmux_ap_original = ""
+    tmux_ap_enabled_by_us = False
+    attempted_method = "NONE"
+
+    if in_tmux:
+        tmux_ver = tmux_version()
+        tmux_set_clip = tmux_get_option("set-clipboard")
+        tmux_ms = ms_capability_present()
+        tmux_ap_original = tmux_get_option("allow-passthrough")
+
+        # ── path A: tmux native load-buffer -w ───────────────────────────────
+        attempted_method = "TMUX_LOAD_BUFFER_W"
+        b64_encoded = base64.b64encode(candidate_bytes)
+        ok_write = tmux_load_buffer(candidate_bytes)
+
+        if ok_write:
+            # Query via OSC52 — may need allow-passthrough to pass through tmux
+            if tmux_ap_original not in ("on", "all"):
+                tmux_ap_enabled_by_us = tmux_set_option("allow-passthrough", "on")
+
+            try:
+                write_to_tty(osc52_query_sequence(use_bel=False))
+                response_text = read_osc52_response(READBACK_TIMEOUT_SEC)
+            finally:
+                if tmux_ap_enabled_by_us:
+                    restore_val = tmux_ap_original if tmux_ap_original else "off"
+                    tmux_set_option("allow-passthrough", restore_val)
+                    tmux_ap_enabled_by_us = False
+
+            if response_text:
+                resp_norm = normalize_text(response_text)
+                resp_hash = sha256_of(resp_norm)
+                if resp_norm == candidate_norm and resp_hash == candidate_hash:
+                    _write_receipt_success(receipt_file, attempted_method)
+                    return 0
+
+            # tmux load-buffer write succeeded but readback failed/mismatched
+            _write_receipt_failure(
+                receipt_file,
+                method=attempted_method,
+                error="OSC52_READBACK_UNAVAILABLE_OR_MISMATCH"
+            )
+            return 1
+
+        # tmux load-buffer failed — fall through to OSC52 direct write
+
+    # ── path B: OSC52 direct with ST terminator ───────────────────────────────
+    attempted_method = "OSC52_ST"
+    b64_encoded = base64.b64encode(candidate_bytes)
+    set_seq = osc52_set_sequence(b64_encoded, use_bel=False)
+
+    # If in tmux, may need allow-passthrough for OSC passthrough
+    ap_restored = False
+    if in_tmux and tmux_ap_original not in ("on", "all"):
+        tmux_ap_enabled_by_us = tmux_set_option("allow-passthrough", "on")
+
+    try:
+        ok_write = write_to_tty(set_seq)
+        if not ok_write:
+            raise OSError("write_to_tty returned False for OSC52 set")
+
+        # Send OSC52 query
+        query_seq = osc52_query_sequence(use_bel=False)
+        write_to_tty(query_seq)
+        response_text = read_osc52_response(READBACK_TIMEOUT_SEC)
+    except OSError as e:
+        if in_tmux and tmux_ap_enabled_by_us:
+            restore_val = tmux_ap_original if tmux_ap_original else "off"
+            tmux_set_option("allow-passthrough", restore_val)
+        _write_receipt_failure(receipt_file, method=attempted_method, error=f"TTY_WRITE_ERROR")
+        return 3
+    finally:
+        if in_tmux and tmux_ap_enabled_by_us:
+            restore_val = tmux_ap_original if tmux_ap_original else "off"
+            tmux_set_option("allow-passthrough", restore_val)
+            tmux_ap_enabled_by_us = False
+            ap_restored = True
+
+    if response_text:
+        resp_norm = normalize_text(response_text)
+        resp_hash = sha256_of(resp_norm)
+        if resp_norm == candidate_norm and resp_hash == candidate_hash:
+            _write_receipt_success(receipt_file, attempted_method)
+            return 0
+        # Content mismatch
+        _write_receipt_failure(
+            receipt_file,
+            method=attempted_method,
+            error="OSC52_READBACK_CONTENT_MISMATCH"
+        )
+        return 1
+
+    # ── path C: OSC52 with BEL fallback — try write only, readback still needed
+    attempted_method = "OSC52_BEL"
+    set_seq_bel = osc52_set_sequence(b64_encoded, use_bel=True)
+
+    if in_tmux and not ap_restored and tmux_ap_original not in ("on", "all"):
+        tmux_ap_enabled_by_us = tmux_set_option("allow-passthrough", "on")
+
+    try:
+        ok_write_bel = write_to_tty(set_seq_bel)
+        if ok_write_bel:
+            query_bel = osc52_query_sequence(use_bel=True)
+            write_to_tty(query_bel)
+            response_bel = read_osc52_response(READBACK_TIMEOUT_SEC)
+        else:
+            response_bel = ""
+    finally:
+        if in_tmux and tmux_ap_enabled_by_us:
+            restore_val = tmux_ap_original if tmux_ap_original else "off"
+            tmux_set_option("allow-passthrough", restore_val)
+            tmux_ap_enabled_by_us = False
+
+    if response_bel:
+        resp_norm = normalize_text(response_bel)
+        resp_hash = sha256_of(resp_norm)
+        if resp_norm == candidate_norm and resp_hash == candidate_hash:
+            _write_receipt_success(receipt_file, attempted_method)
+            return 0
+        _write_receipt_failure(
+            receipt_file,
+            method=attempted_method,
+            error="OSC52_READBACK_CONTENT_MISMATCH"
+        )
+        return 1
+
+    # ── all paths exhausted without verified readback ─────────────────────────
+    _write_receipt_failure(
+        receipt_file,
+        method=attempted_method,
+        error="OSC52_READBACK_UNAVAILABLE"
+    )
+    return 1
+
+
+# ── receipt writers ───────────────────────────────────────────────────────────
+
+def _read_receipt_base(receipt_file: str) -> str:
+    """Read existing receipt file content stripped of any old clipboard fields."""
+    try:
+        with open(receipt_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Strip any existing clipboard result lines to avoid duplicates
+        lines = content.splitlines(keepends=True)
+        clipboard_keys = {
+            "COPIED_TO_CLIPBOARD=",
+            "CLIPBOARD_METHOD=",
+            "CLIPBOARD_ERROR=",
+            "CLIPBOARD_READBACK=",
+            "CLIPBOARD_CONTENT_HASH=",
+            "REMOTE_CLIPBOARD_METHOD=",
+            "REMOTE_CLIPBOARD_ERROR=",
+            "REMOTE_CLIPBOARD_READBACK=",
+            "REMOTE_CLIPBOARD_CONTENT_HASH=",
+        }
+        filtered = [l for l in lines if not any(l.startswith(k) for k in clipboard_keys)]
+        base = "".join(filtered).rstrip("\n")
+        return base
+    except Exception:
+        return ""
+
+
+def _write_receipt_success(receipt_file: str, method: str) -> None:
+    base = _read_receipt_base(receipt_file)
+    content = (
+        base + "\n"
+        "COPIED_TO_CLIPBOARD=YES\n"
+        f"CLIPBOARD_METHOD={method}\n"
+        "CLIPBOARD_ERROR=NONE\n"
+        "CLIPBOARD_READBACK=PASS\n"
+        "CLIPBOARD_CONTENT_HASH=PASS\n"
+    )
+    with open(receipt_file, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def _write_receipt_failure(receipt_file: str, method: str, error: str) -> None:
+    try:
+        base = _read_receipt_base(receipt_file)
+        content = (
+            base + "\n"
+            "COPIED_TO_CLIPBOARD=NO\n"
+            f"CLIPBOARD_METHOD={method}\n"
+            f"CLIPBOARD_ERROR={error}\n"
+            "CLIPBOARD_READBACK=FAIL\n"
+            "CLIPBOARD_CONTENT_HASH=FAIL\n"
+        )
+        with open(receipt_file, "w", encoding="utf-8") as f:
+            f.write(content)
+    except Exception:
+        pass
+
+
+# ── entry point ───────────────────────────────────────────────────────────────
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="AIRO Native VPS Verified Remote Clipboard Adapter"
+    )
+    parser.add_argument(
+        "--receipt-file", required=True,
+        help="Full path to the receipt file (updated in-place with clipboard result fields)"
+    )
+    parser.add_argument(
+        "--copy-file", required=True,
+        help="Full path to concise AIRO_LAST_RECEIPT content to place in clipboard"
+    )
+    args = parser.parse_args()
+    return run(args.receipt_file, args.copy_file)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
