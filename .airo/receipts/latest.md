@@ -2,10 +2,10 @@
 
 | Field             | Value |
 |-------------------|-------|
-| **Task**          | `receipt_channel_success_canary` |
+| **Task**          | `receipt_final_test` |
 | **Result**        | `SCRIPT_SUCCESS` |
 | **Exit Code**     | `0` |
-| **Timestamp**     | `2026-08-31T10:46:39Z` |
+| **Timestamp**     | `2026-09-01T03:42:53Z` |
 | **Clipboard**     | `NO (CLIPBOARD_READBACK_CONTENT_MISMATCH)` |
 | **Reason**        | Command completed successfully. |
 
