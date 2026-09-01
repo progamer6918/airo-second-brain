@@ -769,3 +769,8 @@ Marker: `AIRO_EAB_POST_CLOSE_PRODUCT_OUTCOME_CORRECTION_RECORD_20260816`
 - **Active ASB Architecture**: A2-WG (Physical Windows NTFS `C:\Users\Admin\AI_WORKSPACES\airo-second-brain` + Scoped Windows Git Shim + WSL Symlink) -> [[docs/continuity/AIRO_FRESH_CHAT_HANDOFF_20260830|Buka Fresh Chat Handoff]]
 - **Next Engineering Objective**: `EARESMES_CAPABILITY_ROUTER_FOUNDATION` -> [[ecosystem/projects/earesmes-arfin-bridge/docs/EAB_POST_VNEXT_ORCHESTRATION_BOUNDARY_DECISION_20260830|Buka EAB Post-vNext Decision]]
 
+
+
+AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT:
+docs/contracts/AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT.md
+STATUS=ACTIVE
