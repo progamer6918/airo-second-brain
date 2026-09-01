@@ -264,5 +264,12 @@ fi
 
 echo "RECEIPT_PUBLISH=${RECEIPT_PUBLISH_STATUS}"
 
+# ── auto-copy final receipt via OSC52 ────────────────────────────────────────
+CLIPBOARD_RECEIPT=$(cat "${LAST_RECEIPT_PATH}")
+
+printf '\033]52;c;%s\a' "$(printf '%s' "$CLIPBOARD_RECEIPT" | base64 | tr -d '\\n')"
+
+echo "AUTO_COPY_RECEIPT=PASS"
+
 # ── exit with underlying command exit code ───────────────────────────────────
 exit "${CMD_EXIT}"

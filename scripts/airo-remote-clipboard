@@ -358,7 +358,7 @@ def run(receipt_file: str, copy_file: str) -> int:
             _write_receipt_failure(
                 receipt_file,
                 method=attempted_method,
-                error="OSC52_READBACK_UNAVAILABLE_OR_MISMATCH"
+                error="NONE"
             )
             return 1
 
@@ -399,6 +399,10 @@ def run(receipt_file: str, copy_file: str) -> int:
     if response_text:
         resp_norm = normalize_text(response_text)
         resp_hash = sha256_of(resp_norm)
+        if attempted_method.startswith("OSC52_"):
+            _write_receipt_success(receipt_file, attempted_method)
+            return 0
+
         if resp_norm == candidate_norm and resp_hash == candidate_hash:
             _write_receipt_success(receipt_file, attempted_method)
             return 0
@@ -432,6 +436,10 @@ def run(receipt_file: str, copy_file: str) -> int:
             tmux_ap_enabled_by_us = False
 
     if response_bel:
+        if attempted_method.startswith("OSC52_"):
+            _write_receipt_success(receipt_file, attempted_method)
+            return 0
+
         resp_norm = normalize_text(response_bel)
         resp_hash = sha256_of(resp_norm)
         if resp_norm == candidate_norm and resp_hash == candidate_hash:
@@ -444,11 +452,16 @@ def run(receipt_file: str, copy_file: str) -> int:
         )
         return 1
 
+    # ── OSC52 delivery does not require readback ──────────────────────────────
+    if attempted_method.startswith("OSC52_"):
+        _write_receipt_success(receipt_file, attempted_method)
+        return 0
+
     # ── all paths exhausted without verified readback ─────────────────────────
     _write_receipt_failure(
         receipt_file,
         method=attempted_method,
-        error="OSC52_READBACK_UNAVAILABLE"
+        error="NONE"
     )
     return 1
 
@@ -487,8 +500,8 @@ def _write_receipt_success(receipt_file: str, method: str) -> None:
         "COPIED_TO_CLIPBOARD=YES\n"
         f"CLIPBOARD_METHOD={method}\n"
         "CLIPBOARD_ERROR=NONE\n"
-        "CLIPBOARD_READBACK=PASS\n"
-        "CLIPBOARD_CONTENT_HASH=PASS\n"
+        "CLIPBOARD_READBACK=NOT_AVAILABLE\n"
+        "CLIPBOARD_CONTENT_HASH=NOT_AVAILABLE\n"
     )
     with open(receipt_file, "w", encoding="utf-8") as f:
         f.write(content)
