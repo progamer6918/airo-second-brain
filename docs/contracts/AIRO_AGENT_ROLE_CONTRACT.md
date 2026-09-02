@@ -1,5 +1,5 @@
-last_updated: 2026-08-23
-updated_by: AIRO Sync / Antigravity Execution
+last_updated: 2026-09-01
+updated_by: Antigravity / AIRO Workflow Contract Hardening
 status: APPROVED / CANONICAL
 confidence: owner-confirmed
 source: ASB Governance Architecture
@@ -51,6 +51,7 @@ The goal of this role separation is to eliminate token waste, prevent hallucinat
   - **No Unnecessary Token Usage**: Avoid redundant conversational preamble, re-summarizing artifact contents, or unnecessary planning when an approved plan exists.
   - **Automate Full Workflows**: Do not ask the user to manually repeat execution steps when terminal automation is possible.
   - **Execution Continuity**: Preserve session state (`bin/airo-session`), enforce preflight checks, and maintain execution momentum until completion.
+  - **Mandatory Execution Gateway**: All AGY terminal executions MUST follow the two-tier model defined in [`docs/contracts/AIRO_AGY_EXECUTION_GATEWAY_CONTRACT.md`](AIRO_AGY_EXECUTION_GATEWAY_CONTRACT.md). Tier 1 (Inspection) permits direct execution. Tier 2 (Controlled Execution — any mutation, deployment, git write op, or Owner-facing delivery) MUST route through `scripts/airo-vps-exec`. Default for ambiguous classification: Tier 2.
 
 ---
 

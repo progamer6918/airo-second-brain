@@ -32,6 +32,25 @@ All session closeouts and knowledge persistence runs MUST execute via `scripts/a
 - `CLIPBOARD_READBACK=PASS`
 - `CLIPBOARD_CONTENT_HASH=PASS`
 
+### 3.1 OSC52 Terminal Delivery Exception
+
+**Applies to**: VPS Terminal OSC52 adapter; AGY VPS parent TTY OSC52 adapter.
+
+> `OSC52_SEND_SUCCESS_DOES_NOT_REQUIRE_READBACK=true`
+
+When clipboard delivery is performed via an **OSC52 terminal escape sequence**, clipboard readback is structurally unavailable — the terminal emulator absorbs the sequence and no read path exists from within the same process. For these paths:
+
+- `CLIPBOARD_READBACK=NOT_AVAILABLE` is the accepted terminal state (not a failure).
+- `CLIPBOARD_CONTENT_HASH=NOT_AVAILABLE` is the accepted terminal state (not a failure).
+- A confirmed OSC52 WRITE success (exit code 0 from the OSC52 send path) is sufficient evidence for `COPIED_TO_CLIPBOARD=YES`.
+- `DELIVERY_STATUS=OSC52_WRITE_SUCCESS_READBACK_NOT_AVAILABLE` satisfies the transport evidence requirement.
+
+This exception does **NOT** apply to the LOCAL PC/WSL clipboard adapter, which retains the full `CLIPBOARD_READBACK=PASS` + `CLIPBOARD_CONTENT_HASH=PASS` requirement.
+
+**Cross-reference**: [`AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT`](./AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT.md) — canonical authority for OSC52 delivery rules.  
+**Council Verdict**: `FINAL_VERDICT=PASS` | `CAPABILITY_STATUS=FUNCTIONAL_NOT_GOVERNANCE_FINAL` → reconciled by this exception entry.
+
+---
 
 ## Current V1 Operational SOP (2026-08-25)
 - **Cadence**: Operational capture runs automatically at `EVERY_MEANINGFUL_EXECUTION`.
