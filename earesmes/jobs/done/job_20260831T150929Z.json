@@ -1,0 +1,21 @@
+{
+  "job_id": "job_20260831T150929Z",
+  "objective": "Document current AIRO VPS Workbench architecture and operational workflow",
+  "executor": "manual",
+  "approval": "approved",
+  "status": "success",
+  "created_by": "earesmes_cli",
+  "boundary": {
+    "category": "architecture",
+    "risk": "high",
+    "approval_required": true,
+    "executor_hint": "owner_review"
+  },
+  "capability": {
+    "capability": "owner_review",
+    "executor_hint": "owner",
+    "authority": "owner_direct",
+    "reason": "keyword match: architecture/destructive operation requires owner review"
+  },
+  "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+}

@@ -1,0 +1,15 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "example",
+  "status": "success",
+  "detail": "manual executor v1 placeholder \u2014 no autonomous action taken",
+  "timestamp_utc": "2026-08-31T14:34:19.655331+00:00",
+  "job_snapshot": {
+    "job_id": "example",
+    "objective": "Verify EARESMES job runner skeleton is operational",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "success",
+    "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+  }
+}

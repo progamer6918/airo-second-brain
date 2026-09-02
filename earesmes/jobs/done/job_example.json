@@ -3,5 +3,6 @@
   "objective": "Verify EARESMES job runner skeleton is operational",
   "executor": "manual",
   "approval": "approved",
-  "status": "pending"
+  "status": "success",
+  "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
 }

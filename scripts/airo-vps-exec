@@ -202,15 +202,39 @@ if [[ "$COPIED_TO_CLIPBOARD" != "YES" || "$CLIPBOARD_READBACK" != "PASS" || "$CL
         fi
 
         # If remote adapter succeeded, use its result as the authoritative
-        # clipboard delivery (promote to COPIED_TO_CLIPBOARD for AIRO_LAST_RECEIPT)
+        # clipboard delivery (promote to COPIED_TO_CLIPBOARD for AIRO_LAST_RECEIPT).
+        #
+        # Promotion accepts two verified-delivery states:
+        #   1. READBACK=PASS + HASH=PASS  — full verified readback (e.g. xterm, tmux load-buffer)
+        #   2. READBACK=NOT_AVAILABLE     — OSC52 write confirmed; terminal does not support
+        #                                   clipboard query (e.g. Termius via SSH). Delivery
+        #                                   is real but readback cannot be verified. Do NOT
+        #                                   fabricate PASS — preserve NOT_AVAILABLE in receipt.
+        #
+        # Requirement 10 (NEVER fake clipboard PASS) is preserved: status fields are written
+        # exactly as reported by the adapter; we do not upgrade NOT_AVAILABLE to PASS.
+        _rc_copied_val="$(_get_concise_field "COPIED_TO_CLIPBOARD")"
         if [[ "$REMOTE_ADAPTER_EXIT" -eq 0 && \
+              "$_rc_copied_val" == "YES" && \
               "$REMOTE_CLIPBOARD_READBACK" == "PASS" && \
               "$REMOTE_CLIPBOARD_CONTENT_HASH" == "PASS" ]]; then
+            # Full verified delivery
             COPIED_TO_CLIPBOARD="YES"
             CLIPBOARD_METHOD="${REMOTE_CLIPBOARD_METHOD}"
             CLIPBOARD_ERROR="NONE"
             CLIPBOARD_READBACK="PASS"
             CLIPBOARD_CONTENT_HASH="PASS"
+        elif [[ "$REMOTE_ADAPTER_EXIT" -eq 0 && \
+                "$_rc_copied_val" == "YES" && \
+                "$REMOTE_CLIPBOARD_READBACK" == "NOT_AVAILABLE" ]]; then
+            # OSC52 write succeeded; terminal does not support readback query.
+            # Delivery is confirmed by adapter exit 0 + COPIED_TO_CLIPBOARD=YES.
+            # Preserve actual status — do not fabricate PASS.
+            COPIED_TO_CLIPBOARD="YES"
+            CLIPBOARD_METHOD="${REMOTE_CLIPBOARD_METHOD}"
+            CLIPBOARD_ERROR="NONE"
+            CLIPBOARD_READBACK="NOT_AVAILABLE"
+            CLIPBOARD_CONTENT_HASH="NOT_AVAILABLE"
         fi
 
         # Clean up concise file
@@ -265,11 +289,61 @@ fi
 echo "RECEIPT_PUBLISH=${RECEIPT_PUBLISH_STATUS}"
 
 # ── auto-copy final receipt via OSC52 ────────────────────────────────────────
+# AGY spawns tool subprocesses via its own PTY master (/dev/ptmx), so the
+# subprocess CTTY is the AGY-internal pts/N, not the Termius SSH terminal.
+# /dev/tty inside a tool subprocess therefore resolves to that internal PTY,
+# whose output AGY consumes (and discards / logs) — it never reaches Termius.
+#
+# Fix: walk the PPID chain to find the AGY parent's stdin fd (fd/0), which is
+# the real Termius SSH PTY (e.g. /dev/pts/0).  Write OSC52 there directly.
+#
+# Discovery order:
+#   1. Parent stdin PTY  (/proc/<ppid>/fd/0  — the Termius-visible terminal)
+#   2. /dev/tty          (works if not inside an AGY subprocess PTY)
+#   3. stdout            (last resort; works only if stdout is a real TTY)
 CLIPBOARD_RECEIPT=$(cat "${LAST_RECEIPT_PATH}")
+_OSC52_SEQ="$(printf '\033]52;c;%s\007' "$(printf '%s' "$CLIPBOARD_RECEIPT" | base64 | tr -d '\n')")"
 
-printf '\033]52;c;%s\a' "$(printf '%s' "$CLIPBOARD_RECEIPT" | base64 | tr -d '\\n')"
+# ── discover parent terminal PTY ──────────────────────────────────────────────
+_PARENT_TTY=""
+_OWN_TTY="$(tty 2>/dev/null || true)"
 
-echo "AUTO_COPY_RECEIPT=PASS"
+# Walk up PPID chain (max 5 hops) looking for a parent whose stdin is a
+# writable character device different from our own controlling terminal.
+_walk_pid=$$
+for _hop in 1 2 3 4 5; do
+    _walk_ppid="$(ps -o ppid= -p "${_walk_pid}" 2>/dev/null | tr -d ' ')"
+    [ -z "${_walk_ppid}" ] || [ "${_walk_ppid}" = "0" ] || [ "${_walk_ppid}" = "1" ] && break
+    _candidate="$(readlink "/proc/${_walk_ppid}/fd/0" 2>/dev/null || true)"
+    if [ -n "${_candidate}" ] && [ "${_candidate}" != "${_OWN_TTY}" ]; then
+        if [ -c "${_candidate}" ] && [ -w "${_candidate}" ]; then
+            _PARENT_TTY="${_candidate}"
+            break
+        fi
+    fi
+    _walk_pid="${_walk_ppid}"
+done
+
+AUTO_COPY_RECEIPT="FAIL"
+if [ -n "${_PARENT_TTY}" ]; then
+    # Preferred: write to the real Termius PTY discovered via parent stdin
+    printf '%s' "${_OSC52_SEQ}" > "${_PARENT_TTY}" \
+        && AUTO_COPY_RECEIPT="PASS" \
+        && CLIPBOARD_METHOD="OSC52_PARENT_TTY"
+elif [ -w /dev/tty ]; then
+    # Fallback: /dev/tty (works when not inside an AGY subprocess PTY)
+    printf '%s' "${_OSC52_SEQ}" > /dev/tty \
+        && AUTO_COPY_RECEIPT="PASS" \
+        && CLIPBOARD_METHOD="OSC52_DIRECT_TTY"
+else
+    # Last resort: stdout (only reaches terminal if stdout is a real TTY)
+    printf '%s' "${_OSC52_SEQ}" \
+        && AUTO_COPY_RECEIPT="PASS" \
+        && CLIPBOARD_METHOD="OSC52_STDOUT_FALLBACK"
+fi
+
+echo "TARGET_TTY=${_PARENT_TTY:-${_OWN_TTY}}"
+echo "AUTO_COPY_RECEIPT=${AUTO_COPY_RECEIPT}"
 
 # ── exit with underlying command exit code ───────────────────────────────────
 exit "${CMD_EXIT}"

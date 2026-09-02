@@ -1,0 +1,9 @@
+{
+  "job_id": "job_20260831T144128Z",
+  "objective": "command interface canary",
+  "executor": "manual",
+  "approval": "approved",
+  "status": "success",
+  "created_by": "earesmes_cli",
+  "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+}

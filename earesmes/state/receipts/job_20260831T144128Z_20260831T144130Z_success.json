@@ -1,0 +1,16 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "job_20260831T144128Z",
+  "status": "success",
+  "detail": "manual executor v1 placeholder \u2014 no autonomous action taken",
+  "timestamp_utc": "2026-08-31T14:41:30.942520+00:00",
+  "job_snapshot": {
+    "job_id": "job_20260831T144128Z",
+    "objective": "command interface canary",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "success",
+    "created_by": "earesmes_cli",
+    "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+  }
+}

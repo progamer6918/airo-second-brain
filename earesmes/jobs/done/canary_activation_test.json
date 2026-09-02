@@ -1,0 +1,8 @@
+{
+  "job_id": "canary_activation_test",
+  "objective": "EARESMES runtime activation canary \u2014 VPS residency proof, no autonomous action.",
+  "executor": "manual",
+  "approval": "approved",
+  "status": "success",
+  "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+}

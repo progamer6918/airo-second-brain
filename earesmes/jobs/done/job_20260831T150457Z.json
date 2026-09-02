@@ -1,0 +1,21 @@
+{
+  "job_id": "job_20260831T150457Z",
+  "objective": "buat fitur baru AIRO dashboard",
+  "executor": "manual",
+  "approval": "approved",
+  "status": "success",
+  "created_by": "earesmes_cli",
+  "boundary": {
+    "category": "development",
+    "risk": "medium",
+    "approval_required": true,
+    "executor_hint": "antigravity"
+  },
+  "capability": {
+    "capability": "development",
+    "executor_hint": "antigravity",
+    "authority": "earesmes_runner",
+    "reason": "keyword match: code/script/feature/implementation routes to development"
+  },
+  "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+}

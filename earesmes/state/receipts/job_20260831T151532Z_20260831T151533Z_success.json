@@ -1,0 +1,28 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "job_20260831T151532Z",
+  "status": "success",
+  "detail": "manual executor v1 placeholder \u2014 no autonomous action taken",
+  "timestamp_utc": "2026-08-31T15:15:33.277947+00:00",
+  "job_snapshot": {
+    "job_id": "job_20260831T151532Z",
+    "objective": "buatkan command untuk mengecek status EARESMES service di VPS",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "success",
+    "created_by": "earesmes_cli",
+    "boundary": {
+      "category": "maintenance",
+      "risk": "low",
+      "approval_required": false,
+      "executor_hint": "local"
+    },
+    "capability": {
+      "capability": "maintenance",
+      "executor_hint": "local",
+      "authority": "earesmes_runner",
+      "reason": "keyword match: vps/server/service/disk/memory routes to maintenance"
+    },
+    "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+  }
+}

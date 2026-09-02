@@ -1,0 +1,16 @@
+{
+  "adapter_version": "1.0.0",
+  "job_id": "job_20260831T151532Z",
+  "executor": "local",
+  "capability": "maintenance",
+  "risk": "low",
+  "status": "READY_FOR_EXECUTION",
+  "created_by": "earesmes_executor_adapter",
+  "created_at_utc": "2026-08-31T15:15:32.939380+00:00",
+  "governance": {
+    "no_autonomous_execution": true,
+    "no_scope_expansion": true,
+    "coordinator_only": "earesmes",
+    "executor_must_verify_before_mutation": true
+  }
+}

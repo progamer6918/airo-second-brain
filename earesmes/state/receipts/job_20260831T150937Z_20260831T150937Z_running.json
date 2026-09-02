@@ -1,0 +1,27 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "job_20260831T150937Z",
+  "status": "running",
+  "detail": "job picked up by runner",
+  "timestamp_utc": "2026-08-31T15:09:37.982548+00:00",
+  "job_snapshot": {
+    "job_id": "job_20260831T150937Z",
+    "objective": "update documentation AIRO VPS Workbench workflow and operational notes in obsidian",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "running",
+    "created_by": "earesmes_cli",
+    "boundary": {
+      "category": "development",
+      "risk": "medium",
+      "approval_required": true,
+      "executor_hint": "antigravity"
+    },
+    "capability": {
+      "capability": "knowledge",
+      "executor_hint": "asb_kcc",
+      "authority": "asb_kcc_system",
+      "reason": "keyword match: knowledge/documentation/obsidian routes to ASB KCC"
+    }
+  }
+}

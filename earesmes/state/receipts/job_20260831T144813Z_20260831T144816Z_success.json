@@ -1,0 +1,22 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "job_20260831T144813Z",
+  "status": "success",
+  "detail": "manual executor v1 placeholder \u2014 no autonomous action taken",
+  "timestamp_utc": "2026-08-31T14:48:16.652366+00:00",
+  "job_snapshot": {
+    "job_id": "job_20260831T144813Z",
+    "objective": "cek disk usage server",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "success",
+    "created_by": "earesmes_cli",
+    "boundary": {
+      "category": "maintenance",
+      "risk": "low",
+      "approval_required": false,
+      "executor_hint": "local"
+    },
+    "_runner_exec_detail": "manual executor v1 placeholder \u2014 no autonomous action taken"
+  }
+}

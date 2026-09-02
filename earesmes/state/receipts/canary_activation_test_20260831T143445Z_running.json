@@ -1,0 +1,14 @@
+{
+  "earesmes_version": "1.0.0",
+  "job_id": "canary_activation_test",
+  "status": "running",
+  "detail": "job picked up by runner",
+  "timestamp_utc": "2026-08-31T14:34:45.562275+00:00",
+  "job_snapshot": {
+    "job_id": "canary_activation_test",
+    "objective": "EARESMES runtime activation canary \u2014 VPS residency proof, no autonomous action.",
+    "executor": "manual",
+    "approval": "approved",
+    "status": "running"
+  }
+}
