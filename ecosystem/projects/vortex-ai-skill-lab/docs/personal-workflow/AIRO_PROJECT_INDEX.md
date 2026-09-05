@@ -407,6 +407,9 @@ Airo Personal Workflow Phase 6 is complete.
 Phase 6 handoff:
 docs/personal-workflow/handoff/AIRO_PERSONAL_WORKFLOW_PHASE_6_HANDOFF.md
 
+AIRO Phase 6 Rebase Closeout:
+docs/validation/AIRO_PHASE6_REBASE_CLOSEOUT_20260905.md
+
 Phase 6 release tag:
 airo-personal-workflow-phase-6-complete
 
@@ -418,6 +421,10 @@ Completed Phase 6 roadmap:
 - Phase 6E dashboard next-action upgrade
 - Phase 6F OpenClaw/Airo unified router instruction update
 - Phase 6G handoff and release tag
+
+State:
+PHASE_6_ORIGINAL: CLOSED
+PHASE_6_REBASE: PASS
 
 Next status:
 Stable checkpoint. Do not start Phase 7 without creating an official Phase 7 roadmap first.

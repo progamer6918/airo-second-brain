@@ -8,6 +8,23 @@ Base commit before handoff: c4fc018
 Status:
 PHASE 6 COMPLETE
 
+Original Phase 6 roadmap:
+CLOSED_AS_REBASED
+
+Canonical architecture:
+- Intent Routing:
+  earesmes/capability_resolution.py
+- Approval Governance:
+  earesmes/task_boundary.py
+  ops/telegram/telegram-gateway.py
+- Execution:
+  earesmes/executor_adapter.py
+  earesmes/runner.py
+- Owner Surface:
+  AIRO WorkDesk
+- Receipt:
+  scripts/airo-clipboard-receipt
+
 Completed roadmap:
 - Phase 6A: seamless readiness review
 - Phase 6B: local intent router
