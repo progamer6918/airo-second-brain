@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+"""
+AIRO Session Projection Sync Helper
+Synchronizes runtime session lifecycle with Obsidian active-session markdown projection.
+Contract: docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md
+"""
+import os
+import sys
+import json
+import argparse
+import subprocess
+
+IDLE_CARD = """# ⚪ Tidak Ada Sesi Aktif
+
+Belum ada pekerjaan aktif yang perlu dilanjutkan.
+"""
+
+def get_repo_root(custom_root=None):
+    if custom_root:
+        return os.path.abspath(custom_root)
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ.get("AIRO_REPO_ROOT"))
+    try:
+        res = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True)
+        if res.returncode == 0:
+            return os.path.abspath(res.stdout.strip())
+    except Exception:
+        pass
+    return os.path.abspath(os.getcwd())
+
+def get_target_paths(repo_root):
+    paths = [os.path.join(repo_root, "state/active-session.md")]
+    canonical_vault = "/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain"
+    if os.path.exists(canonical_vault) and os.path.abspath(repo_root) != os.path.abspath(canonical_vault):
+        paths.append(os.path.join(canonical_vault, "state/active-session.md"))
+    return paths
+
+def resolve_project_link(project_id, project_name, repo_root):
+    if not project_id or not project_name:
+        return "docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY"
+    clean_id = project_id.lower().replace("_", "-")
+    control_path = os.path.join(repo_root, "control", f"{clean_id}.md")
+    if os.path.exists(control_path):
+        return f"control/{clean_id}"
+    projects_path = os.path.join(repo_root, "projects", f"{clean_id}.md")
+    if os.path.exists(projects_path):
+        return f"projects/{clean_id}"
+    return f"control/{clean_id}"
+
+def format_active_card(session_data, repo_root):
+    proj_name = session_data.get("project_name", "Unknown Project")
+    pos = session_data.get("position", "IN_PROGRESS")
+    obj = session_data.get("objective", "Pekerjaan sedang berlangsung.")
+    sid = session_data.get("internal_session_id", "UNKNOWN_SESSION_ID")
+    started_at = session_data.get("created_at", "")
+    blockers_list = session_data.get("blockers", [])
+    blockers = "Tidak ada" if not blockers_list else ", ".join(blockers_list)
+    next_action = "Lanjut ke langkah berikutnya di roadmap kanonis."
+    link_target = resolve_project_link(session_data.get("project_id", ""), proj_name, repo_root)
+
+    return f"""### 🟢 {proj_name}
+
+**Lagi di**
+{pos}
+
+**Yang Saya Minta**
+{obj}
+
+**Session ID**
+`{sid}`
+
+**Dimulai Pada**
+{started_at}
+
+**Hambatan**
+{blockers}
+
+**Berikutnya**
+{next_action}
+
+→ [[{link_target}|Buka Project / PRD]]
+"""
+
+def sync_update(repo_root, session_data):
+    try:
+        card = format_active_card(session_data, repo_root)
+        target_paths = get_target_paths(repo_root)
+        for p in target_paths:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(card)
+        return True, "PROJECTION_UPDATED=YES"
+    except Exception as e:
+        return False, f"WARNING: Failed to update active session projection: {e}"
+
+def sync_reset(repo_root):
+    try:
+        target_paths = get_target_paths(repo_root)
+        for p in target_paths:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(IDLE_CARD)
+        return True, "PROJECTION_CLEARED=YES"
+    except Exception as e:
+        return False, f"WARNING: Failed to reset active session projection: {e}"
+
+def sync_status(repo_root):
+    target = os.path.join(repo_root, "state/active-session.md")
+    if not os.path.exists(target):
+        return "PROJECTION_MISSING"
+    try:
+        with open(target, "r", encoding="utf-8") as f:
+            content = f.read()
+        if "⚪ Tidak Ada Sesi Aktif" in content:
+            return "PROJECTION_IDLE"
+        elif "🟢" in content:
+            return "PROJECTION_ACTIVE"
+        else:
+            return "PROJECTION_CUSTOM"
+    except Exception:
+        return "PROJECTION_READ_ERROR"
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Session Projection Sync Helper")
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
+
+    p_update = subparsers.add_parser("update")
+    p_update.add_argument("--repo-root", default=None)
+    p_update.add_argument("--session-json", default=None, help="Path to active_session.json or JSON string")
+    p_update.add_argument("--project-name", default=None)
+    p_update.add_argument("--project-id", default=None)
+    p_update.add_argument("--objective", default=None)
+    p_update.add_argument("--session-id", default=None)
+    p_update.add_argument("--position", default=None)
+    p_update.add_argument("--created-at", default=None)
+
+    p_reset = subparsers.add_parser("reset")
+    p_reset.add_argument("--repo-root", default=None)
+
+    p_status = subparsers.add_parser("status")
+    p_status.add_argument("--repo-root", default=None)
+
+    args = parser.parse_args()
+    repo_root = get_repo_root(args.repo_root)
+
+    if args.subcommand == "update":
+        session_data = {}
+        if args.session_json:
+            if os.path.exists(args.session_json):
+                with open(args.session_json, "r", encoding="utf-8") as f:
+                    session_data = json.load(f)
+            else:
+                try:
+                    session_data = json.loads(args.session_json)
+                except Exception:
+                    pass
+        if args.project_name:
+            session_data["project_name"] = args.project_name
+        if args.project_id:
+            session_data["project_id"] = args.project_id
+        if args.objective:
+            session_data["objective"] = args.objective
+        if args.session_id:
+            session_data["internal_session_id"] = args.session_id
+        if args.position:
+            session_data["position"] = args.position
+        if args.created_at:
+            session_data["created_at"] = args.created_at
+
+        ok, msg = sync_update(repo_root, session_data)
+        if ok:
+            print(msg)
+            sys.exit(0)
+        else:
+            print(msg, file=sys.stderr)
+            sys.exit(1)
+
+    elif args.subcommand == "reset":
+        ok, msg = sync_reset(repo_root)
+        if ok:
+            print(msg)
+            sys.exit(0)
+        else:
+            print(msg, file=sys.stderr)
+            sys.exit(1)
+
+    elif args.subcommand == "status":
+        st = sync_status(repo_root)
+        print("PROJECTION_STATUS=" + st)
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

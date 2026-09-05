@@ -261,3 +261,22 @@ Setiap script di bawah folder `scripts/` wajib memenuhi ketentuan berikut:
   * `inbox/telegram-actions/`
   * File-file yang diubah oleh script pemroses terkait.
 * **Exit codes:** `0` (Success)
+
+---
+
+## 18. `scripts/airo-session-projection-sync`
+* **Purpose:** Mensinkronisasikan status sesi aktif dari runtime state (`bin/airo-session`) ke berkas proyeksi Markdown (`state/active-session.md`) untuk display Obsidian.
+* **Allowed writes:**
+  * `state/active-session.md` (lokal repo dan vault kanonikal `/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain`)
+* **Forbidden writes:**
+  * Dilarang memodifikasi runtime state JSON secara langsung (wewenang eksklusif `bin/airo-session`).
+  * Dilarang melakukan git commit atau git push otomatis.
+* **Required subcommands:** `update`, `reset`, `status`
+* **Expected output:** Kartu Markdown aktif (🟢) dengan metadata sesi lengkap saat sesi aktif, atau kartu idle kanonikal (⚪) saat sesi ditutup.
+* **Exit codes:** `0` (Success), `1` (Filesystem warning / Degraded)
+* **Contract:** `docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md`
+* **Validation:**
+  ```bash
+  python3 scripts/airo-session-projection-sync status
+  ```
+
