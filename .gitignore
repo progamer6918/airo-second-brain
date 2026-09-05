@@ -126,3 +126,7 @@ ecosystem/projects/**/runtime
 # AIRO runtime receipt artifacts
 .airo/receipts/latest.md
 .airo/receipts/archive/
+
+# exception: this is a tracked registry file, not runtime cache
+!state/runtime/device-clipboard-adapter.md
+!state/runtime/

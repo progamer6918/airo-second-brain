@@ -60,7 +60,8 @@ Read in this order:
 4. `SECURITY.md`
 5. `PRD_INDEX.md`
 6. `ROADMAP_INDEX.md`
-7. Relevant project file under `control/`
+7. `state/runtime/device-clipboard-adapter.md` — before giving any owner-facing command that copies output to clipboard, check whether the current device is already listed here with `VERIFIED=YES` and use that adapter directly instead of re-diagnosing.
+8. Relevant project file under `control/`
 
 Do not read `archive/` or `inbox/` unless explicitly asked for history or forensic review.
 
@@ -87,7 +88,9 @@ For new chat threads:
 
 Every Owner-facing execution MUST capture stdout+stderr into a timestamped `/tmp/airo_<task>_<timestamp>.txt` receipt through `tee`, then invoke `python3 scripts/airo-clipboard-receipt --receipt-file "$OUT"`.
 
-Direct `clip.exe` or `Set-Clipboard` alone is not delivery proof. Success requires `COPIED_TO_CLIPBOARD=YES`, `CLIPBOARD_READBACK=PASS`, and `CLIPBOARD_CONTENT_HASH=PASS`.
+Direct `clip.exe` or `Set-Clipboard` alone is not delivery proof. For the LOCAL WSL/Windows adapter (`scripts/airo-clipboard-receipt`), success requires `COPIED_TO_CLIPBOARD=YES`, `CLIPBOARD_READBACK=PASS`, and `CLIPBOARD_CONTENT_HASH=PASS`.
+
+For OSC52-based adapters (VPS/Termius `scripts/airo-remote-clipboard`, AGY VPS parent TTY), readback is structurally unavailable — see the OSC52 Terminal Delivery Exception in [`docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md`](docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md#81-osc52-terminal-delivery-exception). For these adapters, `COPIED_TO_CLIPBOARD=YES` with `CLIPBOARD_READBACK=NOT_AVAILABLE` and `CLIPBOARD_CONTENT_HASH=NOT_AVAILABLE` IS the accepted success state — it must NOT be treated as a failure or trigger further troubleshooting.
 
 For direct WSL, define and export `OUT` in the Owner parent shell, run strict execution inside an isolated child shell or subshell, pipe child stdout+stderr through `tee "$OUT"`, then invoke the verified clipboard helper from the surviving parent shell.
 
