@@ -374,110 +374,6 @@ def _get_telegram_token() -> str:
     return ""
 
 
-def _render_presentation_output(text: str, pres_mode: str, intent: str) -> str:
-    """
-    Format capability response for user-facing presentation according to presentation mode.
-    Does not alter underlying facts, evidence, or governance boundaries.
-    """
-    if not text:
-        return text
-
-    # 1. CONVERSATIONAL_EXPLANATION (Remove internal labels: Question:, Context Found:, Objective:, Evidence:)
-    if pres_mode == "CONVERSATIONAL_EXPLANATION":
-        cleaned = text
-        if cleaned.startswith("🧠 AIRO KNOWLEDGE\n\n"):
-            cleaned = cleaned[len("🧠 AIRO KNOWLEDGE\n\n"):]
-
-        if "Answer:\n" in cleaned:
-            parts = cleaned.split("Answer:\n", 1)
-            before_ans = parts[0]
-            after_ans = parts[1]
-
-            references = []
-            if "Context Found:\n" in before_ans:
-                ctx_block = before_ans.split("Context Found:\n", 1)[1].strip()
-                for line in ctx_block.splitlines():
-                    line_s = line.strip()
-                    if line_s.startswith("•") or line_s.startswith("-"):
-                        references.append(line_s.lstrip("•- "))
-
-            if "Evidence:\n" in after_ans:
-                ans_body, ev_body = after_ans.split("Evidence:\n", 1)
-                answer_text = ans_body.strip()
-                ev_str = ev_body.strip()
-                if ev_str and ev_str not in " ".join(references):
-                    references.append(ev_str)
-            else:
-                answer_text = after_ans.strip()
-
-            rendered = answer_text
-            if references:
-                ref_str = "; ".join(references[:2])
-                rendered += f"\n\n(Referensi: {ref_str})"
-            return rendered
-
-        return cleaned
-
-    # 2. PARTNER_ASSESSMENT (Convert rigid template Objective/Context/Options/Trade-off into natural assessment)
-    if pres_mode == "PARTNER_ASSESSMENT":
-        cleaned = text
-        if cleaned.startswith("🧠 AIRO DECISION SUPPORT\n\n"):
-            cleaned = cleaned[len("🧠 AIRO DECISION SUPPORT\n\n"):]
-
-        if "Objective:\n" in cleaned or "Context:\n" in cleaned or "Recommendation:\n" in cleaned:
-            intro = ""
-            if "Objective:\n" in cleaned:
-                parts = cleaned.split("Objective:\n", 1)
-                intro = parts[0].strip()
-                rest = parts[1]
-            else:
-                rest = cleaned
-
-            if "\n\n" in rest:
-                rest = rest.split("\n\n", 1)[1]
-
-            context_block = ""
-            if "Context:\n" in rest:
-                c_parts = rest.split("Context:\n", 1)[1]
-                if "Options:\n" in c_parts:
-                    context_block = c_parts.split("Options:\n", 1)[0].strip()
-                elif "Recommendation:\n" in c_parts:
-                    context_block = c_parts.split("Recommendation:\n", 1)[0].strip()
-
-            options_block = ""
-            if "Options:\n" in rest:
-                opt_part = rest.split("Options:\n", 1)[1]
-                if "Recommendation:\n" in opt_part:
-                    options_block = opt_part.split("Recommendation:\n", 1)[0].strip()
-                else:
-                    options_block = opt_part.strip()
-
-            recommendation_block = ""
-            if "Recommendation:\n" in rest:
-                recommendation_block = rest.split("Recommendation:\n", 1)[1].strip()
-
-            blocks = []
-            if intro:
-                blocks.append(intro)
-
-            if context_block:
-                blocks.append(f"Kondisi saat ini:\n{context_block}")
-
-            if options_block:
-                clean_options = options_block.replace("Trade-off:\n", "Pertimbangan:\n")
-                blocks.append(f"Pilihan langkah:\n{clean_options}")
-
-            if recommendation_block:
-                blocks.append(recommendation_block)
-
-            return "\n\n".join(blocks)
-
-        return cleaned
-
-    # 3. FORMAL_REPORT & 4. GOVERNED_ACTION
-    return text
-
-
 def _deliver_telegram_reply(job_data: dict, final_status: str, exec_detail: str, dry_run: bool) -> bool:
     """
     Deliver execution receipt output to Telegram for OWNER_TELEGRAM jobs.
@@ -492,12 +388,7 @@ def _deliver_telegram_reply(job_data: dict, final_status: str, exec_detail: str,
 
     message_id = job_data.get("message_id")
     clean_detail = exec_detail.strip() if (exec_detail and exec_detail.strip() != "NONE") else ""
-
-    # Format user-facing presentation according to presentation mode before envelope delivery
-    pres_mode = job_data.get("_presentation_mode", "")
-    intent = job_data.get("_earesmes_intent", "")
-    rendered_text = _render_presentation_output(clean_detail, pres_mode, intent)
-    clean_text = rendered_text or f"Job {job_id} completed with status: {final_status}"
+    clean_text = clean_detail or f"Job {job_id} completed with status: {final_status}"
 
     # Presentation boundary: separate natural conversation/assistant responses from governed receipts
     intent = job_data.get("_earesmes_intent", "")

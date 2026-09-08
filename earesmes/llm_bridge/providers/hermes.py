@@ -52,7 +52,7 @@ class HermesProviderAdapter:
         except Exception as exc:
             return False, f"Hermes availability check failed: {exc}"
 
-    def invoke_quiet(self, prompt: str, timeout: int = 120) -> Tuple[bool, str, str]:
+    def invoke_quiet(self, prompt: str, timeout: int = 120, model: Optional[str] = None) -> Tuple[bool, str, str]:
         """
         Controlled non-interactive invocation of Hermes.
         Returns: (success: bool, stdout_output: str, error_msg: str)
@@ -64,8 +64,13 @@ class HermesProviderAdapter:
         try:
             env = os.environ.copy()
             env["PATH"] = f"{Path.home()}/.local/bin:{env.get('PATH', '')}"
+            cmd = [str(self.executable_path), "chat", "-Q"]
+            if model:
+                cmd.extend(["-m", model])
+            cmd.extend(["-q", prompt])
+
             res = subprocess.run(
-                [str(self.executable_path), "chat", "-q", prompt],
+                cmd,
                 capture_output=True,
                 text=True,
                 env=env,

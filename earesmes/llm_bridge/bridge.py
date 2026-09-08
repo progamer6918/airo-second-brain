@@ -86,19 +86,85 @@ class LLMBridge:
                 output_reference="PACKAGE_VALIDATED_DRY_RUN",
             ).build()
 
-        # 4. Controlled Execution
-        prompt = f"Execution Objective: {objective}"
-        success, stdout_output, err_msg = self.provider.invoke_quiet(prompt)
+        # 4. Controlled Execution with Persona, Casual Fast-Path & Fallback
+        from earesmes.llm_bridge.prompt_sanitizer import (
+            extract_user_query_and_context,
+            format_clean_reasoning_prompt,
+            sanitize_reasoning_output,
+        )
+        from earesmes.routing.intent_router import classify_intent, IntentType, format_casual_response
+        from earesmes.routing.model_policy import (
+            DEFAULT_REASONING_MODEL,
+            DEFAULT_FALLBACK_MODEL,
+        )
 
-        if success:
-            return builder.set_outcome(
+        user_query, _ = extract_user_query_and_context(objective or "")
+
+        # A. Casual Conversation Fast-Path (No LLM call)
+        if classify_intent(user_query) == IntentType.CASUAL_CONVERSATION:
+            casual_ans = format_casual_response(user_query)
+            outcome = builder.set_outcome(
                 result="BERHASIL",
-                model_status="EXECUTED",
-                output_reference=stdout_output[:500],
+                model_status="EXECUTED_LOCAL_CASUAL",
+                output_reference=casual_ans,
+                model_provider="local/casual_fast_path",
             ).build()
-        else:
-            return builder.set_outcome(
-                result="GAGAL",
-                model_status="EXECUTION_FAILED",
-                error=err_msg,
-            ).build()
+            outcome["routing_decision"] = {
+                "primary_model": "NONE",
+                "fallback_used": False,
+                "fallback_reason": None,
+                "selected_model": "NONE",
+            }
+            return outcome
+
+        # B. Reasoning Path with Single Fallback
+        primary_model = DEFAULT_REASONING_MODEL
+        fallback_model = DEFAULT_FALLBACK_MODEL
+        fallback_used = False
+        fallback_reason = None
+
+        clean_prompt = format_clean_reasoning_prompt(objective or "")
+        success, stdout_output, err_msg = self.provider.invoke_quiet(clean_prompt, model=primary_model)
+
+        # Detect failure condition on primary model
+        combined_check = (stdout_output + " " + err_msg).lower()
+        needs_fallback = False
+        if any(k in combined_check for k in ["429", "rate limit"]):
+            needs_fallback = True
+            fallback_reason = "HTTP_429"
+        elif any(k in combined_check for k in ["api call failed", "http 500", "no endpoints found"]):
+            needs_fallback = True
+            fallback_reason = "PROVIDER_ERROR"
+        elif not success:
+            needs_fallback = True
+            fallback_reason = "PRIMARY_NON_ZERO_EXIT"
+
+        # Immediate single fallback without retry loop
+        if needs_fallback and fallback_model:
+            fallback_used = True
+            fb_success, fb_stdout, fb_err = self.provider.invoke_quiet(clean_prompt, model=fallback_model)
+            fb_check = (fb_stdout + " " + fb_err).lower()
+            if fb_success and not any(k in fb_check for k in ["429", "rate limit", "api call failed"]):
+                success = True
+                stdout_output = fb_stdout
+                err_msg = ""
+            else:
+                success = fb_success
+                stdout_output = fb_stdout
+                err_msg = fb_err or fb_stdout
+
+        clean_output = sanitize_reasoning_output(stdout_output)
+        outcome = builder.set_outcome(
+            result="BERHASIL" if success else "GAGAL",
+            model_status="EXECUTED" if success else "EXECUTION_FAILED",
+            output_reference=clean_output[:4000] if success else None,
+            error=err_msg if not success else None,
+            model_provider=fallback_model if fallback_used else primary_model,
+        ).build()
+        outcome["routing_decision"] = {
+            "primary_model": primary_model,
+            "fallback_used": fallback_used,
+            "fallback_reason": fallback_reason,
+            "selected_model": fallback_model if fallback_used else primary_model,
+        }
+        return outcome

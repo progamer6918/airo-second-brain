@@ -5,11 +5,14 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/egitaristorandas/AI_WORKSPACES/airo-second-brain
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/AI_WORKSPACES/airo-second-brain
 ExecStart=/usr/bin/python3 ops/telegram/telegram-gateway.py
-Restart=on-failure
+Restart=always
 RestartSec=10
 Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/home/ubuntu/.airo/telegram.env
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

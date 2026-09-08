@@ -181,7 +181,7 @@ fi
 # 3. poll Telegram actions
 log "Step 3: Polling Telegram actions..."
 if [ "$DRY_RUN" = false ]; then
-  ./ops/telegram/telegram-action-poller.sh >/dev/null 2>&1 || log "Warning: Telegram action poller failed."
+  log "Step 7: Telegram legacy action poller disabled. Gateway owns getUpdates."
 fi
 
 # 4. process Telegram actions
