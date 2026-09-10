@@ -904,6 +904,38 @@ def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
     init_native_mcp_tools()
     prefill = WorkingMemoryManager.get_prefill_messages(chat_id) if chat_id else []
 
+    # ─── On-Demand World Intelligence Context Injection ─────────────────────
+    WORLD_INTEL_PATTERN = re.compile(
+        r"\b(?:world\s*brief|kejadian\s+dunia|situasi\s+dunia|kondisi\s+dunia|update\s+dunia|bencana\s+dunia|gempa\s+dunia|kabar\s+dunia|isu\s+global|peristiwa\s+global)\b",
+        re.IGNORECASE
+    )
+    is_world_intel = bool(WORLD_INTEL_PATTERN.search(text))
+    if is_world_intel:
+        try:
+            from airo_world_intelligence import get_world_intelligence_context, format_context_for_prompt
+            logger.info("WORLD_INTEL: Detected world intelligence query, fetching live context...")
+            wi_ctx = get_world_intelligence_context(timeout=10.0)
+            if wi_ctx and wi_ctx.get("context_available"):
+                wi_text = format_context_for_prompt(wi_ctx)
+                prefill = list(prefill)
+                prefill.append({
+                    "role": "system",
+                    "content": (
+                        "Konteks Intelijen Dunia Terkini (Live World Intelligence Context):\n"
+                        f"{wi_text}\n\n"
+                        "PEDOMAN RESPON CANONICAL AIRO WORLD BRIEF:\n"
+                        "1. FORMAT OUTPUT WAJIB TERSTRUKTUR DENGAN HEADER BERIKUT:\n"
+                        "   • 🇮🇩 Radar & Relevansi Indonesia: Sebutkan jika ada sinyal lokal, tektonik/cuaca regional, atau konfirmasi tegas jika nihil ancaman.\n"
+                        "   • 🚨 Sinyal Bencana & Gempa Kritis Global: Sorot kejadian signifikan, bencana aktif, atau gempa besar (M >= 5.0). ABAIKAN gempa mikro lokal di luar negeri (M < 4.5 seperti di California/Alaska tanpa dampak) untuk menghindari kebisingan (noise reduction).\n"
+                        "   • 🌐 Konteks Geopolitik & Berita Dunia: Rangkum perkembangan makro / isu strategis internasional.\n"
+                        "   • ⚡ Kesimpulan Sentinel: 1-2 kalimat sintesis ringkas tingkat kestabilan global saat ini.\n"
+                        "2. Gaya bahasa: Khas AIRO Hermes (partner mikir, lu-gue santai tapi tajam, profesional, berbasis data nyata, tanpa halusinasi)."
+                    )
+                })
+                logger.info("WORLD_INTEL: Context injected into Hermes prefill successfully (%d records)", wi_ctx.get("total_records", 0))
+        except Exception as e:
+            logger.warning("WORLD_INTEL: Failed to fetch context (degraded gracefully): %s", e)
+
     models_chain = [
         {"model": "nvidia/nemotron-3-super-120b-a12b:free", "provider": "openrouter", "tier": "PRIMARY"},
         {"model": "minimax/minimax-m3:free", "provider": "openrouter", "tier": "FALLBACK_1"},
@@ -944,6 +976,14 @@ def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
                 if any(sig in rep_lower for sig in quota_err_signals):
                     logger.warning("Tier %s (%s) returned quota error signal. Trying next tier...", m_tier, m_name)
                     continue
+
+                if is_world_intel:
+                    try:
+                        from airo_world_intelligence.presentation import format_world_brief_for_telegram
+                        rep_str = format_world_brief_for_telegram(rep_str)
+                        logger.info("WORLD_INTEL: Applied presentation layer formatting for Telegram")
+                    except Exception as pe:
+                        logger.warning("WORLD_INTEL: Presentation formatting failed: %s", pe)
 
                 if chat_id:
                     WorkingMemoryManager.append_turn(chat_id, text, rep_str)
