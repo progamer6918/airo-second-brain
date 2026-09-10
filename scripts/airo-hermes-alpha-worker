@@ -54,7 +54,7 @@ SESSION_MAP = os.path.join(LOCAL_STATE_DIR, "airo-hermes-worker-sessions.json")
 
 POLL_INTERVAL = 2
 HERMES_MAX_TURNS = 10
-HERMES_TOOLSETS = ["safe"]
+HERMES_TOOLSETS = ["safe", "mcp-worldmonitor"]
 MAX_ATTEMPTS = 3
 _worker_lock_fd = None
 
@@ -73,6 +73,33 @@ logger = logging.getLogger("airo-hermes-alpha-worker")
 def log(msg: str):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
     logger.info(msg)
+
+
+# ─── Native Hermes MCP Discovery ─────────────────────────────────────────────
+_mcp_initialized = False
+
+def init_native_mcp_tools():
+    """Discover MCP tools from configured servers under active HERMES_HOME profile.
+    Uses native Hermes discover_mcp_tools mechanism. Fails gracefully if MCP
+    server is unreachable or not yet configured in active profile.
+    """
+    global _mcp_initialized
+    if _mcp_initialized:
+        return
+    try:
+        from tools.mcp_tool import discover_mcp_tools
+        discovered = discover_mcp_tools()
+        _mcp_initialized = True
+        if discovered:
+            logger.info("Native Hermes MCP discovery succeeded: %d tool(s) registered: %s", len(discovered), ", ".join(discovered))
+            log(f"Native Hermes MCP tools registered: {', '.join(discovered)}")
+        else:
+            logger.info("Native Hermes MCP discovery: 0 tools registered (none configured or active in profile).")
+    except Exception as e:
+        logger.warning("Native Hermes MCP discovery encountered non-fatal error: %s", e)
+        log(f"WARNING: Native Hermes MCP discovery failed gracefully: {e}")
+
+
 
 
 # ─── Credentials ─────────────────────────────────────────────────────────────
@@ -874,6 +901,7 @@ def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
         logger.error("Cannot import AIAgent: %s", e)
         return "Internal Error: Hermes AIAgent could not be imported."
 
+    init_native_mcp_tools()
     prefill = WorkingMemoryManager.get_prefill_messages(chat_id) if chat_id else []
 
     models_chain = [
@@ -1007,6 +1035,9 @@ def run_worker():
         sys.exit(0)
 
     log(f"AIRO Hermes Worker lock acquired. PID={os.getpid()}")
+
+    # Initialize native Hermes MCP discovery (active profile HERMES_HOME)
+    init_native_mcp_tools()
 
     def shutdown(signum, frame):
         log(f"Signal {signum} received. Shutting down worker.")
