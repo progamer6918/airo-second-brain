@@ -40,6 +40,8 @@ from hermes_cli.env_loader import load_hermes_dotenv
 load_hermes_dotenv(hermes_home=os.path.expanduser("~/.hermes"))
 
 REPO_DIR = os.environ.get("AIRO_REPO_DIR", os.path.expanduser("~/AI_WORKSPACES/airo-second-brain"))
+if REPO_DIR not in sys.path:
+    sys.path.insert(0, REPO_DIR)
 ENV_FILE = os.path.expanduser("~/.config/airo/airo-hermes-telegram.env")
 
 LOCAL_STATE_DIR = os.path.expanduser("~/.local/state/airo-second-brain/airo-hermes-bridge")
