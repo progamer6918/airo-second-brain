@@ -124,6 +124,51 @@ def convert_markdown_tables(text: str) -> str:
 
     lines = text.split("\n")
     output_lines: List[str] = []
+
+    # Handle LLM pseudo tables:
+    # | **Title** | Content |
+    # |
+    # | **Title2** | Content2 |
+    pseudo_output = []
+    pseudo_handled = False
+
+    for raw_line in lines:
+        stripped = raw_line.strip()
+
+        if stripped.startswith("|") and stripped.count("|") >= 2:
+            cells = [c.strip() for c in stripped.strip("|").split("|")]
+
+            if len(cells) >= 2:
+                first = cells[0]
+                rest = " ".join(cells[1:]).strip()
+
+                # Avoid real markdown separator rows
+                cleaned_first = first.strip()
+
+                # Ignore markdown separator rows only
+                is_separator = (
+                    cleaned_first
+                    and all(ch in "-: " for ch in cleaned_first)
+                )
+
+                if cleaned_first and not is_separator:
+                    pseudo_output.append(cleaned_first)
+                    if rest:
+                        pseudo_output.append("")
+                        pseudo_output.append(rest)
+                    pseudo_handled = True
+                    continue
+
+        pseudo_output.append(raw_line)
+
+    if pseudo_handled:
+        # Remove leftover standalone pipe markers from LLM pseudo tables
+        pseudo_output = [
+            line for line in pseudo_output
+            if line.strip() != "|"
+        ]
+        return "\n".join(pseudo_output)
+
     i = 0
     n = len(lines)
 
