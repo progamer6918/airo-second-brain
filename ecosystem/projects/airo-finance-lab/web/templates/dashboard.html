@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIRO Finance Lab — Dashboard M2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                    <span>🧪</span> AIRO Finance Lab Cockpit
+                    <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-medium">M2 Vertical Slice</span>
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Minimal Dashboard-First Personal Finance Intelligence</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="fetchOverview()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                    <span>🔄</span> Refresh
+                </button>
+                <div class="text-xs text-slate-500 font-mono" id="lastUpdated">Memuat...</div>
+            </div>
+        </header>
+
+        <!-- Balance Overview Cards -->
+        <section class="space-y-3">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ringkasan Saldo Likuid</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="accountCards">
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-800 animate-pulse h-24"></div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-800 animate-pulse h-24"></div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-800 animate-pulse h-24"></div>
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-800 animate-pulse h-24"></div>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid: Form (Left) & Ledger (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Form: Catat Transaksi Manual -->
+            <div class="lg:col-span-1 bg-slate-800/60 p-5 rounded-xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <span>📝</span> Catat Transaksi Manual
+                    </h2>
+                    <span class="text-xs text-slate-400">Finance Core</span>
+                </div>
+
+                <form id="txForm" onsubmit="handleFormSubmit(event)" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nominal (Rp)</label>
+                        <input type="number" id="txAmount" required min="1" placeholder="Contoh: 35000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Arah</label>
+                            <select id="txDirection" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="EXPENSE">Pengeluaran</option>
+                                <option value="INCOME">Pemasukan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Rekening</label>
+                            <select id="txAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                                <option value="">Pilih Akun...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Kategori</label>
+                        <select id="txCategory" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                            <option value="">Pilih Kategori...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Catatan</label>
+                        <input type="text" id="txNote" placeholder="Contoh: Makan siang nasi padang" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 text-sm">
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                        <span>💾</span> Simpan ke Buku Besar
+                    </button>
+                    <div id="formFeedback" class="text-xs text-center min-h-[1.25rem]"></div>
+                </form>
+            </div>
+
+            <!-- Ledger Table: Daftar Transaksi -->
+            <div class="lg:col-span-2 bg-slate-800/60 p-5 rounded-xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-semibold text-white flex items-center gap-2">
+                        <span>📒</span> Riwayat Mutasi Buku Besar
+                    </h2>
+                    <span class="text-xs text-slate-400" id="txCount">0 Transaksi</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs text-slate-400 uppercase bg-slate-900/50 border-b border-slate-800">
+                            <tr>
+                                <th class="py-2.5 px-3">Waktu / Tanggal</th>
+                                <th class="py-2.5 px-3">Rekening</th>
+                                <th class="py-2.5 px-3">Kategori & Catatan</th>
+                                <th class="py-2.5 px-3 text-right">Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txTableBody" class="divide-y divide-slate-800">
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-slate-500">Memuat transaksi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatIDR(val) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+        }
+
+        async function fetchOverview() {
+            try {
+                const res = await fetch('/api/overview');
+                const data = await res.json();
+                renderAccounts(data.accounts, data.total_balance);
+                renderTransactions(data.transactions);
+                populateDropdowns(data.accounts, data.categories);
+                document.getElementById('lastUpdated').innerText = 'Sinkron: ' + new Date().toLocaleTimeString('id-ID');
+            } catch (err) {
+                console.error('Fetch error:', err);
+                document.getElementById('lastUpdated').innerText = 'Gagal memuat data';
+            }
+        }
+
+        function renderAccounts(accounts, totalBalance) {
+            const container = document.getElementById('accountCards');
+            let html = '';
+            
+            // Total Card
+            html += `
+                <div class="bg-gradient-to-br from-indigo-900/40 to-slate-800 p-4 rounded-xl border border-indigo-700/50">
+                    <div class="text-xs text-indigo-300 font-medium">TOTAL LIKUID</div>
+                    <div class="text-xl font-bold text-white mt-1">${formatIDR(totalBalance || 0)}</div>
+                    <div class="text-xs text-slate-400 mt-1">${accounts.length} Akun Terdaftar</div>
+                </div>
+            `;
+
+            accounts.forEach(acc => {
+                html += `
+                    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-400 uppercase font-semibold">${acc.name}</span>
+                            <span class="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.5 rounded">${acc.type}</span>
+                        </div>
+                        <div class="text-lg font-bold text-white mt-1">${formatIDR(acc.balance || 0)}</div>
+                        <div class="text-xs text-emerald-400 mt-1">Aktif</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderTransactions(transactions) {
+            const tbody = document.getElementById('txTableBody');
+            document.getElementById('txCount').innerText = `${transactions.length} Transaksi`;
+
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-500">Belum ada transaksi di buku besar.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            transactions.forEach(tx => {
+                const isExpense = tx.direction === 'EXPENSE';
+                const sign = isExpense ? '-' : '+';
+                const colorClass = isExpense ? 'text-rose-400' : 'text-emerald-400';
+                const badgeClass = isExpense ? 'bg-rose-950/60 text-rose-300 border-rose-800' : 'bg-emerald-950/60 text-emerald-300 border-emerald-800';
+                
+                html += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="py-2.5 px-3 text-xs text-slate-400 font-mono">${tx.date}</td>
+                        <td class="py-2.5 px-3">
+                            <span class="text-xs font-medium text-slate-200">${tx.account_name || 'Akun'}</span>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] border px-1.5 py-0.5 rounded font-medium ${badgeClass}">${tx.category_name || 'Lainnya'}</span>
+                                <span class="text-xs text-slate-300">${tx.note || '-'}</span>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono font-medium ${colorClass}">
+                            ${sign} ${formatIDR(tx.amount)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function populateDropdowns(accounts, categories) {
+            const accSelect = document.getElementById('txAccount');
+            const catSelect = document.getElementById('txCategory');
+
+            const currentAcc = accSelect.value;
+            const currentCat = catSelect.value;
+
+            accSelect.innerHTML = '<option value="">Pilih Rekening...</option>' + 
+                accounts.map(a => `<option value="${a.id}" ${a.id === currentAcc ? 'selected' : ''}>${a.name}</option>`).join('');
+
+            catSelect.innerHTML = '<option value="">Pilih Kategori...</option>' + 
+                categories.map(c => `<option value="${c.id}" ${c.id === currentCat ? 'selected' : ''}>${c.name}</option>`).join('');
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const feedback = document.getElementById('formFeedback');
+
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const direction = document.getElementById('txDirection').value;
+            const account_id = document.getElementById('txAccount').value;
+            const category_id = document.getElementById('txCategory').value;
+            const note = document.getElementById('txNote').value.trim();
+
+            if (!amount || !account_id) {
+                feedback.className = 'text-xs text-rose-400 text-center';
+                feedback.innerText = 'Nominal dan Rekening wajib diisi.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+            feedback.innerText = '';
+
+            try {
+                const res = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, direction, account_id, category_id, note })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    feedback.className = 'text-xs text-emerald-400 text-center';
+                    feedback.innerText = '✅ Transaksi berhasil dicatat dan saldo terupdate!';
+                    document.getElementById('txAmount').value = '';
+                    document.getElementById('txNote').value = '';
+                    await fetchOverview();
+                } else {
+                    feedback.className = 'text-xs text-rose-400 text-center';
+                    feedback.innerText = '❌ Gagal: ' + (result.error || 'Terjadi kesalahan');
+                }
+            } catch (err) {
+                console.error(err);
+                feedback.className = 'text-xs text-rose-400 text-center';
+                feedback.innerText = '❌ Kesalahan jaringan.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span> Simpan ke Buku Besar';
+            }
+        }
+
+        // Auto load on start
+        fetchOverview();
+    </script>
+</body>
+</html>
