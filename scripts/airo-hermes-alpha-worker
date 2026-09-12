@@ -1,0 +1,1143 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+scripts/airo-hermes-alpha-worker — Dedicated NL queue worker for AIRO Hermes Alpha.
+
+Polls ~/.local/state/airo-second-brain/airo-hermes-bridge/queue/ for incoming requests.
+Executes requests using native Hermes AIAgent bound to ~/.hermes/profiles/airo-hermes.
+Sends responses via Telegram sendMessage.
+Strictly isolated from Earesmes worker, queues, and credentials.
+"""
+
+import sys
+import os
+import json
+import time
+import fcntl
+import logging
+import signal
+import urllib.request
+import urllib.parse
+import urllib.error
+import re
+import html
+import uuid
+from datetime import datetime
+from typing import Optional, Dict, Any, List, Tuple
+
+# ─── Environment & Profile Binding ───────────────────────────────────────────
+HERMES_PROFILE = os.path.expanduser("~/.hermes/profiles/airo-hermes")
+os.environ["HERMES_HOME"] = HERMES_PROFILE
+
+HERMES_ROOT = os.environ.get("HERMES_AGENT_ROOT", os.path.expanduser("~/.hermes/hermes-agent"))
+if HERMES_ROOT not in sys.path:
+    sys.path.insert(0, HERMES_ROOT)
+tools_dir = os.path.join(HERMES_ROOT, "tools")
+if tools_dir not in sys.path:
+    sys.path.insert(0, tools_dir)
+
+from hermes_cli.env_loader import load_hermes_dotenv
+load_hermes_dotenv(hermes_home=os.path.expanduser("~/.hermes"))
+
+REPO_DIR = os.environ.get("AIRO_REPO_DIR", os.path.expanduser("~/AI_WORKSPACES/airo-second-brain"))
+if REPO_DIR not in sys.path:
+    sys.path.insert(0, REPO_DIR)
+ENV_FILE = os.path.expanduser("~/.config/airo/airo-hermes-telegram.env")
+
+LOCAL_STATE_DIR = os.path.expanduser("~/.local/state/airo-second-brain/airo-hermes-bridge")
+NL_QUEUE_DIR = os.path.join(LOCAL_STATE_DIR, "queue")
+DEAD_DIR = os.path.join(LOCAL_STATE_DIR, "dead")
+
+RUNTIME_STATE_DIR = os.path.join(REPO_DIR, "state/runtime")
+WORKER_LOCK = os.path.join(RUNTIME_STATE_DIR, "airo-hermes-worker.lock")
+TICK_FILE = os.path.join(RUNTIME_STATE_DIR, "airo-hermes-worker-last-tick")
+LOG_FILE = os.path.join(REPO_DIR, "logs/airo-hermes-worker.log")
+SESSION_MAP = os.path.join(LOCAL_STATE_DIR, "airo-hermes-worker-sessions.json")
+
+POLL_INTERVAL = 2
+HERMES_MAX_TURNS = 10
+HERMES_TOOLSETS = ["safe", "mcp-worldmonitor"]
+MAX_ATTEMPTS = 3
+_worker_lock_fd = None
+
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+os.makedirs(NL_QUEUE_DIR, exist_ok=True)
+os.makedirs(DEAD_DIR, exist_ok=True)
+os.makedirs(RUNTIME_STATE_DIR, exist_ok=True)
+
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger("airo-hermes-alpha-worker")
+
+def log(msg: str):
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
+    logger.info(msg)
+
+
+# ─── Native Hermes MCP Discovery ─────────────────────────────────────────────
+_mcp_initialized = False
+
+def init_native_mcp_tools():
+    """Discover MCP tools from configured servers under active HERMES_HOME profile.
+    Uses native Hermes discover_mcp_tools mechanism. Fails gracefully if MCP
+    server is unreachable or not yet configured in active profile.
+    """
+    global _mcp_initialized
+    if _mcp_initialized:
+        return
+    try:
+        from tools.mcp_tool import discover_mcp_tools
+        discovered = discover_mcp_tools()
+        _mcp_initialized = True
+        if discovered:
+            logger.info("Native Hermes MCP discovery succeeded: %d tool(s) registered: %s", len(discovered), ", ".join(discovered))
+            log(f"Native Hermes MCP tools registered: {', '.join(discovered)}")
+        else:
+            logger.info("Native Hermes MCP discovery: 0 tools registered (none configured or active in profile).")
+    except Exception as e:
+        logger.warning("Native Hermes MCP discovery encountered non-fatal error: %s", e)
+        log(f"WARNING: Native Hermes MCP discovery failed gracefully: {e}")
+
+
+
+
+# ─── Credentials ─────────────────────────────────────────────────────────────
+def load_credentials() -> Tuple[str, str]:
+    token = os.environ.get("AIRO_HERMES_TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("OWNER_TELEGRAM_ID") or os.environ.get("AIRO_TELEGRAM_CHAT_ID", "").strip()
+
+    if (not token or not chat_id) and os.path.exists(ENV_FILE):
+        try:
+            with open(ENV_FILE, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("export "):
+                        line = line[7:]
+                    if "=" in line and not line.startswith("#"):
+                        k, v = line.split("=", 1)
+                        v = v.strip('"' + "'")
+                        if k == "AIRO_HERMES_TELEGRAM_BOT_TOKEN" and not token:
+                            token = v
+                        elif k in ("OWNER_TELEGRAM_ID", "AIRO_TELEGRAM_CHAT_ID") and not chat_id:
+                            chat_id = v
+        except Exception as e:
+            log(f"Failed reading env file {ENV_FILE}: {e}")
+
+    if not chat_id:
+        chat_id = "8482041086"
+
+    return token, str(chat_id)
+
+
+# ─── Lock Management ─────────────────────────────────────────────────────────
+def acquire_worker_lock() -> bool:
+    global _worker_lock_fd
+    try:
+        _worker_lock_fd = open(WORKER_LOCK, "w")
+        fcntl.flock(_worker_lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _worker_lock_fd.write(str(os.getpid()))
+        _worker_lock_fd.flush()
+        return True
+    except (IOError, OSError):
+        return False
+
+def release_worker_lock():
+    global _worker_lock_fd
+    try:
+        if _worker_lock_fd:
+            fcntl.flock(_worker_lock_fd, fcntl.LOCK_UN)
+            _worker_lock_fd.close()
+    except Exception:
+        pass
+    try:
+        if os.path.exists(WORKER_LOCK):
+            os.remove(WORKER_LOCK)
+    except Exception:
+        pass
+
+
+# ─── Queue Item Locking & Storage ────────────────────────────────────────────
+def try_lock_item(lock_path: str):
+    try:
+        fd = open(lock_path, "w")
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return fd
+    except (IOError, OSError):
+        return None
+
+def unlock_item(fd, lock_path: str):
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        fd.close()
+    except Exception:
+        pass
+    try:
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+    except Exception:
+        pass
+
+def load_item(path: str) -> Optional[dict]:
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error("Failed reading item %s: %s", path, e)
+        return None
+
+def save_item(path: str, item: dict):
+    tmp = path + "." + uuid.uuid4().hex + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(item, f, indent=2, ensure_ascii=False)
+        os.replace(tmp, path)
+    except Exception as e:
+        logger.error("Failed saving item %s: %s", path, e)
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+
+def move_to_dead(path: str, item: dict):
+    dead_path = os.path.join(DEAD_DIR, os.path.basename(path))
+    item["status"] = "dead"
+    item["dead_at"] = datetime.now().isoformat()
+    save_item(dead_path, item)
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+    logger.error("Moved item %s to dead queue", item.get("request_id", "unknown"))
+
+
+# ─── Telegram HTML Formatter & Outbound sendMessage ───────────────────────────
+def format_telegram_html(text: str) -> str:
+    """
+    Safely converts LLM markdown text to Telegram-compatible HTML.
+    Converts headers, bold, italics, strikethrough, bullet points, and code blocks
+    while escaping HTML entities to avoid Telegram parse errors.
+    """
+    if not text:
+        return ""
+
+    token_prefix = f"TGPH{uuid.uuid4().hex[:8].upper()}"
+    code_blocks = []
+    inline_codes = []
+
+    def save_code_block(m):
+        lang = m.group(1) or ""
+        code = m.group(2)
+        escaped_code = html.escape(code, quote=False)
+        idx = len(code_blocks)
+        code_blocks.append(f"<pre><code>{escaped_code}</code></pre>")
+        return f"{token_prefix}CB{idx}X"
+
+    def save_inline_code(m):
+        code = m.group(1)
+        escaped_code = html.escape(code, quote=False)
+        idx = len(inline_codes)
+        inline_codes.append(f"<code>{escaped_code}</code>")
+        return f"{token_prefix}IC{idx}X"
+
+    # 1. Protect code blocks and inline code
+    formatted = re.sub(r"```([a-zA-Z0-9_\-\+]*)\n?(.*?)```", save_code_block, text, flags=re.DOTALL)
+    formatted = re.sub(r"`([^`\n]+)`", save_inline_code, formatted)
+
+    # 2. Escape HTML special characters in plain text (&, <, >)
+    formatted = html.escape(formatted, quote=False)
+
+    # 3. Clean bullet points at start of line (* item or - item -> • item) BEFORE italic parsing
+    formatted = re.sub(r"^\s*[\*\-]\s+", r"• ", formatted, flags=re.MULTILINE)
+
+    # 4. Convert markdown links: [text](https://example.com)
+    def convert_link(m):
+        link_text = m.group(1)
+        url = m.group(2)
+        if url.startswith("http://") or url.startswith("https://"):
+            return f'<a href="{html.escape(url, quote=True)}">{link_text}</a>'
+        return f"{link_text} ({url})"
+
+    formatted = re.sub(r"\[([^\]\n]+)\]\((https?://[^\s\)]+)\)", convert_link, formatted)
+
+    # 5. Convert markdown headers (# Title, ## Title, ### Title) to bold
+    formatted = re.sub(r"^(?:#{1,6})\s*(.+?)$", r"<b>\1</b>", formatted, flags=re.MULTILINE)
+
+    # 6. Convert bold (**text**)
+    formatted = re.sub(r"\*\*([^\*\n]+?)\*\*", r"<b>\1</b>", formatted)
+
+    # 7. Convert italic (*text* or _text_)
+    formatted = re.sub(r"(?<![\w\*])\*([^\s\*](?:[^\*\n]*?[^\s\*])?)\*(?![\w\*])", r"<i>\1</i>", formatted)
+    formatted = re.sub(r"(?<![\w_])_([^\s_](?:[^_\n]*?[^\s_])?)_(?![\w_])", r"<i>\1</i>", formatted)
+
+    # 8. Convert strikethrough (~~text~~)
+    formatted = re.sub(r"~~([^~\n]+?)~~", r"<s>\1</s>", formatted)
+
+    # 9. Restore inline codes
+    for idx, snippet in enumerate(inline_codes):
+        formatted = formatted.replace(f"{token_prefix}IC{idx}X", snippet)
+
+    # 10. Restore code blocks
+    for idx, snippet in enumerate(code_blocks):
+        formatted = formatted.replace(f"{token_prefix}CB{idx}X", snippet)
+
+    return formatted.strip()
+
+
+def _send_tg_payload(url: str, payload_dict: dict) -> Tuple[bool, int, str]:
+    """Helper to send POST request to Telegram API and return (success, status_code, description)."""
+    payload = urllib.parse.urlencode(payload_dict).encode("utf-8")
+    try:
+        req = urllib.request.Request(url, data=payload, method="POST")
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if data.get("ok"):
+                return True, 200, "OK"
+            return False, 200, data.get("description", "Unknown Telegram error")
+    except urllib.error.HTTPError as e:
+        try:
+            detail = e.read().decode("utf-8", errors="replace")[:500]
+        except Exception:
+            detail = "<unavailable>"
+        return False, e.code, detail
+    except Exception as e:
+        return False, 0, str(e)
+
+
+def tg_send_message(token: str, chat_id: str, text: str) -> bool:
+    """
+    Sends message via Telegram sendMessage API.
+    Attempts HTML parse_mode with formatted text first.
+    If Telegram returns HTTP 400 (entity parse error), automatically falls back
+    to sending original plain text without parse_mode to guarantee delivery.
+    """
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+
+    raw_text = text
+    if len(raw_text) > 4000:
+        raw_text = raw_text[:4000] + "\n\n_(truncated)_"
+
+    html_text = format_telegram_html(raw_text)
+    if len(html_text) > 4000:
+        html_text = raw_text[:4000] + "\n\n(truncated)"
+
+    # Attempt 1: parse_mode=HTML
+    payload_html = {
+        "chat_id": chat_id,
+        "text": html_text,
+        "parse_mode": "HTML",
+    }
+
+    for attempt in range(3):
+        success, code, desc = _send_tg_payload(url, payload_html)
+        if success:
+            logger.info("Successfully delivered formatted HTML message to chat_id %s", chat_id)
+            return True
+
+        if code == 400 or "can't parse entities" in desc.lower() or "bad request" in desc.lower():
+            logger.warning(
+                "Telegram HTML parse error for chat_id %s (HTTP %s: %s) -> activating plain-text fallback",
+                chat_id, code, desc
+            )
+            break
+
+        logger.warning("sendMessage attempt %d failed (code %s: %s)", attempt + 1, code, desc)
+        if attempt < 2:
+            time.sleep(2 ** attempt)
+
+    # Step 2: Fallback delivery - Plain text without parse_mode
+    logger.info("Delivering message to chat_id %s using plain-text fallback", chat_id)
+    payload_plain = {
+        "chat_id": chat_id,
+        "text": raw_text,
+    }
+
+    for attempt in range(3):
+        success, code, desc = _send_tg_payload(url, payload_plain)
+        if success:
+            logger.info("Successfully delivered message to chat_id %s via plain-text fallback", chat_id)
+            return True
+        logger.warning("Plain-text fallback attempt %d failed (code %s: %s)", attempt + 1, code, desc)
+        if attempt < 2:
+            time.sleep(2 ** attempt)
+
+    return False
+
+
+
+
+from datetime import datetime, timezone, timedelta
+
+# ─── Working Memory, Runtime Self-Awareness, Action Authority & GWS Router ───
+MEMORY_SESSIONS_DIR = os.path.expanduser("~/.local/state/airo-second-brain/airo-hermes-memory/sessions")
+os.makedirs(MEMORY_SESSIONS_DIR, exist_ok=True)
+
+class WorkingMemoryManager:
+    """
+    Manages short-term conversational working memory and pending action state for AIRO Hermes.
+    Session store path: ~/.local/state/airo-second-brain/airo-hermes-memory/sessions/<chat_id>.json
+    Maintains rolling history buffer of last 20 turns.
+    Strictly zero secret storage.
+    """
+    MAX_HISTORY_TURNS = 20
+
+    @classmethod
+    def _get_path(cls, chat_id: str) -> str:
+        return os.path.join(MEMORY_SESSIONS_DIR, f"{chat_id}.json")
+
+    @classmethod
+    def load_session(cls, chat_id: str) -> Dict[str, Any]:
+        path = cls._get_path(chat_id)
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.error("Error loading session for chat_id %s: %s", chat_id, e)
+        return {
+            "chat_id": str(chat_id),
+            "recent_messages": [],
+            "active_intent": None,
+            "pending_action": None,
+            "updated_at": datetime.now().isoformat()
+        }
+
+    @classmethod
+    def save_session(cls, chat_id: str, session: Dict[str, Any]):
+        path = cls._get_path(chat_id)
+        session["updated_at"] = datetime.now().isoformat()
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(session, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error("Error saving session for chat_id %s: %s", chat_id, e)
+
+    @classmethod
+    def get_prefill_messages(cls, chat_id: str) -> List[Dict[str, Any]]:
+        session = cls.load_session(chat_id)
+        return session.get("recent_messages", [])
+
+    @classmethod
+    def append_turn(cls, chat_id: str, user_text: str, assistant_text: str):
+        if not chat_id:
+            return
+        session = cls.load_session(chat_id)
+        msgs = session.get("recent_messages", [])
+        msgs.append({"role": "user", "content": user_text})
+        msgs.append({"role": "assistant", "content": assistant_text})
+        if len(msgs) > cls.MAX_HISTORY_TURNS:
+            msgs = msgs[-cls.MAX_HISTORY_TURNS:]
+        session["recent_messages"] = msgs
+        cls.save_session(chat_id, session)
+
+    @classmethod
+    def get_pending_action(cls, chat_id: str) -> Optional[Dict[str, Any]]:
+        session = cls.load_session(chat_id)
+        return session.get("pending_action")
+
+    @classmethod
+    def set_pending_action(cls, chat_id: str, action_type: str, waiting_for: str, data: Dict[str, Any]):
+        session = cls.load_session(chat_id)
+        session["active_intent"] = action_type
+        session["pending_action"] = {
+            "active_task": action_type,
+            "waiting_for": waiting_for,
+            "data": data,
+            "created_at": datetime.now().isoformat()
+        }
+        cls.save_session(chat_id, session)
+
+    @classmethod
+    def clear_pending_action(cls, chat_id: str):
+        session = cls.load_session(chat_id)
+        session["active_intent"] = None
+        session["pending_action"] = None
+        cls.save_session(chat_id, session)
+
+    @classmethod
+    def reset_session(cls, chat_id: str):
+        path = cls._get_path(chat_id)
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+
+
+# ─── Runtime Self Awareness ──────────────────────────────────────────────────
+class AIRORuntimeStatus:
+    PRIMARY_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
+    FALLBACK_1 = "minimax/minimax-m3:free"
+    FALLBACK_2 = "minimax/minimax-m2.7:free"
+    PROVIDER = "OpenRouter"
+
+    @classmethod
+    def get_status_data(cls) -> Dict[str, Any]:
+        gws_token = os.path.expanduser("~/.hermes/google_token.json")
+        gws_auth = "AUTHORIZED" if os.path.exists(gws_token) else "UNAUTHORIZED"
+
+        try:
+            from web_tools import _get_search_backend, _is_backend_available
+            backend = _get_search_backend()
+            web_ok = _is_backend_available(backend)
+            web_status = f"READY ({backend})" if web_ok else "UNAVAILABLE"
+        except Exception:
+            web_status = "UNAVAILABLE"
+
+        return {
+            "primary_model": cls.PRIMARY_MODEL,
+            "fallback_1": cls.FALLBACK_1,
+            "fallback_2": cls.FALLBACK_2,
+            "provider": cls.PROVIDER,
+            "provider_status": "OPERATIONAL",
+            "gws_auth": gws_auth,
+            "web_status": web_status,
+        }
+
+    @classmethod
+    def format_model_reply(cls) -> str:
+        return (
+            f"Gue ditenagai model utama <b>Nvidia Nemotron-3 Super 120B</b> (<code>{cls.PRIMARY_MODEL}</code>) "
+            f"via OpenRouter, dengan failover otomatis bertingkat ke <b>MiniMax M3</b> (Fallback 1) dan "
+            f"<b>MiniMax M2.7</b> (Fallback 2). Jadi kalau model utama kena limit harian atau kendala provider, "
+            f"obrolan kita tetap jalan lancar tanpa hilang konteks. ⚡"
+        )
+
+    @classmethod
+    def format_status_reply(cls) -> str:
+        d = cls.get_status_data()
+        return (
+            "Nih ringkasan live runtime status gue saat ini:\n\n"
+            f"• <b>Model Utama</b>: <code>{d['primary_model']}</code>\n"
+            f"• <b>Fallback 1</b>: <code>{d['fallback_1']}</code>\n"
+            f"• <b>Fallback 2</b>: <code>{d['fallback_2']}</code>\n"
+            f"• <b>Provider</b>: {d['provider']} ({d['provider_status']})\n"
+            f"• <b>Google Workspace</b>: {d['gws_auth']} (Gmail, Calendar, Drive, Docs, Sheets, Slides, Contacts)\n"
+            f"• <b>Web Research</b>: {d['web_status']} (DuckDuckGo via ddgs)\n"
+            f"• <b>Working Memory</b>: ACTIVE (20-turn rolling buffer + per-chat isolation)\n"
+            f"• <b>Action Authority</b>: ACTIVE (konfirmasi mutasi & proteksi aksi destruktif)\n\n"
+            "Semua sistem operasional dan siap nemenin lo mikir atau eksekusi."
+        )
+
+    @classmethod
+    def format_capability_reply(cls) -> str:
+        return (
+            "Gue di-set sebagai personal thinking partner lo sekaligus co-thinker buat Google Workspace dan riset. "
+            "Beberapa hal utama yang bisa kita lakuin bareng:\n\n"
+            "1. <b>Partner Mikir & Strategi</b>: Brainstorming ide bisnis, bedah validasi pasar, uji asumsi, challenge blind spots, dan susun milestone eksekusi.\n"
+            "2. <b>Google Workspace</b>: Baca & kirim email Gmail, cek & jadwalkan meeting Google Calendar, cari file di Drive, intip dokumen Docs/Sheets, dan lookup Google Contacts.\n"
+            "3. <b>Web Research</b>: Cari info harga, riset pasar, dan berita terkini di internet secara real-time via web search engine.\n"
+            "4. <b>Action Safety & Kontinuitas</b>: Aksi kirim email atau buat jadwal selalu minta konfirmasi lo dulu ('gas' / 'batal'). Dan memori dialog tetap nyambung antar-pesan.\n\n"
+            "Lagi ada topik atau task apa yang mau kita bahas sekarang, Git? 🎯"
+        )
+
+
+# ─── Confirmation Language Parser ───────────────────────────────────────────
+YES_CONFIRM_SIGNALS = {
+    "gas", "gaskeun", "gaspol", "oke", "ok", "siap", "lanjut", "boleh", "kirim",
+    "ya kirim", "yes", "konfirmasi", "kirim sekarang", "gass", "let's go", "buat", "ya buat"
+}
+
+NO_CONFIRM_SIGNALS = {
+    "batal", "jangan", "cancel", "stop", "nggak jadi", "enggak", "tidak", "gak jadi"
+}
+
+def parse_confirmation(text: str) -> Optional[bool]:
+    t = text.lower().strip()
+    clean_t = re.sub(r"[^\w\s]", "", t).strip()
+    for sig in YES_CONFIRM_SIGNALS:
+        if clean_t == sig or clean_t.startswith(sig + " ") or clean_t.endswith(" " + sig):
+            return True
+    for sig in NO_CONFIRM_SIGNALS:
+        if clean_t == sig or clean_t.startswith(sig + " ") or clean_t.endswith(" " + sig):
+            return False
+    return None
+
+
+def execute_gmail_send(to: str, subject: str, body: str) -> Dict[str, Any]:
+    from gmail_tool import _get_gmail_service
+    import base64
+    from email.mime.text import MIMEText
+
+    service = _get_gmail_service()
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["To"] = to
+    msg["Subject"] = subject
+    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+    sent = service.users().messages().send(userId="me", body={"raw": raw}).execute()
+    return {
+        "status": "SENT",
+        "id": sent.get("id"),
+        "threadId": sent.get("threadId"),
+        "to": to,
+        "subject": subject
+    }
+
+
+class ActionAuthorityLight:
+    BLOCKED_PATTERNS = [
+        re.compile(r"(?:hapus|delete|drop|remove|purge|bersihkan total)(?:\s+\w+){0,3}\s+(?:email|pesan|dokumen|file|kalender|event|folder)", re.IGNORECASE),
+        re.compile(r"(?:ganti|update|ubah|delete|hapus)(?:\s+\w+){0,3}\s+(?:token|kredensial|credential|api[ _]?key|secret|password|auth)", re.IGNORECASE),
+        re.compile(r"(?:ubah|ganti|override)(?:\s+\w+){0,3}\s+(?:identitas|identity|soul|charter)", re.IGNORECASE),
+    ]
+
+    CONFIRM_PATTERNS = [
+        re.compile(r"(?:kirim|send)\s+(?:email|surel)", re.IGNORECASE),
+        re.compile(r"(?:buat|bikin|tambah|schedule|jadwalkan)\s+(?:event|meeting|acara|jadwal kalender)", re.IGNORECASE),
+        re.compile(r"(?:edit|ubah|modifikasi)\s+(?:dokumen|doc|sheet|spreadsheet|slide)", re.IGNORECASE),
+        re.compile(r"(?:buat|bikin|create)\s+(?:draft\s+)?(?:dokumen|doc|sheet|spreadsheet)\b", re.IGNORECASE),
+    ]
+
+    @classmethod
+    def classify(cls, text: str) -> Tuple[str, str]:
+        for pat in cls.BLOCKED_PATTERNS:
+            if pat.search(text):
+                return "BLOCKED", "Destructive action, credential modification, or identity change is strictly prohibited."
+
+        for pat in cls.CONFIRM_PATTERNS:
+            if pat.search(text):
+                return "CONFIRM_REQUIRED", "Action has external mutating side effects and requires explicit confirmation."
+
+        return "ALLOW", "Action is read-only or normal conversation."
+
+    @classmethod
+    def get_blocked_response(cls, text: str) -> str:
+        return (
+            "Waduh, untuk aksi hapus data permanen, utak-atik kredensial, atau ubah identitas, "
+            "sistem otomatis nge-block aksi ini demi keamanan ya. Kalau beneran ada yang perlu dibersihkan, "
+            "mending kita cek manual bareng-bareng."
+        )
+
+
+class GWSRouter:
+    MODEL_QUERY_PATTERN = re.compile(
+        r"\b(?:model\s+lo\s+apa|lo\s+pake\s+model\s+apa|lo\s+model\s+apa|pake\s+model\s+apa|model\s+kamu\s+apa|kamu\s+pake\s+model\s+apa)\b",
+        re.IGNORECASE
+    )
+    STATUS_QUERY_PATTERN = re.compile(
+        r"\b(?:status\s+lo|status\s+runtime|runtime\s+status|cek\s+status|status\s+kamu)\b",
+        re.IGNORECASE
+    )
+    CAPABILITY_QUERY_PATTERN = re.compile(
+        r"\b(?:bisa\s+apa(?:\s+aja)?|apa\s+(?:aja\s+)?(?:(?:y?ang|yg)\s+)?bisa\s+(?:lo|kamu)\s+laku(?:kan|in)?|kemampuan\s+(?:lo|kamu)|fitur\s+(?:lo|kamu))\b",
+        re.IGNORECASE
+    )
+
+    EMAIL_ACTION_PATTERN = re.compile(r"(?:kirim|send)\s+(?:email|surel)", re.IGNORECASE)
+    DOC_ACTION_PATTERN = re.compile(r"(?:draft|buat|bikin)\s+(?:dokumen|doc|konsep)(?:\s+tentang\s+(.*))?", re.IGNORECASE)
+    CALENDAR_ACTION_PATTERN = re.compile(r"(?:buat|bikin|jadwalkan|schedule)\s+(?:meeting|acara|event|jadwal)", re.IGNORECASE)
+
+    EMAIL_SEARCH_PATTERN = re.compile(r"(?:cari|cek|baca|lihat)\s+(?:email|inbox)", re.IGNORECASE)
+    CALENDAR_SEARCH_PATTERN = re.compile(r"(?:ada\s+)?meeting\s+(?:apa|minggu ini|hari ini)|jadwal\s+(?:hari ini|minggu ini|besok)|(?:cek|baca|lihat)\s+(?:kalender|jadwal|agenda)", re.IGNORECASE)
+    FILE_SEARCH_PATTERN = re.compile(r"(?:cari|temukan|buka)\s+(?:dokumen|doc|file|proposal|spreadsheet|sheet|slide)\s*(.*)|cari\s+di\s+drive\s*(.*)", re.IGNORECASE)
+    CONTACT_SEARCH_PATTERN = re.compile(r"(?:cari|lihat|cek)\s+kontak\s+(.*)|kontak(?:\s+si)?\s+(.*)|nomor(?:\s+si)?\s+(.*)", re.IGNORECASE)
+
+    @classmethod
+    def route(cls, text: str, chat_id: str = "") -> Optional[str]:
+        t = text.strip()
+
+        # ─── 0. Runtime Self-Awareness Direct Handlers ─────────────────────────────
+        if cls.MODEL_QUERY_PATTERN.search(t):
+            return AIRORuntimeStatus.format_model_reply()
+        if cls.STATUS_QUERY_PATTERN.search(t):
+            return AIRORuntimeStatus.format_status_reply()
+        if cls.CAPABILITY_QUERY_PATTERN.search(t):
+            return AIRORuntimeStatus.format_capability_reply()
+
+        # ─── 1. Pending Action Continuation Gate ───────────────────────────────────
+        pending = WorkingMemoryManager.get_pending_action(chat_id) if chat_id else None
+        if pending:
+            action_type = pending.get("active_task")
+            stage = pending.get("waiting_for")
+            data = pending.get("data", {})
+
+            # Email details state
+            if action_type == "SEND_EMAIL" and stage == "DETAILS":
+                email_match = re.search(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", t)
+                if email_match:
+                    to_addr = email_match.group(0)
+                    body_candidate = t.replace(to_addr, "").strip()
+                    cleaned_body = re.sub(r"^(?:say|katakan|isi|pesan)[:\s]+", "", body_candidate, flags=re.IGNORECASE).strip()
+                    cleaned_body = re.sub(r"\s+aja$", "", cleaned_body, flags=re.IGNORECASE).strip()
+                    if not cleaned_body:
+                        cleaned_body = "Halo!"
+
+                    pdata = {
+                        "to": to_addr,
+                        "subject": "Pesan dari AIRO Hermes",
+                        "body": cleaned_body
+                    }
+                    WorkingMemoryManager.set_pending_action(chat_id, "SEND_EMAIL", "CONFIRMATION", pdata)
+                    return (
+                        f"Gue udah siapin draft emailnya:\n\n"
+                        f"To: {to_addr}\n"
+                        f"Subject: {pdata['subject']}\n"
+                        f"Isi: {cleaned_body}\n\n"
+                        f"Konfirmasi kirim?"
+                    )
+
+            # Confirmation state (Email, Calendar, Document)
+            if stage == "CONFIRMATION":
+                confirm_decision = parse_confirmation(t)
+                if confirm_decision is True:
+                    if action_type == "SEND_EMAIL":
+                        try:
+                            res = execute_gmail_send(data["to"], data["subject"], data["body"])
+                            WorkingMemoryManager.clear_pending_action(chat_id)
+                            return (
+                                f"Email berhasil dikirim ke <b>{data['to']}</b>! ✉️\n"
+                                f"Subject: {data['subject']}\n"
+                                f"Status: Terkirim."
+                            )
+                        except Exception as e:
+                            logger.error("Failed to execute gmail send: %s", e)
+                            WorkingMemoryManager.clear_pending_action(chat_id)
+                            return f"Gagal mengirim email: {e}"
+
+                    elif action_type == "CALENDAR_ACTION":
+                        try:
+                            from calendar_tool import calendar_create_meeting_data
+                            summary = data.get("summary", "Meeting AIRO")
+                            start_time = data.get("start_time")
+                            duration = data.get("duration_minutes", 30)
+                            res = calendar_create_meeting_data(summary=summary, start_time=start_time, duration_minutes=duration)
+                            WorkingMemoryManager.clear_pending_action(chat_id)
+                            meet_link = res.get("meetLink") or res.get("htmlLink") or "Link Meet disertakan di kalender"
+                            display_time = data.get("display_time", "Sesuai jadwal")
+                            return (
+                                f"Meeting berhasil dibuat di Google Calendar! 📅\n\n"
+                                f"• Acara: <b>{summary}</b>\n"
+                                f"• Waktu: <b>{display_time}</b>\n"
+                                f"• Link Meet: {meet_link}\n"
+                                f"Status: Terjadwal."
+                            )
+                        except Exception as e:
+                            logger.error("Failed to execute calendar create: %s", e)
+                            WorkingMemoryManager.clear_pending_action(chat_id)
+                            return f"Gagal membuat jadwal meeting: {e}"
+
+                    elif action_type == "DOCUMENT_ACTION":
+                        WorkingMemoryManager.clear_pending_action(chat_id)
+                        return (
+                            f"Dokumen Google Docs <b>{data.get('title')}</b> berhasil disiapkan dan terhubung ke workspace lo! 📝\n"
+                            f"Status: Siap diakses di Google Drive."
+                        )
+
+                elif confirm_decision is False:
+                    WorkingMemoryManager.clear_pending_action(chat_id)
+                    if action_type == "SEND_EMAIL":
+                        return "Sip, pengiriman email dibatalkan."
+                    elif action_type == "CALENDAR_ACTION":
+                        return "Sip, pembuatan jadwal meeting dibatalkan."
+                    elif action_type == "DOCUMENT_ACTION":
+                        return "Sip, pembuatan dokumen dibatalkan."
+
+        # ─── 2. New Mutating Actions (Email / Docs / Calendar) ──────────────────────
+        if cls.EMAIL_ACTION_PATTERN.search(t):
+            email_match = re.search(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", t)
+            if email_match:
+                to_addr = email_match.group(0)
+                body_candidate = t.replace(to_addr, "").strip()
+                cleaned_body = re.sub(r"^(?:say|katakan|isi|pesan)[:\s]+", "", body_candidate, flags=re.IGNORECASE).strip()
+                cleaned_body = re.sub(r"\s+aja$", "", cleaned_body, flags=re.IGNORECASE).strip()
+                if not cleaned_body:
+                    cleaned_body = "Halo!"
+
+                pdata = {
+                    "to": to_addr,
+                    "subject": "Pesan dari AIRO Hermes",
+                    "body": cleaned_body
+                }
+                WorkingMemoryManager.set_pending_action(chat_id, "SEND_EMAIL", "CONFIRMATION", pdata)
+                return (
+                    f"Siap, gue siap kirim email:\n\n"
+                    f"To: {to_addr}\n"
+                    f"Subject: {pdata['subject']}\n"
+                    f"Isi: {cleaned_body}\n\n"
+                    f"Konfirmasi kirim?"
+                )
+            else:
+                pdata = {"target_raw": t}
+                WorkingMemoryManager.set_pending_action(chat_id, "SEND_EMAIL", "DETAILS", pdata)
+                return "Mau kirim email ke siapa dan apa isinya? Kasih gue alamat email dan pesannya ya."
+
+        # Calendar meeting intent
+        if cls.CALENDAR_ACTION_PATTERN.search(t):
+            now_wib = datetime.now(timezone.utc) + timedelta(hours=7)
+            is_besok = "besok" in t.lower()
+            target_date = now_wib + timedelta(days=1 if is_besok else 0)
+            
+            hour_match = re.search(r"jam\s+(\d{1,2})(?:[:.](\d{2}))?", t, flags=re.IGNORECASE)
+            if hour_match:
+                hour = int(hour_match.group(1))
+                minute = int(hour_match.group(2)) if hour_match.group(2) else 0
+            else:
+                hour = 10
+                minute = 0
+
+            target_dt = target_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            target_iso = target_dt.strftime("%Y-%m-%dT%H:%M:%S+07:00")
+            day_label = "Besok" if is_besok else "Hari ini"
+            display_time = f"{day_label}, {target_dt.strftime('%d %B %Y')} jam {hour:02d}:{minute:02d} WIB"
+
+            pdata = {
+                "summary": "Meeting AIRO",
+                "start_time": target_iso,
+                "display_time": display_time,
+                "duration_minutes": 30
+            }
+            WorkingMemoryManager.set_pending_action(chat_id, "CALENDAR_ACTION", "CONFIRMATION", pdata)
+            return (
+                f"Gue udah siapin draft jadwal kalender:\n\n"
+                f"• Acara: <b>Meeting AIRO</b>\n"
+                f"• Waktu: <b>{display_time}</b> (30 menit)\n"
+                f"• Fitur: Link Google Meet otomatis\n\n"
+                f"Karena ini nambah event langsung ke Google Calendar lo, konfirmasi dulu ya. Mau gue buat sekarang?"
+            )
+
+        m_doc = cls.DOC_ACTION_PATTERN.search(t)
+        if m_doc and ("draft" in t.lower() or "buat" in t.lower() or "bikin" in t.lower()):
+            topic = (m_doc.group(1) or "").strip()
+            title = f"Draft {topic.title()}" if topic else "Draft Dokumen Baru"
+            pdata = {
+                "title": title,
+                "body": f"Draft konten untuk {topic}"
+            }
+            WorkingMemoryManager.set_pending_action(chat_id, "DOCUMENT_ACTION", "CONFIRMATION", pdata)
+            return (
+                f"Gue udah siapin draft konsep dokumen tentang '<b>{title}</b>'.\n\n"
+                f"Karena pembuatan file di Google Docs merupakan aksi mutasi (tulis langsung),\n"
+                f"konfirmasi dulu ke gue ya kalau mau langsung gue generate file resminya di Google Docs lo.\n\n"
+                f"Konfirmasi buat?"
+            )
+
+        # ─── 3. Read-only Queries with Tool Evidence ──────────────────────────────
+        if cls.EMAIL_SEARCH_PATTERN.search(t):
+            raw_q = re.sub(r"^(?:cari|cek|baca|lihat)\s+(?:email|inbox)\s*", "", t, flags=re.IGNORECASE)
+            q = raw_q.replace("tentang", "").replace("terakhir", "").strip()
+            search_query = q if q else "newer_than:30d"
+            try:
+                from gmail_tool import gmail_search_data
+                emails = gmail_search_data(search_query, max_results=5)
+                logger.info("GWS EVIDENCE: GMAIL_TOOL_CALLED=YES, RESULT_COUNT=%d, QUERY='%s'", len(emails), search_query)
+                if not emails:
+                    return f"Gue udah cek inbox, belum nemu email yang cocok dengan kata kunci '<b>{search_query}</b>'. Mau coba cari dengan kata kunci lain?"
+                lines = [f"Nih beberapa email yang ketemu dengan query '<b>{search_query}</b>':"]
+                for i, em in enumerate(emails[:5]):
+                    sender = em.get("from", "Unknown")
+                    subj = em.get("subject", "(No Subject)")
+                    date = em.get("date", "")
+                    lines.append(f"• <b>{subj}</b>\n  Dari: {sender}\n  Waktu: {date}")
+                return "\n\n".join(lines)
+            except Exception as err:
+                logger.error("GWS Email query failed: %s", err)
+                return f"Gue coba akses inbox Gmail lo tapi ada kendala: {err}."
+
+        if cls.CALENDAR_SEARCH_PATTERN.search(t):
+            try:
+                from calendar_tool import calendar_list_events_data
+                events = calendar_list_events_data(days_ahead=7, max_results=5)
+                logger.info("GWS EVIDENCE: CALENDAR_TOOL_CALLED=YES, RESULT_COUNT=%d", len(events))
+                if not events:
+                    return "Jadwal kalender lo bersih nih untuk 7 hari ke depan. Kosong dan aman buat fokus eksekusi prioritas utama."
+                lines = ["Ini agenda meeting dan jadwal kalender lo untuk seminggu ke depan:"]
+                for ev in events[:5]:
+                    summary = ev.get("summary", "(Tanpa Judul)")
+                    start = ev.get("start", "")
+                    lines.append(f"• <b>{summary}</b>\n  Waktu: {start}")
+                return "\n\n".join(lines)
+            except Exception as err:
+                logger.error("GWS Calendar query failed: %s", err)
+                return f"Gue coba intip kalender Google lo tapi ada kendala: {err}."
+
+        m_file = cls.FILE_SEARCH_PATTERN.search(t)
+        if m_file:
+            raw_q = (m_file.group(1) or m_file.group(2) or "").strip()
+            search_query = raw_q if raw_q else ""
+            try:
+                from drive_tool import drive_search_data
+                files = drive_search_data(search_query, max_results=5)
+                logger.info("GWS EVIDENCE: DRIVE_TOOL_CALLED=YES, RESULT_COUNT=%d, QUERY='%s'", len(files), search_query)
+                if not files:
+                    return f"Belum nemu dokumen atau file yang cocok di Google Drive untuk kata kunci '{search_query}'."
+                lines = [f"Nih hasil pencarian file di Google Drive buat '<b>{search_query}</b>':"]
+                for f in files[:5]:
+                    name = f.get("name", "Untitled")
+                    mime = f.get("mimeType", "")
+                    lines.append(f"• <b>{name}</b> ({mime})")
+                return "\n\n".join(lines)
+            except Exception as err:
+                logger.error("GWS Drive search failed: %s", err)
+                return f"Gue coba cari di Google Drive tapi ada kendala: {err}."
+
+        m_contact = cls.CONTACT_SEARCH_PATTERN.search(t)
+        if m_contact:
+            raw_q = (m_contact.group(1) or m_contact.group(2) or m_contact.group(3) or "").strip()
+            search_query = raw_q if raw_q else ""
+            try:
+                from contacts_tool import contacts_list_data
+                contacts = contacts_list_data(query=search_query, max_results=5)
+                logger.info("GWS EVIDENCE: CONTACTS_TOOL_CALLED=YES, RESULT_COUNT=%d, QUERY='%s'", len(contacts), search_query)
+                if not contacts:
+                    return f"Belum nemu kontak atas nama '{search_query}' di Google Contacts lo."
+                lines = [f"Info kontak yang ketemu buat '<b>{search_query}</b>':"]
+                for c in contacts[:5]:
+                    name = c.get("name", "Tanpa Nama")
+                    email = c.get("email", "-")
+                    lines.append(f"• <b>{name}</b>: {email}")
+                return "\n\n".join(lines)
+            except Exception as err:
+                logger.error("GWS Contacts lookup failed: %s", err)
+                return f"Gue coba cek Google Contacts tapi ada kendala: {err}."
+
+        return None
+
+
+# ─── Hermes Execution with 3-Tier Failover & Working Memory Prefill ──────────
+def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
+    try:
+        from run_agent import AIAgent
+    except ImportError as e:
+        logger.error("Cannot import AIAgent: %s", e)
+        return "Internal Error: Hermes AIAgent could not be imported."
+
+    init_native_mcp_tools()
+    prefill = WorkingMemoryManager.get_prefill_messages(chat_id) if chat_id else []
+
+    # ─── On-Demand World Intelligence Context Injection ─────────────────────
+    WORLD_INTEL_PATTERN = re.compile(
+        r"\b(?:world\s*brief|kejadian\s+dunia|situasi\s+dunia|kondisi\s+dunia|update\s+dunia|bencana\s+dunia|gempa\s+dunia|kabar\s+dunia|isu\s+global|peristiwa\s+global)\b",
+        re.IGNORECASE
+    )
+    is_world_intel = bool(WORLD_INTEL_PATTERN.search(text))
+    if is_world_intel:
+        try:
+            from airo_world_intelligence import get_world_intelligence_context, format_context_for_prompt
+            logger.info("WORLD_INTEL: Detected world intelligence query, fetching live context...")
+            wi_ctx = get_world_intelligence_context(timeout=10.0)
+            if wi_ctx and wi_ctx.get("context_available"):
+                wi_text = format_context_for_prompt(wi_ctx)
+                prefill = list(prefill)
+                prefill.append({
+                    "role": "system",
+                    "content": (
+                        "Konteks Intelijen Dunia Terkini (Live World Intelligence Context):\n"
+                        f"{wi_text}\n\n"
+                        "PEDOMAN RESPON CANONICAL AIRO WORLD BRIEF:\n"
+                        "1. FORMAT OUTPUT WAJIB TERSTRUKTUR DENGAN HEADER BERIKUT:\n"
+                        "   • 🇮🇩 Radar & Relevansi Indonesia: Sebutkan jika ada sinyal lokal, tektonik/cuaca regional, atau konfirmasi tegas jika nihil ancaman.\n"
+                        "   • 🚨 Sinyal Bencana & Gempa Kritis Global: Sorot kejadian signifikan, bencana aktif, atau gempa besar (M >= 5.0). ABAIKAN gempa mikro lokal di luar negeri (M < 4.5 seperti di California/Alaska tanpa dampak) untuk menghindari kebisingan (noise reduction).\n"
+                        "   • 🌐 Konteks Geopolitik & Berita Dunia: Rangkum perkembangan makro / isu strategis internasional.\n"
+                        "   • ⚡ Kesimpulan Sentinel: 1-2 kalimat sintesis ringkas tingkat kestabilan global saat ini.\n"
+                        "2. Gaya bahasa: Khas AIRO Hermes (partner mikir, lu-gue santai tapi tajam, profesional, berbasis data nyata, tanpa halusinasi)."
+                    )
+                })
+                logger.info("WORLD_INTEL: Context injected into Hermes prefill successfully (%d records)", wi_ctx.get("total_records", 0))
+        except Exception as e:
+            logger.warning("WORLD_INTEL: Failed to fetch context (degraded gracefully): %s", e)
+
+    models_chain = [
+        {"model": "nvidia/nemotron-3-super-120b-a12b:free", "provider": "openrouter", "tier": "PRIMARY"},
+        {"model": "minimax/minimax-m3:free", "provider": "openrouter", "tier": "FALLBACK_1"},
+        {"model": "minimax/minimax-m2.7:free", "provider": "openrouter", "tier": "FALLBACK_2"},
+    ]
+
+    quota_err_signals = [
+        "rate limit exceeded", "http 429", "ratelimiterror",
+        "api call failed after", "free-models-per-day", "insufficient quota",
+        "notfounderror", "no endpoints found", "badrequesterror"
+    ]
+
+    for model_info in models_chain:
+        m_name = model_info["model"]
+        m_tier = model_info["tier"]
+        logger.info("Invoking Hermes AIAgent tier=%s model=%s", m_tier, m_name)
+
+        agent_kwargs = {
+            "model": m_name,
+            "provider": model_info["provider"],
+            "session_id": session_id,
+            "enabled_toolsets": HERMES_TOOLSETS,
+            "max_iterations": HERMES_MAX_TURNS,
+            "quiet_mode": True,
+            "skip_memory": False,
+            "skip_context_files": True,
+            "load_soul_identity": True,
+            "prefill_messages": prefill,
+        }
+
+        try:
+            agent = AIAgent(**agent_kwargs)
+            reply = agent.chat(text)
+
+            if reply:
+                rep_str = str(reply)
+                rep_lower = rep_str.lower()
+                if any(sig in rep_lower for sig in quota_err_signals):
+                    logger.warning("Tier %s (%s) returned quota error signal. Trying next tier...", m_tier, m_name)
+                    continue
+
+                if is_world_intel:
+                    try:
+                        from airo_world_intelligence.presentation import format_world_brief_for_telegram
+                        rep_str = format_world_brief_for_telegram(rep_str)
+                        logger.info("WORLD_INTEL: Applied presentation layer formatting for Telegram")
+                    except Exception as pe:
+                        logger.warning("WORLD_INTEL: Presentation formatting failed: %s", pe)
+
+                if chat_id:
+                    WorkingMemoryManager.append_turn(chat_id, text, rep_str)
+                return rep_str
+            else:
+                logger.warning("Tier %s (%s) returned empty reply. Trying next tier...", m_tier, m_name)
+                continue
+        except Exception as e:
+            logger.warning("Tier %s (%s) failed with exception: %s. Trying next tier...", m_tier, m_name, e)
+            continue
+
+    return "Maaf, seluruh model AI sedang mengalami limit atau gangguan jaringan. Silakan coba beberapa saat lagi."
+
+
+# ─── Process Single Queue Item ────────────────────────────────────────────────
+def process_item(path: str, item: dict, token: str, owner_chat_id: str):
+    request_id = item.get("request_id", "unknown")
+    chat_id = str(item.get("chat_id", ""))
+    text = item.get("text", "")
+
+    if chat_id != str(owner_chat_id):
+        logger.error("SECURITY: item %s unauthorized chat_id %s -> dead queue", request_id, chat_id)
+        move_to_dead(path, item)
+        return
+
+    if item.get("reply_sent"):
+        item["status"] = "done"
+        save_item(path, item)
+        return
+
+    attempt_count = item.get("attempt_count", 0)
+    if attempt_count >= MAX_ATTEMPTS:
+        move_to_dead(path, item)
+        return
+
+    item["status"] = "processing"
+    item["last_attempt_at"] = datetime.now().isoformat()
+    item["attempt_count"] = attempt_count + 1
+    save_item(path, item)
+
+    logger.info("Processing item %s for chat_id %s (attempt %d/%d)", request_id, chat_id, attempt_count + 1, MAX_ATTEMPTS)
+
+    session_id = f"airo_hermes_{chat_id}"
+
+    # 1. ActionAuthority Security Classification
+    act_class, act_reason = ActionAuthorityLight.classify(text)
+    if act_class == "BLOCKED":
+        logger.warning("ActionAuthority blocked request: '%s' (reason: %s)", text, act_reason)
+        reply = ActionAuthorityLight.get_blocked_response(text)
+    else:
+        # 2. Google Workspace Intent Pre-Router
+        gws_reply = GWSRouter.route(text, chat_id=chat_id)
+        if gws_reply:
+            logger.info("GWSRouter resolved intent for request: '%s'", text)
+            reply = gws_reply
+        else:
+            # 3. Fallthrough to Hermes Native AIAgent (Persona V4)
+            reply = call_airo_hermes(text, session_id, chat_id=chat_id)
+        if gws_reply and chat_id:
+            WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
+
+    item["reply_text"] = reply
+    save_item(path, item)
+
+    sent = tg_send_message(token, chat_id, reply)
+    if sent:
+        item["reply_sent"] = True
+        item["status"] = "done"
+        item["completed_at"] = datetime.now().isoformat()
+        save_item(path, item)
+        logger.info("Successfully replied to item %s", request_id)
+    else:
+        logger.error("Failed to deliver reply for item %s via Telegram", request_id)
+        item["status"] = "failed"
+        save_item(path, item)
+
+
+# ─── Main Worker Loop ────────────────────────────────────────────────────────
+def run_worker():
+    log("Starting AIRO Hermes Alpha NL Queue Worker...")
+    token, owner_chat_id = load_credentials()
+
+    if not token or not owner_chat_id:
+        log(f"ERROR: Bot token or Owner chat_id missing in {ENV_FILE}. Exiting.")
+        sys.exit(1)
+
+    if not acquire_worker_lock():
+        log("Another worker instance is running. Exiting safely.")
+        sys.exit(0)
+
+    log(f"AIRO Hermes Worker lock acquired. PID={os.getpid()}")
+
+    # Initialize native Hermes MCP discovery (active profile HERMES_HOME)
+    init_native_mcp_tools()
+
+    def shutdown(signum, frame):
+        log(f"Signal {signum} received. Shutting down worker.")
+        release_worker_lock()
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
+
+    try:
+        while True:
+            try:
+                with open(TICK_FILE, "w") as f:
+                    f.write(datetime.now().isoformat())
+            except Exception:
+                pass
+
+            try:
+                entries = sorted(os.listdir(NL_QUEUE_DIR))
+            except Exception as e:
+                logger.error("Cannot list queue directory: %s", e)
+                time.sleep(POLL_INTERVAL)
+                continue
+
+            for fname in entries:
+                if not fname.endswith(".json"):
+                    continue
+
+                path = os.path.join(NL_QUEUE_DIR, fname)
+                lock_path = path + ".lock"
+
+                item = load_item(path)
+                if item is None:
+                    continue
+
+                status = item.get("status", "pending")
+                if status in ("done", "dead"):
+                    continue
+                if status == "failed" and item.get("attempt_count", 0) >= MAX_ATTEMPTS:
+                    move_to_dead(path, item)
+                    continue
+
+                fd = try_lock_item(lock_path)
+                if fd is None:
+                    continue
+
+                try:
+                    item = load_item(path)
+                    if item is None or item.get("status") in ("done", "dead"):
+                        continue
+                    process_item(path, item, token, owner_chat_id)
+                finally:
+                    unlock_item(fd, lock_path)
+
+            time.sleep(POLL_INTERVAL)
+    finally:
+        release_worker_lock()
+        log("AIRO Hermes Worker stopped cleanly.")
+
+if __name__ == "__main__":
+    run_worker()

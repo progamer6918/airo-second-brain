@@ -2,5 +2,5 @@
 # AIRO Earesmes — Telegram Gateway
 # Single getUpdates consumer + multi-app router.
 # Replaces both telegram-action-listener.sh and resolves 409 conflict.
-# Usage: bash ops/telegram/telegram-gateway.sh
-exec python3 /home/egitaristorandas/AI_WORKSPACES/airo-second-brain/ops/telegram/telegram-gateway.py "$@"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "${SCRIPT_DIR}/telegram-gateway.py" "$@"

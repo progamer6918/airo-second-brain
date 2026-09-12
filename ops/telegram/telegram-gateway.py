@@ -19,16 +19,30 @@ import urllib.request
 import urllib.parse
 import urllib.error
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional, Tuple, Dict, Any, List
 
 # ─── Canonical Paths ──────────────────────────────────────────────────────────
-REPO_DIR = "/home/egitaristorandas/AI_WORKSPACES/airo-second-brain"
-ENV_FILE = "/home/egitaristorandas/.airo/telegram.env"
+REPO_DIR = os.environ.get(
+    "AIRO_REPO_DIR",
+    str(Path(__file__).resolve().parents[2])
+)
+ENV_FILE = os.environ.get(
+    "AIRO_TELEGRAM_ENV",
+    os.path.expanduser("~/.airo/telegram.env")
+)
 
 LOCAL_STATE_DIR = os.path.expanduser("~/.local/state/airo-second-brain/hermes-bridge")
 NL_QUEUE_DIR = os.path.join(LOCAL_STATE_DIR, "queue")
 DEAD_DIR = os.path.join(LOCAL_STATE_DIR, "dead")
+
+# Target Earesmes Queue Preparation (Phase 1)
+EARESMES_JOBS_DIR = os.environ.get(
+    "EARESMES_JOBS_DIR",
+    os.path.join(REPO_DIR, "earesmes/jobs")
+)
+EARESMES_PENDING_DIR = os.path.join(EARESMES_JOBS_DIR, "pending")
 
 RUNTIME_STATE_DIR = os.path.join(REPO_DIR, "state/runtime")
 LOCK_FILE = os.path.join(RUNTIME_STATE_DIR, "telegram-gateway.lock")
@@ -174,52 +188,65 @@ def tg_get_updates(token: str, offset: int, timeout: int = 30) -> Tuple[Optional
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 5. Atomic Hermes Queue Enqueue
+# 5. Atomic Earesmes Job Submission (Phase 2)
 # ──────────────────────────────────────────────────────────────────────────────
-def enqueue_nl_message(update_id: int, sender_chat_id: str, owner_chat_id: str, message_id: int, text: str) -> bool:
+def submit_earesmes_job(update_id: int, sender_chat_id: str, owner_chat_id: str, message_id: int, text: str) -> bool:
+    """
+    Submit incoming Telegram message as a governed Earesmes job to earesmes/jobs/pending/.
+    Enforces owner authorization and writes job atomically with complete metadata.
+    """
     if sender_chat_id != owner_chat_id:
-        log(f"SECURITY: Ignore message from unauthorized chat_id (not matching owner allowlist)")
+        log("SECURITY: Ignore message from unauthorized chat_id (not matching owner allowlist)")
         return False
 
     if not text or not text.strip():
         return False
 
-    os.makedirs(NL_QUEUE_DIR, exist_ok=True)
-    request_id = f"req-{update_id}-{message_id}"
-    dest_file = os.path.join(NL_QUEUE_DIR, f"{update_id}_{message_id}.json")
+    os.makedirs(EARESMES_PENDING_DIR, exist_ok=True)
+    now_utc = datetime.now(timezone.utc)
+    ts_str = now_utc.strftime("%Y%m%dT%H%M%SZ")
+    job_id = f"job_{ts_str}_{update_id}_{message_id}"
+    dest_file = os.path.join(EARESMES_PENDING_DIR, f"{job_id}.json")
 
     if os.path.exists(dest_file):
-        log(f"NL Queue: duplicate message {request_id} — skipping")
+        log(f"Earesmes Pending: duplicate job {job_id} — skipping")
         return False
 
-    item = {
-        "request_id": request_id,
-        "telegram_update_id": update_id,
-        "chat_id": owner_chat_id,
-        "message_id": message_id,
-        "received_at": datetime.now().isoformat(),
-        "text": text.strip(),
+    job_data = {
+        "job_id": job_id,
+        "objective": text.strip(),
+        "executor": "manual",
+        "approval": "approved",
         "status": "pending",
-        "attempt_count": 0,
-        "last_attempt_at": None,
-        "reply_sent": False
+        "created_by": "telegram_gateway",
+        "initiator": "OWNER_TELEGRAM",
+        "chat_id": str(owner_chat_id),
+        "message_id": message_id,
+        "update_id": update_id,
+        "created_at_utc": now_utc.isoformat(),
     }
 
     tmp_file = dest_file + "." + uuid.uuid4().hex + ".tmp"
     try:
         with open(tmp_file, "w", encoding="utf-8") as f:
-            json.dump(item, f, indent=2, ensure_ascii=False)
+            json.dump(job_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")
         os.replace(tmp_file, dest_file)
-        log(f"Enqueued NL message {request_id} to Hermes queue.")
+        log(f"Submitted Earesmes job {job_id} to earesmes/jobs/pending.")
         update_last_tick()
         return True
     except Exception as e:
-        log(f"Failed to enqueue message {request_id}: {e}")
+        log(f"Failed to submit Earesmes job {job_id}: {e}")
         try:
             os.remove(tmp_file)
         except Exception:
             pass
         return False
+
+
+def enqueue_nl_message(update_id: int, sender_chat_id: str, owner_chat_id: str, message_id: int, text: str) -> bool:
+    """Backward-compatible wrapper routing to submit_earesmes_job."""
+    return submit_earesmes_job(update_id, sender_chat_id, owner_chat_id, message_id, text)
 
 
 def route_update(owner_chat_id: str, update: dict):
@@ -231,7 +258,7 @@ def route_update(owner_chat_id: str, update: dict):
         message_id = msg.get("message_id", 0)
 
         if text and text.strip():
-            enqueue_nl_message(update_id, sender_cid, owner_chat_id, message_id, text)
+            submit_earesmes_job(update_id, sender_cid, owner_chat_id, message_id, text)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
