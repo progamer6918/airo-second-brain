@@ -109,17 +109,20 @@ class TestTelegramCaptureVerticalSlice(unittest.TestCase):
         
         keyboard = card["reply_markup"]["inline_keyboard"]
         self.assertEqual(len(keyboard), 1)
-        self.assertEqual(len(keyboard[0]), 2)
+        self.assertEqual(len(keyboard[0]), 3)
         
         btn_confirm = keyboard[0][0]
-        btn_cancel = keyboard[0][1]
+        btn_edit = keyboard[0][1]
+        btn_cancel = keyboard[0][2]
         
         # Verify Short Callback ID Rule (<= 64 bytes)
         self.assertLessEqual(len(btn_confirm["callback_data"].encode('utf-8')), 64)
+        self.assertLessEqual(len(btn_edit["callback_data"].encode('utf-8')), 64)
         self.assertLessEqual(len(btn_cancel["callback_data"].encode('utf-8')), 64)
         self.assertTrue(btn_confirm["callback_data"].startswith(f"cfm:{cand.candidate_id}"))
+        self.assertTrue(btn_edit["callback_data"].startswith(f"ced:{cand.candidate_id}"))
         self.assertTrue(btn_cancel["callback_data"].startswith(f"ccl:{cand.candidate_id}"))
-        print("FLOW_TEST_06: PASS (Confirmation card formatted with compliant short callback IDs)")
+        print("FLOW_TEST_06: PASS (Confirmation card formatted with Simpan, Edit, Batal compliant short callback IDs)")
 
     def test_07_telegram_cancel_flow(self):
         cand = self.adapter.stage_input("batal 20k cash")

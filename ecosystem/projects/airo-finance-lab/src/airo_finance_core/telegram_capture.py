@@ -27,6 +27,8 @@ class TransactionCandidate:
     destination_account_name: Optional[str] = None
     status: str = "PENDING"  # PENDING, CONFIRMED, CANCELLED
     created_at: float = 0.0
+    subcategory_id: Optional[str] = None
+    subcategory_name: Optional[str] = None
 
 class SimpleTransactionParser:
     """
@@ -184,7 +186,7 @@ class SimpleTransactionParser:
             chosen_account = next((r for r in acc_rows if "bca" in r["name"].lower() and "blu" not in r["name"].lower()), acc_rows[0])
 
         # 5. Match Category from DB
-        cat_rows = conn.execute("SELECT id, name FROM categories ORDER BY id").fetchall()
+        cat_rows = conn.execute("SELECT id, name, COALESCE(keywords, '') as keywords FROM categories WHERE is_active = 1 ORDER BY id").fetchall()
         chosen_category = None
         
         category_keyword_map = {
@@ -195,15 +197,32 @@ class SimpleTransactionParser:
             "Gaji & Pemasukan": ["gaji", "payroll", "salary", "bonus", "thr", "dividen", "proyek", "freelance", "pemasukan", "income"]
         }
 
-        for cat_row in cat_rows:
-            cat_name = cat_row["name"]
-            keywords = category_keyword_map.get(cat_name, [cat_name.lower()])
-            for kw in keywords:
-                if re.search(rf'\b{re.escape(kw)}\b', lower):
-                    chosen_category = cat_row
+        # Check category aliases from DB first
+        chosen_subcategory = None
+        alias_match = self.engine.find_category_by_keyword(lower)
+        if alias_match:
+            if alias_match.get("category_id"):
+                chosen_category = next((c for c in cat_rows if c["id"] == alias_match["category_id"]), None)
+            if alias_match.get("subcategory_id"):
+                chosen_subcategory = {
+                    "id": alias_match["subcategory_id"],
+                    "name": alias_match["subcategory_name"]
+                }
+
+        if not chosen_category:
+            for cat_row in cat_rows:
+                cat_name = cat_row["name"]
+                keywords = list(category_keyword_map.get(cat_name, [cat_name.lower()]))
+                db_kws = [k.strip().lower() for k in cat_row["keywords"].split(",") if k.strip()]
+                for dk in db_kws:
+                    if dk not in keywords:
+                        keywords.append(dk)
+                for kw in keywords:
+                    if re.search(rf'\b{re.escape(kw)}\b', lower):
+                        chosen_category = cat_row
+                        break
+                if chosen_category:
                     break
-            if chosen_category:
-                break
 
         # If direction is INCOME and no category matched, map to Gaji & Pemasukan if exists
         if direction == "INCOME" and not chosen_category:
@@ -236,7 +255,9 @@ class SimpleTransactionParser:
             category_name=chosen_category["name"] if chosen_category else None,
             note=note,
             status="PENDING",
-            created_at=time.time()
+            created_at=time.time(),
+            subcategory_id=chosen_subcategory["id"] if chosen_subcategory else None,
+            subcategory_name=chosen_subcategory["name"] if chosen_subcategory else None
         )
 
 class TelegramCaptureAdapter:
@@ -249,6 +270,48 @@ class TelegramCaptureAdapter:
         self.engine = engine
         self.parser = SimpleTransactionParser(engine)
         self._candidates: Dict[str, TransactionCandidate] = {}
+        self._edit_sessions: Dict[str, Dict[str, Any]] = {}
+
+    def start_edit_session(self, chat_id: str, candidate_id: str):
+        self._edit_sessions[str(chat_id)] = {
+            "candidate_id": candidate_id,
+            "status": "EDITING",
+            "created_at": time.time()
+        }
+
+    def get_edit_session(self, chat_id: str):
+        return self._edit_sessions.get(str(chat_id))
+
+    def clear_edit_session(self, chat_id: str):
+        self._edit_sessions.pop(str(chat_id), None)
+
+    def apply_edit_text(self, chat_id: str, text: str):
+        session = self.get_edit_session(chat_id)
+
+        if not session:
+            return None
+
+        candidate = self.get_candidate(session["candidate_id"])
+
+        if not candidate:
+            self.clear_edit_session(chat_id)
+            return None
+
+        import re
+        lower = text.lower()
+
+        numbers = re.findall(r"\d+", text)
+
+        if "nominal" in lower and numbers:
+            candidate.amount = float(numbers[-1])
+
+        elif "catatan" in lower:
+            candidate.note = text.split("catatan", 1)[-1].strip()
+
+        elif "kategori" in lower:
+            candidate.category_name = text.split("kategori", 1)[-1].strip()
+
+        return candidate
 
     def stage_input(self, raw_text: str) -> TransactionCandidate:
         candidate = self.parser.parse(raw_text)
@@ -278,6 +341,7 @@ class TelegramCaptureAdapter:
                 "inline_keyboard": [
                     [
                         {"text": "✅ Pindahkan", "callback_data": f"cfm:{candidate.candidate_id}"},
+                        {"text": "✏️ Edit", "callback_data": f"ced:{candidate.candidate_id}"},
                         {"text": "❌ Batal", "callback_data": f"ccl:{candidate.candidate_id}"}
                     ]
                 ]
@@ -307,6 +371,7 @@ class TelegramCaptureAdapter:
             "inline_keyboard": [
                 [
                     {"text": "✅ Simpan", "callback_data": f"cfm:{candidate.candidate_id}"},
+                    {"text": "✏️ Edit", "callback_data": f"ced:{candidate.candidate_id}"},
                     {"text": "❌ Batal", "callback_data": f"ccl:{candidate.candidate_id}"}
                 ]
             ]
@@ -446,3 +511,7 @@ class TelegramCaptureAdapter:
             "action": "IGNORED",
             "status": "NOOP"
         }
+
+# Backward/forward-compatible alias
+InteractiveConfirmationHandler = TelegramCaptureAdapter
+

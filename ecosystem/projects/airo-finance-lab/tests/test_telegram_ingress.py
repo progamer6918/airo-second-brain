@@ -410,7 +410,7 @@ class TestTelegramIngress(unittest.TestCase):
         # Duplicate tap on Approve -> handled gracefully
         h_app2, r_app2 = multi_router.handle_update(up_app)
         self.assertTrue(h_app2)
-        self.assertTrue(r_app2.startswith("GMAIL_ALREADY_PROCESSED:"))
+        self.assertTrue(r_app2.startswith("GMAIL_ALREADY_APPROVED:"))
 
         # Unknown callback -> answered and handled, never hangs
         up_unk = {

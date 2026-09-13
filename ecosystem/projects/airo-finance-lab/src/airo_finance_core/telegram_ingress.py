@@ -207,6 +207,56 @@ class FinanceTelegramIngressRouter:
             message_id = msg.get("message_id")
 
             # Check if this is a finance confirmation callback
+            if data.startswith("ced:"):
+                action, candidate_id = data.split(":", 1)
+
+                candidate = self.confirmation_handler.get_candidate(candidate_id)
+
+                if not candidate:
+                    self.outbound.answer_callback_query(
+                        cq_id,
+                        text="⚠️ Draft transaksi tidak ditemukan.",
+                        show_alert=True
+                    )
+                    return True, f"EDIT_FAILED_NOT_FOUND:{candidate_id}"
+
+                if candidate.status != "PENDING":
+                    self.outbound.answer_callback_query(
+                        cq_id,
+                        text="⚠️ Draft sudah tidak aktif.",
+                        show_alert=True
+                    )
+                    return True, f"EDIT_FAILED_STATUS:{candidate.status}"
+
+                self.confirmation_handler.start_edit_session(
+                    chat_id,
+                    candidate_id
+                )
+
+                edit_prompt = (
+                    "✏️ <b>Edit Draft Transaksi</b>\n\n"
+                    "Kirim perubahan transaksi yang ingin dilakukan.\n"
+                    "Contoh:\n"
+                    "• ubah nominal jadi 75000\n"
+                    "• ubah catatan jadi makan siang\n"
+                    "• ganti kategori makanan\n\n"
+                    f"<code>DRAFT_ID: {candidate.candidate_id}</code>"
+                )
+
+                self.outbound.edit_message_text(
+                    chat_id,
+                    message_id,
+                    edit_prompt,
+                    reply_markup={"inline_keyboard": []}
+                )
+
+                self.outbound.answer_callback_query(
+                    cq_id,
+                    text="✏️ Mode edit aktif"
+                )
+
+                return True, f"EDIT_PROMPTED:{candidate_id}"
+
             if data.startswith("cfm:") or data.startswith("ccl:"):
                 # Enforce Owner Authorization
                 if not self.is_owner(sender_id):
@@ -222,6 +272,7 @@ class FinanceTelegramIngressRouter:
                 action, candidate_id = data.split(":", 1)
                 
                 if action == "cfm":
+                    self.confirmation_handler.clear_edit_session(chat_id)
                     ok, tx, status_msg = self.confirmation_handler.confirm_candidate(candidate_id)
                     if ok and tx:
                         card_receipt = (
@@ -244,6 +295,7 @@ class FinanceTelegramIngressRouter:
                         return True, f"CONFIRM_FAILED:{status_msg}"
 
                 elif action == "ccl":
+                    self.confirmation_handler.clear_edit_session(chat_id)
                     ok, status_msg = self.confirmation_handler.cancel_candidate(candidate_id)
                     cancel_receipt = (
                         "❌ <b>Pencatatan Dibatalkan</b>\n"
@@ -269,6 +321,26 @@ class FinanceTelegramIngressRouter:
 
                 action, review_id = data.split(":", 1)
                 if action == "gma":
+                    current_item = self.engine.get_review_queue_item(review_id)
+
+                    if current_item is None:
+                        if self.outbound:
+                            self.outbound.answer_callback_query(
+                                cq_id,
+                                text="⚠️ Review transaksi ini sudah tidak aktif.",
+                                show_alert=True
+                            )
+                        return True, f"GMAIL_STALE_REVIEW:{review_id}"
+
+                    if current_item.status != "PENDING":
+                        if self.outbound:
+                            self.outbound.answer_callback_query(
+                                cq_id,
+                                text=f"ℹ️ Transaksi ini sudah {current_item.status.lower()}.",
+                                show_alert=True
+                            )
+                        return True, f"GMAIL_ALREADY_{current_item.status}:{review_id}"
+
                     try:
                         item, tx = self.engine.approve_review_item(review_id)
                         if tx.direction == "TRANSFER":
@@ -303,7 +375,7 @@ class FinanceTelegramIngressRouter:
                             return True, f"GMAIL_ALREADY_PROCESSED:{review_id}"
                         if self.outbound:
                             self.outbound.answer_callback_query(cq_id, text=f"⚠️ {e}", show_alert=True)
-                        return True, f"GMAIL_CONFIRM_FAILED:{e}"
+                        return True, "GMAIL_CONFIRM_FAILED:Review item sudah tidak aktif. Kemungkinan sudah diproses atau expired."
 
                 elif action == "gmi":
                     try:
@@ -344,11 +416,50 @@ class FinanceTelegramIngressRouter:
         # 2. Handle Message (Quick Capture Transaction Input)
         if "message" in update:
             msg = update["message"]
-            sender_id = str(msg.get("chat", {}).get("id", msg.get("from", {}).get("id", "")))
+            chat_id = str(msg.get("chat", {}).get("id", ""))
+            sender_id = str(msg.get("from", {}).get("id", chat_id))
+            message_id = msg.get("message_id")
             text = msg.get("text", "")
 
             if not text or not text.strip():
                 return False, "EMPTY_MESSAGE"
+
+            # Check if user is in an active edit session
+            edit_session = self.confirmation_handler.get_edit_session(chat_id)
+            if edit_session:
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner edit attempt from {sender_id}")
+                    if self.outbound:
+                        self.outbound.send_message(
+                            sender_id,
+                            "⛔ <b>Akses Ditolak</b>: Anda tidak memiliki izin untuk mengubah draft transaksi."
+                        )
+                    return True, "BLOCKED_NON_OWNER_WRITE"
+
+                try:
+                    edited_candidate = self.confirmation_handler.apply_edit_text(
+                        str(chat_id),
+                        text
+                    )
+                    if edited_candidate:
+                        card = self.confirmation_handler.format_confirmation_card(
+                            edited_candidate
+                        )
+                        if self.outbound:
+                            self.outbound.send_message(
+                                chat_id,
+                                card["text"],
+                                reply_markup=card["reply_markup"]
+                            )
+                        return True, f"DRAFT_EDIT_UPDATED:{edited_candidate.candidate_id}"
+                except Exception as e:
+                    logger.error(f"Error applying draft edit: {e}")
+                    if self.outbound:
+                        self.outbound.send_message(
+                            chat_id,
+                            f"⚠️ <b>Format Koreksi Kurang Tepat</b>: {e}"
+                        )
+                    return True, f"DRAFT_EDIT_ERROR:{e}"
 
             # Check for Safe-to-Spend on-demand command (Phase 2.2)
             lower_text = text.strip().lower()
