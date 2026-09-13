@@ -475,6 +475,43 @@ class FinanceTelegramIngressRouter:
                         self.outbound.answer_callback_query(cq_id)
                     return True, f"GUIDED_EDIT_MENU:{candidate_id}"
 
+            # Domain Selection Callbacks (dom:new:<type>, dom:cancel)
+            if data.startswith("dom:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner domain callback from {sender_id}")
+                    if self.outbound:
+                        self.outbound.answer_callback_query(cq_id, text="⛔ Akses ditolak: Hanya Owner yang berhak.", show_alert=True)
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+
+                if data == "dom:cancel":
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, "❌ Pencatatan domain dibatalkan.", reply_markup={"inline_keyboard": []})
+                        self.outbound.answer_callback_query(cq_id, text="Dibatalkan")
+                    return True, "DOMAIN_ENTRY_CANCELLED"
+
+                if data.startswith("dom:new:"):
+                    dom_type = data.split(":", 2)[2]
+                    dom_names = {
+                        "expense": ("Pengeluaran", "EXPENSE", "Contoh: <code>makan siang 35k bca</code>"),
+                        "income": ("Pemasukan", "INCOME", "Contoh: <code>gaji masuk 15jt mandiri</code>"),
+                        "transfer": ("Transfer Saldo", "TRANSFER", "Contoh: <code>trf 500k dari bca ke blu</code>"),
+                        "credit_card": ("Kartu Kredit", "CREDIT_CARD", "Contoh: <code>tokopedia belanja 250k</code>"),
+                        "debt": ("Utang / Piutang", "DEBT", "Contoh: <code>pinjam uang 1jt</code> atau <code>bayar cicilan 500k</code>"),
+                        "asset": ("Aset Investasi", "ASSET", "Contoh: <code>beli emas 2 gram 2.6jt</code>")
+                    }
+                    info = dom_names.get(dom_type, ("Transaksi", "EXPENSE", "Kirim detail transaksi"))
+                    title, _, example = info
+                    text_msg = (
+                        f"📝 <b>Pencatatan {title}</b>\n"
+                        "───────────────────\n"
+                        f"Silakan kirim detail {title.lower()}.\n"
+                        f"{example}"
+                    )
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, text_msg, reply_markup={"inline_keyboard": [[{"text": "❌ Batal", "callback_data": "dom:cancel"}]]})
+                        self.outbound.answer_callback_query(cq_id, text=f"Domain {title} dipilih")
+                    return True, f"DOMAIN_PROMPTED:{dom_type}"
+
             if data.startswith("cfm:") or data.startswith("ccl:"):
                 # Enforce Owner Authorization
                 if not self.is_owner(sender_id):
@@ -753,6 +790,39 @@ class FinanceTelegramIngressRouter:
                 if self.outbound:
                     self.outbound.send_message(sender_id, card_text)
                 return True, "WEEKLY_RECAP_CARD_SENT"
+
+            # Check for /domain command (Operating Model V2 Feature 3)
+            if lower_text in ("/domain", "domain", "tambah transaksi", "catat manual"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner domain attempt from {sender_id}")
+                    if self.outbound:
+                        self.outbound.send_message(
+                            sender_id,
+                            "⛔ <b>Akses Ditolak</b>: Anda tidak memiliki izin untuk mencatat transaksi."
+                        )
+                    return True, "BLOCKED_NON_OWNER_WRITE"
+
+                menu = self.confirmation_handler.format_domain_menu()
+                if self.outbound:
+                    self.outbound.send_message(sender_id, menu["text"], reply_markup=menu["reply_markup"])
+                return True, "DOMAIN_MENU_SENT"
+
+            # Check for /review and /pending commands (Operating Model V2 Feature 2)
+            if lower_text in ("/review", "/pending", "review pending", "antrean review"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner review attempt from {sender_id}")
+                    if self.outbound:
+                        self.outbound.send_message(
+                            sender_id,
+                            "⛔ <b>Akses Ditolak</b>: Anda tidak memiliki izin untuk mereview transaksi."
+                        )
+                    return True, "BLOCKED_NON_OWNER_READ"
+
+                pending_items = self.engine.list_review_queue(status="PENDING")
+                review_card = self.confirmation_handler.format_pending_reviews_card(pending_items)
+                if self.outbound:
+                    self.outbound.send_message(sender_id, review_card["text"], reply_markup=review_card["reply_markup"])
+                return True, "PENDING_REVIEW_CARD_SENT"
 
             # Check if this is a finance transaction input
             if self.is_finance_message(text):

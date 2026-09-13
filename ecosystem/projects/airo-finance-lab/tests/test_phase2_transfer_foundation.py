@@ -103,9 +103,10 @@ class TestPhase2TransferFoundation(unittest.TestCase):
         self.assertIn("BCA Utama", card["text"])
         self.assertIn("Blu BCA", card["text"])
         self.assertIn("Rp2.000.000", card["text"])
-        self.assertEqual(len(card["reply_markup"]["inline_keyboard"][0]), 2)
+        self.assertEqual(len(card["reply_markup"]["inline_keyboard"][0]), 3)
         self.assertTrue(card["reply_markup"]["inline_keyboard"][0][0]["callback_data"].startswith("cfm:"))
-        self.assertTrue(card["reply_markup"]["inline_keyboard"][0][1]["callback_data"].startswith("ccl:"))
+        self.assertTrue(card["reply_markup"]["inline_keyboard"][0][1]["callback_data"].startswith("ced:"))
+        self.assertTrue(card["reply_markup"]["inline_keyboard"][0][2]["callback_data"].startswith("ccl:"))
 
         # Confirm Execution
         success, tx, receipt = self.adapter.confirm_candidate(cand.candidate_id)

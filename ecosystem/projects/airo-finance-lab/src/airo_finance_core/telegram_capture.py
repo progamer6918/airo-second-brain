@@ -458,6 +458,92 @@ class TelegramCaptureAdapter:
             "candidate_id": cand_id
         }
 
+    def format_domain_menu(self) -> Dict[str, Any]:
+        """
+        Renders structured domain entry menu for /domain command.
+        """
+        text = (
+            "🗂️ <b>Pencatatan Berdasarkan Domain</b>\n"
+            "───────────────────\n"
+            "Pilih tipe transaksi yang ingin dicatat:"
+        )
+        buttons = [
+            [
+                {"text": "💸 Pengeluaran", "callback_data": "dom:new:expense"},
+                {"text": "💰 Pemasukan", "callback_data": "dom:new:income"}
+            ],
+            [
+                {"text": "🔄 Transfer Saldo", "callback_data": "dom:new:transfer"},
+                {"text": "💳 Kartu Kredit", "callback_data": "dom:new:credit_card"}
+            ],
+            [
+                {"text": "⏳ Utang / Piutang", "callback_data": "dom:new:debt"},
+                {"text": "📈 Aset Investasi", "callback_data": "dom:new:asset"}
+            ],
+            [
+                {"text": "❌ Batal", "callback_data": "dom:cancel"}
+            ]
+        ]
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons}
+        }
+
+    def format_pending_reviews_card(self, items: List[Any]) -> Dict[str, Any]:
+        """
+        Formats Pending Review Center card for /review and /pending commands.
+        """
+        if not items:
+            return {
+                "text": (
+                    "📥 <b>Pending Review Center</b>\n"
+                    "───────────────────\n"
+                    "✨ Tidak ada transaksi pending yang menunggu review.\n"
+                    "Semua transaksi telah diproses atau terverifikasi."
+                ),
+                "reply_markup": {"inline_keyboard": []}
+            }
+
+        lines = [
+            "📥 <b>Pending Review Center</b>\n"
+            "───────────────────",
+            f"Terdapat <b>{len(items)}</b> transaksi yang membutuhkan review:\n"
+        ]
+
+        buttons = []
+        for idx, item in enumerate(items[:5], 1):
+            parsed = {}
+            import json
+            try:
+                parsed = json.loads(item.parsed_result)
+            except Exception:
+                pass
+            amt = float(parsed.get("amount", 0.0))
+            amt_str = format_idr(amt)
+            note = parsed.get("note") or item.raw_text or "-"
+            if len(note) > 25:
+                note = note[:22] + "..."
+            lines.append(f"{idx}. <b>{amt_str}</b> - {note}")
+            if item.issue_reason:
+                lines.append(f"   <i>Alasan: {item.issue_reason}</i>")
+
+            # Add action row for each item
+            buttons.append([
+                {"text": f"✅ Setujui #{idx}", "callback_data": f"gma:{item.id}"},
+                {"text": f"✏️ Edit #{idx}", "callback_data": f"gmc:{item.id}"},
+                {"text": f"❌ Abaikan #{idx}", "callback_data": f"gmi:{item.id}"}
+            ])
+
+        if len(items) > 5:
+            lines.append(f"\n<i>...dan {len(items) - 5} transaksi lainnya di web dashboard.</i>")
+
+        lines.append("───────────────────\n<i>Pilih aksi pada tombol di bawah untuk memproses:</i>")
+
+        return {
+            "text": "\n".join(lines),
+            "reply_markup": {"inline_keyboard": buttons}
+        }
+
     def format_account_menu(self, candidate: TransactionCandidate, target: str = "src") -> Dict[str, Any]:
         """
         Renders dynamic account dropdown from Finance Core.
