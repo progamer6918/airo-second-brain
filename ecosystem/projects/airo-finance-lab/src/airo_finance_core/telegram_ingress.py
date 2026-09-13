@@ -207,55 +207,201 @@ class FinanceTelegramIngressRouter:
             message_id = msg.get("message_id")
 
             # Check if this is a finance confirmation callback
+            # Check if this is a finance draft edit callback (Unified Draft Editor V1)
             if data.startswith("ced:"):
-                action, candidate_id = data.split(":", 1)
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner edit attempt from {sender_id}")
+                    if self.outbound:
+                        self.outbound.answer_callback_query(
+                            cq_id,
+                            text="⛔ Akses ditolak: Hanya Owner yang berhak mengedit transaksi.",
+                            show_alert=True
+                        )
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
 
+                action, candidate_id = data.split(":", 1)
                 candidate = self.confirmation_handler.get_candidate(candidate_id)
 
                 if not candidate:
-                    self.outbound.answer_callback_query(
-                        cq_id,
-                        text="⚠️ Draft transaksi tidak ditemukan.",
-                        show_alert=True
-                    )
+                    if self.outbound:
+                        self.outbound.answer_callback_query(
+                            cq_id,
+                            text="⚠️ Draft transaksi tidak ditemukan.",
+                            show_alert=True
+                        )
                     return True, f"EDIT_FAILED_NOT_FOUND:{candidate_id}"
 
                 if candidate.status != "PENDING":
-                    self.outbound.answer_callback_query(
-                        cq_id,
-                        text="⚠️ Draft sudah tidak aktif.",
-                        show_alert=True
-                    )
+                    if self.outbound:
+                        self.outbound.answer_callback_query(
+                            cq_id,
+                            text="⚠️ Draft sudah tidak aktif.",
+                            show_alert=True
+                        )
                     return True, f"EDIT_FAILED_STATUS:{candidate.status}"
 
                 self.confirmation_handler.start_edit_session(
                     chat_id,
-                    candidate_id
+                    candidate_id,
+                    field=None
                 )
 
-                edit_prompt = (
-                    "✏️ <b>Edit Draft Transaksi</b>\n\n"
-                    "Kirim perubahan transaksi yang ingin dilakukan.\n"
-                    "Contoh:\n"
-                    "• ubah nominal jadi 75000\n"
-                    "• ubah catatan jadi makan siang\n"
-                    "• ganti kategori makanan\n\n"
-                    f"<code>DRAFT_ID: {candidate.candidate_id}</code>"
-                )
+                menu = self.confirmation_handler.format_guided_edit_menu(candidate)
+                if self.outbound and message_id:
+                    self.outbound.edit_message_text(
+                        chat_id,
+                        message_id,
+                        menu["text"],
+                        reply_markup=menu["reply_markup"]
+                    )
+                    self.outbound.answer_callback_query(
+                        cq_id,
+                        text="Apa yang mau dikoreksi?"
+                    )
 
-                self.outbound.edit_message_text(
-                    chat_id,
-                    message_id,
-                    edit_prompt,
-                    reply_markup={"inline_keyboard": []}
-                )
+                return True, f"GUIDED_EDIT_MENU:{candidate_id}"
 
-                self.outbound.answer_callback_query(
-                    cq_id,
-                    text="✏️ Mode edit aktif"
-                )
+            # Field Selection Callback (edf:<candidate_id>:<field_code>)
+            if data.startswith("edf:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner edit attempt from {sender_id}")
+                    if self.outbound:
+                        self.outbound.answer_callback_query(
+                            cq_id,
+                            text="⛔ Akses ditolak: Hanya Owner yang berhak mengedit transaksi.",
+                            show_alert=True
+                        )
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
 
-                return True, f"EDIT_PROMPTED:{candidate_id}"
+                _, candidate_id, field_code = data.split(":", 2)
+                candidate = self.confirmation_handler.get_candidate(candidate_id)
+                if not candidate or candidate.status != "PENDING":
+                    if self.outbound:
+                        self.outbound.answer_callback_query(cq_id, text="⚠️ Draft tidak aktif.", show_alert=True)
+                    return True, f"EDIT_FAILED_STATUS:{candidate_id}"
+
+                if field_code == "amt":
+                    self.confirmation_handler.start_edit_session(chat_id, candidate_id, field="amount")
+                    prompt_text = (
+                        "💰 <b>Koreksi Nominal</b>\n"
+                        "───────────────────\n"
+                        "Kirim nominal baru (contoh: <code>50000</code>, <code>75k</code>, <code>1.5jt</code>):"
+                    )
+                    back_markup = {"inline_keyboard": [[{"text": "🔙 Kembali", "callback_data": f"ced:{candidate_id}"}]]}
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, prompt_text, reply_markup=back_markup)
+                        self.outbound.answer_callback_query(cq_id, text="Kirim nominal baru")
+                    return True, "EDIT_FIELD_PROMPTED:amount"
+
+                elif field_code == "not":
+                    self.confirmation_handler.start_edit_session(chat_id, candidate_id, field="note")
+                    prompt_text = (
+                        "📝 <b>Koreksi Catatan</b>\n"
+                        "───────────────────\n"
+                        "Kirim catatan baru untuk transaksi ini:"
+                    )
+                    back_markup = {"inline_keyboard": [[{"text": "🔙 Kembali", "callback_data": f"ced:{candidate_id}"}]]}
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, prompt_text, reply_markup=back_markup)
+                        self.outbound.answer_callback_query(cq_id, text="Kirim catatan baru")
+                    return True, "EDIT_FIELD_PROMPTED:note"
+
+                elif field_code == "dat":
+                    self.confirmation_handler.start_edit_session(chat_id, candidate_id, field="date")
+                    prompt_text = (
+                        "📅 <b>Koreksi Tanggal</b>\n"
+                        "───────────────────\n"
+                        "Kirim tanggal baru (format: <code>YYYY-MM-DD</code> atau <code>DD/MM/YYYY</code>):"
+                    )
+                    back_markup = {"inline_keyboard": [[{"text": "🔙 Kembali", "callback_data": f"ced:{candidate_id}"}]]}
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, prompt_text, reply_markup=back_markup)
+                        self.outbound.answer_callback_query(cq_id, text="Kirim tanggal baru")
+                    return True, "EDIT_FIELD_PROMPTED:date"
+
+                elif field_code in ("acc", "src"):
+                    acc_menu = self.confirmation_handler.format_account_menu(candidate, target="src")
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, acc_menu["text"], reply_markup=acc_menu["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Pilih rekening")
+                    return True, f"EDIT_ACCOUNT_MENU:{candidate_id}"
+
+                elif field_code == "dst":
+                    acc_menu = self.confirmation_handler.format_account_menu(candidate, target="dst")
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, acc_menu["text"], reply_markup=acc_menu["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Pilih rekening tujuan")
+                    return True, f"EDIT_DST_ACCOUNT_MENU:{candidate_id}"
+
+                elif field_code == "cat":
+                    cat_menu = self.confirmation_handler.format_category_menu(candidate)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, cat_menu["text"], reply_markup=cat_menu["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Pilih kategori")
+                    return True, f"EDIT_CATEGORY_MENU:{candidate_id}"
+
+            # Account Selection Callback (eda:<candidate_id>:<account_id>)
+            if data.startswith("eda:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+                _, candidate_id, acc_id = data.split(":", 2)
+                candidate = self.confirmation_handler.apply_field_update(candidate_id, "account", acc_id)
+                if candidate:
+                    preview = self.confirmation_handler.format_draft_preview(candidate)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Rekening diperbarui")
+                    return True, f"DRAFT_ACCOUNT_UPDATED:{candidate_id}"
+
+            # Destination Account Selection Callback (edd:<candidate_id>:<account_id>)
+            if data.startswith("edd:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+                _, candidate_id, acc_id = data.split(":", 2)
+                candidate = self.confirmation_handler.apply_field_update(candidate_id, "dst_account", acc_id)
+                if candidate:
+                    preview = self.confirmation_handler.format_draft_preview(candidate)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Rekening tujuan diperbarui")
+                    return True, f"DRAFT_DST_ACCOUNT_UPDATED:{candidate_id}"
+
+            # Category Selection Callback (edc:<candidate_id>:<category_id>)
+            if data.startswith("edc:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+                _, candidate_id, cat_id = data.split(":", 2)
+                candidate = self.confirmation_handler.apply_field_update(candidate_id, "category", cat_id)
+                if candidate:
+                    sub_menu = self.confirmation_handler.format_subcategory_menu(candidate, cat_id)
+                    if sub_menu:
+                        if self.outbound and message_id:
+                            self.outbound.edit_message_text(chat_id, message_id, sub_menu["text"], reply_markup=sub_menu["reply_markup"])
+                            self.outbound.answer_callback_query(cq_id, text="Pilih subkategori")
+                        return True, f"SUBCATEGORY_MENU:{cat_id}"
+                    else:
+                        preview = self.confirmation_handler.format_draft_preview(candidate)
+                        if self.outbound and message_id:
+                            self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                            self.outbound.answer_callback_query(cq_id, text="Kategori diperbarui")
+                        return True, f"DRAFT_CATEGORY_UPDATED:{candidate_id}"
+
+            # Subcategory Selection Callback (eds:<candidate_id>:<subcategory_id>)
+            if data.startswith("eds:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+                _, candidate_id, subc_id = data.split(":", 2)
+                candidate = self.confirmation_handler.apply_field_update(candidate_id, "subcategory", subc_id)
+                if candidate:
+                    preview = self.confirmation_handler.format_draft_preview(candidate)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Subkategori diperbarui")
+                    return True, f"DRAFT_SUBCATEGORY_UPDATED:{candidate_id}"
 
             if data.startswith("cfm:") or data.startswith("ccl:"):
                 # Enforce Owner Authorization
@@ -436,22 +582,56 @@ class FinanceTelegramIngressRouter:
                         )
                     return True, "BLOCKED_NON_OWNER_WRITE"
 
+                cand_id = edit_session.get("candidate_id")
+                active_field = edit_session.get("field")
+
                 try:
-                    edited_candidate = self.confirmation_handler.apply_edit_text(
-                        str(chat_id),
-                        text
-                    )
-                    if edited_candidate:
-                        card = self.confirmation_handler.format_confirmation_card(
-                            edited_candidate
+                    if active_field == "amount":
+                        amt, _ = self.parser._parse_amount(text)
+                        if amt is None or amt <= 0:
+                            if self.outbound:
+                                self.outbound.send_message(chat_id, "⚠️ Nominal tidak valid. Masukkan angka (misal 50000 atau 50k):")
+                            return True, "EDIT_AMOUNT_INVALID"
+                        edited_candidate = self.confirmation_handler.apply_field_update(cand_id, "amount", amt)
+                        edit_session["field"] = None
+                        if edited_candidate:
+                            preview = self.confirmation_handler.format_draft_preview(edited_candidate)
+                            if self.outbound:
+                                self.outbound.send_message(chat_id, preview["text"], reply_markup=preview["reply_markup"])
+                            return True, f"DRAFT_AMOUNT_UPDATED:{cand_id}"
+
+                    elif active_field == "note":
+                        edited_candidate = self.confirmation_handler.apply_field_update(cand_id, "note", text)
+                        edit_session["field"] = None
+                        if edited_candidate:
+                            preview = self.confirmation_handler.format_draft_preview(edited_candidate)
+                            if self.outbound:
+                                self.outbound.send_message(chat_id, preview["text"], reply_markup=preview["reply_markup"])
+                            return True, f"DRAFT_NOTE_UPDATED:{cand_id}"
+
+                    elif active_field == "date":
+                        edited_candidate = self.confirmation_handler.apply_field_update(cand_id, "date", text)
+                        edit_session["field"] = None
+                        if edited_candidate:
+                            preview = self.confirmation_handler.format_draft_preview(edited_candidate)
+                            if self.outbound:
+                                self.outbound.send_message(chat_id, preview["text"], reply_markup=preview["reply_markup"])
+                            return True, f"DRAFT_DATE_UPDATED:{cand_id}"
+
+                    else:
+                        edited_candidate = self.confirmation_handler.apply_edit_text(
+                            str(chat_id),
+                            text
                         )
-                        if self.outbound:
-                            self.outbound.send_message(
-                                chat_id,
-                                card["text"],
-                                reply_markup=card["reply_markup"]
-                            )
-                        return True, f"DRAFT_EDIT_UPDATED:{edited_candidate.candidate_id}"
+                        if edited_candidate:
+                            preview = self.confirmation_handler.format_draft_preview(edited_candidate)
+                            if self.outbound:
+                                self.outbound.send_message(
+                                    chat_id,
+                                    preview["text"],
+                                    reply_markup=preview["reply_markup"]
+                                )
+                            return True, f"DRAFT_EDIT_UPDATED:{edited_candidate.candidate_id}"
                 except Exception as e:
                     logger.error(f"Error applying draft edit: {e}")
                     if self.outbound:

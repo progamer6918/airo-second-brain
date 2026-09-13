@@ -29,6 +29,40 @@ class TransactionCandidate:
     created_at: float = 0.0
     subcategory_id: Optional[str] = None
     subcategory_name: Optional[str] = None
+    date: Optional[str] = None
+    tx_type: str = "EXPENSE"
+    original_state: Optional[Dict[str, Any]] = None
+
+    def get_domain(self, engine: Optional[Any] = None) -> str:
+        """
+        Detects transaction domain:
+        - TRANSFER
+        - CREDIT_CARD_PURCHASE
+        - CC_PAYMENT
+        - EXPENSE / INCOME
+        """
+        if self.direction == "TRANSFER":
+            return "TRANSFER"
+
+        lower_note = (self.note or "").lower()
+        if getattr(self, "tx_type", None) == "CC_PAYMENT" or any(k in lower_note for k in ("bayar kartu kredit", "bayar cc", "tagihan cc", "pembayaran cc")):
+            return "CC_PAYMENT"
+
+        if getattr(self, "tx_type", None) == "CREDIT_CARD_PURCHASE":
+            return "CREDIT_CARD_PURCHASE"
+
+        if engine and self.account_id:
+            try:
+                acc = engine.get_account(self.account_id)
+                if acc and (acc.type == "CREDIT_CARD" or getattr(acc, "account_class", "") == "LIABILITY"):
+                    return "CREDIT_CARD_PURCHASE"
+            except Exception:
+                pass
+
+        if any(k in (self.account_name or "").lower() for k in ("tokopedia card", "kartu kredit", "cc bri", "cc bca", "credit card")):
+            return "CREDIT_CARD_PURCHASE"
+
+        return self.direction
 
 class SimpleTransactionParser:
     """
@@ -272,18 +306,346 @@ class TelegramCaptureAdapter:
         self._candidates: Dict[str, TransactionCandidate] = {}
         self._edit_sessions: Dict[str, Dict[str, Any]] = {}
 
-    def start_edit_session(self, chat_id: str, candidate_id: str):
+    def start_edit_session(self, chat_id: str, candidate_id: str, field: Optional[str] = None):
         self._edit_sessions[str(chat_id)] = {
             "candidate_id": candidate_id,
+            "field": field,
             "status": "EDITING",
             "created_at": time.time()
         }
 
-    def get_edit_session(self, chat_id: str):
+    def get_edit_session(self, chat_id: str) -> Optional[Dict[str, Any]]:
         return self._edit_sessions.get(str(chat_id))
 
     def clear_edit_session(self, chat_id: str):
         self._edit_sessions.pop(str(chat_id), None)
+
+    def apply_field_update(self, candidate_id: str, field: str, value: Any) -> Optional[TransactionCandidate]:
+        candidate = self.get_candidate(candidate_id)
+        if not candidate:
+            return None
+
+        # Snapshot original state if not yet set
+        if not candidate.original_state:
+            candidate.original_state = {
+                "amount": candidate.amount,
+                "account_name": candidate.account_name,
+                "account_id": candidate.account_id,
+                "destination_account_name": candidate.destination_account_name,
+                "destination_account_id": candidate.destination_account_id,
+                "category_name": candidate.category_name,
+                "category_id": candidate.category_id,
+                "subcategory_name": candidate.subcategory_name,
+                "subcategory_id": candidate.subcategory_id,
+                "note": candidate.note,
+                "date": getattr(candidate, "date", None)
+            }
+
+        if field == "amount":
+            try:
+                candidate.amount = float(value)
+            except (ValueError, TypeError):
+                pass
+        elif field == "note":
+            candidate.note = str(value).strip()
+        elif field == "date":
+            candidate.date = str(value).strip()
+        elif field == "account":
+            acc = self.engine.get_account(str(value))
+            if acc:
+                candidate.account_id = acc.id
+                candidate.account_name = acc.name
+        elif field == "dst_account":
+            acc = self.engine.get_account(str(value))
+            if acc:
+                candidate.destination_account_id = acc.id
+                candidate.destination_account_name = acc.name
+        elif field == "category":
+            cat = self.engine.get_category(str(value))
+            if cat:
+                candidate.category_id = cat.id
+                candidate.category_name = cat.name
+                # Reset subcategory when category changes
+                candidate.subcategory_id = None
+                candidate.subcategory_name = None
+        elif field == "subcategory":
+            if str(value).lower() in ("none", "", "skip"):
+                candidate.subcategory_id = None
+                candidate.subcategory_name = None
+            else:
+                subc = self.engine.get_subcategory(str(value))
+                if subc:
+                    candidate.subcategory_id = subc.id
+                    candidate.subcategory_name = subc.name
+
+        return candidate
+
+    def format_guided_edit_menu(self, candidate: TransactionCandidate) -> Dict[str, Any]:
+        """
+        Renders the Guided Edit Menu based on transaction domain filtering.
+        """
+        domain = candidate.get_domain(self.engine)
+        text = (
+            "✏️ <b>Edit Draft Transaksi</b>\n"
+            "───────────────────\n"
+            "Apa yang mau dikoreksi?"
+        )
+
+        cand_id = candidate.candidate_id
+        if domain == "TRANSFER":
+            buttons = [
+                [
+                    {"text": "💰 Nominal", "callback_data": f"edf:{cand_id}:amt"},
+                    {"text": "📝 Catatan", "callback_data": f"edf:{cand_id}:not"}
+                ],
+                [
+                    {"text": "📤 Akun Asal", "callback_data": f"edf:{cand_id}:src"},
+                    {"text": "📥 Akun Tujuan", "callback_data": f"edf:{cand_id}:dst"}
+                ],
+                [
+                    {"text": "📅 Tanggal", "callback_data": f"edf:{cand_id}:dat"},
+                    {"text": "❌ Batal", "callback_data": f"ccl:{cand_id}"}
+                ]
+            ]
+        elif domain == "CREDIT_CARD_PURCHASE":
+            buttons = [
+                [
+                    {"text": "💰 Nominal", "callback_data": f"edf:{cand_id}:amt"},
+                    {"text": "📂 Kategori", "callback_data": f"edf:{cand_id}:cat"}
+                ],
+                [
+                    {"text": "📝 Catatan", "callback_data": f"edf:{cand_id}:not"},
+                    {"text": "📅 Tanggal", "callback_data": f"edf:{cand_id}:dat"}
+                ],
+                [
+                    {"text": "❌ Batal", "callback_data": f"ccl:{cand_id}"}
+                ]
+            ]
+        elif domain == "CC_PAYMENT":
+            buttons = [
+                [
+                    {"text": "💰 Nominal", "callback_data": f"edf:{cand_id}:amt"},
+                    {"text": "💳 Akun Pembayar", "callback_data": f"edf:{cand_id}:acc"}
+                ],
+                [
+                    {"text": "📅 Tanggal", "callback_data": f"edf:{cand_id}:dat"},
+                    {"text": "❌ Batal", "callback_data": f"ccl:{cand_id}"}
+                ]
+            ]
+        else: # EXPENSE / INCOME
+            buttons = [
+                [
+                    {"text": "💰 Nominal", "callback_data": f"edf:{cand_id}:amt"},
+                    {"text": "🏦 Akun", "callback_data": f"edf:{cand_id}:acc"}
+                ],
+                [
+                    {"text": "📂 Kategori", "callback_data": f"edf:{cand_id}:cat"},
+                    {"text": "📝 Catatan", "callback_data": f"edf:{cand_id}:not"}
+                ],
+                [
+                    {"text": "📅 Tanggal", "callback_data": f"edf:{cand_id}:dat"},
+                    {"text": "❌ Batal", "callback_data": f"ccl:{cand_id}"}
+                ]
+            ]
+
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons},
+            "candidate_id": cand_id
+        }
+
+    def format_account_menu(self, candidate: TransactionCandidate, target: str = "src") -> Dict[str, Any]:
+        """
+        Renders dynamic account dropdown from Finance Core.
+        """
+        cand_id = candidate.candidate_id
+        domain = candidate.get_domain(self.engine)
+        accounts = self.engine.list_accounts(active_only=True)
+
+        cb_prefix = "edd" if target == "dst" else "eda"
+        buttons = []
+        row = []
+        for acc in accounts:
+            if domain == "CREDIT_CARD_PURCHASE" and getattr(acc, "account_class", "") != "LIABILITY" and acc.type != "CREDIT_CARD":
+                continue
+            btn_text = f"🏦 {acc.name}"
+            cb_data = f"{cb_prefix}:{cand_id}:{acc.id}"
+            row.append({"text": btn_text, "callback_data": cb_data})
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+        if row:
+            buttons.append(row)
+
+        buttons.append([{"text": "🔙 Kembali", "callback_data": f"ced:{cand_id}"}])
+
+        title_suffix = "Tujuan" if target == "dst" else ("Asal" if domain == "TRANSFER" else "")
+        title_str = f" <b>{title_suffix}</b>" if title_suffix else ""
+        text = (
+            f"🏦 <b>Pilih Rekening{title_str}</b>\n"
+            "───────────────────\n"
+            "Silakan pilih rekening yang sesuai:"
+        )
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons},
+            "candidate_id": cand_id
+        }
+
+    def format_category_menu(self, candidate: TransactionCandidate) -> Dict[str, Any]:
+        """
+        Renders dynamic category dropdown from Finance Core (MUST NOT hardcode).
+        """
+        cand_id = candidate.candidate_id
+        categories = self.engine.list_categories(active_only=True)
+
+        buttons = []
+        row = []
+        for cat in categories:
+            btn_text = f"📂 {cat.name}"
+            cb_data = f"edc:{cand_id}:{cat.id}"
+            row.append({"text": btn_text, "callback_data": cb_data})
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+        if row:
+            buttons.append(row)
+
+        buttons.append([{"text": "🔙 Kembali", "callback_data": f"ced:{cand_id}"}])
+
+        text = (
+            "📂 <b>Pilih Kategori</b>\n"
+            "───────────────────\n"
+            "Silakan pilih kategori transaksi:"
+        )
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons},
+            "candidate_id": cand_id
+        }
+
+    def format_subcategory_menu(self, candidate: TransactionCandidate, category_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Renders dynamic subcategory dropdown dependent on category_id.
+        """
+        cand_id = candidate.candidate_id
+        subcategories = self.engine.list_subcategories(category_id=category_id, active_only=True)
+        if not subcategories:
+            return None
+
+        cat = self.engine.get_category(category_id)
+        cat_name = cat.name if cat else "Kategori"
+
+        buttons = []
+        row = []
+        for sub in subcategories:
+            btn_text = f"🏷️ {sub.name}"
+            cb_data = f"eds:{cand_id}:{sub.id}"
+            row.append({"text": btn_text, "callback_data": cb_data})
+            if len(row) == 2:
+                buttons.append(row)
+                row = []
+        if row:
+            buttons.append(row)
+
+        buttons.append([{"text": "⏭️ Lewati / Tanpa Subkategori", "callback_data": f"eds:{cand_id}:none"}])
+        buttons.append([{"text": "🔙 Kembali", "callback_data": f"ced:{cand_id}"}])
+
+        text = (
+            "🏷️ <b>Pilih Subkategori</b>\n"
+            "───────────────────\n"
+            f"Kategori: <b>{cat_name}</b>\n"
+            "Silakan pilih subkategori yang sesuai:"
+        )
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons},
+            "candidate_id": cand_id
+        }
+
+    def format_draft_preview(self, candidate: TransactionCandidate) -> Dict[str, Any]:
+        """
+        Renders Review Changes (Before vs After) prior to ledger write.
+        Never mutates ledger immediately.
+        """
+        cand_id = candidate.candidate_id
+        before = candidate.original_state or {}
+
+        b_amt = format_idr(before.get("amount", candidate.amount))
+        b_acc = before.get("account_name", candidate.account_name)
+        b_dst = before.get("destination_account_name")
+        b_cat = before.get("category_name") or "-"
+        b_sub = before.get("subcategory_name")
+        b_note = before.get("note", candidate.note) or "-"
+        b_date = before.get("date")
+
+        a_amt = format_idr(candidate.amount)
+        a_acc = candidate.account_name
+        a_dst = candidate.destination_account_name
+        a_cat = candidate.category_name or "-"
+        a_sub = candidate.subcategory_name
+        a_note = candidate.note or "-"
+        a_date = getattr(candidate, "date", None)
+
+        is_transfer = candidate.direction == "TRANSFER"
+
+        before_lines = [
+            f"• Nominal: {b_amt}",
+            f"• Akun{' Asal' if is_transfer else ''}: {b_acc}"
+        ]
+        if is_transfer and b_dst:
+            before_lines.append(f"• Akun Tujuan: {b_dst}")
+        if not is_transfer:
+            before_lines.append(f"• Kategori: {b_cat}")
+            if b_sub:
+                before_lines.append(f"• Subkategori: {b_sub}")
+        before_lines.append(f"• Catatan: {b_note}")
+        if b_date:
+            before_lines.append(f"• Tanggal: {b_date}")
+
+        after_lines = [
+            f"• Nominal: {a_amt}",
+            f"• Akun{' Asal' if is_transfer else ''}: {a_acc}"
+        ]
+        if is_transfer and a_dst:
+            after_lines.append(f"• Akun Tujuan: {a_dst}")
+        if not is_transfer:
+            after_lines.append(f"• Kategori: {a_cat}")
+            if a_sub:
+                after_lines.append(f"• Subkategori: {a_sub}")
+        after_lines.append(f"• Catatan: {a_note}")
+        if a_date:
+            after_lines.append(f"• Tanggal: {a_date}")
+
+        before_str = "\n".join(before_lines)
+        after_str = "\n".join(after_lines)
+
+        text = (
+            "🧾 <b>Review Perubahan Draft</b>\n"
+            "───────────────────\n"
+            "<b>Sebelumnya:</b>\n"
+            f"{before_str}\n\n"
+            "<b>Setelah Koreksi:</b>\n"
+            f"{after_str}\n"
+            "───────────────────\n"
+            "Simpan perubahan ini ke Buku Besar?"
+        )
+
+        buttons = [
+            [
+                {"text": "✅ Simpan", "callback_data": f"cfm:{cand_id}"},
+                {"text": "❌ Batal", "callback_data": f"ccl:{cand_id}"}
+            ],
+            [
+                {"text": "✏️ Koreksi Lagi", "callback_data": f"ced:{cand_id}"}
+            ]
+        ]
+
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": buttons},
+            "candidate_id": cand_id
+        }
 
     def apply_edit_text(self, chat_id: str, text: str):
         session = self.get_edit_session(chat_id)
@@ -296,6 +658,22 @@ class TelegramCaptureAdapter:
         if not candidate:
             self.clear_edit_session(chat_id)
             return None
+
+        # Snapshot original state if not yet set
+        if not candidate.original_state:
+            candidate.original_state = {
+                "amount": candidate.amount,
+                "account_name": candidate.account_name,
+                "account_id": candidate.account_id,
+                "destination_account_name": candidate.destination_account_name,
+                "destination_account_id": candidate.destination_account_id,
+                "category_name": candidate.category_name,
+                "category_id": candidate.category_id,
+                "subcategory_name": candidate.subcategory_name,
+                "subcategory_id": candidate.subcategory_id,
+                "note": candidate.note,
+                "date": getattr(candidate, "date", None)
+            }
 
         import re
         lower = text.lower()
@@ -435,7 +813,9 @@ class TelegramCaptureAdapter:
             direction=candidate.direction,
             category_id=candidate.category_id,
             note=candidate.note,
-            source="TELEGRAM"
+            source="TELEGRAM",
+            tx_date=getattr(candidate, "date", None),
+            subcategory_id=getattr(candidate, "subcategory_id", None)
         )
 
         candidate.status = "CONFIRMED"
