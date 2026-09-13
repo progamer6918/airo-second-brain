@@ -498,7 +498,7 @@ class TelegramCaptureAdapter:
                 "text": (
                     "📥 <b>Pending Review Center</b>\n"
                     "───────────────────\n"
-                    "✨ Tidak ada transaksi pending yang menunggu review.\n"
+                    "✨ Tidak ada transaksi pending review.\n"
                     "Semua transaksi telah diproses atau terverifikasi."
                 ),
                 "reply_markup": {"inline_keyboard": []}

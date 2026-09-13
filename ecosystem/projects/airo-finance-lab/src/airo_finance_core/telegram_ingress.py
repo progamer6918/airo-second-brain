@@ -5,7 +5,7 @@ import logging
 import urllib.request
 import urllib.parse
 import urllib.error
-from typing import Optional, Dict, Any, Tuple, Callable
+from typing import Optional, Dict, Any, Tuple, Callable, List
 from .engine import FinanceCoreEngine
 from .telegram_capture import InteractiveConfirmationHandler, SimpleTransactionParser
 
@@ -48,6 +48,18 @@ def load_telegram_credentials(env_path: Optional[str] = None) -> Tuple[str, str]
         owner_id = "8482041086,8263476434"
 
     return token, str(owner_id)
+
+
+# Canonical Telegram Bot Commands definition for AIRO Hermes & AIRO Finance
+CANONICAL_BOT_COMMANDS = [
+    {"command": "help", "description": "Cara menggunakan AIRO Hermes"},
+    {"command": "reset", "description": "Mulai percakapan baru"},
+    {"command": "about", "description": "Tentang AIRO Hermes"},
+    {"command": "memory", "description": "Status memory AIRO Hermes"},
+    {"command": "review", "description": "Lihat transaksi yang menunggu review"},
+    {"command": "pending", "description": "Kelola transaksi pending AIRO"},
+    {"command": "domain", "description": "Catat transaksi manual berdasarkan domain"}
+]
 
 
 class TelegramOutboundAdapter:
@@ -135,6 +147,15 @@ class TelegramOutboundAdapter:
             payload["text"] = text
         return self.transport("answerCallbackQuery", payload)
 
+    def set_my_commands(self, commands: List[Dict[str, str]]) -> Dict[str, Any]:
+        """
+        Registers bot commands with Telegram API via setMyCommands.
+        """
+        payload: Dict[str, Any] = {
+            "commands": commands
+        }
+        return self.transport("setMyCommands", payload)
+
 
 class FinanceTelegramIngressRouter:
     """
@@ -146,13 +167,39 @@ class FinanceTelegramIngressRouter:
         self,
         engine: FinanceCoreEngine,
         outbound: Optional[TelegramOutboundAdapter] = None,
-        owner_chat_id: Optional[str] = None
+        owner_chat_id: Optional[str] = None,
+        auto_register_commands: bool = False
     ):
         self.engine = engine
         self.outbound = outbound
         self.owner_chat_id = str(owner_chat_id) if owner_chat_id else None
         self.confirmation_handler = InteractiveConfirmationHandler(engine)
         self.parser = self.confirmation_handler.parser
+
+        if auto_register_commands and self.outbound:
+            self.register_bot_commands()
+
+    def register_bot_commands(self, commands: Optional[List[Dict[str, str]]] = None) -> bool:
+        """
+        Registers canonical bot commands with Telegram Bot API so they appear
+        in the command menu (/help, /reset, /about, /memory, /review, /pending, /domain).
+        """
+        if not self.outbound:
+            logger.warning("Cannot register bot commands: outbound adapter is None")
+            return False
+
+        cmds = commands or CANONICAL_BOT_COMMANDS
+        try:
+            res = self.outbound.set_my_commands(cmds)
+            if res.get("ok"):
+                logger.info(f"Registered {len(cmds)} Telegram bot commands successfully.")
+                return True
+            else:
+                logger.warning(f"Failed to register Telegram bot commands: {res}")
+                return False
+        except Exception as e:
+            logger.error(f"Error registering Telegram bot commands: {e}")
+            return False
 
     def is_owner(self, sender_id: Any) -> bool:
         if not self.owner_chat_id:
@@ -866,10 +913,12 @@ def get_ingress_router(
     token: Optional[str] = None,
     owner_chat_id: Optional[str] = None,
     outbound_transport: Optional[Callable[[str, Dict[str, Any]], Dict[str, Any]]] = None,
-    db_path: Optional[str] = None
+    db_path: Optional[str] = None,
+    auto_register_commands: bool = True
 ) -> FinanceTelegramIngressRouter:
     """
     Factory helper to instantiate a configured FinanceTelegramIngressRouter.
+    Automatically registers canonical bot commands on initialization if auto_register_commands is True.
     """
     if engine is None:
         from .db import DatabaseManager
@@ -892,5 +941,10 @@ def get_ingress_router(
     actual_owner_id = owner_chat_id or loaded_owner_id
 
     outbound = TelegramOutboundAdapter(actual_token, transport=outbound_transport)
-    return FinanceTelegramIngressRouter(engine, outbound=outbound, owner_chat_id=actual_owner_id)
+    return FinanceTelegramIngressRouter(
+        engine,
+        outbound=outbound,
+        owner_chat_id=actual_owner_id,
+        auto_register_commands=auto_register_commands
+    )
 

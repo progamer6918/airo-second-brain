@@ -27,6 +27,10 @@ class MockOutbound:
         self.answered_callbacks.append({"id": callback_query_id, "text": text, "show_alert": show_alert})
         return {"ok": True}
 
+    def set_my_commands(self, commands):
+        self.registered_commands = commands
+        return {"ok": True, "result": True}
+
 
 class TestOperatingModelV2(unittest.TestCase):
     def setUp(self):
@@ -186,6 +190,29 @@ class TestOperatingModelV2(unittest.TestCase):
         self.assertEqual(card["closed_statement"]["pocket_ready"], 200000.0)
         # Verify reserve pocket tracking
         self.assertEqual(cc_summary["payment_reserve"], 200000.0)
+
+    def test_05_canonical_bot_command_registration(self):
+        """Feature 6: Canonical Bot Command registration via setMyCommands"""
+        router = FinanceTelegramIngressRouter(
+            self.engine,
+            outbound=self.outbound,
+            owner_chat_id=self.owner_id,
+            auto_register_commands=True
+        )
+        self.assertTrue(hasattr(self.outbound, "registered_commands"))
+        cmds = {c["command"]: c["description"] for c in self.outbound.registered_commands}
+        # Check canonical core commands
+        self.assertIn("help", cmds)
+        self.assertIn("reset", cmds)
+        self.assertIn("about", cmds)
+        self.assertIn("memory", cmds)
+        # Check newly exposed AIRO Finance commands
+        self.assertIn("review", cmds)
+        self.assertIn("pending", cmds)
+        self.assertIn("domain", cmds)
+        self.assertEqual(cmds["review"], "Lihat transaksi yang menunggu review")
+        self.assertEqual(cmds["pending"], "Kelola transaksi pending AIRO")
+        self.assertEqual(cmds["domain"], "Catat transaksi manual berdasarkan domain")
 
 
 if __name__ == "__main__":
