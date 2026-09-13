@@ -60,20 +60,9 @@ Read in this order:
 4. `SECURITY.md`
 5. `PRD_INDEX.md`
 6. `ROADMAP_INDEX.md`
-7. `state/runtime/device-clipboard-adapter.md` — before giving any owner-facing command that copies output to clipboard, check whether the current device is already listed here with `VERIFIED=YES` and use that adapter directly instead of re-diagnosing.
-8. Relevant project file under `control/`
+7. Relevant project file under `control/`
 
 Do not read `archive/` or `inbox/` unless explicitly asked for history or forensic review.
-
-## Consumer Identity Preservation
-
-Before applying consumer-facing persona, presentation, or interface rules, identify the current AI consumer.
-
-Reading ASB does not change consumer identity. Shared ASB knowledge and universal governance may apply across consumers, but rules explicitly scoped to another consumer do not transfer that consumer's persona, voice, role, or presentation.
-
-Canonical authority:
-
-[`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
 
 ## Universal New Chat Instruction
 
@@ -88,9 +77,7 @@ For new chat threads:
 
 Every Owner-facing execution MUST capture stdout+stderr into a timestamped `/tmp/airo_<task>_<timestamp>.txt` receipt through `tee`, then invoke `python3 scripts/airo-clipboard-receipt --receipt-file "$OUT"`.
 
-Direct `clip.exe` or `Set-Clipboard` alone is not delivery proof. For the LOCAL WSL/Windows adapter (`scripts/airo-clipboard-receipt`), success requires `COPIED_TO_CLIPBOARD=YES`, `CLIPBOARD_READBACK=PASS`, and `CLIPBOARD_CONTENT_HASH=PASS`.
-
-For OSC52-based adapters (VPS/Termius `scripts/airo-remote-clipboard`, AGY VPS parent TTY), readback is structurally unavailable — see the OSC52 Terminal Delivery Exception in [`docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md`](docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md#81-osc52-terminal-delivery-exception). For these adapters, `COPIED_TO_CLIPBOARD=YES` with `CLIPBOARD_READBACK=NOT_AVAILABLE` and `CLIPBOARD_CONTENT_HASH=NOT_AVAILABLE` IS the accepted success state — it must NOT be treated as a failure or trigger further troubleshooting.
+Direct `clip.exe` or `Set-Clipboard` alone is not delivery proof. Success requires `COPIED_TO_CLIPBOARD=YES`, `CLIPBOARD_READBACK=PASS`, and `CLIPBOARD_CONTENT_HASH=PASS`.
 
 For direct WSL, define and export `OUT` in the Owner parent shell, run strict execution inside an isolated child shell or subshell, pipe child stdout+stderr through `tee "$OUT"`, then invoke the verified clipboard helper from the surviving parent shell.
 
@@ -185,10 +172,6 @@ For every remote mutation attempt:
    tested-resource count, cleanup count, and final remote parity.
 
 ## Operating Protocol Pointers
-- Council Mode (ChatGPT / AIRO Sync): [`state/operating-rules/AIRO_COUNCIL_MODE.md`](state/operating-rules/AIRO_COUNCIL_MODE.md)
-- Senior Engineer Code Change Contract: [`docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md`](docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md)
-- Consumer Identity Boundary: [`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
-- Global PR / Deferred Work Contract: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md#6-deferred-work--pr-lifecycle-contract)
 
 - Low-Limit Operating Mode Pointer: [`state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md`](state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md)
 - Chat-Stability Protocol Pointer: [`state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md`](state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md)
@@ -220,22 +203,6 @@ For execution scripts, report:
 Task status (`BERHASIL`, `BELUM_TERBUKTI`, `TERHAMBAT`, `GAGAL`) is computed independently by `scripts/airo-task-verdict`.
 
 ## Mandatory Session Workflow Guard
-
-### Session Boundary Invariant
-- Session boundary follows MAIN OWNER OBJECTIVE (`ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION`).
-- Same project + same main objective => `CONTINUE_EXISTING`.
-- Verifier/retry/sub-execution => owning session event, not `START_NEW`.
-- Synthetic tests => isolated state/worklog (`AIRO_SESSION_STATE_DIR`), never production worklog.
-- Close only after DoD + required verification + no known directly-related defect.
-- For detailed lifecycle rules read: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md).
-
-### ASB Overall Operating Authority
-- `BOOT.md` = canonical fresh-AI entrypoint / master procedural router
-- `AGENTS.md` = universal AI operating rules and source priority
-- `SECURITY.md` = security authority
-- `docs/contracts/` = specialized canonical operating contracts
-- `meta/how-to-use-this-brain.md` = usage guide only; not higher authority than BOOT/AGENTS/contracts
-
 
 For every meaningful AIRO execution:
 

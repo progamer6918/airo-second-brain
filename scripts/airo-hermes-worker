@@ -39,7 +39,15 @@ import re
 from typing import Optional
 
 # ─── Bounded EAB Intent Pre-Router ───────────────────────────────────────────
+ENABLE_EAB_INTERCEPTION = os.getenv("ENABLE_EAB_INTERCEPTION", "false").lower() in ("true", "1", "yes")
+
 def try_handle_eab_intent(text: str, owner_chat_id: str) -> Optional[str]:
+    """Bounded EAB pre-router for pending, clarification, and manual intake.
+    Disabled by default per EARESMES V1 Production Hardening (EAB Milestone M14 closeout).
+    Can be re-enabled via ENABLE_EAB_INTERCEPTION=true for rollback/testing.
+    """
+    if not ENABLE_EAB_INTERCEPTION:
+        return None
     """Bounded EAB pre-router for pending, clarification, and manual intake."""
     clean = text.strip().lower()
 
@@ -315,8 +323,39 @@ POLL_INTERVAL  = 5          # seconds between queue scans
 MAX_ATTEMPTS   = 3          # dead-letter after this many failures
 HERMES_TIMEOUT = 120        # wall-clock seconds for one AIAgent.chat() call
 HERMES_MAX_TURNS = 8        # max model iterations per turn
-HERMES_TOOLSETS  = ["safe"] # toolsets.py L334: web_search, web_extract, vision_analyze, image_generate
-                             # EXCLUDED: terminal, process, write_file, patch, execute_code
+# Enforce read-only browser environment variable
+os.environ["HERMES_BROWSER_READONLY"] = "true"
+try:
+    from toolsets import create_custom_toolset
+    create_custom_toolset(
+        name="browser_readonly",
+        description="Read-only browser capability (navigation, snapshots, scrolling, images, vision) without write or click interactions",
+        tools=[
+            "browser_navigate",
+            "browser_snapshot",
+            "browser_scroll",
+            "browser_get_images",
+            "browser_vision",
+        ],
+    )
+except Exception:
+    pass
+
+try:
+    from toolsets import create_custom_toolset
+    create_custom_toolset(
+        name="skills_readonly",
+        description="Discover and view skill documents with specialized instructions and knowledge (read-only)",
+        tools=[
+            "skills_list",
+            "skill_view",
+        ],
+    )
+except Exception:
+    pass
+
+HERMES_TOOLSETS  = ["safe", "cronjob", "browser_readonly", "skills_readonly"] # safe toolkit + cronjob + read-only browser + read-only skills
+                             # EXCLUDED: terminal, process, write_file, patch, execute_code, skill_manage, browser write actions (click, type, dialog, cdp)
 
 EAB_MANUAL_DRAFTS_FILE = os.path.join(
     LOCAL_STATE_DIR,
@@ -1070,17 +1109,27 @@ def init_hermes():
 
 
 
-EARESMES_CONTEXT_FILES = (
-    ("BOOT.md", 6000, "head"),
-    ("CURRENT.md", 5000, "head"),
-    ("state/active-context.md", 7000, "tail"),
-    ("CONTEXT.md", 3000, "head"),
-    ("AGENTS.md", 3000, "head"),
+# ─── Canonical Context Files: Hot & Cold Separation ──────────────────────────
+# Hot context is injected directly into each turn's system prompt (optimized footprint).
+EARESMES_HOT_CONTEXT_FILES = (
+    ("personas/airo-sync.md", 2500, "head"),
+    ("agents/earesmes.md", 2500, "head"),
+    ("CURRENT.md", 2500, "head"),
+    ("state/active-context.md", 4500, "tail"),
     ("SECURITY.md", 2000, "head"),
-    ("personas/airo-sync.md", 3500, "head"),
-    ("agents/earesmes.md", 3000, "head"),
-    ("ecosystem/earesmes-hermes.md", 3500, "head"),
+    ("AGENTS.md", 2500, "head"),
 )
+
+# Cold context contains architecture, deep documentation, and historical references.
+# Preserved in repository and listed in the prompt manifest for on-demand inspection.
+EARESMES_COLD_CONTEXT_FILES = (
+    ("BOOT.md", "System bootstrap walkthrough, directory layout, and repository structure"),
+    ("CONTEXT.md", "AIRO Second Brain ecosystem architecture and principles"),
+    ("ecosystem/earesmes-hermes.md", "Earesmes-Hermes bridge architecture specifications"),
+)
+
+# Backward-compatibility alias
+EARESMES_CONTEXT_FILES = EARESMES_HOT_CONTEXT_FILES
 
 
 def _git_context(args: list[str]) -> str:
@@ -1099,7 +1148,7 @@ def _git_context(args: list[str]) -> str:
 
 
 def build_earesmes_system_prompt() -> str:
-    identity = """
+    identity = f"""
 You are Earesmes, Egit's single owner-facing personal AI,
 chief of staff, AIRO ecosystem operator, and resident AIRO Sync persona.
 
@@ -1122,6 +1171,9 @@ When asked what was last synced or updated:
 Never claim that Earesmes is unrelated to AIRO Sync.
 Never claim that Earesmes is only a Telegram chatbot.
 Use Bahasa Indonesia. Be direct, casual, factual, and concise.
+
+Waktu lokal saat ini: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} WIB (UTC+7).
+Untuk permintaan pengingat/reminder (contoh: "ingatkan saya jam X"), gunakan tool cronjob dengan schedule yang sesuai (durasi seperti "30m", "2h", atau timestamp ISO "YYYY-MM-DDTHH:MM:SS"). Jangan pernah membuat janji pengingat tanpa memanggil tool cronjob.
 """.strip()
 
     head = _git_context(["rev-parse", "--short=12", "HEAD"])
@@ -1139,7 +1191,7 @@ Use Bahasa Indonesia. Be direct, casual, factual, and concise.
         f"HEAD: {head}\n\nRecent commits:\n{log}",
     ]
 
-    for relative, limit, mode in EARESMES_CONTEXT_FILES:
+    for relative, limit, mode in EARESMES_HOT_CONTEXT_FILES:
         file_path = Path(REPO_DIR) / relative
 
         if not file_path.is_file():
@@ -1162,10 +1214,17 @@ Use Bahasa Indonesia. Be direct, casual, factual, and concise.
                 content = content[:limit] + "\n[file truncated]"
 
         sections.append(
-            f"# CANONICAL ASB FILE: {relative}\n{content}"
+            f"# CANONICAL ASB HOT CONTEXT: {relative}\n{content}"
         )
 
-    return "\n\n".join(sections)[:38000]
+    # Cold context reference manifest
+    cold_manifest = ["# CANONICAL ASB COLD ARCHITECTURE & REFERENCE MANIFEST (On-Demand Retrieval)"]
+    cold_manifest.append("Cold context files are preserved locally in the canonical repository and can be referenced for deep historical or architecture queries:")
+    for rel, desc in EARESMES_COLD_CONTEXT_FILES:
+        cold_manifest.append(f"- `{rel}`: {desc}")
+    sections.append("\n".join(cold_manifest))
+
+    return "\n\n".join(sections)[:25000]
 
 
 _hermes_runtime_config = None
@@ -1240,6 +1299,75 @@ def load_hermes_model_config() -> dict:
     )
 
 
+# ─── EARESMES Native Model Policy & Routing ──────────────────────────────────
+TASK_CLASS_SIMPLE       = "SIMPLE"
+TASK_CLASS_RESEARCH     = "RESEARCH"
+TASK_CLASS_CODING       = "CODING"
+TASK_CLASS_ARCHITECTURE = "ARCHITECTURE"
+
+MODEL_ROUTING_POLICY = {
+    TASK_CLASS_SIMPLE: {
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "openrouter",
+        "fallback_model": {"model": "minimax/minimax-m3:free", "provider": "openrouter"},
+    },
+    TASK_CLASS_RESEARCH: {
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "provider": "openrouter",
+        "fallback_model": {"model": "minimax/minimax-m3:free", "provider": "openrouter"},
+    },
+    TASK_CLASS_CODING: {
+        "model": "cohere/north-mini-code:free",
+        "provider": "openrouter",
+        "fallback_model": {"model": "minimax/minimax-m3:free", "provider": "openrouter"},
+    },
+    TASK_CLASS_ARCHITECTURE: {
+        "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "provider": "openrouter",
+        "fallback_model": {"model": "minimax/minimax-m3:free", "provider": "openrouter"},
+    },
+}
+
+
+def classify_task_class(text: str) -> str:
+    """Lightweight deterministic classifier for EARESMES model routing."""
+    q = text.lower().strip()
+
+    # 1. Architecture: system design, structure, boundaries, governance
+    arch_patterns = [
+        r"\barsitektur\b", r"\barchitecture\b", r"\bsystem\s+design\b",
+        r"\bdesain\s+sistem\b", r"\bgovernance\b", r"\bboundary\b",
+        r"\borkestrasi\b", r"\borchestrat", r"\brestruktur\b", r"\brestructure\b",
+        r"\boverhaul\b", r"\bmigrat", r"\bdesain\s+arsitektur\b"
+    ]
+    if any(re.search(pat, q) for pat in arch_patterns):
+        return TASK_CLASS_ARCHITECTURE
+
+    # 2. Coding: programming, scripts, debugging, functions, syntax
+    code_patterns = [
+        r"\bcoding\b", r"\bkoding\b", r"\bkode\b", r"\bcode\b",
+        r"\bscript\b", r"\bfungsi\b", r"\bfunction\b", r"\bdef\s+",
+        r"\bdebug\b", r"\btraceback\b", r"\bsyntax\b", r"\bpython\b",
+        r"\bbash\b", r"\bpowershell\b", r"\bregex\b", r"\berror\s+code\b",
+        r"\bclass\s+", r"\bimport\s+"
+    ]
+    if any(re.search(pat, q) for pat in code_patterns):
+        return TASK_CLASS_CODING
+
+    # 3. Research: searching, browsing, investigating, fact synthesis
+    research_patterns = [
+        r"\briset\b", r"\bresearch\b", r"\bcari\s+(info|informasi|data|web)\b",
+        r"\bbrowser\b", r"\bbrowsing\b", r"\bsearch\s+web\b", r"\binvestigasi\b",
+        r"\bsurvey\b", r"\bberita\s+terbaru\b", r"\bapa\s+itu\b", r"\bjelaskan\s+tentang\b",
+        r"\btrend\s+terkini\b", r"\bmarket\s+share\b"
+    ]
+    if any(re.search(pat, q) for pat in research_patterns):
+        return TASK_CLASS_RESEARCH
+
+    # 4. Default: SIMPLE (greetings, quick conversational chats, reminders, short Q&A)
+    return TASK_CLASS_SIMPLE
+
+
 def call_hermes(text: str, session_id: str) -> str | None:
     """
     Call AIAgent.chat(text) via Hermes Direct Python API.
@@ -1264,9 +1392,23 @@ def call_hermes(text: str, session_id: str) -> str | None:
     try:
         runtime = load_hermes_model_config()
 
+        task_class = classify_task_class(text)
+        policy = MODEL_ROUTING_POLICY.get(task_class, MODEL_ROUTING_POLICY[TASK_CLASS_SIMPLE])
+
+        selected_model = policy.get("model") or runtime["model"]
+        selected_provider = policy.get("provider") or runtime["provider"]
+        selected_fallback = policy.get("fallback_model")
+
+        logger.info(
+            "Model routing: class=%s model=%s provider=%s",
+            task_class,
+            selected_model,
+            selected_provider,
+        )
+
         agent_kwargs = {
-            "model": runtime["model"],
-            "provider": runtime["provider"],
+            "model": selected_model,
+            "provider": selected_provider,
             "session_id": session_id,
             "enabled_toolsets": HERMES_TOOLSETS,
             "max_iterations": HERMES_MAX_TURNS,
@@ -1275,19 +1417,98 @@ def call_hermes(text: str, session_id: str) -> str | None:
             "ephemeral_system_prompt": build_earesmes_system_prompt(),
         }
 
+        if selected_fallback:
+            agent_kwargs["fallback_model"] = selected_fallback
+
         if runtime["base_url"]:
             agent_kwargs["base_url"] = runtime["base_url"]
 
         agent = AIAgent(**agent_kwargs)
-        # AIAgent.chat() -> str (run_agent.py L4600: return result["final_response"])
         reply = agent.chat(text)
+
+        # Quota/rate error detection in reply
+        is_quota_error = False
+        if reply:
+            rep_str = str(reply).lower()
+            quota_err_signals = [
+                "rate limit exceeded",
+                "http 429",
+                "ratelimiterror",
+                "api call failed after",
+                "free-models-per-day",
+                "insufficient quota",
+            ]
+            if any(sig in rep_str for sig in quota_err_signals):
+                is_quota_error = True
+
+        if is_quota_error:
+            logger.warning("Primary model quota/rate limit detected: %s. Invoking hardened fallback...", str(reply)[:100])
+            try:
+                fb_kwargs = dict(agent_kwargs)
+                fb_kwargs["model"] = "minimax/minimax-m3:free"
+                fb_kwargs["provider"] = "openrouter"
+                fb_kwargs.pop("fallback_model", None)
+                fb_agent = AIAgent(**fb_kwargs)
+                fb_reply = fb_agent.chat(text)
+                if fb_reply and not any(sig in str(fb_reply).lower() for sig in ["rate limit exceeded", "http 429", "ratelimiterror", "api call failed after"]):
+                    logger.info("Hardened secondary fallback succeeded.")
+                    return str(fb_reply)
+            except Exception as fb_err:
+                logger.error("Hardened secondary fallback raised: %s", fb_err)
+
+            return "Maaf ya, saat ini layanan AI sedang mengalami batas kuota sementara. Boleh coba kirim ulang beberapa saat lagi!"
+
         if reply is None:
             logger.warning("AIAgent.chat() returned None for session %s", session_id)
-            return None
+            return "Maaf ya, respon dari sistem AI belum berhasil didapatkan. Boleh ulangi pertanyaanmu?"
+
         return str(reply)
     except Exception as e:
         logger.error("AIAgent.chat() raised: %s", e)
-        return None
+        return "Maaf ya, terjadi kendala internal pada model AI saat ini. Boleh coba kirim ulang sebentar lagi ya!"
+
+
+def sanitize_telegram_reply(reply: str) -> str:
+    """Hardened response hygiene for Telegram UX.
+    Ensures no debug receipts, unhandled tool tags, internal exceptions, or private filesystem paths leak.
+    """
+    if not reply:
+        return "Maaf ya, respon dari sistem AI belum berhasil didapatkan. Boleh ulangi pertanyaanmu?"
+
+    text = str(reply)
+
+    # 1. Clean raw tool calls if model outputs unhandled XML/tags
+    if "<tool_call>" in text or "<function=" in text:
+        cleaned = re.sub(r"<tool_call>.*?</tool_call>", "", text, flags=re.DOTALL).strip()
+        cleaned = re.sub(r"<function=.*?</function>", "", cleaned, flags=re.DOTALL).strip()
+        cleaned = re.sub(r"<parameter=.*?</parameter>", "", cleaned, flags=re.DOTALL).strip()
+        if not cleaned:
+            return "Maaf, permintaan tersebut membutuhkan akses sistem yang saat ini dibatasi oleh kebijakan keamanan."
+        text = cleaned
+
+    # 2. Catch and sanitize raw internal exceptions or quota errors
+    error_patterns = [
+        r"API call failed after",
+        r"Rate limit exceeded",
+        r"RateLimitError",
+        r"HTTP 429",
+        r"HTTP 50\d",
+        r"Traceback \(most recent call last\)",
+        r"InternalServerError",
+        r"ConnectionRefusedError",
+    ]
+    for pat in error_patterns:
+        if re.search(pat, text, re.IGNORECASE):
+            logger.warning("Sanitized internal exception from user response: %s", text[:100])
+            return "Maaf ya, layanan AI sedang mengalami kendala sementara atau batas kuota. Silakan coba kirim ulang sebentar lagi ya!"
+
+    # 3. Mask sensitive local filepaths
+    text = re.sub(r"/home/[a-zA-Z0-9_-]+/\.local/state/[^\s]+", "[internal-state]", text)
+    text = re.sub(r"/home/[a-zA-Z0-9_-]+/AI_WORKSPACES/[^\s]+", "[airo-workspace]", text)
+    text = re.sub(r"/home/[a-zA-Z0-9_-]+/\.hermes/[^\s]+", "[hermes-config]", text)
+    text = re.sub(r"/mnt/c/Users/[a-zA-Z0-9_-]+/[^\s]+", "[local-path]", text)
+
+    return text.strip()
 
 
 # ??? Single worker flock ??????????????????????????????????????????????????????
@@ -1406,6 +1627,7 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: di
                 _signal.signal(_signal.SIGALRM, old_handler)
 
         if reply:
+            reply = sanitize_telegram_reply(reply)
             item["reply_text"] = reply
             save_item(path, item)
 
@@ -1416,7 +1638,7 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: di
         logger.warning("Item %s: no reply (attempt %d)", request_id, attempt_count + 1)
         return
 
-    # Send reply via Telegram (NOT getUpdates, NOT second poller)
+    # Send sanitized reply via Telegram (NOT getUpdates, NOT second poller)
     sent = tg_send_message(token, chat_id, reply)
     if sent:
         item["status"] = "done"
@@ -1428,6 +1650,82 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str, smap: di
         item["status"] = "failed"
         save_item(path, item)
         logger.warning("Item %s: reply computed but sendMessage failed (attempt %d)", request_id, attempt_count + 1)
+
+
+# ─── Canonical Reminder Bridge (Hermes Cron Scheduler Reused) ────────────────
+def _airo_reminder_tick(token: str, default_chat_id: str) -> int:
+    """
+    Evaluates due Hermes cron jobs and pushes reminders via Telegram sendMessage.
+    Reuses canonical Hermes scheduler (cron.jobs) without creating a second scheduler.
+    """
+    try:
+        from cron.jobs import get_due_jobs, advance_next_run, mark_job_run, save_job_output
+        from cron.scheduler import run_job
+    except ImportError as exc:
+        logger.warning("Cron modules not available for reminder tick: %s", exc)
+        return 0
+
+    try:
+        due_jobs = get_due_jobs()
+    except Exception as exc:
+        logger.error("Error getting due cron jobs: %s", exc)
+        return 0
+
+    if not due_jobs:
+        return 0
+
+    triggered = 0
+    for job in due_jobs:
+        job_id = job.get("id")
+        job_name = job.get("name") or job.get("prompt") or "Pengingat"
+        logger.info("[REMINDER] Job %s is due ('%s')", job_id, job_name)
+
+        # Advance recurring next_run_at first (preserves at-most-once semantics)
+        try:
+            advance_next_run(job_id)
+        except Exception as exc:
+            logger.warning("[REMINDER] advance_next_run failed for %s: %s", job_id, exc)
+
+        # Execute job via canonical Hermes runner
+        try:
+            success, output, final_response, err = run_job(job)
+        except Exception as exc:
+            success = False
+            output = ""
+            final_response = ""
+            err = str(exc)
+            logger.error("[REMINDER] run_job failed for %s: %s", job_id, exc)
+
+        # Format delivery message
+        if success and final_response and final_response.strip():
+            content = f"⏰ *PENGINGAT AIRO*\n\n{final_response.strip()}"
+        elif not success:
+            content = f"⚠️ *Gagal mengeksekusi pengingat:* {job_name}\nDetail: {err}"
+        else:
+            content = f"⏰ *PENGINGAT AIRO:*\n{job_name}"
+
+        # Resolve target chat_id
+        origin = job.get("origin") or {}
+        target_chat_id = origin.get("chat_id") or default_chat_id
+
+        # Send Telegram push notification directly
+        sent = tg_send_message(token, str(target_chat_id), content)
+        delivery_err = None if sent else "Failed sending Telegram message"
+
+        # Mark job run in canonical Hermes store (updates last_run_at, completed count, deletes one-shot)
+        try:
+            save_job_output(job_id, output)
+        except Exception:
+            pass
+        try:
+            mark_job_run(job_id, success=success, error=err, delivery_error=delivery_err)
+        except Exception as exc:
+            logger.warning("[REMINDER] mark_job_run failed for %s: %s", job_id, exc)
+
+        logger.info("[REMINDER] Job %s processed: success=%s sent=%s", job_id, success, sent)
+        triggered += 1
+
+    return triggered
 
 
 # ??? Main loop ????????????????????????????????????????????????????????????????
@@ -1449,6 +1747,11 @@ def main():
         logger.error("Credentials not configured. Exiting.")
         release_worker_lock()
         sys.exit(1)
+
+    # Configure session environment for Hermes cronjob tool availability and origin capture
+    os.environ["HERMES_GATEWAY_SESSION"] = "1"
+    os.environ["HERMES_SESSION_PLATFORM"] = "telegram"
+    os.environ["HERMES_SESSION_CHAT_ID"] = str(owner_chat_id)
 
     # Initialize Hermes Python path and validate model before queue processing.
     init_hermes()
@@ -1520,6 +1823,18 @@ def main():
             except Exception as exc:
                 logger.warning(
                     "EAB proactive tick failed closed: %s",
+                    exc,
+                )
+
+            # AIRO Canonical Reminder Trigger Evaluator
+            try:
+                _airo_reminder_tick(
+                    token,
+                    owner_chat_id,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Reminder tick failed closed: %s",
                     exc,
                 )
 

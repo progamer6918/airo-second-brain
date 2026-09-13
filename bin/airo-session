@@ -167,7 +167,16 @@ def cmd_start(args, repo_root):
             print(f"ERROR: {err}", file=sys.stderr)
             return 1
 
-    safe, pat = check_public_safety(args.objective, args.title, args.position)
+    safe, pat = check_public_safety(
+        args.objective,
+        args.title,
+        args.position,
+        getattr(args, "origin_device", None),
+        getattr(args, "executor_device", None),
+        getattr(args, "execution_target", None),
+        getattr(args, "repository_identity", None),
+        getattr(args, "host_timestamp_context", None),
+    )
     if not safe:
         print(f"ERROR: Input contains secret pattern '{pat}'", file=sys.stderr)
         return 1
@@ -186,6 +195,48 @@ def cmd_start(args, repo_root):
 
     internal_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
+
+    origin_device = getattr(args, "origin_device", None) or os.environ.get("AIRO_ORIGIN_DEVICE") or "UNKNOWN"
+    executor_device = getattr(args, "executor_device", None) or os.environ.get("AIRO_EXECUTOR_DEVICE") or "UNKNOWN"
+    execution_target = getattr(args, "execution_target", None) or os.environ.get("AIRO_EXECUTION_TARGET") or "UNKNOWN"
+
+    repository_identity = getattr(args, "repository_identity", None) or os.environ.get("AIRO_REPOSITORY_IDENTITY")
+    if not repository_identity:
+        try:
+            res = subprocess.run(
+                ["git", "-C", repo_root, "config", "--get", "remote.origin.url"],
+                capture_output=True,
+                text=True
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                repository_identity = res.stdout.strip()
+        except Exception:
+            pass
+    if not repository_identity:
+        repository_identity = "UNKNOWN"
+
+    host_timestamp_context = getattr(args, "host_timestamp_context", None) or os.environ.get("AIRO_HOST_TIMESTAMP_CONTEXT")
+    if not host_timestamp_context:
+        try:
+            tz = datetime.now().astimezone().strftime("%Z%z")
+            if tz:
+                host_timestamp_context = tz.strip()
+        except Exception:
+            pass
+    if not host_timestamp_context:
+        host_timestamp_context = "UTC"
+
+    safe_prov, pat_prov = check_public_safety(
+        origin_device,
+        executor_device,
+        execution_target,
+        repository_identity,
+        host_timestamp_context,
+    )
+    if not safe_prov:
+        print(f"ERROR: Provenance metadata contains secret pattern '{pat_prov}'", file=sys.stderr)
+        return 1
+
     session_data = {
         "internal_session_id": internal_id,
         "project_id": args.project_id,
@@ -193,6 +244,11 @@ def cmd_start(args, repo_root):
         "objective": args.objective,
         "title": args.title or args.objective,
         "position": args.position or "IN_PROGRESS",
+        "origin_device": origin_device,
+        "executor_device": executor_device,
+        "execution_target": execution_target,
+        "repository_identity": repository_identity,
+        "host_timestamp_context": host_timestamp_context,
         "created_at": now_iso,
         "last_activity_at": now_iso,
         "events": [],
@@ -326,6 +382,11 @@ def cmd_draft_closeout(args, repo_root):
         f"project: \"[[{_resolve_project_link(active['project_id'], active['project_name'], repo_root)}|{active['project_name']}]]\"",
         f"objective: \"{active['objective']}\"",
         f"position: \"{active.get('position', 'IN_PROGRESS')}\"",
+        f"origin_device: \"{active.get('origin_device') or 'UNKNOWN'}\"",
+        f"executor_device: \"{active.get('executor_device') or 'UNKNOWN'}\"",
+        f"execution_target: \"{active.get('execution_target') or 'UNKNOWN'}\"",
+        f"repository_identity: \"{active.get('repository_identity') or 'UNKNOWN'}\"",
+        f"host_timestamp_context: \"{active.get('host_timestamp_context') or 'UNKNOWN'}\"",
         "status: BELUM_TERBUKTI",
         "can_advance: NO",
         "---",
@@ -607,6 +668,11 @@ def cmd_close(args, repo_root):
         f"title: \"{title_wl}\"",
         f"objective: \"{active['objective']}\"",
         f"position: \"{active.get('position', 'M3')}\"",
+        f"origin_device: \"{active.get('origin_device') or 'UNKNOWN'}\"",
+        f"executor_device: \"{active.get('executor_device') or 'UNKNOWN'}\"",
+        f"execution_target: \"{active.get('execution_target') or 'UNKNOWN'}\"",
+        f"repository_identity: \"{active.get('repository_identity') or 'UNKNOWN'}\"",
+        f"host_timestamp_context: \"{active.get('host_timestamp_context') or 'UNKNOWN'}\"",
         f"status: {verdict_status}",
         f"can_advance: {can_advance}",
         "---",
@@ -752,6 +818,11 @@ def main():
     p_start.add_argument("--objective", required=True)
     p_start.add_argument("--title", default=None)
     p_start.add_argument("--position", default=None)
+    p_start.add_argument("--origin-device", default=None)
+    p_start.add_argument("--executor-device", default=None)
+    p_start.add_argument("--execution-target", default=None)
+    p_start.add_argument("--repository-identity", default=None)
+    p_start.add_argument("--host-timestamp-context", default=None)
 
     p_event = subparsers.add_parser("event")
     p_event.add_argument("--event-type", default="checkpoint", choices=["command", "validation", "error", "checkpoint", "repo_change", "decision_candidate"])

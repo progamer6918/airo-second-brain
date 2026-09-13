@@ -73,11 +73,14 @@ def run_tests():
         has_sid = "**Session ID**" in content
         has_ts = "**Dimulai Pada**" in content
         
-        if has_proj and has_obj and has_sid and has_ts:
-            print("  [PASS] Test 2: bin/airo-session start successfully updates state/active-session.md")
+        cw_file = os.path.join(repo_root, "runtime/workdesk/current-work.md")
+        has_cw = os.path.exists(cw_file) and f"| {test_proj} |" in open(cw_file, "r", encoding="utf-8").read()
+
+        if has_proj and has_obj and has_sid and has_ts and has_cw:
+            print("  [PASS] Test 2: bin/airo-session start successfully updates state/active-session.md & runtime/workdesk/current-work.md")
             passed += 1
         else:
-            print(f"  [FAIL] Test 2: Projection content missing required fields:\n{content}")
+            print(f"  [FAIL] Test 2: Projection content missing required fields (has_proj={has_proj}, has_cw={has_cw})")
     else:
         print(f"  [FAIL] Test 2: PROJECTION_SYNC=START_UPDATED missing in stdout: {start_res.stdout} (stderr: {start_res.stderr})")
 
@@ -94,11 +97,14 @@ def run_tests():
         with open(proj_file, "r", encoding="utf-8") as f:
             content = f.read()
         
-        if content.strip() == IDLE_CARD.strip():
-            print("  [PASS] Test 3: bin/airo-session close successfully resets state/active-session.md to canonical idle")
+        cw_file = os.path.join(repo_root, "runtime/workdesk/current-work.md")
+        cw_idle = os.path.exists(cw_file) and "Tidak ada pekerjaan aktif" in open(cw_file, "r", encoding="utf-8").read()
+
+        if content.strip() == IDLE_CARD.strip() and cw_idle:
+            print("  [PASS] Test 3: bin/airo-session close successfully resets state/active-session.md & current-work.md to idle")
             passed += 1
         else:
-            print(f"  [FAIL] Test 3: Projection content is not idle card:\n{content}")
+            print(f"  [FAIL] Test 3: Projection content is not idle card (proj={content.strip() == IDLE_CARD.strip()}, cw={cw_idle})")
     else:
         print(f"  [FAIL] Test 3: PROJECTION_SYNC=CLOSE_RESET missing in stdout: {close_res.stdout} (stderr: {close_res.stderr})")
 

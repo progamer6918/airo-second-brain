@@ -77,7 +77,7 @@ def load_credentials() -> Tuple[str, str]:
 
     # Fallback to canonical owner chat id if unspecified
     if not chat_id:
-        chat_id = "8482041086"
+        chat_id = "8482041086,8263476434"
 
     return token, str(chat_id)
 
@@ -170,7 +170,8 @@ def tg_get_updates(token: str, offset: int, timeout: int = 30) -> Tuple[Optional
 
 # ─── 5. Atomic Hermes Queue Enqueue ──────────────────────────────────────────
 def enqueue_nl_message(update_id: int, sender_chat_id: str, owner_chat_id: str, message_id: int, text: str) -> bool:
-    if str(sender_chat_id) != str(owner_chat_id):
+    allowed = [x.strip() for x in str(owner_chat_id).split(",") if x.strip()]
+    if str(sender_chat_id).strip() not in allowed:
         log(f"SECURITY: Ignore message from unauthorized chat_id {sender_chat_id} (not matching owner allowlist)")
         return False
 
@@ -188,7 +189,7 @@ def enqueue_nl_message(update_id: int, sender_chat_id: str, owner_chat_id: str, 
     item = {
         "request_id": request_id,
         "telegram_update_id": update_id,
-        "chat_id": str(owner_chat_id),
+        "chat_id": str(sender_chat_id).strip(),
         "message_id": message_id,
         "received_at": datetime.now().isoformat(),
         "text": text.strip(),
@@ -215,7 +216,39 @@ def enqueue_nl_message(update_id: int, sender_chat_id: str, owner_chat_id: str, 
         return False
 
 
+# ─── 5.5 Finance Ingress Router Integration ──────────────────────────────────
+finance_router = None
+
+def init_finance_router(token: str, owner_chat_id: str):
+    global finance_router
+    try:
+        lab_src = os.path.join(REPO_DIR, "ecosystem/projects/airo-finance-lab/src")
+        if lab_src not in sys.path:
+            sys.path.insert(0, lab_src)
+        from airo_finance_core.telegram_ingress import get_ingress_router
+        finance_router = get_ingress_router(token=token, owner_chat_id=owner_chat_id)
+        log("AIRO Finance Lab Telegram Ingress Router initialized successfully.")
+    except Exception as e:
+        log(f"Finance Ingress Router not initialized: {e}")
+        finance_router = None
+
+
 def route_update(owner_chat_id: str, update: dict):
+    if "callback_query" in update:
+        cq = update["callback_query"]
+        log(f"Received callback_query id={cq.get('id')} data={cq.get('data')} from={cq.get('from', {}).get('id')}")
+
+    # 1. Finance Transaction Routing Boundary
+    if finance_router:
+        try:
+            handled, reason = finance_router.handle_update(update)
+            if handled:
+                log(f"Finance router handled update {update.get('update_id')}: {reason}")
+                return
+        except Exception as e:
+            log(f"Error in finance router dispatch: {e}")
+
+    # 2. Conversational Passthrough to AIRO Hermes Bridge Queue
     if "message" in update:
         msg = update["message"]
         sender_cid = str(msg.get("chat", {}).get("id", ""))
@@ -235,6 +268,8 @@ def run_live_gateway():
     if not token or not owner_chat_id:
         log(f"ERROR: Bot token or Owner chat_id not configured in {ENV_FILE}. Exiting.")
         sys.exit(1)
+
+    init_finance_router(token, owner_chat_id)
 
     if not acquire_lock():
         log("Another AIRO Hermes gateway instance holds the lock. Exiting safely.")

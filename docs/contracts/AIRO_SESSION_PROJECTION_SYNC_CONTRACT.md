@@ -25,12 +25,14 @@ audience: all_airo_operators
 ### 1.1 Architectural Rationale
 In the AIRO Second Brain (ASB) ecosystem, session execution operates across two distinct planes:
 1. **The Runtime Execution Plane (`Runtime State`)**: Headless, low-latency, machine-parsable JSON state managed by `bin/airo-session` inside user-space runtime storage (`~/.local/state/airo/second-brain/<repo_hash>/active_session.json`).
-2. **The Human Operational Surface (`Obsidian Projection`)**: Visual, human-friendly Markdown notes embedded within Obsidian cockpits (`state/active-session.md` transcluded by `HOME.md` or `AIRO WorkDesk`).
+2. **The Human Operational Surface (`Obsidian Projection`)**: Visual, human-friendly Markdown notes embedded within Obsidian cockpits:
+   - `state/active-session.md`: Card-formatted session view for project/PRD linkages.
+   - `runtime/workdesk/current-work.md`: Table-formatted operational current-work surface transcluded by `HOME.md` (`### ▶️ Lanjut Kerja`) and `wiki/workdesk/WORKDESK.md`.
 
 ### 1.2 Core Invariant
 > [!IMPORTANT]
-> **`state/active-session.md` is a DERIVED OPERATIONAL VIEW, NEVER THE SOURCE OF TRUTH.**  
-> Under no circumstances may an agent, script, or operator treat `state/active-session.md` as authoritative session state. Live session truth is defined solely by the active runtime execution engine (`bin/airo-session`).
+> **Projection notes (`state/active-session.md` and `runtime/workdesk/current-work.md`) are DERIVED OPERATIONAL VIEWS, NEVER THE SOURCE OF TRUTH.**  
+> Under no circumstances may an agent, script, or operator treat projection files as authoritative session state. Live session truth is defined solely by the active runtime execution engine (`bin/airo-session`).
 
 ---
 
@@ -49,15 +51,16 @@ When resolving active session identity, status, or lifecycle stage, all AIRO con
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │            2. SECONDARY: Markdown Projection           │
-│  - Repository file: state/active-session.md            │
-│  - Authority: DERIVED READ-ONLY MIRROR                 │
+│  - Surface A: state/active-session.md                  │
+│  - Surface B: runtime/workdesk/current-work.md         │
+│  - Authority: DERIVED READ-ONLY MIRRORS                │
 │  - Stale when desynchronized from Primary              │
 └──────────────────────────┬─────────────────────────────┘
                            │ Transcludes into
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │            3. VIEWER: Obsidian WorkDesk Cockpit        │
-│  - Human surface: wiki/workdesk/HOME.md, HOME.md       │
+│  - Human surface: HOME.md, wiki/workdesk/WORKDESK.md   │
 │  - Authority: PRESENTATION LAYER ONLY                  │
 └────────────────────────────────────────────────────────┘
 ```
@@ -65,9 +68,10 @@ When resolving active session identity, status, or lifecycle stage, all AIRO con
 1. **Primary (Runtime Session State)**:
    - File: `~/.local/state/airo/second-brain/<repo_hash>/active_session.json`
    - Authority: Absolute runtime truth. Contains active UUID, project ID, title, position, start timestamp, and raw ledger events.
-2. **Secondary (Projection Note)**:
-   - File: `state/active-session.md`
-   - Authority: Derived representation formatted for Obsidian readability. Must be refreshed whenever Primary transitions.
+2. **Secondary (Projection Notes)**:
+   - Surface A: `state/active-session.md` (Rich card format).
+   - Surface B: `runtime/workdesk/current-work.md` (Operational table format transcluded by `HOME.md` and `WORKDESK.md`).
+   - Authority: Derived representation formatted for Obsidian readability. Atomically updated by `scripts/airo-session-projection-sync`.
 3. **Viewer (Obsidian Cockpit)**:
    - Interface: Desktop / Mobile Obsidian rendering `HOME.md`.
    - Authority: Display only. Never dictates system state.

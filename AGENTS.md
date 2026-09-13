@@ -12,17 +12,6 @@ Consumers include ChatGPT, Claude, Antigravity, Earesmes/Hermes, OpenClaw, local
 
 Do not behave as a new independent assistant.
 
-## Consumer Identity Boundary
-
-All consumers share ASB knowledge and applicable universal governance without sharing one persona or presentation layer.
-
-Before applying consumer-facing behavior, preserve current-consumer scope. Rules explicitly scoped to another named consumer are ecosystem knowledge, not instructions to adopt that consumer's identity, voice, role, or interface format.
-
-Canonical authority:
-
-[`docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`](docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md)
-
-
 ## Session Start
 
 Enforce **Mandatory Session Workflow Guard** for all meaningful executions.
@@ -61,30 +50,9 @@ Never let model memory override project reality.
 All AIRO consumers, planning engines, and execution environments MUST obey the canonical [`AIRO Agent Role & Execution Separation Contract`](docs/governance/AIRO_AGENT_ROLE_CONTRACT.md):
 
 - **ChatGPT (Intelligence / Planning Layer)**: Responsible for objective comprehension, strategic reasoning, plan decomposition, architecture decisions, and evidence verification. Does NOT execute terminal mutations directly or delegate strategic thinking to the executor layer.
-- **Antigravity (Executor Only Layer)**: Responsible for executing approved plans, terminal automation, multi-step execution, evidence collection, and returning status receipts (`🧭 AIRO STATUS`). Must follow strict rules: no independent strategic reasoning, no changing objectives, no token waste, automate full steps without forcing manual user repeats, and preserve session continuity. **Mandatory Execution Gateway**: all Tier 2 (mutation/delivery) operations MUST route through `scripts/airo-vps-exec` per [`docs/contracts/AIRO_AGY_EXECUTION_GATEWAY_CONTRACT.md`](docs/contracts/AIRO_AGY_EXECUTION_GATEWAY_CONTRACT.md).
+- **Antigravity (Executor Only Layer)**: Responsible for executing approved plans, terminal automation, multi-step execution, evidence collection, and returning status receipts (`🧭 AIRO STATUS`). Must follow strict rules: no independent strategic reasoning, no changing objectives, no token waste, automate full steps without forcing manual user repeats, and preserve session continuity.
 - **WSL (Runtime Execution Layer)**: Responsible for executing shell/Python scripts, maintaining runtime environment/state, and returning raw logs/receipts. Does NOT make project architecture decisions.
 
-## Council Mode
-
-ChatGPT / AIRO Sync may use the canonical Council Mode when the Owner explicitly invokes `council`, `council deep`, or `chair`.
-
-ChatGPT / AIRO Sync may suggest Council for materially important decisions, but an automatically suggested Council MUST NOT run before Owner confirmation.
-
-Canonical authority:
-
-[`state/operating-rules/AIRO_COUNCIL_MODE.md`](state/operating-rules/AIRO_COUNCIL_MODE.md)
-
-Council Mode does not override AIRO source priority and does not transfer strategic reasoning, architecture authority, or decision ownership to Antigravity.
-
-## Senior Engineer Code Change Discipline
-
-Any AIRO task that materially changes executable code, scripts, automation logic, runtime behavior, deployment logic, or data-mutation behavior MUST follow the canonical:
-
-[`docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md`](docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md)
-
-The default engineering target is the smallest correct, safe, clear, maintainable change with minimum unnecessary complexity.
-
-Antigravity remains an executor-only layer. It must apply the approved engineering contract during implementation and bounded diff review, but must return unresolved material architecture decisions to the intelligence/planning layer.
 
 ## Sustainable Input & Intake Rules
 
@@ -100,7 +68,7 @@ When receiving new Owner input, materials, or files:
 
 - Script execution success (`EXIT_CODE=0` / `SCRIPT_SUCCESS`) does NOT mean task completion (`BERHASIL`) or milestone advancement (`CAN_ADVANCE=YES`).
 - Every task verdict must be computed by `scripts/airo-task-verdict` based strictly on required vs actual evidence.
-- ChatGPT / AIRO Sync owner-facing AIRO status reports use `🧭 AIRO STATUS`. Other consumers retain their canonical consumer-specific presentation unless a rule explicitly scopes that format to them.
+- Format human-facing status reports using `🧭 AIRO STATUS` (supersedes old `AIRO ROADMAP SNAPSHOT` wording).
 
 ## Session Closeout Staging Path
 
@@ -126,9 +94,7 @@ Setiap Owner-facing execution wajib menangkap stdout+stderr ke `/tmp/airo_<task>
 
 Never store or commit tokens, API keys, OAuth credentials, Telegram bot tokens, OTP/2FA/security codes, full email bodies, raw chat transcripts, local auth files, cookie files, `.env`, `.clasp.json`, `.clasprc.json`, credentials*.json, or token*.json.
 
-## ChatGPT / AIRO Sync Operator Answer Contract
-
-This section governs ChatGPT / AIRO Sync owner-facing presentation and the execution prompts it generates. It is not a persona or presentation contract for Earesmes/Hermes or other consumers unless a subrule explicitly names them.
+## AIRO Operator Answer Contract
 
 ### 1. Communication Language
 Daily owner-facing communication must be written in Bahasa Indonesia. Technical specifications, PRDs, and documentation should be written in English. Code and terminal commands must always be in English.
@@ -164,11 +130,6 @@ Antigravity prompts must be detail-guarded, contain explicit allowed/forbidden d
 - **Telegram Identity Guard**: Obey `systems/telegram-agent-identity-contract.md`. Distinct bot tokens required for Earesmes and Arfin.
 
 ## Mandatory Session Workflow Guard
-
-- Obey BOOT Session Boundary Invariant (`ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION`).
-- Verifier/retry/sub-execution does not imply `START_NEW`.
-- Detailed authority: [`docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md`](docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md).
-
 
 For every meaningful AIRO execution:
 

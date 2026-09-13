@@ -15,11 +15,7 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 
 ### ▶️ Lanjut Kerja
 
-![[runtime/workdesk/current-work.md]]
-
-### 📌 PR / Mau Dikerjain
-
-![[state/deferred-work]]
+Belum ada pekerjaan aktif spesifik yang perlu dilanjutkan otomatis.
 
 ### 📅 Hari Ini
 
@@ -28,8 +24,8 @@ External brain untuk kerja, keuangan, pengetahuan, dan semua hal yang perlu dila
 ### 🔎 Cari & Jelajah
 
 #### 💼 Kerja
-[[wiki/workdesk/WORKDESK|AIRO WorkDesk]] — Brainstorming, analisa, dealer, pasar, sales, stock, problem solving, data, dan pembuat output kerja.
-➡️ **[[wiki/workdesk/WORKDESK|Masuk WorkDesk]]**
+[[wiki/workdesk/HOME|AIRO WorkDesk]] — Brainstorming, analisa, dealer, pasar, sales, stock, problem solving, data, dan pembuat output kerja.
+➡️ **[[wiki/workdesk/HOME|Masuk WorkDesk]]**
 
 #### 💰 Keuangan
 [[ARFIN|AIRO Finance]] — Pengelolaan keuangan, pelaporan, dan kepatuhan finansial AIRO.

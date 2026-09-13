@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 AIRO Session Projection Sync Helper
-Synchronizes runtime session lifecycle with Obsidian active-session markdown projection.
+Synchronizes runtime session lifecycle with:
+1. Obsidian active-session markdown projection (state/active-session.md)
+2. WorkDesk current-work operational surface (runtime/workdesk/current-work.md)
 Contract: docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md
 """
 import os
@@ -13,6 +15,11 @@ import subprocess
 IDLE_CARD = """# ⚪ Tidak Ada Sesi Aktif
 
 Belum ada pekerjaan aktif yang perlu dilanjutkan.
+"""
+
+IDLE_CURRENT_WORK = """# 🟢 Sedang Dikerjakan
+
+Tidak ada pekerjaan aktif.
 """
 
 def get_repo_root(custom_root=None):
@@ -33,6 +40,13 @@ def get_target_paths(repo_root):
     canonical_vault = "/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain"
     if os.path.exists(canonical_vault) and os.path.abspath(repo_root) != os.path.abspath(canonical_vault):
         paths.append(os.path.join(canonical_vault, "state/active-session.md"))
+    return paths
+
+def get_current_work_paths(repo_root):
+    paths = [os.path.join(repo_root, "runtime/workdesk/current-work.md")]
+    canonical_vault = "/mnt/c/Users/Admin/AI_WORKSPACES/airo-second-brain"
+    if os.path.exists(canonical_vault) and os.path.abspath(repo_root) != os.path.abspath(canonical_vault):
+        paths.append(os.path.join(canonical_vault, "runtime/workdesk/current-work.md"))
     return paths
 
 def resolve_project_link(project_id, project_name, repo_root):
@@ -81,44 +95,100 @@ def format_active_card(session_data, repo_root):
 → [[{link_target}|Buka Project / PRD]]
 """
 
+def format_current_work_table(session_data):
+    pname = session_data.get("project_name", "AIRO WorkDesk")
+    pos = session_data.get("position", "Sedang mengerjakan tugas WorkDesk")
+    events = session_data.get("events", [])
+    last_event = events[-1]["summary"] if events else "Sesi aktif dimulai"
+    blockers_list = session_data.get("blockers", [])
+    hambatan = "Tidak ada" if not blockers_list else ", ".join(blockers_list)
+    next_act = session_data.get("next_action") or "Melanjutkan pekerjaan sampai milestone selesai"
+
+    return f"""# 🟢 Sedang Dikerjakan
+
+| Project | Lagi di | Progress Terakhir | Hambatan | Berikutnya |
+|---|---|---|---|---|
+| {pname} | {pos} | {last_event} | {hambatan} | {next_act} |
+"""
+
 def sync_update(repo_root, session_data):
     try:
+        # 1. Update state/active-session.md
         card = format_active_card(session_data, repo_root)
         target_paths = get_target_paths(repo_root)
         for p in target_paths:
             os.makedirs(os.path.dirname(p), exist_ok=True)
             with open(p, "w", encoding="utf-8") as f:
                 f.write(card)
+
+        # 2. Update runtime/workdesk/current-work.md
+        table = format_current_work_table(session_data)
+        cw_paths = get_current_work_paths(repo_root)
+        for p in cw_paths:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(table)
+
         return True, "PROJECTION_UPDATED=YES"
     except Exception as e:
         return False, f"WARNING: Failed to update active session projection: {e}"
 
 def sync_reset(repo_root):
     try:
+        # 1. Reset state/active-session.md
         target_paths = get_target_paths(repo_root)
         for p in target_paths:
             os.makedirs(os.path.dirname(p), exist_ok=True)
             with open(p, "w", encoding="utf-8") as f:
                 f.write(IDLE_CARD)
+
+        # 2. Reset runtime/workdesk/current-work.md
+        cw_paths = get_current_work_paths(repo_root)
+        for p in cw_paths:
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(IDLE_CURRENT_WORK)
+
         return True, "PROJECTION_CLEARED=YES"
     except Exception as e:
         return False, f"WARNING: Failed to reset active session projection: {e}"
 
 def sync_status(repo_root):
     target = os.path.join(repo_root, "state/active-session.md")
+    cw_target = os.path.join(repo_root, "runtime/workdesk/current-work.md")
+
+    status_parts = []
     if not os.path.exists(target):
-        return "PROJECTION_MISSING"
-    try:
-        with open(target, "r", encoding="utf-8") as f:
-            content = f.read()
-        if "⚪ Tidak Ada Sesi Aktif" in content:
-            return "PROJECTION_IDLE"
-        elif "🟢" in content:
-            return "PROJECTION_ACTIVE"
-        else:
-            return "PROJECTION_CUSTOM"
-    except Exception:
-        return "PROJECTION_READ_ERROR"
+        status_parts.append("SESSION_PROJECTION_MISSING")
+    else:
+        try:
+            with open(target, "r", encoding="utf-8") as f:
+                content = f.read()
+            if "⚪ Tidak Ada Sesi Aktif" in content:
+                status_parts.append("PROJECTION_IDLE")
+            elif "🟢" in content:
+                status_parts.append("PROJECTION_ACTIVE")
+            else:
+                status_parts.append("PROJECTION_CUSTOM")
+        except Exception:
+            status_parts.append("PROJECTION_READ_ERROR")
+
+    if not os.path.exists(cw_target):
+        status_parts.append("CW_MISSING")
+    else:
+        try:
+            with open(cw_target, "r", encoding="utf-8") as f:
+                cw_content = f.read()
+            if "Tidak ada pekerjaan aktif" in cw_content:
+                status_parts.append("CW_IDLE")
+            elif "|" in cw_content:
+                status_parts.append("CW_ACTIVE")
+            else:
+                status_parts.append("CW_CUSTOM")
+        except Exception:
+            status_parts.append("CW_READ_ERROR")
+
+    return ",".join(status_parts)
 
 def main():
     parser = argparse.ArgumentParser(description="AIRO Session Projection Sync Helper")

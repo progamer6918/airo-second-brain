@@ -37,6 +37,7 @@ Navigasi cepat ke semua project aktif dalam ekosistem AIRO Second Brain.
 |---|---|---|
 | [EAB — Earesmes-Arfin Bridge](earesmes-arfin-bridge.md) | `EARESMES_ARFIN_CLARIFICATION_BRIDGE` | `control/earesmes-arfin-bridge.md` |
 | AIRO Finance | `AIRO_FINANCE` | `control/airo-finance.md` — belum dibuat |
+| [AIRO Finance Lab](airo-finance-lab.md) | `AIRO_FINANCE_LAB` | `control/airo-finance-lab.md` |
 | Earesmes | `EARESMES` | `control/earesmes-hermes.md` — belum dibuat |
 
 ---

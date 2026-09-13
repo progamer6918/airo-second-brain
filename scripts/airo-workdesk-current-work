@@ -1,97 +1,31 @@
 #!/usr/bin/env python3
 """
 scripts/airo-workdesk-current-work
-Renders sanitized Owner current-work surface from canonical runtime session state.
-Uses exact canonical repo identity matching bin/airo-session.
+DEPRECATED / COMPATIBILITY WRAPPER:
+Delegates WorkDesk current-work rendering directly to unified scripts/airo-session-projection-sync.
+Preserved for backwards compatibility with existing callers.
+Contract: docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md
 """
 import os
 import sys
-import json
-import hashlib
 import subprocess
 from pathlib import Path
 
-def get_canonical_repo_identity(repo_dir: Path) -> str:
-    try:
-        r = subprocess.run(["git", "config", "--get", "remote.origin.url"], cwd=repo_dir, capture_output=True, text=True)
-        url = r.stdout.strip()
-        if url:
-            normalized = url.rstrip("/")
-            if normalized.endswith(".git"):
-                normalized = normalized[:-4]
-            if normalized.startswith("git@"):
-                parts = normalized.split("@", 1)[1].split(":", 1)
-                normalized = f"https://{parts[0]}/{parts[1]}"
-            return normalized.lower()
-    except Exception:
-        pass
-    return str(repo_dir.resolve()).lower()
-
-def resolve_owner_vault():
-    env_v = os.environ.get("AIRO_WORKDESK_OWNER_VAULT")
-    if env_v and Path(env_v).exists():
-        return Path(env_v)
-    
-    cfg_p = Path(os.path.expanduser("~/.config/airo-workdesk/owner-vault-path"))
-    if cfg_p.exists():
-        val = cfg_p.read_text(encoding="utf-8").strip()
-        if val and Path(val).exists():
-            return Path(val)
-    return None
-
-def get_active_session(repo_dir: Path):
-    override_dir = os.environ.get("AIRO_SESSION_STATE_DIR")
-    if override_dir and Path(override_dir).exists():
-        state_dir = Path(override_dir)
-    else:
-        repo_id = get_canonical_repo_identity(repo_dir)
-        repo_h = hashlib.sha256(repo_id.encode("utf-8")).hexdigest()[:12]
-        xdg_state = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
-        state_dir = Path(xdg_state) / "airo/second-brain" / repo_h
-    
-    session_json = state_dir / "active_session.json"
-    if session_json.exists():
-        try:
-            return json.loads(session_json.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-    return None
-
-def render_current_work(sess=None):
-    if not sess or not (sess.get("internal_session_id") or sess.get("session_id")):
-        return "# 🟢 Sedang Dikerjakan\n\nTidak ada pekerjaan aktif.\n"
-    
-    pname = sess.get("project_name", "AIRO WorkDesk")
-    pos = sess.get("position", "Sedang mengerjakan tugas WorkDesk")
-    
-    events = sess.get("events", [])
-    last_event = events[-1]["summary"] if events else "Sesi aktif dimulai"
-    hambatan = "Tidak ada"
-    next_act = sess.get("next_action") or "Melanjutkan pekerjaan sampai milestone selesai"
-
-    return f"""# 🟢 Sedang Dikerjakan
-
-| Project | Lagi di | Progress Terakhir | Hambatan | Berikutnya |
-|---|---|---|---|---|
-| {pname} | {pos} | {last_event} | {hambatan} | {next_act} |
-"""
-
 def main():
     repo_dir = Path(__file__).resolve().parent.parent
-    sess = get_active_session(repo_dir)
-    content = render_current_work(sess)
+    sync_helper = repo_dir / "scripts/airo-session-projection-sync"
 
-    # 1. WSL surface
-    wsl_cw = repo_dir / "runtime/workdesk/current-work.md"
-    wsl_cw.parent.mkdir(parents=True, exist_ok=True)
-    wsl_cw.write_text(content, encoding="utf-8")
+    res = subprocess.run(
+        [sys.executable, str(sync_helper), "status", "--repo-root", str(repo_dir)],
+        capture_output=True,
+        text=True
+    )
 
-    # 2. Windows Mirror
-    ov = resolve_owner_vault()
-    if ov:
-        win_cw = ov / "runtime/workdesk/current-work.md"
-        win_cw.parent.mkdir(parents=True, exist_ok=True)
-        win_cw.write_text(content, encoding="utf-8")
+    if "PROJECTION_IDLE" in res.stdout or "PROJECTION_MISSING" in res.stdout:
+        subprocess.run([sys.executable, str(sync_helper), "reset", "--repo-root", str(repo_dir)], check=False)
+
+    print("WORKDESK_CURRENT_WORK_WRAPPER=DELEGATED_TO_AIRO_SESSION_PROJECTION_SYNC")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
