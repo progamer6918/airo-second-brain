@@ -307,17 +307,12 @@ class FinanceTelegramIngressRouter:
                     return True, "EDIT_FIELD_PROMPTED:note"
 
                 elif field_code == "dat":
-                    self.confirmation_handler.start_edit_session(chat_id, candidate_id, field="date")
-                    prompt_text = (
-                        "📅 <b>Koreksi Tanggal</b>\n"
-                        "───────────────────\n"
-                        "Kirim tanggal baru (format: <code>YYYY-MM-DD</code> atau <code>DD/MM/YYYY</code>):"
-                    )
-                    back_markup = {"inline_keyboard": [[{"text": "🔙 Kembali", "callback_data": f"ced:{candidate_id}"}]]}
+                    self.confirmation_handler.clear_edit_session(chat_id)
+                    picker = self.confirmation_handler.format_date_picker(candidate)
                     if self.outbound and message_id:
-                        self.outbound.edit_message_text(chat_id, message_id, prompt_text, reply_markup=back_markup)
-                        self.outbound.answer_callback_query(cq_id, text="Kirim tanggal baru")
-                    return True, "EDIT_FIELD_PROMPTED:date"
+                        self.outbound.edit_message_text(chat_id, message_id, picker["text"], reply_markup=picker["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="Pilih tanggal transaksi")
+                    return True, f"DATE_PICKER_OPEN:{candidate_id}"
 
                 elif field_code in ("acc", "src"):
                     acc_menu = self.confirmation_handler.format_account_menu(candidate, target="src")
@@ -402,6 +397,63 @@ class FinanceTelegramIngressRouter:
                         self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
                         self.outbound.answer_callback_query(cq_id, text="Subkategori diperbarui")
                     return True, f"DRAFT_SUBCATEGORY_UPDATED:{candidate_id}"
+
+            # Interactive Date Picker Callbacks (date:select, date:month, date:today, date:back, date:ignore)
+            if data.startswith("date:"):
+                if not self.is_owner(sender_id):
+                    logger.warning(f"BLOCKED: Non-owner date callback from {sender_id}")
+                    return True, "BLOCKED_NON_OWNER_CALLBACK"
+
+                parts = data.split(":")
+                action = parts[1]
+
+                if action == "ignore":
+                    if self.outbound:
+                        self.outbound.answer_callback_query(cq_id)
+                    return True, "DATE_IGNORE"
+
+                candidate_id = parts[2]
+                candidate = self.confirmation_handler.get_candidate(candidate_id)
+                if not candidate or candidate.status != "PENDING":
+                    if self.outbound:
+                        self.outbound.answer_callback_query(cq_id, text="⚠️ Draft tidak aktif atau sudah selesai.", show_alert=True)
+                    return True, "DATE_FAILED_STATUS"
+
+                if action == "month":
+                    year_str, month_str = parts[3].split("-")
+                    picker = self.confirmation_handler.format_date_picker(candidate, year=int(year_str), month=int(month_str))
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, picker["text"], reply_markup=picker["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id)
+                    return True, f"DATE_MONTH_CHANGED:{parts[3]}"
+
+                elif action == "today":
+                    from datetime import date as dt_date
+                    today_str = dt_date.today().isoformat()
+                    candidate = self.confirmation_handler.apply_field_update(candidate_id, "date", today_str)
+                    if candidate:
+                        preview = self.confirmation_handler.format_draft_preview(candidate)
+                        if self.outbound and message_id:
+                            self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                            self.outbound.answer_callback_query(cq_id, text="Tanggal diset hari ini")
+                        return True, f"DRAFT_DATE_UPDATED:{candidate_id}"
+
+                elif action == "select":
+                    selected_date = parts[3]
+                    candidate = self.confirmation_handler.apply_field_update(candidate_id, "date", selected_date)
+                    if candidate:
+                        preview = self.confirmation_handler.format_draft_preview(candidate)
+                        if self.outbound and message_id:
+                            self.outbound.edit_message_text(chat_id, message_id, preview["text"], reply_markup=preview["reply_markup"])
+                            self.outbound.answer_callback_query(cq_id, text=f"Tanggal dipilih: {selected_date}")
+                        return True, f"DRAFT_DATE_UPDATED:{candidate_id}"
+
+                elif action == "back":
+                    menu = self.confirmation_handler.format_guided_edit_menu(candidate)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, menu["text"], reply_markup=menu["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id)
+                    return True, f"GUIDED_EDIT_MENU:{candidate_id}"
 
             if data.startswith("cfm:") or data.startswith("ccl:"):
                 # Enforce Owner Authorization

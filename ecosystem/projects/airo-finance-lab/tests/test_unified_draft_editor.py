@@ -297,5 +297,128 @@ class TestUnifiedDraftEditorV1(unittest.TestCase):
         self.assertEqual(len(self.engine.list_transactions()), 1)  # No new transaction
         self.assertEqual(cand2.status, "CANCELLED")
 
+    def test_07_date_picker_interactive_flow(self):
+        """DATE_PICKER_OPEN & DATE_SELECTION: Selecting date button updates draft date and shows preview."""
+        cand = self.router.confirmation_handler.stage_input("makan 45k bca")
+        initial_date = getattr(cand, "date", None)
+        self.assertIsNotNone(initial_date)
+
+        # 1. Click 📅 Tanggal
+        up_open = {
+            "callback_query": {
+                "id": "cq_open_date",
+                "data": f"edf:{cand.candidate_id}:dat",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 507, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_open, r_open = self.router.handle_update(up_open)
+        self.assertTrue(h_open)
+        self.assertEqual(r_open, f"DATE_PICKER_OPEN:{cand.candidate_id}")
+
+        # Verify date picker markup
+        last_edit = self.outbound.edited_messages[-1]
+        self.assertIn("Koreksi Tanggal", last_edit["text"])
+        self.assertIn("Kalender:", last_edit["text"])
+        inline_kb = last_edit["reply_markup"]["inline_keyboard"]
+        # Header row with navigation
+        self.assertEqual(inline_kb[0][0]["text"], "⬅️ Bulan Sebelumnya")
+        self.assertEqual(inline_kb[0][1]["text"], "Bulan Berikutnya ➡️")
+        # Quick action row at the bottom
+        self.assertEqual(inline_kb[-1][0]["text"], "📌 Hari Ini")
+        self.assertEqual(inline_kb[-1][1]["text"], "⬅️ Kembali")
+
+        # 2. Select a specific date: e.g. 2026-09-01
+        target_date = "2026-09-01"
+        up_select = {
+            "callback_query": {
+                "id": "cq_sel_date",
+                "data": f"date:select:{cand.candidate_id}:{target_date}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 507, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_sel, r_sel = self.router.handle_update(up_select)
+        self.assertTrue(h_sel)
+        self.assertEqual(r_sel, f"DRAFT_DATE_UPDATED:{cand.candidate_id}")
+        self.assertEqual(cand.date, target_date)
+
+        # Verify Draft Preview was rendered with Before vs After date
+        preview_edit = self.outbound.edited_messages[-1]
+        self.assertIn("Review Perubahan Draft", preview_edit["text"])
+        self.assertIn("Sebelumnya:", preview_edit["text"])
+        self.assertIn("Setelah Koreksi:", preview_edit["text"])
+        self.assertIn(target_date, preview_edit["text"])
+
+        # Verify NO premature ledger mutation
+        self.assertEqual(len(self.engine.list_transactions()), 0)
+
+        # 3. Confirm apply writes transaction with the selected date
+        up_cfm = {
+            "callback_query": {
+                "id": "cq_cfm_date",
+                "data": f"cfm:{cand.candidate_id}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 507, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_cfm, r_cfm = self.router.handle_update(up_cfm)
+        self.assertTrue(h_cfm)
+        self.assertTrue(r_cfm.startswith("CONFIRMED:tx_"))
+
+        txs = self.engine.list_transactions()
+        self.assertEqual(len(txs), 1)
+        self.assertEqual(txs[0].date, target_date)
+
+    def test_08_date_picker_navigation_and_today(self):
+        """MONTH_NAVIGATION & TODAY: Navigating months changes calendar view; today button resets to current date."""
+        cand = self.router.confirmation_handler.stage_input("bensin 30k bca")
+
+        # 1. Navigate to 2026-08
+        up_month = {
+            "callback_query": {
+                "id": "cq_nav_m",
+                "data": f"date:month:{cand.candidate_id}:2026-08",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 508, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_m, r_m = self.router.handle_update(up_month)
+        self.assertTrue(h_m)
+        self.assertEqual(r_m, "DATE_MONTH_CHANGED:2026-08")
+        last_edit = self.outbound.edited_messages[-1]
+        self.assertIn("Agustus 2026", last_edit["text"])
+
+        # 2. Test Today button
+        from datetime import date as dt_date
+        today_iso = dt_date.today().isoformat()
+        up_today = {
+            "callback_query": {
+                "id": "cq_today",
+                "data": f"date:today:{cand.candidate_id}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 508, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_t, r_t = self.router.handle_update(up_today)
+        self.assertTrue(h_t)
+        self.assertEqual(r_t, f"DRAFT_DATE_UPDATED:{cand.candidate_id}")
+        self.assertEqual(cand.date, today_iso)
+
+        # 3. Test Back button from date picker
+        up_back = {
+            "callback_query": {
+                "id": "cq_back",
+                "data": f"date:back:{cand.candidate_id}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 508, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_b, r_b = self.router.handle_update(up_back)
+        self.assertTrue(h_b)
+        self.assertEqual(r_b, f"GUIDED_EDIT_MENU:{cand.candidate_id}")
+        last_menu = self.outbound.edited_messages[-1]
+        self.assertIn("Apa yang mau dikoreksi?", last_menu["text"])
+
 if __name__ == "__main__":
     unittest.main()

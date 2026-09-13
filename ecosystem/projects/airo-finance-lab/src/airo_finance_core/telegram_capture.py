@@ -1,6 +1,8 @@
 import re
 import uuid
 import time
+import calendar
+from datetime import datetime, date
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, Tuple, List
 from .engine import FinanceCoreEngine
@@ -206,7 +208,8 @@ class SimpleTransactionParser:
                 category_name="Transfer",
                 note=note,
                 status="PENDING",
-                created_at=time.time()
+                created_at=time.time(),
+                date=date.today().isoformat()
             )
 
         # 3. Extract Direction (INCOME vs EXPENSE)
@@ -291,7 +294,8 @@ class SimpleTransactionParser:
             status="PENDING",
             created_at=time.time(),
             subcategory_id=chosen_subcategory["id"] if chosen_subcategory else None,
-            subcategory_name=chosen_subcategory["name"] if chosen_subcategory else None
+            subcategory_name=chosen_subcategory["name"] if chosen_subcategory else None,
+            date=date.today().isoformat()
         )
 
 class TelegramCaptureAdapter:
@@ -563,6 +567,105 @@ class TelegramCaptureAdapter:
             "candidate_id": cand_id
         }
 
+    def format_date_picker(self, candidate: TransactionCandidate, year: Optional[int] = None, month: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Renders interactive custom Telegram calendar date picker.
+        """
+        cand_id = candidate.candidate_id
+        today = date.today()
+
+        # Parse reference date
+        if year is None or month is None:
+            cand_date_str = getattr(candidate, "date", None)
+            if cand_date_str:
+                try:
+                    dt = datetime.strptime(cand_date_str, "%Y-%m-%d").date()
+                    year = dt.year
+                    month = dt.month
+                except Exception:
+                    year = today.year
+                    month = today.month
+            else:
+                year = today.year
+                month = today.month
+
+        # Month navigation logic
+        if month == 1:
+            prev_year = year - 1
+            prev_month = 12
+        else:
+            prev_year = year
+            prev_month = month - 1
+
+        if month == 12:
+            next_year = year + 1
+            next_month = 1
+        else:
+            next_year = year
+            next_month = month + 1
+
+        prev_month_str = f"{prev_year:04d}-{prev_month:02d}"
+        next_month_str = f"{next_year:04d}-{next_month:02d}"
+
+        month_names_id = [
+            "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ]
+        header_title = f"{month_names_id[month]} {year}"
+
+        keyboard = []
+
+        # Row 0: Month Navigation
+        keyboard.append([
+            {"text": "⬅️ Bulan Sebelumnya", "callback_data": f"date:month:{cand_id}:{prev_month_str}"},
+            {"text": "Bulan Berikutnya ➡️", "callback_data": f"date:month:{cand_id}:{next_month_str}"}
+        ])
+
+        # Row 1: Day Header (Sen, Sel, Rab, Kam, Jum, Sab, Min)
+        keyboard.append([
+            {"text": "Sen", "callback_data": "date:ignore"},
+            {"text": "Sel", "callback_data": "date:ignore"},
+            {"text": "Rab", "callback_data": "date:ignore"},
+            {"text": "Kam", "callback_data": "date:ignore"},
+            {"text": "Jum", "callback_data": "date:ignore"},
+            {"text": "Sab", "callback_data": "date:ignore"},
+            {"text": "Min", "callback_data": "date:ignore"}
+        ])
+
+        # Calendar matrix
+        cal = calendar.monthcalendar(year, month)
+        for week in cal:
+            row = []
+            for day in week:
+                if day == 0:
+                    row.append({"text": " ", "callback_data": "date:ignore"})
+                else:
+                    date_str = f"{year:04d}-{month:02d}-{day:02d}"
+                    btn_text = f"📍{day}" if date_str == getattr(candidate, "date", None) else str(day)
+                    row.append({"text": btn_text, "callback_data": f"date:select:{cand_id}:{date_str}"})
+            keyboard.append(row)
+
+        # Quick actions
+        keyboard.append([
+            {"text": "📌 Hari Ini", "callback_data": f"date:today:{cand_id}"},
+            {"text": "⬅️ Kembali", "callback_data": f"date:back:{cand_id}"}
+        ])
+
+        curr_date_display = getattr(candidate, "date", None) or today.isoformat()
+        text = (
+            "📅 <b>Koreksi Tanggal</b>\n"
+            "───────────────────\n"
+            f"Tanggal saat ini: <code>{curr_date_display}</code>\n"
+            f"Kalender: <b>{header_title}</b>\n"
+            "Silakan pilih tanggal pada kalender di bawah:"
+        )
+
+        return {
+            "text": text,
+            "reply_markup": {"inline_keyboard": keyboard},
+            "candidate_id": cand_id
+        }
+
     def format_draft_preview(self, candidate: TransactionCandidate) -> Dict[str, Any]:
         """
         Renders Review Changes (Before vs After) prior to ledger write.
@@ -785,7 +888,8 @@ class TelegramCaptureAdapter:
                 destination_account_id=candidate.destination_account_id,
                 amount=candidate.amount,
                 note=candidate.note,
-                source="TELEGRAM"
+                source="TELEGRAM",
+                tx_date=getattr(candidate, "date", None)
             )
             candidate.status = "CONFIRMED"
 
