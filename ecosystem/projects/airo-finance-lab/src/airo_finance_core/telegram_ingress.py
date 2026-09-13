@@ -335,12 +335,17 @@ class FinanceTelegramIngressRouter:
                         self.outbound.answer_callback_query(cq_id, text="Pilih kategori")
                     return True, f"EDIT_CATEGORY_MENU:{candidate_id}"
 
-            # Account Selection Callback (eda:<candidate_id>:<account_id>)
-            if data.startswith("eda:"):
+            # Account Selection Callback (acc:select:<candidate_id>:<account_id> or eda:<candidate_id>:<account_id>)
+            if data.startswith("acc:select:") or data.startswith("eda:"):
                 if not self.is_owner(sender_id):
                     logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
                     return True, "BLOCKED_NON_OWNER_CALLBACK"
-                _, candidate_id, acc_id = data.split(":", 2)
+                if data.startswith("acc:select:"):
+                    parts = data.split(":")
+                    candidate_id = parts[2]
+                    acc_id = parts[3]
+                else:
+                    _, candidate_id, acc_id = data.split(":", 2)
                 candidate = self.confirmation_handler.apply_field_update(candidate_id, "account", acc_id)
                 if candidate:
                     preview = self.confirmation_handler.format_draft_preview(candidate)
@@ -349,12 +354,17 @@ class FinanceTelegramIngressRouter:
                         self.outbound.answer_callback_query(cq_id, text="Rekening diperbarui")
                     return True, f"DRAFT_ACCOUNT_UPDATED:{candidate_id}"
 
-            # Destination Account Selection Callback (edd:<candidate_id>:<account_id>)
-            if data.startswith("edd:"):
+            # Destination Account Selection Callback (acc:dst:<candidate_id>:<account_id> or edd:<candidate_id>:<account_id>)
+            if data.startswith("acc:dst:") or data.startswith("edd:"):
                 if not self.is_owner(sender_id):
                     logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
                     return True, "BLOCKED_NON_OWNER_CALLBACK"
-                _, candidate_id, acc_id = data.split(":", 2)
+                if data.startswith("acc:dst:"):
+                    parts = data.split(":")
+                    candidate_id = parts[2]
+                    acc_id = parts[3]
+                else:
+                    _, candidate_id, acc_id = data.split(":", 2)
                 candidate = self.confirmation_handler.apply_field_update(candidate_id, "dst_account", acc_id)
                 if candidate:
                     preview = self.confirmation_handler.format_draft_preview(candidate)
@@ -363,12 +373,17 @@ class FinanceTelegramIngressRouter:
                         self.outbound.answer_callback_query(cq_id, text="Rekening tujuan diperbarui")
                     return True, f"DRAFT_DST_ACCOUNT_UPDATED:{candidate_id}"
 
-            # Category Selection Callback (edc:<candidate_id>:<category_id>)
-            if data.startswith("edc:"):
+            # Category Selection Callback (cat:select:<candidate_id>:<category_id> or edc:<candidate_id>:<category_id>)
+            if data.startswith("cat:select:") or data.startswith("edc:"):
                 if not self.is_owner(sender_id):
                     logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
                     return True, "BLOCKED_NON_OWNER_CALLBACK"
-                _, candidate_id, cat_id = data.split(":", 2)
+                if data.startswith("cat:select:"):
+                    parts = data.split(":")
+                    candidate_id = parts[2]
+                    cat_id = parts[3]
+                else:
+                    _, candidate_id, cat_id = data.split(":", 2)
                 candidate = self.confirmation_handler.apply_field_update(candidate_id, "category", cat_id)
                 if candidate:
                     sub_menu = self.confirmation_handler.format_subcategory_menu(candidate, cat_id)
@@ -384,12 +399,17 @@ class FinanceTelegramIngressRouter:
                             self.outbound.answer_callback_query(cq_id, text="Kategori diperbarui")
                         return True, f"DRAFT_CATEGORY_UPDATED:{candidate_id}"
 
-            # Subcategory Selection Callback (eds:<candidate_id>:<subcategory_id>)
-            if data.startswith("eds:"):
+            # Subcategory Selection Callback (sub:select:<candidate_id>:<subcategory_id> or eds:<candidate_id>:<subcategory_id>)
+            if data.startswith("sub:select:") or data.startswith("eds:"):
                 if not self.is_owner(sender_id):
                     logger.warning(f"BLOCKED: Non-owner callback from {sender_id}")
                     return True, "BLOCKED_NON_OWNER_CALLBACK"
-                _, candidate_id, subc_id = data.split(":", 2)
+                if data.startswith("sub:select:"):
+                    parts = data.split(":")
+                    candidate_id = parts[2]
+                    subc_id = parts[3]
+                else:
+                    _, candidate_id, subc_id = data.split(":", 2)
                 candidate = self.confirmation_handler.apply_field_update(candidate_id, "subcategory", subc_id)
                 if candidate:
                     preview = self.confirmation_handler.format_draft_preview(candidate)

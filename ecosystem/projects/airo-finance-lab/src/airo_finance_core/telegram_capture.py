@@ -466,11 +466,13 @@ class TelegramCaptureAdapter:
         domain = candidate.get_domain(self.engine)
         accounts = self.engine.list_accounts(active_only=True)
 
-        cb_prefix = "edd" if target == "dst" else "eda"
+        cb_prefix = "acc:dst" if target == "dst" else "acc:select"
         buttons = []
         row = []
         for acc in accounts:
             if domain == "CREDIT_CARD_PURCHASE" and getattr(acc, "account_class", "") != "LIABILITY" and acc.type != "CREDIT_CARD":
+                continue
+            if domain == "CC_PAYMENT" and (getattr(acc, "account_class", "") == "LIABILITY" or acc.type == "CREDIT_CARD"):
                 continue
             btn_text = f"🏦 {acc.name}"
             cb_data = f"{cb_prefix}:{cand_id}:{acc.id}"
@@ -507,7 +509,7 @@ class TelegramCaptureAdapter:
         row = []
         for cat in categories:
             btn_text = f"📂 {cat.name}"
-            cb_data = f"edc:{cand_id}:{cat.id}"
+            cb_data = f"cat:select:{cand_id}:{cat.id}"
             row.append({"text": btn_text, "callback_data": cb_data})
             if len(row) == 2:
                 buttons.append(row)
@@ -544,7 +546,7 @@ class TelegramCaptureAdapter:
         row = []
         for sub in subcategories:
             btn_text = f"🏷️ {sub.name}"
-            cb_data = f"eds:{cand_id}:{sub.id}"
+            cb_data = f"sub:select:{cand_id}:{sub.id}"
             row.append({"text": btn_text, "callback_data": cb_data})
             if len(row) == 2:
                 buttons.append(row)
@@ -552,7 +554,7 @@ class TelegramCaptureAdapter:
         if row:
             buttons.append(row)
 
-        buttons.append([{"text": "⏭️ Lewati / Tanpa Subkategori", "callback_data": f"eds:{cand_id}:none"}])
+        buttons.append([{"text": "⏭️ Lewati / Tanpa Subkategori", "callback_data": f"sub:select:{cand_id}:none"}])
         buttons.append([{"text": "🔙 Kembali", "callback_data": f"ced:{cand_id}"}])
 
         text = (

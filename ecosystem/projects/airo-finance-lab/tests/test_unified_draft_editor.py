@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timezone
 from airo_finance_core.db import DatabaseManager
 from airo_finance_core.engine import FinanceCoreEngine
-from airo_finance_core.telegram_capture import TelegramCaptureAdapter, TransactionCandidate
+from airo_finance_core.telegram_capture import TelegramCaptureAdapter, TransactionCandidate, format_idr
 from airo_finance_core.telegram_ingress import FinanceTelegramIngressRouter
 
 class MockOutbound:
@@ -420,5 +420,109 @@ class TestUnifiedDraftEditorV1(unittest.TestCase):
         last_menu = self.outbound.edited_messages[-1]
         self.assertIn("Apa yang mau dikoreksi?", last_menu["text"])
 
+    def test_09_account_dropdown_and_selection(self):
+        """ACCOUNT_DROPDOWN: Selecting acc:select or acc:dst updates candidate account and shows preview."""
+        cand = self.router.confirmation_handler.stage_input("makan 25k bca")
+        
+        # 1. Open account menu
+        menu = self.router.confirmation_handler.format_account_menu(cand, target="src")
+        acc_buttons = [b["text"] for row in menu["reply_markup"]["inline_keyboard"] for b in row]
+        self.assertTrue(any("Blu" in b for b in acc_buttons))
+        
+        # 2. Select Blu via acc:select
+        up_acc = {
+            "callback_query": {
+                "id": "cq_acc_sel",
+                "data": f"acc:select:{cand.candidate_id}:{self.acc_blu.id}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 509, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h, r = self.router.handle_update(up_acc)
+        self.assertTrue(h)
+        self.assertEqual(r, f"DRAFT_ACCOUNT_UPDATED:{cand.candidate_id}")
+        self.assertEqual(cand.account_id, self.acc_blu.id)
+        self.assertEqual(cand.account_name, "Blu")
+        
+        # Preview shown
+        last_edit = self.outbound.edited_messages[-1]
+        self.assertIn("Review Perubahan Draft", last_edit["text"])
+        self.assertIn("Blu", last_edit["text"])
+
+    def test_10_multi_field_preview_flow(self):
+        """MULTI_FIELD_PREVIEW: Multiple edits accumulate cleanly against original state snapshot."""
+        cand = self.router.confirmation_handler.stage_input("makan 50k bca")
+        orig_amt = cand.amount
+        orig_acc = cand.account_name
+        
+        # Edit 1: Account -> Blu
+        self.router.confirmation_handler.apply_field_update(cand.candidate_id, "account", self.acc_blu.id)
+        # Edit 2: Category -> Shopping
+        self.router.confirmation_handler.apply_field_update(cand.candidate_id, "category", self.cat_shop.id)
+        # Edit 3: Subcategory -> Marketplace
+        self.router.confirmation_handler.apply_field_update(cand.candidate_id, "subcategory", self.sub_market.id)
+        # Edit 4: Amount -> 80000
+        self.router.confirmation_handler.apply_field_update(cand.candidate_id, "amount", 80000.0)
+        # Edit 5: Date -> 2026-09-12
+        self.router.confirmation_handler.apply_field_update(cand.candidate_id, "date", "2026-09-12")
+        
+        preview = self.router.confirmation_handler.format_draft_preview(cand)
+        prev_text = preview["text"]
+        
+        # Verify original state preserved
+        self.assertIn("Sebelumnya:", prev_text)
+        self.assertIn(format_idr(orig_amt), prev_text)
+        self.assertIn(orig_acc, prev_text)
+        
+        # Verify current state reflected
+        self.assertIn("Setelah Koreksi:", prev_text)
+        self.assertIn(format_idr(80000.0), prev_text)
+        self.assertIn("Blu", prev_text)
+        self.assertIn("Shopping", prev_text)
+        self.assertIn("Marketplace", prev_text)
+        self.assertIn("2026-09-12", prev_text)
+
+    def test_11_audit_flow_and_cc_payment_domain(self):
+        """AUDIT_FLOW & CC_PAYMENT: Confirming writes audit log; CC_PAYMENT hides liability accounts as payer."""
+        # 1. CC_PAYMENT domain account filtering
+        cand_ccpay = TransactionCandidate(
+            candidate_id="cand_ccpay_test",
+            raw_text="bayar cc 100k",
+            amount=100000.0,
+            direction="EXPENSE",
+            account_id=self.acc_bca.id,
+            account_name=self.acc_bca.name,
+            category_id=None,
+            category_name=None,
+            note="bayar tagihan cc",
+            tx_type="CC_PAYMENT"
+        )
+        self.router.confirmation_handler._candidates[cand_ccpay.candidate_id] = cand_ccpay
+        menu_pay = self.router.confirmation_handler.format_account_menu(cand_ccpay, target="src")
+        pay_buttons = [b["text"] for row in menu_pay["reply_markup"]["inline_keyboard"] for b in row]
+        # Should contain BCA and Blu, but NOT Tokopedia Card (CREDIT_CARD / LIABILITY)
+        self.assertTrue(any("BCA" in b for b in pay_buttons))
+        self.assertTrue(any("Blu" in b for b in pay_buttons))
+        self.assertFalse(any("Tokopedia" in b for b in pay_buttons))
+        
+        # 2. Confirm candidate and assert audit log
+        up_cfm = {
+            "callback_query": {
+                "id": "cq_cc_cfm",
+                "data": f"cfm:{cand_ccpay.candidate_id}",
+                "from": {"id": int(self.owner_id)},
+                "message": {"message_id": 510, "chat": {"id": int(self.owner_id)}}
+            }
+        }
+        h_cfm, r_cfm = self.router.handle_update(up_cfm)
+        self.assertTrue(h_cfm)
+        self.assertTrue(r_cfm.startswith("CONFIRMED:tx_"))
+        
+        # Verify audit logs in database
+        audit_logs = self.engine.get_audit_logs(limit=10)
+        self.assertTrue(len(audit_logs) > 0)
+        self.assertTrue(any(l.entity == "transactions" for l in audit_logs))
+
 if __name__ == "__main__":
     unittest.main()
+
