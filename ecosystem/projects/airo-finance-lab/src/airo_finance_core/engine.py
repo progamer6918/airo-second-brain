@@ -1897,6 +1897,7 @@ class FinanceCoreEngine:
                 "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
                 (audit_id, "review_queue", item_id, "ENQUEUE", now_str)
             )
+        conn.commit()
         return ReviewQueueItem(
             id=item_id,
             raw_text=raw_text,

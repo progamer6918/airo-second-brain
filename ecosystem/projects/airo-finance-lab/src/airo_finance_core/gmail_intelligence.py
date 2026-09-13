@@ -445,6 +445,12 @@ class GmailIntelligenceService:
                    VALUES (?, ?, ?, ?, ?, ?, 'CANDIDATE_CREATED', ?, datetime('now'))""",
                 (parsed["message_id"], thread_id, sender or "Unknown", subject or "No Subject", parsed["date"], fingerprint, q_item.id)
             )
+        conn.commit()
+
+        # Double check review_queue persistence before Telegram dispatch
+        persisted = conn.execute("SELECT id, status FROM review_queue WHERE id = ?", (q_item.id,)).fetchone()
+        if not persisted or persisted["status"] != "PENDING":
+            logger.error(f"Integrity check failed: review_item {q_item.id} not found in PENDING status in review_queue table.")
 
         # Format Telegram card
         telegram_card = self.format_telegram_review_card(parsed, q_item.id)
