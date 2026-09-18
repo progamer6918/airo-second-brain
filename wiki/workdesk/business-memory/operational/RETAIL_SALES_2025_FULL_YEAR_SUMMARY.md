@@ -22,5 +22,5 @@ Dokumen memori bisnis ini mencatat baseline historis penuh untuk penjualan retai
 
 ## Rule PENGGUNAAN & KETERHUBUNGAN
 1. **Analisa YoY 2026 vs 2025**: Gunakan dataset ini sebagai penyedia baseline bulanan 2025 yang sah.
-2. **Current 2026 Authority**: Penjualan berjalan tahun 2026 tetap mengacu secara utama ke `Retail Sales/SSU.2026.xlsx`.
+2. **Current 2026 Operational Authority**: Penjualan berjalan tahun 2026 mengacu ke `RETAIL_2026_CURRENT_SUMMARY.tsv` dan keluarga TSV operasional 2026 (upstream provenance: `Retail Sales/SSU.2026.xlsx`).
 3. **Persistensi PII**: Dilarang memasukkan detail unit individual NIK/Nama ke dalam berkas markdown publik ASB.

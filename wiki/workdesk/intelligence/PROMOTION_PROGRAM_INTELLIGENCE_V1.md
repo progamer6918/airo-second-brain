@@ -46,7 +46,7 @@ Promotion & Sales Program Intelligence Layer v1 beroperasi secara hirarkis sebag
 1. **`COMMERCIAL_PROGRAM_INTELLIGENCE.md`**: `wiki/workdesk/domains/pricing-financing/COMMERCIAL_PROGRAM_INTELLIGENCE.md`
 2. **`MSW Price Lists`**: `MSW_CURRENTNESS_RETRIEVAL.md` (Brosur & Price List Resmi Honda SMH 2026)
 3. **`NMS Claim Monitoring`**: `NOS_2026_ROW_LEVEL_CANONICAL.tsv` (Monitoring Klaim & Diskon Tambahan Sistem NMS)
-4. **`SSU Retail Sales`**: `Retail Sales/SSU 2024.xlsx`, `SSU 2025.xlsx`, `SSU.2026.xlsx`
+4. **`SSU Retail Sales`**: `PROMOTION_PROGRAM_2026_CURRENT_SUMMARY.tsv`, `RETAIL_2026_CURRENT_SUMMARY.tsv` (Upstream provenance: `Retail Sales/SSU 2024.xlsx`, `SSU 2025.xlsx`, `SSU.2026.xlsx`)
 
 ---
 

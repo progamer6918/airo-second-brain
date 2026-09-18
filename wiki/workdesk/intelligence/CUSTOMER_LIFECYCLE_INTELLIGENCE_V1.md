@@ -5,7 +5,7 @@ status: "APPROVED / CANONICAL"
 version: "1.0"
 parent_contract: "wiki/workdesk/intelligence/RETAIL_INTELLIGENCE_ENGINE_V2.md"
 sibling_contract: "wiki/workdesk/intelligence/CUSTOMER_SEGMENT_INTELLIGENCE_V1.md"
-source_authority: "Retail Sales Authority (SSU 2024, WD-SRC-057 FY2025, SSU.2026.xlsx)"
+source_authority: "Retail Sales Authority (SSU 2024, WD-SRC-057 FY2025, SSU 2026 Operational TSVs)"
 last_updated: "2026-08-23"
 ---
 
@@ -43,7 +43,7 @@ Customer Lifecycle Intelligence Layer v1 beroperasi secara hirarkis sebagai *chi
 ### Otoritas Data Sumber:
 1. **SSU 2024**: `Retail Sales/SSU 2024.xlsx` (SHA256: `31af415f9137dc59c6a22c9dfea0a6869610d53f1de45b33d14162b3912ea380`)
 2. **SSU 2025**: `WD-SRC-057__SSU_2025_FULL_YEAR.md` & `Retail Sales/SSU 2025.xlsx` (SHA256: `38e05002d23a6b275b6380bd78e991b8152b70e790c46e7ee543d5bae3891450`)
-3. **SSU 2026**: `RETAIL_CURRENT_STATE.md` & `Retail Sales/SSU.2026.xlsx` (SHA256: `a9ff25cd2286e285865cf5d79d9d0e77f6f3dd81d874dfd3a61554a04c99f0c3`)
+3. **SSU 2026**: `CUSTOMER_LIFECYCLE_2026_CURRENT_SUMMARY.tsv`, `RETAIL_2026_CURRENT_SUMMARY.tsv`, & `RETAIL_CURRENT_STATE.md` (Upstream raw provenance: `Retail Sales/SSU.2026.xlsx`, SHA256: `a9ff25cd2286e285865cf5d79d9d0e77f6f3dd81d874dfd3a61554a04c99f0c3`)
 
 ---
 

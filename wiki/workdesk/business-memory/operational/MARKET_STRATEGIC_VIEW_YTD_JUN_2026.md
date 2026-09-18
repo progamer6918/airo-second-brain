@@ -3,7 +3,7 @@
 **Status:** derived analytical snapshot. Recompute when a newer market source arrives; do not promote these priorities into permanent causal rules.
 
 ## Province-level competitive pool
-Source for province segment metrics: dedicated M/S memory from `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx`.
+Source for province segment metrics: `MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv` (upstream provenance: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx` raw database).
 
 | Segment | Total Market | Honda | M/S | Δ share | Non-Honda volume | Share of classified non-Honda pool |
 |---|---:|---:|---:|---:|---:|---:|

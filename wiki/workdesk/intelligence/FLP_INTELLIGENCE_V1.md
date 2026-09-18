@@ -5,7 +5,7 @@ status: "APPROVED / CANONICAL"
 version: "1.0"
 parent_contract: "wiki/workdesk/intelligence/RETAIL_INTELLIGENCE_ENGINE_V2.md"
 legacy_reference: "wiki/workdesk/intelligence/FLP_INTELLIGENCE.md"
-source_authority: "Retail Sales Authority (SSU 2024, WD-SRC-057 FY2025, SSU.2026.xlsx) & NOS H1 Standards"
+source_authority: "Retail Sales Authority (SSU 2024, WD-SRC-057 FY2025, SSU 2026 Operational TSVs) & NOS H1 Standards"
 last_updated: "2026-08-23"
 ---
 

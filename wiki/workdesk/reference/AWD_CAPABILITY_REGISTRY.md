@@ -40,7 +40,7 @@ Source (Operational Runtime):
 - Area Geographic Breakdown: wiki/workdesk/business-memory/operational/RETAIL_2026_YTD_JUL_AREA.tsv
 - Historical 2025 Dealer Comparable: wiki/workdesk/business-memory/operational/RETAIL_2025_YTD_JUL_DEALER_HISTORICAL.tsv
 - FY2025 Full-Year Baseline: wiki/workdesk/business-memory/operational/RETAIL_SALES_2025_FULL_YEAR_SUMMARY.md
-- Ingestion Lineage: Operational TSVs originate from Private Raw Workbook Authority (Retail Sales/SSU.2026.xlsx & SSU 2025.xlsx; raw customer PII excluded from ASB)
+- Ingestion Lineage: Operational TSVs originate from Private Raw Upstream Provenance (Retail Sales/SSU.2026.xlsx & SSU 2025.xlsx; raw customer PII excluded from ASB)
 
 Coverage:
 - Active 2026 operating period: Latest period resolved from runtime authority metadata
@@ -192,7 +192,7 @@ Source:
 - Monthly Summary: wiki/workdesk/business-memory/operational/INVENTORY_STOCK_2026_CURRENT_SUMMARY.tsv
 - Decision Model: wiki/workdesk/intelligence/INVENTORY_STOCK_MODEL.tsv
 - Current State Note: wiki/workdesk/business-memory/operational/STOCK_CURRENT_STATE.md
-- Ingestion Lineage: Operational TSVs originate from Private Raw Workbook Snapshots (Stok_per_no_mesin_dealer & StokMD; raw engine identifiers excluded)
+- Ingestion Lineage: Operational TSVs originate from Private Raw Upstream Provenance (Stok_per_no_mesin_dealer & StokMD; raw engine identifiers excluded)
 
 Coverage:
 Retail Inventory Stock & Supply Intelligence (2024, 2025, 2026) covering granular dealer stock positions, MD stock, stock days, aging hazards (>150 Days), and demand vs supply bottleneck diagnosis
@@ -271,7 +271,7 @@ Source:
 - Kabupaten & Segment Matrix: wiki/workdesk/business-memory/operational/MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv
 - Province Segment Matrix: wiki/workdesk/business-memory/operational/MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv
 - Strategic Analysis Memo: wiki/workdesk/business-memory/operational/MARKET_STRATEGIC_VIEW_YTD_JUN_2026.md
-- Ingestion Lineage / Invariant: Market/SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx (Private Raw Workbook)
+- Ingestion Lineage / Invariant: Private Raw Upstream Provenance (Market/SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx)
 
 Coverage:
 YTD Jan-Jun 2026 vs Jan-Jun 2025 comparable across 9 Kabupaten & 9 Segmen (ALL, MATIK, SPORT, CUB, etc.)
@@ -289,7 +289,7 @@ Source:
 - Master Area Hierarchy (1,222 rows): wiki/workdesk/business-memory/operational/POLREG_2026_AREA_HIERARCHY.tsv
 - Dense Geography Matrix (14,849 rows): wiki/workdesk/business-memory/operational/POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv
 - Retrieval Specification: wiki/workdesk/business-memory/operational/POLREG_GEOGRAPHIC_FILTER_RETRIEVAL.md
-- Ingestion Lineage / Invariant: Market/POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx (Private Raw Workbook)
+- Ingestion Lineage / Invariant: Private Raw Upstream Provenance (Market/POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx)
 
 Coverage:
 9 Kabupaten, 118 Kecamatan, 1,222 terpetakan Kelurahan-Desa across 11 Filter States (ALL SEG, 9 named segments, OTHERS)

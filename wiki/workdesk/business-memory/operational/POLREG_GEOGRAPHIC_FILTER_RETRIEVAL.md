@@ -1,12 +1,12 @@
 # POLREG 2026 Geographic × Segment Retrieval Memory
 
 ## Purpose
-Preserve the decision-grade filtered views that exist in `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx` without copying the workbook binary.
+Preserve the decision-grade filtered views that exist in `POLREG_2026_AREA_HIERARCHY.tsv` and `POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv` (upstream provenance: `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx`) without copying the workbook binary.
 
 ## Current supplied period
 - Source data months present: **January–June 2026**.
 - Comparable memory uses **January–June 2025** from the supplied 2025 POLREG workbook, mapped through the supplied 2026 geography hierarchy.
-- Province-level Market Share authority remains the dedicated `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx` memory. POLREG is the deep geographic-filter authority.
+- Province-level Market Share authority remains the dedicated `MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv` memory (upstream provenance: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx`). POLREG is the deep geographic-filter authority.
 
 ## Retrieval coverage
 - **9** supplied market-area sheets.
@@ -53,7 +53,7 @@ Additional boundary:
 - POLREG source has **5** Total-Market units explicitly classified as `OTHERS`.
 
 Therefore:
-1. Answer province/all-9-segment M/S from the dedicated `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx` memory.
+1. Answer province/all-9-segment M/S from the dedicated `MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv` memory (upstream provenance: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx`).
 2. Answer kecamatan/kelurahan filtered questions from the POLREG source-specific structured matrix.
 3. If combining the two views, disclose the small source classification discrepancy rather than forcing one taxonomy onto the other.
 

@@ -27,7 +27,7 @@ Resolve requested date → applicable authority → supersession/conflict state.
 - `MSW_CURRENT_SUPPLIED = AUG_2026`; still resolve exact requested date/family using the version resolver.
 - Cross-topic latest periods are asynchronous; never merge them into a same-date observation without explicitly saying so.
 
-- `POLREG_GEOGRAPHIC_CURRENT = YTD_JAN_JUN_2026`; deep geography/segment filtered view comes from the supplied POLREG 2026 workbook.
+- `POLREG_GEOGRAPHIC_CURRENT = YTD_JAN_JUN_2026`; deep geography/segment filtered view comes from the operational POLREG TSVs (upstream provenance: POLREG 2026 workbook).
 - Do not treat small segment-classification differences between POLREG and the dedicated M/S workbook as an error to silently repair; resolve by question/source authority.
 
 - `MARKET_INFO_TOOLS_WORKFLOW_CURRENT = 2026-08-11 supplied Sinsen rollout`; current flow includes temporary MD Google Form validation before dealer portal submission.

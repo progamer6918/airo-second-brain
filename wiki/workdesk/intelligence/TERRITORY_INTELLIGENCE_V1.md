@@ -1,22 +1,22 @@
 ---
 title: "Territory Intelligence Layer v1"
 component: "Territory Intelligence"
-source_authority: "POLREG 2026 & SINSEN_EVALPOLREG & WD-SRC-057"
+source_authority: "POLREG_2026_AREA_HIERARCHY.tsv & POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv & MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv & WD-SRC-057"
 ---
 
 # 🗺️ Territory Intelligence Layer v1
 
 ## 1. Purpose
-Territory Intelligence Layer v1 menghubungkan struktur geografis wilayah operasi PT Sinar Sentosa Primatama (9 Kabupaten/Kota, 118 Kecamatan, 1,223 Kelurahan-Desa) dengan atribuisi tanggung jawab dealer (`Group` ➔ `Dealer` ➔ `POS`) dan hasil kontribusi penjualan retail.
+Territory Intelligence Layer v1 menghubungkan struktur geografis wilayah operasi PT Sinar Sentosa Primatama (9 Kabupaten/Kota, 118 Kecamatan, 1,222 Kelurahan-Desa) dengan atribuisi tanggung jawab dealer (`Group` ➔ `Dealer` ➔ `POS`) dan hasil kontribusi penjualan retail.
 
 Dokumen ini mendefinisikan klasifikasi daya serap pasar per wilayah (Ring 1/2/3) dan matriks penetrasi pasar untuk mendukung pengambilan keputusan strategis.
 
 ---
 
 ## 2. Source Authority References
-- **Geographic Filter Authority**: `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx` (118 Kecamatan / 1,223 Kelurahan)
-- **Market Share Authority**: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx` (9 Kabupaten)
-- **Retail Volume Baseline**: `WD-SRC-057__SSU_2025_FULL_YEAR.md` (FY2025 107,108 unit) & `RETAIL_CURRENT_STATE.md`
+- **Current Operational Geographic Authority**: `POLREG_2026_AREA_HIERARCHY.tsv` & `POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv` (Upstream provenance: `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx`)
+- **Current Operational Market Share Authority**: `MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv` & `MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv` (Upstream provenance: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx`)
+- **Retail Volume Baseline**: `WD-SRC-057__SSU_2025_FULL_YEAR.md` (FY2025 107,108 unit) & `RETAIL_2026_CURRENT_SUMMARY.tsv`
 - **PII Boundary**: Data ter-sanitasi penuh (agregasi wilayah, kecamatan, dealer, dan status kualitatif tanpa PII).
 
 ---

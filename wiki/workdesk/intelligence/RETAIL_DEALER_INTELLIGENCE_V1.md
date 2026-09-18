@@ -16,7 +16,7 @@ Dokumen ini mendefinisikan metode analisis kontribusi penjualan retail, atribusi
 ## 2. Source Authority Reference
 - **Primary Source**: `WD-SRC-057__SSU_2025_FULL_YEAR.md`
 - **Business Memory**: `RETAIL_SALES_2025_FULL_YEAR_SUMMARY.md`
-- **Operating Currentness**: `RETAIL_CURRENT_STATE.md` & `SSU.2026.xlsx`
+- **Operating Currentness**: `RETAIL_2026_YTD_JUL_DEALER.tsv` & `RETAIL_2026_CURRENT_SUMMARY.tsv` (Upstream provenance: `Retail Sales/SSU.2026.xlsx`; customer PII excluded)
 - **PII Boundary**: Data ter-sanitasi penuh. HANYA agregasi volume retail, pangsa kontribusi, dan status kualitatif yang disimpan di public ASB.
 
 ---

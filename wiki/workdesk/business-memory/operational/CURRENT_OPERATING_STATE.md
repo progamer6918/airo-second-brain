@@ -26,11 +26,11 @@ There are **4 market units** in 2026 whose 9-segment category is blank/uncategor
 Structured data: `MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv` and `MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv`.
 
 ### Deep geographic market retrieval — POLREG source-specific view
-A separate supplied workbook, `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx`, preserves the current Jan–Jun 2026 drill-down to **9 market areas / 118 kecamatan / 1,223 mapped kelurahan-desa rows**, queryable for `ALL SEG`, all nine named segments, and `OTHERS`.
+Current operational authority for deep territory retrieval is `POLREG_2026_AREA_HIERARCHY.tsv` (hierarchy resolution) and `POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv` (dense filter matrix), preserving the current Jan–Jun 2026 drill-down to **9 market areas / 118 kecamatan / 1,222 mapped kelurahan-desa rows**, queryable for `ALL SEG`, all nine named segments, and `OTHERS`. Upstream provenance originates from private raw workbook `POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx`.
 
-Use `POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv` for filtered geography retrieval and `POLREG_2026_AREA_HIERARCHY.tsv` for hierarchy/provenance.
+Use `POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv` for filtered geography retrieval and `POLREG_2026_AREA_HIERARCHY.tsv` for hierarchy resolution before dense query.
 
-**Do not silently merge segment classifications across workbooks.** All-Segment totals reconcile at 65,031 Honda / 79,042 market, but POLREG differs from the dedicated M/S workbook by one Total-Market unit in AT Low, AT Mid and Sport High, and uses 5 explicit `OTHERS` units while the dedicated M/S workbook retains 4 blank/uncategorized units. Province-level 9-segment M/S remains sourced from the dedicated M/S workbook; deep geographic filtering remains sourced from POLREG.
+**Do not silently merge segment classifications across workbooks.** All-Segment totals reconcile at 65,031 Honda / 79,042 market, but POLREG differs from the dedicated M/S workbook by one Total-Market unit in AT Low, AT Mid and Sport High, and uses 5 explicit `OTHERS` units while the dedicated M/S workbook retains 4 blank/uncategorized units. Province-level 9-segment M/S remains sourced from the dedicated M/S memory (`MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv`); deep geographic filtering remains sourced from POLREG TSVs.
 
 Provenance: `SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx`, raw sheets `Database Polreg 2026` and `Database Polreg 2025`; Month column filtered Jan–Jun; Unit/Brand/9-segment/Kabupaten retained in aggregate memory.
 
@@ -39,9 +39,9 @@ Latest monthly actual: **Jul 2026 = 12,241 units**. YTD Jan–Jul 2026 = **73.96
 
 Monthly actual: Jan 10,545; Feb 10,944; Mar 11,761; Apr 9,022; May 9,479; Jun 9,976; Jul 12,241.
 
-Current authority: `SSU.2026.xlsx` for 2026 actual. Comparable Jan–Jul 2025 uses `Record Sales 2008-2025.xlsx / Monthly`, because the supplied `SSU 2025.xlsx` raw detail only covers Jan–Apr and the historical record is the supplied source covering Jan–Jul. The historical record's cached 2026 values are stale after May and must **not** be used as current 2026 authority.
+Current operational authority: `RETAIL_2026_CURRENT_SUMMARY.tsv` (with dealer, area, and type breakdown TSVs) for 2026 actuals. Upstream provenance originates from private raw workbook `Retail Sales/SSU.2026.xlsx` (raw customer PII excluded from ASB). Comparable Jan–Jul 2025 uses `Record Sales 2008-2025.xlsx / Monthly`, because the supplied `SSU 2025.xlsx` raw detail only covers Jan–Apr and the historical record is the supplied source covering Jan–Jul. The historical record's cached 2026 values are stale after May and must **not** be used as current 2026 authority.
 
-Dealer, area, and type drill-down are in the associated TSVs. Raw `SSU.2026.xlsx` contains customer PII; public memory intentionally retains only aggregated analytical facts.
+Dealer, area, and type drill-down are in the associated operational TSVs. Raw `SSU.2026.xlsx` contains customer PII and serves strictly as upstream provenance; public memory intentionally retains only aggregated analytical facts.
 
 ## Dealer stock — as of 2026-08-06 08:03:42
 Total dealer stock **5.239 units**. Status: Ready 3,495; Soft Booking 803; Unfill 593; Intransit 348.

@@ -4,9 +4,9 @@
 - YTD Jan–Jul 2026: **73.968 units**.
 - YTD Jan–Jul 2025 comparable: **56.996 units**.
 - YTD growth: **29.78%**.
-- Current source: `SSU.2026.xlsx`, aggregated from `Monitoring Penjualan Dealer Dai` / current workbook outputs.
-- Customer-level PII is excluded from public ASB.
-- Dealer/area/type drill-down: see TSVs in this directory.
+- Current operational authority: `RETAIL_2026_CURRENT_SUMMARY.tsv` & `RETAIL_2026_YTD_JUL_DEALER.tsv` (operational runtime TSVs).
+- Upstream provenance: Private raw workbook `Retail Sales/SSU.2026.xlsx` (`Monitoring Penjualan Dealer Dai`). Customer-level PII is excluded from public ASB.
+- Dealer/area/type drill-down: see operational TSVs in this directory.
 - No usable target field was found in the supplied current retail source; do not invent target-vs-actual.
 
 ## Top areas YTD 2026
