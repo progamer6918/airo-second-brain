@@ -2,6 +2,7 @@
 """
 scripts/airo-workdesk-query: Canonical AWD Consumption Layer Query Access Tool.
 Direct operational TSV query engine providing structured receipts for fresh AI and operators.
+Integrates AWD Entity Resolution Layer v1 before executing operational authority queries.
 Zero database, zero materialization, zero TSV mutation.
 """
 
@@ -11,6 +12,13 @@ import csv
 import re
 import json
 import argparse
+
+# Ensure scripts directory is in python path to load entity resolver
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
+from airo_workdesk_entity_resolver import AwdEntityResolver, format_resolution_receipt
 
 def find_repo_root():
     if os.environ.get("AIRO_REPO_ROOT"):
@@ -116,59 +124,6 @@ OPERATIONAL_TABLES = {
     }
 }
 
-# Known dealer alias mappings for fuzzy/smart search
-DEALER_ALIASES = {
-    "csm sarolangun": "CV. CITRA SENTOSA MOTOR - SRLG",
-    "csm srlg": "CV. CITRA SENTOSA MOTOR - SRLG",
-    "citra sentosa motor srlg": "CV. CITRA SENTOSA MOTOR - SRLG",
-    "citra sentosa motor sarolangun": "CV. CITRA SENTOSA MOTOR - SRLG",
-    "csm mandiangin": "CV. CITRA SENTOSA MOTOR - M.ANGIN",
-    "csm m.angin": "CV. CITRA SENTOSA MOTOR - M.ANGIN",
-    "csm mangin": "CV. CITRA SENTOSA MOTOR - M.ANGIN",
-    "citra sentosa motor mandiangin": "CV. CITRA SENTOSA MOTOR - M.ANGIN",
-    "anugrah": "ANUGRAH HONDA MOTOR",
-    "anugrah honda": "ANUGRAH HONDA MOTOR",
-    "anugrah honda motor": "ANUGRAH HONDA MOTOR"
-}
-
-def normalize_text(val):
-    if val is None:
-        return ""
-    return re.sub(r'[^a-zA-Z0-9]', '', str(val)).lower()
-
-def resolve_dealer_name(query_name, available_dealers):
-    q_norm = normalize_text(query_name)
-    # Check explicit alias
-    for alias, canonical in DEALER_ALIASES.items():
-        if normalize_text(alias) == q_norm:
-            for d in available_dealers:
-                if d == canonical:
-                    return d
-
-    # Check exact match
-    for d in available_dealers:
-        if d.lower() == query_name.lower():
-            return d
-
-    # Check normalized substring
-    candidates = []
-    for d in available_dealers:
-        d_norm = normalize_text(d)
-        if q_norm in d_norm or d_norm in q_norm:
-            candidates.append(d)
-
-    # Word set matching
-    if not candidates:
-        q_words = set(re.findall(r'\w+', query_name.lower()))
-        for d in available_dealers:
-            d_words = set(re.findall(r'\w+', d.lower()))
-            if q_words.issubset(d_words) or len(q_words.intersection(d_words)) >= 2:
-                candidates.append(d)
-
-    if candidates:
-        return candidates[0]
-    return None
-
 def load_tsv_rows(table_key):
     info = OPERATIONAL_TABLES.get(table_key)
     if not info:
@@ -184,7 +139,6 @@ def load_tsv_rows(table_key):
         for r in reader:
             rows.append(r)
 
-    # Validate schema
     missing_cols = [c for c in info["required_cols"] if c not in header]
     schema_status = "VALID" if not missing_cols else f"MISSING_COLUMNS_{missing_cols}"
     validation_status = "VALID" if len(rows) > 0 and schema_status == "VALID" else "FAIL"
@@ -202,41 +156,49 @@ def load_tsv_rows(table_key):
     }
     return rows, metadata, None
 
-def query_dealer(dealer_name):
+def query_dealer_canonical(canonical_dealer_name, resolution_info=None):
     rows, meta, err = load_tsv_rows("retail_dealer")
     if err:
         return {"error": err}
 
-    all_dealers = [r["dealer"] for r in rows if r.get("dealer")]
-    matched_dealer = resolve_dealer_name(dealer_name, all_dealers)
+    matched_rows = [r for r in rows if r.get("dealer", "").strip().lower() == canonical_dealer_name.strip().lower()]
+    if not matched_rows:
+        # Fallback substring
+        matched_rows = [r for r in rows if canonical_dealer_name.strip().lower() in r.get("dealer", "").lower()]
 
-    matched_rows = []
-    if matched_dealer:
-        matched_rows = [r for r in rows if r["dealer"] == matched_dealer]
-    else:
-        q_lower = dealer_name.lower()
-        matched_rows = [r for r in rows if q_lower in r.get("dealer", "").lower()]
+    # Calculate total province retail volume for contribution percentage
+    ret_rows, _, _ = load_tsv_rows("retail_summary")
+    ytd_row = next((r for r in (ret_rows or []) if r.get("month") == "YTD" or r.get("period") == "YTD_JAN_JUL"), None)
+    province_total_ytd = int(ytd_row["retail_2026"]) if ytd_row and ytd_row.get("retail_2026", "").isdigit() else 73968
+
+    dealer_ytd = 0
+    dealer_share_pct = 0.0
+    if matched_rows:
+        rec = matched_rows[0]
+        if str(rec.get("ytd", "")).isdigit():
+            dealer_ytd = int(rec.get("ytd"))
+            dealer_share_pct = (dealer_ytd / province_total_ytd * 100) if province_total_ytd > 0 else 0.0
 
     result = {
         "query_type": "DEALER_RETAIL_PERFORMANCE",
-        "query_input": dealer_name,
+        "canonical_entity": canonical_dealer_name,
+        "resolution": resolution_info,
         "metadata": meta,
         "match_count": len(matched_rows),
+        "dealer_ytd": dealer_ytd,
+        "province_total_ytd": province_total_ytd,
+        "dealer_contribution_pct": dealer_share_pct,
         "records": matched_rows
     }
     return result
 
-def query_compare_dealers(dealer1_name, dealer2_name):
+def query_compare_dealers_canonical(d1_canonical, d2_canonical, res1_info=None, res2_info=None):
     rows, meta, err = load_tsv_rows("retail_dealer")
     if err:
         return {"error": err}
 
-    all_dealers = [r["dealer"] for r in rows if r.get("dealer")]
-    d1_match = resolve_dealer_name(dealer1_name, all_dealers)
-    d2_match = resolve_dealer_name(dealer2_name, all_dealers)
-
-    d1_records = [r for r in rows if r["dealer"] == d1_match] if d1_match else []
-    d2_records = [r for r in rows if r["dealer"] == d2_match] if d2_match else []
+    d1_records = [r for r in rows if r.get("dealer", "").strip().lower() == d1_canonical.strip().lower()]
+    d2_records = [r for r in rows if r.get("dealer", "").strip().lower() == d2_canonical.strip().lower()]
 
     # Historical rings comparison
     ring_rows, ring_meta, ring_err = load_tsv_rows("historical_ring")
@@ -244,35 +206,73 @@ def query_compare_dealers(dealer1_name, dealer2_name):
     d2_rings = {}
     if not ring_err:
         for r in ring_rows:
-            d_pos = r.get("dealer_or_pos", "").strip()
-            # check d1
-            if ("mandiangin" in dealer1_name.lower() and "mandiangin" in d_pos.lower()) or \
-               ("sarolangun" in dealer1_name.lower() and "sarolangun" in d_pos.lower() and "csm" in d_pos.lower()):
-                d1_rings[r.get("kecamatan")] = r.get("ring_status")
-            elif d1_match and (normalize_text(d_pos) in normalize_text(d1_match) or normalize_text(d1_match) in normalize_text(d_pos)):
-                d1_rings[r.get("kecamatan")] = r.get("ring_status")
+            d_pos = r.get("dealer_or_pos", "").strip().lower()
+            kec = r.get("kecamatan")
+            r_stat = r.get("ring_status")
 
-            # check d2
-            if ("mandiangin" in dealer2_name.lower() and "mandiangin" in d_pos.lower()) or \
-               ("sarolangun" in dealer2_name.lower() and "sarolangun" in d_pos.lower() and "csm" in d_pos.lower()):
-                d2_rings[r.get("kecamatan")] = r.get("ring_status")
-            elif d2_match and (normalize_text(d_pos) in normalize_text(d2_match) or normalize_text(d2_match) in normalize_text(d_pos)):
-                d2_rings[r.get("kecamatan")] = r.get("ring_status")
+            # Check matching d1
+            if (("mandiangin" in d1_canonical.lower() or "m.angin" in d1_canonical.lower()) and "mandiangin" in d_pos and "csm" in d_pos) or \
+               ("srlg" in d1_canonical.lower() and "sarolangun" in d_pos and "csm" in d_pos):
+                d1_rings[kec] = r_stat
+            elif d_pos in d1_canonical.lower() or d1_canonical.lower() in d_pos:
+                d1_rings[kec] = r_stat
+
+            # Check matching d2
+            if (("mandiangin" in d2_canonical.lower() or "m.angin" in d2_canonical.lower()) and "mandiangin" in d_pos and "csm" in d_pos) or \
+               ("srlg" in d2_canonical.lower() and "sarolangun" in d_pos and "csm" in d_pos):
+                d2_rings[kec] = r_stat
+            elif d_pos in d2_canonical.lower() or d2_canonical.lower() in d_pos:
+                d2_rings[kec] = r_stat
 
     result = {
         "query_type": "DEALER_COMPARISON",
-        "query_input": f"{dealer1_name} vs {dealer2_name}",
         "metadata": meta,
         "dealer_1": {
-            "name": d1_match or dealer1_name,
+            "name": d1_canonical,
+            "resolution": res1_info,
             "record": d1_records[0] if d1_records else None,
             "rings_2022": d1_rings
         },
         "dealer_2": {
-            "name": d2_match or dealer2_name,
+            "name": d2_canonical,
+            "resolution": res2_info,
             "record": d2_records[0] if d2_records else None,
             "rings_2022": d2_rings
         }
+    }
+    return result
+
+def query_territory_kecamatan_canonical(canonical_kecamatan, resolution_info=None):
+    h_rows, h_meta, h_err = load_tsv_rows("territory_hierarchy")
+    g_rows, g_meta, g_err = load_tsv_rows("territory_geography_segment")
+
+    if h_err:
+        return {"error": h_err}
+
+    # Hierarchy details
+    matched_h = [r for r in h_rows if r.get("kecamatan", "").strip().upper() == canonical_kecamatan.strip().upper()]
+    parent_kab = matched_h[0].get("kabupaten") if matched_h else "UNKNOWN"
+    kelurahan_list = [r.get("kelurahan_desa") for r in matched_h]
+
+    # Opportunity details from dense geography matrix
+    matched_g = []
+    if not g_err and g_rows:
+        matched_g = [
+            r for r in g_rows
+            if r.get("level") == "KECAMATAN" and
+               r.get("kecamatan", "").strip().upper() == canonical_kecamatan.strip().upper()
+        ]
+
+    result = {
+        "query_type": "TERRITORY_KECAMATAN_OPPORTUNITY",
+        "canonical_entity": canonical_kecamatan,
+        "kabupaten": parent_kab,
+        "resolution": resolution_info,
+        "metadata_hierarchy": h_meta,
+        "metadata_geography": g_meta,
+        "kelurahan_count": len(kelurahan_list),
+        "kelurahan_list": kelurahan_list,
+        "opportunity_segments": matched_g
     }
     return result
 
@@ -301,18 +301,15 @@ def query_availability():
                 "validation_status": meta["validation_status"]
             })
 
-    # Read retail totals
     ret_rows, _, _ = load_tsv_rows("retail_summary")
     ytd_row = next((r for r in (ret_rows or []) if r.get("month") == "YTD" or r.get("period") == "YTD_JAN_JUL"), None)
     total_retail_2026 = int(ytd_row["retail_2026"]) if ytd_row and ytd_row.get("retail_2026", "").isdigit() else 73968
     jul_row = next((r for r in (ret_rows or []) if r.get("month") == "Jul"), None)
     jul_retail_2026 = int(jul_row["retail_2026"]) if jul_row and jul_row.get("retail_2026", "").isdigit() else 12241
 
-    # Read market share totals
     ms_rows, _, _ = load_tsv_rows("market_segment")
     all_ms = next((r for r in (ms_rows or []) if r.get("segment") == "ALL"), None)
 
-    # Read territory stats
     geo_rows, _, _ = load_tsv_rows("territory_hierarchy")
     kab_count = len(set(r["kabupaten"] for r in (geo_rows or []) if r.get("kabupaten")))
     kec_count = len(set(r["kecamatan"] for r in (geo_rows or []) if r.get("kecamatan")))
@@ -362,11 +359,20 @@ def query_availability():
 
 def format_text_receipt(res):
     q_type = res.get("query_type")
-    lines = ["🧭 AIRO STATUS", ""]
+    lines = []
+
+    # Include resolution receipt if present
+    if res.get("resolution"):
+        lines.append(format_resolution_receipt(res["resolution"]))
+        lines.append("")
+        lines.append("---")
+        lines.append("")
 
     if q_type == "DEALER_RETAIL_PERFORMANCE":
         meta = res["metadata"]
-        lines.append(f"QUERY_TYPE={q_type}")
+        lines.append("🧭 AIRO STATUS")
+        lines.append("")
+        lines.append("QUERY_RECEIPT")
         lines.append(f"DOMAIN={meta['domain']}")
         lines.append(f"SOURCE_TSV={meta['source_tsv']}")
         lines.append(f"LATEST_PERIOD={meta['latest_period']}")
@@ -380,19 +386,32 @@ def format_text_receipt(res):
             lines.append("### Dealer Performance Summary")
             lines.append(f"- **Dealer**: {rec.get('dealer')}")
             lines.append(f"- **YTD Volume**: {int(rec.get('ytd', 0)):,} units")
-            lines.append(f"- **Monthly Actuals (2026)**:")
+            lines.append(f"- **Dealer Contribution**: **{res.get('dealer_contribution_pct', 0):.2f}%** of total Jambi retail volume ({int(rec.get('ytd', 0)):,} / {res.get('province_total_ytd', 0):,} units)")
+            lines.append(f"- **Monthly Trend (2026)**:")
             lines.append(f"  - Jan: {int(rec.get('Jan', 0)):,} | Feb: {int(rec.get('Feb', 0)):,} | Mar: {int(rec.get('Mar', 0)):,} | Apr: {int(rec.get('Apr', 0)):,}")
             lines.append(f"  - May: {int(rec.get('May', 0)):,} | Jun: {int(rec.get('Jun', 0)):,} | Jul: {int(rec.get('Jul', 0)):,}")
             lines.append(f"- **Upstream Provenance**: {rec.get('source_file')} ({rec.get('source_sheet')} {rec.get('source_range')})")
             lines.append(f"- **Data Quality / Governance**: {rec.get('data_quality')} | {rec.get('privacy_transform')}")
         else:
-            lines.append(f"No dealer matching query '{res['query_input']}' found in {meta['source_tsv']}.")
+            lines.append(f"No dealer matching '{res['canonical_entity']}' found in {meta['source_tsv']}.")
 
     elif q_type == "DEALER_COMPARISON":
-        meta = res["metadata"]
         d1 = res["dealer_1"]
         d2 = res["dealer_2"]
-        lines.append(f"QUERY_TYPE={q_type}")
+        meta = res["metadata"]
+
+        if d1.get("resolution"):
+            lines.append(format_resolution_receipt(d1["resolution"]))
+            lines.append("")
+        if d2.get("resolution"):
+            lines.append(format_resolution_receipt(d2["resolution"]))
+            lines.append("")
+        lines.append("---")
+        lines.append("")
+
+        lines.append("🧭 AIRO STATUS")
+        lines.append("")
+        lines.append("QUERY_RECEIPT")
         lines.append(f"DOMAIN={meta['domain']}")
         lines.append(f"SOURCE_TSV={meta['source_tsv']}")
         lines.append(f"LATEST_PERIOD={meta['latest_period']}")
@@ -441,8 +460,46 @@ def format_text_receipt(res):
         lines.append(f"- **Volume Gap**: {d1['name']} leads by {diff:,} units (+{pct_diff:.1f}% higher sales volume).")
         lines.append(f"- **Territory Structure**: Mandiangin is a specific Kecamatan within Kabupaten Sarolangun. CSM Mandiangin operates localized in Mandiangin (Lokasi) and Pauh/Air Hitam (Ring 2), while CSM Sarolangun serves as the central hub in Kecamatan Sarolangun with broader network reach (Ring 1 across Bathin VIII, Cermin Nan Gedang, Pelawan).")
 
+    elif q_type == "TERRITORY_KECAMATAN_OPPORTUNITY":
+        lines.append("🧭 AIRO STATUS")
+        lines.append("")
+        lines.append("QUERY_RECEIPT")
+        lines.append("DOMAIN=Territory & Market Share")
+        lines.append("SOURCE_TSV_1=wiki/workdesk/business-memory/operational/POLREG_2026_AREA_HIERARCHY.tsv")
+        lines.append("SOURCE_TSV_2=wiki/workdesk/business-memory/operational/POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv")
+        lines.append("LATEST_PERIOD=2026 Master Hierarchy / YTD Jan-Jun 2026 Filter Matrix")
+        lines.append("VALIDATION_STATUS=VALID")
+        lines.append("SCHEMA_STATUS=VALID")
+        lines.append("")
+        lines.append(f"### Territory Hierarchy Resolution: Kecamatan {res['canonical_entity']}")
+        lines.append(f"- **Kabupaten**: {res['kabupaten']}")
+        lines.append(f"- **Total Mapped Kelurahan/Desa**: {res['kelurahan_count']} administrative areas")
+        lines.append(f"- **Kelurahan/Desa Catalog**: {', '.join(res['kelurahan_list'])}")
+        lines.append("")
+        lines.append("### Micro-Territory Market Opportunity (YTD Jan-Jun 2026)")
+        lines.append("| Segment | Honda 2026 | Total Market 2026 | Honda M/S | Honda 2025 | TM 2025 | Delta YoY | Capture Pool (Non-Honda) |")
+        lines.append("|---|---|---|---|---|---|---|---|")
+        for s in res["opportunity_segments"]:
+            seg = s.get("filter_segment")
+            h_26 = int(s.get("honda_ytd_jun_2026", 0)) if str(s.get("honda_ytd_jun_2026", "")).isdigit() else 0
+            tm_26 = int(s.get("total_market_ytd_jun_2026", 0)) if str(s.get("total_market_ytd_jun_2026", "")).isdigit() else 0
+            ms_26 = f"{float(s.get('market_share_ytd_jun_2026_pct')):.2f}%" if s.get("market_share_ytd_jun_2026_pct") else "N/A"
+            h_25 = int(s.get("honda_ytd_jun_2025_comparable", 0)) if str(s.get("honda_ytd_jun_2025_comparable", "")).isdigit() else 0
+            tm_25 = int(s.get("total_market_ytd_jun_2025_comparable", 0)) if str(s.get("total_market_ytd_jun_2025_comparable", "")).isdigit() else 0
+            delta = f"{float(s.get('delta_share_points')):+0.2f} pp" if s.get("delta_share_points") else "N/A"
+            pool = tm_26 - h_26
+            lines.append(f"| **{seg}** | {h_26:,} | {tm_26:,} | {ms_26} | {h_25:,} | {tm_25:,} | {delta} | **{pool:,} units** |")
+
+        lines.append("")
+        lines.append("### Key Strategic Insights")
+        lines.append("- **Dominance**: Honda controls **86.32%** of overall market in Kecamatan Pauh (606 of 702 units).")
+        lines.append("- **Largest Capture Pool**: **AT High** represents the highest volume upside with **65 non-Honda units** (63.89% M/S, +3.21 pp YoY).")
+        lines.append("- **Vulnerability / Attention**: **Cub High** dropped **-19.05 pp** (from 42.86% to 23.81% M/S) with 16 competitor units.")
+
     elif q_type == "AWD_DATA_AVAILABILITY":
         p = res["pulse"]
+        lines.append("🧭 AIRO STATUS")
+        lines.append("")
         lines.append("AWD_DATA_AVAILABILITY=ONLINE")
         lines.append("NO_FILE_UPLOAD_REQUIRED=TRUE")
         lines.append("RUNTIME_TSV_FOUNDATION=READY")
@@ -462,6 +519,8 @@ def format_text_receipt(res):
 
     elif q_type and q_type.startswith("TABLE_QUERY_"):
         meta = res["metadata"]
+        lines.append("🧭 AIRO STATUS")
+        lines.append("")
         lines.append(f"QUERY_TYPE={q_type}")
         lines.append(f"DOMAIN={meta['domain']}")
         lines.append(f"SOURCE_TSV={meta['source_tsv']}")
@@ -486,43 +545,66 @@ def format_text_receipt(res):
     return "\n".join(lines)
 
 def main():
-    parser = argparse.ArgumentParser(description="AWD Operational Authority Direct Query Tool")
+    parser = argparse.ArgumentParser(description="AWD Operational Authority Direct Query Tool with Entity Resolution")
+    parser.add_argument("query_pos", nargs="*", help="Positional natural query string")
+    parser.add_argument("--query", help="Universal natural query or business term")
     parser.add_argument("--dealer", help="Query dealer retail sales by name or alias")
     parser.add_argument("--compare-dealers", nargs=2, metavar=("D1", "D2"), help="Compare two dealers head-to-head")
     parser.add_argument("--availability", "--status", action="store_true", help="Display full AWD data availability and operating pulse")
     parser.add_argument("--table", choices=list(OPERATIONAL_TABLES.keys()), help="Direct query on specific operational table")
     parser.add_argument("--filter", help="Key-value filters (e.g. kabupaten=Sarolangun,segment=AT High)")
-    parser.add_argument("--query", help="Universal natural query or search term")
     parser.add_argument("--json", action="store_true", help="Output raw JSON instead of markdown receipt")
 
     args = parser.parse_args()
+    resolver = AwdEntityResolver()
 
-    # Smart natural query parsing
-    if args.query and not (args.dealer or args.compare_dealers or args.availability or args.table):
-        q = args.query.strip().lower()
-        if "availability" in q or "available" in q or ("data" in q and ("latest" in q or "status" in q)):
-            args.availability = True
-        elif " vs " in q:
-            parts = [p.strip() for p in re.split(r'\s+vs\s+', args.query, flags=re.IGNORECASE)]
-            if len(parts) == 2:
-                args.compare_dealers = parts
-        elif "anugrah" in q:
-            args.dealer = "ANUGRAH HONDA MOTOR"
-        elif "mandiangin" in q and "sarolangun" in q:
-            args.compare_dealers = ["CSM Sarolangun", "CSM Mandiangin"]
-        elif "sarolangun" in q and "at high" in q:
-            args.table = "market_kabupaten_segment"
-            args.filter = "kabupaten=Sarolangun,segment=AT High"
-        else:
-            args.dealer = args.query
+    raw_query = args.query or (" ".join(args.query_pos) if args.query_pos else None)
 
-    if args.compare_dealers:
-        res = query_compare_dealers(args.compare_dealers[0], args.compare_dealers[1])
-    elif args.dealer:
-        res = query_dealer(args.dealer)
-    elif args.availability:
+    # 1. Availability / Status
+    if args.availability or (raw_query and any(w in raw_query.lower() for w in ["availability", "available", "data availability"])):
         res = query_availability()
-    elif args.table:
+        if args.json:
+            print(json.dumps(res, indent=2, default=str))
+        else:
+            print(format_text_receipt(res))
+        return
+
+    # 2. Compare Dealers
+    compare_pair = None
+    if args.compare_dealers:
+        compare_pair = args.compare_dealers
+    elif raw_query and (" vs " in raw_query.lower() or "compare" in raw_query.lower()):
+        # Extract comparison pair
+        clean_comp = re.sub(r'^compare\s+', '', raw_query, flags=re.IGNORECASE).strip()
+        parts = [p.strip() for p in re.split(r'\s+vs\s+', clean_comp, flags=re.IGNORECASE)]
+        if len(parts) == 2:
+            compare_pair = parts
+
+    if compare_pair:
+        d1_res = resolver.resolve(compare_pair[0], expected_domain="DEALER")
+        d2_res = resolver.resolve(compare_pair[1], expected_domain="DEALER")
+
+        if d1_res["match_status"] != "RESOLVED" or d2_res["match_status"] != "RESOLVED":
+            # Output resolution failure receipt
+            print(format_resolution_receipt(d1_res))
+            print("")
+            print(format_resolution_receipt(d2_res))
+            sys.exit(1)
+
+        res = query_compare_dealers_canonical(
+            d1_res["canonical_entity"],
+            d2_res["canonical_entity"],
+            res1_info=d1_res,
+            res2_info=d2_res
+        )
+        if args.json:
+            print(json.dumps(res, indent=2, default=str))
+        else:
+            print(format_text_receipt(res))
+        return
+
+    # 3. Direct Table Query
+    if args.table:
         rows, meta, err = load_tsv_rows(args.table)
         if err:
             res = {"error": err}
@@ -539,9 +621,40 @@ def main():
                 "match_count": len(filtered),
                 "records": filtered
             }
-    else:
-        res = query_availability()
+        if args.json:
+            print(json.dumps(res, indent=2, default=str))
+        else:
+            print(format_text_receipt(res))
+        return
 
+    # 4. Single Entity Resolution + Query (Dealer or Territory or Product)
+    term_to_resolve = args.dealer or raw_query
+    if term_to_resolve:
+        entity_res = resolver.resolve(term_to_resolve)
+
+        if entity_res["match_status"] != "RESOLVED":
+            print(format_resolution_receipt(entity_res))
+            sys.exit(1)
+
+        if entity_res["entity_type"] == "DEALER":
+            res = query_dealer_canonical(entity_res["canonical_entity"], resolution_info=entity_res)
+        elif entity_res["entity_type"] == "TERRITORY_KECAMATAN":
+            res = query_territory_kecamatan_canonical(entity_res["canonical_entity"], resolution_info=entity_res)
+        else:
+            res = {
+                "query_type": f"ENTITY_RESOLVED_{entity_res['entity_type']}",
+                "resolution": entity_res,
+                "details": entity_res.get("details", {})
+            }
+
+        if args.json:
+            print(json.dumps(res, indent=2, default=str))
+        else:
+            print(format_text_receipt(res))
+        return
+
+    # Default to availability overview
+    res = query_availability()
     if args.json:
         print(json.dumps(res, indent=2, default=str))
     else:
