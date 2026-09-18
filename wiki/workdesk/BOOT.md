@@ -32,6 +32,9 @@ WORKDESK_ROLE_MODEL_READ=YES|NO
 WORKDESK_GLOSSARY_READ=YES|NO
 WORKDESK_TASK_ROUTER_READ=YES|NO
 WORKDESK_TASK_MODULES=<list>
+AWD_RUNTIME_ACCESS_STATUS=AVAILABLE
+RUNTIME_LOCATION=VPS AWD Runtime
+RUNTIME_CAPABILITY=Fresh AI may request runtime query through approved interface (no direct filesystem access claimed)
 ```
 
 Missing required file => `WORKDESK_BOOT_GUARD=FAIL`; do not fill gaps from model memory.

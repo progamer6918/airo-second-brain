@@ -29,6 +29,16 @@ AIRO_WORKDESK
 
 ---
 
+## AWD Runtime Access & Consumption Interface
+
+- **Status**: `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`
+- **Runtime Location**: `VPS AWD Runtime` (Host: 43.157.241.228, VM-0-9-ubuntu)
+- **Capability**: Fresh AI may request runtime query through approved interface (`awd-query`, `awd-remote-query`, or `AWD Runtime Access Bridge`).
+- **Access Boundary**: Strictly read-only. Zero direct filesystem access claimed. No TSV mutation.
+- **Verification**: Runtime health check available via `awd-health-check` or `GET /api/v1/health`.
+
+---
+
 ## Operational Data Authorities
 
 ### Retail Sales Authority

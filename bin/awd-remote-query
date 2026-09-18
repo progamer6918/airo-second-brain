@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""
+bin/awd-remote-query: Canonical Client Tool for AWD Runtime Access Bridge.
+
+Enables Fresh AI, ChatGPT, and operators to invoke the VPS AWD Runtime securely
+over the HTTP Access Bridge.
+
+Usage:
+  awd-remote-query dealer "Sinsen Bulian"
+  awd-remote-query compare "CSM Sarolangun" "CSM Mandiangin"
+  awd-remote-query territory "Kecamatan Pauh"
+  awd-remote-query availability
+  awd-remote-query health
+  awd-remote-query "Any conversational query..."
+
+Options:
+  --endpoint URL   Set custom bridge endpoint (default: http://127.0.0.1:8889)
+  --token TOKEN    Set explicit auth token
+  --json           Output raw JSON response instead of rendered receipt
+"""
+
+import os
+import sys
+import json
+import urllib.request
+import urllib.error
+
+DEFAULT_ENDPOINT = os.environ.get("AWD_BRIDGE_ENDPOINT", "http://127.0.0.1:8889")
+
+def get_token():
+    if os.environ.get("AWD_BRIDGE_TOKEN"):
+        return os.environ["AWD_BRIDGE_TOKEN"].strip()
+    token_file = os.path.expanduser("~/.config/airo/awd_bridge.token")
+    if os.path.exists(token_file):
+        try:
+            with open(token_file, "r", encoding="utf-8") as f:
+                return f.read().strip()
+        except Exception:
+            pass
+    return ""
+
+def main():
+    args = sys.argv[1:]
+    endpoint = DEFAULT_ENDPOINT
+    token = get_token()
+    json_mode = False
+
+    filtered_args = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--endpoint" and i + 1 < len(args):
+            endpoint = args[i + 1]
+            i += 2
+        elif args[i] == "--token" and i + 1 < len(args):
+            token = args[i + 1]
+            i += 2
+        elif args[i] == "--json":
+            json_mode = True
+            i += 1
+        else:
+            filtered_args.append(args[i])
+            i += 1
+
+    payload = {}
+    if not filtered_args:
+        payload = {"query": "availability"}
+    else:
+        first = filtered_args[0].strip().lower()
+        if first in ("dealer", "d") and len(filtered_args) >= 2:
+            payload = {"dealer": filtered_args[1]}
+        elif first in ("compare", "comp") and len(filtered_args) >= 3:
+            payload = {"compare": [filtered_args[1], filtered_args[2]]}
+        elif first in ("territory", "t", "kecamatan") and len(filtered_args) >= 2:
+            payload = {"territory": filtered_args[1]}
+        elif first in ("availability", "status", "pulse"):
+            payload = {"query": "availability"}
+        elif first in ("health", "health-check"):
+            payload = {"query": "health"}
+        else:
+            payload = {"query": " ".join(filtered_args)}
+
+    url = endpoint.rstrip("/") + "/api/v1/query"
+    req_body = json.dumps(payload).encode("utf-8")
+
+    req = urllib.request.Request(url, data=req_body, method="POST")
+    req.add_header("Content-Type", "application/json")
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if json_mode:
+                print(json.dumps(data, indent=2))
+            else:
+                receipt = data.get("receipt", "")
+                if receipt:
+                    print(receipt.strip())
+                else:
+                    print(json.dumps(data, indent=2))
+            sys.exit(0 if data.get("status") == "SUCCESS" else 1)
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode("utf-8")
+        try:
+            err_data = json.loads(err_body)
+            print(f"ERROR: HTTP {e.code} - {err_data.get('error')}: {err_data.get('message')}", file=sys.stderr)
+        except Exception:
+            print(f"ERROR: HTTP {e.code} - {err_body}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERROR: Failed connecting to AWD Access Bridge at {endpoint}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
