@@ -22,13 +22,13 @@ Use this before applying a dated/current rule. The underlying TSV is the machine
 ## Remediation v0.2 — decision-grade operational authority
 | topic | latest supplied authority | period/as-of | rule |
 |---|---|---|---|
-| Market share actual | SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx raw databases | YTD Jan-Jun 2026 | Use same-period Honda numerator + total-market denominator; 2025 comparable derived Jan-Jun from raw DB because summary label conflicts. |
-| Retail actual | SSU.2026.xlsx aggregate memory | through Jul 2026 | Current 2026 authority. Raw customer PII excluded. |
+| Market share actual | MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv / SINSEN_EVALPOLREG raw DB | YTD Jan-Jun 2026 | Use same-period Honda numerator + total-market denominator; 2025 comparable derived Jan-Jun from raw DB because summary label conflicts. |
+| Retail actual | RETAIL_2026_CURRENT_SUMMARY.tsv & RETAIL_2026_YTD_JUL_DEALER.tsv (SSU.2026 aggregate) | through Jul 2026 | Current 2026 operating authority. Raw customer PII excluded. |
 | Retail comparable (FY2025) | SSU 2025 Full Year Summary / WD-SRC-057 | Jan-Dec 2025 | Preferred full-year historical comparable baseline (107,108 units). |
 | Retail comparable | Record Sales 2008-2025.xlsx / Monthly | Jan-Jul 2025 | Use only as historical comparable; do not use stale cached 2026 cells. |
-| Dealer stock | Stok_per_no_mesin_dealer - 2026-08-06T080342.480.xls | 2026-08-06 08:03:42 | Aggregate status/aging; raw engine identifiers excluded. |
-| MD stock | StokMD - 2026-08-06T080446.204.xls | 2026-08-06 08:04:46 | Status/type/location available; aging absent. |
-| Ring mapping | MAPPING RING 2022/Summary Pembagian Ring.xlsx | 2022 | Historical only; current authority unconfirmed. |
+| Dealer stock | DEALER_STOCK_2026-08-06_AGGREGATE.tsv | 2026-08-06 08:03:42 | Aggregate status/aging across 11,885 rows; raw engine identifiers excluded. |
+| MD stock | MD_STOCK_2026-08-06_AGGREGATE.tsv | 2026-08-06 08:04:46 | Status/type/location available across 3,488 rows; aging absent. |
+| Ring mapping | RING_MAPPING_2022_HISTORICAL.tsv | 2022 | 802 rows mapping Kabupaten, Kecamatan, Dealer/POS, and Ring Status. Historical only; current authority unconfirmed. |
 | NOS 2026 mandatory | Original 2026 checklist workbooks | 2026 supplied baseline | Use exact physical-row Mandatory cells; do not infer from indicator text. |
 | MSW | 2026-MSW source tree + resolver | requested date Jan-Aug 2026 | Explicit invalidation/revision and effective date control; current Aug workbook numeric rows structured separately. |
 

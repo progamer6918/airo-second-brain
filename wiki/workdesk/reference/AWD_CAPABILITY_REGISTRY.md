@@ -33,17 +33,23 @@ AIRO_WORKDESK
 
 ### Retail Sales Authority
 
-Source:
-Retail Sales/SSU.2026.xlsx
+Source (Operational Runtime):
+- Monthly Operating Summary: wiki/workdesk/business-memory/operational/RETAIL_2026_CURRENT_SUMMARY.tsv
+- Dealer Contribution Breakdown: wiki/workdesk/business-memory/operational/RETAIL_2026_YTD_JUL_DEALER.tsv
+- Product Type Breakdown: wiki/workdesk/business-memory/operational/RETAIL_2026_YTD_JUL_TYPE.tsv
+- Area Geographic Breakdown: wiki/workdesk/business-memory/operational/RETAIL_2026_YTD_JUL_AREA.tsv
+- Historical 2025 Dealer Comparable: wiki/workdesk/business-memory/operational/RETAIL_2025_YTD_JUL_DEALER_HISTORICAL.tsv
+- FY2025 Full-Year Baseline: wiki/workdesk/business-memory/operational/RETAIL_SALES_2025_FULL_YEAR_SUMMARY.md
+- Ingestion Lineage: Operational TSVs originate from Private Raw Workbook Authority (Retail Sales/SSU.2026.xlsx & SSU 2025.xlsx; raw customer PII excluded from ASB)
 
 Coverage:
-Jan-Jul 2026 aggregate (Current Operating Authority)
-Full Year 2025 Baseline (107,108 units - Historical Authority)
+- Active 2026 operating period: Latest period resolved from runtime authority metadata
+- Full Year 2025 historical baseline: Jan-Dec 2025 (107,108 units total, Dec 12,381 units)
 
 Use:
-- retail performance
-- dealer contribution
-- area analysis
+- retail performance & growth rate evaluation
+- dealer retail contribution and sales volume ranking
+- product type contribution and area sales volume analysis
 
 ---
 
@@ -179,13 +185,17 @@ Use:
 ### Inventory Stock Intelligence Authority
 
 Source:
-wiki/workdesk/intelligence/INVENTORY_STOCK_INTELLIGENCE_V1.md
-wiki/workdesk/intelligence/INVENTORY_STOCK_MODEL.tsv
-wiki/workdesk/business-memory/operational/INVENTORY_STOCK_2026_CURRENT_SUMMARY.tsv
-wiki/workdesk/business-memory/operational/STOCK_CURRENT_STATE.md
+- Intelligence Contract: wiki/workdesk/intelligence/INVENTORY_STOCK_INTELLIGENCE_V1.md
+- Dealer Stock Granular Aging: wiki/workdesk/business-memory/operational/DEALER_STOCK_2026-08-06_AGGREGATE.tsv
+- Main Dealer Warehouse Stock: wiki/workdesk/business-memory/operational/MD_STOCK_2026-08-06_AGGREGATE.tsv
+- Dealer Stock Days Derived: wiki/workdesk/business-memory/operational/DEALER_STOCK_DAYS_2026-08-06_DERIVED.tsv
+- Monthly Summary: wiki/workdesk/business-memory/operational/INVENTORY_STOCK_2026_CURRENT_SUMMARY.tsv
+- Decision Model: wiki/workdesk/intelligence/INVENTORY_STOCK_MODEL.tsv
+- Current State Note: wiki/workdesk/business-memory/operational/STOCK_CURRENT_STATE.md
+- Ingestion Lineage: Operational TSVs originate from Private Raw Workbook Snapshots (Stok_per_no_mesin_dealer & StokMD; raw engine identifiers excluded)
 
 Coverage:
-Retail Inventory Stock & Supply Intelligence (2024, 2025, 2026) covering Stock Position, Stock Days, Dealer Stock Aging (>150 Days), and Demand vs Supply Bottleneck Diagnosis
+Retail Inventory Stock & Supply Intelligence (2024, 2025, 2026) covering granular dealer stock positions, MD stock, stock days, aging hazards (>150 Days), and demand vs supply bottleneck diagnosis
 
 Use:
 - stock availability monitoring & status breakdown (Ready, Soft Booking, Unfill, Intransit, MD Stock)
@@ -258,30 +268,39 @@ Use:
 ### Market Share Authority
 
 Source:
-Market/SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx
+- Kabupaten & Segment Matrix: wiki/workdesk/business-memory/operational/MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv
+- Province Segment Matrix: wiki/workdesk/business-memory/operational/MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv
+- Strategic Analysis Memo: wiki/workdesk/business-memory/operational/MARKET_STRATEGIC_VIEW_YTD_JUN_2026.md
+- Ingestion Lineage / Invariant: Market/SINSEN_EVALPOLREG+MSPERKAB_JUN 2026.xlsx (Private Raw Workbook)
 
 Coverage:
-YTD Jan-Jun 2026
+YTD Jan-Jun 2026 vs Jan-Jun 2025 comparable across 9 Kabupaten & 9 Segmen (ALL, MATIK, SPORT, CUB, etc.)
 
 Use:
-- market share
-- segment analysis
-- kabupaten comparison
+- market share calculation and YoY growth comparison
+- product segment share and mix analysis
+- kabupaten-level market contribution and share gap identification
 
 ---
 
 ### Territory Authority
 
 Source:
-Market/POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx
+- Master Area Hierarchy (1,222 rows): wiki/workdesk/business-memory/operational/POLREG_2026_AREA_HIERARCHY.tsv
+- Dense Geography Matrix (14,849 rows): wiki/workdesk/business-memory/operational/POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv
+- Retrieval Specification: wiki/workdesk/business-memory/operational/POLREG_GEOGRAPHIC_FILTER_RETRIEVAL.md
+- Ingestion Lineage / Invariant: Market/POLREG PER KECAMATAN PER KELURAHAN PER SEGMENT 2026.xlsx (Private Raw Workbook)
 
 Coverage:
-118 kecamatan / 1,223 mapped kelurahan-desa rows
+9 Kabupaten, 118 Kecamatan, 1,222 terpetakan Kelurahan-Desa across 11 Filter States (ALL SEG, 9 named segments, OTHERS)
+
+Retrieval Rule:
+Resolve hierarchy (POLREG_2026_AREA_HIERARCHY.tsv) before dense geography matrix query.
 
 Use:
-- ring mapping
-- coverage
-- whitespace opportunity
+- geographic boundary and territory hierarchy resolution
+- micro-territory segment market penetration and whitespace analysis
+- coverage mapping down to kelurahan/desa grain
 
 ---
 
@@ -301,6 +320,21 @@ Use:
 - ownership attribution
 - dealer responsibility
 - performance diagnosis
+
+---
+
+### Historical Ring Mapping Authority
+
+Source:
+wiki/workdesk/business-memory/operational/RING_MAPPING_2022_HISTORICAL.tsv
+
+Coverage:
+802 rows covering Kabupaten, Kecamatan, Dealer/POS, and Ring Status (Ring 1, Ring 2, Ring 3)
+
+Use:
+- historical ring status reference
+- dealer/POS core vs expansion territory baseline
+- cross-validation against current territory coverage model
 
 ---
 
