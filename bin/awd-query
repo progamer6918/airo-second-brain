@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""
+bin/awd-query: Canonical AWD VPS Runtime Command Interface Entrypoint.
+
+Usage:
+  awd-query dealer "Sinsen Bulian"
+  awd-query compare "CSM Sarolangun" "CSM Mandiangin"
+  awd-query territory "Kecamatan Pauh"
+  awd-query availability
+  awd-query [any natural language query or flags...]
+
+Translates human business wording into canonical AWD entities via AwdEntityResolver,
+executes operational TSV queries, and returns deterministic receipts.
+Zero database, zero materialization, zero TSV mutation.
+"""
+
+import os
+import sys
+import subprocess
+
+def find_repo_root():
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ["AIRO_REPO_ROOT"])
+    cur = os.path.abspath(os.path.dirname(__file__))
+    while cur and cur != os.path.dirname(cur):
+        if os.path.exists(os.path.join(cur, "wiki", "workdesk")) or os.path.exists(os.path.join(cur, "scripts", "airo-workdesk-query")):
+            return cur
+        cur = os.path.dirname(cur)
+    default_vps = "/home/ubuntu/AI_WORKSPACES/airo-second-brain"
+    if os.path.exists(default_vps):
+        return default_vps
+    return os.getcwd()
+
+def main():
+    repo_root = find_repo_root()
+    query_script = os.path.join(repo_root, "scripts", "airo-workdesk-query")
+    if not os.path.exists(query_script):
+        print(f"ERROR: AWD query engine not found at {query_script}", file=sys.stderr)
+        sys.exit(1)
+
+    args = sys.argv[1:]
+    cmd = [sys.executable, query_script]
+
+    if not args:
+        cmd.append("--availability")
+    else:
+        first = args[0].strip().lower()
+        if first in ("dealer", "d"):
+            if len(args) < 2:
+                print("Usage: awd-query dealer \"<dealer name or alias>\"", file=sys.stderr)
+                sys.exit(1)
+            cmd.extend(["--dealer", args[1]])
+            cmd.extend(args[2:])
+        elif first in ("compare", "comp"):
+            if len(args) < 3:
+                print("Usage: awd-query compare \"<dealer 1>\" \"<dealer 2>\"", file=sys.stderr)
+                sys.exit(1)
+            cmd.extend(["--compare-dealers", args[1], args[2]])
+            cmd.extend(args[3:])
+        elif first in ("territory", "t", "kecamatan", "area"):
+            if len(args) < 2:
+                print("Usage: awd-query territory \"<kecamatan or area>\"", file=sys.stderr)
+                sys.exit(1)
+            cmd.extend(["--query", args[1]])
+            cmd.extend(args[2:])
+        elif first in ("availability", "status", "pulse"):
+            cmd.append("--availability")
+            cmd.extend(args[1:])
+        elif first in ("help", "-h", "--help"):
+            print(__doc__.strip())
+            print("")
+            cmd.append("--help")
+        else:
+            cmd.extend(args)
+
+    proc = subprocess.run(cmd, cwd=repo_root)
+    sys.exit(proc.returncode)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+"""
+bin/awd-health-check: Canonical AWD VPS Runtime Health Check Tool.
+
+Validates:
+1. Runtime files exist
+2. Authority registry alignment
+3. TSV checksum & readability
+4. Schema validity (required column headers)
+5. Entity resolver availability
+6. Query engine availability
+
+Outputs standardized:
+🧭 AIRO STATUS
+
+AWD RUNTIME STATUS
+STATUS: PASS / FAIL
+"""
+
+import os
+import sys
+import csv
+import hashlib
+import subprocess
+
+def find_repo_root():
+    if os.environ.get("AIRO_REPO_ROOT"):
+        return os.path.abspath(os.environ["AIRO_REPO_ROOT"])
+    cur = os.path.abspath(os.path.dirname(__file__))
+    while cur and cur != os.path.dirname(cur):
+        if os.path.exists(os.path.join(cur, "wiki", "workdesk")) or os.path.exists(os.path.join(cur, "scripts", "airo-workdesk-query")):
+            return cur
+        cur = os.path.dirname(cur)
+    default_vps = "/home/ubuntu/AI_WORKSPACES/airo-second-brain"
+    if os.path.exists(default_vps):
+        return default_vps
+    return os.getcwd()
+
+# Expected operational TSV hashes (sha256 baseline)
+CORE_TSV_HASHES = {
+    "RETAIL_2026_CURRENT_SUMMARY.tsv": "cac4293e5c8b3f6a4cf781314c07d904588d5d2b31149b384a8fec74869d053e",
+    "RETAIL_2026_YTD_JUL_DEALER.tsv": "8b03b29da7d7c1e2a848105e10f1512a7eba7223155de39eed02a15d6d9e18fb",
+    "RETAIL_2026_YTD_JUL_TYPE.tsv": "82f69a52a3046eaf758d13c1187ffc852b31a69718c84e7bf9c7069e7d185f3a",
+    "RETAIL_2026_YTD_JUL_AREA.tsv": "a52138104c8fb6daa61f1e94c067c0c44fbc519a19ceba8420c905a617e5081a",
+    "MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv": "b27016ca196d30112abbf57ec3f53b39de0d6f35e8720fe113662e96a927a437",
+    "MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv": "3fbf714de9bb0d0c8702fbb81e4f0bf8eab6e6914a5643656b947c2ef3a941a2",
+    "POLREG_2026_AREA_HIERARCHY.tsv": "056ee9c2ddddf7665fede1d0e1ac2bf969e3c90ed48cc4da0733dcfe4468389c",
+    "POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv": "13500fcc3a895fcec977b33bfeaa2e52d926ba6af0faf7c6fdf17b287444dc4c",
+    "DEALER_STOCK_2026-08-06_AGGREGATE.tsv": "e13bd3b3e6391900c1e997f92d8a7579f188fc5138f69be59e53e973bbb1b380",
+    "MD_STOCK_2026-08-06_AGGREGATE.tsv": "e62fcafe683d7ba695ae6bd3e46da7dce5ce925210db0c9ba13902e090163d33",
+}
+
+CORE_TSV_SCHEMAS = {
+    "RETAIL_2026_CURRENT_SUMMARY.tsv": ["period", "month", "retail_2026", "growth_pct"],
+    "RETAIL_2026_YTD_JUL_DEALER.tsv": ["dealer", "ytd", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    "RETAIL_2026_YTD_JUL_TYPE.tsv": ["type_code", "type_description", "ytd", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    "RETAIL_2026_YTD_JUL_AREA.tsv": ["area", "ytd", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    "MARKET_SHARE_YTD_JUN_2026_KABUPATEN_SEGMENT.tsv": ["kabupaten", "segment", "honda_2026", "total_market_2026", "market_share_2026_pct"],
+    "MARKET_SHARE_YTD_JUN_2026_SEGMENT.tsv": ["segment", "honda_2026", "total_market_2026", "market_share_2026_pct"],
+    "POLREG_2026_AREA_HIERARCHY.tsv": ["area_code", "kabupaten", "kecamatan", "kelurahan_desa"],
+    "POLREG_YTD_JUN_2026_GEOGRAPHY_SEGMENT.tsv": ["level", "kabupaten", "kecamatan", "kelurahan_desa", "filter_segment", "honda_ytd_jun_2026"],
+    "DEALER_STOCK_2026-08-06_AGGREGATE.tsv": ["dealer", "type_code", "units"],
+    "MD_STOCK_2026-08-06_AGGREGATE.tsv": ["type", "item_code", "units"],
+}
+
+def check_runtime_files(repo_root):
+    required = [
+        "scripts/airo-workdesk-query",
+        "scripts/airo_workdesk_entity_resolver.py",
+        "scripts/airo-workdesk-entity-resolve",
+        "scripts/airo-workdesk-refresh-check",
+        "wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY.md",
+        "wiki/workdesk/brain/reference/SOURCE_AUTHORITY.md",
+        "wiki/workdesk/brain/reference/OPERATIONAL_DATA_INVENTORY.tsv",
+    ]
+    missing = []
+    for rel in required:
+        p = os.path.join(repo_root, rel)
+        if not os.path.exists(p):
+            missing.append(rel)
+    return (len(missing) == 0, missing)
+
+def check_registry_alignment(repo_root):
+    inv_path = os.path.join(repo_root, "wiki/workdesk/brain/reference/OPERATIONAL_DATA_INVENTORY.tsv")
+    if not os.path.exists(inv_path):
+        return False, "OPERATIONAL_DATA_INVENTORY.tsv missing"
+    with open(inv_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    if "SSU.2026.xlsx\tPRIMARY_ACTIVE" in content or "SINSEN_EVALPOLREG\tPRIMARY_ACTIVE" in content:
+        return False, "Raw Excel is improperly marked as PRIMARY_ACTIVE authority"
+    return True, "Registry aligned to sanitized operational TSVs"
+
+def check_tsv_checksums(repo_root):
+    mismatches = []
+    op_dir = os.path.join(repo_root, "wiki/workdesk/business-memory/operational")
+    for filename, exp_hash in CORE_TSV_HASHES.items():
+        p = os.path.join(op_dir, filename)
+        if not os.path.exists(p):
+            mismatches.append(f"{filename}: FILE_MISSING")
+            continue
+        with open(p, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        if h != exp_hash:
+            mismatches.append(f"{filename}: HASH_MISMATCH (got {h[:8]}, exp {exp_hash[:8]})")
+    return (len(mismatches) == 0, mismatches)
+
+def check_schema_validity(repo_root):
+    schema_errs = []
+    op_dir = os.path.join(repo_root, "wiki/workdesk/business-memory/operational")
+    for filename, req_cols in CORE_TSV_SCHEMAS.items():
+        p = os.path.join(op_dir, filename)
+        if not os.path.exists(p):
+            continue
+        with open(p, "r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            try:
+                header = next(reader)
+            except StopIteration:
+                schema_errs.append(f"{filename}: EMPTY_FILE")
+                continue
+        for col in req_cols:
+            if col not in header:
+                schema_errs.append(f"{filename}: MISSING_COL_{col}")
+    return (len(schema_errs) == 0, schema_errs)
+
+def check_entity_resolver(repo_root):
+    scripts_dir = os.path.join(repo_root, "scripts")
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    try:
+        from airo_workdesk_entity_resolver import AwdEntityResolver
+        resolver = AwdEntityResolver(repo_root=repo_root)
+        res = resolver.resolve("Sinsen Bulian")
+        if res.get("canonical_entity") != "PT. SINAR SENTOSA MOTORA - BULIAN":
+            return False, f"Resolution mismatch: {res.get('canonical_entity')}"
+        if res.get("match_status") != "RESOLVED":
+            return False, f"Match status not resolved: {res.get('match_status')}"
+        return True, "Resolver functional and accurate"
+    except Exception as e:
+        return False, f"Resolver exception: {e}"
+
+def check_query_engine(repo_root):
+    query_script = os.path.join(repo_root, "scripts", "airo-workdesk-query")
+    if not os.path.exists(query_script):
+        return False, "Query script missing"
+    cmd = [sys.executable, query_script, "--availability", "--json"]
+    proc = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True)
+    if proc.returncode != 0:
+        return False, f"Query script exited with {proc.returncode}: {proc.stderr}"
+    try:
+        import json
+        data = json.loads(proc.stdout)
+        if data.get("query_type") not in ("AWD_DATA_AVAILABILITY", "AVAILABILITY_OVERVIEW"):
+            return False, f"Unexpected query_type: {data.get('query_type')}"
+        return True, "Query engine online and responsive"
+    except Exception as e:
+        return False, f"Failed parsing JSON response: {e}"
+
+def main():
+    repo_root = find_repo_root()
+
+    f_ok, f_err = check_runtime_files(repo_root)
+    r_ok, r_err = check_registry_alignment(repo_root)
+    t_ok, t_err = check_tsv_checksums(repo_root)
+    s_ok, s_err = check_schema_validity(repo_root)
+    e_ok, e_err = check_entity_resolver(repo_root)
+    q_ok, q_err = check_query_engine(repo_root)
+
+    all_pass = all([f_ok, r_ok, t_ok, s_ok, e_ok, q_ok])
+    status_str = "PASS" if all_pass else "FAIL"
+
+    print("🧭 AIRO STATUS")
+    print("")
+    print("AWD RUNTIME STATUS")
+    print(f"STATUS: {status_str}")
+    print("")
+    print(f"1. RUNTIME_FILES: {'PASS' if f_ok else 'FAIL'} ({'All files exist' if f_ok else ', '.join(f_err)})")
+    print(f"2. REGISTRY_ALIGNMENT: {'PASS' if r_ok else 'FAIL'} ({r_err})")
+    print(f"3. TSV_CHECKSUMS: {'PASS' if t_ok else 'FAIL'} ({'10/10 operational TSVs verified' if t_ok else ', '.join(t_err)})")
+    print(f"4. SCHEMA_VALIDITY: {'PASS' if s_ok else 'FAIL'} ({'All schema definitions intact' if s_ok else ', '.join(s_err)})")
+    print(f"5. ENTITY_RESOLVER: {'PASS' if e_ok else 'FAIL'} ({e_err})")
+    print(f"6. QUERY_ENGINE: {'PASS' if q_ok else 'FAIL'} ({q_err})")
+    print("")
+    if all_pass:
+        print("SUMMARY: AWD VPS runtime is fully operational, accurate, and completely independent from AGY PC.")
+    else:
+        print("SUMMARY: AWD runtime health check encountered one or more validation errors.")
+
+    sys.exit(0 if all_pass else 1)
+
+if __name__ == "__main__":
+    main()
