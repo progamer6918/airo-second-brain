@@ -16,6 +16,11 @@ current_phase: "Canonical Brain + Business Memory Active; Human Operational Surf
 - Fresh-AI business-memory use: `YES`
 - Response Plane / currentness model: `ACTIVE`
 - Future input mode: `CASE_DRIVEN_DELTA`
+- AWD Runtime Status: `AWD_RUNTIME_STATUS=ACTIVE`
+- AWD Runtime Access Status: `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`
+- Runtime Location: `VPS AWD Runtime` (Host: 43.157.241.228, VM-0-9-ubuntu)
+- Approved Access Interface: `awd-query` (local VPS), `awd-remote-query` (WSL / AIRO Sync), or HTTP Bridge (`GET /api/v1/query`, `GET /api/v1/resolve`, `GET /api/v1/health`)
+- Authority: Operational TSV runtime datasets only; raw Excel workbooks are private upstream provenance.
 
 ## Human Surface
 

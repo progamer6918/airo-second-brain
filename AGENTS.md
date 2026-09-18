@@ -128,6 +128,13 @@ Antigravity prompts must be detail-guarded, contain explicit allowed/forbidden d
 ### 6. Mandatory Identity & Project Guards
 - **AIRO Finance AFPD Boot Guard**: Read full AFPD boot bundle before proposing mutations.
 - **Telegram Identity Guard**: Obey `systems/telegram-agent-identity-contract.md`. Distinct bot tokens required for Earesmes and Arfin.
+- **AIRO WorkDesk (AWD) Operational Runtime Guard**:
+  - `AWD_RUNTIME_STATUS=ACTIVE`, `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`, `RUNTIME_LOCATION=VPS AWD Runtime`.
+  - Architecture: `USER → Intelligence Layer → AWD Runtime Access Interface → VPS Runtime Executor → Entity Resolution → Query Engine → Operational TSV Authority`.
+  - Operational TSVs are canonical source of truth; raw Excel workbooks are private upstream provenance only.
+  - Mandatory dynamic entity resolution (`USER TERM → CANONICAL ENTITY → QUERY`).
+  - Diagnostic workflow: `FACT → SYMPTOM → HYPOTHESIS → EVIDENCE → ROOT CAUSE → ACTION PLAN`.
+  - Security boundaries: No direct filesystem access claim, no raw data hallucination, no authority bypass, no TSV mutation.
 
 ## Mandatory Session Workflow Guard
 

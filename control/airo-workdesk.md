@@ -20,7 +20,7 @@ AIRO WorkDesk is the Owner's externalized professional brain and decision-suppor
 - **Response Plane**: `RESPONSE_PLANE_CONTRACT=ACTIVE`
 - **Currentness Model**: `CURRENTNESS_MODEL=ACTIVE`
 - **Input Mode**: `BASE_SOURCE_COLLECTION=CLOSED_FOR_BASELINE`; `FUTURE_INPUT_MODE=CASE_DRIVEN_DELTA`
-- **Runtime Access**: `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`; `RUNTIME_LOCATION=VPS AWD Runtime` (Capability: Fresh AI may request runtime query through approved interface; no direct filesystem access claimed)
+- **Runtime Access**: `AWD_RUNTIME_STATUS=ACTIVE`; `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`; `RUNTIME_LOCATION=VPS AWD Runtime` (Capability: Fresh AI may request runtime query through approved interface; no direct filesystem access claimed)
 - **Semantic Reconstruction**: `IN_PROGRESS` (`FULL_SEMANTIC_DIGESTION=NO`; `M5=PARKED`)
 - **Human Transferability**: `FULLY_DIGESTED_AND_TRANSFERABLE=NO` (`ZERO_CONTEXT_HUMAN_ACCEPTANCE=NOT_YET`)
 

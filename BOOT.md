@@ -190,6 +190,66 @@ Applies to all AI operators and every new chat. Before any Telegram bot or webho
 ### Mandatory Earesmes-Arfin Bridge (EAB) Boot Guard
 For EAB tasks, read `ecosystem/projects/earesmes-arfin-bridge/docs/00_PROJECT_BOOT.md`. Implementation remains forbidden until explicit gate authorization.
 
+### Mandatory AIRO WorkDesk (AWD) Operational Runtime Guard
+For every AIRO WorkDesk, business intelligence, or retail sales task:
+
+1. **AWD Runtime State**:
+   - `AWD_RUNTIME_STATUS=ACTIVE`
+   - `AWD_RUNTIME_ACCESS_STATUS=AVAILABLE`
+   - `RUNTIME_LOCATION=VPS AWD Runtime` (Host: 43.157.241.228, VM-0-9-ubuntu)
+
+2. **Target Operational Architecture**:
+   ```text
+   USER
+     │
+     ▼
+   AIRO Intelligence Layer (Strategic Reasoning)
+     │
+     ▼
+   AWD Runtime Access Interface (awd-query / awd-remote-query / HTTP Bridge)
+     │
+     ▼
+   VPS Runtime Executor (Independent from AGY PC)
+     │
+     ▼
+   Entity Resolution (AwdEntityResolver dynamic catalog)
+     │
+     ▼
+   Query Engine (Direct memory streaming)
+     │
+     ▼
+   Operational TSV Authority (Retail, Market, Territory, Stock)
+   ```
+
+3. **Fresh AI Behavior Contract**:
+   - **Step 1**: FIRST, check AWD runtime availability (`awd-query availability` or `awd-remote-query availability`).
+   - **Step 2**: IF runtime is available, use the AWD Runtime Access Interface to resolve:
+     `USER BUSINESS TERM → CANONICAL ENTITY → AUTHORITY QUERY → EVIDENCE RECEIPT`
+   - **Step 3**: IF runtime is unavailable, state the limitation clearly. Do NOT pretend direct filesystem access exists. Do NOT request raw file uploads unless runtime is unavailable or requested data is outside authority scope.
+
+4. **Authority Source of Truth Rule**:
+   - Canonical truth lives strictly in sanitized **Operational TSV runtime datasets** (`wiki/workdesk/business-memory/operational/*.tsv`).
+   - Raw Excel workbooks (`SSU.2026.xlsx`, `SINSEN_EVALPOLREG`, etc.) are `PRIVATE_RAW_UPSTREAM_PROVENANCE` only. Never resolve current business queries from raw workbook references.
+
+5. **Entity Resolution Rule**:
+   - Always perform: `USER TERM → ENTITY RESOLUTION → CANONICAL ENTITY → QUERY`.
+   - Canonical examples:
+     - `"Sinsen Bulian"` → `PT. SINAR SENTOSA MOTORA - BULIAN`
+     - `"CSM Sarolangun"` → `CV. CITRA SENTOSA MOTOR - SRLG`
+     - `"Kecamatan Pauh"` → `PAUH` / Sarolangun territory hierarchy
+
+6. **Query & Diagnostic Workflow**:
+   - Retrieve operational evidence across Retail, Market, Territory, and Inventory.
+   - Produce structured business output following the diagnostic chain:
+     `FACT → SYMPTOM → HYPOTHESIS → EVIDENCE → ROOT CAUSE → ACTION PLAN`
+
+7. **Security & Limitation Contract**:
+   - No direct filesystem access claim.
+   - No raw data hallucination.
+   - No invented metrics.
+   - No authority bypass.
+   - No TSV mutation.
+
 ## Standard Output Receipt Requirements
 
 For execution scripts, report:
