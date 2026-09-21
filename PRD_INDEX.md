@@ -16,6 +16,7 @@
 | **Input Processing Contract** | `docs/contracts/AIRO_INPUT_PROCESSING_CONTRACT.md` | `CANONICAL` | Sustainable input intake and reconciliation rules. |
 | **Acceptance Evidence Contract** | `docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md` | `CANONICAL` | Evidence-based task completion and DoD standards. |
 | **Capability Discovery Gate** | `docs/contracts/AIRO_CAPABILITY_DISCOVERY_GATE_CONTRACT.md` | `CANONICAL` | Lightweight discovery checkpoint for capability creation, intent classification & tech spec rules. |
+| **Product Build Workflow** | `docs/contracts/AIRO_PRODUCT_BUILD_WORKFLOW_CONTRACT.md` | `CANONICAL` | End-to-end lifecycle, Interview Protocol, Capability/PRD artifact, Design Context hook, Council integration. |
 
 ---
 

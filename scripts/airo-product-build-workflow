@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-product-build-workflow: Deterministic validator for AIRO Product Build Workflow V1.
+Enforces the AIRO Product Build Workflow Contract (AIRO_CONTRACT_PRODUCT_BUILD_WORKFLOW_V1).
+"""
+
+import sys
+import argparse
+import json
+from typing import Dict, Any, Tuple, List
+
+INTERVIEW_PROBLEM_FIELDS = ["problem", "current_pain", "expected_improvement"]
+INTERVIEW_PRODUCT_FIELDS = ["primary_user", "desired_outcome", "scope", "non_scope"]
+INTERVIEW_CONSTRAINT_FIELDS = ["business_constraint", "technical_constraint", "resource_constraint"]
+ALL_INTERVIEW_FIELDS = INTERVIEW_PROBLEM_FIELDS + INTERVIEW_PRODUCT_FIELDS + INTERVIEW_CONSTRAINT_FIELDS
+
+CAPABILITY_PRD_FIELDS = [
+    "objective",
+    "problem",
+    "primary_user",
+    "current_workflow",
+    "desired_outcome",
+    "scope",
+    "non_scope",
+    "acceptance_criteria",
+    "open_questions",
+    "constraints",
+    "unknowns",
+]
+
+DESIGN_CONTEXT_FIELDS = [
+    "user_flow",
+    "ui_impact",
+    "interaction_notes",
+    "prototype_required",
+]
+
+TECHNICAL_DESIGN_FIELDS = [
+    "architecture",
+    "data_flow",
+    "dependencies",
+    "trade_offs",
+    "risks",
+    "migration_plan",
+]
+
+COUNCIL_EPISTEMIC_FIELDS = [
+    "fact",
+    "inference",
+    "assumption",
+    "unknown",
+]
+
+
+def classify_intent(intent: str) -> Dict[str, Any]:
+    norm = intent.strip().lower()
+    if norm in ["simple_question", "question"]:
+        return {
+            "intent": "SIMPLE_QUESTION",
+            "route": "DIRECT_ANSWER",
+            "interview_required": False,
+            "capability_artifact_required": False,
+            "prd_required": False,
+            "tech_design_required": False,
+            "council_required": False,
+            "council_trigger_available": False,
+        }
+    elif norm in ["bug_investigation", "defect"]:
+        return {
+            "intent": "BUG_INVESTIGATION",
+            "route": "DIAGNOSTIC_FIX",
+            "interview_required": False,
+            "capability_artifact_required": False,
+            "prd_required": False,
+            "tech_design_required": False,
+            "council_required": False,
+            "council_trigger_available": False,
+        }
+    elif norm in ["small_change", "ui_text_change"]:
+        return {
+            "intent": "SMALL_CHANGE",
+            "route": "DIRECT_EXECUTION",
+            "interview_required": False,
+            "capability_artifact_required": False,
+            "prd_required": False,
+            "tech_design_required": False,
+            "council_required": False,
+            "council_trigger_available": False,
+        }
+    elif norm in ["new_capability", "capability"]:
+        return {
+            "intent": "NEW_CAPABILITY",
+            "route": "INTERVIEW_CAPABILITY",
+            "interview_required": True,
+            "capability_artifact_required": True,
+            "prd_required": True,
+            "tech_design_required": False,  # Evaluated by technical design gate
+            "council_required": False,
+            "council_trigger_available": True,
+        }
+    elif norm in ["architecture_decision", "high_impact_decision", "council"]:
+        return {
+            "intent": "HIGH_IMPACT_DECISION",
+            "route": "COUNCIL_DELIBERATION",
+            "interview_required": False,
+            "capability_artifact_required": False,
+            "prd_required": False,
+            "tech_design_required": False,
+            "council_required": True,
+            "council_trigger_available": True,
+        }
+    else:
+        raise ValueError(f"Unknown intent: {intent}")
+
+
+def evaluate_technical_design_gate(
+    multiple_subsystems: bool = False,
+    boundary_change: bool = False,
+    external_integration: bool = False,
+    data_model_change: bool = False,
+    is_small_change: bool = False,
+) -> bool:
+    if is_small_change:
+        return False
+    return bool(multiple_subsystems or boundary_change or external_integration or data_model_change)
+
+
+def validate_interview_payload(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    missing = []
+    interview = payload.get("interview", payload)
+    for field in ALL_INTERVIEW_FIELDS:
+        val = interview.get(field)
+        if val is None or not str(val).strip():
+            missing.append(f"interview.{field}")
+    return len(missing) == 0, missing
+
+
+def validate_design_context(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    missing = []
+    design = payload.get("design_context", payload)
+    for field in DESIGN_CONTEXT_FIELDS:
+        val = design.get(field)
+        if val is None or not str(val).strip():
+            missing.append(f"design_context.{field}")
+
+    # Tooling boundary guardrail
+    d_text = json.dumps(design).lower()
+    if "penpot" in d_text or "figma" in d_text:
+        missing.append("EXTERNAL_DESIGN_TOOL_FORBIDDEN")
+
+    return len(missing) == 0, missing
+
+
+def validate_council_payload(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    missing = []
+    council = payload.get("council_deliberation", payload)
+    for field in COUNCIL_EPISTEMIC_FIELDS:
+        val = council.get(field)
+        if val is None:
+            missing.append(f"council.{field}")
+    return len(missing) == 0, missing
+
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Product Build Workflow V1 Validator")
+    parser.add_argument(
+        "--intent",
+        required=True,
+        choices=[
+            "simple_question",
+            "question",
+            "bug_investigation",
+            "small_change",
+            "ui_text_change",
+            "new_capability",
+            "architecture_decision",
+            "high_impact_decision",
+        ],
+        help="Owner intent category",
+    )
+    parser.add_argument("--ui-text-change", action="store_true", help="Flag for small UI text change")
+    parser.add_argument("--ui-heavy", action="store_true", help="Flag indicating UI heavy capability")
+    parser.add_argument("--multiple-subsystems", action="store_true", help="Multi-subsystem trigger")
+    parser.add_argument("--boundary-change", action="store_true", help="Architecture boundary trigger")
+    parser.add_argument("--external-integration", action="store_true", help="External integration trigger")
+    parser.add_argument("--data-model-change", action="store_true", help="Data model change trigger")
+    parser.add_argument("--payload-json", help="JSON string or file path")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+
+    args = parser.parse_args()
+
+    intent_info = classify_intent(args.intent)
+    if args.ui_text_change:
+        intent_info = classify_intent("small_change")
+
+    is_small = intent_info["intent"] in ["SIMPLE_QUESTION", "BUG_INVESTIGATION", "SMALL_CHANGE"]
+    tech_design_required = evaluate_technical_design_gate(
+        multiple_subsystems=args.multiple_subsystems,
+        boundary_change=args.boundary_change,
+        external_integration=args.external_integration,
+        data_model_change=args.data_model_change,
+        is_small_change=is_small,
+    )
+
+    design_context_available = bool(args.ui_heavy)
+    validation_pass = True
+    missing_fields = []
+
+    if args.payload_json:
+        try:
+            try:
+                payload = json.loads(args.payload_json)
+            except json.JSONDecodeError:
+                with open(args.payload_json, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+
+            has_interview = "interview" in payload or ("problem" in payload and "design_context" not in payload and "council_deliberation" not in payload)
+            if intent_info["interview_required"] and has_interview:
+                ok_i, miss_i = validate_interview_payload(payload)
+                if not ok_i:
+                    validation_pass = False
+                    missing_fields.extend(miss_i)
+
+            if "design_context" in payload:
+                design_context_available = True
+                ok_d, miss_d = validate_design_context(payload)
+                if not ok_d:
+                    validation_pass = False
+                    missing_fields.extend(miss_d)
+
+            if "council_deliberation" in payload or intent_info["council_required"]:
+                if "council_deliberation" in payload or not has_interview:
+                    ok_c, miss_c = validate_council_payload(payload)
+                    if not ok_c:
+                        validation_pass = False
+                        missing_fields.extend(miss_c)
+
+        except Exception as e:
+            validation_pass = False
+            missing_fields.append(f"PAYLOAD_ERROR: {str(e)}")
+
+    output_data = {
+        "workflow": "AIRO_PRODUCT_BUILD_WORKFLOW_V1",
+        "contract": "AIRO_CONTRACT_PRODUCT_BUILD_WORKFLOW_V1",
+        "intent": intent_info["intent"],
+        "route": intent_info["route"],
+        "interview_required": intent_info["interview_required"],
+        "capability_artifact_required": intent_info["capability_artifact_required"],
+        "prd_required": intent_info["prd_required"],
+        "technical_design_required": tech_design_required,
+        "design_context_available": design_context_available,
+        "council_required": intent_info["council_required"],
+        "council_trigger_available": intent_info["council_trigger_available"],
+        "validation": "PASS" if validation_pass else "FAIL",
+        "missing_fields": missing_fields,
+    }
+
+    if args.format == "json":
+        print(json.dumps(output_data, indent=2))
+    else:
+        print("🧭 AIRO STATUS")
+        print("WORKFLOW=AIRO_PRODUCT_BUILD_WORKFLOW_V1")
+        print(f"INTENT={intent_info['intent']}")
+        print(f"ROUTE={intent_info['route']}")
+        print(f"INTERVIEW_REQUIRED={'YES' if intent_info['interview_required'] else 'NO'}")
+        print(f"CAPABILITY_ARTIFACT_REQUIRED={'YES' if intent_info['capability_artifact_required'] else 'NO'}")
+        print(f"PRD_REQUIRED={'YES' if intent_info['prd_required'] else 'NO'}")
+        print(f"TECHNICAL_DESIGN_REQUIRED={'YES' if tech_design_required else 'NO'}")
+        print(f"DESIGN_CONTEXT_AVAILABLE={'YES' if design_context_available else 'NO'}")
+        print(f"COUNCIL_TRIGGER_AVAILABLE={'YES' if intent_info['council_trigger_available'] else 'NO'}")
+        print(f"VALIDATION={'PASS' if validation_pass else 'FAIL'}")
+        if missing_fields:
+            print(f"MISSING_FIELDS={','.join(missing_fields)}")
+
+    sys.exit(0 if validation_pass else 1)
+
+
+if __name__ == "__main__":
+    main()
