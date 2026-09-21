@@ -22,24 +22,22 @@ audience: all_airo_operators_and_ai_consumers
 
 ## 1. Purpose & Core Objective
 
-The **AIRO Capability Discovery Gate** defines a minimal, lightweight discovery checkpoint prior to capability creation or major architectural changes.
+The **AIRO Capability Discovery Gate** defines a minimal, lightweight discovery and brief checkpoint prior to capability creation, technical design, or execution.
 
-### 1.1 The Lifecycle Evolution
+### 1.1 Target Lifecycle
 
-**Previous Lifecycle:**
-```text
-Intent → Capability → Approval → Execution → Evidence
-```
+The complete lifecycle for all AIRO capability requests is:
 
-**Target Lifecycle (Enforced by this Contract):**
 ```text
 Intent
   ↓
 Intent Classification
   ↓
-(if capability request) Discovery Checkpoint
+Discovery Gate
   ↓
-Capability Definition / Spec
+Capability Brief
+  ↓
+(Optional Technical Design)
   ↓
 Approval
   ↓
@@ -52,47 +50,68 @@ Evidence
 
 ## 2. Intent Classification & Gating Rules
 
-Before any code modification or capability specification begins, incoming requests MUST be classified to determine if discovery is required or skipped.
+Before code modification or capability specification begins, incoming requests MUST be classified to determine gating requirements.
 
-### 2.1 When Discovery is Required
-Discovery is strictly mandatory when:
+### 2.1 When Discovery & Capability Brief Are Required
+Discovery and a Capability Brief are strictly mandatory when:
 1. **New Capability Request:** Creation of a new tool, adapter, subsystem, engine, agent skill, or workflow.
-2. **Major Capability Change:** Significant refactoring, interface changes, or behavior changes to an existing capability.
+2. **Major Capability Change:** Significant refactoring, interface alterations, or fundamental behavior modifications.
 
-### 2.2 When Discovery is Skipped
-Discovery is explicitly skipped (direct progress to execution/response) for:
-1. **Simple Questions:** Information retrieval, codebase queries, status inquiries.
-2. **Bug Investigations:** Diagnostic research, defect analysis, root-cause isolation without architectural scope changes.
-3. **Small Changes:** Localized bug fixes, documentation typos, configuration adjustments, trivial non-breaking tweaks.
+### 2.2 When Discovery & Capability Brief Are Skipped
+Discovery and Capability Briefs are explicitly **SKIPPED** (direct progress to execution/response) for:
+1. **Questions:** Information retrieval, codebase queries, status inquiries, or conceptual explanations.
+2. **Bug Investigations:** Diagnostic research, defect analysis, log audits, or root-cause isolation without architectural scope changes.
+3. **Small Changes:** Localized bug fixes, documentation/typo corrections, configuration tweaks, or minor bounded updates.
 
 ---
 
-## 3. Mandatory Discovery Checkpoint Fields
+## 3. Capability Brief Structure & Mandatory Fields
 
-When discovery is required, the discovery checkpoint MUST capture ONLY the following 5 dimensions:
+When a capability is created or significantly altered, a **Capability Brief** must be produced capturing the following structured sections:
 
+### 3.1 Capability Context
 1. **Problem:** What specific problem, friction, or limitation does this capability solve?
 2. **Primary User:** Who or what is the primary consumer (Owner, ChatGPT Planning Layer, Antigravity Executor, Hermes, Telegram Operator)?
 3. **Current Workflow:** How is the task or problem currently handled (or why does the current system fail to handle it)?
 4. **Desired Outcome:** What is the exact expected result, output format, or behavior upon completion?
 5. **Constraints:** What are the non-negotiables, boundary restrictions, security limits, or forbidden mutations?
 
-No additional heavy framework artifacts, speculative user personas, or verbose boilerplates are permitted.
+### 3.2 Acceptance Criteria
+Define observable, deterministically verifiable success conditions.
+> [!IMPORTANT]
+> **No Assumption Rule:** Do NOT fill unknown information with speculative assumptions. Use `UNKNOWN` whenever Owner input or clarification is required.
+
+### 3.3 Design Context (Optional)
+Applicable **ONLY** when UI or user interaction is affected:
+- **User Flow:** Sequential interaction steps taken by the user.
+- **UI Impact:** Affected screens, components, views, or message formats.
+- **Interaction Notes:** Expected behaviors, edge case handling, or responsive feedback.
+
+> [!NOTE]
+> Do NOT introduce Penpot, Figma integrations, or external design tools. Pure Markdown descriptions, text flows, or simple ASCII/Mermaid mockups are canonical.
 
 ---
 
-## 4. Technical Specification Threshold Rule
+## 4. Technical Design Decision Gate
 
-To maintain agile velocity and avoid unnecessary overhead:
+To prevent spec bloat and maintain fast execution velocity:
 
-### 4.1 When Technical Specification is Required
-A formal Technical Specification is required **ONLY** when one or more of the following conditions are met:
-1. **Multiple Subsystem Impact:** The capability affects two or more distinct subsystems (e.g., Hermes + Telegram Gateway + ASB).
-2. **Architecture Boundary Changes:** The capability crosses or modifies existing architectural boundaries (e.g., Intelligence Layer vs Execution Layer, VPS vs Local WSL).
-3. **External Integration Changes:** The capability introduces, alters, or replaces third-party APIs, credentials, or external network integrations.
+### 4.1 When Technical Design is Required
+A formal Technical Design document is required **ONLY** when one or more of the following triggers exist:
+1. **Multiple Subsystem Impact:** Affects two or more distinct subsystems (e.g., Hermes + Telegram Gateway + ASB).
+2. **Architecture Boundary Change:** Crosses or modifies existing architectural boundaries (e.g., Planning vs Execution Layer, VPS vs Local WSL, ASB vs AWD).
+3. **External Integration:** Introduces, alters, or replaces third-party APIs, credentials, or external network integrations.
+4. **Significant Data Model Change:** Alters database schemas, event stream models, or persistent state contracts.
 
-### 4.2 When Technical Specification is Skipped
-For single-subsystem capabilities, modular adapters, and bounded internal additions, a formal technical spec is **SKIPPED**. The 5-point Discovery Checkpoint is sufficient to proceed directly to Approval and Execution.
+### 4.2 When Technical Design is Skipped
+A formal Technical Design document is **NOT REQUIRED** for:
+- Simple local changes;
+- Documentation and contract updates;
+- Isolated bug fixes;
+- Bounded UI/text/config adjustments.
+
+> [!CAUTION]
+> Do NOT create a mandatory technical spec / design document for every task. For single-subsystem, bounded additions, the Capability Brief provides sufficient design context to proceed directly to Approval and Execution.
 
 ---
 
@@ -104,4 +123,4 @@ To preserve repository hygiene and avoid governance bloat:
 - **NO OpenSpec / Spec Kit:** Do NOT install or depend on OpenSpec, Spec Kit, or external specification toolchains.
 - **NO Parallel PRD System:** PRDs remain indexed in `PRD_INDEX.md`; do not build duplicate parallel PRD structures.
 - **NO Duplicate Authority:** Canonical authority resides strictly in ASB repository contracts.
-- **NO Redesign of KCC or Execution Contracts:** This contract serves strictly as an upstream intake gate.
+- **NO Redesign of KCC or Execution Contracts:** This contract serves strictly as an upstream intake and design gate.

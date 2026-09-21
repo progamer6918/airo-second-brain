@@ -19,111 +19,147 @@ class CapabilityDiscoveryGateTest(unittest.TestCase):
         )
         return result
 
-    def test_case_1_simple_question_no_discovery(self):
-        result = self.run_gate(["--intent-type", "simple_question", "--format", "json"])
+    def test_case_1_question_no_discovery(self):
+        result = self.run_gate(["--intent-type", "question", "--format", "json"])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         data = json.loads(result.stdout)
         self.assertFalse(data["discovery_required"])
         self.assertEqual(data["discovery_status"], "SKIPPED")
         self.assertEqual(data["validation"], "PASS")
 
-    def test_case_2_bug_investigation_no_discovery(self):
+    def test_case_2_bug_investigation_no_capability_artifact(self):
         result = self.run_gate(["--intent-type", "bug_investigation", "--format", "json"])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         data = json.loads(result.stdout)
+        self.assertFalse(data["capability_artifact_required"])
         self.assertFalse(data["discovery_required"])
         self.assertEqual(data["discovery_status"], "SKIPPED")
         self.assertEqual(data["validation"], "PASS")
 
-    def test_case_3_small_change_no_discovery(self):
+    def test_case_3_small_change_no_technical_design(self):
         result = self.run_gate(["--intent-type", "small_change", "--format", "json"])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         data = json.loads(result.stdout)
+        self.assertFalse(data["technical_design_required"])
         self.assertFalse(data["discovery_required"])
         self.assertEqual(data["discovery_status"], "SKIPPED")
         self.assertEqual(data["validation"], "PASS")
 
-    def test_case_4_new_capability_discovery_required(self):
+    def test_case_4_new_capability_context_required(self):
         result = self.run_gate(["--intent-type", "new_capability", "--format", "json"])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         data = json.loads(result.stdout)
         self.assertTrue(data["discovery_required"])
+        self.assertTrue(data["capability_context_required"])
+        self.assertTrue(data["capability_artifact_required"])
         self.assertEqual(data["discovery_status"], "REQUIRED")
 
-    def test_discovery_payload_validation(self):
-        # Missing fields should fail
-        incomplete_payload = json.dumps({"problem": "Need regional weather"})
-        res_fail = self.run_gate(["--intent-type", "new_capability", "--payload-json", incomplete_payload, "--format", "json"])
+    def test_case_5_multi_system_capability_technical_design_required(self):
+        result = self.run_gate(["--intent-type", "new_capability", "--multiple-subsystems", "--format", "json"])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        data = json.loads(result.stdout)
+        self.assertTrue(data["technical_design_required"])
+
+    def test_technical_design_triggers(self):
+        # Boundary change triggers technical design
+        res_b = self.run_gate(["--intent-type", "new_capability", "--boundary-change", "--format", "json"])
+        self.assertTrue(json.loads(res_b.stdout)["technical_design_required"])
+
+        # External integration triggers technical design
+        res_e = self.run_gate(["--intent-type", "new_capability", "--external-integration", "--format", "json"])
+        self.assertTrue(json.loads(res_e.stdout)["technical_design_required"])
+
+        # Significant data model change triggers technical design
+        res_d = self.run_gate(["--intent-type", "new_capability", "--data-model-change", "--format", "json"])
+        self.assertTrue(json.loads(res_d.stdout)["technical_design_required"])
+
+    def test_capability_context_payload_validation_with_unknowns(self):
+        # Missing required field
+        incomplete = json.dumps({"problem": "Automate reports"})
+        res_fail = self.run_gate(["--intent-type", "new_capability", "--payload-json", incomplete, "--format", "json"])
         self.assertEqual(res_fail.returncode, 1)
-        data_fail = json.loads(res_fail.stdout)
-        self.assertEqual(data_fail["validation"], "FAIL")
-        self.assertIn("primary_user", data_fail["missing_fields"])
 
-        # Complete 5-point fields should pass
-        complete_payload = json.dumps({
-            "problem": "Need regional weather",
-            "primary_user": "Hermes",
-            "current_workflow": "Manual query",
-            "desired_outcome": "Automated regional weather adapter",
-            "constraints": "Stateless, no background daemon"
+        # Complete fields with UNKNOWN where clarification needed
+        valid_with_unknown = json.dumps({
+            "problem": "Automate reports",
+            "primary_user": "Owner",
+            "current_workflow": "Manual export",
+            "desired_outcome": "Weekly summary receipt",
+            "constraints": "UNKNOWN",
         })
-        res_pass = self.run_gate(["--intent-type", "new_capability", "--payload-json", complete_payload, "--format", "json"])
+        res_pass = self.run_gate(["--intent-type", "new_capability", "--payload-json", valid_with_unknown, "--format", "json"])
         self.assertEqual(res_pass.returncode, 0)
-        data_pass = json.loads(res_pass.stdout)
-        self.assertEqual(data_pass["validation"], "PASS")
+        self.assertEqual(json.loads(res_pass.stdout)["validation"], "PASS")
 
-    def test_tech_spec_threshold_rules(self):
-        # Simple change: no tech spec
-        res1 = self.run_gate(["--intent-type", "small_change", "--format", "json"])
-        data1 = json.loads(res1.stdout)
-        self.assertFalse(data1["technical_spec_required"])
+    def test_optional_design_context_validation(self):
+        # Valid design context
+        valid_design = json.dumps({
+            "problem": "Add dashboard chart",
+            "primary_user": "Owner",
+            "current_workflow": "CLI query",
+            "desired_outcome": "Interactive web chart",
+            "constraints": "No external CDNs",
+            "design_context": {
+                "user_flow": "1. Open dashboard -> 2. View chart",
+                "ui_impact": "Summary panel on index.html",
+                "interaction_notes": "Hover shows tooltip with amount"
+            }
+        })
+        res_pass = self.run_gate(["--intent-type", "new_capability", "--payload-json", valid_design, "--format", "json"])
+        self.assertEqual(res_pass.returncode, 0)
 
-        # Multi-subsystem impact: tech spec required
-        res2 = self.run_gate(["--intent-type", "new_capability", "--multiple-subsystems", "--format", "json"])
-        data2 = json.loads(res2.stdout)
-        self.assertTrue(data2["technical_spec_required"])
-
-        # Boundary change: tech spec required
-        res3 = self.run_gate(["--intent-type", "new_capability", "--boundary-change", "--format", "json"])
-        data3 = json.loads(res3.stdout)
-        self.assertTrue(data3["technical_spec_required"])
-
-        # External integration change: tech spec required
-        res4 = self.run_gate(["--intent-type", "new_capability", "--external-integration", "--format", "json"])
-        data4 = json.loads(res4.stdout)
-        self.assertTrue(data4["technical_spec_required"])
+        # Invalid external design tool rejection (Penpot)
+        invalid_design = json.dumps({
+            "problem": "Add dashboard chart",
+            "primary_user": "Owner",
+            "current_workflow": "CLI query",
+            "desired_outcome": "Interactive web chart",
+            "constraints": "No external CDNs",
+            "design_context": {
+                "user_flow": "1. Open dashboard",
+                "ui_impact": "Penpot design board link",
+                "interaction_notes": "Follow penpot mockup"
+            }
+        })
+        res_tool_fail = self.run_gate(["--intent-type", "new_capability", "--payload-json", invalid_design, "--format", "json"])
+        self.assertEqual(res_tool_fail.returncode, 1)
+        self.assertIn("INVALID_EXTERNAL_DESIGN_TOOL_DETECTED", json.loads(res_tool_fail.stdout)["missing_fields"])
 
     def test_contract_file_conformance(self):
         contract_path = ROOT / "docs/contracts/AIRO_CAPABILITY_DISCOVERY_GATE_CONTRACT.md"
         self.assertTrue(contract_path.exists(), "Contract file must exist")
         content = contract_path.read_text(encoding="utf-8")
 
-        # Verify mandatory 5 fields
+        # Verify target lifecycle
+        self.assertIn("Capability Brief", content)
+        self.assertIn("(Optional Technical Design)", content)
+
+        # Verify Capability Context 5 fields
         self.assertIn("1. **Problem:**", content)
         self.assertIn("2. **Primary User:**", content)
         self.assertIn("3. **Current Workflow:**", content)
         self.assertIn("4. **Desired Outcome:**", content)
         self.assertIn("5. **Constraints:**", content)
 
-        # Verify gating rules
-        self.assertIn("When Discovery is Required", content)
-        self.assertIn("When Discovery is Skipped", content)
-        self.assertIn("Simple Questions", content)
-        self.assertIn("Bug Investigations", content)
-        self.assertIn("Small Changes", content)
+        # Verify Acceptance criteria and UNKNOWN rule
+        self.assertIn("Acceptance Criteria", content)
+        self.assertIn("UNKNOWN", content)
 
-        # Verify technical spec rules
-        self.assertIn("Technical Specification Threshold Rule", content)
+        # Verify Design Context
+        self.assertIn("Design Context", content)
+        self.assertIn("User Flow", content)
+        self.assertIn("UI Impact", content)
+        self.assertIn("Interaction Notes", content)
+        self.assertIn("Do NOT introduce Penpot", content)
+
+        # Verify Technical Design Decision Gate
+        self.assertIn("Technical Design Decision Gate", content)
         self.assertIn("Multiple Subsystem Impact", content)
-        self.assertIn("Architecture Boundary Changes", content)
-        self.assertIn("External Integration Changes", content)
-
-        # Verify anti-bloat guardrails
-        self.assertIn("NO New Framework", content)
-        self.assertIn("NO BMAD Fork", content)
-        self.assertIn("NO OpenSpec / Spec Kit", content)
-        self.assertIn("NO Parallel PRD System", content)
-        self.assertIn("NO Duplicate Authority", content)
+        self.assertIn("Architecture Boundary Change", content)
+        self.assertIn("External Integration", content)
+        self.assertIn("Significant Data Model Change", content)
+        self.assertIn("Simple local changes", content)
+        self.assertIn("Isolated bug fixes", content)
 
 
 if __name__ == "__main__":

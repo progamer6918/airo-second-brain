@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/airo-capability-discovery-gate: Deterministic validator for AIRO Capability Discovery Gate.
+scripts/airo-capability-discovery-gate: Deterministic validator for AIRO Capability Discovery Gate & Lifecycle.
 Enforces the AIRO Capability Discovery Gate Contract (AIRO_CONTRACT_CAPABILITY_DISCOVERY_GATE_V1).
 """
 
@@ -8,12 +8,18 @@ import sys
 import argparse
 import json
 
-REQUIRED_DISCOVERY_FIELDS = [
+REQUIRED_CAPABILITY_CONTEXT_FIELDS = [
     "problem",
     "primary_user",
     "current_workflow",
     "desired_outcome",
     "constraints",
+]
+
+OPTIONAL_DESIGN_CONTEXT_FIELDS = [
+    "user_flow",
+    "ui_impact",
+    "interaction_notes",
 ]
 
 INTENTS_REQUIRING_DISCOVERY = {
@@ -22,6 +28,7 @@ INTENTS_REQUIRING_DISCOVERY = {
 }
 
 INTENTS_SKIPPING_DISCOVERY = {
+    "question",
     "simple_question",
     "bug_investigation",
     "small_change",
@@ -30,42 +37,92 @@ INTENTS_SKIPPING_DISCOVERY = {
 def evaluate_intent(intent_type: str) -> dict:
     intent_norm = intent_type.strip().lower()
     if intent_norm in INTENTS_REQUIRING_DISCOVERY:
-        return {"discovery_required": True, "status": "REQUIRED"}
+        return {
+            "discovery_required": True,
+            "capability_context_required": True,
+            "capability_artifact_required": True,
+            "status": "REQUIRED",
+        }
     elif intent_norm in INTENTS_SKIPPING_DISCOVERY:
-        return {"discovery_required": False, "status": "SKIPPED"}
+        return {
+            "discovery_required": False,
+            "capability_context_required": False,
+            "capability_artifact_required": False,
+            "status": "SKIPPED",
+        }
     else:
-        raise ValueError(f"Unknown intent_type: '{intent_type}'. Must be one of {sorted(INTENTS_REQUIRING_DISCOVERY | INTENTS_SKIPPING_DISCOVERY)}")
+        valid_intents = sorted(INTENTS_REQUIRING_DISCOVERY | INTENTS_SKIPPING_DISCOVERY)
+        raise ValueError(f"Unknown intent_type: '{intent_type}'. Must be one of {valid_intents}")
 
-def evaluate_tech_spec_requirement(multiple_subsystems: bool = False, boundary_change: bool = False, external_integration: bool = False) -> bool:
-    return bool(multiple_subsystems or boundary_change or external_integration)
+def evaluate_technical_design_requirement(
+    multiple_subsystems: bool = False,
+    boundary_change: bool = False,
+    external_integration: bool = False,
+    data_model_change: bool = False,
+) -> bool:
+    return bool(multiple_subsystems or boundary_change or external_integration or data_model_change)
 
-def validate_discovery_payload(payload: dict) -> tuple[bool, list[str]]:
+def validate_capability_brief_payload(payload: dict) -> tuple[bool, list[str]]:
     missing = []
-    for field in REQUIRED_DISCOVERY_FIELDS:
-        val = payload.get(field)
-        if not val or not str(val).strip():
+    # Check Capability Context
+    ctx = payload.get("capability_context", payload)
+    for field in REQUIRED_CAPABILITY_CONTEXT_FIELDS:
+        val = ctx.get(field)
+        if val is None or not str(val).strip():
             missing.append(field)
+    
+    # Check Design Context if specified or if ui_impact is present
+    if "design_context" in payload:
+        d_ctx = payload["design_context"]
+        for field in OPTIONAL_DESIGN_CONTEXT_FIELDS:
+            val = d_ctx.get(field)
+            if val is None or not str(val).strip():
+                missing.append(f"design_context.{field}")
+        
+        # Check guardrail: no external design tool like Penpot/Figma
+        d_text = json.dumps(d_ctx).lower()
+        if "penpot" in d_text or "figma" in d_text:
+            missing.append("INVALID_EXTERNAL_DESIGN_TOOL_DETECTED")
+
     return (len(missing) == 0, missing)
 
 def main():
     parser = argparse.ArgumentParser(description="AIRO Capability Discovery Gate Validator")
-    parser.add_argument("--intent-type", required=True, choices=["simple_question", "bug_investigation", "small_change", "new_capability", "major_change"], help="Classified intent type")
-    parser.add_argument("--payload-json", help="JSON string or file containing discovery checkpoint fields")
+    parser.add_argument(
+        "--intent-type",
+        required=True,
+        choices=[
+            "question",
+            "simple_question",
+            "bug_investigation",
+            "small_change",
+            "new_capability",
+            "major_change",
+        ],
+        help="Classified intent type",
+    )
+    parser.add_argument("--payload-json", help="JSON string or file containing discovery / capability brief")
     parser.add_argument("--multiple-subsystems", action="store_true", help="Flag indicating multi-subsystem impact")
     parser.add_argument("--boundary-change", action="store_true", help="Flag indicating architectural boundary changes")
     parser.add_argument("--external-integration", action="store_true", help="Flag indicating external integration changes")
+    parser.add_argument("--data-model-change", action="store_true", help="Flag indicating significant data model change")
+    parser.add_argument("--ui-impact", action="store_true", help="Flag indicating UI/user interaction impact")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
 
     args = parser.parse_args()
 
     eval_result = evaluate_intent(args.intent_type)
     discovery_required = eval_result["discovery_required"]
+    capability_context_required = eval_result["capability_context_required"]
+    capability_artifact_required = eval_result["capability_artifact_required"]
     discovery_status = eval_result["status"]
 
-    tech_spec_required = evaluate_tech_spec_requirement(
+    # For small_change or questions/bug investigations without explicit triggers, technical design is skipped
+    tech_design_required = evaluate_technical_design_requirement(
         multiple_subsystems=args.multiple_subsystems,
         boundary_change=args.boundary_change,
         external_integration=args.external_integration,
+        data_model_change=args.data_model_change,
     )
 
     validation_pass = True
@@ -78,7 +135,7 @@ def main():
             except json.JSONDecodeError:
                 with open(args.payload_json, "r", encoding="utf-8") as f:
                     payload = json.load(f)
-            ok, missing = validate_discovery_payload(payload)
+            ok, missing = validate_capability_brief_payload(payload)
             if not ok:
                 validation_pass = False
                 missing_fields = missing
@@ -92,7 +149,10 @@ def main():
         "intent_type": args.intent_type,
         "discovery_required": discovery_required,
         "discovery_status": discovery_status,
-        "technical_spec_required": tech_spec_required,
+        "capability_context_required": capability_context_required,
+        "capability_artifact_required": capability_artifact_required,
+        "technical_design_required": tech_design_required,
+        "ui_impact": args.ui_impact,
         "validation": "PASS" if validation_pass else "FAIL",
         "missing_fields": missing_fields,
     }
@@ -105,7 +165,9 @@ def main():
         print(f"INTENT_TYPE={args.intent_type}")
         print(f"DISCOVERY_REQUIRED={'YES' if discovery_required else 'NO'}")
         print(f"DISCOVERY_STATUS={discovery_status}")
-        print(f"TECHNICAL_SPEC_REQUIRED={'YES' if tech_spec_required else 'NO'}")
+        print(f"CAPABILITY_CONTEXT_REQUIRED={'YES' if capability_context_required else 'NO'}")
+        print(f"CAPABILITY_ARTIFACT_REQUIRED={'YES' if capability_artifact_required else 'NO'}")
+        print(f"TECHNICAL_DESIGN_REQUIRED={'YES' if tech_design_required else 'NO'}")
         print(f"VALIDATION={'PASS' if validation_pass else 'FAIL'}")
         if missing_fields:
             print(f"MISSING_FIELDS={','.join(missing_fields)}")
