@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""
+scripts/airo-capability-discovery-gate: Deterministic validator for AIRO Capability Discovery Gate.
+Enforces the AIRO Capability Discovery Gate Contract (AIRO_CONTRACT_CAPABILITY_DISCOVERY_GATE_V1).
+"""
+
+import sys
+import argparse
+import json
+
+REQUIRED_DISCOVERY_FIELDS = [
+    "problem",
+    "primary_user",
+    "current_workflow",
+    "desired_outcome",
+    "constraints",
+]
+
+INTENTS_REQUIRING_DISCOVERY = {
+    "new_capability",
+    "major_change",
+}
+
+INTENTS_SKIPPING_DISCOVERY = {
+    "simple_question",
+    "bug_investigation",
+    "small_change",
+}
+
+def evaluate_intent(intent_type: str) -> dict:
+    intent_norm = intent_type.strip().lower()
+    if intent_norm in INTENTS_REQUIRING_DISCOVERY:
+        return {"discovery_required": True, "status": "REQUIRED"}
+    elif intent_norm in INTENTS_SKIPPING_DISCOVERY:
+        return {"discovery_required": False, "status": "SKIPPED"}
+    else:
+        raise ValueError(f"Unknown intent_type: '{intent_type}'. Must be one of {sorted(INTENTS_REQUIRING_DISCOVERY | INTENTS_SKIPPING_DISCOVERY)}")
+
+def evaluate_tech_spec_requirement(multiple_subsystems: bool = False, boundary_change: bool = False, external_integration: bool = False) -> bool:
+    return bool(multiple_subsystems or boundary_change or external_integration)
+
+def validate_discovery_payload(payload: dict) -> tuple[bool, list[str]]:
+    missing = []
+    for field in REQUIRED_DISCOVERY_FIELDS:
+        val = payload.get(field)
+        if not val or not str(val).strip():
+            missing.append(field)
+    return (len(missing) == 0, missing)
+
+def main():
+    parser = argparse.ArgumentParser(description="AIRO Capability Discovery Gate Validator")
+    parser.add_argument("--intent-type", required=True, choices=["simple_question", "bug_investigation", "small_change", "new_capability", "major_change"], help="Classified intent type")
+    parser.add_argument("--payload-json", help="JSON string or file containing discovery checkpoint fields")
+    parser.add_argument("--multiple-subsystems", action="store_true", help="Flag indicating multi-subsystem impact")
+    parser.add_argument("--boundary-change", action="store_true", help="Flag indicating architectural boundary changes")
+    parser.add_argument("--external-integration", action="store_true", help="Flag indicating external integration changes")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+
+    args = parser.parse_args()
+
+    eval_result = evaluate_intent(args.intent_type)
+    discovery_required = eval_result["discovery_required"]
+    discovery_status = eval_result["status"]
+
+    tech_spec_required = evaluate_tech_spec_requirement(
+        multiple_subsystems=args.multiple_subsystems,
+        boundary_change=args.boundary_change,
+        external_integration=args.external_integration,
+    )
+
+    validation_pass = True
+    missing_fields = []
+
+    if discovery_required and args.payload_json:
+        try:
+            try:
+                payload = json.loads(args.payload_json)
+            except json.JSONDecodeError:
+                with open(args.payload_json, "r", encoding="utf-8") as f:
+                    payload = json.load(f)
+            ok, missing = validate_discovery_payload(payload)
+            if not ok:
+                validation_pass = False
+                missing_fields = missing
+        except Exception as e:
+            validation_pass = False
+            missing_fields = [f"JSON_ERROR: {str(e)}"]
+
+    result_data = {
+        "gate": "AIRO_CAPABILITY_DISCOVERY_GATE",
+        "contract": "AIRO_CONTRACT_CAPABILITY_DISCOVERY_GATE_V1",
+        "intent_type": args.intent_type,
+        "discovery_required": discovery_required,
+        "discovery_status": discovery_status,
+        "technical_spec_required": tech_spec_required,
+        "validation": "PASS" if validation_pass else "FAIL",
+        "missing_fields": missing_fields,
+    }
+
+    if args.format == "json":
+        print(json.dumps(result_data, indent=2))
+    else:
+        print("🧭 AIRO STATUS")
+        print("GATE=AIRO_CAPABILITY_DISCOVERY_GATE")
+        print(f"INTENT_TYPE={args.intent_type}")
+        print(f"DISCOVERY_REQUIRED={'YES' if discovery_required else 'NO'}")
+        print(f"DISCOVERY_STATUS={discovery_status}")
+        print(f"TECHNICAL_SPEC_REQUIRED={'YES' if tech_spec_required else 'NO'}")
+        print(f"VALIDATION={'PASS' if validation_pass else 'FAIL'}")
+        if missing_fields:
+            print(f"MISSING_FIELDS={','.join(missing_fields)}")
+
+    sys.exit(0 if validation_pass else 1)
+
+if __name__ == "__main__":
+    main()
