@@ -378,10 +378,10 @@ class WorkingMemoryManager:
     """
     Manages short-term conversational working memory and pending action state for AIRO Hermes.
     Session store path: ~/.local/state/airo-second-brain/airo-hermes-memory/sessions/<chat_id>.json
-    Maintains rolling history buffer of last 20 turns.
+    Maintains rolling history buffer of last 10 turns.
     Strictly zero secret storage.
     """
-    MAX_HISTORY_TURNS = 20
+    MAX_HISTORY_TURNS = 10
 
     @classmethod
     def _get_path(cls, chat_id: str) -> str:
@@ -1006,7 +1006,8 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
     chat_id = str(item.get("chat_id", ""))
     text = item.get("text", "")
 
-    if chat_id != str(owner_chat_id):
+    allowed_owners = [x.strip() for x in str(owner_chat_id).split(",") if x.strip()]
+    if chat_id not in allowed_owners:
         logger.error("SECURITY: item %s unauthorized chat_id %s -> dead queue", request_id, chat_id)
         move_to_dead(path, item)
         return
@@ -1029,6 +1030,50 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
     logger.info("Processing item %s for chat_id %s (attempt %d/%d)", request_id, chat_id, attempt_count + 1, MAX_ATTEMPTS)
 
     session_id = f"airo_hermes_{chat_id}"
+
+    clean_text = text.strip().lower()
+
+    # Fast Path: Session Reset Commands (/reset, /clear, reset memori)
+    if clean_text in ("/reset", "/clear", "/bersihkan", "reset memori", "hapus memori"):
+        WorkingMemoryManager.reset_session(chat_id)
+        reply = "Siap bro! Sesi memori percakapan kita udah gue reset bersih. 🧼 Ada ide atau topik baru yang mau kita bahas bareng?"
+        item["reply_text"] = reply
+        save_item(path, item)
+        sent = tg_send_message(token, chat_id, reply)
+        if sent:
+            item["reply_sent"] = True
+            item["status"] = "done"
+            item["completed_at"] = datetime.now().isoformat()
+            save_item(path, item)
+            logger.info("Successfully handled session reset for chat_id %s", chat_id)
+        return
+
+    # Fast Path: /about and /help
+    if clean_text in ("/about", "/tentang"):
+        reply = "Gue <b>AIRO Hermes</b>, personal AI thinking partner buat lo (Egit). Fokus gue nemenin mikir strategis, brainstorming ide, dan uji asumsi bisnis/teknis. Partner diskusi santai gaya founder, ditenagai Hermes runtime di AWD VPS. ⚡"
+        item["reply_text"] = reply
+        save_item(path, item)
+        sent = tg_send_message(token, chat_id, reply)
+        if sent:
+            item["reply_sent"] = True
+            item["status"] = "done"
+            item["completed_at"] = datetime.now().isoformat()
+            save_item(path, item)
+            logger.info("Successfully handled /about command for chat_id %s", chat_id)
+        return
+
+    if clean_text in ("/help", "/bantuan"):
+        reply = "Perintah yang bisa lo pakai:\n• <code>/reset</code> — Bersihkan memori percakapan aktif\n• <code>/about</code> — Info singkat tentang AIRO Hermes\n• Tanya santai, minta cek jadwal/email GWS, atau lempar ide bisnis buat kita bedah bareng! 🎯"
+        item["reply_text"] = reply
+        save_item(path, item)
+        sent = tg_send_message(token, chat_id, reply)
+        if sent:
+            item["reply_sent"] = True
+            item["status"] = "done"
+            item["completed_at"] = datetime.now().isoformat()
+            save_item(path, item)
+            logger.info("Successfully handled /help command for chat_id %s", chat_id)
+        return
 
     # 1. ActionAuthority Security Classification
     act_class, act_reason = ActionAuthorityLight.classify(text)
