@@ -45,7 +45,6 @@ case "${1:-status}" in
 
   stop)
     if is_running; then
-      local pid
       pid=$(cat "$PID_FILE")
       echo "Stopping AIRO PC Relay Daemon (PID: $pid)..."
       kill -TERM "$pid" 2>/dev/null || true

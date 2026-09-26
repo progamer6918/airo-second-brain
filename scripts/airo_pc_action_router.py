@@ -93,18 +93,44 @@ class PCActionRouter:
 
     # Regex patterns
     PATTERNS_YOUTUBE = [
-        # "putar video X di pc", "putar lagu X di laptop", "play X di youtube pc"
-        re.compile(r"(?:tolong\s+|coba\s+)?(?:putar|play|setel|tonton|buka)\s+(?:video|lagu|musik)?\s*(.+?)\s*(?:di\s+(?:pc|laptop|komputer|browser|chrome|yt|youtube)|via\s+(?:pc|laptop))", re.IGNORECASE),
+        # "Bro putar lagu Bohemian Rhapsody di YouTube PC", "Tolong putarin podcast Raditya Dika di pc gw"
+        re.compile(
+            r"(?:bro\s+|bang\s+|tolong\s+|coba\s+)*"
+            r"(?:putar(?:in|kan)?|setel(?:in|kan)?|tonton(?:in|kan)?|buka(?:in|kan)?|play(?:-?in)?|main(?:in|kan)?|dengar(?:in|kan)?)\s+"
+            r"(?:video|lagu|musik)?\s*"
+            r"(.+?)\s*"
+            r"(?:di|via)\s+(?:pc|laptop|komputer|browser|chrome|brave|yt|youtube)"
+            r"(?:\s+(?:pc|laptop|komputer|browser|chrome|brave|yt|youtube|gw|gua|gue|dong|nih|ya|ku|bro|bang))*$",
+            re.IGNORECASE
+        ),
         # "di pc/laptop coba buka/putar X"
-        re.compile(r"(?:di\s+(?:pc|laptop|komputer))\s*(?:coba\s+|tolong\s+)?(?:buka|putar|play|tonton|setel)\s*(?:video|lagu|musik)?\s*(.+)", re.IGNORECASE),
-        # "buka youtube X", "play youtube X"
-        re.compile(r"(?:tolong\s+|coba\s+)?(?:buka|play|putar|tonton)\s+(?:youtube|yt)\s*(?:dan\s+(?:play|putar))?\s*(.+)", re.IGNORECASE),
+        re.compile(
+            r"(?:di\s+(?:pc|laptop|komputer)(?:\s+(?:gw|gua|gue|ku))?)\s*"
+            r"(?:coba\s+|tolong\s+|bro\s+)*"
+            r"(?:buka(?:in|kan)?|putar(?:in|kan)?|play(?:-?in)?|tonton(?:in|kan)?|setel(?:in|kan)?|dengar(?:in|kan)?)\s*"
+            r"(?:video|lagu|musik)?\s*(.+)",
+            re.IGNORECASE
+        ),
+        # "buka youtube X", "play youtube X", "putar youtube X"
+        re.compile(
+            r"(?:bro\s+|bang\s+|tolong\s+|coba\s+)*"
+            r"(?:buka(?:in|kan)?|play(?:-?in)?|putar(?:in|kan)?|setel(?:in|kan)?|tonton(?:in|kan)?)\s+"
+            r"(?:youtube|yt)\s*(?:dan\s+(?:play|putar))?\s*(.+)",
+            re.IGNORECASE
+        ),
+        # Catch-all PC media intent
+        re.compile(
+            r"(?:putar(?:in|kan)?|setel(?:in|kan)?|play(?:-?in)?|tonton(?:in|kan)?|buka(?:in|kan)?)\s+"
+            r"(.+?)\s+"
+            r"(?:di\s+(?:pc|laptop|komputer))",
+            re.IGNORECASE
+        ),
     ]
 
     PATTERNS_GENERIC_URL = [
         # "buka link/web/url https://... di pc"
-        re.compile(r"(?:buka|open)\s+(?:link|url|web|situs|halaman)?\s*(https?://\S+)(?:\s+di\s+(?:pc|laptop))?", re.IGNORECASE),
-        re.compile(r"(?:di\s+(?:pc|laptop)\s+)?(?:buka|open)\s+(https?://\S+)", re.IGNORECASE),
+        re.compile(r"(?:buka|open)\s+(?:link|url|web|situs|halaman)?\s*(https?://\S+)(?:\s+di\s+(?:pc|laptop|komputer))?", re.IGNORECASE),
+        re.compile(r"(?:di\s+(?:pc|laptop|komputer)\s+)?(?:buka|open)\s+(https?://\S+)", re.IGNORECASE),
     ]
 
     PATTERNS_STATUS = [
@@ -136,6 +162,7 @@ class PCActionRouter:
                 raw_query = m.group(1).strip()
                 # Clean filler words
                 clean_query = re.sub(r"^(?:video|lagu|musik|tentang|channel)\s+", "", raw_query, flags=re.IGNORECASE).strip()
+                clean_query = re.sub(r"\s+(?:di\s+(?:pc|laptop|komputer|browser|chrome|brave|yt|youtube)|pc|laptop|komputer|browser|chrome|brave|yt|youtube|gw|gua|gue|dong|nih|ya|ku|bro|bang)$", "", clean_query, flags=re.IGNORECASE).strip()
                 if not clean_query:
                     clean_query = "trending youtube indonesia"
 

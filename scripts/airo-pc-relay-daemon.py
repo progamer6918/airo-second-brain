@@ -99,20 +99,40 @@ def run_ssh_command(remote_cmd: str) -> Tuple[int, str]:
 
 
 def launch_windows_browser(url: str) -> str:
-    """Launches the target URL in the visible Windows browser."""
+    """Launches the target URL in the default or active visible Windows browser (Brave, Chrome, Edge)."""
+    try:
+        # cmd.exe /c start "" "<url>" delegates immediately to Windows ShellExecuteEx
+        # It is fast (<0.02s), attaches to active desktop session, and opens in user's default browser (e.g. Brave)
+        subprocess.Popen(
+            ["cmd.exe", "/c", "start", "", url],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        return "Default Windows Browser (via cmd start)"
+    except Exception as e:
+        logger.error("cmd.exe start failed: %s", e)
+
+    # Secondary fallback via PowerShell Start-Process
+    try:
+        escaped_url = url.replace("'", "''")
+        subprocess.Popen(
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", f"Start-Process '{escaped_url}'"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        return "Default Windows Browser (via PowerShell Start-Process)"
+    except Exception as e:
+        logger.error("PowerShell Start-Process failed: %s", e)
+
+    # Tertiary fallback
     if os.path.exists(CHROME_PATH):
         subprocess.Popen([CHROME_PATH, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return "Chrome (Windows native)"
+        return "Chrome (binary direct)"
     elif os.path.exists(EDGE_PATH):
         subprocess.Popen([EDGE_PATH, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return "Edge (Windows native)"
-    else:
-        # Fallback via PowerShell interop
-        subprocess.Popen(
-            ["powershell.exe", "-NoProfile", "-Command", f"Start-Process '{url}'"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-        return "Default Browser (PowerShell Start-Process)"
+        return "Edge (binary direct)"
+
+    return "Launch failed"
 
 
 def claim_and_execute_task():
