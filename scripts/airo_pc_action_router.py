@@ -59,7 +59,8 @@ def search_youtube_video(query: str) -> Tuple[str, str]:
                     unique_vids.append(v)
             vid = unique_vids[0]
             title = titles[0] if titles else clean_q
-            return f"https://www.youtube.com/watch?v={vid}", title
+            ts = int(time.time())
+            return f"https://www.youtube.com/watch?v={vid}&autoplay=1&airo_ts={ts}", title
     except Exception as e:
         logger.warning("YouTube search failed for '%s': %s", clean_q, e)
 
