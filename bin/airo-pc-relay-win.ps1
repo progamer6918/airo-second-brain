@@ -150,6 +150,65 @@ fi
 "@
                 wsl.exe -e bash -c "ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 $VPS_USER@$VPS_HOST '$markDoneScript'" 2>$null
                 Log-Message "✅ TASK COMPLETED: $actionId"
+            } elseif ($type -eq "open_app") {
+                $appKey = ($payload.app).ToLower().Trim()
+                $displayName = if ($payload.display_name) { $payload.display_name } else { $appKey }
+
+                $appCmd = ""
+                switch ($appKey) {
+                    "powerpoint" {
+                        $p = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"
+                        $appCmd = if (Test-Path $p) { "`"$p`"" } else { "powerpnt.exe" }
+                    }
+                    "excel" {
+                        $p = "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"
+                        $appCmd = if (Test-Path $p) { "`"$p`"" } else { "excel.exe" }
+                    }
+                    "word" {
+                        $p = "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"
+                        $appCmd = if (Test-Path $p) { "`"$p`"" } else { "winword.exe" }
+                    }
+                    "spotify" {
+                        $p = "$env:LOCALAPPDATA\Microsoft\WindowsApps\Spotify.exe"
+                        $appCmd = if (Test-Path $p) { "`"$p`"" } else { "spotify.exe" }
+                    }
+                    "vscode" {
+                        $p = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe"
+                        $appCmd = if (Test-Path $p) { "`"$p`"" } else { "code" }
+                    }
+                    "notepad"    { $appCmd = "notepad.exe" }
+                    "calc"       { $appCmd = "calc.exe" }
+                    "chrome"     { $appCmd = if (Test-Path $CHROME_PATH) { "`"$CHROME_PATH`"" } else { "chrome.exe" } }
+                    "brave"      { $appCmd = if (Test-Path $BRAVE_PATH) { "`"$BRAVE_PATH`"" } else { "brave.exe" } }
+                    "edge"       { $appCmd = if (Test-Path $EDGE_PATH) { "`"$EDGE_PATH`"" } else { "msedge.exe" } }
+                    "explorer"   { $appCmd = "explorer.exe" }
+                    default      { $appCmd = $appKey }
+                }
+
+                $spawnedPid = [WinDesktopLauncher]::LaunchOnDesktop($appCmd)
+                if ($spawnedPid -le 0) {
+                    try {
+                        Start-Process $appCmd
+                        Log-Message "🚀 EXECUTED open_app: '$displayName' via Start-Process $appCmd"
+                    } catch {
+                        cmd.exe /c start "" $appCmd
+                        Log-Message "🚀 EXECUTED open_app: '$displayName' via cmd start $appCmd"
+                    }
+                } else {
+                    Log-Message "🚀 EXECUTED open_app: '$displayName' via $appCmd (PID: $spawnedPid)"
+                }
+
+                # Mark done on VPS
+                $markDoneScript = @"
+IN_PROG="`$HOME/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json"
+DONE="`$HOME/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"
+mkdir -p "`$HOME/.local/state/airo-second-brain/pc-action-bridge/queue/done"
+if [ -f "`$IN_PROG" ]; then
+  mv "`$IN_PROG" "`$DONE"
+fi
+"@
+                wsl.exe -e bash -c "ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 $VPS_USER@$VPS_HOST '$markDoneScript'" 2>$null
+                Log-Message "✅ TASK COMPLETED: $actionId"
             }
         }
     } catch {

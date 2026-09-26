@@ -92,6 +92,42 @@ def enqueue_pc_action(action_type: str, payload: dict, chat_id: str = "") -> str
 class PCActionRouter:
     """Pre-router for desktop actions executed on Owner PC."""
 
+    KNOWN_APPS = {
+        "ppt": ("powerpoint", "Microsoft PowerPoint"),
+        "powerpoint": ("powerpoint", "Microsoft PowerPoint"),
+        "power point": ("powerpoint", "Microsoft PowerPoint"),
+        "microsoft powerpoint": ("powerpoint", "Microsoft PowerPoint"),
+        "microsoft power point": ("powerpoint", "Microsoft PowerPoint"),
+        "excel": ("excel", "Microsoft Excel"),
+        "microsoft excel": ("excel", "Microsoft Excel"),
+        "word": ("word", "Microsoft Word"),
+        "microsoft word": ("word", "Microsoft Word"),
+        "spotify": ("spotify", "Spotify"),
+        "vscode": ("vscode", "Visual Studio Code"),
+        "vs code": ("vscode", "Visual Studio Code"),
+        "code": ("vscode", "Visual Studio Code"),
+        "notepad": ("notepad", "Notepad"),
+        "catatan": ("notepad", "Notepad"),
+        "calc": ("calc", "Kalkulator"),
+        "kalkulator": ("calc", "Kalkulator"),
+        "calculator": ("calc", "Kalkulator"),
+        "chrome": ("chrome", "Google Chrome"),
+        "brave": ("brave", "Brave Browser"),
+        "edge": ("edge", "Microsoft Edge"),
+        "explorer": ("explorer", "File Explorer"),
+    }
+
+    PATTERNS_APP = [
+        re.compile(
+            r"(?:coba\s+|tolong\s+|bro\s+|bukan\s+buka\s+youtube\s+ttg\s+[\w\s]+,\s*tapi\s+)*"
+            r"(?:buka(?:in|kan)?|jalankan|start|launch)\s+"
+            r"(?:aplikasi\s+|software\s+|program\s+)?"
+            r"([a-zA-Z\s0-9]+?)"
+            r"(?:\s+(?:di|pada)\s+(?:pc|laptop|komputer)(?:\s+(?:gw|gua|gue|ku|coba|dong|nih|ya))*|\s+(?:coba|dong|nih|ya))*$",
+            re.IGNORECASE
+        ),
+    ]
+
     # Regex patterns
     PATTERNS_YOUTUBE = [
         # "Bro putar lagu Bohemian Rhapsody di YouTube PC", "Tolong putarin podcast Raditya Dika di pc gw"
@@ -119,9 +155,9 @@ class PCActionRouter:
             r"(?:youtube|yt)\s*(?:dan\s+(?:play|putar))?\s*(.+)",
             re.IGNORECASE
         ),
-        # Catch-all PC media intent
+        # Catch-all PC media intent (only when NOT explicitly an app or anti-youtube)
         re.compile(
-            r"(?:putar(?:in|kan)?|setel(?:in|kan)?|play(?:-?in)?|tonton(?:in|kan)?|buka(?:in|kan)?)\s+"
+            r"(?:putar(?:in|kan)?|setel(?:in|kan)?|play(?:-?in)?|tonton(?:in|kan)?)\s+"
             r"(.+?)\s+"
             r"(?:di\s+(?:pc|laptop|komputer))",
             re.IGNORECASE
@@ -153,10 +189,32 @@ class PCActionRouter:
                     f"• Antrean pending: <b>{pending_count}</b> tugas\n"
                     f"• Riwayat selesai: <b>{done_count}</b> tugas\n"
                     f"• Status antrean: <b>SIAP</b> 🚀\n\n"
-                    f"<i>Pastikan daemon di PC lo aktif via <code>airo-pc-relay status</code> biar tugas langsung diproses seketika!</i>"
+                    f"<i>Pastikan daemon di PC lo aktif via <code>START_AIRO_PC_RELAY.bat</code> biar tugas langsung diproses seketika!</i>"
                 )
 
-        # 2. YouTube Search & Play
+        # 2. Native Desktop Application Launch (PowerPoint, Excel, Word, Spotify, etc.)
+        for p in cls.PATTERNS_APP:
+            m = p.search(t)
+            if m:
+                raw_app = m.group(1).strip().lower()
+                raw_app = re.sub(r"^(?:aplikasi|software|program)\s+", "", raw_app).strip()
+                raw_app = re.sub(r"\s+(?:di\s+(?:pc|laptop|komputer)|pc|laptop|komputer|gw|gua|gue|ku|coba|dong|nih|ya)$", "", raw_app).strip()
+                if raw_app in cls.KNOWN_APPS:
+                    app_key, display_name = cls.KNOWN_APPS[raw_app]
+                    logger.info("PC_ACTION: Detected native desktop app intent for '%s' -> %s", raw_app, app_key)
+                    payload = {
+                        "app": app_key,
+                        "display_name": display_name,
+                        "raw_query": t
+                    }
+                    action_id = enqueue_pc_action("open_app", payload, chat_id=chat_id)
+                    return f"Siap bro! Aplikasi <b>{html.escape(display_name)}</b> lagi gue bukain di PC lo sekarang. 🖥️"
+
+        # If user explicitly specified NOT youtube or requested an app, do NOT fallback to YouTube
+        if re.search(r"\b(?:bukan\s+youtube|bukan\s+yt|bukan\s+video|aplikasi\s+microsoft)\b", t, re.IGNORECASE):
+            return None
+
+        # 3. YouTube Search & Play
         for p in cls.PATTERNS_YOUTUBE:
             m = p.search(t)
             if m:
@@ -174,7 +232,7 @@ class PCActionRouter:
                     "url": video_url,
                     "title": video_title,
                     "query": clean_query,
-                    "browser": "chrome"
+                    "browser": "brave"
                 }
                 action_id = enqueue_pc_action("open_url", payload, chat_id=chat_id)
 
@@ -183,7 +241,7 @@ class PCActionRouter:
                     f"🔗 <a href=\"{html.escape(video_url)}\">{html.escape(video_url)}</a>"
                 )
 
-        # 3. Generic URL Open
+        # 4. Generic URL Open
         for p in cls.PATTERNS_GENERIC_URL:
             m = p.search(t)
             if m:
