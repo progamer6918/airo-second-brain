@@ -110,3 +110,25 @@ Saat diminta melakukan aksi Google Workspace atau eksekusi teknis:
 Untuk membersihkan riwayat percakapan working memory di VPS agar tidak terjadi *echo effect* percakapan lama:
 - Kirim `/reset`, `/clear`, atau `reset memori` via Telegram.
 - Worker akan otomatis memanggil `WorkingMemoryManager.reset_session(chat_id)` dan menghapus cache session JSON.
+
+---
+
+## Remote PC Action Bridge (Cloud-to-Local Desktop Control)
+
+AIRO Hermes di cloud VPS terhubung langsung ke PC lokal Windows melalui reverse SSH action relay:
+- **Router VPS**: `scripts/airo_pc_action_router.py` (terintegrasi di `scripts/airo-hermes-alpha-worker`).
+- **Antrean VPS**: `~/.local/state/airo-second-brain/pc-action-bridge/queue/` (`pending`, `in_progress`, `done`).
+- **Daemon PC**: `scripts/airo-pc-relay-daemon.py` (berjalan di WSL2 dengan persistent SSH multiplexer ke VPS).
+- **CLI Helper**: `bin/airo-pc-relay start|stop|status|test`.
+
+### Contoh Perintah Telegram yang Didukung:
+1. **Buka / Putar YouTube di PC**:
+   - *"Bro putar lagu lofi hip hop di YouTube PC"*
+   - *"Tolong putarin video tutorial Python di laptop"*
+   - *"Buka YouTube lofi beats"*
+2. **Buka Web / Link di PC**:
+   - *"Buka link https://github.com di PC"*
+   - *"Buka web dashboard airo di laptop"*
+3. **Cek Status Relay**:
+   - *"Status PC"* / *"Cek status PC relay"*
+

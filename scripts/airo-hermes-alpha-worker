@@ -1063,7 +1063,7 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
         return
 
     if clean_text in ("/help", "/bantuan"):
-        reply = "Perintah yang bisa lo pakai:\n• <code>/reset</code> — Bersihkan memori percakapan aktif\n• <code>/about</code> — Info singkat tentang AIRO Hermes\n• Tanya santai, minta cek jadwal/email GWS, atau lempar ide bisnis buat kita bedah bareng! 🎯"
+        reply = "Perintah yang bisa lo pakai:\n• <code>/reset</code> — Bersihkan memori percakapan aktif\n• <code>/about</code> — Info singkat tentang AIRO Hermes\n• <b>Remote PC</b> — Contoh: <i>'Putar lagu lofi di YouTube PC'</i> atau <i>'Buka link https://... di laptop'</i>\n• Tanya santai, minta cek jadwal/email GWS, atau lempar ide bisnis buat kita bedah bareng! 🎯"
         item["reply_text"] = reply
         save_item(path, item)
         sent = tg_send_message(token, chat_id, reply)
@@ -1081,16 +1081,31 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
         logger.warning("ActionAuthority blocked request: '%s' (reason: %s)", text, act_reason)
         reply = ActionAuthorityLight.get_blocked_response(text)
     else:
-        # 2. Google Workspace Intent Pre-Router
-        gws_reply = GWSRouter.route(text, chat_id=chat_id)
-        if gws_reply:
-            logger.info("GWSRouter resolved intent for request: '%s'", text)
-            reply = gws_reply
+        # 2. Remote PC Action Pre-Router (Desktop Execution)
+        pc_reply = None
+        try:
+            from airo_pc_action_router import PCActionRouter
+            pc_reply = PCActionRouter.route(text, chat_id=chat_id)
+        except Exception as err:
+            logger.error("PCActionRouter error: %s", err)
+
+        if pc_reply:
+            logger.info("PCActionRouter resolved intent for request: '%s'", text)
+            reply = pc_reply
         else:
-            # 3. Fallthrough to Hermes Native AIAgent (Persona V4)
-            reply = call_airo_hermes(text, session_id, chat_id=chat_id)
-        if gws_reply and chat_id:
-            WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
+            # 3. Google Workspace Intent Pre-Router
+            gws_reply = GWSRouter.route(text, chat_id=chat_id)
+            if gws_reply:
+                logger.info("GWSRouter resolved intent for request: '%s'", text)
+                reply = gws_reply
+            else:
+                # 4. Fallthrough to Hermes Native AIAgent (Persona V4)
+                reply = call_airo_hermes(text, session_id, chat_id=chat_id)
+            if gws_reply and chat_id:
+                WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
+
+        if pc_reply and chat_id:
+            WorkingMemoryManager.append_turn(chat_id, text, pc_reply)
 
     item["reply_text"] = reply
     save_item(path, item)

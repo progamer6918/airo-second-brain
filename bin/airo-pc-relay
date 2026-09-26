@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# bin/airo-pc-relay — CLI Controller for Local AIRO PC Action Relay
+# ==============================================================================
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+STATE_DIR="$HOME/.local/state/airo-second-brain/pc-action-bridge"
+PID_FILE="$STATE_DIR/daemon.pid"
+LOG_FILE="$STATE_DIR/daemon.log"
+DAEMON_SCRIPT="$REPO_DIR/scripts/airo-pc-relay-daemon.py"
+
+mkdir -p "$STATE_DIR"
+
+is_running() {
+  if [ -f "$PID_FILE" ]; then
+    local pid
+    pid=$(cat "$PID_FILE" 2>/dev/null || echo "")
+    if [ -n "$pid" ] && ps -p "$pid" >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+  return 1
+}
+
+case "${1:-status}" in
+  start)
+    if is_running; then
+      echo "AIRO PC Relay Daemon is ALREADY RUNNING (PID: $(cat "$PID_FILE"))."
+      exit 0
+    fi
+    echo "Starting AIRO PC Relay Daemon in background..."
+    nohup python3 "$DAEMON_SCRIPT" >/dev/null 2>&1 &
+    sleep 1
+    if is_running; then
+      echo "✅ AIRO PC Relay Daemon started successfully (PID: $(cat "$PID_FILE"))."
+      echo "Log file: $LOG_FILE"
+    else
+      echo "❌ Failed to start daemon. Check log: $LOG_FILE"
+      tail -n 20 "$LOG_FILE" 2>/dev/null || true
+      exit 1
+    fi
+    ;;
+
+  stop)
+    if is_running; then
+      local pid
+      pid=$(cat "$PID_FILE")
+      echo "Stopping AIRO PC Relay Daemon (PID: $pid)..."
+      kill -TERM "$pid" 2>/dev/null || true
+      sleep 1
+      if ps -p "$pid" >/dev/null 2>&1; then
+        kill -9 "$pid" 2>/dev/null || true
+      fi
+      rm -f "$PID_FILE"
+      echo "✅ AIRO PC Relay Daemon stopped."
+    else
+      echo "AIRO PC Relay Daemon is NOT running."
+      rm -f "$PID_FILE"
+    fi
+    ;;
+
+  status)
+    echo "=== AIRO PC Action Relay Status ==="
+    if is_running; then
+      echo "• Daemon Status : 🟢 RUNNING (PID: $(cat "$PID_FILE"))"
+    else
+      echo "• Daemon Status : 🔴 STOPPED"
+    fi
+    echo "• State Dir     : $STATE_DIR"
+    echo "• Log File      : $LOG_FILE"
+    
+    # Test SSH connectivity to VPS
+    if ssh -i "$HOME/.ssh/airo_tencent_vps.pem" -o ConnectTimeout=4 -o StrictHostKeyChecking=no ubuntu@43.157.241.228 "echo OK" >/dev/null 2>&1; then
+      echo "• VPS Bridge    : 🟢 CONNECTED (43.157.241.228)"
+    else
+      echo "• VPS Bridge    : 🔴 UNREACHABLE"
+    fi
+
+    if [ -f "$LOG_FILE" ]; then
+      echo -e "\nRecent Activity:"
+      tail -n 6 "$LOG_FILE"
+    fi
+    ;;
+
+  test)
+    echo "Testing direct Windows browser launch from WSL..."
+    python3 -c "
+import sys; sys.path.insert(0, '$REPO_DIR/scripts')
+from airo_pc_relay_daemon import launch_windows_browser
+res = launch_windows_browser('https://www.youtube.com/watch?v=rFZHOHl-L8A')
+print(f'✅ Browser launched successfully via: {res}')
+"
+    ;;
+
+  *)
+    echo "Usage: airo-pc-relay {start|stop|status|test}"
+    exit 1
+    ;;
+esac
