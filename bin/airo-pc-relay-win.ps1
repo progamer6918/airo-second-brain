@@ -281,6 +281,33 @@ while ($true) {
 
             Log-Message "⚡ CLAIMED TASK: $actionId (type=$type)"
 
+            # Expiration Check (15 minutes = 900 seconds)
+            $isExpired = $false
+            $taskEpoch = 0
+            if ($packet.created_at_epoch) {
+                $taskEpoch = [int64]$packet.created_at_epoch
+            } elseif ($actionId -match '^act-(\d+)-') {
+                $taskEpoch = [int64]$matches[1]
+            } elseif ($packet.created_at) {
+                try {
+                    $taskEpoch = [DateTimeOffset]::Parse($packet.created_at).ToUnixTimeSeconds()
+                } catch {}
+            }
+
+            if ($taskEpoch -gt 0) {
+                $nowEpoch = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+                $ageSec = $nowEpoch - $taskEpoch
+                if ($ageSec -gt 900) {
+                    $isExpired = $true
+                    Log-Message "⏳ TASK EXPIRED ($ageSec s old > 900s limit): $actionId. Skipping execution."
+                    $expireCmd = "mkdir -p ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead && mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead/$actionId.json"
+                    wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $expireCmd 2>$null
+                    continue
+                }
+            }
+
+            try {
+
             # ─── 1. OPEN_URL (Browser / YouTube) ───────────────────────────
             if ($type -eq "open_url" -and $payload.url) {
                 $targetUrl = $payload.url
@@ -461,6 +488,16 @@ while ($true) {
             $doneCmd = "mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"
             wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $doneCmd 2>$null
             Log-Message "✅ TASK COMPLETED: $actionId"
+            } catch {
+                $errMsg = $_.Exception.Message
+                Log-Message "❌ EXECUTION FAILED for $actionId : $errMsg"
+                if ($BOT_TOKEN -and $OWNER_CHAT_ID) {
+                    $alertText = [System.Uri]::EscapeDataString("⚠️ [AIRO PC Relay] Gagal menjalankan aksi ($type): $errMsg")
+                    curl.exe -s "https://api.telegram.org/bot$BOT_TOKEN/sendMessage?chat_id=$OWNER_CHAT_ID&text=$alertText" | Out-Null
+                }
+                $failCmd = "mkdir -p ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead && mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead/$actionId.json"
+                wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $failCmd 2>$null
+            }
         }
     } catch {
         Log-Message "Polling error: $_"

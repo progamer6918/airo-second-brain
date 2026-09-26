@@ -12,7 +12,7 @@ import json
 import time
 import uuid
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 
 logger = logging.getLogger("airo-pc-tools")
@@ -29,13 +29,16 @@ for d in (PENDING_DIR, IN_PROGRESS_DIR, DONE_DIR, DEAD_DIR):
 
 def enqueue_pc_action(action_type: str, payload: dict, chat_id: str = "") -> str:
     """Writes an atomic action packet to the pending queue."""
-    action_id = f"act-{int(time.time())}-{uuid.uuid4().hex[:6]}"
+    now_ts = int(time.time())
+    now_utc = datetime.now(timezone.utc)
+    action_id = f"act-{now_ts}-{uuid.uuid4().hex[:6]}"
     packet = {
         "action_id": action_id,
         "type": action_type,
         "payload": payload,
         "chat_id": str(chat_id),
-        "created_at": datetime.now().isoformat(),
+        "created_at": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_at_epoch": now_ts,
         "status": "pending"
     }
 
