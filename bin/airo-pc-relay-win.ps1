@@ -337,6 +337,20 @@ while ($true) {
                 switch ($appKey) {
                     "powerpoint" {
                         $p = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"
+                        # Auto-sync presentation file from VPS if specified in args and missing locally
+                        if ($appArgs -like "*.pptx*") {
+                            $targetPptx = $appArgs.Trim('"', "'", " ")
+                            if (-not (Test-Path $targetPptx)) {
+                                $targetDir = Split-Path $targetPptx -Parent
+                                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
+                                $leafName = Split-Path $targetPptx -Leaf
+                                $vpsPptxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
+                                Log-Message "📥 Syncing presentation from VPS: $vpsPptxPath -> $targetPptx"
+                                $wslDest = wsl.exe -e wslpath -u "$targetPptx"
+                                $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsPptxPath"
+                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                            }
+                        }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "powerpnt.exe$appArgs" }
                     }
                     "excel" {
