@@ -164,3 +164,101 @@ def pc_control_system(command: str, chat_id: str = "") -> Dict[str, Any]:
         "action": "system_control",
         "command": command
     }
+
+
+def pc_live_ppt_build(slides: list, title: str = "", chat_id: str = "") -> Dict[str, Any]:
+    """
+    Build a PowerPoint presentation LIVE on the Owner's physical monitor via COM Automation.
+    PowerPoint will open and type out the slides in real time.
+    """
+    payload = {
+        "title": title or "Live Presentation",
+        "slides": slides
+    }
+    action_id = enqueue_pc_action("live_ppt_build", payload, chat_id=chat_id)
+    return {
+        "status": "ENQUEUED",
+        "action_id": action_id,
+        "action": "live_ppt_build",
+        "slides_count": len(slides)
+    }
+
+
+def send_telegram_document(chat_id: str, file_path: str, caption: str = "") -> bool:
+    """Uploads a document directly to Telegram chat."""
+    import subprocess
+    token = os.environ.get("AIRO_HERMES_TELEGRAM_BOT_TOKEN")
+    if not token:
+        env_file = os.path.expanduser("~/.config/airo/airo-hermes-telegram.env")
+        if os.path.exists(env_file):
+            try:
+                with open(env_file, encoding="utf-8") as f:
+                    for line in f:
+                        if line.startswith("AIRO_HERMES_TELEGRAM_BOT_TOKEN="):
+                            token = line.strip().split("=", 1)[1].strip("'\" ")
+                            break
+            except Exception:
+                pass
+    if not token or not chat_id or not os.path.exists(file_path):
+        logger.warning("send_telegram_document: Missing token (%s), chat_id (%s), or file (%s)",
+                       bool(token), chat_id, file_path)
+        return False
+
+    try:
+        cmd = [
+            "curl", "-s",
+            "-F", f"chat_id={chat_id}",
+            "-F", f"caption={caption[:1024]}",
+            "-F", f"document=@{file_path}",
+            f"https://api.telegram.org/bot{token}/sendDocument"
+        ]
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=25)
+        logger.info("send_telegram_document result: %s", res.stdout[:120])
+        return '"ok":true' in res.stdout
+    except Exception as e:
+        logger.error("Failed to upload document to Telegram: %s", e)
+        return False
+
+
+def pc_generate_dynamic_pptx(topic: str, slides: list, chat_id: str = "", title: str = "", subtitle: str = "", category: str = "Executive Brief") -> Dict[str, Any]:
+    """
+    Compile a presentation dynamically on VPS using PresentationEngine,
+    sync it to Windows PC, launch it in PowerPoint, and send the document to Telegram.
+    """
+    try:
+        from airo_presentation_engine import build_dynamic_deck
+    except ImportError:
+        from scripts.airo_presentation_engine import build_dynamic_deck
+
+    safe_name = "".join(c if c.isalnum() else "_" for c in topic.strip()[:30]).strip("_")
+    if not safe_name:
+        safe_name = "Presentation"
+    filename = f"{safe_name}.pptx"
+
+    vps_deck_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+    win_deck_path = rf"C:\Users\Admin\Documents\AIRO_Presentations\{filename}"
+    os.makedirs(os.path.dirname(vps_deck_path), exist_ok=True)
+
+    deck_title = title or topic.title()
+    build_dynamic_deck(vps_deck_path, title=deck_title, slides=slides, subtitle=subtitle, category=category)
+    logger.info("Compiled dynamic presentation at %s", vps_deck_path)
+
+    # 1. Launch in PowerPoint on Windows
+    pc_launch_app("powerpoint", args=f'"{win_deck_path}"', display_name=deck_title, chat_id=chat_id)
+
+    # 2. Send file directly to Telegram chat
+    if chat_id:
+        tg_caption = f"🎯 <b>{deck_title}</b>\n{len(slides)} Slide Executive Presentation (16:9 Widescreen Modern Tech Theme)"
+        send_telegram_document(chat_id, vps_deck_path, caption=tg_caption)
+
+    return {
+        "status": "GENERATED_AND_LAUNCHED",
+        "topic": topic,
+        "title": deck_title,
+        "vps_path": vps_deck_path,
+        "win_path": win_deck_path,
+        "filename": filename,
+        "slides_count": len(slides)
+    }
+
+

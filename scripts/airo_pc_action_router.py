@@ -223,42 +223,9 @@ class PCActionRouter:
         ))
 
         if has_gen_verb and has_presentation_kw:
-            logger.info("PC_ACTION: Detected presentation deck generation intent from '%s'", t)
-
-            deck_filename = "AIRO_Pitch_Deck.pptx"
-            vps_deck_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{deck_filename}")
-            win_deck_path = rf"C:\Users\Admin\Documents\AIRO_Presentations\{deck_filename}"
-
-            # 1. Compile presentation deck on VPS
-            os.makedirs(os.path.dirname(vps_deck_path), exist_ok=True)
-            if build_airo_pitch_deck:
-                try:
-                    build_airo_pitch_deck(vps_deck_path)
-                    logger.info("Compiled presentation deck at %s", vps_deck_path)
-                except Exception as e:
-                    logger.error("Error building pitch deck: %s", e)
-
-            # 2. Dispatch open_app action to local PC (passes Windows path to PowerPoint)
-            pc_launch_app("powerpoint", args=f'"{win_deck_path}"', display_name="AIRO Pitch Deck", chat_id=chat_id)
-
-            # 3. Upload document to Telegram chat
-            tg_caption = "🎯 <b>AIRO Autonomous Executive OS — Pitch Deck</b>\n7 Slide Executive Presentation (16:9 Widescreen Modern Tech Theme)"
-            send_telegram_document(chat_id, vps_deck_path, caption=tg_caption)
-
-            # 4. Return executive status receipt
-            return (
-                "🎯 <b>AIRO Executive Pitch Deck Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
-                "📊 <b>Struktur 7 Slide Presentasi (16:9 Modern Tech Dark Theme):</b>\n"
-                "1. <b>Vision & Title</b>: AIRO — The Autonomous Executive OS\n"
-                "2. <b>The Industry Crisis</b>: Fragmentasi & Amnesia AI Tradisional\n"
-                "3. <b>The Architecture</b>: Penyatuan Strategic Intelligence & Desktop Execution\n"
-                "4. <b>Core Superpowers</b>: Physical Computer Use, AWD, Finance, Sovereign Storage\n"
-                "5. <b>Live Demonstrations</b>: Bukti Eksekusi Nyata (Excel, PowerPoint, Screen Vision)\n"
-                "6. <b>Unfair Advantage & ROI</b>: 10x Velocity & 100% Data Sovereignty\n"
-                "7. <b>Call to Action</b>: Transformasi Operasional Eksekutif Hari Ini\n\n"
-                "🖥️ Slide presentasi sudah otomatis dibuka di <b>Microsoft PowerPoint</b> monitor PC lo!\n"
-                "📎 File dokumen <code>.pptx</code> juga sudah gue kirimkan ke chat Telegram ini untuk lo review di HP. Silakan dicek bro!"
-            )
+            logger.info("PC_ACTION: Detected generative presentation intent from '%s' -> Bypassing router to Hermes LLM for dynamic slide conceptualization", t)
+            # DO NOT handle here. Return None to let Hermes LLM dynamically conceptualize and build the presentation.
+            return None
 
         # ─── 6. NATIVE DESKTOP APPLICATION LAUNCH ─────────────────────────────
         # Check if the user is asking to launch/open an application on PC

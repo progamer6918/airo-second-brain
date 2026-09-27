@@ -497,6 +497,53 @@ while ($true) {
                         Log-Message "⚠️ Unknown system_control command: $cmd"
                     }
                 }
+
+            # ─── 8. LIVE_PPT_BUILD (Live On-Screen PowerPoint COM Actuator) ──
+            } elseif ($type -eq "live_ppt_build") {
+                Log-Message "🖥️ Starting LIVE On-Screen PowerPoint build..."
+                $ppt = New-Object -ComObject PowerPoint.Application
+                $ppt.Visible = -1 # msoTrue
+                $ppt.WindowState = 3 # ppWindowMaximized
+                $pres = $ppt.Presentations.Add(-1)
+
+                try {
+                    $ppt.Activate()
+                } catch {}
+
+                $slides = $payload.slides
+                $slideIdx = 1
+                foreach ($s in $slides) {
+                    $layout = if ($slideIdx -eq 1) { 1 } else { 2 } # 1=Title, 2=Text
+                    $slide = $pres.Slides.Add($slideIdx, $layout)
+
+                    $slideTitle = [string]$s.title
+                    if ($slideTitle) {
+                        $slide.Shapes.Title.TextFrame.TextRange.Text = $slideTitle
+                    }
+                    Start-Sleep -Milliseconds 800
+
+                    if ($slideIdx -eq 1) {
+                        $subtitle = if ($s.subtitle) { [string]$s.subtitle } else { "AIRO Hermes Live Presentation" }
+                        if ($slide.Shapes.Count -ge 2) {
+                            $slide.Shapes.Item(2).TextFrame.TextRange.Text = $subtitle
+                        }
+                        Start-Sleep -Milliseconds 1000
+                    } else {
+                        $points = $s.points
+                        if ($points -and $slide.Shapes.Count -ge 2) {
+                            $bodyText = ($points -join [Environment]::NewLine)
+                            $slide.Shapes.Item(2).TextFrame.TextRange.Text = $bodyText
+                        }
+                        Start-Sleep -Milliseconds 1200
+                    }
+                    $slideIdx++
+                }
+
+                try {
+                    $pres.Windows.Item(1).Activate()
+                } catch {}
+
+                Log-Message "✅ LIVE PowerPoint build complete on screen ($($slides.Count) slides)!"
             }
 
             $doneCmd = "mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"

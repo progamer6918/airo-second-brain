@@ -1000,6 +1000,170 @@ def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
     return "Maaf, seluruh model AI sedang mengalami limit atau gangguan jaringan. Silakan coba beberapa saat lagi."
 
 
+# ─── Autonomous Hermes Dynamic Presentation Engine ───────────────────────────
+def is_generative_presentation_request(text: str) -> bool:
+    t_lower = text.lower()
+    has_gen_verb = bool(re.search(
+        r"\b(?:buat(?:kan|in)?|bikin(?:kan|in)?|generate|susun(?:kan)?|tulis(?:kan)?|rangkai|ciptakan|siapkan)\b",
+        t_lower
+    ))
+    has_presentation_kw = bool(re.search(
+        r"\b(?:ppt|powerpoint|power\s+point|presentasi|slide|slide\s+deck|pitch\s+deck)\b",
+        t_lower
+    ))
+    return has_gen_verb and has_presentation_kw
+
+
+def handle_hermes_presentation_generation(text: str, session_id: str, chat_id: str = "") -> str:
+    """
+    Autonomous Hermes Presentation Generation & Actuation Engine.
+    Uses Hermes LLM to dynamically draft slide outline and content for ANY topic,
+    then executes either:
+    1. LIVE On-Screen COM build with pacing (if requested live/on-screen)
+    2. Dynamic 16:9 Presentation compilation and delivery (pptx generated & opened)
+    """
+    logger.info("HERMES_PRESENTATION: Handling presentation request: '%s'", text)
+    try:
+        from airo_pc_tools import pc_live_ppt_build, pc_generate_dynamic_pptx
+    except ImportError:
+        from scripts.airo_pc_tools import pc_live_ppt_build, pc_generate_dynamic_pptx
+
+    is_live_mode = bool(re.search(
+        r"\b(?:live|langsung|ketik\s+langsung|di\s+depan\s+(?:gw|gua|gue)|di\s+layar|di\s+monitor|bikin\s+live|buat\s+live)\b",
+        text.lower()
+    ))
+
+    llm_prompt = (
+        f'Kamu adalah AIRO Hermes, personal thinking partner dan arsitek eksekutif.\n'
+        f'User memberikan instruksi pembuatan materi presentasi PowerPoint sebagai berikut:\n'
+        f'"{text}"\n\n'
+        f'TUGAS KAMU:\n'
+        f'1. Pahami topik yang diminta pengguna secara mendalam dan kontekstual.\n'
+        f'2. Rancang materi presentasi yang berbobot, tajam, profesional, dan relevan (3 sampai 6 slide).\n'
+        f'3. Slide 1 adalah Title/Cover Slide (memiliki title, subtitle, dan poin highlight ringkas).\n'
+        f'4. Slide berikutnya berisi materi substantif dengan judul slide yang kuat dan 2-4 poin penjelasan konkret.\n'
+        f'5. Hasilkan HANYA output valid JSON murni (tanpa teks pembuka/penutup, tanpa markdown backticks ```json) dengan format:\n'
+        f'{{\n'
+        f'  "title": "<Judul Utama Presentasi>",\n'
+        f'  "subtitle": "<Subjudul atau Tagline Strategis>",\n'
+        f'  "category": "<Kategori Bisnis / Topik>",\n'
+        f'  "slides": [\n'
+        f'    {{\n'
+        f'      "slide_number": 1,\n'
+        f'      "title": "<Judul Slide 1>",\n'
+        f'      "category": "<Kategori>",\n'
+        f'      "subtitle": "<Subjudul Singkat>",\n'
+        f'      "points": ["<Poin 1>", "<Poin 2>", "<Poin 3>"]\n'
+        f'    }}\n'
+        f'  ]\n'
+        f'}}'
+    )
+
+    llm_resp = call_airo_hermes(llm_prompt, session_id=f"pres_{session_id}", chat_id="")
+    logger.info("HERMES_PRESENTATION: Raw LLM response received (length=%d)", len(llm_resp))
+
+    spec = None
+    try:
+        clean_json_str = llm_resp.strip()
+        if "```" in clean_json_str:
+            clean_json_str = re.sub(r"^```(?:json)?\s*", "", clean_json_str)
+            clean_json_str = re.sub(r"\s*```$", "", clean_json_str)
+            clean_json_str = clean_json_str.strip()
+
+        match = re.search(r"(\{.*\})", clean_json_str, re.DOTALL)
+        if match:
+            clean_json_str = match.group(1)
+
+        spec = json.loads(clean_json_str)
+    except Exception as e:
+        logger.warning("HERMES_PRESENTATION: JSON parsing failed: %s. Using intelligent fallback parser.", e)
+
+    if not spec or not isinstance(spec, dict) or "slides" not in spec or not spec["slides"]:
+        topic_match = re.search(r"(?:tentang|ttg)\s+(.+)", text, re.IGNORECASE)
+        raw_topic = topic_match.group(1).strip() if topic_match else "Materi Strategis"
+        clean_title = raw_topic.title()
+        spec = {
+            "title": clean_title,
+            "subtitle": "Paparan Analisis & Strategi Eksekutif",
+            "category": "Strategi Bisnis",
+            "slides": [
+                {
+                    "slide_number": 1,
+                    "title": clean_title,
+                    "category": "Executive Brief",
+                    "subtitle": "Paparan Analisis & Rekomendasi Eksekusi",
+                    "points": [
+                        "Analisis komprehensif disusun oleh AIRO Hermes.",
+                        "Fokus pada diferensiasi nilai dan eksekusi pragmatis.",
+                        "Rancangan terstruktur untuk implementasi langsung."
+                    ]
+                },
+                {
+                    "slide_number": 2,
+                    "title": "Analisis Peluang & Tantangan",
+                    "category": "Pondasi & Dinamika Pasar",
+                    "subtitle": "Membedah dinamika dan potensi keunggulan",
+                    "points": [
+                        f"Peluang strategis utama dalam ekosistem {clean_title}.",
+                        "Mitigasi risiko operasional dan efisiensi alokasi sumber daya.",
+                        "Faktor kunci pendorong pertumbuhan jangka panjang."
+                    ]
+                },
+                {
+                    "slide_number": 3,
+                    "title": "Rencana Eksekusi & Milestone",
+                    "category": "Aksi & Target",
+                    "subtitle": "Langkah konkret pencapaian target",
+                    "points": [
+                        "Fase 1: Validasi model dan penyelarasan unit economics.",
+                        "Fase 2: Skalasi operasional dan penguatan penetrasi pasar.",
+                        "Fase 3: Optimasi margin dan dominasi kategori."
+                    ]
+                }
+            ]
+        }
+
+    title = spec.get("title", "AIRO Presentation")
+    subtitle = spec.get("subtitle", "")
+    category = spec.get("category", "Executive Brief")
+    slides_data = spec.get("slides", [])
+
+    slide_lines = []
+    for s in slides_data:
+        s_num = s.get("slide_number", len(slide_lines) + 1)
+        s_t = s.get("title", f"Slide {s_num}")
+        slide_lines.append(f"{s_num}. <b>{html.escape(s_t)}</b>")
+    slides_summary = "\n".join(slide_lines)
+
+    if is_live_mode:
+        logger.info("HERMES_PRESENTATION: Executing LIVE ON-SCREEN COM build for '%s' (%d slides)", title, len(slides_data))
+        pc_live_ppt_build(slides_data, title=title, chat_id=chat_id)
+        return (
+            f"🎯 <b>Siap bro! Presentasi \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft PowerPoint monitor PC lo sekarang!</b> 🖥️✨\n\n"
+            f"Lo bisa liat PowerPoint di PC lo terbuka dan mengetik tiap slide secara real-time:\n"
+            f"{slides_summary}\n\n"
+            f"⚡ <i>Status: Actuator COM PowerPoint sedang berjalan live di layar monitor lo dengan jeda visual antar-slide.</i>"
+        )
+    else:
+        logger.info("HERMES_PRESENTATION: Executing DYNAMIC FILE GENERATION for '%s' (%d slides)", title, len(slides_data))
+        res = pc_generate_dynamic_pptx(
+            topic=title,
+            slides=slides_data,
+            chat_id=chat_id,
+            title=title,
+            subtitle=subtitle,
+            category=category
+        )
+        filename = res.get("filename", "Presentation.pptx")
+        return (
+            f"🎯 <b>Materi Presentasi \"{html.escape(title)}\" Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
+            f"📊 <b>Struktur {len(slides_data)} Slide Presentasi (16:9 Modern Dark Tech Theme):</b>\n"
+            f"{slides_summary}\n\n"
+            f"🖥️ Slide presentasi sudah otomatis dibuka di <b>Microsoft PowerPoint</b> monitor PC lo!\n"
+            f"📎 File dokumen <code>{html.escape(filename)}</code> juga sudah gue kirimkan ke chat Telegram ini untuk lo review di HP. Silakan dicek bro!"
+        )
+
+
 # ─── Process Single Queue Item ────────────────────────────────────────────────
 def process_item(path: str, item: dict, token: str, owner_chat_id: str):
     request_id = item.get("request_id", "unknown")
@@ -1093,19 +1257,24 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
             logger.info("PCActionRouter resolved intent for request: '%s'", text)
             reply = pc_reply
         else:
-            # 3. Google Workspace Intent Pre-Router
-            gws_reply = GWSRouter.route(text, chat_id=chat_id)
-            if gws_reply:
-                logger.info("GWSRouter resolved intent for request: '%s'", text)
-                reply = gws_reply
+            # 2.5 Autonomous Generative Presentation Engine (Dynamic Deck & Live COM)
+            if is_generative_presentation_request(text):
+                logger.info("Autonomous Generative Presentation requested: '%s'", text)
+                reply = handle_hermes_presentation_generation(text, session_id, chat_id=chat_id)
             else:
-                # 4. Fallthrough to Hermes Native AIAgent (Persona V4)
-                reply = call_airo_hermes(text, session_id, chat_id=chat_id)
-            if gws_reply and chat_id:
-                WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
+                # 3. Google Workspace Intent Pre-Router
+                gws_reply = GWSRouter.route(text, chat_id=chat_id)
+                if gws_reply:
+                    logger.info("GWSRouter resolved intent for request: '%s'", text)
+                    reply = gws_reply
+                else:
+                    # 4. Fallthrough to Hermes Native AIAgent (Persona V4)
+                    reply = call_airo_hermes(text, session_id, chat_id=chat_id)
+                if gws_reply and chat_id:
+                    WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
 
-        if pc_reply and chat_id:
-            WorkingMemoryManager.append_turn(chat_id, text, pc_reply)
+        if (pc_reply or is_generative_presentation_request(text)) and chat_id:
+            WorkingMemoryManager.append_turn(chat_id, text, reply)
 
     item["reply_text"] = reply
     save_item(path, item)
