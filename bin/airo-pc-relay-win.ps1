@@ -355,10 +355,38 @@ while ($true) {
                     }
                     "excel" {
                         $p = "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"
+                        # Auto-sync spreadsheet file from VPS if specified in args and missing locally
+                        if ($appArgs -like "*.xlsx*") {
+                            $targetXlsx = $appArgs.Trim('"', "'", " ")
+                            if (-not (Test-Path $targetXlsx)) {
+                                $targetDir = Split-Path $targetXlsx -Parent
+                                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
+                                $leafName = Split-Path $targetXlsx -Leaf
+                                $vpsXlsxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
+                                Log-Message "📥 Syncing spreadsheet from VPS: $vpsXlsxPath -> $targetXlsx"
+                                $wslDest = wsl.exe -e wslpath -u "$targetXlsx"
+                                $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsXlsxPath"
+                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                            }
+                        }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "excel.exe$appArgs" }
                     }
                     "word" {
                         $p = "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"
+                        # Auto-sync document file from VPS if specified in args and missing locally
+                        if ($appArgs -like "*.docx*") {
+                            $targetDocx = $appArgs.Trim('"', "'", " ")
+                            if (-not (Test-Path $targetDocx)) {
+                                $targetDir = Split-Path $targetDocx -Parent
+                                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
+                                $leafName = Split-Path $targetDocx -Leaf
+                                $vpsDocxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
+                                Log-Message "📥 Syncing document from VPS: $vpsDocxPath -> $targetDocx"
+                                $wslDest = wsl.exe -e wslpath -u "$targetDocx"
+                                $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsDocxPath"
+                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                            }
+                        }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "winword.exe$appArgs" }
                     }
                     "spotify" {
@@ -544,6 +572,178 @@ while ($true) {
                 } catch {}
 
                 Log-Message "✅ LIVE PowerPoint build complete on screen ($($slides.Count) slides)!"
+
+            # ─── 9. LIVE_EXCEL_BUILD (Live On-Screen Excel COM Actuator) ─────
+            } elseif ($type -eq "live_excel_build") {
+                Log-Message "🖥️ Starting LIVE On-Screen Excel build..."
+                $excel = New-Object -ComObject Excel.Application
+                $excel.Visible = $true
+                $excel.WindowState = -4137 # xlMaximized
+                $wb = $excel.Workbooks.Add()
+                $ws = $wb.Sheets.Item(1)
+
+                try {
+                    $excel.ActiveWindow.Activate()
+                } catch {}
+
+                $title = if ($payload.title) { [string]$payload.title } else { "AIRO Live Spreadsheet" }
+                $sheetName = if ($payload.sheet_name) { [string]$payload.sheet_name } else { "Executive Summary" }
+                try {
+                    $ws.Name = $sheetName.Substring(0, [Math]::Min(31, $sheetName.Length))
+                } catch {}
+
+                # 1. Title Banner
+                $titleCell = $ws.Cells.Item(1, 1)
+                $titleCell.Value2 = $title
+                $titleCell.Font.Name = "Segoe UI"
+                $titleCell.Font.Size = 14
+                $titleCell.Font.Bold = $true
+                $titleCell.Font.Color = 3154966 # Navy (#161E30)
+
+                $subCell = $ws.Cells.Item(2, 1)
+                $subCell.Value2 = "Disusun secara otomatis oleh AIRO Hermes Autonomous Operating System"
+                $subCell.Font.Name = "Segoe UI"
+                $subCell.Font.Size = 9
+                $subCell.Font.Italic = $true
+                $subCell.Font.Color = 8421504 # Gray
+
+                Start-Sleep -Milliseconds 600
+
+                $headers = $payload.headers
+                $rows = $payload.rows
+                $startRow = 4
+
+                # 2. Render Headers with Navy Fill & White Font
+                for ($col = 0; $col -lt $headers.Count; $col++) {
+                    $cell = $ws.Cells.Item($startRow, $col + 1)
+                    $cell.Value2 = [string]$headers[$col]
+                    $cell.Font.Name = "Segoe UI"
+                    $cell.Font.Size = 11
+                    $cell.Font.Bold = $true
+                    $cell.Font.Color = 16777215 # White
+                    $cell.Interior.Color = 3154966 # Dark Navy (#161E30)
+                    $cell.HorizontalAlignment = -4108 # xlCenter
+                    $cell.VerticalAlignment = -4108 # xlCenter
+                    Start-Sleep -Milliseconds 150
+                }
+
+                # 3. Render Data Rows with visual pacing and zebra striping
+                $currentRow = $startRow + 1
+                for ($r = 0; $r -lt $rows.Count; $r++) {
+                    $rowData = $rows[$r]
+                    $isEven = ($r % 2 -eq 1)
+                    $fillColor = if ($isEven) { 16579832 } else { 16777215 } # #F8FAFC vs White
+
+                    for ($c = 0; $c -lt $headers.Count; $c++) {
+                        $val = if ($c -lt $rowData.Count) { $rowData[$c] } else { "" }
+                        $cell = $ws.Cells.Item($currentRow, $c + 1)
+                        $cell.Value2 = [string]$val
+                        $cell.Font.Name = "Segoe UI"
+                        $cell.Font.Size = 10
+                        $cell.Interior.Color = $fillColor
+                        
+                        # Number alignment
+                        if ($val -match '^[\d,.]+$') {
+                            $cell.HorizontalAlignment = -4152 # xlRight
+                        } else {
+                            $cell.HorizontalAlignment = -4131 # xlLeft
+                        }
+                    }
+                    $currentRow++
+                    Start-Sleep -Milliseconds 350
+                }
+
+                # 4. Auto-fit columns
+                $ws.Columns.AutoFit() | Out-Null
+
+                Log-Message "✅ LIVE Excel build complete on screen ($($rows.Count) rows)!"
+
+            # ─── 10. LIVE_WORD_BUILD (Live On-Screen Word COM Actuator) ──────
+            } elseif ($type -eq "live_word_build") {
+                Log-Message "🖥️ Starting LIVE On-Screen Word build..."
+                $word = New-Object -ComObject Word.Application
+                $word.Visible = $true
+                $word.WindowState = 1 # wdWindowStateMaximize
+                $doc = $word.Documents.Add()
+
+                try {
+                    $word.Activate()
+                } catch {}
+
+                $sel = $word.Selection
+
+                # Title
+                $title = if ($payload.title) { [string]$payload.title } else { "Dokumen Eksekutif AIRO" }
+                $sel.Font.Name = "Segoe UI"
+                $sel.Font.Size = 22
+                $sel.Font.Bold = 1
+                $sel.Font.Color = 3154966 # Dark Navy
+                $sel.TypeText($title)
+                $sel.TypeParagraph()
+                Start-Sleep -Milliseconds 600
+
+                # Subtitle
+                if ($payload.subtitle) {
+                    $sel.Font.Size = 12
+                    $sel.Font.Bold = 0
+                    $sel.Font.Italic = 1
+                    $sel.Font.Color = 8421504 # Gray
+                    $sel.TypeText([string]$payload.subtitle)
+                    $sel.TypeParagraph()
+                }
+
+                # Metadata
+                $sel.Font.Size = 9
+                $sel.Font.Bold = 0
+                $sel.Font.Italic = 1
+                $sel.Font.Color = 8421504
+                $sel.TypeText("Created by AIRO Hermes | Executive OS • 2026")
+                $sel.TypeParagraph()
+                $sel.TypeParagraph()
+                Start-Sleep -Milliseconds 500
+
+                # Sections
+                $sections = $payload.sections
+                $secIdx = 1
+                foreach ($sec in $sections) {
+                    $secTitle = if ($sec.title) { [string]$sec.title } else { "Bagian $secIdx" }
+                    
+                    # Section Heading
+                    $sel.Font.Size = 14
+                    $sel.Font.Bold = 1
+                    $sel.Font.Italic = 0
+                    $sel.Font.Color = 3154966
+                    $sel.TypeText("$secIdx. $secTitle")
+                    $sel.TypeParagraph()
+                    Start-Sleep -Milliseconds 400
+
+                    # Content paragraph
+                    if ($sec.content) {
+                        $sel.Font.Size = 11
+                        $sel.Font.Bold = 0
+                        $sel.Font.Color = 0 # Black
+                        $sel.TypeText([string]$sec.content)
+                        $sel.TypeParagraph()
+                        Start-Sleep -Milliseconds 500
+                    }
+
+                    # Bullet points
+                    if ($sec.points) {
+                        foreach ($pt in $sec.points) {
+                            $sel.Font.Size = 10.5
+                            $sel.Font.Bold = 0
+                            $sel.Font.Color = 3355443
+                            $sel.TypeText("•  $pt")
+                            $sel.TypeParagraph()
+                            Start-Sleep -Milliseconds 250
+                        }
+                    }
+
+                    $sel.TypeParagraph()
+                    $secIdx++
+                }
+
+                Log-Message "✅ LIVE Word build complete on screen ($($sections.Count) sections)!"
             }
 
             $doneCmd = "mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"

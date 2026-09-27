@@ -262,3 +262,128 @@ def pc_generate_dynamic_pptx(topic: str, slides: list, chat_id: str = "", title:
     }
 
 
+def pc_live_excel_build(headers: list, rows: list, title: str = "", sheet_name: str = "Executive Summary", chat_id: str = "") -> Dict[str, Any]:
+    """
+    Build a spreadsheet LIVE on the Owner's physical monitor via Excel COM Automation.
+    Excel will open, maximize, and construct the styled table with visual pacing in real time.
+    """
+    payload = {
+        "title": title or "AIRO Live Spreadsheet",
+        "sheet_name": sheet_name or "Executive Summary",
+        "headers": headers,
+        "rows": rows
+    }
+    action_id = enqueue_pc_action("live_excel_build", payload, chat_id=chat_id)
+    return {
+        "status": "ENQUEUED",
+        "action_id": action_id,
+        "action": "live_excel_build",
+        "headers_count": len(headers),
+        "rows_count": len(rows)
+    }
+
+
+def pc_live_word_build(sections: list, title: str = "", subtitle: str = "", chat_id: str = "") -> Dict[str, Any]:
+    """
+    Build a Word document LIVE on the Owner's physical monitor via Word COM Automation.
+    Word will open and type out styled headings, paragraphs, and points in real time.
+    """
+    payload = {
+        "title": title or "Dokumen Eksekutif AIRO",
+        "subtitle": subtitle or "",
+        "sections": sections
+    }
+    action_id = enqueue_pc_action("live_word_build", payload, chat_id=chat_id)
+    return {
+        "status": "ENQUEUED",
+        "action_id": action_id,
+        "action": "live_word_build",
+        "sections_count": len(sections)
+    }
+
+
+def pc_generate_dynamic_xlsx(topic: str, headers: list, rows: list, title: str = "", sheet_name: str = "Executive Summary", summary: dict = None, chat_id: str = "") -> Dict[str, Any]:
+    """
+    Compile a styled spreadsheet dynamically on VPS using openpyxl,
+    sync it to Windows PC, launch it in Excel, and send the document to Telegram.
+    """
+    try:
+        from airo_office_engine import build_dynamic_xlsx
+    except ImportError:
+        from scripts.airo_office_engine import build_dynamic_xlsx
+
+    safe_name = "".join(c if c.isalnum() else "_" for c in topic.strip()[:30]).strip("_")
+    if not safe_name:
+        safe_name = "Spreadsheet"
+    filename = f"{safe_name}.xlsx"
+
+    vps_file_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+    win_file_path = rf"C:\Users\Admin\Documents\AIRO_Spreadsheets\{filename}"
+    os.makedirs(os.path.dirname(vps_file_path), exist_ok=True)
+
+    wb_title = title or topic.title()
+    build_dynamic_xlsx(vps_file_path, title=wb_title, headers=headers, rows=rows, sheet_name=sheet_name, summary=summary)
+    logger.info("Compiled dynamic spreadsheet at %s", vps_file_path)
+
+    # 1. Launch in Excel on Windows
+    pc_launch_app("excel", args=f'"{win_file_path}"', display_name=wb_title, chat_id=chat_id)
+
+    # 2. Send file directly to Telegram chat
+    if chat_id:
+        tg_caption = f"📊 <b>{wb_title}</b>\nExecutive Excel Workbook ({len(rows)} baris data, auto-fit styling)"
+        send_telegram_document(chat_id, vps_file_path, caption=tg_caption)
+
+    return {
+        "status": "GENERATED_AND_LAUNCHED",
+        "topic": topic,
+        "title": wb_title,
+        "vps_path": vps_file_path,
+        "win_path": win_file_path,
+        "filename": filename,
+        "rows_count": len(rows)
+    }
+
+
+def pc_generate_dynamic_docx(topic: str, sections: list, title: str = "", subtitle: str = "", chat_id: str = "") -> Dict[str, Any]:
+    """
+    Compile an executive Word document dynamically on VPS using python-docx,
+    sync it to Windows PC, launch it in Word, and send the document to Telegram.
+    """
+    try:
+        from airo_office_engine import build_dynamic_docx
+    except ImportError:
+        from scripts.airo_office_engine import build_dynamic_docx
+
+    safe_name = "".join(c if c.isalnum() else "_" for c in topic.strip()[:30]).strip("_")
+    if not safe_name:
+        safe_name = "Document"
+    filename = f"{safe_name}.docx"
+
+    vps_file_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+    win_file_path = rf"C:\Users\Admin\Documents\AIRO_Documents\{filename}"
+    os.makedirs(os.path.dirname(vps_file_path), exist_ok=True)
+
+    doc_title = title or topic.title()
+    build_dynamic_docx(vps_file_path, title=doc_title, sections=sections, subtitle=subtitle)
+    logger.info("Compiled dynamic Word document at %s", vps_file_path)
+
+    # 1. Launch in Word on Windows
+    pc_launch_app("winword", args=f'"{win_file_path}"', display_name=doc_title, chat_id=chat_id)
+
+    # 2. Send file directly to Telegram chat
+    if chat_id:
+        tg_caption = f"📄 <b>{doc_title}</b>\nExecutive Word Document ({len(sections)} bagian analisis, styled layout)"
+        send_telegram_document(chat_id, vps_file_path, caption=tg_caption)
+
+    return {
+        "status": "GENERATED_AND_LAUNCHED",
+        "topic": topic,
+        "title": doc_title,
+        "vps_path": vps_file_path,
+        "win_path": win_file_path,
+        "filename": filename,
+        "sections_count": len(sections)
+    }
+
+
+

@@ -87,6 +87,20 @@ class SimpleTransactionParser:
         raw_num = match.group(1).strip()
         raw_suffix = (match.group(2) or "").lower()
         full_match_token = match.group(0).strip()
+
+        # Check if the number is immediately followed by a measure noun (e.g. 3 slide, 2 hari)
+        post_match_text = text[match.end():].strip().lower()
+        next_word_match = re.match(r'^([a-z]+)\b', post_match_text)
+        if next_word_match:
+            next_word = next_word_match.group(1)
+            measure_nouns = {
+                "slide", "slides", "halaman", "baris", "lembar", "buah", "biji",
+                "orang", "hari", "jam", "menit", "detik", "kali", "item",
+                "kolom", "sheet", "doc", "dokumen", "file", "foto", "gambar",
+                "minggu", "bulan", "tahun", "persen", "pc", "laptop"
+            }
+            if next_word in measure_nouns:
+                return None, None
         
         multiplier = 1.0
         if raw_suffix in ("k", "rb", "ribu"):
@@ -105,31 +119,53 @@ class SimpleTransactionParser:
             else:
                 cleaned = raw_num.replace(",", ".")
             amount = float(cleaned) * multiplier
+
+            # Implausible bare amount guard: bare numbers without suffix or rp under 500 are not valid IDR transactions
+            has_rp = "rp" in full_match_token.lower()
+            if not has_rp and amount < 500:
+                return None, None
             
         return amount, full_match_token
 
     def _match_account_in_text(self, text: str, acc_rows: List[Any]) -> Tuple[Optional[Any], Optional[str]]:
         lower = text.lower()
-        # Sort rows such that accounts with more specific names (e.g. "Blu BCA") are evaluated first
-        sorted_rows = sorted(acc_rows, key=lambda r: len(r["name"]), reverse=True)
-        for row in sorted_rows:
-            acc_name_lower = row["name"].lower()
-            aliases = []
-            if "blu" in acc_name_lower:
-                aliases.extend(["blu bca", "blu"])
-            elif "bca" in acc_name_lower:
-                aliases.extend(["bca utama", "bca"])
-            elif "mandiri" in acc_name_lower:
-                aliases.extend(["mandiri"])
-            elif "cash" in acc_name_lower or "dompet" in acc_name_lower:
-                aliases.extend(["cash dompet", "cash", "tunai", "dompet"])
-            else:
-                aliases.append(acc_name_lower)
+        matches = []
+        for row in acc_rows:
+            acc_name_lower = row["name"].lower().strip()
+            aliases = set()
+            # 1. Full exact account name
+            aliases.add(acc_name_lower)
+
+            # 2. Specific nicknames/keywords
+            if acc_name_lower == "blu gether":
+                aliases.add("gether")
+            elif acc_name_lower == "blu saving":
+                aliases.add("saving")
+            elif acc_name_lower == "blu pocket cc":
+                aliases.add("pocket cc")
+            elif acc_name_lower == "bca utama":
+                aliases.add("bca")
+            elif acc_name_lower == "bca pocket":
+                aliases.add("pocket bca")
+            elif acc_name_lower == "blu":
+                aliases.add("blu bca")
+            elif acc_name_lower in ("cash dompet", "cash umum", "cash"):
+                aliases.update(["tunai", "dompet", "cash dompet"])
+
+            is_active = row["is_active"] if "is_active" in row.keys() else 1
 
             for alias in aliases:
-                if re.search(rf'\b{re.escape(alias)}\b', lower):
-                    return row, alias
-        return None, None
+                match = re.search(rf'\b{re.escape(alias)}\b', lower)
+                if match:
+                    # Higher active priority (1 > 0), longer matched token, longer account name
+                    matches.append((is_active, len(alias), len(acc_name_lower), row, alias))
+
+        if not matches:
+            return None, None
+
+        matches.sort(key=lambda m: (m[0], m[1], m[2]), reverse=True)
+        best_match = matches[0]
+        return best_match[3], best_match[4]
 
     def parse(self, raw_text: str) -> TransactionCandidate:
         cleaned_text = raw_text.strip()
@@ -143,7 +179,7 @@ class SimpleTransactionParser:
 
         lower = cleaned_text.lower()
         conn = self.engine.db.get_connection()
-        acc_rows = conn.execute("SELECT id, name FROM accounts ORDER BY id").fetchall()
+        acc_rows = conn.execute("SELECT id, name, COALESCE(is_active, 1) as is_active FROM accounts ORDER BY id").fetchall()
         if not acc_rows:
             raise ValueError("Tidak ada rekening terdaftar di sistem")
 
@@ -245,6 +281,17 @@ class SimpleTransactionParser:
                     "id": alias_match["subcategory_id"],
                     "name": alias_match["subcategory_name"]
                 }
+
+        # Check subcategories table directly if not yet matched
+        if not chosen_subcategory:
+            sub_rows = conn.execute("SELECT id, category_id, name FROM subcategories WHERE is_active = 1").fetchall()
+            for sub_row in sub_rows:
+                s_name = sub_row["name"].lower().strip()
+                if re.search(rf'\b{re.escape(s_name)}\b', lower):
+                    chosen_subcategory = {"id": sub_row["id"], "name": sub_row["name"]}
+                    if not chosen_category:
+                        chosen_category = next((c for c in cat_rows if c["id"] == sub_row["category_id"]), None)
+                    break
 
         if not chosen_category:
             for cat_row in cat_rows:
@@ -923,6 +970,7 @@ class TelegramCaptureAdapter:
 
         dir_label = "Pengeluaran 🔴" if candidate.direction == "EXPENSE" else "Pemasukan 🟢"
         cat_label = candidate.category_name if candidate.category_name else "Tanpa Kategori"
+        sub_label = candidate.subcategory_name if candidate.subcategory_name else "-"
         
         card_text = (
             "🧾 <b>Konfirmasi Transaksi</b>\n"
@@ -931,6 +979,7 @@ class TelegramCaptureAdapter:
             f"🔄 <b>Arah:</b> {dir_label}\n"
             f"🏦 <b>Rekening:</b> {candidate.account_name}\n"
             f"🏷️ <b>Kategori:</b> {cat_label}\n"
+            f"🔖 <b>Subkategori:</b> {sub_label}\n"
             f"📝 <b>Catatan:</b> {candidate.note}\n"
             "───────────────────\n"
             "Simpan transaksi ini ke Buku Besar?"

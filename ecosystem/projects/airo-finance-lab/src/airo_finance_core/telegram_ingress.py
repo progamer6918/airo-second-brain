@@ -1,13 +1,15 @@
 import os
 import sys
+import time
 import json
 import logging
+import re
 import urllib.request
 import urllib.parse
 import urllib.error
 from typing import Optional, Dict, Any, Tuple, Callable, List
 from .engine import FinanceCoreEngine
-from .telegram_capture import InteractiveConfirmationHandler, SimpleTransactionParser
+from .telegram_capture import InteractiveConfirmationHandler, SimpleTransactionParser, TransactionCandidate
 
 logger = logging.getLogger("airo_finance_core.telegram_ingress")
 
@@ -211,13 +213,35 @@ class FinanceTelegramIngressRouter:
         """
         Determines whether a message is an intended financial transaction input.
         Must contain valid numeric amount and parseable structure.
-        Conversational queries (e.g. 'Halo', 'Sisa budget?') return False.
+        Conversational queries (e.g. 'Halo', 'Sisa budget?') and PC/Office commands return False.
         """
         if not text or not text.strip():
             return False
 
         stripped = text.strip()
         lower = stripped.lower()
+
+        # 0. Immediate rejection for PC / Office / Media / Assistant automation commands
+        non_finance_command_verbs = (
+            "buat ", "bikin ", "buka ", "tutup ", "jalankan ", "run ", "start ",
+            "play ", "putar ", "cari ", "search ", "browse ", "ketik ", "klik ",
+            "tekan ", "scroll ", "screenshot ", "ss ", "tangkap layar ", "tampilkan "
+        )
+        non_finance_targets = (
+            "ppt", "powerpoint", "slide", "slides", "presentasi", "presentation",
+            "excel", "spreadsheet", "sheet", "word", "dokumen", "document", "docx",
+            "youtube", "yt", "video", "lagu", "musik", "podcast", "browser", "chrome",
+            "pc", "laptop", "komputer", "monitor", "layar"
+        )
+        
+        # If it starts with non-finance command verb and contains a non-finance target or 'live'
+        if any(lower.startswith(v) for v in non_finance_command_verbs):
+            if any(re.search(rf'\b{re.escape(t)}\b', lower) for t in non_finance_targets) or "live" in lower:
+                return False
+
+        # If it has PC / Office references combined with personal pronoun or 'live' or action verbs
+        if re.search(r'\b(pc|laptop|monitor|browser|youtube|ppt|excel|word)\b', lower) and re.search(r'\b(gw|saya|aku|live|buka|buat|putar)\b', lower):
+            return False
 
         # Check explicit transfer or recording keywords
         if lower.startswith(("trf ", "transfer ", "pindah ", "catat ")):
@@ -575,6 +599,45 @@ class FinanceTelegramIngressRouter:
                 
                 if action == "cfm":
                     self.confirmation_handler.clear_edit_session(chat_id)
+                    cand = self.confirmation_handler.get_candidate(candidate_id)
+                    if candidate_id.startswith("rq_") and cand:
+                        try:
+                            override_data = {
+                                "amount": cand.amount,
+                                "direction": cand.direction,
+                                "account_id": cand.account_id,
+                                "category_id": cand.category_id,
+                                "subcategory_id": getattr(cand, "subcategory_id", None),
+                                "note": cand.note,
+                                "date": getattr(cand, "date", None),
+                            }
+                            if cand.destination_account_id:
+                                override_data["destination_account_id"] = cand.destination_account_id
+                            item, tx = self.engine.approve_review_item(candidate_id, override_data=override_data)
+                            cand.status = "CONFIRMED"
+                            acc = self.engine.get_account(cand.account_id)
+                            acc_balance_str = f"Rp{int(round(acc.balance)):,}".replace(",", ".") if acc else "-"
+                            card_receipt = (
+                                f"✅ <b>Transaksi Gmail Berhasil Disimpan!</b>\n"
+                                f"───────────────────\n"
+                                f"💰 <b>Nominal:</b> Rp{int(round(tx.amount)):,}\n"
+                                f"🏦 <b>Akun:</b> {cand.account_name or (acc.name if acc else '-')}\n"
+                                f"📝 <b>Catatan:</b> {tx.note or '-'}\n"
+                                f"🆔 <b>Ref:</b> <code>{tx.id}</code>\n"
+                                f"💳 <b>Sisa Saldo:</b> {acc_balance_str}\n"
+                                f"───────────────────\n"
+                                f"<i>Tersimpan di Buku Besar dari Review Queue.</i>"
+                            ).replace(",", ".")
+                            if self.outbound and message_id:
+                                self.outbound.edit_message_text(chat_id, message_id, card_receipt, reply_markup={"inline_keyboard": []})
+                                self.outbound.answer_callback_query(cq_id, text="✅ Transaksi Disetujui & Disimpan")
+                            return True, f"GMAIL_CONFIRMED:{tx.id}"
+                        except Exception as e:
+                            logger.error(f"Error approving review queue candidate {candidate_id}: {e}")
+                            if self.outbound and message_id:
+                                self.outbound.answer_callback_query(cq_id, text=f"⚠️ {e}", show_alert=True)
+                            return True, f"CONFIRM_FAILED:{e}"
+
                     ok, tx, status_msg = self.confirmation_handler.confirm_candidate(candidate_id)
                     if ok and tx:
                         card_receipt = (
@@ -598,6 +661,11 @@ class FinanceTelegramIngressRouter:
 
                 elif action == "ccl":
                     self.confirmation_handler.clear_edit_session(chat_id)
+                    if candidate_id.startswith("rq_"):
+                        try:
+                            self.engine.ignore_review_item(candidate_id, reason="Dibatalkan via editor Telegram")
+                        except Exception as ex:
+                            logger.warning(f"Could not ignore review item {candidate_id}: {ex}")
                     ok, status_msg = self.confirmation_handler.cancel_candidate(candidate_id)
                     cancel_receipt = (
                         "❌ <b>Pencatatan Dibatalkan</b>\n"
@@ -701,13 +769,74 @@ class FinanceTelegramIngressRouter:
                         return True, f"GMAIL_IGNORE_FAILED:{e}"
 
                 elif action == "gmc":
-                    if self.outbound:
-                        self.outbound.answer_callback_query(
-                            cq_id,
-                            text="✏️ Edit Transaksi: Buka Dashboard AIRO Finance atau kirim format koreksi.",
-                            show_alert=True
-                        )
-                    return True, f"GMAIL_CHANGE_PROMPTED:{review_id}"
+                    current_item = self.engine.get_review_queue_item(review_id)
+                    if not current_item or current_item.status != "PENDING":
+                        if self.outbound:
+                            self.outbound.answer_callback_query(
+                                cq_id,
+                                text="⚠️ Transaksi review ini sudah tidak aktif atau sudah diproses.",
+                                show_alert=True
+                            )
+                        return True, f"GMAIL_REVIEW_NOT_PENDING:{review_id}"
+
+                    parsed = {}
+                    try:
+                        parsed = json.loads(current_item.parsed_result)
+                    except Exception:
+                        pass
+
+                    cand = TransactionCandidate(
+                        candidate_id=review_id,
+                        raw_text=current_item.raw_text or "",
+                        amount=float(parsed.get("amount") or 0.0),
+                        direction=str(parsed.get("direction") or "EXPENSE").upper(),
+                        account_id=str(parsed.get("account_id") or ""),
+                        account_name=str(parsed.get("account_name") or ""),
+                        category_id=parsed.get("category_id"),
+                        category_name=parsed.get("category_name"),
+                        subcategory_id=parsed.get("subcategory_id"),
+                        subcategory_name=parsed.get("subcategory_name"),
+                        note=str(parsed.get("note") or parsed.get("merchant") or "Deteksi Gmail"),
+                        status="PENDING",
+                        created_at=time.time(),
+                        date=parsed.get("date"),
+                        tx_type=str(parsed.get("tx_type") or "EXPENSE"),
+                        original_state=dict(parsed)
+                    )
+
+                    if cand.account_id and not cand.account_name:
+                        acc = self.engine.get_account(cand.account_id)
+                        if acc:
+                            cand.account_name = acc.name
+                    elif cand.account_name and not cand.account_id:
+                        for acc in self.engine.list_accounts():
+                            if acc.name.lower() == cand.account_name.lower():
+                                cand.account_id = acc.id
+                                break
+                    if not cand.account_id:
+                        accs = self.engine.list_accounts(active_only=True)
+                        if accs:
+                            cand.account_id = accs[0].id
+                            cand.account_name = accs[0].name
+
+                    if cand.category_id and not cand.category_name:
+                        cat = self.engine.get_category(cand.category_id)
+                        if cat:
+                            cand.category_name = cat.name
+                    elif cand.category_name and not cand.category_id:
+                        for cat in self.engine.list_categories():
+                            if cat.name.lower() == cand.category_name.lower():
+                                cand.category_id = cat.id
+                                break
+
+                    # Save candidate to confirmation handler
+                    self.confirmation_handler._candidates[review_id] = cand
+                    self.confirmation_handler.start_edit_session(chat_id, review_id, field=None)
+                    menu = self.confirmation_handler.format_guided_edit_menu(cand)
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id, message_id, menu["text"], reply_markup=menu["reply_markup"])
+                        self.outbound.answer_callback_query(cq_id, text="✏️ Membuka mode edit...")
+                    return True, f"GMAIL_EDIT_STARTED:{review_id}"
 
             else:
                 logger.warning(f"Unhandled callback data: {data}")

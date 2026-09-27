@@ -1000,168 +1000,370 @@ def call_airo_hermes(text: str, session_id: str, chat_id: str = "") -> str:
     return "Maaf, seluruh model AI sedang mengalami limit atau gangguan jaringan. Silakan coba beberapa saat lagi."
 
 
-# ─── Autonomous Hermes Dynamic Presentation Engine ───────────────────────────
-def is_generative_presentation_request(text: str) -> bool:
+# ─── Autonomous Hermes Dynamic Office Suite Engine (PPT, Excel, Word) ──────────
+def is_generative_office_request(text: str) -> bool:
     t_lower = text.lower()
     has_gen_verb = bool(re.search(
-        r"\b(?:buat(?:kan|in)?|bikin(?:kan|in)?|generate|susun(?:kan)?|tulis(?:kan)?|rangkai|ciptakan|siapkan)\b",
+        r"\b(?:buat(?:kan|in)?|bikin(?:kan|in)?|generate|susun(?:kan)?|tulis(?:kan)?|rangkai|ciptakan|siapkan|olah|tampilkan)\b",
         t_lower
     ))
-    has_presentation_kw = bool(re.search(
-        r"\b(?:ppt|powerpoint|power\s+point|presentasi|slide|slide\s+deck|pitch\s+deck)\b",
+    has_office_kw = bool(re.search(
+        r"\b(?:ppt|powerpoint|power\s+point|presentasi|slide|slide\s+deck|pitch\s+deck|excel|spreadsheet|lembar\s+sebar|sheet|word|dokumen|doc|docx|laporan)\b",
         t_lower
     ))
-    return has_gen_verb and has_presentation_kw
+    has_live_intent = "live" in t_lower
+    return (has_gen_verb and has_office_kw) or (has_live_intent and has_office_kw)
 
 
-def handle_hermes_presentation_generation(text: str, session_id: str, chat_id: str = "") -> str:
+def detect_office_app_type(text: str) -> str:
+    t_lower = text.lower()
+    if re.search(r"\b(?:excel|spreadsheet|lembar\s+sebar|sheet|tabel)\b", t_lower):
+        return "EXCEL"
+    elif re.search(r"\b(?:word|dokumen|document|doc|docx|laporan)\b", t_lower):
+        return "WORD"
+    else:
+        return "POWERPOINT"
+
+
+def handle_hermes_office_generation(text: str, session_id: str, chat_id: str = "") -> str:
     """
-    Autonomous Hermes Presentation Generation & Actuation Engine.
-    Uses Hermes LLM to dynamically draft slide outline and content for ANY topic,
-    then executes either:
-    1. LIVE On-Screen COM build with pacing (if requested live/on-screen)
-    2. Dynamic 16:9 Presentation compilation and delivery (pptx generated & opened)
+    Autonomous Hermes Office Suite Generation & Actuation Engine.
+    Dynamically conceptualizes presentations, spreadsheets, and documents for ANY topic via LLM,
+    supporting both LIVE On-Screen COM Automation and VPS Dynamic File Compilation.
     """
-    logger.info("HERMES_PRESENTATION: Handling presentation request: '%s'", text)
+    app_type = detect_office_app_type(text)
+    logger.info("HERMES_OFFICE: Handling %s request: '%s'", app_type, text)
     try:
-        from airo_pc_tools import pc_live_ppt_build, pc_generate_dynamic_pptx
+        from airo_pc_tools import (
+            pc_live_ppt_build, pc_generate_dynamic_pptx,
+            pc_live_excel_build, pc_generate_dynamic_xlsx,
+            pc_live_word_build, pc_generate_dynamic_docx
+        )
     except ImportError:
-        from scripts.airo_pc_tools import pc_live_ppt_build, pc_generate_dynamic_pptx
+        from scripts.airo_pc_tools import (
+            pc_live_ppt_build, pc_generate_dynamic_pptx,
+            pc_live_excel_build, pc_generate_dynamic_xlsx,
+            pc_live_word_build, pc_generate_dynamic_docx
+        )
 
     is_live_mode = bool(re.search(
         r"\b(?:live|langsung|ketik\s+langsung|di\s+depan\s+(?:gw|gua|gue)|di\s+layar|di\s+monitor|bikin\s+live|buat\s+live)\b",
         text.lower()
     ))
 
-    llm_prompt = (
-        f'Kamu adalah AIRO Hermes, personal thinking partner dan arsitek eksekutif.\n'
-        f'User memberikan instruksi pembuatan materi presentasi PowerPoint sebagai berikut:\n'
-        f'"{text}"\n\n'
-        f'TUGAS KAMU:\n'
-        f'1. Pahami topik yang diminta pengguna secara mendalam dan kontekstual.\n'
-        f'2. Rancang materi presentasi yang berbobot, tajam, profesional, dan relevan (3 sampai 6 slide).\n'
-        f'3. Slide 1 adalah Title/Cover Slide (memiliki title, subtitle, dan poin highlight ringkas).\n'
-        f'4. Slide berikutnya berisi materi substantif dengan judul slide yang kuat dan 2-4 poin penjelasan konkret.\n'
-        f'5. Hasilkan HANYA output valid JSON murni (tanpa teks pembuka/penutup, tanpa markdown backticks ```json) dengan format:\n'
-        f'{{\n'
-        f'  "title": "<Judul Utama Presentasi>",\n'
-        f'  "subtitle": "<Subjudul atau Tagline Strategis>",\n'
-        f'  "category": "<Kategori Bisnis / Topik>",\n'
-        f'  "slides": [\n'
-        f'    {{\n'
-        f'      "slide_number": 1,\n'
-        f'      "title": "<Judul Slide 1>",\n'
-        f'      "category": "<Kategori>",\n'
-        f'      "subtitle": "<Subjudul Singkat>",\n'
-        f'      "points": ["<Poin 1>", "<Poin 2>", "<Poin 3>"]\n'
-        f'    }}\n'
-        f'  ]\n'
-        f'}}'
-    )
+    topic_match = re.search(r"(?:tentang|ttg)\s+(.+)", text, re.IGNORECASE)
+    raw_topic = topic_match.group(1).strip() if topic_match else text.strip()
+    clean_topic = re.sub(r"^(?:buat|bikin|tolong|coba|generate|live\s+di\s+(?:ppt|excel|word)\s+pc\s+gw(?:\s+\d+\s+slide)?)\s*", "", raw_topic, flags=re.IGNORECASE).strip()
+    clean_topic = clean_topic or "Strategi Bisnis & Analisis"
 
-    llm_resp = call_airo_hermes(llm_prompt, session_id=f"pres_{session_id}", chat_id="")
-    logger.info("HERMES_PRESENTATION: Raw LLM response received (length=%d)", len(llm_resp))
+    # ─── 1. EXCEL SPREADSHEET GENERATION ──────────────────────────────────────
+    if app_type == "EXCEL":
+        llm_prompt = (
+            f'Kamu adalah AIRO Hermes, personal thinking partner dan analis finansial eksekutif.\n'
+            f'User meminta pembuatan tabel / model spreadsheet Excel sebagai berikut:\n'
+            f'"{text}"\n\n'
+            f'TUGAS KAMU:\n'
+            f'1. Rancang model tabel data komprehensif (4 sampai 6 kolom relevan, 4 sampai 8 baris data konkret).\n'
+            f'2. Gunakan angka realistis (angka nominal IDR, persentase, atau target volume).\n'
+            f'3. Berikan judul yang berbobot dan ringkasan metrik utama.\n'
+            f'4. Hasilkan HANYA output valid JSON murni (tanpa teks pembuka/penutup, tanpa markdown backticks ```json) dengan format:\n'
+            f'{{\n'
+            f'  "title": "<Judul Model/Tabel Analisis>",\n'
+            f'  "sheet_name": "<Nama Sheet Singkat>",\n'
+            f'  "headers": ["<Kolom 1>", "<Kolom 2>", "<Kolom 3>", "<Kolom 4>"],\n'
+            f'  "rows": [\n'
+            f'    ["<Data 1>", "<Data 2>", 1000000, 0.15],\n'
+            f'    ["<Data 3>", "<Data 4>", 2500000, 0.25]\n'
+            f'  ],\n'
+            f'  "summary": {{\n'
+            f'    "<Metrik Utama 1>": "<Nilai 1>",\n'
+            f'    "<Metrik Utama 2>": "<Nilai 2>"\n'
+            f'  }}\n'
+            f'}}'
+        )
+        llm_resp = call_airo_hermes(llm_prompt, session_id=f"excel_{session_id}", chat_id="")
+        logger.info("HERMES_OFFICE: Excel raw LLM response length=%d", len(llm_resp))
 
-    spec = None
-    try:
-        clean_json_str = llm_resp.strip()
-        if "```" in clean_json_str:
-            clean_json_str = re.sub(r"^```(?:json)?\s*", "", clean_json_str)
-            clean_json_str = re.sub(r"\s*```$", "", clean_json_str)
-            clean_json_str = clean_json_str.strip()
+        spec = None
+        try:
+            clean_str = llm_resp.strip()
+            if "```" in clean_str:
+                clean_str = re.sub(r"^```(?:json)?\s*", "", clean_str)
+                clean_str = re.sub(r"\s*```$", "", clean_str).strip()
+            match = re.search(r"(\{.*\})", clean_str, re.DOTALL)
+            if match:
+                clean_str = match.group(1)
+            spec = json.loads(clean_str)
+        except Exception as e:
+            logger.warning("HERMES_OFFICE: Excel JSON parsing failed: %s", e)
 
-        match = re.search(r"(\{.*\})", clean_json_str, re.DOTALL)
-        if match:
-            clean_json_str = match.group(1)
-
-        spec = json.loads(clean_json_str)
-    except Exception as e:
-        logger.warning("HERMES_PRESENTATION: JSON parsing failed: %s. Using intelligent fallback parser.", e)
-
-    if not spec or not isinstance(spec, dict) or "slides" not in spec or not spec["slides"]:
-        topic_match = re.search(r"(?:tentang|ttg)\s+(.+)", text, re.IGNORECASE)
-        raw_topic = topic_match.group(1).strip() if topic_match else "Materi Strategis"
-        clean_title = raw_topic.title()
-        spec = {
-            "title": clean_title,
-            "subtitle": "Paparan Analisis & Strategi Eksekutif",
-            "category": "Strategi Bisnis",
-            "slides": [
-                {
-                    "slide_number": 1,
-                    "title": clean_title,
-                    "category": "Executive Brief",
-                    "subtitle": "Paparan Analisis & Rekomendasi Eksekusi",
-                    "points": [
-                        "Analisis komprehensif disusun oleh AIRO Hermes.",
-                        "Fokus pada diferensiasi nilai dan eksekusi pragmatis.",
-                        "Rancangan terstruktur untuk implementasi langsung."
-                    ]
-                },
-                {
-                    "slide_number": 2,
-                    "title": "Analisis Peluang & Tantangan",
-                    "category": "Pondasi & Dinamika Pasar",
-                    "subtitle": "Membedah dinamika dan potensi keunggulan",
-                    "points": [
-                        f"Peluang strategis utama dalam ekosistem {clean_title}.",
-                        "Mitigasi risiko operasional dan efisiensi alokasi sumber daya.",
-                        "Faktor kunci pendorong pertumbuhan jangka panjang."
-                    ]
-                },
-                {
-                    "slide_number": 3,
-                    "title": "Rencana Eksekusi & Milestone",
-                    "category": "Aksi & Target",
-                    "subtitle": "Langkah konkret pencapaian target",
-                    "points": [
-                        "Fase 1: Validasi model dan penyelarasan unit economics.",
-                        "Fase 2: Skalasi operasional dan penguatan penetrasi pasar.",
-                        "Fase 3: Optimasi margin dan dominasi kategori."
-                    ]
+        if not spec or not isinstance(spec, dict) or "headers" not in spec or not spec["headers"]:
+            spec = {
+                "title": f"Model Analisis: {clean_topic.title()}",
+                "sheet_name": "Ringkasan Eksekutif",
+                "headers": ["Inisiatif / Pilar", "Segmen Pasar", "Target 2026", "Alokasi Budget (IDR)", "Status"],
+                "rows": [
+                    ["Infrastruktur & Ekosistem", "B2B & B2C", "15.000 Unit", 45000000000, "On Track"],
+                    ["Insentif & Penetrasi", "Retail Konsumen", "50.000 Unit", 120000000000, "Active"],
+                    ["Rantai Pasok & Baterai", "Konsorsium Industri", "Skala Nasional", 85000000000, "Accelerating"],
+                    ["Dukungan Regulasi & Pajak", "Pemerintah & Swasta", "Kebijakan Terpadu", 15000000000, "Approved"]
+                ],
+                "summary": {
+                    "Total Estimasi Alokasi": "Rp265.000.000.000",
+                    "Target Penetrasi 2026": "65.000+ Unit Terpasang",
+                    "Tingkat Kesiapan Ekosistem": "Tinggi (High Readiness)"
                 }
-            ]
-        }
+            }
 
-    title = spec.get("title", "AIRO Presentation")
-    subtitle = spec.get("subtitle", "")
-    category = spec.get("category", "Executive Brief")
-    slides_data = spec.get("slides", [])
+        title = spec.get("title", f"Model Analisis: {clean_topic.title()}")
+        sheet_name = spec.get("sheet_name", "Data Eksekutif")
+        headers = spec.get("headers", ["Item", "Kategori", "Nilai"])
+        rows = spec.get("rows", [])
+        summary = spec.get("summary", {})
 
-    slide_lines = []
-    for s in slides_data:
-        s_num = s.get("slide_number", len(slide_lines) + 1)
-        s_t = s.get("title", f"Slide {s_num}")
-        slide_lines.append(f"{s_num}. <b>{html.escape(s_t)}</b>")
-    slides_summary = "\n".join(slide_lines)
+        headers_str = " | ".join(str(h) for h in headers[:4])
+        row_sample = "\n".join(f"• {' | '.join(str(c) for c in r[:3])}" for r in rows[:4])
 
-    if is_live_mode:
-        logger.info("HERMES_PRESENTATION: Executing LIVE ON-SCREEN COM build for '%s' (%d slides)", title, len(slides_data))
-        pc_live_ppt_build(slides_data, title=title, chat_id=chat_id)
-        return (
-            f"🎯 <b>Siap bro! Presentasi \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft PowerPoint monitor PC lo sekarang!</b> 🖥️✨\n\n"
-            f"Lo bisa liat PowerPoint di PC lo terbuka dan mengetik tiap slide secara real-time:\n"
-            f"{slides_summary}\n\n"
-            f"⚡ <i>Status: Actuator COM PowerPoint sedang berjalan live di layar monitor lo dengan jeda visual antar-slide.</i>"
+        if is_live_mode:
+            logger.info("HERMES_OFFICE: Executing LIVE EXCEL COM build for '%s' (%d rows)", title, len(rows))
+            pc_live_excel_build(headers=headers, rows=rows, title=title, sheet_name=sheet_name, chat_id=chat_id)
+            return (
+                f"📊 <b>Siap bro! Spreadsheet \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft Excel monitor PC lo sekarang!</b> 🖥️✨\n\n"
+                f"Excel di PC lo terbuka dan mengisi tabel data secara real-time dengan header Dark Navy & auto-fit kolom:\n"
+                f"<code>{html.escape(headers_str)}</code>\n\n"
+                f"{html.escape(row_sample)}\n\n"
+                f"⚡ <i>Status: Actuator COM Excel sedang merender tabel dengan visual pacing dan styling eksekutif.</i>"
+            )
+        else:
+            logger.info("HERMES_OFFICE: Executing DYNAMIC EXCEL GENERATION for '%s' (%d rows)", title, len(rows))
+            res = pc_generate_dynamic_xlsx(
+                topic=title,
+                headers=headers,
+                rows=rows,
+                title=title,
+                sheet_name=sheet_name,
+                summary=summary,
+                chat_id=chat_id
+            )
+            filename = res.get("filename", "Spreadsheet.xlsx")
+            return (
+                f"📊 <b>Model Spreadsheet \"{html.escape(title)}\" Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
+                f"📋 <b>Struktur Tabel ({len(rows)} Baris Data, Header Dark Navy, Auto-Fit Columns):</b>\n"
+                f"<code>{html.escape(headers_str)}</code>\n\n"
+                f"{html.escape(row_sample)}\n\n"
+                f"🖥️ File sudah otomatis terbuka di <b>Microsoft Excel</b> PC lo!\n"
+                f"📎 File <code>{html.escape(filename)}</code> juga sudah gue kirimkan ke chat Telegram ini untuk review di HP."
+            )
+
+    # ─── 2. WORD DOCUMENT GENERATION ──────────────────────────────────────────
+    elif app_type == "WORD":
+        llm_prompt = (
+            f'Kamu adalah AIRO Hermes, personal thinking partner dan konsultan strategi eksekutif.\n'
+            f'User meminta pembuatan dokumen laporan Word sebagai berikut:\n'
+            f'"{text}"\n\n'
+            f'TUGAS KAMU:\n'
+            f'1. Susun dokumen laporan eksekutif terstruktur (3 sampai 5 bagian).\n'
+            f'2. Setiap bagian memiliki judul tajam, paragraf analisis substantif, 2-3 poin pendukung, dan 1 callout/takeaway penting.\n'
+            f'3. Hasilkan HANYA output valid JSON murni (tanpa teks pembuka/penutup, tanpa markdown backticks ```json) dengan format:\n'
+            f'{{\n'
+            f'  "title": "<Judul Laporan Eksekutif>",\n'
+            f'  "subtitle": "<Subjudul Strategis>",\n'
+            f'  "sections": [\n'
+            f'    {{\n'
+            f'      "title": "<Judul Bagian 1>",\n'
+            f'      "content": "<Paragraf analisis mendalam>",\n'
+            f'      "points": ["<Poin 1>", "<Poin 2>"],\n'
+            f'      "callout": "<Insight kunci / takeaway>"\n'
+            f'    }}\n'
+            f'  ]\n'
+            f'}}'
         )
+        llm_resp = call_airo_hermes(llm_prompt, session_id=f"word_{session_id}", chat_id="")
+        logger.info("HERMES_OFFICE: Word raw LLM response length=%d", len(llm_resp))
+
+        spec = None
+        try:
+            clean_str = llm_resp.strip()
+            if "```" in clean_str:
+                clean_str = re.sub(r"^```(?:json)?\s*", "", clean_str)
+                clean_str = re.sub(r"\s*```$", "", clean_str).strip()
+            match = re.search(r"(\{.*\})", clean_str, re.DOTALL)
+            if match:
+                clean_str = match.group(1)
+            spec = json.loads(clean_str)
+        except Exception as e:
+            logger.warning("HERMES_OFFICE: Word JSON parsing failed: %s", e)
+
+        if not spec or not isinstance(spec, dict) or "sections" not in spec or not spec["sections"]:
+            spec = {
+                "title": f"Laporan Eksekutif: {clean_topic.title()}",
+                "subtitle": "Analisis Strategis & Rekomendasi Eksekusi 2026",
+                "sections": [
+                    {
+                        "title": "Latar Belakang & Potensi Pasar",
+                        "content": f"Dinamika pertumbuhan pasar {clean_topic} membuka jendela peluang strategis yang krusial untuk dikapitalisasi.",
+                        "points": ["Adopsi pasar meningkat pesat", "Kebutuhan standarisasi kualitas"],
+                        "callout": "Faktor penentu utama adalah diferensiasi penawaran dan eksekusi kanal distribusi."
+                    },
+                    {
+                        "title": "Pilar Eksekusi & Solusi Strategis",
+                        "content": "Strategi diintegrasikan melalui pendekatan multi-fase guna meminimalisir risiko operasional.",
+                        "points": ["Fase validasi unit economics", "Ekspansi bertahap berbasis metrik"],
+                        "callout": "Efisiensi alokasi modal menjadi kunci daya tahan kompetitif jangka panjang."
+                    }
+                ]
+            }
+
+        title = spec.get("title", f"Laporan Eksekutif: {clean_topic.title()}")
+        subtitle = spec.get("subtitle", "")
+        sections = spec.get("sections", [])
+        sec_summary = "\n".join(f"{idx+1}. <b>{html.escape(s.get('title', 'Bagian'))}</b>" for idx, s in enumerate(sections))
+
+        if is_live_mode:
+            logger.info("HERMES_OFFICE: Executing LIVE WORD COM build for '%s' (%d sections)", title, len(sections))
+            pc_live_word_build(sections=sections, title=title, subtitle=subtitle, chat_id=chat_id)
+            return (
+                f"📄 <b>Siap bro! Dokumen \"{html.escape(title)}\" lagi gue ketik LIVE di Microsoft Word monitor PC lo sekarang!</b> 🖥️✨\n\n"
+                f"Word di PC lo terbuka dan mengetik struktur dokumen secara real-time:\n"
+                f"{sec_summary}\n\n"
+                f"⚡ <i>Status: Actuator COM Word sedang mengetik heading, paragraf, dan bullet points di layar monitor lo.</i>"
+            )
+        else:
+            logger.info("HERMES_OFFICE: Executing DYNAMIC WORD GENERATION for '%s' (%d sections)", title, len(sections))
+            res = pc_generate_dynamic_docx(topic=title, sections=sections, title=title, subtitle=subtitle, chat_id=chat_id)
+            filename = res.get("filename", "Document.docx")
+            return (
+                f"📄 <b>Dokumen Eksekutif \"{html.escape(title)}\" Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
+                f"📑 <b>Struktur Dokumen ({len(sections)} Bagian Analisis, Tipografi Segoe UI, Callout Boxes):</b>\n"
+                f"{sec_summary}\n\n"
+                f"🖥️ Dokumen sudah otomatis terbuka di <b>Microsoft Word</b> PC lo!\n"
+                f"📎 File <code>{html.escape(filename)}</code> juga sudah gue kirimkan ke chat Telegram ini untuk review di HP."
+            )
+
+    # ─── 3. POWERPOINT PRESENTATION GENERATION ─────────────────────────────────
     else:
-        logger.info("HERMES_PRESENTATION: Executing DYNAMIC FILE GENERATION for '%s' (%d slides)", title, len(slides_data))
-        res = pc_generate_dynamic_pptx(
-            topic=title,
-            slides=slides_data,
-            chat_id=chat_id,
-            title=title,
-            subtitle=subtitle,
-            category=category
+        llm_prompt = (
+            f'Kamu adalah AIRO Hermes, personal thinking partner dan arsitek eksekutif.\n'
+            f'User memberikan instruksi pembuatan materi presentasi PowerPoint sebagai berikut:\n'
+            f'"{text}"\n\n'
+            f'TUGAS KAMU:\n'
+            f'1. Pahami topik yang diminta pengguna secara mendalam dan kontekstual.\n'
+            f'2. Rancang materi presentasi yang berbobot, tajam, profesional, dan relevan (3 sampai 6 slide).\n'
+            f'3. Slide 1 adalah Title/Cover Slide (memiliki title, subtitle, dan poin highlight ringkas).\n'
+            f'4. Slide berikutnya berisi materi substantif dengan judul slide yang kuat dan 2-4 poin penjelasan konkret.\n'
+            f'5. Hasilkan HANYA output valid JSON murni (tanpa teks pembuka/penutup, tanpa markdown backticks ```json) dengan format:\n'
+            f'{{\n'
+            f'  "title": "<Judul Utama Presentasi>",\n'
+            f'  "subtitle": "<Subjudul atau Tagline Strategis>",\n'
+            f'  "category": "<Kategori Bisnis / Topik>",\n'
+            f'  "slides": [\n'
+            f'    {{\n'
+            f'      "slide_number": 1,\n'
+            f'      "title": "<Judul Slide 1>",\n'
+            f'      "category": "<Kategori>",\n'
+            f'      "subtitle": "<Subjudul Singkat>",\n'
+            f'      "points": ["<Poin 1>", "<Poin 2>", "<Poin 3>"]\n'
+            f'    }}\n'
+            f'  ]\n'
+            f'}}'
         )
-        filename = res.get("filename", "Presentation.pptx")
-        return (
-            f"🎯 <b>Materi Presentasi \"{html.escape(title)}\" Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
-            f"📊 <b>Struktur {len(slides_data)} Slide Presentasi (16:9 Modern Dark Tech Theme):</b>\n"
-            f"{slides_summary}\n\n"
-            f"🖥️ Slide presentasi sudah otomatis dibuka di <b>Microsoft PowerPoint</b> monitor PC lo!\n"
-            f"📎 File dokumen <code>{html.escape(filename)}</code> juga sudah gue kirimkan ke chat Telegram ini untuk lo review di HP. Silakan dicek bro!"
-        )
+        llm_resp = call_airo_hermes(llm_prompt, session_id=f"pres_{session_id}", chat_id="")
+        logger.info("HERMES_OFFICE: PPT raw LLM response length=%d", len(llm_resp))
+
+        spec = None
+        try:
+            clean_str = llm_resp.strip()
+            if "```" in clean_str:
+                clean_str = re.sub(r"^```(?:json)?\s*", "", clean_str)
+                clean_str = re.sub(r"\s*```$", "", clean_str).strip()
+            match = re.search(r"(\{.*\})", clean_str, re.DOTALL)
+            if match:
+                clean_str = match.group(1)
+            spec = json.loads(clean_str)
+        except Exception as e:
+            logger.warning("HERMES_OFFICE: PPT JSON parsing failed: %s", e)
+
+        if not spec or not isinstance(spec, dict) or "slides" not in spec or not spec["slides"]:
+            spec = {
+                "title": clean_topic.title(),
+                "subtitle": "Paparan Analisis & Strategi Eksekutif",
+                "category": "Strategi Bisnis",
+                "slides": [
+                    {
+                        "slide_number": 1,
+                        "title": clean_topic.title(),
+                        "category": "Executive Brief",
+                        "subtitle": "Paparan Analisis & Rekomendasi Eksekusi",
+                        "points": [
+                            "Analisis komprehensif disusun oleh AIRO Hermes.",
+                            "Fokus pada diferensiasi nilai dan eksekusi pragmatis.",
+                            "Rancangan terstruktur untuk implementasi langsung."
+                        ]
+                    },
+                    {
+                        "slide_number": 2,
+                        "title": "Analisis Peluang & Tantangan",
+                        "category": "Pondasi & Dinamika Pasar",
+                        "subtitle": "Membedah dinamika dan potensi keunggulan",
+                        "points": [
+                            f"Peluang strategis utama dalam ekosistem {clean_topic.title()}.",
+                            "Mitigasi risiko operasional dan efisiensi alokasi sumber daya.",
+                            "Faktor kunci pendorong pertumbuhan jangka panjang."
+                        ]
+                    },
+                    {
+                        "slide_number": 3,
+                        "title": "Rencana Eksekusi & Milestone",
+                        "category": "Aksi & Target",
+                        "subtitle": "Langkah konkret pencapaian target",
+                        "points": [
+                            "Fase 1: Validasi model dan penyelarasan unit economics.",
+                            "Fase 2: Skalasi operasional dan penguatan penetrasi pasar.",
+                            "Fase 3: Optimasi margin dan dominasi kategori."
+                        ]
+                    }
+                ]
+            }
+
+        title = spec.get("title", clean_topic.title())
+        subtitle = spec.get("subtitle", "")
+        category = spec.get("category", "Executive Brief")
+        slides_data = spec.get("slides", [])
+
+        slide_lines = []
+        for s in slides_data:
+            s_num = s.get("slide_number", len(slide_lines) + 1)
+            s_t = s.get("title", f"Slide {s_num}")
+            slide_lines.append(f"{s_num}. <b>{html.escape(s_t)}</b>")
+        slides_summary = "\n".join(slide_lines)
+
+        if is_live_mode:
+            logger.info("HERMES_OFFICE: Executing LIVE PPT COM build for '%s' (%d slides)", title, len(slides_data))
+            pc_live_ppt_build(slides_data, title=title, chat_id=chat_id)
+            return (
+                f"🎯 <b>Siap bro! Presentasi \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft PowerPoint monitor PC lo sekarang!</b> 🖥️✨\n\n"
+                f"Lo bisa liat PowerPoint di PC lo terbuka dan mengetik tiap slide secara real-time:\n"
+                f"{slides_summary}\n\n"
+                f"⚡ <i>Status: Actuator COM PowerPoint sedang berjalan live di layar monitor lo dengan jeda visual antar-slide.</i>"
+            )
+        else:
+            logger.info("HERMES_OFFICE: Executing DYNAMIC PPT GENERATION for '%s' (%d slides)", title, len(slides_data))
+            res = pc_generate_dynamic_pptx(
+                topic=title,
+                slides=slides_data,
+                chat_id=chat_id,
+                title=title,
+                subtitle=subtitle,
+                category=category
+            )
+            filename = res.get("filename", "Presentation.pptx")
+            return (
+                f"🎯 <b>Materi Presentasi \"{html.escape(title)}\" Berhasil Dibuat & Dibuka di PC!</b> 🚀\n\n"
+                f"📊 <b>Struktur {len(slides_data)} Slide Presentasi (16:9 Modern Dark Tech Theme):</b>\n"
+                f"{slides_summary}\n\n"
+                f"🖥️ Slide presentasi sudah otomatis dibuka di <b>Microsoft PowerPoint</b> monitor PC lo!\n"
+                f"📎 File dokumen <code>{html.escape(filename)}</code> juga sudah gue kirimkan ke chat Telegram ini untuk lo review di HP. Silakan dicek bro!"
+            )
 
 
 # ─── Process Single Queue Item ────────────────────────────────────────────────
@@ -1257,10 +1459,10 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
             logger.info("PCActionRouter resolved intent for request: '%s'", text)
             reply = pc_reply
         else:
-            # 2.5 Autonomous Generative Presentation Engine (Dynamic Deck & Live COM)
-            if is_generative_presentation_request(text):
-                logger.info("Autonomous Generative Presentation requested: '%s'", text)
-                reply = handle_hermes_presentation_generation(text, session_id, chat_id=chat_id)
+            # 2.5 Autonomous Generative Office Suite Engine (PowerPoint, Excel, Word - Dynamic & Live)
+            if is_generative_office_request(text):
+                logger.info("Autonomous Generative Office Suite requested: '%s'", text)
+                reply = handle_hermes_office_generation(text, session_id, chat_id=chat_id)
             else:
                 # 3. Google Workspace Intent Pre-Router
                 gws_reply = GWSRouter.route(text, chat_id=chat_id)
@@ -1273,7 +1475,7 @@ def process_item(path: str, item: dict, token: str, owner_chat_id: str):
                 if gws_reply and chat_id:
                     WorkingMemoryManager.append_turn(chat_id, text, gws_reply)
 
-        if (pc_reply or is_generative_presentation_request(text)) and chat_id:
+        if (pc_reply or is_generative_office_request(text)) and chat_id:
             WorkingMemoryManager.append_turn(chat_id, text, reply)
 
     item["reply_text"] = reply

@@ -212,19 +212,19 @@ class PCActionRouter:
                     logger.info("PC_ACTION: Detected typing intent for '%s'", target_text)
                     pc_type_text(target_text, chat_id=chat_id)
                     return f"Siap bro! Teks berikut lagi gue ketikkan di jendela aktif PC lo sekarang:\n\n<code>{html.escape(target_text)}</code> ⌨️"
-        # ─── 5.5. AUTONOMOUS PRESENTATION DECK GENERATION & DISPLAY ─────────
+        # ─── 5.5. AUTONOMOUS OFFICE SUITE GENERATION & LIVE BUILD BYPASS ─────────
         has_gen_verb = bool(re.search(
-            r"\b(?:buat(?:kan|in)?|bikin(?:kan|in)?|generate|susun(?:kan)?|tulis(?:kan)?|rangkai|ciptakan|siapkan)\b",
+            r"\b(?:buat(?:kan|in)?|bikin(?:kan|in)?|generate|susun(?:kan)?|tulis(?:kan)?|rangkai|ciptakan|siapkan|olah|tampilkan)\b",
             t_lower
         ))
-        has_presentation_kw = bool(re.search(
-            r"\b(?:ppt|powerpoint|power\s+point|presentasi|slide|slide\s+deck|pitch\s+deck)\b",
+        has_office_kw = bool(re.search(
+            r"\b(?:ppt|powerpoint|power\s+point|presentasi|slide|slide\s+deck|pitch\s+deck|excel|spreadsheet|lembar\s+sebar|sheet|word|dokumen|doc|docx|laporan)\b",
             t_lower
         ))
+        has_live_intent = "live" in t_lower
 
-        if has_gen_verb and has_presentation_kw:
-            logger.info("PC_ACTION: Detected generative presentation intent from '%s' -> Bypassing router to Hermes LLM for dynamic slide conceptualization", t)
-            # DO NOT handle here. Return None to let Hermes LLM dynamically conceptualize and build the presentation.
+        if (has_gen_verb and has_office_kw) or (has_live_intent and has_office_kw):
+            logger.info("PC_ACTION: Detected generative office suite intent from '%s' -> Bypassing router to Hermes LLM for dynamic conceptualization", t)
             return None
 
         # ─── 6. NATIVE DESKTOP APPLICATION LAUNCH ─────────────────────────────
