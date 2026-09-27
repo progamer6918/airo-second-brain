@@ -127,6 +127,18 @@ public class WinDesktopLauncher {
     public static extern bool LockWorkStation();
 
     [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+
+    [DllImport("user32.dll")]
+    public static extern bool IsWindowVisible(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
     public static extern IntPtr GetDesktopWindow();
 
     [DllImport("user32.dll")]
@@ -164,10 +176,15 @@ public class WinDesktopLauncher {
     public const uint MOUSEEVENTF_MIDDLEDOWN = 0x0020;
     public const uint MOUSEEVENTF_MIDDLEUP   = 0x0040;
 
+    public const int STARTF_USESHOWWINDOW = 0x00000001;
+    public const short SW_SHOWNORMAL = 1;
+
     public static int LaunchOnDesktop(string cmd) {
         STARTUPINFO si = new STARTUPINFO();
         si.cb = Marshal.SizeOf(si);
         si.lpDesktop = @"WinSta0\Default";
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_SHOWNORMAL;
         PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
         bool ok = CreateProcess(null, cmd, IntPtr.Zero, IntPtr.Zero, false, 0, IntPtr.Zero, null, ref si, out pi);
         return ok ? pi.dwProcessId : -1;
@@ -526,224 +543,62 @@ while ($true) {
                     }
                 }
 
-            # ─── 8. LIVE_PPT_BUILD (Live On-Screen PowerPoint COM Actuator) ──
-            } elseif ($type -eq "live_ppt_build") {
-                Log-Message "🖥️ Starting LIVE On-Screen PowerPoint build..."
-                $ppt = New-Object -ComObject PowerPoint.Application
-                $ppt.Visible = -1 # msoTrue
-                $ppt.WindowState = 3 # ppWindowMaximized
-                $pres = $ppt.Presentations.Add(-1)
+            # ─── 8. LIVE OFFICE COM BUILDS (Executed on WinSta0\Default) ─────
+            } elseif ($type -in @("live_ppt_build", "live_excel_build", "live_word_build")) {
+                Log-Message "🖥️ Starting LIVE On-Screen build ($type) via WinSta0\Default runner..."
+                $tasksDir = "$STATE_DIR\tasks"
+                if (-not (Test-Path $tasksDir)) { New-Item -ItemType Directory -Path $tasksDir -Force | Out-Null }
+                
+                $payloadFile = "$tasksDir\$actionId.json"
+                $receiptFile = "$tasksDir\$actionId.done"
+                if (Test-Path $receiptFile) { Remove-Item $receiptFile -Force }
 
-                try {
-                    $ppt.Activate()
-                } catch {}
+                $payload | ConvertTo-Json -Depth 10 | Out-File -FilePath $payloadFile -Encoding utf8 -Force
 
-                $slides = $payload.slides
-                $slideIdx = 1
-                foreach ($s in $slides) {
-                    $layout = if ($slideIdx -eq 1) { 1 } else { 2 } # 1=Title, 2=Text
-                    $slide = $pres.Slides.Add($slideIdx, $layout)
+                $runnerPath = "$PSScriptRoot\airo-office-live-runner.ps1"
+                $runnerCmd = "powershell.exe -ExecutionPolicy Bypass -NoProfile -File `"$runnerPath`" -Type `"$type`" -PayloadFile `"$payloadFile`" -ActionId `"$actionId`""
+                
+                $runnerPid = [WinDesktopLauncher]::LaunchOnDesktop($runnerCmd)
+                Log-Message "🚀 Spawned live runner on WinSta0\Default (PID: $runnerPid)"
 
-                    $slideTitle = [string]$s.title
-                    if ($slideTitle) {
-                        $slide.Shapes.Title.TextFrame.TextRange.Text = $slideTitle
-                    }
-                    Start-Sleep -Milliseconds 800
-
-                    if ($slideIdx -eq 1) {
-                        $subtitle = if ($s.subtitle) { [string]$s.subtitle } else { "AIRO Hermes Live Presentation" }
-                        if ($slide.Shapes.Count -ge 2) {
-                            $slide.Shapes.Item(2).TextFrame.TextRange.Text = $subtitle
-                        }
-                        Start-Sleep -Milliseconds 1000
-                    } else {
-                        $points = $s.points
-                        if ($points -and $slide.Shapes.Count -ge 2) {
-                            $bodyText = ($points -join [Environment]::NewLine)
-                            $slide.Shapes.Item(2).TextFrame.TextRange.Text = $bodyText
-                        }
-                        Start-Sleep -Milliseconds 1200
-                    }
-                    $slideIdx++
+                # Wait for runner to complete (max 90 seconds)
+                $waited = 0
+                while (-not (Test-Path $receiptFile) -and $waited -lt 90) {
+                    Start-Sleep -Seconds 1
+                    $waited++
                 }
 
-                try {
-                    $pres.Windows.Item(1).Activate()
-                } catch {}
+                if (Test-Path $receiptFile) {
+                    $receiptContent = (Get-Content -Path $receiptFile -Raw).Trim()
+                    Log-Message "✅ LIVE build finished ($type) with receipt: $receiptContent"
 
-                Log-Message "✅ LIVE PowerPoint build complete on screen ($($slides.Count) slides)!"
+                    if ($receiptContent -eq "SUCCESS") {
+                        $title = if ($payload.title) { [string]$payload.title } else { "AIRO_Document" }
+                        $safeTitle = ($title -replace '[\\/:*?"<>|]', '_').Trim()
 
-            # ─── 9. LIVE_EXCEL_BUILD (Live On-Screen Excel COM Actuator) ─────
-            } elseif ($type -eq "live_excel_build") {
-                Log-Message "🖥️ Starting LIVE On-Screen Excel build..."
-                $excel = New-Object -ComObject Excel.Application
-                $excel.Visible = $true
-                $excel.WindowState = -4137 # xlMaximized
-                $wb = $excel.Workbooks.Add()
-                $ws = $wb.Sheets.Item(1)
+                        $appCmd = $null
+                        if ($type -eq "live_excel_build") {
+                            $f = "$env:USERPROFILE\Documents\AIRO_Spreadsheets\$safeTitle.xlsx"
+                            $exe = "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"
+                            $appCmd = if (Test-Path $exe) { "`"$exe`" `"$f`"" } else { "excel.exe `"$f`"" }
+                        } elseif ($type -eq "live_word_build") {
+                            $f = "$env:USERPROFILE\Documents\AIRO_Documents\$safeTitle.docx"
+                            $exe = "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"
+                            $appCmd = if (Test-Path $exe) { "`"$exe`" `"$f`"" } else { "winword.exe `"$f`"" }
+                        } elseif ($type -eq "live_ppt_build") {
+                            $f = "$env:USERPROFILE\Documents\AIRO_Presentations\$safeTitle.pptx"
+                            $exe = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"
+                            $appCmd = if (Test-Path $exe) { "`"$exe`" `"$f`"" } else { "powerpnt.exe `"$f`"" }
+                        }
 
-                try {
-                    $excel.ActiveWindow.Activate()
-                } catch {}
-
-                $title = if ($payload.title) { [string]$payload.title } else { "AIRO Live Spreadsheet" }
-                $sheetName = if ($payload.sheet_name) { [string]$payload.sheet_name } else { "Executive Summary" }
-                try {
-                    $ws.Name = $sheetName.Substring(0, [Math]::Min(31, $sheetName.Length))
-                } catch {}
-
-                # 1. Title Banner
-                $titleCell = $ws.Cells.Item(1, 1)
-                $titleCell.Value2 = $title
-                $titleCell.Font.Name = "Segoe UI"
-                $titleCell.Font.Size = 14
-                $titleCell.Font.Bold = $true
-                $titleCell.Font.Color = 3154966 # Navy (#161E30)
-
-                $subCell = $ws.Cells.Item(2, 1)
-                $subCell.Value2 = "Disusun secara otomatis oleh AIRO Hermes Autonomous Operating System"
-                $subCell.Font.Name = "Segoe UI"
-                $subCell.Font.Size = 9
-                $subCell.Font.Italic = $true
-                $subCell.Font.Color = 8421504 # Gray
-
-                Start-Sleep -Milliseconds 600
-
-                $headers = $payload.headers
-                $rows = $payload.rows
-                $startRow = 4
-
-                # 2. Render Headers with Navy Fill & White Font
-                for ($col = 0; $col -lt $headers.Count; $col++) {
-                    $cell = $ws.Cells.Item($startRow, $col + 1)
-                    $cell.Value2 = [string]$headers[$col]
-                    $cell.Font.Name = "Segoe UI"
-                    $cell.Font.Size = 11
-                    $cell.Font.Bold = $true
-                    $cell.Font.Color = 16777215 # White
-                    $cell.Interior.Color = 3154966 # Dark Navy (#161E30)
-                    $cell.HorizontalAlignment = -4108 # xlCenter
-                    $cell.VerticalAlignment = -4108 # xlCenter
-                    Start-Sleep -Milliseconds 150
-                }
-
-                # 3. Render Data Rows with visual pacing and zebra striping
-                $currentRow = $startRow + 1
-                for ($r = 0; $r -lt $rows.Count; $r++) {
-                    $rowData = $rows[$r]
-                    $isEven = ($r % 2 -eq 1)
-                    $fillColor = if ($isEven) { 16579832 } else { 16777215 } # #F8FAFC vs White
-
-                    for ($c = 0; $c -lt $headers.Count; $c++) {
-                        $val = if ($c -lt $rowData.Count) { $rowData[$c] } else { "" }
-                        $cell = $ws.Cells.Item($currentRow, $c + 1)
-                        $cell.Value2 = [string]$val
-                        $cell.Font.Name = "Segoe UI"
-                        $cell.Font.Size = 10
-                        $cell.Interior.Color = $fillColor
-                        
-                        # Number alignment
-                        if ($val -match '^[\d,.]+$') {
-                            $cell.HorizontalAlignment = -4152 # xlRight
-                        } else {
-                            $cell.HorizontalAlignment = -4131 # xlLeft
+                        if ($appCmd) {
+                            $officePid = [WinDesktopLauncher]::LaunchOnDesktop($appCmd)
+                            Log-Message "🖥️ Launched interactive Office application on monitor: $appCmd (PID: $officePid)"
                         }
                     }
-                    $currentRow++
-                    Start-Sleep -Milliseconds 350
+                } else {
+                    Log-Message "⚠️ LIVE build timeout or runner detached ($type after ${waited}s)"
                 }
-
-                # 4. Auto-fit columns
-                $ws.Columns.AutoFit() | Out-Null
-
-                Log-Message "✅ LIVE Excel build complete on screen ($($rows.Count) rows)!"
-
-            # ─── 10. LIVE_WORD_BUILD (Live On-Screen Word COM Actuator) ──────
-            } elseif ($type -eq "live_word_build") {
-                Log-Message "🖥️ Starting LIVE On-Screen Word build..."
-                $word = New-Object -ComObject Word.Application
-                $word.Visible = $true
-                $word.WindowState = 1 # wdWindowStateMaximize
-                $doc = $word.Documents.Add()
-
-                try {
-                    $word.Activate()
-                } catch {}
-
-                $sel = $word.Selection
-
-                # Title
-                $title = if ($payload.title) { [string]$payload.title } else { "Dokumen Eksekutif AIRO" }
-                $sel.Font.Name = "Segoe UI"
-                $sel.Font.Size = 22
-                $sel.Font.Bold = 1
-                $sel.Font.Color = 3154966 # Dark Navy
-                $sel.TypeText($title)
-                $sel.TypeParagraph()
-                Start-Sleep -Milliseconds 600
-
-                # Subtitle
-                if ($payload.subtitle) {
-                    $sel.Font.Size = 12
-                    $sel.Font.Bold = 0
-                    $sel.Font.Italic = 1
-                    $sel.Font.Color = 8421504 # Gray
-                    $sel.TypeText([string]$payload.subtitle)
-                    $sel.TypeParagraph()
-                }
-
-                # Metadata
-                $sel.Font.Size = 9
-                $sel.Font.Bold = 0
-                $sel.Font.Italic = 1
-                $sel.Font.Color = 8421504
-                $sel.TypeText("Created by AIRO Hermes | Executive OS • 2026")
-                $sel.TypeParagraph()
-                $sel.TypeParagraph()
-                Start-Sleep -Milliseconds 500
-
-                # Sections
-                $sections = $payload.sections
-                $secIdx = 1
-                foreach ($sec in $sections) {
-                    $secTitle = if ($sec.title) { [string]$sec.title } else { "Bagian $secIdx" }
-                    
-                    # Section Heading
-                    $sel.Font.Size = 14
-                    $sel.Font.Bold = 1
-                    $sel.Font.Italic = 0
-                    $sel.Font.Color = 3154966
-                    $sel.TypeText("$secIdx. $secTitle")
-                    $sel.TypeParagraph()
-                    Start-Sleep -Milliseconds 400
-
-                    # Content paragraph
-                    if ($sec.content) {
-                        $sel.Font.Size = 11
-                        $sel.Font.Bold = 0
-                        $sel.Font.Color = 0 # Black
-                        $sel.TypeText([string]$sec.content)
-                        $sel.TypeParagraph()
-                        Start-Sleep -Milliseconds 500
-                    }
-
-                    # Bullet points
-                    if ($sec.points) {
-                        foreach ($pt in $sec.points) {
-                            $sel.Font.Size = 10.5
-                            $sel.Font.Bold = 0
-                            $sel.Font.Color = 3355443
-                            $sel.TypeText("•  $pt")
-                            $sel.TypeParagraph()
-                            Start-Sleep -Milliseconds 250
-                        }
-                    }
-
-                    $sel.TypeParagraph()
-                    $secIdx++
-                }
-
-                Log-Message "✅ LIVE Word build complete on screen ($($sections.Count) sections)!"
             }
 
             $doneCmd = "mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"

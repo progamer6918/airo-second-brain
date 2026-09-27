@@ -166,21 +166,43 @@ def pc_control_system(command: str, chat_id: str = "") -> Dict[str, Any]:
     }
 
 
-def pc_live_ppt_build(slides: list, title: str = "", chat_id: str = "") -> Dict[str, Any]:
+def pc_live_ppt_build(slides: list, title: str = "", subtitle: str = "", category: str = "Executive Brief", chat_id: str = "") -> Dict[str, Any]:
     """
     Build a PowerPoint presentation LIVE on the Owner's physical monitor via COM Automation.
     PowerPoint will open and type out the slides in real time.
+    Also compiles presentation on VPS and delivers document to Telegram when chat_id is provided.
     """
     payload = {
         "title": title or "Live Presentation",
         "slides": slides
     }
     action_id = enqueue_pc_action("live_ppt_build", payload, chat_id=chat_id)
+
+    filename = ""
+    if chat_id:
+        try:
+            try:
+                from airo_presentation_engine import build_dynamic_deck
+            except ImportError:
+                from scripts.airo_presentation_engine import build_dynamic_deck
+
+            safe_name = "".join(c if c.isalnum() else "_" for c in (title or "Presentation").strip()[:30]).strip("_") or "Presentation"
+            filename = f"{safe_name}.pptx"
+            vps_deck_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+            os.makedirs(os.path.dirname(vps_deck_path), exist_ok=True)
+            deck_title = title or "AIRO Live Presentation"
+            build_dynamic_deck(vps_deck_path, title=deck_title, slides=slides, subtitle=subtitle, category=category)
+            tg_caption = f"🎯 <b>{deck_title}</b>\n{len(slides)} Slide Executive Presentation (16:9 Modern Dark Tech Theme)"
+            send_telegram_document(chat_id, vps_deck_path, caption=tg_caption)
+        except Exception as e:
+            logger.error("Failed to generate and deliver live pptx to Telegram: %s", e)
+
     return {
         "status": "ENQUEUED",
         "action_id": action_id,
         "action": "live_ppt_build",
-        "slides_count": len(slides)
+        "slides_count": len(slides),
+        "filename": filename
     }
 
 
@@ -262,10 +284,11 @@ def pc_generate_dynamic_pptx(topic: str, slides: list, chat_id: str = "", title:
     }
 
 
-def pc_live_excel_build(headers: list, rows: list, title: str = "", sheet_name: str = "Executive Summary", chat_id: str = "") -> Dict[str, Any]:
+def pc_live_excel_build(headers: list, rows: list, title: str = "", sheet_name: str = "Executive Summary", summary: dict = None, chat_id: str = "") -> Dict[str, Any]:
     """
     Build a spreadsheet LIVE on the Owner's physical monitor via Excel COM Automation.
     Excel will open, maximize, and construct the styled table with visual pacing in real time.
+    Also compiles spreadsheet on VPS and delivers document to Telegram when chat_id is provided.
     """
     payload = {
         "title": title or "AIRO Live Spreadsheet",
@@ -274,12 +297,32 @@ def pc_live_excel_build(headers: list, rows: list, title: str = "", sheet_name: 
         "rows": rows
     }
     action_id = enqueue_pc_action("live_excel_build", payload, chat_id=chat_id)
+
+    filename = ""
+    if chat_id:
+        try:
+            try:
+                from airo_office_engine import build_dynamic_xlsx
+            except ImportError:
+                from scripts.airo_office_engine import build_dynamic_xlsx
+
+            safe_name = "".join(c if c.isalnum() else "_" for c in (title or "Spreadsheet").strip()[:30]).strip("_") or "Spreadsheet"
+            filename = f"{safe_name}.xlsx"
+            vps_file_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+            os.makedirs(os.path.dirname(vps_file_path), exist_ok=True)
+            build_dynamic_xlsx(vps_file_path, title=title or "AIRO Live Spreadsheet", headers=headers, rows=rows, sheet_name=sheet_name, summary=summary)
+            tg_caption = f"📊 <b>{title or 'AIRO Live Spreadsheet'}</b>\nExecutive Excel Workbook ({len(rows)} baris data, executive styling)"
+            send_telegram_document(chat_id, vps_file_path, caption=tg_caption)
+        except Exception as e:
+            logger.error("Failed to generate and deliver live xlsx to Telegram: %s", e)
+
     return {
         "status": "ENQUEUED",
         "action_id": action_id,
         "action": "live_excel_build",
         "headers_count": len(headers),
-        "rows_count": len(rows)
+        "rows_count": len(rows),
+        "filename": filename
     }
 
 
@@ -287,6 +330,7 @@ def pc_live_word_build(sections: list, title: str = "", subtitle: str = "", chat
     """
     Build a Word document LIVE on the Owner's physical monitor via Word COM Automation.
     Word will open and type out styled headings, paragraphs, and points in real time.
+    Also compiles document on VPS and delivers document to Telegram when chat_id is provided.
     """
     payload = {
         "title": title or "Dokumen Eksekutif AIRO",
@@ -294,11 +338,31 @@ def pc_live_word_build(sections: list, title: str = "", subtitle: str = "", chat
         "sections": sections
     }
     action_id = enqueue_pc_action("live_word_build", payload, chat_id=chat_id)
+
+    filename = ""
+    if chat_id:
+        try:
+            try:
+                from airo_office_engine import build_dynamic_docx
+            except ImportError:
+                from scripts.airo_office_engine import build_dynamic_docx
+
+            safe_name = "".join(c if c.isalnum() else "_" for c in (title or "Dokumen").strip()[:30]).strip("_") or "Document"
+            filename = f"{safe_name}.docx"
+            vps_file_path = os.path.expanduser(f"~/.local/state/airo-second-brain/pc-action-bridge/files/{filename}")
+            os.makedirs(os.path.dirname(vps_file_path), exist_ok=True)
+            build_dynamic_docx(vps_file_path, title=title or "Dokumen Eksekutif AIRO", sections=sections, subtitle=subtitle)
+            tg_caption = f"📄 <b>{title or 'Dokumen Eksekutif AIRO'}</b>\nExecutive Word Document ({len(sections)} bagian analisis, executive styling)"
+            send_telegram_document(chat_id, vps_file_path, caption=tg_caption)
+        except Exception as e:
+            logger.error("Failed to generate and deliver live docx to Telegram: %s", e)
+
     return {
         "status": "ENQUEUED",
         "action_id": action_id,
         "action": "live_word_build",
-        "sections_count": len(sections)
+        "sections_count": len(sections),
+        "filename": filename
     }
 
 

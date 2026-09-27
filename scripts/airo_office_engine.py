@@ -15,11 +15,23 @@ import logging
 from typing import List, Dict, Any, Optional, Union
 
 # Re-export PowerPoint builder from canonical presentation engine
-from airo_presentation_engine import (
-    PresentationEngine,
-    build_dynamic_deck,
-    build_airo_pitch_deck
-)
+try:
+    from airo_presentation_engine import (
+        PresentationEngine,
+        build_dynamic_deck,
+        build_airo_pitch_deck
+    )
+except ImportError:
+    try:
+        from scripts.airo_presentation_engine import (
+            PresentationEngine,
+            build_dynamic_deck,
+            build_airo_pitch_deck
+        )
+    except ImportError:
+        PresentationEngine = None
+        build_dynamic_deck = None
+        build_airo_pitch_deck = None
 
 logger = logging.getLogger("airo-office-engine")
 

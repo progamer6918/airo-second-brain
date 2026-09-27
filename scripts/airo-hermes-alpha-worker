@@ -1126,13 +1126,16 @@ def handle_hermes_office_generation(text: str, session_id: str, chat_id: str = "
 
         if is_live_mode:
             logger.info("HERMES_OFFICE: Executing LIVE EXCEL COM build for '%s' (%d rows)", title, len(rows))
-            pc_live_excel_build(headers=headers, rows=rows, title=title, sheet_name=sheet_name, chat_id=chat_id)
+            live_res = pc_live_excel_build(headers=headers, rows=rows, title=title, sheet_name=sheet_name, summary=summary, chat_id=chat_id)
+            filename = live_res.get("filename", "")
+            file_note = f"\n📎 <i>File <code>{html.escape(filename)}</code> juga sudah langsung gue kirimkan ke chat Telegram ini untuk review di HP!</i>" if filename else ""
             return (
                 f"📊 <b>Siap bro! Spreadsheet \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft Excel monitor PC lo sekarang!</b> 🖥️✨\n\n"
                 f"Excel di PC lo terbuka dan mengisi tabel data secara real-time dengan header Dark Navy & auto-fit kolom:\n"
                 f"<code>{html.escape(headers_str)}</code>\n\n"
                 f"{html.escape(row_sample)}\n\n"
                 f"⚡ <i>Status: Actuator COM Excel sedang merender tabel dengan visual pacing dan styling eksekutif.</i>"
+                f"{file_note}"
             )
         else:
             logger.info("HERMES_OFFICE: Executing DYNAMIC EXCEL GENERATION for '%s' (%d rows)", title, len(rows))
@@ -1221,12 +1224,15 @@ def handle_hermes_office_generation(text: str, session_id: str, chat_id: str = "
 
         if is_live_mode:
             logger.info("HERMES_OFFICE: Executing LIVE WORD COM build for '%s' (%d sections)", title, len(sections))
-            pc_live_word_build(sections=sections, title=title, subtitle=subtitle, chat_id=chat_id)
+            live_res = pc_live_word_build(sections=sections, title=title, subtitle=subtitle, chat_id=chat_id)
+            filename = live_res.get("filename", "")
+            file_note = f"\n📎 <i>File <code>{html.escape(filename)}</code> juga sudah langsung gue kirimkan ke chat Telegram ini untuk review di HP!</i>" if filename else ""
             return (
                 f"📄 <b>Siap bro! Dokumen \"{html.escape(title)}\" lagi gue ketik LIVE di Microsoft Word monitor PC lo sekarang!</b> 🖥️✨\n\n"
                 f"Word di PC lo terbuka dan mengetik struktur dokumen secara real-time:\n"
                 f"{sec_summary}\n\n"
                 f"⚡ <i>Status: Actuator COM Word sedang mengetik heading, paragraf, dan bullet points di layar monitor lo.</i>"
+                f"{file_note}"
             )
         else:
             logger.info("HERMES_OFFICE: Executing DYNAMIC WORD GENERATION for '%s' (%d sections)", title, len(sections))
@@ -1339,12 +1345,15 @@ def handle_hermes_office_generation(text: str, session_id: str, chat_id: str = "
 
         if is_live_mode:
             logger.info("HERMES_OFFICE: Executing LIVE PPT COM build for '%s' (%d slides)", title, len(slides_data))
-            pc_live_ppt_build(slides_data, title=title, chat_id=chat_id)
+            live_res = pc_live_ppt_build(slides_data, title=title, subtitle=subtitle, category=category, chat_id=chat_id)
+            filename = live_res.get("filename", "")
+            file_note = f"\n📎 <i>File dokumen <code>{html.escape(filename)}</code> juga sudah langsung gue kirimkan ke chat Telegram ini untuk lo review di HP!</i>" if filename else ""
             return (
                 f"🎯 <b>Siap bro! Presentasi \"{html.escape(title)}\" lagi gue bangun LIVE di Microsoft PowerPoint monitor PC lo sekarang!</b> 🖥️✨\n\n"
                 f"Lo bisa liat PowerPoint di PC lo terbuka dan mengetik tiap slide secara real-time:\n"
                 f"{slides_summary}\n\n"
                 f"⚡ <i>Status: Actuator COM PowerPoint sedang berjalan live di layar monitor lo dengan jeda visual antar-slide.</i>"
+                f"{file_note}"
             )
         else:
             logger.info("HERMES_OFFICE: Executing DYNAMIC PPT GENERATION for '%s' (%d slides)", title, len(slides_data))
