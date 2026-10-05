@@ -3,7 +3,7 @@
   "status": "OWNER_APPROVED_PACKAGE",
   "generator": "scripts/airo-foundation",
   "normalization": "UTF-8 without BOM, LF; otherwise verbatim",
-  "config_sha256": "b3962a584450a4a5404a58f2a82b82305e5004046e712e64331978a92186ae0c",
+  "config_sha256": "8781523a2e9a624dd1a3d2f899e6c8c139b7418a775f14fd173fb4a23cdbdfb2",
   "generator_sha256": "c32536ae447dbfb88f28a94c951cfb050c115d8551a2c4df5aefd68bb3753bc7",
   "sources": [
     {
