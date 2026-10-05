@@ -51,3 +51,7 @@ Diakses oleh Earesmes/Hermes melalui Google OAuth tokens yang sudah ada.
 | **ChatGPT** | Eksekusi teknis, second opinion, implementasi |
 | **Antigravity** | AI executor — menerima PRD sebagai kontrak, one-pass execution |
 | **Earesmes** | Daily assistant via Telegram, future orchestrator |
+
+## Current role authority
+
+Descriptions of consumer capabilities in this reference do not grant execution authority. Current role boundaries are governed by `docs/contracts/AIRO_AGENT_ROLE_CONTRACT.md` and `docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`.

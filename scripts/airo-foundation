@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Deterministic foundation transport; check never mutates runtime/session state."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def safe(root, relative):
+    target=(root/relative).resolve()
+    if not target.is_relative_to(root.resolve()):
+        raise ValueError('Path outside repository: '+relative)
+    return target
+
+def expected(root):
+    config=json.loads((root/'docs/onboarding/FOUNDATION_SOURCES.json').read_text('utf-8'))
+    sources=config['sources']; references=config['references']
+    if len(sources)!=len(set(sources)) or set(sources)&set(references):
+        raise ValueError('Duplicate or overlapping source/reference')
+    records=[]; sections=[]
+    for p in sources:
+        data=safe(root,p).read_bytes()
+        body=data.decode('utf-8-sig').replace('\r\n','\n').replace('\r','\n')
+        if not body.strip(): raise ValueError('Empty source: '+p)
+        normalized=body.encode('utf-8')
+        records.append({'path':p,'selection':'FULL_FILE','sha256_normalized_utf8_lf':digest(normalized),'characters':len(body)})
+        sections.append('\n<!-- SOURCE_BEGIN '+p+' -->\n\n# Source: '+p+'\n\n'+body+'\n<!-- SOURCE_END '+p+' -->\n')
+    for p in references:
+        if not safe(root,p).is_file(): raise ValueError('Missing dynamic reference: '+p)
+    intro='# AIRO foundation transport\n\nGenerated verbatim source transport. Source documents retain authority and consumer/environment scope. This snapshot does not prove live runtime availability. Dynamic startup/project references must be retrieved separately.\n'
+    text=intro+''.join(sections)
+    limit=config['max_part_characters']
+    if not isinstance(limit,int) or limit<1000: raise ValueError('Invalid part limit')
+    chunks=[]; current=''
+    for line in text.splitlines(keepends=True):
+        if current and len(current)+len(line)>limit: chunks.append(current);current=''
+        current+=line
+    if current:chunks.append(current)
+    outputs={}; parts=[]
+    for i,chunk in enumerate(chunks,1):
+        p=f'docs/onboarding/parts/FOUNDATION_{i:03}.md';data=chunk.encode('utf-8');outputs[p]=data
+        parts.append({'path':p,'sha256':digest(data),'characters':len(chunk),'order':i})
+    release={'format_version':1,'status':config['status'],'generator':'scripts/airo-foundation','normalization':'UTF-8 without BOM, LF; otherwise verbatim','config_sha256':digest((root/'docs/onboarding/FOUNDATION_SOURCES.json').read_bytes()),'generator_sha256':digest((root/'scripts/airo-foundation').read_bytes()),'sources':records,'parts':parts,'bundle_sha256':digest(text.encode('utf-8')),'dynamic_references':references,'snapshot_commit':'RESOLVE_EXTERNALLY_NOT_SELF_EMBEDDED'}
+    outputs['docs/onboarding/FOUNDATION_MANIFEST.json']=(json.dumps(release,ensure_ascii=False,indent=2)+'\n').encode('utf-8')
+    index='# Foundation bundle — ordered retrieval index\n\nRead every part in the manifest order. Parts may split source sections. Concatenate all part contents exactly to reconstruct the verbatim transport. Partial retrieval is not foundation readiness.\n\n'+''.join(f"- [{p['path'].split('/')[-1]}](parts/{p['path'].split('/')[-1]})\n" for p in parts)+'\nRetrieve dynamic startup/project references separately; preserve BOOT order.\n'
+    outputs['docs/onboarding/FOUNDATION_BUNDLE.md']=index.encode('utf-8')
+    return outputs,release
+
+def main():
+    ap=argparse.ArgumentParser();ap.add_argument('command',choices=['generate','check']);ap.add_argument('--root',type=Path,default=Path(__file__).resolve().parent.parent);args=ap.parse_args();root=args.root.resolve()
+    try:
+        outputs,manifest=expected(root)
+        if args.command=='generate':
+            for p,data in outputs.items():
+                f=safe(root,p);f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(data)
+        else:
+            for p,data in outputs.items():
+                if safe(root,p).read_bytes()!=data: raise ValueError('Generated artifact drift: '+p)
+            actual={str(p.relative_to(root)).replace('\\','/') for p in (root/'docs/onboarding/parts').glob('FOUNDATION_*.md')}
+            if actual!={p['path'] for p in manifest['parts']}: raise ValueError('Missing or extra ordered part')
+        print(json.dumps({'package_check':'PASS','command':args.command,'sources':len(manifest['sources']),'parts':len(manifest['parts']),'status':manifest['status'],'live_runtime':'NOT_CHECKED','consumer_trials':'NOT_CHECKED'}))
+    except (OSError,ValueError,KeyError,UnicodeError) as e:
+        print('FOUNDATION_PACKAGE_ERROR: '+str(e),file=sys.stderr);return 1
+    return 0
+if __name__=='__main__':sys.exit(main())

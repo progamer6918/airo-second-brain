@@ -36,3 +36,7 @@ Egit sedang membangun **AIRO** — personal AI operating system yang mencakup:
 - Reminder system (Remin) — planned
 - Note-keeping (Bubu) — planned
 - Dan project-project lain yang berkembang seiring waktu
+
+## Current role authority
+
+Descriptions of consumer capabilities in this reference do not grant execution authority. Current role boundaries are governed by `docs/contracts/AIRO_AGENT_ROLE_CONTRACT.md` and `docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md`.

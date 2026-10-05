@@ -10,6 +10,22 @@ consumers:
       - state/system-health.md
       - projects/
       - decisions/pending-decisions.md
+      - docs/onboarding/
+      - docs/contracts/
+      - docs/architecture/
+      - docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md
+      - docs/operations/AIRO_SESSION_WORKLOG_PROMOTION_SOP.md
+      - identity/
+      - systems/
+      - agents/
+      - meta/
+      - state/operating-rules/AIRO_COUNCIL_MODE.md
+      - registry/consumer-policy.yaml
+      - PRD_INDEX.md
+      - ROADMAP_INDEX.md
+      - AIRO_BOOTSTRAP_INDEX.md
+      - control/
+      - wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY.md
     allowed_writes:
       - inbox/session-closeouts/
       - distill/proposals/
@@ -24,6 +40,22 @@ consumers:
       - state/system-health.md
       - projects/
       - decisions/pending-decisions.md
+      - docs/onboarding/
+      - docs/contracts/
+      - docs/architecture/
+      - docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md
+      - docs/operations/AIRO_SESSION_WORKLOG_PROMOTION_SOP.md
+      - identity/
+      - systems/
+      - agents/
+      - meta/
+      - state/operating-rules/AIRO_COUNCIL_MODE.md
+      - registry/consumer-policy.yaml
+      - PRD_INDEX.md
+      - ROADMAP_INDEX.md
+      - AIRO_BOOTSTRAP_INDEX.md
+      - control/
+      - wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY.md
     allowed_writes:
       - inbox/session-closeouts/
       - distill/proposals/
@@ -49,3 +81,16 @@ consumers:
       - state/active-sessions.md
       - state/system-health.md
     promote_allowed: false
+
+  codex:
+    # Owner-approved role, 2026-10-05; paths are not blanket mutation consent.
+    allowed_reads:
+      - "*"
+    allowed_writes: []
+    # No blanket static write grant; resolve exact task paths from Owner authorization.
+    task_scoped_writes_require_owner_authorization: true
+    execution_allowed: true
+    require_owner_authorized_scope: true
+    require_session_evidence_git_guards: true
+    promote_allowed: false
+    require_owner_review_for_semantic: true

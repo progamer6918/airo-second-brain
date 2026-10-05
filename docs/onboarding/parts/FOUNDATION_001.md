@@ -1,3 +1,11 @@
+# AIRO foundation transport
+
+Generated verbatim source transport. Source documents retain authority and consumer/environment scope. This snapshot does not prove live runtime availability. Dynamic startup/project references must be retrieved separately.
+
+<!-- SOURCE_BEGIN BOOT.md -->
+
+# Source: BOOT.md
+
 # AIRO SYNC FIRST-READ RULE
 
 When asked to act as AIRO Sync or read GitHub / Second Brain, read this rule first.
@@ -263,10 +271,3 @@ For every meaningful AIRO execution:
 
 The generated package at `docs/onboarding/FOUNDATION_MANIFEST.json` transports the source rules without replacing their authority. Read every required part completely; a startup preview is not full foundation consumption. Use `docs/onboarding/UNIVERSAL_NEW_CHAT.md` for reusable onboarding.
 
-Live evidence determines empirical runtime facts. Owner authorization and applicable canonical governance determine permitted action; successful runtime behavior is not authorization. Apply the fact-versus-decision distinction in the KCC contract when interpreting source priority.
-
-Delivery requirements retain their environment and consumer scope: local verified clipboard read-back requirements remain binding where applicable; the explicit remote OSC52 exception and AGY gateway failure reporting apply only within their stated scope. Do not silently generalize one environment exception to all consumers.
-
-## AIRO WorkDesk authority discovery
-
-For business intelligence or retail-sales tasks, resolve `control/airo-workdesk.md`, `wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY.md` and the project-designated operational inventory/source authority before requesting replacement data from Owner. Verify actual access and data freshness. No ACTIVE/AVAILABLE label or remembered host address in a snapshot proves current runtime availability.

@@ -1,0 +1,372 @@
+{
+  "format_version": 1,
+  "status": "OWNER_APPROVED_PACKAGE",
+  "generator": "scripts/airo-foundation",
+  "normalization": "UTF-8 without BOM, LF; otherwise verbatim",
+  "config_sha256": "b3962a584450a4a5404a58f2a82b82305e5004046e712e64331978a92186ae0c",
+  "generator_sha256": "c32536ae447dbfb88f28a94c951cfb050c115d8551a2c4df5aefd68bb3753bc7",
+  "sources": [
+    {
+      "path": "BOOT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "5eb399ba188b6d63b199678a5298c9fc2de3c9e9afc33581ba9d0c0a9ad88f94",
+      "characters": 16615
+    },
+    {
+      "path": "AGENTS.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "76000841a9cd9f476bec204aae6b419c15c990185d237c644a2e12fd8f0c0ba0",
+      "characters": 12429
+    },
+    {
+      "path": "SECURITY.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "aba227877e7cfb2cfa57b238f54bd3ba2ef7f6331bad4a897a1c31db4edbdbec",
+      "characters": 1926
+    },
+    {
+      "path": "identity/who-i-am.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "204c1ade19c884fbd32c31df3225a5cc92d1a7d29e13af1126d937a67b8c8d41",
+      "characters": 2336
+    },
+    {
+      "path": "identity/working-principles.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "97a61b441f0d7c2ca547489ae72dd59af84e7164995ae572ea823dcd1ffbabbf",
+      "characters": 8262
+    },
+    {
+      "path": "identity/goals.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "dcf2bb9d920a4316feb0533a8a400b9e2e313650eec0426f4faf5cdc99f02cb0",
+      "characters": 1759
+    },
+    {
+      "path": "docs/architecture/AIRO_MULTI_DEVICE_ACCESS_ARCHITECTURE_DECISION_RECORD_V1.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "f3e90d047c45078f1ed45e3cd3bbca6b3e0998c220805fab31c7aea10366a349",
+      "characters": 9337
+    },
+    {
+      "path": "docs/contracts/AIRO_CONSUMER_IDENTITY_BOUNDARY.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "9b01224678c1bf6d1adfedd18ab322057dd432ff45dbdfaf823d190f75353268",
+      "characters": 5077
+    },
+    {
+      "path": "docs/contracts/AIRO_AGENT_ROLE_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "f2ed58bbc8d1481c5be8e4e526321b746d9a3e97832b7588178f51e7d52fb8d3",
+      "characters": 6588
+    },
+    {
+      "path": "docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "d378fa5645cae46e640cf827a7769ae93bb7a50706cb2afa2b5e802d6c49646f",
+      "characters": 16535
+    },
+    {
+      "path": "docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "241225bdf292a9ea04ff6dc61e2dc7b99c27eb7dc93a10d220def0b4728f6ec1",
+      "characters": 14545
+    },
+    {
+      "path": "docs/prd/PRD_AIRO_KNOWLEDGE_CONTINUITY.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "2a939a4a97567af6ae8a0a31375d94d70ebedd57872156248f3d6d7cec0b71f8",
+      "characters": 5411
+    },
+    {
+      "path": "state/operating-rules/AIRO_COUNCIL_MODE.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "cb00f0b02251cb715c3a2ac2424ce57d575064a03ec35b00f570daa053bb2d3d",
+      "characters": 8998
+    },
+    {
+      "path": "docs/contracts/AIRO_CODE_CHANGE_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "4783f398d5e8e6854303c86ea5c542b988229b0876281c182f7aefb8a1d26302",
+      "characters": 9613
+    },
+    {
+      "path": "docs/contracts/AIRO_AGY_EXECUTION_GATEWAY_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "3b561aa8cebd19e0188c26c3643c68f4707ed5a30b8183fbdd969e8e2d725cd4",
+      "characters": 7612
+    },
+    {
+      "path": "docs/contracts/AIRO_DIRECT_WSL_EXECUTION_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "dc5c7b5fc0d9ad7f8bcba4d0ccf2442215a8f79b21b521323498760e1b3f9229",
+      "characters": 3117
+    },
+    {
+      "path": "docs/contracts/AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "ea36d5db1aea47a8d088356c0168737141f40d55223c9ef9e30597647c67cf3b",
+      "characters": 1529
+    },
+    {
+      "path": "docs/contracts/AIRO_EXECUTION_EVIDENCE_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "24aad7faf68430392f0678effd59eee6b2df80c16230b88e6b48089373d2d247",
+      "characters": 2710
+    },
+    {
+      "path": "docs/contracts/AIRO_STATUS_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "dc2a9c148d3df1c4dc772fc58620f21f77292648d77a673105fcc7345182d93c",
+      "characters": 3274
+    },
+    {
+      "path": "docs/contracts/AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "a5f6dab8c9fb2bc098bff40635cdbd1d041cb34e544cca72571406c8c2a38e0c",
+      "characters": 215
+    },
+    {
+      "path": "docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "b98faf835286cad541a300e6469eebda107811d4fb67a157887846a9e808080e",
+      "characters": 9638
+    },
+    {
+      "path": "docs/operations/AIRO_SESSION_WORKLOG_PROMOTION_SOP.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "26eea632257195d390dfabc8ed47d362e57baf1bd3c65619d6d8a1cb23e85b78",
+      "characters": 13368
+    },
+    {
+      "path": "docs/contracts/AIRO_INPUT_PROCESSING_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "68c788b0bb55111011f7bc029c5804ea921095e5f22e83575dffc95e9fd25c14",
+      "characters": 5378
+    },
+    {
+      "path": "docs/contracts/AIRO_MANUAL_SYNC_QUEUE_POLICY.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "a18ecfb0c2c4b9091c7b3e1c961836d3f0fd0dc202af5291d0d0767f0bbcbb9d",
+      "characters": 2073
+    },
+    {
+      "path": "meta/update-protocol.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "9b0b9aa17870dbe3495f61269d980b1ccbf82dd6f7987c8deea6d424f78e6aad",
+      "characters": 2628
+    },
+    {
+      "path": "meta/staleness-policy.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "482b37b8213eb00dbdb884d8311809468355207e3800353354b1b1652b0d6b80",
+      "characters": 1375
+    },
+    {
+      "path": "meta/how-to-use-this-brain.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "d490711eadc30c38b31a8cb6303364e87cb856c7f36108b408f3ff2976190ff9",
+      "characters": 2777
+    },
+    {
+      "path": "docs/contracts/ASB_HUMAN_NAVIGATION_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "90f090e9a4431805e4c68e5e80c0a258e2065a1c14c71df47cd8754101d7f4d5",
+      "characters": 3186
+    },
+    {
+      "path": "docs/contracts/WORKDESK_HOME_OPERATING_SURFACE_CONTRACT.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "08a02d7246d94cb4f53590fd9bc39029b66ffe48fce994aab2732b5395ea6aaf",
+      "characters": 2633
+    },
+    {
+      "path": "registry/consumer-policy.yaml",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "4e9c76d3a6b5db770a779273e9c0da6cb754fd910a124b265410105bdc1ba9fa",
+      "characters": 2563
+    },
+    {
+      "path": "AIRO_BOOTSTRAP_INDEX.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "d0494b4f0705b94cd0cba2bfb22f2515dffddac5090246c6ecda997f0104b9bc",
+      "characters": 1427
+    },
+    {
+      "path": "systems/infrastructure.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "4db2b0e6a7aac3ceabb51aa32e5bc7b6e53892a61415a3f8a8d52ca2e4953f1d",
+      "characters": 1995
+    },
+    {
+      "path": "systems/interfaces.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "9fb68b35a1409b43ff24e7e89f53099793fcbbbf39b43a6146bfc95c73c7187f",
+      "characters": 2043
+    },
+    {
+      "path": "systems/tools.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "25641c9d8222442a36ed3af110c895a172381db10a9899e4d552e6ddf72c965a",
+      "characters": 2294
+    },
+    {
+      "path": "systems/repository-registry.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "20b46315fd1d6896738c1a81b1ddf48f8eb493f3c5d87523de92ed6180f5625a",
+      "characters": 4468
+    },
+    {
+      "path": "systems/wsl-local-workspace-map.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "87910d6af692e0f8e214f6979e3ff06e2b190326ab67ce1046570863f518da26",
+      "characters": 763
+    },
+    {
+      "path": "systems/wsl-home-safe-discovery.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "c0aa51ed1b4d7c067383e0ad109e10e472e2e8a9f146da8b9478bcec90243e6a",
+      "characters": 761
+    },
+    {
+      "path": "systems/telegram-agent-identity-contract.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "8e06e16cc17afd20a3a8c7ab5ad38e4fc784128e20c5098a00ca5f2543fd74eb",
+      "characters": 4215
+    },
+    {
+      "path": "agents/agent-family.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "f9c537429bcce667bfb463618029b043215694f4ae4ec369877feb37341c2c8c",
+      "characters": 2050
+    },
+    {
+      "path": "agents/design-principles.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "635002a40492335ca4712ca1bb1d5035214d166f6390292abb55556c3faaf61e",
+      "characters": 2387
+    },
+    {
+      "path": "state/operating-rules/AIRO_CHAT_STABILITY_PROTOCOL_20260704.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "7c5d87331ad0c21f79e1cd8cbd00cc81b4ee20afd129da897d6318cf5f38a851",
+      "characters": 2795
+    },
+    {
+      "path": "state/operating-rules/AIRO_ANTIGRAVITY_LOW_LIMIT_NO_BRAINER_MODE_20260705.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "888d05882d501f297c02fd036ff5b7eb54460c412505e144476f096d98d38296",
+      "characters": 2163
+    },
+    {
+      "path": "docs/contracts/AIRO_SECOND_BRAIN_SCRIPT_CONTRACTS.md",
+      "selection": "FULL_FILE",
+      "sha256_normalized_utf8_lf": "eab06047ea164ae3d02eba33ec363dc0907b1669b3db5d1fae908589ad6927e0",
+      "characters": 11945
+    }
+  ],
+  "parts": [
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_001.md",
+      "sha256": "3751d38b97c57004d2993b89ba2aa60ba5fc8587a9367a824f884db9b6f0d754",
+      "characters": 15874,
+      "order": 1
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_002.md",
+      "sha256": "4e969acc04a0dcbcd9c45527aa338ee716f33b70ca2a9af943ce4276f933136d",
+      "characters": 15920,
+      "order": 2
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_003.md",
+      "sha256": "69e598a82c38597e55956b5e985ba43113896140a991bb81ebec0451212d941d",
+      "characters": 15991,
+      "order": 3
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_004.md",
+      "sha256": "2c26833f38374110b0f2ad5db33316ebafa30fab700c53b7afdf108383c6be5f",
+      "characters": 15959,
+      "order": 4
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_005.md",
+      "sha256": "30b5028c9dcf08c20bdedb1c24881e34fc97024790ef098f82e3c2982eda636e",
+      "characters": 15916,
+      "order": 5
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_006.md",
+      "sha256": "23477537b8d7b489a5b40b6ff387a5ea7e819f3bf88e7ba0f1f8861091b961b5",
+      "characters": 15795,
+      "order": 6
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_007.md",
+      "sha256": "1a5abd29a3784fd899a9e3f478195035eada8f32cc52ad1daad88d86a6405c89",
+      "characters": 15971,
+      "order": 7
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_008.md",
+      "sha256": "f89df4fccdebc66fc8837246f58675852a374e90ace2ad4ab9aef8898cb3878a",
+      "characters": 15976,
+      "order": 8
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_009.md",
+      "sha256": "6c5ea081252950068fb4904421a1e53cfa0b42e60e5ee6a548fdf6162a15339d",
+      "characters": 15879,
+      "order": 9
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_010.md",
+      "sha256": "13a81d428e54f353bc3afce5ccc1976f87b3567dab29ee5644a64b694854f9ca",
+      "characters": 15936,
+      "order": 10
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_011.md",
+      "sha256": "19cec02b06724559e03df26c48938fa4593a6242fb511c4974deec8c1a3ba25f",
+      "characters": 15992,
+      "order": 11
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_012.md",
+      "sha256": "8459c81a791e4a9cfe5fff11df9b08ee5685ebf0c65eef40a1ebbd0f9a7327d1",
+      "characters": 15997,
+      "order": 12
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_013.md",
+      "sha256": "0e881733b2a5d1902b69482548a64099d66a618b965f6bbdbd95a08a8749f082",
+      "characters": 15983,
+      "order": 13
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_014.md",
+      "sha256": "6482c72dafa3d29fea65bf69fc7fe4e2c2bf45bb319f62af9efa8e30524de4fb",
+      "characters": 15966,
+      "order": 14
+    },
+    {
+      "path": "docs/onboarding/parts/FOUNDATION_015.md",
+      "sha256": "37e2377b9d7cf1adce2542d9e4c7afaa1cf765657ae9e90289d154a59e927d4e",
+      "characters": 7446,
+      "order": 15
+    }
+  ],
+  "bundle_sha256": "ddf49fd8113c5e506a95980bacd466f8ea8ca847083e1ea075363a35af695f57",
+  "dynamic_references": [
+    "decisions/decision-log.md",
+    "CURRENT.md",
+    "CONTEXT.md",
+    "PRD_INDEX.md",
+    "ROADMAP_INDEX.md",
+    "control/_index.md",
+    "control/airo-second-brain.md",
+    "wiki/workdesk/reference/AWD_CAPABILITY_REGISTRY.md"
+  ],
+  "snapshot_commit": "RESOLVE_EXTERNALLY_NOT_SELF_EMBEDDED"
+}

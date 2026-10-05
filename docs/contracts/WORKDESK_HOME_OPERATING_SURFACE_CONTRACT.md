@@ -64,3 +64,7 @@ Backend and render acceptance have established:
 `HOME_V2_ACCEPTED=YES`
 
 Canonical Git integration is complete. No additional Owner content or visual QA gate remains for Home v2.
+
+## Implemented session projection bridge
+
+The session bridge is governed by `docs/contracts/AIRO_SESSION_PROJECTION_SYNC_CONTRACT.md`. Current-work and active-session presentation remain deterministic derived projections; they do not replace canonical session authority or independently prove live runtime state.

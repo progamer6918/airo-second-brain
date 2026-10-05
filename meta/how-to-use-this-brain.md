@@ -1,3 +1,7 @@
+# Current startup authority
+
+Begin with `BOOT.md` and follow its startup order. The guidance below is a usage reference; it does not override BOOT startup order or consumer-specific contracts.
+
 # How to Use This Brain — Instruksi untuk AI
 
 Dokumen ini untuk AI yang baru pertama kali mengakses repo `airo-second-brain`.

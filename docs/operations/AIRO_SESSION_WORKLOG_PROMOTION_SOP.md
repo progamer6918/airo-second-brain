@@ -238,3 +238,7 @@ CLIPBOARD_ERROR=NONE
 CLIPBOARD_READBACK=PASS
 CLIPBOARD_CONTENT_HASH=PASS
 ```
+
+## Current session format and capture scope
+
+For current human-facing session memory, use the six headings and hidden machine context defined by `docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md` §8. Legacy section-count examples below/above are not a second current formatting requirement. Operational event/session capture and semantic canonical promotion are distinct activities; this promotion SOP does not authorize bypassing KCC semantic approval or lifecycle guards.

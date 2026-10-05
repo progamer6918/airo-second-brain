@@ -21,3 +21,16 @@
 15. Never reset, stash, rebase, clean, overwrite, or stage unrelated Owner work.
 16. Script success is not task success; completion remains evidence-driven.
 17. Acceptance evidence follows `AIRO_ACCEPTANCE_EVIDENCE_CONTRACT.md`; direct WSL should automate backend acceptance when it can prove the required behavior without Owner manual review.
+
+
+## Mandatory Operational Execution Continuity (KCC v1)
+
+Every meaningful AIRO execution MUST automatically record semantic operational state:
+
+1. **Resolve/Start/Continue Session**: Before execution, verify active session context (`bin/airo-session start`).
+2. **Semantic PRE-EXECUTION Checkpoint**: Record action intent, active owner request, current position, and next action (`scripts/airo-capture --phase PRE_EXECUTION ...`).
+3. **Bounded Execution**: Execute approved task.
+4. **Semantic POST-EXECUTION Checkpoint**: Record factual outcome, evidence pointer, updated position, and next action (`scripts/airo-capture --phase POST_EXECUTION ...`).
+5. **Live Obsidian Artifact**: Automatically refreshed at `worklog/sessions/<date>/<project>/SESSION_<id>.md` during the running session.
+
+> **CRITICAL RULE**: `RAW COMMAND != KNOWLEDGE RECORD`. Do NOT store raw terminal command strings or raw prompt dumps as knowledge records. Record the semantic state around the execution.

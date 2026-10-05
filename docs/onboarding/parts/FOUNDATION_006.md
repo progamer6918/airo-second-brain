@@ -1,0 +1,183 @@
+3. **Owner Approval Gate**: Promoting staged materials from `inbox/` or `docs/validation/` to `docs/contracts/` or `control/` strictly requires Owner review and confirmation.
+4. **Multi-Workspace Parity**: Any promoted canonical document must be mirrored to the canonical ASB vault (`C:\Users\Admin\AI_WORKSPACES\airo-second-brain`) immediately upon creation.
+
+---
+
+## 10. Obsolete Knowledge Handling & Deprecation Policy
+
+Knowledge decay is actively managed through strict deprecation protocols rather than destructive deletion:
+
+1. **Mark, Do Not Silently Delete**: Obsolete canonical documents must retain header metadata:
+   ```yaml
+   status: SUPERSEDED
+   superseded_by: "[[docs/contracts/NEW_CONTRACT.md]]"
+   deprecation_date: 2026-09-05
+   ```
+2. **Archive Isolation**: Fully decommissioned projects, historical raw sync queues, and legacy milestone notes must reside under `archive/`.
+3. **Context Pollution Prevention**: Fresh AI onboarding indexes (`PRD_INDEX.md`, `ROADMAP_INDEX.md`, `CURRENT.md`) must point exclusively to active canonical documents and exclude archived paths.
+
+---
+
+## 11. Governance Index References & Canonical Registries
+
+To facilitate instant discovery by Fresh AIs, key governance and architectural baselines are indexed in canonical registry paths:
+
+| Registry Scope | Canonical Path | Description |
+|---|---|---|
+| **Ecosystem Contracts** | `docs/contracts/` | Canonical operational, execution, and data contracts. |
+| **Architecture Decision Records** | `docs/architecture/` | Council Deep deliberation and Owner-approved ADRs. |
+| **Project Control Cards** | `control/` | High-level project state pointers and summaries. |
+| **Active Continuity Handoffs** | `docs/continuity/` | Latest validated operational continuity handoffs. |
+| **Validation Closeouts** | `docs/validation/` | Formal milestone, sprint, and task closeout receipts. |
+
+---
+
+## 12. Architectural Boundaries & Prohibitions
+
+- **No Vector DB / Embedding Engine Expansion**: Knowledge continuity is achieved via deterministic directory structures, markdown cross-links (`[[...]]`), and structured frontmatter. Vector databases, RAG daemons, or embedding pipelines are strictly prohibited from the core kernel.
+- **No Background Crawlers / Scraping Daemons**: No un-governed background daemons polling or altering repository state.
+- **No Autonomous Governance Mutation**: No AI agent may alter contracts, PRDs, or roadmaps without explicit Owner-in-the-loop authorization.
+- **Zero Code Mutation in this Contract**: This contract defines governance architecture only and introduces zero runtime script mutations.
+
+---
+
+## 13. Compliance & Verification
+
+- **Contract Conformance**: Any AI consumer operating within AIRO must comply with this contract on every interaction.
+- **Audit Verification**: Verified during every session closeout via `scripts/airo-task-verdict` and permanent session note frontmatter.
+
+<!-- SOURCE_END docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_CONTRACT.md -->
+
+<!-- SOURCE_BEGIN docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md -->
+
+# Source: docs/contracts/AIRO_KNOWLEDGE_CONTINUITY_SOP.md
+
+# SOP — AIRO Knowledge Continuity Operating Standard
+
+**ID**: SOP_AIRO_KNOWLEDGE_CONTINUITY  
+**Status**: CURRENT / APPROVED  
+**Applies To**: All AIRO Consumers & Executors (ChatGPT, Antigravity, WSL, Hermes)  
+**Last Updated**: 2026-08-25  
+
+---
+
+## 1. Operating Rules for Knowledge Capture
+
+1. **Trigger Identification**: Checkpoint recommendations MUST evaluate against the 4 explicit triggers (`EXPLICIT_OWNER_REQUEST`, `BEFORE_EXECUTOR_MUTATION`, `CLEAR_DECISION_FINALIZATION`, `ARCHITECTURE_OR_SCOPE_CHANGE`). Generic trigger evaluation is forbidden.
+2. **Two-Stage Approval**:
+   - Stage 1: Owner approves knowledge capture proposal.
+   - Stage 2: Owner reviews and approves the exact draft artifact prior to canonical persistence.
+3. **Atomic Supersession**: Any decision mutation MUST enforce bidirectional status updates (`ACTIVE` vs `SUPERSEDED`) across both superseded and superseding decision entries in a single commit.
+
+---
+
+## 2. Operating Rules for Retrieval & Answers
+
+1. Read canonical context (`CURRENT.md` / `decisions/decision-log.md`) before relying on model memory.
+2. Filter decisions by `status=ACTIVE` for current operating rules.
+3. Apply exact negative search phrasing when queries return zero matches.
+
+---
+
+## 3. Executor Transport & Clipboard Protocol
+
+All session closeouts and knowledge persistence runs MUST execute via `scripts/airo-clipboard-receipt` and verify:
+- `COPIED_TO_CLIPBOARD=YES`
+- `CLIPBOARD_READBACK=PASS`
+- `CLIPBOARD_CONTENT_HASH=PASS`
+
+### 3.1 OSC52 Terminal Delivery Exception
+
+**Applies to**: VPS Terminal OSC52 adapter; AGY VPS parent TTY OSC52 adapter.
+
+> `OSC52_SEND_SUCCESS_DOES_NOT_REQUIRE_READBACK=true`
+
+When clipboard delivery is performed via an **OSC52 terminal escape sequence**, clipboard readback is structurally unavailable — the terminal emulator absorbs the sequence and no read path exists from within the same process. For these paths:
+
+- `CLIPBOARD_READBACK=NOT_AVAILABLE` is the accepted terminal state (not a failure).
+- `CLIPBOARD_CONTENT_HASH=NOT_AVAILABLE` is the accepted terminal state (not a failure).
+- A confirmed OSC52 WRITE success (exit code 0 from the OSC52 send path) is sufficient evidence for `COPIED_TO_CLIPBOARD=YES`.
+- `DELIVERY_STATUS=OSC52_WRITE_SUCCESS_READBACK_NOT_AVAILABLE` satisfies the transport evidence requirement.
+
+This exception does **NOT** apply to the LOCAL PC/WSL clipboard adapter, which retains the full `CLIPBOARD_READBACK=PASS` + `CLIPBOARD_CONTENT_HASH=PASS` requirement.
+
+**Cross-reference**: [`AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT`](./AIRO_TERMINAL_RECEIPT_DELIVERY_CONTRACT.md) — canonical authority for OSC52 delivery rules.  
+**Council Verdict**: `FINAL_VERDICT=PASS` | `CAPABILITY_STATUS=FUNCTIONAL_NOT_GOVERNANCE_FINAL` → reconciled by this exception entry.
+
+---
+
+## Current V1 Operational SOP (2026-08-25)
+- **Cadence**: Operational capture runs automatically at `EVERY_MEANINGFUL_EXECUTION`.
+- **Live Markdown**: Running session state is continuously updated in Obsidian.
+---
+
+## 4. Closeout Semantic Carry-Forward Contract
+
+1. **Active Semantic Envelope Snapshot**: Before `bin/airo-session close` clears runtime active state, a final semantic envelope (containing `owner_request`, `objective`, `position`, `progress`, `blocker`, `next_action`, and recorded decisions) MUST be snapshotted.
+2. **Durable Historical Session Representation**: The permanent historical session Markdown artifact (`worklog/sessions/.../SESSION_<sid>.md`) MUST carry forward the active semantic context when available.
+3. **Owner Request Priority**: The closeout renderer MUST use the semantic `owner_request` when available. Absence of raw chat/prompt transcript MUST NEVER be rendered as absence of Owner Request when a semantic `owner_request` is recorded.
+4. **Deterministic Background Context**: When an explicit background is not provided in closeout JSON, background context MUST be deterministically derived from the session `objective` and semantic `owner_request`. Generic fallback ("Latar belakang tambahan belum dicatat") is forbidden when objective or owner request exist.
+5. **Fresh-AI Reconstructability**: Closeout success requires that a fresh AI reader, reading ONLY the durable repository artifact, can fully reconstruct the session's background, Owner intent, objective, implemented outcomes, decisions, and next operating posture.
+---
+
+## 5. Session Materiality & Isolation Contract
+
+1. **ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION**: The lifetime of a production AIRO session maps 1-to-1 with a single main Owner objective.
+2. **Sub-Executions Do Not Create Sessions**: A new Antigravity prompt, WSL command, executor packet, retry, verifier, regression test, debugging step, or evidence check does NOT by itself create a production session.
+3. **Same Objective Continuation**: If `project_id` + main Owner objective remain unchanged, invocation MUST return `SESSION_ACTION=CONTINUE_EXISTING`. Record semantic events/checkpoints inside the owning session.
+4. **Read-Only Verifier Sub-Execution**: A read-only verifier is a sub-execution of the owning objective. It MUST NOT start another production session.
+5. **Retry Sub-Execution**: A retry after failed execution stays inside the same owning production session.
+6. **Synthetic Test Isolation**: Synthetic tests, fixtures, simulated sessions, test harnesses, and regression-only sessions MUST use isolated repository/state/worklog roots (`AIRO_TEST_MODE=1` / `AIRO_SESSION_STATE_DIR`). They MUST NOT create production artifacts under canonical `worklog/sessions/`.
+7. **Close Eligibility**: Production session close is allowed only when Owner objective DoD is satisfied, required acceptance verification has completed, no known directly-related blocker remains, and no directly-required repair is already known.
+8. **New Maintenance Objective Boundary**: If a concrete defect is discovered AFTER the original objective was legitimately completed and closed, one NEW maintenance objective/session may be opened. All diagnosis, repair, regression, and verifier work for THAT defect remains inside that single maintenance session.
+9. **Synthetic Test Event Promotion**: Synthetic/test outcomes are evidence/events belonging to the owning production session. Synthetic session notes are not promoted into human worklogs.
+10. **Non-Session Boundaries**: Chat boundary, command boundary, executor boundary, and verifier boundary are NOT production session boundaries.
+---
+
+### 5.1 Event Single-Write Invariant
+
+1. **One Invocation = One Record**: One semantic capture invocation MUST produce exactly one active-session event and one durable ledger record (`events/raw/events.ndjson`).
+2. **Recursion Prohibition**: `airo-session` ↔ `airo-capture` bidirectional recursion/double-write is strictly forbidden.
+3. **Delegation Architecture**: Active-session capture uses a single high-level delegation path (`airo-capture` -> `airo-session event`) and a low-level internal writer (`AIRO_CAPTURE_INTERNAL=1`).
+4. **Exact-Count Assertions**: Regression test acceptance MUST assert exact event deltas (`ACTIVE_SESSION_EVENT_DELTA=1`, `LEDGER_EVENT_DELTA=1`), never loose `>=` bounds.
+5. **Invocation-Based Identity**: Genuinely separate explicit invocations with identical summary text MUST remain separate legitimate events (`one invocation = one record`). Automated deduplication MUST NOT collapse genuine repeated invocations based merely on summary text or time windows.
+
+
+## 6. DEFERRED WORK / PR LIFECYCLE CONTRACT
+
+1. **PR Definition**: A PR (Pekerjaan Rumah) is an actionable piece of work intentionally deferred for future execution.
+2. **Exclusions**: A PR is NOT an idea, brainstorming possibility, generic recommendation, informational observation, or vague someday thought.
+3. **Owner Explicit Deferral**: Direct Owner explicit deferrals or commitments ("nanti kerjain ini", "masukin PR", "next aja", "ini jangan lupa", "buat todo") MUST generate a PR.
+4. **Conservative AI Capture**: AI may capture a PR without explicit user prompt ONLY when current discussion establishes a concrete future work commitment or explicit deferral. AI wording must be conservative and factual.
+5. **Ambiguity Guard**: If intent is ambiguous or speculative, do NOT create a PR automatically. Ask Owner if clarification is needed.
+6. **Deduplication Check**: Before creating a PR, inspect current open PRs in `state/deferred-work.json` to prevent obvious duplicate entries.
+7. **Creation Timestamp**: Every PR MUST record a single `created_at` date (ISO YYYY-MM-DD) which is set once at creation and never reset upon priority or text updates.
+8. **No Silent Session Creation**: A PR does NOT create a production session merely by existing.
+9. **Start-Work Transition**: When work on a PR begins, its status transitions `TODO` → `ACTIVE`. It disappears from the HOME PR projection (which displays `TODO` items only) as the owning production session starts/continues.
+10. **Completion**: Upon successful objective completion, the PR is marked `DONE` and removed from the active view as durable session history records its completion.
+11. **Selective Closeout Promotion**: Session closeout creates a new PR only selectively when `next_action` describes concrete, actionable deferred work. Generic operational postures ("Use normally", "Monitor", "No further action") MUST NOT generate a PR.
+12. **Git Policy**: PR register updates follow normal ASB checkpoint Git policy. No dedicated auto-push-per-PR behavior is required.
+### 6.1 Owner Origin & Provenance Contracts
+
+1. **Owner Origin Preservation**: A PR should preserve enough original Owner language for later recognition. When direct Owner wording is available and relevant, store a bounded exact excerpt in `origin_text` (up to 2 short utterances or equivalent).
+2. **No Raw-Chat Archive**: `origin_text` is NOT a raw-chat archive; store only the minimum excerpt necessary for recognition. Never paraphrase and label it as exact Owner wording. If exact wording is unavailable, `origin_text` may be omitted.
+3. **Owner vs AI_CAPTURED Source**: If the Owner explicitly requests a to-do/PR ("masukin PR", "buat todo", "next aja", "nanti kerjain ini"), `source` MUST be `OWNER`. `AI_CAPTURED` is reserved only for conservative AI identification without explicit Owner registration commands.
+4. **Human-Familiar Title**: Owner-facing PR `summary` should prefer terminology recognizable from the Owner discussion. Avoid transforming familiar Owner language into abstract technical jargon in the primary title. Technical normalization belongs in `detail` and `context`.
+5. **Sufficient Context**: A PR is not sufficiently captured by title alone. Authority data must allow an Owner or fresh AI to answer:
+   - **WHAT**: Concrete work required (`detail`)
+   - **WHY**: Why the work exists (`context`)
+   - **OWNER_ORIGIN**: Bounded exact Owner utterances (`origin_text`)
+   - **PROJECT**: Project / context mapping (`project` / `project_ref`)
+   - **WHEN**: Creation date (`created_at`)
+   - **SOURCE**: Durable reference link if available (`source_ref`)
+### 6.2 PR Semantic Reference Contract
+
+1. **Optional References**: `project_ref` and `source_ref` are OPTIONAL metadata fields. A reference MUST NOT be stored or rendered merely because a path exists on the filesystem.
+2. **source_ref Validity Criteria**: `source_ref` is valid ONLY if the target file exists, is non-empty (>10 bytes), contains meaningful semantic content, and is materially relevant to the origin/context of that PR. Heading-only, placeholder-only, 0-byte, or unrelated session notes are INVALID.
+3. **Absence of Source Link**: If no semantically useful durable source artifact exists, `source_ref` MUST be set to `null` / absent. origin_text + context + detail remain complete durable provenance without a source link.
+4. **project_ref Validity Criteria**: `project_ref` is valid ONLY if the target artifact represents the actual current project/context named by the PR. A capability-specific PRD (e.g. KCC PRD) MUST NOT be used as `project_ref` for "ASB Global" unless canonical ASB explicitly defines it as ASB-global authority.
+5. **No Speculative Notes**: If no valid canonical project or source target exists, the link MUST be omitted. Creating speculative or placeholder notes merely to satisfy a link is strictly forbidden.
+6. **Fresh-AI Preference**: A fresh AI reader MUST prefer NO LINK over a MISLEADING LINK.
+### 6.3 Deferred-Work Projection Invariant
+
+1. **Authority vs Projection**: `state/deferred-work.json` is the canonical deferred-work/PR authority. `state/deferred-work.md` is a generated human projection and MUST NOT become an independently maintained authority.
