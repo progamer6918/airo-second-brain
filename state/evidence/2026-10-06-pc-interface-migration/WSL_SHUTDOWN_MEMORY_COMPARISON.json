@@ -1,0 +1,19 @@
+{
+  "summary": {
+    "beforeVmWorkingSetBytes": 280248320,
+    "afterVmWorkingSetBytes": 0,
+    "beforeFreeBytes": 3846389760,
+    "afterFreeBytes": 4497838080,
+    "freeBytesIncrease": 651448320,
+    "sameTrackedAppProcessIds": true,
+    "beforeTrackedAppsWorkingSetBytes": 7347634176,
+    "afterTrackedAppsWorkingSetBytes": 7365574656,
+    "runningDistroText": "",
+    "sampling": "3 samples each side,2 second spacing;5 second settle after shutdown",
+    "limitations": "Short same-app comparison, not historical peak or memory-leak proof; background allocations may vary.",
+    "rollback": "Start Ubuntu explicitly with wsl.exe -d Ubuntu; original distro and data remain installed.",
+    "dataDeleted": false,
+    "distroUnregistered": false
+  },
+  "fullSampleLocation": "Private session workspace; app process metadata omitted from public pack"
+}
