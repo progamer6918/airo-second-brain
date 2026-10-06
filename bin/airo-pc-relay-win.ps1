@@ -6,9 +6,36 @@ $AIRO_SCP_EXE = "$env:WINDIR\System32\OpenSSH\scp.exe"
 function Invoke-AiroRemoteCommand([string]$RemoteCommand) {
     $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($RemoteCommand.Replace("`r`n", "`n").Replace("`r", "`n")))
     $remoteWrapper = "printf '%s' '$encodedCommand' | base64 -d | bash"
-    $result = & $AIRO_SSH_EXE -i $SSH_KEY -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=8 "$VPS_USER@$VPS_HOST" $remoteWrapper
-    if ($LASTEXITCODE -ne 0) { throw "SSH remote command failed (exit $LASTEXITCODE)" }
-    return $result
+    # Bound the entire SSH process, not just TCP connection establishment.
+    $nativeArgs = @('-i', $SSH_KEY, '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', 'ConnectTimeout=8', "$VPS_USER@$VPS_HOST", $remoteWrapper)
+    if (@($nativeArgs | Where-Object { $_.Contains('"') -or $_.EndsWith('\') }).Count) { throw 'Unsupported native SSH argument' }
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $AIRO_SSH_EXE
+    $startInfo.Arguments = (($nativeArgs | ForEach-Object { '"' + $_ + '"' }) -join ' ')
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.StandardOutputEncoding = [Text.Encoding]::UTF8
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    try {
+        if (-not $process.Start()) { throw 'Native SSH did not start' }
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit(20000)) {
+            $process.Kill()
+            $process.WaitForExit(2000) | Out-Null
+            throw 'Native SSH exceeded 20 second deadline'
+        }
+        if (-not $stdout.Wait(2000) -or -not $stderr.Wait(2000)) { throw 'Native SSH output did not close' }
+        if ($process.ExitCode -ne 0) { throw "SSH remote command failed (exit $($process.ExitCode))" }
+        $outputText = $stdout.Result.TrimEnd([char[]]"`r`n")
+        if ($outputText) { return ($outputText -split "`r?`n") }
+    } finally {
+        $process.Dispose()
+    }
 }
 # bin/airo-pc-relay-win.ps1 — Native Windows PC Computer Use & Desktop Relay for AIRO Hermes
 # Architecture: Zero-dependency .NET / Win32 API Engine (PowerShell Host)
