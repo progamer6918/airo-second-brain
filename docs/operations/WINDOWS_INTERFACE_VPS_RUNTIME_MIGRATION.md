@@ -1,6 +1,6 @@
 # Windows interface and VPS runtime migration
 
-Status: in progress, 2026-10-06. Owning ASB session:
+Status: migration acceptance verified, 2026-10-06; draft source review remains separate. Owning ASB session:
 `ab3f74fb-0535-4ab4-8751-c68af186164a`.
 
 ## Verified behavior
@@ -79,15 +79,50 @@ source. Do not run two pollers for the same bot token.
 Keep the Windows relay in UTF-8 with BOM for Windows PowerShell 5. Normalize remote
 Bash payload line endings to LF before encoding/transmitting them.
 
-## Remaining acceptance checks
+## WSL on-demand acceptance and observed RAM
 
-- Owner disposition for the separate `earnsai-pulse-trading` paper-control bot
-  still running in WSL; it is distinct from the retired hourly paper cron.
-- WSL shutdown/on-demand behavior, remaining wake triggers, and fair RAM comparison.
-- Representative interface use while WSL remains stopped.
-- Real logoff/reboot recovery and complete relay actuator suite remain untested.
-- Review/publication of scoped source; unrelated preexisting dirty changes are
-  preserved separately rather than silently included.
+Owner retired the distinct paper-control bot. Before and final encrypted backups
+restored all 186 files with matching hashes; graceful process exit and absent tmux
+session were verified. Both offhost ciphertext checksums match. No source/data
+was deleted, and no automatic launcher was found for that bot.
 
-Do not unregister/uninstall WSL, delete old data, purchase capacity, or change
-account access under this migration without separate Owner approval.
+WSL was shut down after the final workload retired. Native SSH/SCP, the actual
+Windows Obsidian executable and Windows vault read, a fresh 3200x1080 relay queue
+capture, and a full scheduled encrypted backup worked while no distro or VM
+process was running. The backup exited 0 and verified restore and VPS checksum.
+The old Windows WSL listener/sync wrappers are disabled. Enabled AIRO startup
+entries point to native executables. The named Ubuntu Obsidian shortcut remains
+an explicit optional WSL launcher; use the registered native Windows Obsidian
+shortcut for ordinary interface use.
+
+The first post-shutdown queue test exposed an already-hung native SSH process:
+Running task state alone was insufficient evidence. The relay now bounds the
+whole SSH process to 20 seconds, retains strict host checking, and reads stdout
+and stderr asynchronously. A deliberate finite slow command hit the deadline at
+20.03 seconds. The real Windows PowerShell 5 relay then completed a fresh capture.
+The first four-second restart observation rolled back conservatively; subsequent
+deployment waited for actual scheduler stop/new-process state and passed.
+Ancient in-progress queue items were preserved, not replayed or deleted.
+
+Three samples on each side of shutdown, two seconds apart with five seconds of
+settling, used identical tracked application process IDs. Median WSL working set
+fell from 280,248,320 bytes (267.27 MiB) to zero. Free physical RAM rose from
+3,846,389,760 to 4,497,838,080 bytes, an observed increase of 621.27 MiB. Tracked
+application working set changed by about 17 MiB. This short comparison does not
+prove historical peak usage, leaks, or that every freed byte belongs to WSL.
+
+Rollback for on-demand Linux is explicit `wsl.exe -d Ubuntu`; the distro and data
+remain installed. Retired jobs remain disabled when Linux is started.
+
+## Practical limits
+
+Real logoff/reboot recovery and the complete relay actuator suite were not
+exercised. Verification covers the configured startup paths, duplicate-trigger
+handling, native transport, real queue/capture, native vault launch/read, and
+scheduled backup. Offsite ciphertext requires the recovery key retained on the
+PC; independent key escrow remains an Owner decision. No paid capacity, account
+access changes, WSL unregister/uninstall, or old-data deletion were performed.
+
+This source review remains a draft PR; it does not promote main or unrelated
+preexisting dirty legacy source. Runtime-specific private configuration, state,
+and rollback source are preserved in the approved private archives.
