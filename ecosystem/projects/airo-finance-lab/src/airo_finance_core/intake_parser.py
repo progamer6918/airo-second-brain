@@ -81,6 +81,51 @@ def amount(text):
     return None
 
 
+def time_in(text):
+    """Return an explicit owner time; colloquial hours have minute precision."""
+    lower = text.lower()
+    match = re.search(
+        r"\b(?:jam\s+|pukul\s+)?([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\b", lower
+    )
+    if match:
+        return (
+            int(match[1]),
+            int(match[2]),
+            int(match[3] or 0),
+            "SECOND" if match[3] else "MINUTE",
+        )
+    match = re.search(
+        r"\b(?:jam|pukul)\s+(1[0-2]|[1-9])\s+(pagi|siang|sore|malam)\b", lower
+    )
+    if not match:
+        return None
+    hour = int(match[1])
+    period = match[2]
+    if hour < 12 and (
+        period == "sore"
+        or (period == "siang" and hour < 7)
+        or (period == "malam" and hour >= 6)
+    ):
+        hour += 12
+    elif period in ("pagi", "malam") and hour == 12:
+        hour = 0
+    return hour, 0, 0, "MINUTE"
+
+
+def is_context_line(text):
+    """Recognize batch instructions and context, not incomplete transaction rows."""
+    return bool(
+        re.search(
+            r"^(?:buat\s+(?:draft|rekap|batch)|tampilkan\b|kalau\b.*(?:detail|tanya|jelas)|"
+            r"jangan\s+(?:simpan|catat|eksekusi)\b|(?:semua|seluruh)\s+(?:transaksi|tanggal|jam)\b|"
+            r"(?:jam|pukul)\s+(?:tidak diketahui|\d)|penerimaan\s+dari\b.*\badalah\b|"
+            r"alokasi\s+anggaran\b|patokan\s+rekap\b)",
+            text.strip(),
+            re.I,
+        )
+    )
+
+
 def date_in(text, now=None):
     now = now or datetime.now(ZONE)
     lower = text.lower()
@@ -250,15 +295,15 @@ def parse_line(engine, text, common_date=None, now=None, batch=False):
     occurred = None
     precision = "DATE"
     time_source = None
-    tm = re.search(r"\b(?:jam\s+)?([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\b", lower)
+    tm = time_in(lower)
     if not txdate and not batch and not old:
         txdate = now.date().isoformat()
         occurred = now.isoformat()
         precision = "ESTIMATED"
         time_source = "TELEGRAM_MESSAGE"
-    elif txdate and tm:
-        occurred = f'{txdate}T{int(tm[1]):02}:{tm[2]}:{tm[3] or "00"}+07:00'
-        precision = "SECOND" if tm[3] else "MINUTE"
+    if txdate and tm:
+        occurred = f"{txdate}T{tm[0]:02}:{tm[1]:02}:{tm[2]:02}+07:00"
+        precision = tm[3]
         time_source = "OWNER"
     counterparty = None
     if income:
@@ -330,6 +375,13 @@ def parse_line(engine, text, common_date=None, now=None, batch=False):
 
 
 def parse_batch(engine, text, now=None):
+    requires_preview = bool(
+        re.search(
+            r"\b(?:draft|rekap|rekapan|jangan|persetujuan)\b|^\s*\d+[.)]",
+            text,
+            re.I | re.M,
+        )
+    )
     lines = [
         re.sub(r"^\s*(?:[-•]|\d+[.)])\s*", "", s).strip()
         for s in re.split(r"[\n;]", text)
@@ -347,14 +399,34 @@ def parse_batch(engine, text, now=None):
     lines = expanded
     entries = []
     common = None
+    common_time = None
     for line in lines:
         d = date_in(line, now)
-        if amount(line) is None and d:
-            common = d
+        context = (
+            is_context_line(line)
+            and amount(line) is None
+            and not account_matches(engine, line)
+        )
+        if context or (amount(line) is None and d):
+            if d:
+                common = d
+            if "jam tidak diketahui" in line.lower():
+                common_time = None
+            elif time_in(line):
+                common_time = time_in(line)
             continue
         if amount(line) is None and re.match(
             r"^(transaksi|rekap|catat|batch)", line, re.I
         ):
             continue
-        entries.append(parse_line(engine, line, common, now, batch=len(lines) > 1))
+        entry = parse_line(engine, line, common, now, batch=len(lines) > 1)
+        entry["requires_preview"] = requires_preview or len(lines) > 1
+        if common_time and entry.get("date") and not entry.get("occurred_at"):
+            hour, minute, second, precision = common_time
+            entry.update(
+                occurred_at=f"{entry['date']}T{hour:02}:{minute:02}:{second:02}+07:00",
+                time_precision=precision,
+                time_source="OWNER",
+            )
+        entries.append(entry)
     return entries

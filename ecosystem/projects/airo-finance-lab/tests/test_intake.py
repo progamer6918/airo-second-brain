@@ -70,6 +70,159 @@ class Intake(unittest.TestCase):
     def balances(self):
         return {a.name: a.balance for a in self.e.list_accounts()}
 
+    def test_instruction_wrapped_numbered_batch_has_exactly_twenty_rows(self):
+        text = (
+            "Buat draft batch berikut. Semua transaksi tanggal 7 Oktober 2026; jam tidak diketahui.\n"
+            "Tampilkan satu rekapan sebelum menyimpan. Kalau ada detail belum jelas, tanyakan sekaligus. Jangan simpan sebelum persetujuan.\n"
+            + "\n".join(
+                f"{i}. Blu terima Rp{100+i}.000 dari Nora untuk rumah."
+                for i in range(1, 21)
+            )
+            + "\nPenerimaan dari Nora adalah kontribusi rumah tangga, bukan pencatatan gaji. Alokasi anggaran bukan bukti pengeluaran sudah terjadi."
+        )
+        b = self.draft(text)
+        rows = self.s.rows(b)
+        self.assertEqual([r["number"] for r in rows], list(range(1, 21)))
+        self.assertEqual(
+            [r["data"]["amount"] for r in rows],
+            [(100 + i) * 1000 for i in range(1, 21)],
+        )
+        self.assertTrue(all(r["data"]["date"] == "2026-10-07" for r in rows))
+        self.assertTrue(all(r["data"]["occurred_at"] is None for r in rows))
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+
+    def test_incomplete_numbered_transactions_are_not_context(self):
+        entries = parse_batch(
+            self.e,
+            "Buat draft batch berikut\n1. Blu bayar makan malam\n2. terima 99rb dari Nora",
+        )
+        self.assertEqual(len(entries), 2)
+        self.assertIsNone(entries[0]["amount"])
+        self.assertIsNone(entries[1]["account_id"])
+
+    def test_shared_natural_time_header(self):
+        entries = parse_batch(
+            self.e,
+            "Semua transaksi tanggal 7 Oktober 2026 jam 5 sore\n1. Blu bayar 12rb makan siang\n2. Gether bayar 22rb makan malam",
+        )
+        self.assertEqual(len(entries), 2)
+        self.assertTrue(
+            all(d["occurred_at"] == "2026-10-07T17:00:00+07:00" for d in entries)
+        )
+        self.assertTrue(
+            all(
+                d["time_precision"] == "MINUTE" and d["time_source"] == "OWNER"
+                for d in entries
+            )
+        )
+
+    def test_shared_time_answer_and_numbered_exception_survive_restart(self):
+        b = self.draft(
+            "tanggal 7 Oktober 2026\nBlu bayar 12rb makan siang\nGether bayar 22rb makan malam"
+        )
+        before = [
+            (
+                r["data"]["amount"],
+                r["data"]["account_id"],
+                r["data"]["subcategory_name"],
+            )
+            for r in self.s.rows(b)
+        ]
+        self.assertTrue(
+            self.s.update_text(
+                b, "untuk jam samakan semua jam 5 sore; no. 2 jam 18:04:09"
+            )
+        )
+        self.db.close()
+        self.db = DatabaseManager(self.path)
+        self.e = FinanceCoreEngine(self.db)
+        self.s = IntakeService(self.e)
+        rows = self.s.rows(b)
+        self.assertEqual(rows[0]["data"]["occurred_at"], "2026-10-07T17:00:00+07:00")
+        self.assertEqual(rows[1]["data"]["occurred_at"], "2026-10-07T18:04:09+07:00")
+        self.assertEqual(rows[1]["data"]["time_precision"], "SECOND")
+        after = [
+            (
+                r["data"]["amount"],
+                r["data"]["account_id"],
+                r["data"]["subcategory_name"],
+            )
+            for r in rows
+        ]
+        self.assertEqual(before, after)
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+
+    def test_noon_and_night_natural_time(self):
+        for text, expected in [
+            ("jam 11 siang", "11:00:00"),
+            ("jam 1 malam", "01:00:00"),
+            ("jam 12 malam", "00:00:00"),
+        ]:
+            data = parse_line(
+                self.e, "Blu bayar 12rb makan siang tanggal 7 Oktober 2026 " + text
+            )
+            self.assertEqual(data["occurred_at"], "2026-10-07T" + expected + "+07:00")
+
+    def test_single_transaction_with_draft_instructions_needs_preview(self):
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        with patch("airo_finance_core.intake_semantic.enrich", return_value=False):
+            result = router.handle_update(
+                {
+                    "message": {
+                        "message_id": 88,
+                        "from": {"id": 1},
+                        "chat": {"id": 1},
+                        "text": "Buat draft batch berikut tanggal 7 Oktober 2026\nJangan simpan sebelum persetujuan.\n1. Blu bayar 12rb makan siang",
+                    }
+                }
+            )
+        self.assertEqual(result[1], "BATCH_DRAFT_UPDATED")
+        batch = self.s.conn.execute("SELECT id FROM intake_batches").fetchone()[0]
+        self.assertEqual(len(self.s.rows(batch)), 1)
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+        self.assertEqual(
+            len(
+                self.s.commit(batch, "1", confirm_suggestions=True)["new_transactions"]
+            ),
+            1,
+        )
+
+    def test_natural_time_reply_uses_existing_batch_without_posting(self):
+        b = self.draft(
+            "tanggal 7 Oktober 2026\nBlu bayar 12rb makan siang\nGether bayar 22rb makan malam"
+        )
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        result = router.handle_update(
+            {
+                "message": {
+                    "message_id": 89,
+                    "from": {"id": 1},
+                    "chat": {"id": 1},
+                    "text": "samakan aja jam 5 sore",
+                }
+            }
+        )
+        self.assertEqual(result[1], "BATCH_DRAFT_UPDATED")
+        self.assertTrue(
+            all(
+                r["data"]["occurred_at"] == "2026-10-07T17:00:00+07:00"
+                for r in self.s.rows(b)
+            )
+        )
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+
     def test_twenty_rows_no_loss_dates_and_no_salary(self):
         text = "\n".join(
             "blu terima " + str(100 + i) + "rb dari Nora untuk rumah" for i in range(20)

@@ -260,7 +260,7 @@ class IntakeRouter:
             ).fetchone()
             if r and (
                 re.search(
-                    r"\b(no\.?|nomor|semua|tanggal|pecah|sudah tercatat|bukan transaksi|simpan|sudah ganti|lanjut batch|iya|betul)\b",
+                    r"\b(no\.?|nomor|semua|tanggal|jam|pukul|pecah|sudah tercatat|bukan transaksi|simpan|sudah ganti|lanjut batch|iya|betul)\b",
                     lower,
                 )
                 or (
@@ -385,6 +385,7 @@ class IntakeRouter:
                 rows = self.s.rows(batch)
                 if (
                     len(rows) == 1
+                    and not rows[0]["data"].get("requires_preview")
                     and not self.s.issues(rows[0]["data"], rows[0]["id"])
                     and not rows[0]["data"].get("proposed_category")
                     and not rows[0]["data"].get("proposed_subcategory")

@@ -228,6 +228,24 @@ class IntakeService:
                     data["time_precision"] = "DATE"
                     self._update(row, data)
                     changed = True
+            prefix = lower[: explicit[0].start()] if explicit else lower
+            shared_time = (
+                parser.time_in(prefix)
+                if (not explicit or re.search(r"\bsemua\b", prefix))
+                else None
+            )
+            if shared_time:
+                hour, minute, second, precision = shared_time
+                for row in self.rows(batch):
+                    if row["status"] == "DRAFT" and row["data"].get("date"):
+                        data = dict(row["data"])
+                        data.update(
+                            occurred_at=f"{data['date']}T{hour:02}:{minute:02}:{second:02}+07:00",
+                            time_precision=precision,
+                            time_source="OWNER",
+                        )
+                        self._update(row, data)
+                        changed = True
             rows = self.rows(batch)
             for row in rows:
                 if row["status"] != "DRAFT":
@@ -260,13 +278,11 @@ class IntakeService:
                 )
                 if d and not funding_answer:
                     data.update(date=d, occurred_at=None, time_precision="DATE")
-                tm = re.search(
-                    r"\b(?:jam\s+)?([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\b", part
-                )
+                tm = parser.time_in(part)
                 if tm and data.get("date") and not funding_answer:
                     data.update(
-                        occurred_at=f"{data['date']}T{int(tm[1]):02}:{tm[2]}:{tm[3] or '00'}+07:00",
-                        time_precision="SECOND" if tm[3] else "MINUTE",
+                        occurred_at=f"{data['date']}T{tm[0]:02}:{tm[1]:02}:{tm[2]:02}+07:00",
+                        time_precision=tm[3],
                         time_source="OWNER",
                     )
                 if re.search(

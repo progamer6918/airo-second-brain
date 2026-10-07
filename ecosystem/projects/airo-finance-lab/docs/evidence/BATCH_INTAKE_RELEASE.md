@@ -13,3 +13,9 @@ The wider suite has pre-existing failures. A clean snapshot of the previous depl
 Observation remains active for seven days. This evidence does not assert seven days have elapsed or that model accuracy has been established. Card corrections/cancellations retain the existing card editor. Ambiguous multi-amount input remains a draft until its payment details are complete.
 
 Rollback restores code while preserving the current SQLite database; migrations are additive. Never overwrite new transactions with an older backup. No database, credentials, full email body or real transaction fixture is included here.
+
+## Live acceptance regression repair
+
+Instruction paragraphs and time-only metadata no longer create phantom transaction rows. Numbered and explicitly requested drafts retain their review requirement even when only one transaction remains. Shared owner times support Indonesian day periods and numbered exceptions, persist after restart, and never trigger ledger posting.
+
+Validation: 93 relevant tests passed. The affected live draft was repaired in place from 23 rows to its 20 actual rows, with existing item identities preserved. All account balances and ledger records remained unchanged. A consistent private SQLite backup and source backup preceded deployment.
