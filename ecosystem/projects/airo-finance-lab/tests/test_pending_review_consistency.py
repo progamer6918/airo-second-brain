@@ -6,6 +6,10 @@ from airo_finance_core.gmail_intelligence import GmailIntelligenceService
 from airo_finance_core.telegram_ingress import FinanceTelegramIngressRouter
 
 class MockTelegramOutbound:
+    def transport(self, method, payload):
+        payload = dict(payload); payload.pop('parse_mode', None)
+        return {'sendMessage': self.send_message, 'editMessageText': self.edit_message_text}[method](**payload)
+
     def __init__(self):
         self.sent_messages = []
         self.edited_messages = []
@@ -119,6 +123,13 @@ class TestPendingReviewConsistency(unittest.TestCase):
         pending_card_text = self.outbound.sent_messages[-1]["text"]
         self.assertIn("Pending Review Center", pending_card_text)
         self.assertIn("150.000", pending_card_text)
+
+        # Owner supplies the previously unknown funding account through Edit.
+        with self.db.get_connection():
+            parsed = json.loads(q_item.parsed_result)
+            parsed['account_id'] = self.acc.id
+            parsed['direction_known'] = True
+            self.db.get_connection().execute('UPDATE review_queue SET parsed_result=? WHERE id=?', (json.dumps(parsed),review_id))
 
         # Step 4: Simulate owner approving the review item via callback (gma:<review_id>)
         self.outbound.edited_messages.clear()
