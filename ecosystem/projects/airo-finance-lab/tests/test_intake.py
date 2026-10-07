@@ -804,6 +804,51 @@ class Intake(unittest.TestCase):
             0,
         )
 
+    def test_same_amount_distinct_monthly_purposes_save_together(self):
+        b = self.draft(
+            "tanggal 3 Oktober 2026\ngether terima 50rb dari Nora untuk listrik\ngether terima 50rb dari Nora untuk darurat\ngether terima 50rb dari Nora untuk barber"
+        )
+        self.assertEqual(len(self.s.commit(b, "1")["new_transactions"]), 3)
+        self.assertEqual(
+            self.e.get_account(self.accounts["Blu Gether"].id).balance, 1150000
+        )
+        repeated = self.draft(
+            "tanggal 4 Oktober 2026\nblu bayar 12rb makan siang\nblu bayar 12rb makan siang",
+            key="repeat",
+        )
+        self.assertEqual(len(self.s.commit(repeated, "1")["new_transactions"]), 1)
+        self.s.update_text(repeated, "no. 2 ini kejadian baru")
+        self.assertEqual(len(self.s.commit(repeated, "1")["new_transactions"]), 1)
+
+    def test_web_approval_between_draft_and_save_cannot_repost_source(self):
+        category = self.e.get_category_by_name("Makanan & Minuman")
+        review = self.e.enqueue_review_item(
+            "Gmail reference: synthetic",
+            {
+                "amount": 12000,
+                "account_id": self.accounts["Blu"].id,
+                "account_name": "Blu",
+                "direction": "EXPENSE",
+                "direction_known": True,
+                "date": "2026-10-03",
+                "note": "Example Merchant",
+                "merchant": "Example Merchant",
+                "category_id": category.id,
+                "category_name": category.name,
+            },
+            0.8,
+        )
+        batch = self.s.from_review("1", review.id)
+        self.e.approve_review_item(review.id)
+        self.s.update_text(batch, "no. 1 ini kejadian baru")
+        self.assertFalse(
+            self.s.commit(batch, "1", confirm_suggestions=True)["new_transactions"]
+        )
+        self.assertEqual(self.s.rows(batch)[0]["status"], "LINKED")
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

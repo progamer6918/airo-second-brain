@@ -56,6 +56,20 @@ class IntakeService:
             entries = [
                 suggest(self, historical_suggestion(self.engine, d)) for d in entries
             ]
+        from .intake_learning import features
+
+        seen = set()
+        for data in entries:
+            signature = dump(
+                {
+                    "features": features(data),
+                    "date": data.get("date"),
+                    "occurred_at": data.get("occurred_at"),
+                }
+            )
+            if signature in seen:
+                data["possible_duplicate_in_batch"] = True
+            seen.add(signature)
         batch = uid()
         digest = hashlib.sha256(text.lower().strip().encode()).hexdigest()
         with self.db.atomic():
@@ -419,6 +433,10 @@ class IntakeService:
         )
         if not acc or not acc.is_active:
             reasons.append("akun")
+        if data.get("possible_duplicate_in_batch") and not data.get(
+            "duplicate_confirmed"
+        ):
+            reasons.append("kemungkinan baris berulang; konfirmasi kejadian berbeda")
         if data.get("multiple_amounts") and not data.get("lines"):
             reasons.append(
                 "beberapa nominal satu baris; pisahkan atau pecah pembayaran"
@@ -521,6 +539,16 @@ class IntakeService:
                     (item_id or "",),
                 )
             }
+            # Distinct numbered rows from this same message are separate declared events.
+            # Exact repeated rows were flagged before any posting, above.
+            if item_id:
+                own.update(
+                    r[0]
+                    for r in self.conn.execute(
+                        "SELECT t.transaction_id FROM intake_transactions t JOIN intake_items i ON i.id=t.item_id WHERE i.batch_id=(SELECT batch_id FROM intake_items WHERE id=?)",
+                        (item_id,),
+                    )
+                )
             if any(r["id"] not in own for r in existing):
                 reasons.append("kemungkinan sudah tercatat")
         return sorted(set(reasons))
@@ -644,6 +672,29 @@ class IntakeService:
                 d = row["data"]
                 if row["status"] != "DRAFT" or row["number"] in exclude:
                     continue
+                # Web approval and chat drafts share the same source guard under this write lock.
+                if d.get("review_id"):
+                    source = self.engine.get_review_queue_item(d["review_id"])
+                    if not source or source.status != "PENDING":
+                        if (
+                            source
+                            and source.status == "APPROVED"
+                            and source.approved_transaction_id
+                        ):
+                            self.conn.execute(
+                                "INSERT OR IGNORE INTO intake_transactions VALUES (?,?,?)",
+                                (row["id"], source.approved_transaction_id, "EXISTING"),
+                            )
+                            self.conn.execute(
+                                "UPDATE intake_items SET status='LINKED' WHERE id=?",
+                                (row["id"],),
+                            )
+                        else:
+                            self.conn.execute(
+                                "UPDATE intake_items SET status='IGNORED' WHERE id=?",
+                                (row["id"],),
+                            )
+                        continue
                 if confirm_suggestions:
                     d = dict(d, facts_confirmed=True, semantic_review_required=False)
                 if self.issues(d, row["id"]):
