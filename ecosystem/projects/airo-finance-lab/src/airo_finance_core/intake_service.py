@@ -538,7 +538,11 @@ class IntakeService:
                     and line.get("funding_date")
                 )
             ):
-                reasons.append("bukti pendanaan " + str(index + 1))
+                reasons.append(
+                    "transfer sudah dikonfirmasi; menunggu rekonsiliasi ledger " + str(index + 1)
+                    if line.get("funding_mode") == "TRANSFER_CONFIRMED"
+                    else "bukti pendanaan " + str(index + 1)
+                )
         funding_totals = {}
         for index, line in enumerate(lines):
             fid = self.funding_match(data, line, index)

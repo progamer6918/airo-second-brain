@@ -142,6 +142,22 @@ class Intake(unittest.TestCase):
         self.assertTrue(all(len(row)==1 for row in rows))
         self.assertEqual([row[0]["text"] for row in rows], ["✅ Setujui", "📝 Catatan / pecah", "🔗 Sudah tercatat", "🚫 Bukan transaksi"])
 
+    def test_confirmed_transfer_without_ledger_is_not_asked_again_or_created(self):
+        review = self.email_fixture("funding-ack")
+        batch = self.s.from_review("1", review.id)
+        self.s.update_text(batch, "no 1 makan malam dari blu gether")
+        self.s.update_text(batch, "no 1 sudah ditransfer")
+        row = self.s.rows(batch)[0]
+        self.assertEqual(row["data"]["funding_mode"], "TRANSFER_CONFIRMED")
+        self.assertIsNone(row["data"].get("funding_date"))
+        issues = self.s.issues(row["data"], row["id"])
+        self.assertTrue(any("menunggu rekonsiliasi" in x for x in issues))
+        self.assertFalse(any(x.startswith("bukti pendanaan") for x in issues))
+        preview = self.s.preview(batch)
+        self.assertNotIn("sudah transfer atau", preview)
+        self.assertEqual(self.s.commit(batch, "1")["new_transactions"], [])
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+
     def test_instruction_wrapped_numbered_batch_has_exactly_twenty_rows(self):
         text = (
             "Buat draft batch berikut. Semua transaksi tanggal 7 Oktober 2026; jam tidak diketahui.\n"
