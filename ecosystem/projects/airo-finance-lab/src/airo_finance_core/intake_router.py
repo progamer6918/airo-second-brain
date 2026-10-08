@@ -2,7 +2,8 @@
 
 import json, re, time
 from datetime import datetime
-from .intake_parser import amount, ZONE
+from .intake_parser import amount, time_in, ZONE
+from .telegram_capture import format_idr
 from .intake_service import IntakeService
 from .gmail_reliability import enqueue, dispatch
 from .intake_store import uid
@@ -13,15 +14,37 @@ class IntakeRouter:
         self.parent = parent
         self.s = IntakeService(parent.engine)
 
-    def send_preview(self, batch, owner, message_id=None, page=0):
+    def send_preview(
+        self, batch, owner, message_id=None, page=0, editing=False, notice=None
+    ):
+        rows = self.s.rows(batch)
+        ready = sum(
+            r["status"] == "DRAFT" and not self.s.issues(r["data"], r["id"])
+            for r in rows
+        )
+        preview = self.s.preview(batch, page)
+        if editing:
+            preview = (
+                f"✏️ Ubah transaksi — {batch[:6]}\n\n"
+                "Balas pesan ini dengan perubahan yang lo mau. Bisa beberapa perubahan sekaligus.\n\n"
+                "Contoh:\n• Semua jam jadi 17.30\n• No. 3 nominalnya 25rb\n• No. 4 dari Blu Saving\n• No. 5 tanggal 8 Oktober\n\n"
+                "Hermes akan menyebut perubahan yang berhasil diterapkan dan menampilkan rekapan baru untuk dicek. "
+                "Belum ada perubahan disimpan."
+            )
+        elif notice:
+            preview = notice + "\n\n" + preview
         payload = {
             "chat_id": str(owner),
-            "text": self.s.preview(batch, page),
+            "text": preview,
             "reply_markup": {
                 "inline_keyboard": [
                     [
                         {
-                            "text": "✅ Simpan yang siap",
+                            "text": (
+                                f"✅ Simpan {ready} transaksi"
+                                if ready
+                                else "✅ Simpan yang siap"
+                            ),
                             "callback_data": "bi:save:" + batch,
                         },
                         {
@@ -29,12 +52,27 @@ class IntakeRouter:
                             "callback_data": "bi:later:" + batch,
                         },
                     ],
-                    [{"text": "✏️ Koreksi", "callback_data": "bi:edit:" + batch}],
+                    [
+                        {
+                            "text": "✏️ Ubah transaksi",
+                            "callback_data": "bi:edit:" + batch,
+                        }
+                    ],
                 ]
             },
         }
-        pages = max(1, (len(self.s.rows(batch)) + 19) // 20)
-        if pages > 1:
+        if editing:
+            payload["reply_markup"]["inline_keyboard"] = [
+                [
+                    {
+                        "text": "↩️ Kembali ke rekapan",
+                        "callback_data": f"bi:page:{batch}:0",
+                    }
+                ],
+                [{"text": "🕒 Lanjut nanti", "callback_data": "bi:later:" + batch}],
+            ]
+        pages = max(1, (len(rows) + 19) // 20)
+        if pages > 1 and not editing:
             payload["reply_markup"]["inline_keyboard"].append(
                 [
                     {"text": "◀️", "callback_data": f"bi:page:{batch}:{max(0,page-1)}"},
@@ -79,6 +117,64 @@ class IntakeRouter:
                         "INSERT OR REPLACE INTO intake_prompts VALUES (?,?,?)",
                         (str(owner), str(sent), batch),
                     )
+
+    def change_notice(self, before_rows, after_rows):
+        before = {r["id"]: r["data"] for r in before_rows}
+        changes = {}
+        changed_numbers = []
+        labels = {
+            "occurred_at": "jam",
+            "date": "tanggal",
+            "amount": "nominal",
+            "account_name": "akun",
+            "category_name": "kategori",
+            "subcategory_name": "subkategori",
+            "note": "catatan",
+        }
+        for row in after_rows:
+            old = before.get(row["id"])
+            if old is None:
+                return "✅ Draft koreksi dibuat. Periksa rekapan; perubahan belum disimpan."
+            if old != row["data"]:
+                changed_numbers.append(row["number"])
+            for field, label in labels.items():
+                previous, current = old.get(field), row["data"].get(field)
+                if previous == current:
+                    continue
+
+                def display(value):
+                    if value is None:
+                        return "belum diisi"
+                    if field == "occurred_at":
+                        end = 19 if str(value)[17:19] != "00" else 16
+                        return str(value)[11:end].replace(":", ".") + " WIB"
+                    if field == "amount":
+                        return format_idr(value)
+                    return str(value)[:60]
+
+                key = label, display(previous), display(current)
+                changes.setdefault(key, []).append(row["number"])
+        if not changes and changed_numbers:
+            return (
+                "✅ Detail draft no. "
+                + ", ".join(map(str, changed_numbers))
+                + " diperbarui. Periksa rekapan; belum disimpan."
+            )
+        if not changes:
+            return "ℹ️ Belum ada perubahan. Kalau hasilnya belum sesuai, sebut nomor dan detail yang diubah; contoh: no. 3 nominalnya 25rb."
+        lines = ["✅ Perubahan diterapkan ke draft:"]
+        for (label, previous, current), numbers in changes.items():
+            scope = (
+                f"Semua {len(numbers)} transaksi"
+                if len(numbers) == len(after_rows)
+                else "No. " + ", ".join(map(str, numbers))
+            )
+            lines.append(f"• {scope}: {label} {previous} → {current}")
+        lines.append("Belum disimpan. Periksa rekapan di bawah.")
+        result = "\n".join(lines)
+        if len(result) > 700:
+            return f"✅ Detail {len(changed_numbers)} transaksi diperbarui. Periksa perubahan di rekapan; belum disimpan."
+        return result
 
     def handle(self, update):
         cq = update.get("callback_query")
@@ -185,14 +281,18 @@ class IntakeRouter:
                         "INSERT INTO intake_context VALUES (?,?,?) ON CONFLICT(owner) DO UPDATE SET batch_id=excluded.batch_id,mode=excluded.mode",
                         (owner, batch, "DETAIL"),
                     )
-                self.send_preview(batch, owner, msg.get("message_id"))
+                self.send_preview(batch, owner, msg.get("message_id"), editing=True)
             if self.parent.outbound:
                 self.parent.outbound.answer_callback_query(
                     cq["id"],
                     text=(
                         "Draft tersimpan; proses selesai"
                         if action == "later"
-                        else "Rekapan diperbarui"
+                        else (
+                            "Tulis perubahan lewat balasan chat"
+                            if action == "edit"
+                            else "Rekapan diperbarui"
+                        )
                     ),
                 )
             return True, "BATCH_" + action.upper()
@@ -282,6 +382,7 @@ class IntakeRouter:
                     "⛔ Akses Ditolak: hanya Owner yang dapat mencatat transaksi.",
                 )
             return True, "BLOCKED_NON_OWNER_WRITE"
+        notice = None
         try:
             if batch:
                 if not self.s.owned(batch, owner):
@@ -332,6 +433,16 @@ class IntakeRouter:
                     dispatch(self.s.db, self.parent.outbound)
                     return True, "BATCH_COMMITTED"
                 else:
+                    before_rows = self.s.rows(batch)
+                    if re.search(
+                        r"\b(?:jam|pukul)\s+(?:(?:jd|jadi|ke)\s+)?\d", lower
+                    ) and not time_in(text):
+                        self.send_preview(
+                            batch,
+                            owner,
+                            notice="⚠️ Jam belum terbaca; belum ada perubahan. Contoh: semua jam jadi 17.30 atau no. 3 jam 5 sore.",
+                        )
+                        return True, "BATCH_TIME_NEEDS_DETAIL"
                     number = re.search(r"\b(?:no\.?|nomor)\s*(\d+)\b", lower)
                     posted = number and any(
                         r["number"] == int(number[1]) and r["status"] == "POSTED"
@@ -358,6 +469,7 @@ class IntakeRouter:
                         from .intake_semantic import enrich
 
                         enrich(self.s, batch, text)
+                    notice = self.change_notice(before_rows, self.s.rows(batch))
             else:
                 now = (
                     datetime.fromtimestamp(msg["date"], ZONE)
@@ -393,7 +505,7 @@ class IntakeRouter:
                     self.s.commit(batch, owner)
                     dispatch(self.s.db, self.parent.outbound)
                     return True, "BATCH_SINGLE_RECORDED"
-            self.send_preview(batch, owner)
+            self.send_preview(batch, owner, notice=notice)
             return True, "BATCH_DRAFT_UPDATED"
         except (ValueError, KeyError, TypeError) as exc:
             if self.parent.outbound:

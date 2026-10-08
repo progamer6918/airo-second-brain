@@ -629,14 +629,22 @@ class IntakeService:
             stamp = (
                 (
                     ("~" if d.get("time_precision") == "ESTIMATED" else "")
-                    + (d.get("occurred_at") or "")[11:19]
+                    + (d.get("occurred_at") or "")[
+                        11 : 16 if d.get("time_precision") == "MINUTE" else 19
+                    ]
                 )
                 if d.get("occurred_at")
                 else "jam tidak diketahui"
             )
             cat = d.get("subcategory_name") or d.get("category_name") or "?"
+            direction = {
+                "INCOME": "Pemasukan",
+                "EXPENSE": "Pengeluaran",
+                "TRANSFER": "Transfer",
+                "CC_PAYMENT": "Bayar kartu",
+            }.get(d.get("direction"), "? jenis")
             out.append(
-                f"{row['number']}. {d.get('date') or '? tanggal'} {stamp} · {amount} · {d.get('account_name') or '? akun'} · {d.get('direction')} · {str(cat)[:25]} · {str(d.get('purpose') or d.get('note') or '')[:40]} — {label}"
+                f"{row['number']}. {d.get('date') or '? tanggal'} {stamp} · {amount} · {d.get('account_name') or '? akun'} · {direction} · {str(cat)[:25]} · {str(d.get('purpose') or d.get('note') or '')[:40]} — {label}"
             )
             if d.get("proposed_category") or d.get("proposed_subcategory"):
                 proposals.setdefault(

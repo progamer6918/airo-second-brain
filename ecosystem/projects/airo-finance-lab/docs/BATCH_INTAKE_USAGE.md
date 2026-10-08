@@ -11,13 +11,15 @@ gether terima 203rb dari Partner untuk listrik
 gether terima 50rb dari Partner untuk listrik
 ```
 
-Hermes returns one numbered review. Reply to that message:
+Hermes returns one numbered review. **Ubah transaksi** opens a short instruction prompt with examples and a **Kembali ke rekapan** button. Reply to the prompt or directly to the numbered review:
 
 ```text
-no. 1 jam 12:04:09; no. 3 tanggal 5 Oktober 2026
+semua jam jd 17.30; no. 1 jam 12:04:09; no. 3 tanggal 5 Oktober 2026
 ```
 
-Choose **Simpan yang siap**, or reply `simpan yang siap kecuali 2`. Unresolved rows remain persistent drafts. Choosing this action also approves the displayed classification proposals. A complete single transaction with an existing classification can receive its receipt directly.
+Hermes identifies the values changed before presenting the updated review. An unrecognized time or a correction that changes no values receives explicit feedback. Dotted times require a time word (`jam 17.30`); currency dots stay currency separators. Owner-specified minute times display as `17:30`, without invented second precision. Editing never posts a transaction.
+
+Choose **Simpan N transaksi**, or reply `simpan yang siap kecuali 2`. Unresolved rows remain persistent drafts. Choosing this action also approves the displayed classification proposals. A complete single transaction with an existing classification can receive its receipt directly.
 
 For an aggregate bank payment, reply to its email card:
 

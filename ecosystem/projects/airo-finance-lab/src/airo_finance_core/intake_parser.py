@@ -84,6 +84,12 @@ def amount(text):
 def time_in(text):
     """Return an explicit owner time; colloquial hours have minute precision."""
     lower = text.lower()
+    # A dot is a clock separator only after an explicit time word, never in money.
+    lower = re.sub(
+        r"(\b(?:jam|pukul)\s+(?:(?:jd|jadi|ke)\s+)?)([01]?\d|2[0-3])\.([0-5]\d)(?!\d)",
+        r"\1\2:\3",
+        lower,
+    )
     match = re.search(
         r"\b(?:jam\s+|pukul\s+)?([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\b", lower
     )

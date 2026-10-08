@@ -19,3 +19,9 @@ Rollback restores code while preserving the current SQLite database; migrations 
 Instruction paragraphs and time-only metadata no longer create phantom transaction rows. Numbered and explicitly requested drafts retain their review requirement even when only one transaction remains. Shared owner times support Indonesian day periods and numbered exceptions, persist after restart, and never trigger ledger posting.
 
 Validation: 93 relevant tests passed. The affected live draft was repaired in place from 23 rows to its 20 actual rows, with existing item identities preserved. All account balances and ledger records remained unchanged. A consistent private SQLite backup and source backup preceded deployment.
+
+## Human-friendly edit acceptance
+
+The batch edit button now opens a reply prompt with examples and a return-to-review action. Corrections name the values actually changed; unrecognized times are rejected without mutation. Dotted Indonesian clock input is accepted in time context. Reviews use Indonesian transaction directions, minute-precision display and explicit save counts.
+
+Validation: 97 related tests passed, including edit callback, reply after restart, dotted-time updates, timestamp persistence on a mocked approval, invalid-time rejection, and explicit no-change feedback. The live draft time was corrected at the owner request without ledger writes.

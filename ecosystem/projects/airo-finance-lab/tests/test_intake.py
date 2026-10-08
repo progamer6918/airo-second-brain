@@ -11,7 +11,7 @@ from airo_finance_core import (
     GmailIntelligenceService,
 )
 from airo_finance_core.intake_service import IntakeService
-from airo_finance_core.intake_parser import parse_line, parse_batch, ZONE
+from airo_finance_core.intake_parser import parse_line, parse_batch, time_in, ZONE
 from airo_finance_core.intake_semantic import enrich
 from airo_finance_core.intake_learning import chronological_evaluation, activate
 from airo_finance_core.telegram_ingress import (
@@ -219,6 +219,151 @@ class Intake(unittest.TestCase):
                 for r in self.s.rows(b)
             )
         )
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+
+    def test_dotted_owner_time_formats_and_money_boundary(self):
+        for phrase in (
+            "semua jam jd 17.30",
+            "semua jam jadi 17.30",
+            "no. 2 pukul 17.30",
+            "semua jam 17:30",
+        ):
+            self.assertEqual(time_in(phrase), (17, 30, 0, "MINUTE"))
+        self.assertIsNone(time_in("nominal Rp17.300"))
+        self.assertIsNone(time_in("jam 17.300"))
+        self.assertIsNone(time_in("semua jam jd 17.99"))
+
+    def test_edit_button_opens_guidance_then_dotted_reply_updates_and_receipts(self):
+        b = self.draft(
+            "tanggal 7 Oktober 2026\nBlu bayar 12rb makan siang\nGether bayar 22rb makan malam"
+        )
+        self.s.update_text(b, "semua jam 17:00")
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        result = router.handle_update(
+            {
+                "callback_query": {
+                    "id": "edit-now",
+                    "data": "bi:edit:" + b,
+                    "from": {"id": 1},
+                    "message": {"message_id": 77, "chat": {"id": 1}},
+                }
+            }
+        )
+        self.assertEqual(result[1], "BATCH_EDIT")
+        prompts = [p for method, p in self.calls if method == "editMessageText"]
+        self.assertEqual(len(prompts), 1)
+        self.assertIn("Balas pesan ini", prompts[0]["text"])
+        self.assertIn("Semua jam jadi 17.30", prompts[0]["text"])
+        self.assertNotIn("1. 2026-10-07", prompts[0]["text"])
+        self.assertTrue(
+            all(
+                "bi:save:" not in button["callback_data"]
+                for row in prompts[0]["reply_markup"]["inline_keyboard"]
+                for button in row
+            )
+        )
+        reply_id = int(
+            self.s.conn.execute(
+                "SELECT message_id FROM intake_prompts WHERE batch_id=?", (b,)
+            ).fetchone()[0]
+        )
+        self.db.close()
+        self.db = DatabaseManager(self.path)
+        self.e = FinanceCoreEngine(self.db)
+        self.s = IntakeService(self.e)
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        self.calls.clear()
+        result = router.handle_update(
+            {
+                "message": {
+                    "message_id": 90,
+                    "from": {"id": 1},
+                    "chat": {"id": 1},
+                    "reply_to_message": {"message_id": reply_id},
+                    "text": "semua jam jd 17.30",
+                }
+            }
+        )
+        self.assertEqual(result[1], "BATCH_DRAFT_UPDATED")
+        self.assertTrue(
+            all(
+                r["data"]["occurred_at"] == "2026-10-07T17:30:00+07:00"
+                for r in self.s.rows(b)
+            )
+        )
+        messages = [p for method, p in self.calls if method == "sendMessage"]
+        self.assertEqual(len(messages), 1)
+        self.assertIn(
+            "Semua 2 transaksi: jam 17.00 WIB → 17.30 WIB", messages[0]["text"]
+        )
+        self.assertIn("17:30 ·", messages[0]["text"])
+        self.assertNotIn("17:30:00", messages[0]["text"])
+        self.assertIn("Pengeluaran", messages[0]["text"])
+        self.assertEqual(
+            messages[0]["reply_markup"]["inline_keyboard"][0][0]["text"],
+            "✅ Simpan 2 transaksi",
+        )
+        self.assertEqual(
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
+        )
+        self.s.commit(b, "1", confirm_suggestions=True)
+        self.assertEqual(
+            {r[0] for r in self.s.conn.execute("SELECT occurred_at FROM transactions")},
+            {"2026-10-07T17:30:00+07:00"},
+        )
+
+    def test_invalid_time_has_explicit_feedback_and_no_mutation(self):
+        b = self.draft(
+            "tanggal 7 Oktober 2026\nBlu bayar 12rb makan siang\nGether bayar 22rb makan malam"
+        )
+        self.s.update_text(b, "semua jam 17:00")
+        before = self.s.rows(b)
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        with patch("airo_finance_core.intake_semantic.enrich") as model:
+            result = router.handle_update(
+                {
+                    "message": {
+                        "message_id": 91,
+                        "from": {"id": 1},
+                        "chat": {"id": 1},
+                        "text": "semua jam jd 17.99",
+                    }
+                }
+            )
+            model.assert_not_called()
+        self.assertEqual(result[1], "BATCH_TIME_NEEDS_DETAIL")
+        self.assertEqual(before, self.s.rows(b))
+        self.assertIn(
+            "Jam belum terbaca; belum ada perubahan", self.calls[-1][1]["text"]
+        )
+
+    def test_unrecognized_edit_does_not_claim_update(self):
+        b = self.draft(
+            "tanggal 7 Oktober 2026\nBlu bayar 12rb makan siang\nGether bayar 22rb makan malam"
+        )
+        router = FinanceTelegramIngressRouter(
+            self.e, self.out, "1", auto_register_commands=False
+        )
+        with patch("airo_finance_core.intake_semantic.enrich", return_value=False):
+            router.handle_update(
+                {
+                    "message": {
+                        "message_id": 92,
+                        "from": {"id": 1},
+                        "chat": {"id": 1},
+                        "text": "no. 1 blablabla",
+                    }
+                }
+            )
+        self.assertIn("Belum ada perubahan", self.calls[-1][1]["text"])
         self.assertEqual(
             self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0
         )
