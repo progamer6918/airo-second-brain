@@ -1068,10 +1068,10 @@ class FinanceInsightsService:
                 profit_loss = val - purchase_cost
                 profit_loss_pct = (profit_loss / purchase_cost * 100.0) if purchase_cost > 0 else 0.0
                 
-                v_cur = conn.execute("SELECT id, valuation_date, value, reason FROM asset_valuation_history WHERE asset_id = ? ORDER BY valuation_date ASC", (r["id"],))
+                v_cur = conn.execute("SELECT * FROM asset_valuation_history WHERE asset_id = ? ORDER BY valuation_date ASC", (r["id"],))
                 v_rows = [dict(vr) for vr in v_cur.fetchall()]
                 
-                last_reason = v_rows[-1]["reason"] if v_rows else ""
+                last_reason = v_rows[-1]["reason"] or "" if v_rows else ""
                 last_date = v_rows[-1]["valuation_date"] if v_rows else (r.get("updated_at") or "")
                 source_match = re.search(r'\(([^)]+)\)', last_reason)
                 source_name = source_match.group(1) if source_match else "harga-emas.org"
@@ -1117,7 +1117,7 @@ class FinanceInsightsService:
                 remaining_installments = max(0, total_tenor - paid_count)
                 next_installment_num = paid_count + 1 if remaining_installments > 0 else total_tenor
                 
-                h_cur = conn.execute("SELECT payment_date, amount, principal_portion, interest_portion, notes FROM liability_payments WHERE liability_id = ? ORDER BY payment_date DESC LIMIT 12", (r["id"],))
+                h_cur = conn.execute("SELECT * FROM liability_payments WHERE liability_id = ? ORDER BY payment_date DESC LIMIT 12", (r["id"],))
                 h_rows = [dict(hr) for hr in h_cur.fetchall()]
                 
                 r["mortgage_details"] = {

@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 import os
 from typing import Optional
 from contextlib import contextmanager
@@ -15,6 +16,7 @@ class AtomicConnection(sqlite3.Connection):
 class DatabaseManager:
     def __init__(self, db_path: str = ':memory:'):
         self.db_path = db_path
+        self.lock = threading.RLock()
         self._conn: Optional[sqlite3.Connection] = None
 
     def get_connection(self) -> sqlite3.Connection:
@@ -80,6 +82,8 @@ class DatabaseManager:
         init(self)
         from .intake_store import init as init_intake
         init_intake(self)
+        from .temporal import init as init_temporal
+        init_temporal(self)
 
     def _ensure_column_exists(self, conn: sqlite3.Connection, table: str, column: str, col_def: str) -> None:
         cur = conn.execute(f"PRAGMA table_info({table})")
@@ -90,6 +94,12 @@ class DatabaseManager:
 
     @contextmanager
     def atomic(self):
+        with self.lock:
+            with self._atomic_unlocked() as conn:
+                yield conn
+
+    @contextmanager
+    def _atomic_unlocked(self):
         conn = self.get_connection()
         outer = conn.atomic_depth == 0
         if outer:

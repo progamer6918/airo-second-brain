@@ -315,7 +315,7 @@ class Intake(unittest.TestCase):
         self.s.commit(b, "1", confirm_suggestions=True)
         self.assertEqual(
             {r[0] for r in self.s.conn.execute("SELECT occurred_at FROM transactions")},
-            {"2026-10-07T17:30:00+07:00"},
+            {"2026-10-07T10:30:00+00:00"},
         )
 
     def test_invalid_time_has_explicit_feedback_and_no_mutation(self):
@@ -778,11 +778,12 @@ class Intake(unittest.TestCase):
         b = self.draft()
         r = self.s.commit(b, "1")
         row = self.s.conn.execute(
-            "SELECT occurred_at,time_precision,time_source FROM transactions WHERE id=?",
+            "SELECT occurred_at,time_precision,time_accuracy,time_source FROM transactions WHERE id=?",
             (r["new_transactions"][0],),
         ).fetchone()
-        self.assertEqual(row["time_precision"], "ESTIMATED")
-        self.assertTrue(row["occurred_at"].endswith("+07:00"))
+        self.assertEqual(row["time_precision"], "SECOND")
+        self.assertEqual(row["time_accuracy"], "ESTIMATED")
+        self.assertTrue(row["occurred_at"].endswith("+00:00"))
 
     def test_batch_callback_restart_and_owner_check(self):
         router = FinanceTelegramIngressRouter(
@@ -811,6 +812,7 @@ class Intake(unittest.TestCase):
     def test_approved_rule_requires_full_email_proof_and_disables_on_conflict(self):
         for i in range(5):
             b = self.draft(key="learn" + str(i))
+            self.s.update_text(b, "no. 1 jam 12:01:02")
             self.s.update_text(b, "no. 1 ini kejadian baru")
             self.s.commit(b, "1")
         rule = self.s.conn.execute("SELECT id FROM intake_rules").fetchone()[0]
@@ -960,8 +962,8 @@ class Intake(unittest.TestCase):
             "SELECT occurred_at,message_at,created_at,time_precision FROM transactions WHERE id=?",
             (r["new_transactions"][0],),
         ).fetchone()
-        self.assertEqual(tx["occurred_at"], "2026-10-03T12:04:09+07:00")
-        self.assertEqual(tx["message_at"], "2026-10-07T12:00:00+07:00")
+        self.assertEqual(tx["occurred_at"], "2026-10-03T05:04:09+00:00")
+        self.assertEqual(tx["message_at"], "2026-10-07T05:00:00+00:00")
         self.assertEqual(tx["time_precision"], "SECOND")
         self.assertNotEqual(tx["created_at"], tx["message_at"])
 

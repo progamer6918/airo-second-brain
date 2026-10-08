@@ -1,3 +1,4 @@
+from .temporal import owner_accuracy
 """Extract explicit facts first. Account names never supply purchase categories."""
 
 import re
@@ -338,6 +339,7 @@ def parse_line(engine, text, common_date=None, now=None, batch=False):
         "occurred_at": occurred,
         "time_precision": precision,
         "time_source": time_source,
+        "time_accuracy": "ESTIMATED" if precision == "ESTIMATED" or re.search(r"patokan|perkiraan|samakan|kira.kira", lower) else "CONFIRMED" if occurred else "UNKNOWN",
         "note": meaningful.strip(),
         "counterparty": counterparty,
         "purpose": re.split(r"\b(?:utk|untuk)\b", meaningful)[-1].strip(),
@@ -433,6 +435,7 @@ def parse_batch(engine, text, now=None):
                 occurred_at=f"{entry['date']}T{hour:02}:{minute:02}:{second:02}+07:00",
                 time_precision=precision,
                 time_source="OWNER",
+                time_accuracy=owner_accuracy(text, shared=True),
             )
         entries.append(entry)
     return entries

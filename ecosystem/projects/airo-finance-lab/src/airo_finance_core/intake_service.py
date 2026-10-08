@@ -1,3 +1,5 @@
+from .temporal import owner_accuracy
+
 """Draft orchestration and atomic posting; model output never writes the ledger."""
 
 import hashlib
@@ -56,6 +58,12 @@ class IntakeService:
             entries = [
                 suggest(self, historical_suggestion(self.engine, d)) for d in entries
             ]
+        from .temporal import CONTEXT
+
+        for data in entries:
+            for key in ("source_sent_at", "source_received_at", "source_id"):
+                if CONTEXT.get().get(key):
+                    data.setdefault(key, CONTEXT.get()[key])
         from .intake_learning import features
 
         seen = set()
@@ -120,6 +128,10 @@ class IntakeService:
                 "message_at",
                 "time_precision",
                 "time_source",
+                "time_accuracy",
+                "source_sent_at",
+                "source_received_at",
+                "source_id",
                 "destination_account_id",
                 "credit_card_id",
             )
@@ -243,6 +255,9 @@ class IntakeService:
                             occurred_at=f"{data['date']}T{hour:02}:{minute:02}:{second:02}+07:00",
                             time_precision=precision,
                             time_source="OWNER",
+                            time_accuracy=owner_accuracy(
+                                text, shared=bool(re.search(r"semua\s+jam", text, re.I))
+                            ),
                         )
                         self._update(row, data)
                         changed = True
@@ -284,6 +299,9 @@ class IntakeService:
                         occurred_at=f"{data['date']}T{tm[0]:02}:{tm[1]:02}:{tm[2]:02}+07:00",
                         time_precision=tm[3],
                         time_source="OWNER",
+                        time_accuracy=owner_accuracy(
+                            text, shared=bool(re.search(r"semua\s+jam", text, re.I))
+                        ),
                     )
                 if re.search(
                     r"\b(kejadian baru|transaksi baru|beda transaksi)\b", part
@@ -628,7 +646,12 @@ class IntakeService:
             )
             stamp = (
                 (
-                    ("~" if d.get("time_precision") == "ESTIMATED" else "")
+                    (
+                        "≈"
+                        if d.get("time_accuracy") == "ESTIMATED"
+                        or d.get("time_precision") == "ESTIMATED"
+                        else ""
+                    )
                     + (d.get("occurred_at") or "")[
                         11 : 16 if d.get("time_precision") == "MINUTE" else 19
                     ]
@@ -756,12 +779,14 @@ class IntakeService:
                             note=d.get("note"),
                             source="TELEGRAM_BATCH",
                             tx_date=d["date"],
+                            temporal_context=d,
                         )
                     )
                 elif d["direction"] == "CC_PAYMENT":
                     pay = self.engine.record_credit_card_payment(
                         card_id=d["credit_card_id"],
                         payment_date=d["date"],
+                        temporal_context=d,
                         amount=d["amount"],
                         account_id=d["account_id"],
                         notes=d.get("note"),
@@ -786,6 +811,7 @@ class IntakeService:
                             note=line.get("note"),
                             source="TELEGRAM_BATCH",
                             tx_date=d["date"],
+                            temporal_context=d,
                         )
                         txs.append(tx)
                         funding = self.funding_match(d, line, index)
@@ -816,28 +842,11 @@ class IntakeService:
                                 "INSERT INTO intake_funding VALUES (?,?,?,?)",
                                 (row["id"], index, funding, line["amount"]),
                             )
-                        self.conn.execute(
-                            "UPDATE transactions SET occurred_at=?,time_precision=?,time_source=?,message_at=? WHERE id=?",
-                            (
-                                d.get("occurred_at"),
-                                d.get("time_precision", "DATE"),
-                                d.get("time_source"),
-                                d.get("message_at"),
-                                tx.id,
-                            ),
-                        )
                         totals[d["direction"]] += line["amount"]
                 for tx in txs:
-                    self.conn.execute(
-                        "UPDATE transactions SET occurred_at=?,time_precision=?,time_source=?,message_at=? WHERE id=?",
-                        (
-                            d.get("occurred_at"),
-                            d.get("time_precision", "DATE"),
-                            d.get("time_source"),
-                            d.get("message_at"),
-                            tx.id,
-                        ),
-                    )
+                    from .temporal import write
+
+                    write(self.conn, "transactions", tx.id, d, d["date"])
                     self.conn.execute(
                         "INSERT INTO intake_transactions VALUES (?,?,?)",
                         (row["id"], tx.id, "POSTING"),
@@ -881,6 +890,14 @@ class IntakeService:
                 f"✅ Batch {batch[:6]}: {events} transaksi tersimpan ({len(new)} catatan buku besar);  {remaining} transaksi masih draft.",
                 f"Masuk {format_idr(totals['INCOME'])} · Keluar {format_idr(totals['EXPENSE'])}",
             ]
+            from .temporal import display
+
+            for saved_row in self.rows(batch):
+                if saved_row["status"] == "POSTED":
+                    sd = saved_row["data"]
+                    lines.append(
+                        f"No. {saved_row['number']}: {sd.get('date')} · {display(sd)}"
+                    )
             for aid in sorted(accounts):
                 a = self.engine.get_account(aid)
                 lines.append(

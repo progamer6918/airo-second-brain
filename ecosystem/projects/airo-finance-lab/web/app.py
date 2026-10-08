@@ -14,6 +14,7 @@ CORE_SRC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
 if CORE_SRC not in sys.path:
     sys.path.insert(0, CORE_SRC)
 
+from airo_finance_core import temporal
 from airo_finance_core.gmail_reliability import health as gmail_health, receipt as finance_receipt
 from airo_finance_core import DatabaseManager, FinanceCoreEngine, FinanceInsightsService, GmailIntelligenceService
 
@@ -59,6 +60,19 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         return None
 
     def _send_json(self, data, status=200, set_cookies=None):
+        def enrich(value):
+            if isinstance(value, dict):
+                ident = value.get("id")
+                if ident:
+                    for table in temporal.EVENTS:
+                        row = self.engine.db.get_connection().execute(f"SELECT * FROM {table} WHERE id=?", (ident,)).fetchone()
+                        if row:
+                            value.update({k: row[k] for k in temporal.FIELDS})
+                            break
+                for item in list(value.values()): enrich(item)
+            elif isinstance(value, list):
+                for item in value: enrich(item)
+        enrich(data)
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -95,7 +109,9 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         if content_length <= 0:
             return {}
         raw_body = self.rfile.read(content_length)
-        return json.loads(raw_body.decode("utf-8"))
+        payload = json.loads(raw_body.decode("utf-8"))
+        temporal.CONTEXT.set(temporal.web_context(payload))
+        return payload
 
     def _handle_credit_line_detail(self, card_ident: str):
         conn = self.engine.db.get_connection()
@@ -207,10 +223,31 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
     # GET Handlers
     # ====================================================
     def do_GET(self):
+        with self.engine.db.lock:
+            self._do_GET()
+
+    def _do_GET(self):
         parsed = urlparse(self.path)
         qs = parse_qs(parsed.query)
 
-        if parsed.path == "/" or parsed.path == "/dashboard":
+        if parsed.path == "/api/time/domains":
+            c=self.engine.db.get_connection()
+            events=[]
+            for table in temporal.EVENTS:
+                for row in c.execute(f"SELECT * FROM {table}"):
+                    if table=="transactions" and row["status"]=="VOID": continue
+                    events.append(dict(row,entity=table,summary=temporal.summary(c,table,row)))
+            self._send_json({"success": True,"events": events})
+            return
+        elif parsed.path == "/api/time/proposals":
+            rows = self.engine.db.get_connection().execute("SELECT * FROM temporal_proposals ORDER BY created_at DESC").fetchall()
+            self._send_json({"success": True, "proposals": [dict(r) for r in rows]})
+            return
+        elif parsed.path.startswith("/api/time/proposals/"):
+            try: self._send_json({"success": True, "proposal": temporal.get_preview(self.engine.db, parsed.path.rsplit("/", 1)[1])})
+            except ValueError as e: self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+        elif parsed.path == "/" or parsed.path == "/dashboard":
             tpl_path = os.path.join(os.path.dirname(__file__), "templates/dashboard.html")
             with open(tpl_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -483,14 +520,14 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             cat_map = {r["id"]: r["name"] for r in cat_cur.fetchall()}
 
             cur = conn.execute(
-                "SELECT id, date, account_id, category_id, amount, direction, note, source, created_at "
+                "SELECT * "
                 "FROM transactions ORDER BY date DESC, created_at DESC"
             )
             rows = cur.fetchall()
 
             output = io.StringIO()
             writer = csv.writer(output)
-            writer.writerow(["id", "date", "direction", "amount", "account", "category", "note", "source", "created_at"])
+            writer.writerow(["id", "date", "direction", "amount", "account", "category", "note", "source", "created_at"] + list(temporal.FIELDS))
             for r in rows:
                 writer.writerow([
                     r["id"],
@@ -502,7 +539,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     r["note"] or "",
                     r["source"] or "",
                     r["created_at"] or ""
-                ])
+                ] + [r[k] for k in temporal.FIELDS])
             self._send_csv(output.getvalue(), "airo_finance_export.csv")
             return
 
@@ -604,7 +641,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/api/assets/gold/lots":
             conn = self.engine.db.get_connection()
             cur = conn.execute(
-                "SELECT id, valuation_date, value, reason, created_at "
+                "SELECT * "
                 "FROM asset_valuation_history WHERE asset_id = (SELECT id FROM assets WHERE LOWER(name) LIKE '%emas%' OR LOWER(name) LIKE '%logam mulia%' LIMIT 1) "
                 "ORDER BY valuation_date DESC, created_at DESC"
             )
@@ -619,9 +656,24 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
     # POST Handlers
     # ====================================================
     def do_POST(self):
+        with self.engine.db.lock, temporal.context({}):
+            self._do_POST()
+
+    def _do_POST(self):
         parsed = urlparse(self.path)
 
-        if parsed.path == "/api/auth/login":
+        if parsed.path in ("/api/time/preview", "/api/time/apply"):
+            try:
+                payload = self._read_json_body()
+                if parsed.path.endswith("preview"):
+                    result = temporal.preview(self.engine.db, payload.get("changes", []), payload.get("label", "Koreksi waktu"))
+                else:
+                    if payload.get("confirm") is not True: raise ValueError("Setujui rekapan waktu sebelum menerapkan")
+                    result = temporal.apply(self.engine.db, payload["proposal_id"], payload.get("groups"))
+                self._send_json({"success": True, "proposal": result})
+            except (ValueError, KeyError) as e: self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+        elif parsed.path == "/api/auth/login":
             try:
                 payload = self._read_json_body()
                 device_name = payload.get("device_name", "Owner Browser").strip() or "Owner Browser"
@@ -672,7 +724,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     category_id=category_id,
                     subcategory_id=subcategory_id,
                     note=note,
-                    source="DASHBOARD"
+                    source="DASHBOARD",
+                    tx_date=payload.get("date")
                 )
                 self._send_json({
                     "success": True,
@@ -961,7 +1014,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     maturity_date=payload.get("maturity_date"),
                     interest_rate_annual=float(payload.get("interest_rate_annual", 0.0)),
                     disbursement_account_id=payload.get("disbursement_account_id"),
-                    disbursement_date=payload.get("disbursement_date")
+                    disbursement_date=payload.get("disbursement_date") or payload.get("date")
                 )
                 self._send_json({
                     "success": True,
@@ -989,7 +1042,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 debt_id = parts[2]
                 payload = self._read_json_body()
                 amt = float(payload.get("amount", 0.0))
-                pmt_date = payload.get("payment_date", date.today().isoformat())
+                pmt_date = payload.get("payment_date", datetime.now(temporal.WIB).date().isoformat())
                 src_acc = payload.get("source_account_id")
                 princ = float(payload.get("principal_portion", 0.0))
                 inte = float(payload.get("interest_portion", 0.0))
@@ -1027,7 +1080,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     original_amount=float(payload["original_amount"]),
                     monthly_installment=float(payload["monthly_installment"]),
                     tenor_months=int(payload["tenor_months"]),
-                    start_date=payload.get("start_date", date.today().isoformat()),
+                    start_date=payload.get("start_date", datetime.now(temporal.WIB).date().isoformat()),
                     next_due_date=payload["next_due_date"],
                     remaining_amount=float(payload.get("remaining_amount", payload["original_amount"])),
                     remaining_tenor=int(payload.get("remaining_tenor", payload["tenor_months"])),
@@ -1223,8 +1276,9 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 cur = conn.execute("SELECT id FROM assets WHERE name LIKE '%Emas%' OR name LIKE '%Logam Mulia%' LIMIT 1")
                 row = cur.fetchone()
                 if row:
-                    self.engine.update_asset(row["id"], current_value=new_val, notes=f"Emas Antam: {weight}g @ Rp {price:,.0f}/g (valuasi Rp {new_val:,.0f})")
-                    self.engine.record_asset_valuation(row["id"], date.today().isoformat(), new_val, reason)
+                    with self.engine.db.atomic():
+                        self.engine.update_asset(row["id"], current_value=new_val, notes=f"Emas Antam: {weight}g @ Rp {price:,.0f}/g (valuasi Rp {new_val:,.0f})")
+                        self.engine.record_asset_valuation(row["id"], payload.get("valuation_date") or payload.get("date") or datetime.now(temporal.WIB).date().isoformat(), value=new_val, unit_price=price, reason=reason)
                     self._send_json({"success": True, "asset_id": row["id"], "valuation": new_val, "price_per_gram": price})
                 else:
                     self._send_json({"success": False, "error": "Gold asset not found"}, status=404)
@@ -1303,8 +1357,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                         saved_id = stmt["id"]
                     else:
                         saved_id = f"stmt_{card_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}"
-                        final_due = due_date or date.today().isoformat()
-                        final_stmt_date = statement_date or date.today().isoformat()
+                        final_due = due_date or datetime.now(temporal.WIB).date().isoformat()
+                        final_stmt_date = statement_date or datetime.now(temporal.WIB).date().isoformat()
                         final_period = statement_period or "Tagihan Baru"
                         conn.execute(
                             """INSERT INTO credit_card_statements 
@@ -1368,7 +1422,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 if amount <= 0:
                     raise ValueError("Jumlah pembayaran harus lebih dari 0")
                 source_account_id = payload.get("source_account_id")
-                payment_date = payload.get("payment_date", date.today().isoformat())
+                payment_date = payload.get("payment_date", datetime.now(temporal.WIB).date().isoformat())
                 note = payload.get("note", "Pembayaran Tagihan Kredit").strip()
                 statement_id = payload.get("statement_id")
                 
@@ -1394,31 +1448,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                         raise ValueError(f"Nominal pembayaran Rp{amount:,.0f} melebihi sisa tagihan Rp{unpaid:,.0f}")
                     
                     new_unpaid = max(0.0, unpaid - amount)
-                    new_status = "PAID" if new_unpaid <= 0 else "PARTIAL"
-                    conn.execute(
-                        "UPDATE credit_card_statements SET unpaid_amount = ?, status = ?, updated_at = datetime('now') WHERE id = ?",
-                        (new_unpaid, new_status, stmt["id"])
-                    )
-                    conn.execute(
-                        "UPDATE credit_cards SET current_balance = MAX(0, current_balance - ?), updated_at = datetime('now') WHERE id = ?",
-                        (amount, stmt["card_id"])
-                    )
-                    pmt_id = f"ccp_{uuid.uuid4().hex[:12]}"
-                    conn.execute(
-                        "INSERT INTO credit_card_payments (id, card_id, statement_id, payment_date, amount, notes) VALUES (?, ?, ?, ?, ?, ?)",
-                        (pmt_id, stmt["card_id"], stmt["id"], payment_date, amount, note)
-                    )
-                    if source_account_id:
-                        src_cur = conn.execute("SELECT balance FROM accounts WHERE id = ?", (source_account_id,))
-                        src_row = src_cur.fetchone()
-                        if not src_row:
-                            raise ValueError(f"Rekening sumber {source_account_id} tidak ditemukan")
-                        conn.execute("UPDATE accounts SET balance = balance - ? WHERE id = ?", (amount, source_account_id))
-                        tx_id = f"tx_{uuid.uuid4().hex[:12]}"
-                        conn.execute(
-                            "INSERT INTO transactions (id, date, account_id, amount, direction, note, source, status, credit_card_id, created_at, updated_at) VALUES (?, ?, ?, ?, 'CC_PAYMENT', ?, 'DASHBOARD', 'ACTIVE', ?, datetime('now'), datetime('now'))",
-                            (tx_id, payment_date, source_account_id, amount, f"{note} (Statement #{stmt['id']})", stmt["card_id"])
-                        )
+                self.engine.record_credit_card_payment(
+                    card_id=stmt["card_id"], payment_date=payment_date, amount=amount,
+                    statement_id=stmt["id"], notes=note, account_id=source_account_id
+                )
                 self._send_json({"success": True, "paid_amount": amount, "statement_id": stmt["id"], "new_unpaid": new_unpaid})
             except Exception as e:
                 self._send_json({"success": False, "error": str(e)}, status=400)
@@ -1595,6 +1628,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
     # PUT Handlers
     # ====================================================
     def do_PUT(self):
+        with self.engine.db.lock, temporal.context({}):
+            self._do_PUT()
+
+    def _do_PUT(self):
         parsed = urlparse(self.path)
 
         if parsed.path == "/api/accounts":

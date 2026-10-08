@@ -55,19 +55,60 @@ def body(message):
 
 def facts(text):
     result = {}
-    date = date_in(text)
-    tm = re.search(
-        r"\b([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\s*(WIB|WITA|WIT)?\b", text, re.I
-    )
-    if date and tm:
-        offset = {"WIB": "+07:00", "WITA": "+08:00", "WIT": "+09:00"}.get(
-            (tm[4] or "WIB").upper(), "+07:00"
+    from datetime import datetime, timezone
+
+    clocks = list(
+        re.finditer(
+            r"\b([01]?\d|2[0-3])[:.]([0-5]\d)(?::([0-5]\d))?\s*(WIB|WITA|WIT)?\b",
+            text,
+            re.I,
         )
+    )
+    candidates = []
+    for tm in clocks:
+        nearby = text[max(0, tm.start() - 140) : tm.end() + 60]
+        explicit = bool(
+            re.search(
+                r"(?:waktu|tanggal|jam|date|time)\s*(?:transaksi|transaction)|transaction\s*(?:date|time)|pada tanggal",
+                nearby,
+                re.I,
+            )
+        )
+        date = date_in(nearby)
+        # Require an explicit year: never recover a historical bank date with today's year.
+        if not re.search(r"\b20\d{2}\b", nearby):
+            date = None
+        if not date:
+            dm = re.search(r"\b(\d{1,2})[/-](\d{1,2})[/-](20\d{2})\b", nearby)
+            if dm:
+                try:
+                    date = (
+                        datetime(int(dm[3]), int(dm[2]), int(dm[1])).date().isoformat()
+                    )
+                except ValueError:
+                    pass
+        if date and (explicit or len(clocks) == 1):
+            offset = {"WIB": "+07:00", "WITA": "+08:00", "WIT": "+09:00"}.get(
+                (tm[4] or "WIB").upper(), "+07:00"
+            )
+            candidates.append(
+                (
+                    f'{date}T{int(tm[1]):02}:{tm[2]}:{tm[3] or "00"}{offset}',
+                    "SECOND" if tm[3] else "MINUTE",
+                    explicit or bool(tm[4]),
+                )
+            )
+    distinct = {(x[0], x[1]) for x in candidates}
+    if len(distinct) == 1:
+        stamp, precision = next(iter(distinct))
         result.update(
-            occurred_at=f'{date}T{int(tm[1]):02}:{tm[2]}:{tm[3] or "00"}{offset}',
-            time_precision="SECOND" if tm[3] else "MINUTE",
+            occurred_at=stamp,
+            time_precision=precision,
+            time_accuracy="CONFIRMED" if all(x[2] for x in candidates) else "ESTIMATED",
             time_source="BANK_RECEIPT",
         )
+    elif len(distinct) > 1:
+        result["temporal_issue"] = "MULTIPLE_BANK_TIMES"
     ref = re.search(
         r"(?:nomor referensi|no\.? referensi|reference|id transaksi|nomor transaksi)\s*[:\-]?\s*([A-Z0-9\-]{5,50})",
         text,

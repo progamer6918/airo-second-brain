@@ -1,3 +1,4 @@
+from .temporal import capture_candidate, context, WIB
 import re
 import uuid
 import time
@@ -36,6 +37,7 @@ class TransactionCandidate:
     credit_card_id: Optional[str] = None
     direction_confirmed: bool = True
     original_state: Optional[Dict[str, Any]] = None
+    temporal: Optional[Dict[str, Any]] = None
 
     def get_domain(self, engine: Optional[Any] = None) -> str:
         """
@@ -171,6 +173,7 @@ class SimpleTransactionParser:
         best_match = matches[0]
         return best_match[3], best_match[4]
 
+    @capture_candidate
     def parse(self, raw_text: str) -> TransactionCandidate:
         cleaned_text = raw_text.strip()
         if not cleaned_text:
@@ -249,7 +252,7 @@ class SimpleTransactionParser:
                 note=note,
                 status="PENDING",
                 created_at=time.time(),
-                date=date.today().isoformat()
+                date=datetime.now(WIB).date().isoformat()
             )
 
         # 3. Extract Direction (INCOME vs EXPENSE)
@@ -346,7 +349,7 @@ class SimpleTransactionParser:
             created_at=time.time(),
             subcategory_id=chosen_subcategory["id"] if chosen_subcategory else None,
             subcategory_name=chosen_subcategory["name"] if chosen_subcategory else None,
-            date=date.today().isoformat()
+            date=datetime.now(WIB).date().isoformat()
         )
 
 class TelegramCaptureAdapter:
@@ -714,7 +717,7 @@ class TelegramCaptureAdapter:
         Renders interactive custom Telegram calendar date picker.
         """
         cand_id = candidate.candidate_id
-        today = date.today()
+        today = datetime.now(WIB).date()
 
         # Parse reference date
         if year is None or month is None:
@@ -1013,7 +1016,8 @@ class TelegramCaptureAdapter:
         previous = candidate.status if candidate else None
         try:
             with self.engine.db.atomic():
-                result = self._confirm_candidate(candidate_id)
+                with context(candidate.temporal if candidate else {}):
+                    result = self._confirm_candidate(candidate_id)
                 if result[0] and receipt_target:
                     from .gmail_reliability import queue_receipt
                     queue_receipt(self.engine, *receipt_target, result[1])
@@ -1040,7 +1044,7 @@ class TelegramCaptureAdapter:
         if candidate.direction == "CC_PAYMENT":
             if not candidate.credit_card_id:
                 return False, None, "Pilih kartu tujuan pembayaran sebelum menyimpan"
-            payment = self.engine.record_credit_card_payment(card_id=candidate.credit_card_id,payment_date=candidate.date or date.today().isoformat(),amount=candidate.amount,notes=candidate.note,account_id=candidate.account_id)
+            payment = self.engine.record_credit_card_payment(card_id=candidate.credit_card_id,payment_date=candidate.date or datetime.now(WIB).date().isoformat(),amount=candidate.amount,notes=candidate.note,account_id=candidate.account_id)
             tx = self.engine.get_transaction(payment.transaction_id)
             self.engine.db.get_connection().execute("UPDATE transactions SET credit_card_id=? WHERE id=?", (candidate.credit_card_id,tx.id))
             candidate.status = "CONFIRMED"

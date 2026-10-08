@@ -1,3 +1,4 @@
+from .temporal import telegram_event
 import os
 import sys
 import time
@@ -263,6 +264,7 @@ class FinanceTelegramIngressRouter:
         except Exception:
             return False
 
+    @telegram_event
     def handle_update(self, update: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Dispatches incoming Telegram update.
@@ -271,6 +273,9 @@ class FinanceTelegramIngressRouter:
             If handled is True, update was consumed by Finance Ingress and should NOT route to Hermes LLM.
             If handled is False, update is non-financial and should pass through to Hermes LLM queue.
         """
+        from .temporal_router import handle as handle_time
+        result = handle_time(self, update)
+        if result is not None: return result
         result = self.intake.handle(update)
         if result is not None:
             return result

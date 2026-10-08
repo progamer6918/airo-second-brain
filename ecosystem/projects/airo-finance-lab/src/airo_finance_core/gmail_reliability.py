@@ -154,6 +154,9 @@ def receipt(engine, tx, title='Transaksi Berhasil Dicatat'):
     lines=[f'✅ <b>{esc(title)}</b>',f'🆔 <b>Ref:</b> <code>{esc(tx.id)}</code>',f'💰 <b>Nominal:</b> {money(tx.amount)}',f'🏦 <b>Akun:</b> {esc(acc.name if acc else None)}',f'💳 <b>Saldo buku besar setelah transaksi:</b> {money(acc.balance) if acc else "Belum tersedia"}',f'📝 <b>Catatan:</b> {esc(tx.note)}']
     conn=engine.db.get_connection()
     row=conn.execute('SELECT * FROM transactions WHERE id=?',(tx.id,)).fetchone()
+    if row:
+        from .temporal import display
+        lines.append(f'🕒 <b>Waktu kejadian:</b> {esc(row["date"])} · {esc(display(row))}')
     if row and row['paired_transaction_id']:
         peer=conn.execute('SELECT account_id FROM transactions WHERE id=?',(row['paired_transaction_id'],)).fetchone()
         other=engine.get_account(peer['account_id']) if peer else None

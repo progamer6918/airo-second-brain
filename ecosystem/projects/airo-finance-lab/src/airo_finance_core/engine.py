@@ -12,6 +12,8 @@ from .models import (
     LiabilityPayment, AssetValuation, CreditLineInstallment
 )
 
+from .temporal import financial_event, FIELDS, WIB
+
 class FinanceCoreEngine:
     def __init__(self, db: DatabaseManager):
         self.db = db
@@ -66,6 +68,7 @@ class FinanceCoreEngine:
             voided_at=row["voided_at"] if "voided_at" in keys else None,
             void_reason=row["void_reason"] if "void_reason" in keys else None,
             updated_at=row["updated_at"] if "updated_at" in keys else None,
+            **{k: row[k] for k in FIELDS if k in keys},
             transfer_side=row["transfer_side"] if "transfer_side" in keys else None,
             is_reserved=int(row["is_reserved"]) if "is_reserved" in keys and row["is_reserved"] else 0
         )
@@ -316,6 +319,7 @@ class FinanceCoreEngine:
 
 
 
+    @financial_event
     def create_transaction(
         self,
         account_id: str,
@@ -356,7 +360,7 @@ class FinanceCoreEngine:
                 
         tx_id = self._generate_id("tx")
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
         now_str = datetime.now(timezone.utc).isoformat()
         
         with conn:
@@ -417,6 +421,7 @@ class FinanceCoreEngine:
             credit_card_id=cc_id
         )
 
+    @financial_event
     def transfer_funds(
         self,
         source_account_id: str,
@@ -449,7 +454,7 @@ class FinanceCoreEngine:
         tx_out_id = self._generate_id("tx")
         tx_in_id = self._generate_id("tx")
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
         now_str = datetime.now(timezone.utc).isoformat()
 
         user_note = f" ({note})" if note else ""
@@ -1190,6 +1195,7 @@ class FinanceCoreEngine:
     # ----------------------------------------------------
     # Package A: Liability Registry CRUD
     # ----------------------------------------------------
+    @financial_event
     def create_liability(
         self,
         name: str,
@@ -1241,7 +1247,7 @@ class FinanceCoreEngine:
             )
 
         if disbursement_account_id:
-            d_date = disbursement_date or now_str[:10]
+            d_date = disbursement_date or datetime.now(WIB).date().isoformat()
             self.create_transaction(
                 account_id=disbursement_account_id,
                 amount=orig_val,
@@ -1719,6 +1725,10 @@ class FinanceCoreEngine:
         subcategory_id: Optional[str] = None,
         scope: str = "transaction"
     ) -> Transaction:
+        if tx_date:
+            existing = self.db.get_connection().execute("SELECT date,occurred_at FROM transactions WHERE id=?",(transaction_id,)).fetchone()
+            if existing and existing["occurred_at"] and existing["date"] != tx_date:
+                raise ValueError("Tanggal berubah: hapus atau koreksi jam kejadian dahulu melalui rekapan waktu")
         conn = self.db.get_connection()
         cur = conn.execute("SELECT * FROM transactions WHERE id = ?", (transaction_id,))
         old_tx = cur.fetchone()
@@ -2079,7 +2089,7 @@ class FinanceCoreEngine:
             card_id = parsed.get("credit_card_id")
             if not card_id:
                 raise ValueError("Pilih kartu kredit tujuan pembayaran melalui Edit")
-            payment = self.record_credit_card_payment(card_id=card_id,payment_date=tx_date or date.today().isoformat(),amount=amount,notes=note,account_id=account_id)
+            payment = self.record_credit_card_payment(card_id=card_id,payment_date=tx_date or datetime.now(WIB).date().isoformat(),amount=amount,notes=note,account_id=account_id,temporal_context=parsed)
             tx = self.get_transaction(payment.transaction_id)
             self.db.get_connection().execute("UPDATE transactions SET credit_card_id=? WHERE id=?", (card_id,tx.id))
         elif direction == "TRANSFER":
@@ -2099,7 +2109,8 @@ class FinanceCoreEngine:
                 amount=amount,
                 note=note,
                 source="REVIEW_QUEUE",
-                tx_date=tx_date
+                tx_date=tx_date,
+                temporal_context=parsed
             )
             tx = tx_out
         else:
@@ -2111,7 +2122,8 @@ class FinanceCoreEngine:
                 subcategory_id=subcategory_id,
                 note=note,
                 source="REVIEW_QUEUE",
-                tx_date=tx_date
+                tx_date=tx_date,
+                temporal_context=parsed
             )
             self.record_transaction_metadata(
                 transaction_id=tx.id,
@@ -2123,7 +2135,8 @@ class FinanceCoreEngine:
         
         related_ids = [tx.id, tx_in.id] if direction == "TRANSFER" else [tx.id]
         for related_id in related_ids:
-            self.db.get_connection().execute("UPDATE transactions SET occurred_at=?,time_precision=?,time_source=?,message_at=? WHERE id=?", (parsed.get("occurred_at"),parsed.get("time_precision", "DATE"),parsed.get("time_source"),parsed.get("message_at"),related_id))
+            from .temporal import write
+            write(self.db.get_connection(), "transactions", related_id, parsed, tx_date)
 
         # Learning system (Phase 7): If owner corrects or confirms merchant alias, persist to category_aliases
         if override_data:
@@ -2604,6 +2617,7 @@ class FinanceCoreEngine:
             for r in cur.fetchall()
         ]
 
+    @financial_event
     def record_credit_card_payment(
         self,
         card_id: str,
@@ -2706,6 +2720,7 @@ class FinanceCoreEngine:
                 payment_date=r["payment_date"],
                 amount=float(r["amount"]),
                 notes=r["notes"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2759,6 +2774,7 @@ class FinanceCoreEngine:
     # ====================================================
     # Phase 3.1: Liability Payments
     # ====================================================
+    @financial_event
     def record_liability_payment(
         self,
         liability_id: str,
@@ -2846,6 +2862,7 @@ class FinanceCoreEngine:
                 interest_portion=float(r["interest_portion"]),
                 transaction_id=r["transaction_id"],
                 notes=r["notes"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2854,6 +2871,7 @@ class FinanceCoreEngine:
     # ====================================================
     # Phase 3.1: Asset Valuations
     # ====================================================
+    @financial_event
     def record_asset_valuation(
         self,
         asset_id: str,
@@ -2930,6 +2948,7 @@ class FinanceCoreEngine:
                 valuation_date=r["valuation_date"],
                 value=float(r["value"]),
                 reason=r["reason"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2975,6 +2994,7 @@ class FinanceCoreEngine:
             "note": note_txt
         }
 
+    @financial_event
     def record_asset_purchase(
         self,
         account_id: str,
@@ -3009,7 +3029,7 @@ class FinanceCoreEngine:
         tx_id = self._generate_id("tx")
         now_str = datetime.now(timezone.utc).isoformat()
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
 
         user_notes = notes or f"Pembelian Aset: {ast['name']}"
         new_acc_bal = float(acc["balance"]) - amount
@@ -3078,6 +3098,7 @@ class FinanceCoreEngine:
             "new_asset_value": new_ast_val
         }
 
+    @financial_event
     def record_credit_card_purchase(
         self,
         card_id: str,
@@ -3106,7 +3127,7 @@ class FinanceCoreEngine:
         tx_id = self._generate_id("tx")
         now_str = datetime.now(timezone.utc).isoformat()
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
 
         new_card_bal = float(card["current_balance"]) + amount
         card_acc_id = card["account_id"] or card_id
@@ -3170,7 +3191,7 @@ class FinanceCoreEngine:
             raise ValueError("Mortgage payment amount must be positive")
 
         if not payment_date:
-            payment_date = date.today().isoformat()
+            payment_date = datetime.now(WIB).date().isoformat()
 
         conn = self.db.get_connection()
         cur_liab = conn.execute("SELECT * FROM liabilities WHERE id = ?", (liability_id,)).fetchone()
@@ -3254,6 +3275,7 @@ class FinanceCoreEngine:
             "payment_history_count": len(payments)
         }
 
+    @financial_event
     def record_credit_card_purchase(
         self,
         card_id: str,
@@ -3274,7 +3296,7 @@ class FinanceCoreEngine:
             
         tx_id = self._generate_id("tx")
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
         now_str = datetime.now(timezone.utc).isoformat()
         
         tx_note = note if note else f"Transaksi {card['name']}"

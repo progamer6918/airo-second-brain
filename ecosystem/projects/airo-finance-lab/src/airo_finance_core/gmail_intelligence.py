@@ -432,6 +432,8 @@ class GmailIntelligenceService:
         fingerprint = self.calculate_fingerprint(parsed["account_name"], parsed["date"], parsed["amount"], parsed["note"])
         parsed["fingerprint"] = fingerprint
         parsed["message_at"] = received_at
+        parsed["source_received_at"] = received_at
+        parsed["source_id"] = "gmail:" + parsed["message_id"]
 
         # Duplicate check
         is_dup, dup_reason = self.check_duplicate(message_id, fingerprint)
@@ -458,6 +460,7 @@ class GmailIntelligenceService:
         for field in ('category_id','category_name','subcategory_id','subcategory_name','suggested_rule'):
             if field in learned:parsed[field]=learned[field]
         reasons = []
+        if parsed.get("temporal_issue"): reasons.append("Ada beberapa waktu transaksi pada email; perlu diperiksa")
         if parsed.get("date_inferred_from_email"): reasons.append("Tanggal mengikuti waktu email; periksa tanggal transaksi")
         if not account_id: reasons.append("Akun belum diketahui; pilih akun sebelum approve")
         if parsed["amount"] <= 0: reasons.append("Nominal belum valid")

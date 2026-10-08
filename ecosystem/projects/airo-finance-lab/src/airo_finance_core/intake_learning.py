@@ -23,7 +23,12 @@ def features(data):
         r"\b(bayar|beli|utk|untuk|ini|itu|adalah|tgl|tanggal)\b", "", phrase
     )
     phrase = " ".join(phrase.split())[:120]
-    hour = (data.get("occurred_at") or "")[11:13]
+    hour = ""
+    if data.get("time_accuracy") == "CONFIRMED" and data.get("occurred_at"):
+        from datetime import datetime
+        from .temporal import WIB
+        dt = datetime.fromisoformat(data["occurred_at"].replace("Z", "+00:00"))
+        if dt.tzinfo: hour = str(dt.astimezone(WIB).hour)
     slot = (
         (
             "LUNCH"

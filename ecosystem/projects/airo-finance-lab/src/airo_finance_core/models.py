@@ -45,6 +45,14 @@ class Transaction:
     voided_at: Optional[str] = None
     void_reason: Optional[str] = None
     updated_at: Optional[str] = None
+    occurred_at: Optional[str] = None
+    time_precision: str = "DATE"
+    time_accuracy: str = "UNKNOWN"
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
     running_balance: Optional[float] = None
     transfer_side: Optional[str] = None
     is_reserved: int = 0
@@ -295,6 +303,15 @@ class CreditCardPayment:
     notes: Optional[str] = None
     created_at: Optional[str] = None
 
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
+
 @dataclass
 class LiabilityPayment:
     id: str
@@ -307,6 +324,15 @@ class LiabilityPayment:
     notes: Optional[str] = None
     created_at: Optional[str] = None
 
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
+
 @dataclass
 class AssetValuation:
     id: str
@@ -315,6 +341,14 @@ class AssetValuation:
     value: float
     reason: Optional[str] = None
     created_at: Optional[str] = None
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
 
 
 
@@ -328,5 +362,3 @@ def __getattr__(name: str):
         }
         return mapping[name]
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
-
-
