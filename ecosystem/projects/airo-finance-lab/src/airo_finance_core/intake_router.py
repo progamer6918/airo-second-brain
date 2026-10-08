@@ -17,7 +17,10 @@ class IntakeRouter:
     def send_preview(
         self, batch, owner, message_id=None, page=0, editing=False, notice=None
     ):
-        rows = self.s.rows(batch)
+        rows = [r for r in self.s.rows(batch) if r["status"] != "IGNORED"]
+        if not rows:
+            self.send_closed(owner, message_id, "✅ Bukan transaksi. Kartu ditutup dan tidak masuk buku besar.")
+            return
         ready = sum(
             r["status"] == "DRAFT" and not self.s.issues(r["data"], r["id"])
             for r in rows
@@ -61,6 +64,8 @@ class IntakeRouter:
                 ]
             },
         }
+        if not ready:
+            payload["reply_markup"]["inline_keyboard"][0] = [payload["reply_markup"]["inline_keyboard"][0][1]]
         if editing:
             payload["reply_markup"]["inline_keyboard"] = [
                 [
@@ -117,6 +122,15 @@ class IntakeRouter:
                         "INSERT OR REPLACE INTO intake_prompts VALUES (?,?,?)",
                         (str(owner), str(sent), batch),
                     )
+
+    def send_closed(self, owner, message_id, text):
+        payload = {"chat_id": str(owner), "text": text, "reply_markup": {"inline_keyboard": []}}
+        if message_id:
+            payload["message_id"] = int(message_id)
+        with self.s.db.atomic():
+            enqueue(self.s.db, "card_closed", uid(), owner,
+                    "editMessageText" if message_id else "sendMessage", payload)
+        dispatch(self.s.db, self.parent.outbound)
 
     def change_notice(self, before_rows, after_rows):
         before = {r["id"]: r["data"] for r in before_rows}
@@ -215,10 +229,28 @@ class IntakeRouter:
                 return True, "BLOCKED_NON_OWNER_CALLBACK"
             if data.startswith(("gin:", "gsp:", "gln:")):
                 action, rid = data.split(":", 1)
-                batch = self.s.from_review(owner, rid)
+                review = self.s.engine.get_review_queue_item(rid)
+                if not review:
+                    return True, "BATCH_EMAIL_NOT_FOUND"
                 if action == "gin":
-                    self.s.ignore(batch, owner, "Bukan transaksi; keputusan Owner")
-                self.send_preview(batch, owner, msg.get("message_id"))
+                    if review.status == "PENDING":
+                        with self.s.db.atomic():
+                            self.s.engine.ignore_review_item(rid, reason="Bukan transaksi; keputusan Owner")
+                            old = self.s.conn.execute("SELECT id FROM intake_batches WHERE owner=? AND source_key=?", (owner, "review:"+rid)).fetchone()
+                            if old:
+                                self.s.ignore(old[0], owner, "Bukan transaksi; keputusan Owner")
+                    self.send_closed(owner, msg.get("message_id"), "✅ Bukan transaksi. Kartu ditutup dan tidak masuk buku besar." if review.status in ("PENDING", "IGNORED") else "ℹ️ Kartu ini sudah diproses. Buku besar tidak diubah.")
+                elif review.status != "PENDING":
+                    self.send_closed(owner, msg.get("message_id"), "ℹ️ Kartu ini sudah diproses. Tidak ada pencatatan baru.")
+                else:
+                    batch = self.s.from_review(owner, rid)
+                    with self.s.db.atomic():
+                        self.s.conn.execute("INSERT INTO intake_context VALUES (?,?,?) ON CONFLICT(owner) DO UPDATE SET batch_id=excluded.batch_id,mode=excluded.mode", (owner,batch,"DETAIL"))
+                    note = ("📝 Tulis tujuan dan sumber dana untuk kartu ini. Contoh: no. 1 makan malam dari Blu Gether. Jawaban tetap terhubung meski lo menolak kartu lain. Belum dicatat."
+                            if action == "gsp" else "🔗 Sebut referensi transaksi yang sudah tercatat, contoh: sudah tercatat tx_CONTOH. Hermes akan memeriksa kecocokannya.")
+                    self.send_preview(batch, owner, msg.get("message_id"), notice=note)
+                if self.parent.outbound:
+                    self.parent.outbound.answer_callback_query(cq["id"], text="Kartu ditutup" if action=="gin" else "Kirim detail lewat chat")
                 return True, "BATCH_EMAIL_ACTION"
             pieces = data.split(":")
             action, batch = pieces[1:3]
@@ -358,7 +390,7 @@ class IntakeRouter:
             r = self.s.conn.execute(
                 "SELECT batch_id FROM intake_context WHERE owner=?", (owner,)
             ).fetchone()
-            if r and (
+            if r and any(x["status"] in ("DRAFT", "POSTED") for x in self.s.rows(r[0])) and (
                 re.search(
                     r"\b(no\.?|nomor|semua|tanggal|jam|pukul|pecah|sudah tercatat|bukan transaksi|simpan|sudah ganti|lanjut batch|iya|betul)\b",
                     lower,

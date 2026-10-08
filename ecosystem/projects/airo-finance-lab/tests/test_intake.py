@@ -70,6 +70,78 @@ class Intake(unittest.TestCase):
     def balances(self):
         return {a.name: a.balance for a in self.e.list_accounts()}
 
+    def email_fixture(self, key, amount=26000):
+        return self.e.enqueue_review_item("Synthetic reference: " + key, {
+            "message_id": key, "amount": amount, "account_id": self.accounts["Blu"].id,
+            "account_name": "Blu", "direction": "EXPENSE", "direction_known": True,
+            "date": "2026-10-08", "merchant": "Transaksimu Pakai blu Berhasil",
+        }, 0.45)
+
+    def card_click(self, router, action, review, mid=80):
+        return router.handle_update({"callback_query": {"id": "mock-callback", "from": {"id": 1},
+            "data": action + ":" + review.id, "message": {"message_id": mid, "chat": {"id": 1}}}})
+
+    def test_email_note_survives_rejection_other_card_and_restart(self):
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        dinner = self.email_fixture("dinner")
+        junk = self.email_fixture("promotion", amount=0)
+        self.card_click(router, "gsp", dinner)
+        batch = self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0]
+        self.card_click(router, "gin", junk, 81)
+        self.assertEqual(self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0], batch)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches WHERE source_key=?", ("review:"+junk.id,)).fetchone()[0], 0)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        result = router.handle_update({"message": {"message_id": 99, "from": {"id": 1}, "chat": {"id": 1}, "text": "no 1 makan malam dari blu gether"}})
+        self.assertTrue(result[0])
+        data = self.s.rows(batch)[0]["data"]
+        self.assertEqual(data["amount"], 26000)
+        self.assertEqual(data["subcategory_name"], "Makan Malam")
+        self.assertEqual(data["account_id"], self.accounts["Blu"].id)
+        self.assertEqual(data["funding_account_id"], self.accounts["Blu Gether"].id)
+        self.assertNotIn("tujuan belanja", self.s.issues(data))
+        self.assertTrue(any("pendanaan" in x or "sumber" in x for x in self.s.issues(data)))
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+
+    def test_reject_existing_note_draft_closes_card_and_clears_context(self):
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        junk = self.email_fixture("not-event", amount=0)
+        self.card_click(router, "gsp", junk)
+        batch = self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0]
+        for _ in range(2): self.card_click(router, "gin", junk)
+        self.assertEqual(self.e.get_review_queue_item(junk.id).status, "IGNORED")
+        self.assertFalse(self.s.conn.execute("SELECT 1 FROM intake_context WHERE owner='1'").fetchone())
+        self.assertNotIn("Transaksimu", self.s.preview(batch))
+        closed = [p for m,p in self.calls if m == "editMessageText"][-1]
+        self.assertIn("Kartu ditutup", closed["text"])
+        self.assertEqual(closed["reply_markup"]["inline_keyboard"], [])
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+
+    def test_existing_email_draft_reselect_restores_context(self):
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        first, second = self.email_fixture("first"), self.email_fixture("second")
+        self.card_click(router, "gsp", first)
+        old = self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0]
+        self.card_click(router, "gsp", second)
+        self.card_click(router, "gsp", first)
+        self.assertEqual(self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0], old)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 2)
+
+    def test_one_correction_reads_account_and_purpose_together(self):
+        batch = self.draft("blu bayar 26rb", key="purpose-account")
+        self.s.update_text(batch, "no 1 makan malam dari blu gether")
+        data = self.s.rows(batch)[0]["data"]
+        self.assertEqual(data["account_id"], self.accounts["Blu Gether"].id)
+        self.assertEqual(data["subcategory_name"], "Makan Malam")
+
+    def test_email_card_buttons_are_full_width_and_readable(self):
+        svc = GmailIntelligenceService(self.e, outbound=self.out, owner_chat_id="1")
+        svc.process_email("Rp26.000", "Transaksimu Pakai blu Berhasil", "notice@blubybcadigital.id", "mock-button-fixture", received_date="2026-10-08")
+        card = next(p for m,p in self.calls if m=="sendMessage" and "inline_keyboard" in p.get("reply_markup", {}))
+        rows = card["reply_markup"]["inline_keyboard"]
+        self.assertEqual(len(rows), 4)
+        self.assertTrue(all(len(row)==1 for row in rows))
+        self.assertEqual([row[0]["text"] for row in rows], ["✅ Setujui", "📝 Catatan / pecah", "🔗 Sudah tercatat", "🚫 Bukan transaksi"])
+
     def test_instruction_wrapped_numbered_batch_has_exactly_twenty_rows(self):
         text = (
             "Buat draft batch berikut. Semua transaksi tanggal 7 Oktober 2026; jam tidak diketahui.\n"

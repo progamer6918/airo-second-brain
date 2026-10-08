@@ -497,7 +497,7 @@ class GmailIntelligenceService:
                 if oid.strip():
                     reliability.enqueue(self.db,"candidate",q_item.id,oid.strip(),"sendMessage", {
                         "chat_id":oid.strip(),"text":telegram_card,"parse_mode":"HTML",
-                        "reply_markup":{"inline_keyboard":[[{"text":"✅ Approve","callback_data":f"gma:{q_item.id}"},{"text":"📝 Catatan / pecah","callback_data":f"gsp:{q_item.id}"},{"text":"🔗 Sudah tercatat","callback_data":f"gln:{q_item.id}"},{"text":"Bukan transaksi","callback_data":f"gin:{q_item.id}"}]]}})
+                        "reply_markup":{"inline_keyboard":[[{"text":"✅ Setujui","callback_data":f"gma:{q_item.id}"}], [{"text":"📝 Catatan / pecah","callback_data":f"gsp:{q_item.id}"}], [{"text":"🔗 Sudah tercatat","callback_data":f"gln:{q_item.id}"}], [{"text":"🚫 Bukan transaksi","callback_data":f"gin:{q_item.id}"}]]}})
         # Network transport is outside the atomic SQLite transaction.
         if not getattr(self,"defer_delivery",False): reliability.dispatch(self.db,outbound)
         delivery = conn.execute("SELECT status,message_id FROM finance_outbox WHERE kind='candidate' AND ref=?",(q_item.id,)).fetchone()

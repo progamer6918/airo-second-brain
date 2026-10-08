@@ -385,7 +385,14 @@ class IntakeService:
                     and len(parser.account_matches(self.engine, part)) == 1
                 ):
                     a = parser.account_matches(self.engine, part)[0][2]
-                    data.update(account_id=a.id, account_name=a.name)
+                    if data.get("review_id") and data.get("direction") == "EXPENSE" and a.id != data.get("account_id"):
+                        data.update(funding_account_id=a.id, funding_account_name=a.name, funding_mode=None)
+                    else:
+                        data.update(account_id=a.id, account_name=a.name)
+                    classification = parser.classify(self.engine, part, data.get("direction", "EXPENSE"), data.get("counterparty"))
+                    if classification.get("category_name"):
+                        data.update(classification)
+                        data.update(note=part.strip(), needs_purpose=False, facts_confirmed=True, user_labels_verified=True)
                 elif m or data.get("needs_purpose"):
                     if parser.amount(part):
                         data["amount"] = parser.amount(part)
@@ -617,7 +624,7 @@ class IntakeService:
         return cat.id if cat else None, sub.id if sub else None
 
     def preview(self, batch, page=0):
-        all_rows = self.rows(batch)
+        all_rows = [r for r in self.rows(batch) if r["status"] != "IGNORED"]
         visible = all_rows[page * 20 : (page + 1) * 20]
         proposals = {}
         out = ["🧾 Rekapan transaksi — " + batch[:6]]
@@ -676,6 +683,8 @@ class IntakeService:
                     + str(d.get("subcategory_name")),
                     [],
                 ).append(row["number"])
+            if d.get("funding_account_name") and not d.get("lines"):
+                out.append("   ↳ Sumber dana: " + str(d["funding_account_name"]) + "; pembayaran lewat " + str(d.get("account_name") or "?"))
             if d.get("lines"):
                 for line in d["lines"]:
                     out.append(
@@ -694,6 +703,12 @@ class IntakeService:
             out.append("\nLengkapi sekaligus:")
             for issue, numbers in questions.items():
                 out.append("• No. " + ", ".join(map(str, numbers)) + ": " + issue)
+                if issue.startswith("bukti pendanaan"):
+                    for number in numbers:
+                        row = next(r for r in visible if r["number"] == number)
+                        d = row["data"]
+                        if d.get("funding_account_name") and not d.get("lines"):
+                            out.append(f"  Sumber {d['funding_account_name']} → pembayaran {d.get('account_name')}: sudah transfer atau hanya pembagian beban? Balas: no. {number} sudah transfer; atau no. {number} alokasi.")
             out.append(
                 "Contoh: semua tanggal 3 Oktober; no. 4 dari Saving; no. 8 ini transaksi baru."
             )
@@ -988,6 +1003,7 @@ class IntakeService:
         if not self.owned(batch, owner):
             raise PermissionError("Batch bukan milik akun ini")
         with self.db.atomic():
+            self.conn.execute("DELETE FROM intake_context WHERE owner=? AND batch_id=?", (str(owner), batch))
             for row in self.rows(batch):
                 if row["status"] != "DRAFT":
                     continue

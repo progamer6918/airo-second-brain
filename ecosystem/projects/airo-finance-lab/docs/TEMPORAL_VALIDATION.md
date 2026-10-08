@@ -17,3 +17,7 @@ A broader 250-test run retained 12 pre-existing fixture/assertion failures, with
 ## Reproduce
 
 Run unittest discovery for the seven patterns listed above. Browser verification uses `tests/browser_temporal.py --chrome <chromium-path> --output <private-evidence-directory>` with Playwright in an isolated environment. Production does not require Playwright. Keep recovery exports, live screenshots, database snapshots and raw message/email content private.
+
+## Gmail conversation follow-up
+
+125 related checks passed after five additional regressions covering terminal rejection, repeated callbacks, context restoration on explicit selection, restart during note entry, and purpose plus account parsing in one answer. Gmail action buttons now occupy one row each. Rejecting another email does not replace the active note context; rejected rows are kept for audit and removed from actionable recaps. For Gmail-confirmed payment accounts, a different owner-specified account is a funding source; existing transfer evidence is checked before a funding question or posting. No financial records or balances changed during this repair. Existing Telegram messages are not proactively resent by the operator.

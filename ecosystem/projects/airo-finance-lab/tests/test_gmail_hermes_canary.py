@@ -135,9 +135,11 @@ class TestGmailHermesRealEventCanary(unittest.TestCase):
         self.assertIn("Antar blu", payload["text"])
 
         # Inspect Inline Buttons: [Approve], [Edit], [Ignore]
-        buttons = payload.get("reply_markup", {}).get("inline_keyboard", [[]])[0]
+        rows = payload.get("reply_markup", {}).get("inline_keyboard", [])
+        self.assertEqual([len(row) for row in rows], [1, 1, 1, 1])
+        buttons = [button for row in rows for button in row]
         self.assertEqual(len(buttons), 4)
-        self.assertTrue(any("Approve" in b["text"] and b["callback_data"].startswith("gma:") for b in buttons))
+        self.assertTrue(any("Setujui" in b["text"] and b["callback_data"].startswith("gma:") for b in buttons))
         self.assertTrue(any("Catatan" in b["text"] and b["callback_data"].startswith("gsp:") for b in buttons))
         self.assertTrue(any("Bukan transaksi" in b["text"] and b["callback_data"].startswith("gin:") for b in buttons))
 
