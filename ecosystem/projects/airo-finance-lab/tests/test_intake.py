@@ -158,6 +158,84 @@ class Intake(unittest.TestCase):
         self.assertEqual(self.s.commit(batch, "1")["new_transactions"], [])
         self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
 
+    def laundry_fixture(self):
+        housing = self.e.create_category("Housing", event_type="EXPENSE")
+        laundry = self.e.create_subcategory(housing.id, "Laundry")
+        utility = self.e.create_category("Tagihan & Utilitas", event_type="EXPENSE")
+        self.e.create_subcategory(utility.id, "Laundry")
+        self.e.create_transaction(self.accounts["Blu"].id, 20000, "EXPENSE", category_id=housing.id,
+            subcategory_id=laundry.id, note="Laundry fixture", tx_date="2026-10-01")
+        review = self.email_fixture("laundry-source", amount=29000)
+        batch = self.s.from_review("1", review.id)
+        row = self.s.rows(batch)[0]
+        with self.db.atomic(): self.s._update(row, dict(row["data"], direction_unknown=True))
+        return review, batch
+
+    def test_laundry_reply_then_question_then_single_save(self):
+        review, batch = self.laundry_fixture()
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        self.card_click(router, "gsp", review)
+        def say(text, mid):
+            return router.handle_update({"message":{"message_id":mid,"from":{"id":1},"chat":{"id":1},"text":text}})
+        self.assertTrue(say("itu utk bayar laundry", 101)[0])
+        row = self.s.rows(batch)[0]
+        self.assertEqual(row["data"]["amount"], 29000)
+        self.assertEqual(row["data"]["category_name"], "Housing")
+        self.assertEqual(row["data"]["subcategory_name"], "Laundry")
+        self.assertEqual(row["data"]["note"], "itu utk bayar laundry")
+        self.assertEqual(self.s.issues(row["data"], row["id"]), [])
+        snapshot = json.dumps(self.s.rows(batch), sort_keys=True)
+        self.assertEqual(say("butuh konfirmasi apa lg utk transaksi tsb?", 102)[1], "BATCH_STATUS_EXPLAINED")
+        self.assertEqual(snapshot, json.dumps(self.s.rows(batch), sort_keys=True))
+        self.assertEqual(say("rekapan", 103)[1], "BATCH_STATUS_EXPLAINED")
+        self.assertEqual(snapshot, json.dumps(self.s.rows(batch), sort_keys=True))
+        payload = [p for m,p in self.calls if m=="sendMessage"][-1]
+        self.assertIn("Detail sudah cukup", payload["text"])
+        self.assertTrue(any("Simpan 1" in button["text"] for row in payload["reply_markup"]["inline_keyboard"] for button in row))
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1)
+        click={"callback_query":{"id":"save-once","from":{"id":1},"data":"bi:save:"+batch,"message":{"message_id":99,"chat":{"id":1}}}}
+        router.handle_update(click); router.handle_update(click)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 2)
+        self.assertEqual(self.e.get_review_queue_item(review.id).status,"APPROVED")
+        self.assertEqual(self.e.get_account(self.accounts["Blu"].id).balance, 951000)
+
+    def test_status_question_does_not_enrich_incomplete_draft(self):
+        review=self.email_fixture("unknown-source");batch=self.s.from_review("1", review.id)
+        router=FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        snapshot=json.dumps(self.s.rows(batch), sort_keys=True)
+        with patch("airo_finance_core.intake_semantic.enrich") as resolver:
+            result=router.handle_update({"message":{"message_id":90,"from":{"id":1},"chat":{"id":1},"text":"butuh konfirmasi apa lg utk transaksi tsb?"}})
+        resolver.assert_not_called()
+        self.assertEqual(result[1],"BATCH_STATUS_EXPLAINED")
+        self.assertEqual(snapshot,json.dumps(self.s.rows(batch),sort_keys=True))
+
+    def test_unknown_purpose_is_preserved_and_semantic_runs_after_partial_change(self):
+        review=self.email_fixture("semantic-source");batch=self.s.from_review("1",review.id)
+        router=FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        with patch("airo_finance_core.intake_semantic.enrich", return_value=False) as resolver:
+            router.handle_update({"message":{"message_id":91,"from":{"id":1},"chat":{"id":1},"text":"itu utk bayar perawatan furnitur"}})
+        resolver.assert_called_once()
+        d=self.s.rows(batch)[0]["data"]
+        self.assertEqual(d["purpose"],"itu utk bayar perawatan furnitur")
+        self.assertFalse(d["needs_purpose"])
+        self.assertIn("kategori",self.s.issues(d))
+
+    def test_semantic_category_suggestion_has_one_approval_action(self):
+        review=self.email_fixture("category-source");batch=self.s.from_review("1", review.id)
+        self.s.update_text(batch,"itu utk bayar perawatan furnitur")
+        resolver=lambda context:{"patches":[{"number":1,"fields":{"category_name":"Housing","subcategory_name":"Perawatan Furnitur","note":"suggested wording"}}]}
+        self.assertTrue(enrich(self.s,batch,"itu utk bayar perawatan furnitur",resolver))
+        row=self.s.rows(batch)[0]
+        self.assertEqual(row["data"]["note"],"itu utk bayar perawatan furnitur")
+        self.assertIn("konfirmasi usulan Hermes",self.s.issues(row["data"]))
+        self.assertEqual(self.s.approval_issues(row["data"]),[])
+        from airo_finance_core.intake_router import IntakeRouter
+        router=FinanceTelegramIngressRouter(self.e,owner_chat_id="1",outbound=self.out)
+        router.intake.send_preview(batch,"1")
+        payload=[p for m,p in self.calls if m=="sendMessage"][-1]
+        self.assertTrue(any("Simpan 1" in x["text"] for line in payload["reply_markup"]["inline_keyboard"] for x in line))
+        self.assertEqual(len(self.s.commit(batch,"1",confirm_suggestions=True)["new_transactions"]),1)
+
     def test_instruction_wrapped_numbered_batch_has_exactly_twenty_rows(self):
         text = (
             "Buat draft batch berikut. Semua transaksi tanggal 7 Oktober 2026; jam tidak diketahui.\n"

@@ -408,6 +408,10 @@ class IntakeService:
                         data.get("direction", "EXPENSE"),
                         data.get("counterparty"),
                     )
+                    if classification.get("category_name") or re.search(r"\b(?:bayar|beli|untuk|utk|buat)\b", part):
+                        data.update(note=part.strip(), purpose=part.strip(), needs_purpose=False)
+                        if classification.get("category_name"):
+                            data.update(semantic_review_required=False, semantic_suggestion=False)
                     if classification.get("category_name"):
                         data.update(classification)
                         data["note"] = part.strip()
@@ -598,6 +602,10 @@ class IntakeService:
                 reasons.append("kemungkinan sudah tercatat")
         return sorted(set(reasons))
 
+    def approval_issues(self, data, item_id=None):
+        # One save action approves visible classification suggestions; other missing facts still block.
+        return [issue for issue in self.issues(data, item_id) if issue != "konfirmasi usulan Hermes"]
+
     def classify_create(self, line, direction):
         name = line.get("category_name") or line.get("proposed_category")
         cat = None
@@ -636,7 +644,7 @@ class IntakeService:
         ready = 0
         for row in visible:
             d = row["data"]
-            issues = self.issues(d, row["id"]) if row["status"] == "DRAFT" else []
+            issues = self.approval_issues(d, row["id"]) if row["status"] == "DRAFT" else []
             if row["status"] == "POSTED":
                 label = "✅ tercatat"
             elif row["status"] == "LINKED":
@@ -714,10 +722,13 @@ class IntakeService:
                         if d.get("funding_account_name") and not d.get("lines"):
                             out.append(f"  Sumber {d['funding_account_name']} → pembayaran {d.get('account_name')}: sudah transfer atau hanya pembagian beban? Balas: no. {number} sudah transfer; atau no. {number} alokasi.")
             out.append(
-                "Contoh: semua tanggal 3 Oktober; no. 4 dari Saving; no. 8 ini transaksi baru."
+                "Balas tujuan atau detail yang kurang dengan bahasa biasa, contoh: itu untuk bayar laundry."
+                if len(all_rows) == 1 else
+                "Balas beberapa detail sekaligus, contoh: no. 2 makan siang; no. 4 dari Blu Saving."
             )
         out.append(
-            f"\n{ready} siap. Simpan yang siap juga menyetujui usulan klasifikasi yang ditampilkan."
+            (f"\n{ready} siap. Tombol Simpan juga menyetujui usulan kategori yang ditampilkan."
+             if ready else "\nBelum siap disimpan. Lengkapi detail yang disebut di atas; belum ada transaksi dicatat.")
         )
         out.append(
             f"Halaman {page+1}/{max(1,(len(all_rows)+19)//20)}; total {len(all_rows)} transaksi."

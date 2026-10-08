@@ -22,7 +22,7 @@ class IntakeRouter:
             self.send_closed(owner, message_id, "✅ Bukan transaksi. Kartu ditutup dan tidak masuk buku besar.")
             return
         ready = sum(
-            r["status"] == "DRAFT" and not self.s.issues(r["data"], r["id"])
+            r["status"] == "DRAFT" and not self.s.approval_issues(r["data"], r["id"])
             for r in rows
         )
         preview = self.s.preview(batch, page)
@@ -419,6 +419,13 @@ class IntakeRouter:
             if batch:
                 if not self.s.owned(batch, owner):
                     return True, "BLOCKED_BATCH_OWNER"
+                if lower in ("rekapan", "rekap", "lihat rekapan", "tampilkan rekapan", "status transaksi", "cek draft") or re.search(r"(?:butuh|perlu|kurang|minta).*?(?:konfirmasi|detail|informasi).*?(?:apa|lagi)|(?:konfirmasi|kurang|detail).*?apa.*?lagi|harus.*?(?:jawab|balas)|(?:bingung|cara pakai)", lower):
+                    pending = [r for r in self.s.rows(batch) if r["status"] == "DRAFT"]
+                    missing = sorted({x for r in pending for x in self.s.approval_issues(r["data"], r["id"])})
+                    notice = ("ℹ️ Belum ada perubahan draft. Yang masih kurang: " + ", ".join(missing) + "."
+                              if missing else "✅ Detail sudah cukup. Lo tinggal pilih Simpan untuk menyetujui rekapan dan usulan kategori. Belum dicatat.")
+                    self.send_preview(batch, owner, notice=notice)
+                    return True, "BATCH_STATUS_EXPLAINED"
                 with self.s.db.atomic():
                     self.s.conn.execute(
                         "INSERT INTO intake_interactions VALUES (?,?,?,?,?)",
@@ -497,7 +504,9 @@ class IntakeRouter:
                             else None
                         ),
                     )
-                    if not changed and amount(text) is None:
+                    unresolved_meaning = any(r["status"] == "DRAFT" and r["data"].get("purpose") and
+                        not (r["data"].get("category_id") or r["data"].get("proposed_category")) for r in self.s.rows(batch))
+                    if (not changed or unresolved_meaning) and amount(text) is None:
                         from .intake_semantic import enrich
 
                         enrich(self.s, batch, text)

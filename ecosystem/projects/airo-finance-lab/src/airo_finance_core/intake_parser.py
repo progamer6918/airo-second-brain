@@ -220,6 +220,18 @@ def classify(engine, note, direction, counterparty=None):
             found = engine.find_category_by_keyword(note)
             if found:
                 cat, sub = found["category_name"], found["subcategory_name"]
+    # Existing subcategory labels are vocabulary too, even without a keyword alias.
+    if not cat and direction == "EXPENSE":
+        matches = [(c, sub) for c in engine.list_categories(active_only=True)
+                   for sub in engine.list_subcategories(c.id, active_only=True)
+                   if re.search(r"(?<!\w)" + re.escape(sub.name) + r"(?!\w)", note, re.I)]
+        if len(matches) > 1:
+            conn = engine.db.get_connection()
+            scored = [(conn.execute("SELECT COUNT(*) FROM transactions WHERE category_id=? AND subcategory_id=? AND direction=? AND status IN ('ACTIVE','CORRECTED')", (c.id, sub.id, direction)).fetchone()[0], c, sub) for c, sub in matches]
+            top = max(x[0] for x in scored)
+            matches = [(c, sub) for n, c, sub in scored if n == top] if top else matches
+        if len(matches) == 1:
+            cat, sub = matches[0][0].name, matches[0][1].name
     category = next(
         (
             c

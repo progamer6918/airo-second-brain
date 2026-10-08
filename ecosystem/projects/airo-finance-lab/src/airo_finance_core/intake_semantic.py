@@ -145,6 +145,9 @@ def enrich(service, batch, text, resolver=None):
             # Unsupported or guessed dates/accounts remain a question, not a silent default.
             data["semantic_review_required"] = True
             data["facts_confirmed"] = False
+            if row["data"].get("purpose") and (data.get("category_id") or data.get("proposed_category")):
+                data["needs_purpose"] = False
+                data["note"] = row["data"]["purpose"]
             changes.append((row, data))
         with service.db.atomic():
             for row, data in changes:
