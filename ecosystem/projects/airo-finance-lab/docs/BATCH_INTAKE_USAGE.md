@@ -11,15 +11,13 @@ gether terima 203rb dari Partner untuk listrik
 gether terima 50rb dari Partner untuk listrik
 ```
 
-Hermes returns one numbered review. **Ubah transaksi** opens a short instruction prompt with examples and a **Kembali ke rekapan** button. Reply to the prompt or directly to the numbered review:
+Hermes returns one numbered review. Reply to that message:
 
 ```text
-semua jam jd 17.30; no. 1 jam 12:04:09; no. 3 tanggal 5 Oktober 2026
+no. 1 jam 12:04:09; no. 3 tanggal 5 Oktober 2026
 ```
 
-Hermes identifies the values changed before presenting the updated review. An unrecognized time or a correction that changes no values receives explicit feedback. Dotted times require a time word (`jam 17.30`); currency dots stay currency separators. Owner-specified minute times display as `17:30`, without invented second precision. Editing never posts a transaction.
-
-Choose **Simpan N transaksi**, or reply `simpan yang siap kecuali 2`. Unresolved rows remain persistent drafts. Choosing this action also approves the displayed classification proposals. A complete single transaction with an existing classification can receive its receipt directly.
+Choose **Simpan yang siap**, or reply `simpan yang siap kecuali 2`. Unresolved rows remain persistent drafts. Choosing this action also approves the displayed classification proposals. A complete single transaction with an existing classification can receive its receipt directly.
 
 For an aggregate bank payment, reply to its email card:
 
@@ -27,7 +25,7 @@ For an aggregate bank payment, reply to its email card:
 pecah: makan siang 12rb dari saving; makan malam 12rb dari gether
 ```
 
-The payment account stays Blu. Detail amounts must equal the bank payment. Existing paired funding transfers are linked, with capacity checks. If evidence is missing, answer each part once (`no. 1 bagian 1 sudah ditransfer tanggal 2 Oktober 2026`) or explicitly choose allocation only (`no. 1 bagian 1 alokasi`). An owner-confirmed missing transfer can be created; an allocation is never silently treated as a physical transfer.
+The payment account stays Blu. Detail amounts must equal the bank payment. Existing paired funding transfers are linked, with capacity checks. If evidence is missing, answer each part once (`no. 1 bagian 1 sudah ditransfer tanggal 2 Oktober 2026`) or explicitly choose allocation only (`no. 1 bagian 1 alokasi`). An owner-confirmed missing transfer is tracked separately and does not block the known payment. No additional transfer is invented. The preview and receipt name the selected source first, identify Blu separately as the payment route, and read each actual committed account balance. If the source transfer is not linked to ledger evidence, the receipt explicitly says that its source balance does not yet reflect that transfer. This is not an account reclassification; cash ledger entries retain their actual posting account. Cancelled cards close without edit/save controls.
 
 Use **Sudah tercatat** and supply the ledger reference, or let a unique matching reference be found. **Bukan transaksi** is a separate decision. A generic cancellation is not a negative classification label. Legacy editor buttons remain supported. Card payment corrections/cancellations use the existing card editor to preserve liability accounting.
 

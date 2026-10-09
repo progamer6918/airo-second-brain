@@ -21,6 +21,11 @@ class IntakeRouter:
         if not rows:
             self.send_closed(owner, message_id, "✅ Bukan transaksi. Kartu ditutup dan tidak masuk buku besar.")
             return
+        if all(r["status"] in ("VOID", "REPLACED") for r in rows):
+            with self.s.db.atomic():
+                self.s.conn.execute("DELETE FROM intake_context WHERE owner=? AND batch_id=?", (str(owner), batch))
+            self.send_closed(owner, message_id, "↩️ Pencatatan sudah dibatalkan. Saldo buku besar sudah dipulihkan. Tidak ada transaksi yang menunggu disimpan dari kartu ini.")
+            return
         ready = sum(
             r["status"] == "DRAFT" and not self.s.approval_issues(r["data"], r["id"])
             for r in rows

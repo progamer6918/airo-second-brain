@@ -268,6 +268,50 @@ class Intake(unittest.TestCase):
         self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
         self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],1)
 
+    def test_source_receipt_names_and_reads_gether_balance_before_payer(self):
+        _, batch = self.funded_email()
+        self.e.transfer_funds(self.accounts["Blu Gether"].id, self.accounts["Blu"].id, 50000, tx_date="2026-10-08")
+        result = self.s.commit(batch, "1", confirm_suggestions=True)
+        receipt = result["receipt"]
+        self.assertIn("Sumber dana: Blu Gether\nSaldo buku besar setelah transaksi: Rp950.000", receipt)
+        self.assertIn("Pembayaran lewat: Blu\nSaldo buku besar setelah transaksi: Rp1.018.000", receipt)
+        self.assertLess(receipt.index("Sumber dana: Blu Gether"), receipt.index("Pembayaran lewat: Blu"))
+        self.assertNotIn("belum ditemukan", receipt)
+        self.assertEqual(len(result["new_transactions"]), 1)
+        self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance, 950000)
+
+    def test_missing_transfer_receipt_shows_real_source_balance_and_uncertainty(self):
+        _, batch = self.funded_email()
+        result = self.s.commit(batch, "1", confirm_suggestions=True)
+        self.assertIn("Sumber dana: Blu Gether\nSaldo buku besar setelah transaksi: Rp1.000.000", result["receipt"])
+        self.assertIn("belum mencerminkan transfer", result["receipt"])
+        self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance, 1000000)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1)
+        again = self.s.commit(batch, "1", confirm_suggestions=True)
+        self.assertEqual(again["new_transactions"], [])
+
+    def test_voided_card_closes_without_edit_or_save_and_preserves_cancellation(self):
+        _, batch = self.funded_email()
+        self.s.commit(batch, "1", confirm_suggestions=True)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        update = {"callback_query": {"id": "cancel", "from": {"id": 1}, "data": "bi:undo:" + batch, "message": {"message_id": 44, "chat": {"id": 1}}}}
+        router.handle_update(update)
+        payload = [p for m, p in self.calls if m == "editMessageText"][-1]
+        self.assertEqual(payload["reply_markup"]["inline_keyboard"], [])
+        self.assertIn("Pencatatan sudah dibatalkan", payload["text"])
+        self.assertEqual(self.s.rows(batch)[0]["status"], "VOID")
+        self.assertEqual(self.balances()["Blu"], 1000000)
+        self.assertEqual(self.balances()["Blu Gether"], 1000000)
+        self.assertFalse(self.s.conn.execute("SELECT 1 FROM intake_context WHERE owner='1' AND batch_id=?", (batch,)).fetchone())
+
+    def test_funded_preview_makes_owner_source_primary_and_keeps_payer_explicit(self):
+        _, batch = self.funded_email()
+        preview = self.s.preview(batch)
+        self.assertIn("Blu Gether (sumber dana)", preview)
+        self.assertIn("Dibayar melalui: Blu", preview)
+        self.assertNotIn("Halaman 1/1", preview)
+        self.assertIn("belum mencerminkan transfer", preview)
+
     def test_pending_funding_survives_restart_and_late_transfer_links_without_posting(self):
         _,batch=self.funded_email();self.s.commit(batch,"1")
         self.db.close();self.db=DatabaseManager(self.path);self.db.init_schema();self.e=FinanceCoreEngine(self.db);self.s=IntakeService(self.e)

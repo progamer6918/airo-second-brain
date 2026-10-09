@@ -738,7 +738,7 @@ class IntakeService:
                 "CC_PAYMENT": "Bayar kartu",
             }.get(d.get("direction"), "? jenis")
             out.append(
-                f"{row['number']}. {d.get('date') or '? tanggal'} {stamp} · {amount} · {d.get('account_name') or '? akun'} · {direction} · {str(cat)[:25]} · {str(d.get('purpose') or d.get('note') or '')[:40]} — {label}"
+                f"{row['number']}. {d.get('date') or '? tanggal'} {stamp} · {amount} · {(d.get('funding_account_name') + ' (sumber dana)') if d.get('funding_account_name') and not d.get('lines') else (d.get('account_name') or '? akun')} · {direction} · {str(cat)[:25]} · {str(d.get('purpose') or d.get('note') or '')[:40]} — {label}"
             )
             if d.get("proposed_category") or d.get("proposed_subcategory"):
                 proposals.setdefault(
@@ -748,7 +748,7 @@ class IntakeService:
                     [],
                 ).append(row["number"])
             if d.get("funding_account_name") and not d.get("lines"):
-                out.append("   ↳ Sumber dana: " + str(d["funding_account_name"]) + "; pembayaran lewat " + str(d.get("account_name") or "?"))
+                out.append("   Dibayar melalui: " + str(d.get("account_name") or "?"))
             for index, line in enumerate(d.get("lines") or [d]):
                 if line.get("funding_mode") == "TRANSFER_CONFIRMED" and not self.funding_match(d, line, index):
                     separate_reconciliation = True
@@ -763,7 +763,7 @@ class IntakeService:
                         + str(line.get("funding_account_name") or d.get("account_name"))
                     )
         if separate_reconciliation:
-            out.append("Transfer sumber sudah lo konfirmasi. Pembayaran bisa disimpan; pencocokan transfer ditangani terpisah tanpa membuat transfer baru.")
+            out.append("Transfer sudah lo konfirmasi. Bukti transfer belum ditemukan di buku besar; saldo sumber belum mencerminkan transfer ini.")
         for name, numbers in proposals.items():
             out.append(
                 "Usul klasifikasi no. " + ", ".join(map(str, numbers)) + ": " + name
@@ -791,9 +791,8 @@ class IntakeService:
              if all(row["status"] != "DRAFT" for row in all_rows) else
              "\nBelum siap disimpan. Lengkapi detail yang disebut di atas; belum ada transaksi dicatat.")
         )
-        out.append(
-            f"Halaman {page+1}/{max(1,(len(all_rows)+size-1)//size)}; total {len(all_rows)} transaksi."
-        )
+        if len(all_rows) > size:
+            out.append(f"Halaman {page+1}/{max(1,(len(all_rows)+size-1)//size)}; total {len(all_rows)} transaksi.")
         return "\n".join(out)
 
     def commit(
@@ -932,7 +931,7 @@ class IntakeService:
                     new.append(tx.id)
                     accounts.add(tx.account_id)
                 events += 1
-                for line in d.get("lines") or []:
+                for line in d.get("lines") or [d]:
                     if line.get("funding_account_id"):
                         accounts.add(line["funding_account_id"])
                 self.conn.execute(
@@ -976,11 +975,22 @@ class IntakeService:
                     lines.append(
                         f"No. {saved_row['number']}: {sd.get('date')} · {display(sd)}"
                     )
-            for aid in sorted(accounts):
+            source_accounts = set()
+            payment_accounts = set()
+            for saved_row in self.rows(batch):
+                if saved_row["status"] != "POSTED":
+                    continue
+                sd = saved_row["data"]
+                for detail in sd.get("lines") or [sd]:
+                    if detail.get("funding_account_id"):
+                        source_accounts.add(detail["funding_account_id"])
+                        payment_accounts.add(sd["account_id"])
+            # Read actual committed balances, never substitute the payer balance
+            # for an owner-selected source or invent a source debit.
+            for aid in sorted(accounts, key=lambda aid: (aid not in source_accounts, aid)):
                 a = self.engine.get_account(aid)
-                lines.append(
-                    f"{a.name}: saldo buku besar setelah transaksi {format_idr(a.balance)}"
-                )
+                role = "Sumber dana" if aid in source_accounts else "Pembayaran lewat" if aid in payment_accounts else "Akun"
+                lines.append(f"{role}: {a.name}\nSaldo buku besar setelah transaksi: {format_idr(a.balance)}")
             for row in self.rows(batch):
                 d = row["data"]
                 if d.get("credit_card_id") and row["status"] == "POSTED":
@@ -993,7 +1003,7 @@ class IntakeService:
                         )
             pending_sources = self.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation f JOIN intake_items i ON i.id=f.item_id WHERE i.batch_id=? AND f.status='PENDING'", (batch,)).fetchone()[0]
             if pending_sources:
-                lines.append(f"Sumber dana terkonfirmasi: {pending_sources} pencocokan transfer masih dipantau. Tidak ada transfer tambahan dibuat.")
+                lines.append(f"Bukti {pending_sources} transfer sumber belum ditemukan di buku besar. Saldo sumber di atas belum mencerminkan transfer tersebut; tidak ada pemotongan tambahan.")
             lines.append("Ref: " + ", ".join(new))
             receipt = html.escape("\n".join(lines))
             if new:
