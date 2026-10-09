@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS intake_prompts(owner TEXT NOT NULL,message_id TEXT NO
 CREATE TABLE IF NOT EXISTS intake_context(owner TEXT PRIMARY KEY,batch_id TEXT NOT NULL,mode TEXT NOT NULL DEFAULT 'DETAIL');
 CREATE TABLE IF NOT EXISTS intake_funding(item_id TEXT NOT NULL,line_number INTEGER NOT NULL,
  transaction_id TEXT NOT NULL REFERENCES transactions(id),amount REAL NOT NULL,PRIMARY KEY(item_id,line_number));
+CREATE TABLE IF NOT EXISTS intake_funding_reconciliation(item_id TEXT NOT NULL REFERENCES intake_items(id),
+ line_number INTEGER NOT NULL,source_account_id TEXT NOT NULL,payment_account_id TEXT NOT NULL,
+ amount REAL NOT NULL,event_date TEXT NOT NULL,transfer_date TEXT,status TEXT NOT NULL DEFAULT 'PENDING',
+ matched_transaction_id TEXT,created_at REAL NOT NULL,updated_at REAL NOT NULL,PRIMARY KEY(item_id,line_number));
 CREATE TABLE IF NOT EXISTS intake_feedback(id TEXT PRIMARY KEY, item_id TEXT NOT NULL,
  field TEXT NOT NULL, old_value TEXT,new_value TEXT,created_at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS intake_rules(id TEXT PRIMARY KEY, rule_key TEXT NOT NULL UNIQUE,

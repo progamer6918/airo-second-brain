@@ -142,21 +142,18 @@ class Intake(unittest.TestCase):
         self.assertTrue(all(len(row)==1 for row in rows))
         self.assertEqual([row[0]["text"] for row in rows], ["✅ Setujui", "📝 Catatan / pecah", "🔗 Sudah tercatat", "🚫 Bukan transaksi"])
 
-    def test_confirmed_transfer_without_ledger_is_not_asked_again_or_created(self):
-        review = self.email_fixture("funding-ack")
-        batch = self.s.from_review("1", review.id)
-        self.s.update_text(batch, "no 1 makan malam dari blu gether")
-        self.s.update_text(batch, "no 1 sudah ditransfer")
-        row = self.s.rows(batch)[0]
-        self.assertEqual(row["data"]["funding_mode"], "TRANSFER_CONFIRMED")
-        self.assertIsNone(row["data"].get("funding_date"))
-        issues = self.s.issues(row["data"], row["id"])
-        self.assertTrue(any("menunggu rekonsiliasi" in x for x in issues))
-        self.assertFalse(any(x.startswith("bukti pendanaan") for x in issues))
-        preview = self.s.preview(batch)
-        self.assertNotIn("sudah transfer atau", preview)
-        self.assertEqual(self.s.commit(batch, "1")["new_transactions"], [])
-        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+    def test_confirmed_transfer_without_ledger_can_save_payment_without_new_transfer(self):
+        review=self.email_fixture("funding-ack"); batch=self.s.from_review("1",review.id)
+        self.s.update_text(batch,"no 1 makan malam dari blu gether")
+        self.s.update_text(batch,"no 1 sudah ditransfer")
+        row=self.s.rows(batch)[0]
+        self.assertEqual(self.s.issues(row["data"],row["id"]),[])
+        self.assertNotIn("sudah transfer atau",self.s.preview(batch))
+        self.assertEqual(len(self.s.commit(batch,"1")["new_transactions"]),1)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],1)
+        self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
+        self.assertEqual(self.e.get_account(self.accounts["Blu"].id).balance,974000)
+        self.assertEqual(self.s.conn.execute("SELECT status FROM intake_funding_reconciliation").fetchone()[0],"PENDING")
 
     def laundry_fixture(self):
         housing = self.e.create_category("Housing", event_type="EXPENSE")
@@ -235,6 +232,124 @@ class Intake(unittest.TestCase):
         payload=[p for m,p in self.calls if m=="sendMessage"][-1]
         self.assertTrue(any("Simpan 1" in x["text"] for line in payload["reply_markup"]["inline_keyboard"] for x in line))
         self.assertEqual(len(self.s.commit(batch,"1",confirm_suggestions=True)["new_transactions"]),1)
+
+    def funded_email(self,key="funded",amount=32000):
+        review=self.email_fixture(key,amount); batch=self.s.from_review("1",review.id)
+        self.s.update_text(batch,"no 1 makan malam dari blu gether")
+        self.s.update_text(batch,"no 1 sudah transfer")
+        return review,batch
+
+    def test_reported_funding_conversation_reaches_one_save_after_pause_and_edit(self):
+        review=self.email_fixture("reported",32000)
+        router=FinanceTelegramIngressRouter(self.e,self.out,"1")
+        self.card_click(router,"gsp",review)
+        batch=self.s.conn.execute("SELECT batch_id FROM intake_context WHERE owner='1'").fetchone()[0]
+        def say(text):return router.handle_update({"message":{"message_id":77,"from":{"id":1},"chat":{"id":1},"text":text}})
+        say("no. 1 bayar makan dr blu gether")
+        with patch("airo_finance_core.intake_semantic.enrich") as meaning:
+            say("blu gether")
+            meaning.assert_not_called()
+        self.assertFalse(self.s.rows(batch)[0]["data"].get("subcategory_name"))
+        for text in ["no. 1 sudah transfer","untuk makan malam beli ayam bakar","dari blu gether","Blu Gether; pembayaran lewat Blu"]:say(text)
+        self.assertEqual(self.s.rows(batch)[0]["data"]["funding_mode"],"TRANSFER_CONFIRMED")
+        click=lambda action:router.handle_update({"callback_query":{"id":"test","from":{"id":1},"data":"bi:"+action+":"+batch,"message":{"message_id":55,"chat":{"id":1}}}})
+        click("later")
+        self.assertTrue(say("No. 1: itu untuk bayar makan malam.")[0])
+        self.assertFalse(self.s.rows(batch)[0]["data"]["note"].startswith(":"))
+        click("edit")
+        payload=[p for m,p in self.calls if m=="editMessageText"][-1]
+        self.assertTrue(all(len(row)==1 for row in payload["reply_markup"]["inline_keyboard"]))
+        self.assertTrue(any("Simpan 1" in x["text"] for row in payload["reply_markup"]["inline_keyboard"] for x in row))
+        self.assertEqual(say("catat")[1],"BATCH_COMMITTED")
+        click("save");click("save")
+        self.assertNotIn("Belum siap disimpan",self.s.preview(batch))
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],1)
+        self.assertEqual(self.e.get_account(self.accounts["Blu"].id).balance,968000)
+        self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],1)
+
+    def test_pending_funding_survives_restart_and_late_transfer_links_without_posting(self):
+        _,batch=self.funded_email();self.s.commit(batch,"1")
+        self.db.close();self.db=DatabaseManager(self.path);self.db.init_schema();self.e=FinanceCoreEngine(self.db);self.s=IntakeService(self.e)
+        out,_=self.e.transfer_funds(self.accounts["Blu Gether"].id,self.accounts["Blu"].id,50000,tx_date="2026-10-08")
+        before=self.balances();n=self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
+        self.assertEqual(self.s.reconcile_funding()["linked"],1)
+        self.assertEqual(self.s.reconcile_funding()["linked"],0)
+        self.assertEqual(self.balances(),before)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],n)
+        self.assertEqual(self.s.conn.execute("SELECT transaction_id FROM intake_funding").fetchone()[0],out.id)
+
+    def test_pending_funding_capacity_does_not_overallocate_aggregate_transfer(self):
+        for key in ["one","two"]:
+            _,batch=self.funded_email(key);row=self.s.rows(batch)[0]
+            with self.db.atomic():self.s._update(row,dict(row["data"],duplicate_confirmed=True))
+            self.s.commit(batch,"1")
+        self.e.transfer_funds(self.accounts["Blu Gether"].id,self.accounts["Blu"].id,50000,tx_date="2026-10-08")
+        result=self.s.reconcile_funding()
+        self.assertEqual(result["linked"],1);self.assertEqual(result["pending"],1)
+        self.assertEqual(self.s.conn.execute("SELECT SUM(amount) FROM intake_funding").fetchone()[0],32000)
+
+    def test_pending_funding_ambiguous_evidence_is_visible_and_not_guessed(self):
+        _,batch=self.funded_email();self.s.commit(batch,"1")
+        for amount in [40000,50000]:self.e.transfer_funds(self.accounts["Blu Gether"].id,self.accounts["Blu"].id,amount,tx_date="2026-10-08")
+        before=self.balances();self.assertEqual(self.s.reconcile_funding()["pending"],1)
+        self.assertEqual(self.balances(),before);self.assertEqual(len(rel.health(self.db)["funding_reconciliation"]),1)
+
+    def test_undo_cancels_pending_funding_without_creating_source_transfer(self):
+        _,batch=self.funded_email();txid=self.s.commit(batch,"1")["new_transactions"][0]
+        self.e.void_transaction(txid,reason="fixture")
+        self.assertEqual(self.s.reconcile_funding()["cancelled"],1)
+        self.assertEqual(self.s.conn.execute("SELECT status FROM intake_funding_reconciliation").fetchone()[0],"CANCELLED")
+        self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
+
+    def test_numbered_answer_without_context_selects_draft_instead_of_llm(self):
+        self.funded_email("one");self.funded_email("two")
+        with self.db.atomic():self.s.conn.execute("DELETE FROM intake_context")
+        router=FinanceTelegramIngressRouter(self.e,self.out,"1")
+        result=router.handle_update({"message":{"message_id":88,"from":{"id":1},"chat":{"id":1},"text":"No. 1: itu untuk bayar makan malam."}})
+        self.assertEqual(result[1],"BATCH_SELECTION_REQUIRED")
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],0)
+
+    def test_one_sentence_captures_purpose_funding_and_transfer_confirmation(self):
+        review=self.email_fixture("one-answer");batch=self.s.from_review("1",review.id)
+        self.s.update_text(batch,"bayar makan malam dari blu gether sudah transfer")
+        row=self.s.rows(batch)[0]
+        self.assertEqual(row["data"]["subcategory_name"],"Makan Malam")
+        self.assertEqual(row["data"]["funding_mode"],"TRANSFER_CONFIRMED")
+        self.assertEqual(self.s.issues(row["data"],row["id"]),[])
+        self.s.update_text(batch,"dari blu saving")
+        self.assertIsNone(self.s.rows(batch)[0]["data"]["funding_mode"])
+
+    def test_voided_transfer_reopens_reconciliation_without_ledger_mutation(self):
+        _,batch=self.funded_email();self.s.commit(batch,"1")
+        out,_=self.e.transfer_funds(self.accounts["Blu Gether"].id,self.accounts["Blu"].id,32000,tx_date="2026-10-08")
+        self.assertEqual(self.s.reconcile_funding()["linked"],1)
+        self.e.void_transaction(out.id,reason="fixture",scope="event")
+        balances=self.balances()
+        self.assertEqual(self.s.reconcile_funding()["pending"],1)
+        self.assertEqual(self.balances(),balances)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding").fetchone()[0],0)
+
+    def test_failure_in_funded_split_rolls_back_reconciliation_and_payment(self):
+        batch=self.draft("blu bayar 24rb makan siang tanggal 3 Oktober 2026")
+        self.s.update_text(batch,"pecah: makan siang 12rb dari saving; makan malam 12rb dari gether")
+        self.s.update_text(batch,"no. 1 bagian 1 sudah transfer; no. 1 bagian 2 sudah transfer")
+        before=self.balances(); original=self.e.create_transaction; calls=[]
+        def fail(*args,**kwargs):
+            calls.append(1)
+            if len(calls)==2:raise RuntimeError("fixture crash")
+            return original(*args,**kwargs)
+        with patch.object(self.e,"create_transaction",side_effect=fail):
+            with self.assertRaises(RuntimeError):self.s.commit(batch,"1")
+        self.assertEqual(self.balances(),before)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0],0)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation").fetchone()[0],0)
+
+    def test_known_email_income_is_not_changed_by_future_spending_purpose(self):
+        review=self.e.enqueue_review_item("Synthetic incoming",{"amount":50000,"account_id":self.accounts["Blu"].id,"account_name":"Blu","direction":"INCOME","direction_known":True,"date":"2026-10-08","merchant":"Info transaksi masuk ke blu kamu"},.5)
+        batch=self.s.from_review("1",review.id)
+        self.s.update_text(batch,"itu untuk bayar listrik")
+        self.assertEqual(self.s.rows(batch)[0]["data"]["direction"],"INCOME")
 
     def test_instruction_wrapped_numbered_batch_has_exactly_twenty_rows(self):
         text = (
@@ -888,7 +1003,7 @@ class Intake(unittest.TestCase):
         )
         self.assertEqual(self.s.commit(b, "1")["new_transactions"], [])
 
-    def test_confirmed_missing_funding_created_once(self):
+    def test_confirmed_missing_funding_records_only_payment_and_pending_sources(self):
         b = self.draft("blu bayar 24rb makan siang tanggal 3 Oktober 2026")
         self.s.update_text(
             b, "pecah: makan siang 12rb dari saving; makan malam 12rb dari gether"
@@ -900,15 +1015,16 @@ class Intake(unittest.TestCase):
         r = self.s.commit(b, "1")
         self.assertEqual(len(r["new_transactions"]), 2)
         self.assertEqual(
-            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 6
+            self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 2
         )
         self.assertEqual(
-            self.e.get_account(self.accounts["Blu Saving"].id).balance, 988000
+            self.e.get_account(self.accounts["Blu Saving"].id).balance, 1000000
         )
         self.assertEqual(
-            self.e.get_account(self.accounts["Blu Gether"].id).balance, 988000
+            self.e.get_account(self.accounts["Blu Gether"].id).balance, 1000000
         )
-        self.assertEqual(self.e.get_account(self.accounts["Blu"].id).balance, 1000000)
+        self.assertEqual(self.e.get_account(self.accounts["Blu"].id).balance, 976000)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],2)
 
     def test_generic_email_reply_attaches_to_existing_payment(self):
         svc = GmailIntelligenceService(self.e, outbound=self.out, owner_chat_id="1")

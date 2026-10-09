@@ -282,9 +282,14 @@ class IntakeService:
                     next_m = next((v for v in explicit if v.start() > m.start()), None)
                     if next_m:
                         part = lower[m.end() : next_m.start()]
-                part = part.strip()
+                part = part.strip().lstrip(":").strip()
                 data = json.loads(dump(row["data"]))
                 d = parser.date_in(part, now)
+                if data.get("direction_unknown"):
+                    if re.search(r"\b(?:bayar|beli|keluar)\b", part):
+                        data.update(direction="EXPENSE",direction_unknown=False)
+                    elif re.search(r"\b(?:terima|masuk)\b", part):
+                        data.update(direction="INCOME",direction_unknown=False)
                 funding_answer = bool(
                     (data.get("funding_account_id") or data.get("lines"))
                     and re.search(
@@ -386,20 +391,25 @@ class IntakeService:
                 ):
                     a = parser.account_matches(self.engine, part)[0][2]
                     if data.get("review_id") and data.get("direction") == "EXPENSE" and a.id != data.get("account_id"):
-                        data.update(funding_account_id=a.id, funding_account_name=a.name, funding_mode=None)
+                        if data.get("funding_account_id") != a.id:
+                            data.update(funding_mode=None, funding_date=None)
+                        data.update(funding_account_id=a.id, funding_account_name=a.name)
                     else:
                         data.update(account_id=a.id, account_name=a.name)
-                    classification = parser.classify(self.engine, part, data.get("direction", "EXPENSE"), data.get("counterparty"))
+                    purpose_text = part
+                    for start, end, account in reversed(parser.account_matches(self.engine, part)):
+                        purpose_text = purpose_text[:start] + " " + purpose_text[end:]
+                    classification = parser.classify(self.engine, purpose_text, data.get("direction", "EXPENSE"), data.get("counterparty"))
                     if classification.get("category_name"):
                         data.update(classification)
                         data.update(note=part.strip(), needs_purpose=False, facts_confirmed=True, user_labels_verified=True)
                 elif m or data.get("needs_purpose"):
                     if parser.amount(part):
                         data["amount"] = parser.amount(part)
-                    if re.search(r"\b(terima|masuk)\b", part):
+                    if (not data.get("review_id") or data.get("direction_unknown")) and re.search(r"\b(terima|masuk)\b", part):
                         data["direction"] = "INCOME"
                         data["direction_unknown"] = False
-                    elif re.search(r"\b(bayar|beli|keluar)\b", part):
+                    elif (not data.get("review_id") or data.get("direction_unknown")) and re.search(r"\b(bayar|beli|keluar)\b", part):
                         data["direction"] = "EXPENSE"
                         data["direction_unknown"] = False
                     classification = parser.classify(
@@ -423,6 +433,16 @@ class IntakeService:
                     ):
                         data["requires_explanation"] = False
                         data["note"] = part.strip()
+                if data.get("funding_account_id") and not data.get("lines") and re.search(r"sudah (?:dipindah|transfer|ditransfer)", part):
+                    data.update(funding_mode="TRANSFER_CONFIRMED", funding_date=d or data.get("funding_date"))
+                if funding_answer and not data.get("lines"):
+                    purpose_text=part
+                    for start,end,account in reversed(parser.account_matches(self.engine,part)):
+                        purpose_text=purpose_text[:start]+" "+purpose_text[end:]
+                    classification=parser.classify(self.engine,purpose_text,data.get("direction","EXPENSE"),data.get("counterparty"))
+                    if classification.get("category_name"):
+                        data.update(classification)
+                        data.update(note=part,purpose=part,needs_purpose=False,facts_confirmed=True,user_labels_verified=True,semantic_review_required=False)
                 if data != row["data"]:
                     self._update(row, data)
                     changed = True
@@ -462,6 +482,36 @@ class IntakeService:
             if used + float(line.get("amount") or 0) <= candidates[0]["amount"] + 0.01
             else None
         )
+
+    def reconcile_funding(self):
+        result = {"linked": 0, "pending": 0, "cancelled": 0}
+        with self.db.atomic():
+            rows = self.conn.execute("SELECT f.*,i.status item_status,i.data FROM intake_funding_reconciliation f JOIN intake_items i ON i.id=f.item_id WHERE f.status IN ('PENDING','RECONCILED') ORDER BY f.created_at").fetchall()
+            for row in rows:
+                if row["item_status"] != "POSTED" or self.conn.execute("SELECT 1 FROM intake_transactions x JOIN transactions t ON t.id=x.transaction_id WHERE x.item_id=? AND x.role='POSTING' AND t.status NOT IN ('ACTIVE','CORRECTED')", (row["item_id"],)).fetchone():
+                    self.conn.execute("UPDATE intake_funding_reconciliation SET status='CANCELLED',updated_at=? WHERE item_id=? AND line_number=?", (time.time(),row["item_id"],row["line_number"]))
+                    self.conn.execute("DELETE FROM intake_funding WHERE item_id=? AND line_number=?", (row["item_id"],row["line_number"]))
+                    self.conn.execute("DELETE FROM intake_transactions WHERE item_id=? AND role='FUNDING' AND NOT EXISTS(SELECT 1 FROM intake_funding f WHERE f.item_id=intake_transactions.item_id AND f.transaction_id=intake_transactions.transaction_id)", (row["item_id"],))
+                    result["cancelled"] += 1
+                    continue
+                if row["status"] == "RECONCILED":
+                    valid=self.conn.execute("SELECT 1 FROM transactions t JOIN transactions u ON u.id=t.paired_transaction_id WHERE t.id=? AND t.status IN ('ACTIVE','CORRECTED') AND u.status IN ('ACTIVE','CORRECTED') AND t.account_id=? AND u.account_id=? AND t.direction='TRANSFER' AND t.transfer_side='OUT'", (row["matched_transaction_id"],row["source_account_id"],row["payment_account_id"])).fetchone()
+                    if valid:
+                        continue
+                    self.conn.execute("DELETE FROM intake_funding WHERE item_id=? AND line_number=?", (row["item_id"],row["line_number"]))
+                    self.conn.execute("DELETE FROM intake_transactions WHERE item_id=? AND transaction_id=? AND role='FUNDING' AND NOT EXISTS(SELECT 1 FROM intake_funding WHERE item_id=? AND transaction_id=?)", (row["item_id"],row["matched_transaction_id"],row["item_id"],row["matched_transaction_id"]))
+                    self.conn.execute("UPDATE intake_funding_reconciliation SET status='PENDING',matched_transaction_id=NULL,updated_at=? WHERE item_id=? AND line_number=?", (time.time(),row["item_id"],row["line_number"]))
+                d = json.loads(row["data"])
+                line = dict(amount=row["amount"], funding_account_id=row["source_account_id"], funding_date=row["transfer_date"])
+                fid = self.funding_match(dict(d,account_id=row["payment_account_id"],date=row["event_date"]), line, row["line_number"])
+                if not fid:
+                    result["pending"] += 1
+                    continue
+                self.conn.execute("INSERT OR IGNORE INTO intake_funding VALUES (?,?,?,?)", (row["item_id"],row["line_number"],fid,row["amount"]))
+                self.conn.execute("INSERT OR IGNORE INTO intake_transactions VALUES (?,?,?)", (row["item_id"],fid,"FUNDING"))
+                self.conn.execute("UPDATE intake_funding_reconciliation SET status='RECONCILED',matched_transaction_id=?,updated_at=? WHERE item_id=? AND line_number=?", (fid,time.time(),row["item_id"],row["line_number"]))
+                result["linked"] += 1
+        return result
 
     def issues(self, data, item_id=None):
         reasons = []
@@ -537,10 +587,7 @@ class IntakeService:
                 line.get("funding_account_id")
                 and not self.funding_match(data, line, index)
                 and line.get("funding_mode") != "ALLOCATION"
-                and not (
-                    line.get("funding_mode") == "TRANSFER_CONFIRMED"
-                    and line.get("funding_date")
-                )
+                and line.get("funding_mode") != "TRANSFER_CONFIRMED"
             ):
                 reasons.append(
                     "transfer sudah dikonfirmasi; menunggu rekonsiliasi ledger " + str(index + 1)
@@ -635,9 +682,14 @@ class IntakeService:
                 sub = self.engine.create_subcategory(cat.id, name)
         return cat.id if cat else None, sub.id if sub else None
 
+    def page_size(self, batch):
+        return 10 if any(r["data"].get("funding_account_id") or r["data"].get("lines") for r in self.rows(batch)) else 20
+
     def preview(self, batch, page=0):
         all_rows = [r for r in self.rows(batch) if r["status"] != "IGNORED"]
-        visible = all_rows[page * 20 : (page + 1) * 20]
+        size = self.page_size(batch)
+        visible = all_rows[page * size : (page + 1) * size]
+        separate_reconciliation = False
         proposals = {}
         out = ["🧾 Rekapan transaksi — " + batch[:6]]
         questions = {}
@@ -697,6 +749,9 @@ class IntakeService:
                 ).append(row["number"])
             if d.get("funding_account_name") and not d.get("lines"):
                 out.append("   ↳ Sumber dana: " + str(d["funding_account_name"]) + "; pembayaran lewat " + str(d.get("account_name") or "?"))
+            for index, line in enumerate(d.get("lines") or [d]):
+                if line.get("funding_mode") == "TRANSFER_CONFIRMED" and not self.funding_match(d, line, index):
+                    separate_reconciliation = True
             if d.get("lines"):
                 for line in d["lines"]:
                     out.append(
@@ -707,6 +762,8 @@ class IntakeService:
                         + "; sumber "
                         + str(line.get("funding_account_name") or d.get("account_name"))
                     )
+        if separate_reconciliation:
+            out.append("Transfer sumber sudah lo konfirmasi. Pembayaran bisa disimpan; pencocokan transfer ditangani terpisah tanpa membuat transfer baru.")
         for name, numbers in proposals.items():
             out.append(
                 "Usul klasifikasi no. " + ", ".join(map(str, numbers)) + ": " + name
@@ -722,16 +779,20 @@ class IntakeService:
                         if d.get("funding_account_name") and not d.get("lines"):
                             out.append(f"  Sumber {d['funding_account_name']} → pembayaran {d.get('account_name')}: sudah transfer atau hanya pembagian beban? Balas: no. {number} sudah transfer; atau no. {number} alokasi.")
             out.append(
+                "Cukup jawab: sudah transfer; atau hanya pembagian beban."
+                if all(issue.startswith("bukti pendanaan") for issue in questions) else
                 "Balas tujuan atau detail yang kurang dengan bahasa biasa, contoh: itu untuk bayar laundry."
                 if len(all_rows) == 1 else
                 "Balas beberapa detail sekaligus, contoh: no. 2 makan siang; no. 4 dari Blu Saving."
             )
         out.append(
             (f"\n{ready} siap. Tombol Simpan juga menyetujui usulan kategori yang ditampilkan."
-             if ready else "\nBelum siap disimpan. Lengkapi detail yang disebut di atas; belum ada transaksi dicatat.")
+             if ready else "\nSemua transaksi di rekapan ini sudah diproses. Tidak ada pencatatan ulang."
+             if all(row["status"] != "DRAFT" for row in all_rows) else
+             "\nBelum siap disimpan. Lengkapi detail yang disebut di atas; belum ada transaksi dicatat.")
         )
         out.append(
-            f"Halaman {page+1}/{max(1,(len(all_rows)+19)//20)}; total {len(all_rows)} transaksi."
+            f"Halaman {page+1}/{max(1,(len(all_rows)+size-1)//size)}; total {len(all_rows)} transaksi."
         )
         return "\n".join(out)
 
@@ -845,24 +906,11 @@ class IntakeService:
                         )
                         txs.append(tx)
                         funding = self.funding_match(d, line, index)
-                        if (
-                            not funding
-                            and line.get("funding_mode") == "TRANSFER_CONFIRMED"
-                        ):
-                            outgoing, incoming = self.engine.transfer_funds(
-                                line["funding_account_id"],
-                                d["account_id"],
-                                line["amount"],
-                                note="Pendanaan pembayaran terkonfirmasi Owner",
-                                source="TELEGRAM_BATCH",
-                                tx_date=line["funding_date"],
+                        if not funding and line.get("funding_mode") == "TRANSFER_CONFIRMED":
+                            self.conn.execute(
+                                "INSERT INTO intake_funding_reconciliation(item_id,line_number,source_account_id,payment_account_id,amount,event_date,transfer_date,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,'PENDING',?,?) ON CONFLICT(item_id,line_number) DO UPDATE SET source_account_id=excluded.source_account_id,payment_account_id=excluded.payment_account_id,amount=excluded.amount,event_date=excluded.event_date,transfer_date=excluded.transfer_date,status='PENDING',updated_at=excluded.updated_at",
+                                (row["id"], index, line["funding_account_id"], d["account_id"], line["amount"], d["date"], line.get("funding_date"), time.time(), time.time()),
                             )
-                            funding = outgoing.id
-                            for fundtx in (outgoing, incoming):
-                                self.conn.execute(
-                                    "INSERT INTO intake_transactions VALUES (?,?,?)",
-                                    (row["id"], fundtx.id, "CREATED_FUNDING"),
-                                )
                         if funding:
                             self.conn.execute(
                                 "INSERT OR IGNORE INTO intake_transactions VALUES (?,?,?)",
@@ -943,6 +991,9 @@ class IntakeService:
                             + ": sisa kewajiban "
                             + format_idr(card.current_balance)
                         )
+            pending_sources = self.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation f JOIN intake_items i ON i.id=f.item_id WHERE i.batch_id=? AND f.status='PENDING'", (batch,)).fetchone()[0]
+            if pending_sources:
+                lines.append(f"Sumber dana terkonfirmasi: {pending_sources} pencocokan transfer masih dipantau. Tidak ada transfer tambahan dibuat.")
             lines.append("Ref: " + ", ".join(new))
             receipt = html.escape("\n".join(lines))
             if new:

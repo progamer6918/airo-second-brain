@@ -8,7 +8,10 @@ from airo_finance_core import gmail_reliability as rel
 p=argparse.ArgumentParser();p.add_argument('mode',choices=['scan','dry-run','backfill','watchdog','reconcile','outbox']);p.add_argument('--db-path',default=str(Path(__file__).resolve().parents[1]/'data/airo_finance.db'));a=p.parse_args()
 db=DatabaseManager(a.db_path);db.init_schema();engine=FinanceCoreEngine(db);svc=GmailIntelligenceService(engine);outbound,owner=svc.get_outbound()
 try:
- if a.mode=='watchdog':result=rel.watchdog(db,outbound,owner)
+ if a.mode=='watchdog':
+  from airo_finance_core.intake_service import IntakeService
+  funding=IntakeService(engine).reconcile_funding()
+  result=rel.watchdog(db,outbound,owner);result['funding_reconciliation']=funding
  elif a.mode=='outbox':result={'notifications_sent':rel.dispatch(db,outbound)}
  elif a.mode=='reconcile':
   conn=db.get_connection();count=0

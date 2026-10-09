@@ -92,6 +92,7 @@ def dispatch(db, outbound, limit=10):
 
 def health(db):
     conn=db.get_connection();scan=state(db,'health',{})
+    scan['funding_reconciliation']=[dict(r) for r in conn.execute("SELECT f.amount,a.name source_account,b.name payment_account,f.event_date FROM intake_funding_reconciliation f JOIN accounts a ON a.id=f.source_account_id JOIN accounts b ON b.id=f.payment_account_id WHERE f.status='PENDING' ORDER BY f.created_at")]
     scan['notification_status_counts']={r[0]:r[1] for r in conn.execute('SELECT status,COUNT(*) FROM finance_outbox GROUP BY status')}
     row=conn.execute("SELECT COUNT(*),MIN(created_at) FROM finance_outbox WHERE status NOT IN ('SENT','CANCELLED')").fetchone()
     scan['error_items']=[{'reference':hashlib.sha256(r['message_id'].encode()).hexdigest()[:10],'stage':r['stage'],'code':r['code']} for r in conn.execute('SELECT * FROM gmail_errors ORDER BY last_at DESC LIMIT 20')]

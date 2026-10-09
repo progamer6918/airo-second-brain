@@ -34,6 +34,8 @@ class IntakeRouter:
                 "Hermes akan menyebut perubahan yang berhasil diterapkan dan menampilkan rekapan baru untuk dicek. "
                 "Belum ada perubahan disimpan."
             )
+            if len(rows)==1:
+                preview = f"✏️ Ubah transaksi — {batch[:6]}\n\nBalas perubahan dengan bahasa biasa, misalnya: itu untuk makan malam; nominalnya 25rb; atau dari Blu Saving.\n\n" + self.s.preview(batch, page)
         elif notice:
             preview = notice + "\n\n" + preview
         payload = {
@@ -64,8 +66,9 @@ class IntakeRouter:
                 ]
             },
         }
-        if not ready:
-            payload["reply_markup"]["inline_keyboard"][0] = [payload["reply_markup"]["inline_keyboard"][0][1]]
+        save, pause = payload["reply_markup"]["inline_keyboard"][0]
+        edit = payload["reply_markup"]["inline_keyboard"][1]
+        payload["reply_markup"]["inline_keyboard"] = ([[save]] if ready else []) + [edit, [pause]]
         if editing:
             payload["reply_markup"]["inline_keyboard"] = [
                 [
@@ -76,7 +79,10 @@ class IntakeRouter:
                 ],
                 [{"text": "🕒 Lanjut nanti", "callback_data": "bi:later:" + batch}],
             ]
-        pages = max(1, (len(rows) + 19) // 20)
+        if editing and ready and len(rows)==1:
+            payload["reply_markup"]["inline_keyboard"].insert(0,[{"text":f"✅ Simpan {ready} transaksi","callback_data":"bi:save:"+batch}])
+        size = self.s.page_size(batch)
+        pages = max(1, (len(rows) + size - 1) // size)
         if pages > 1 and not editing:
             payload["reply_markup"]["inline_keyboard"].append(
                 [
@@ -304,7 +310,7 @@ class IntakeRouter:
             elif action == "later":
                 with self.s.db.atomic():
                     self.s.conn.execute(
-                        "DELETE FROM intake_context WHERE owner=? AND batch_id=?",
+                        "UPDATE intake_context SET mode='PAUSED' WHERE owner=? AND batch_id=?",
                         (owner, batch),
                     )
             else:
@@ -313,7 +319,7 @@ class IntakeRouter:
                         "INSERT INTO intake_context VALUES (?,?,?) ON CONFLICT(owner) DO UPDATE SET batch_id=excluded.batch_id,mode=excluded.mode",
                         (owner, batch, "DETAIL"),
                     )
-                self.send_preview(batch, owner, msg.get("message_id"), editing=True)
+                self.send_preview(batch, owner, msg.get("message_id"), editing=action != "resume")
             if self.parent.outbound:
                 self.parent.outbound.answer_callback_query(
                     cq["id"],
@@ -388,20 +394,37 @@ class IntakeRouter:
                         pass
         if not batch:
             r = self.s.conn.execute(
-                "SELECT batch_id FROM intake_context WHERE owner=?", (owner,)
+                "SELECT batch_id,mode FROM intake_context WHERE owner=?", (owner,)
             ).fetchone()
             if r and any(x["status"] in ("DRAFT", "POSTED") for x in self.s.rows(r[0])) and (
                 re.search(
-                    r"\b(no\.?|nomor|semua|tanggal|jam|pukul|pecah|sudah tercatat|bukan transaksi|simpan|sudah ganti|lanjut batch|iya|betul)\b",
+                    r"\b(no\.?|nomor|semua|tanggal|jam|pukul|pecah|sudah tercatat|bukan transaksi|simpan|catat|sudah ganti|lanjut batch|iya|betul)\b",
                     lower,
                 )
                 or (
                     len(self.s.rows(r[0])) == 1
+                    and (r["mode"] != "PAUSED" or re.search(r"\b(?:bayar|beli|utk|untuk|dari|dr|sudah|rekapan)\b", lower))
                     and amount(text) is None
                     and len(text) < 150
                 )
             ):
                 batch = r[0]
+        numbered = re.search(r"\b(?:no\.?|nomor)\s*(\d+)\b", lower)
+        if not batch and numbered and self.parent.is_owner(sender):
+            candidates = self.s.conn.execute("SELECT DISTINCT b.id FROM intake_batches b JOIN intake_items i ON i.batch_id=b.id WHERE b.owner=? AND i.status='DRAFT' AND i.number=? AND b.updated_at>? ORDER BY b.updated_at DESC", (owner,int(numbered[1]),time.time()-86400)).fetchall()
+            if len(candidates) == 1:
+                batch = candidates[0][0]
+            elif len(candidates) > 1:
+                choices=[]
+                for candidate in candidates[:6]:
+                    row=next(x for x in self.s.rows(candidate[0]) if x["number"]==int(numbered[1]))
+                    d=row["data"]
+                    label=f"{format_idr(d.get('amount') or 0)} · {d.get('account_name') or '?'} · {str(d.get('purpose') or d.get('note') or '')[:24]}"
+                    choices.append([{"text":label,"callback_data":"bi:resume:"+candidate[0]}])
+                with self.s.db.atomic():
+                    enqueue(self.s.db,"batch_selector",uid(),owner,"sendMessage",{"chat_id":owner,"text":"Ada beberapa draft dengan nomor itu. Pilih transaksi yang dimaksud; jawaban tidak dikirim ke chat umum.","reply_markup":{"inline_keyboard":choices}})
+                dispatch(self.s.db,self.parent.outbound)
+                return True,"BATCH_SELECTION_REQUIRED"
         is_finance = amount(text) is not None and (
             self.parent.is_finance_message(text) or len(text.splitlines()) > 1
         )
@@ -456,7 +479,7 @@ class IntakeRouter:
                     self.s.link_existing(batch, owner, ids[0])
                 elif lower == "bukan transaksi":
                     self.s.ignore(batch, owner, "Bukan transaksi; keputusan Owner")
-                elif lower.startswith(
+                elif lower in ("simpan", "catat", "catat sekarang", "oke simpan", "setuju simpan") or lower.startswith(
                     ("simpan yang siap", "simpan semua", "simpan batch")
                 ):
                     exclude = (
@@ -506,7 +529,12 @@ class IntakeRouter:
                     )
                     unresolved_meaning = any(r["status"] == "DRAFT" and r["data"].get("purpose") and
                         not (r["data"].get("category_id") or r["data"].get("proposed_category")) for r in self.s.rows(batch))
-                    if (not changed or unresolved_meaning) and amount(text) is None:
+                    account_only = text.lower()
+                    from . import intake_parser as parser
+                    for start,end,account in reversed(parser.account_matches(self.s.engine, text.lower())):
+                        account_only=account_only[:start]+" "+account_only[end:]
+                    account_only=re.sub(r"\b(?:no\.?|nomor)\s*\d+|\b(?:akun|dari|dr|sumber|dana|pembayaran|lewat|dengan|pakai)\b|[\s:;,.]+", "", account_only)
+                    if (unresolved_meaning or (not changed and any(r["status"]=="DRAFT" and (r["data"].get("needs_purpose") or not (r["data"].get("category_id") or r["data"].get("proposed_category"))) for r in self.s.rows(batch)))) and amount(text) is None and account_only and not re.search(r"sudah (?:dipindah|transfer|ditransfer)|\balokasi\b", lower):
                         from .intake_semantic import enrich
 
                         enrich(self.s, batch, text)
