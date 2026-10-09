@@ -1,8 +1,10 @@
+from .temporal import telegram_event
 import os
 import sys
 import time
 import json
 import logging
+from .gmail_reliability import receipt, deliver_receipt
 import re
 import urllib.request
 import urllib.parse
@@ -95,11 +97,11 @@ class TelegramOutboundAdapter:
                 return data
         except urllib.error.HTTPError as e:
             raw_err = e.read().decode("utf-8") if e.fp else ""
-            logger.error(f"Telegram API HTTP error {e.code} on {method}: {raw_err}")
+            logger.error("Telegram API HTTP error %s on %s", e.code, method)
             return {"ok": False, "error_code": e.code, "description": raw_err}
         except Exception as e:
-            logger.error(f"Telegram API request failed on {method}: {e}")
-            return {"ok": False, "error": str(e)}
+            logger.error("Telegram API request failed on %s: %s", method, type(e).__name__)
+            return {"ok": False, "error": type(e).__name__, "uncertain": method == "sendMessage"}
 
     def send_message(
         self,
@@ -177,6 +179,9 @@ class FinanceTelegramIngressRouter:
         self.owner_chat_id = str(owner_chat_id) if owner_chat_id else None
         self.confirmation_handler = InteractiveConfirmationHandler(engine)
         self.parser = self.confirmation_handler.parser
+        self._card_choices = {}
+        from .intake_router import IntakeRouter
+        self.intake = IntakeRouter(self)
 
         if auto_register_commands and self.outbound:
             self.register_bot_commands()
@@ -259,6 +264,7 @@ class FinanceTelegramIngressRouter:
         except Exception:
             return False
 
+    @telegram_event
     def handle_update(self, update: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Dispatches incoming Telegram update.
@@ -267,6 +273,13 @@ class FinanceTelegramIngressRouter:
             If handled is True, update was consumed by Finance Ingress and should NOT route to Hermes LLM.
             If handled is False, update is non-financial and should pass through to Hermes LLM queue.
         """
+        from .temporal_router import handle as handle_time
+        result = handle_time(self, update)
+        if result is not None: return result
+        result = self.intake.handle(update)
+        if result is not None:
+            return result
+
         # 1. Handle Callback Query (Confirmation / Cancellation)
         if "callback_query" in update:
             cq = update["callback_query"]
@@ -276,6 +289,26 @@ class FinanceTelegramIngressRouter:
             msg = cq.get("message", {})
             chat_id = str(msg.get("chat", {}).get("id", sender_id))
             message_id = msg.get("message_id")
+
+            if data.startswith("dtype:") or data.startswith("ccpick:"):
+                if not self.is_owner(sender_id): return True, "BLOCKED_NON_OWNER_CALLBACK"
+                if data.startswith("dtype:"):
+                    _, candidate_id, direction = data.split(":",2)
+                    candidate=self.confirmation_handler.get_candidate(candidate_id)
+                    if direction not in ("EXPENSE","INCOME","TRANSFER","CC_PAYMENT"): return True,"INVALID_DIRECTION"
+                    if not candidate or candidate.status!='PENDING': return True,"STALE_DRAFT"
+                    candidate.direction=direction;candidate.direction_confirmed=True
+                else:
+                    choice=self._card_choices.get(data.split(":",1)[1])
+                    if not choice:return True,"STALE_CARD_CHOICE"
+                    candidate=self.confirmation_handler.get_candidate(choice[0])
+                    if not candidate or candidate.status!='PENDING':return True,"STALE_DRAFT"
+                    candidate.credit_card_id=choice[1]
+                menu=self.confirmation_handler.format_guided_edit_menu(candidate)
+                if self.outbound and message_id:
+                    self.outbound.edit_message_text(chat_id,message_id,menu['text'],reply_markup=menu['reply_markup'])
+                    self.outbound.answer_callback_query(cq_id,text="Pilihan disimpan")
+                return True,"EDIT_SELECTION_UPDATED"
 
             # Check if this is a finance confirmation callback
             # Check if this is a finance draft edit callback (Unified Draft Editor V1)
@@ -376,6 +409,20 @@ class FinanceTelegramIngressRouter:
                         self.outbound.edit_message_text(chat_id, message_id, prompt_text, reply_markup=back_markup)
                         self.outbound.answer_callback_query(cq_id, text="Kirim catatan baru")
                     return True, "EDIT_FIELD_PROMPTED:note"
+
+                elif field_code in ("typ","cc"):
+                    rows=[]
+                    if field_code=='typ':
+                        rows=[[{'text':direction,'callback_data':f'dtype:{candidate_id}:{direction}'}] for direction in ('EXPENSE','INCOME','TRANSFER','CC_PAYMENT')]
+                    else:
+                        import uuid
+                        for card in self.engine.db.get_connection().execute('SELECT id,name FROM credit_cards WHERE is_active=1'):
+                            token=uuid.uuid4().hex[:12];self._card_choices[token]=(candidate_id,card['id'])
+                            rows.append([{'text':card['name'],'callback_data':'ccpick:'+token}])
+                    if self.outbound and message_id:
+                        self.outbound.edit_message_text(chat_id,message_id,'Pilih jenis transaksi / kartu tujuan:',reply_markup={'inline_keyboard':rows})
+                        self.outbound.answer_callback_query(cq_id,text="Pilih opsi")
+                    return True,"EDIT_TYPE_OR_CARD_MENU"
 
                 elif field_code == "dat":
                     self.confirmation_handler.clear_edit_session(chat_id)
@@ -605,31 +652,24 @@ class FinanceTelegramIngressRouter:
                             override_data = {
                                 "amount": cand.amount,
                                 "direction": cand.direction,
+                                "credit_card_id": cand.credit_card_id,
                                 "account_id": cand.account_id,
                                 "category_id": cand.category_id,
                                 "subcategory_id": getattr(cand, "subcategory_id", None),
                                 "note": cand.note,
                                 "date": getattr(cand, "date", None),
                             }
+                            if not cand.direction_confirmed:
+                                override_data.pop("direction", None)
                             if cand.destination_account_id:
                                 override_data["destination_account_id"] = cand.destination_account_id
-                            item, tx = self.engine.approve_review_item(candidate_id, override_data=override_data)
+                            item, tx = self.engine.approve_review_item(candidate_id, override_data=override_data, receipt_target=(chat_id, message_id) if self.outbound and message_id else None)
                             cand.status = "CONFIRMED"
                             acc = self.engine.get_account(cand.account_id)
                             acc_balance_str = f"Rp{int(round(acc.balance)):,}".replace(",", ".") if acc else "-"
-                            card_receipt = (
-                                f"✅ <b>Transaksi Gmail Berhasil Disimpan!</b>\n"
-                                f"───────────────────\n"
-                                f"💰 <b>Nominal:</b> Rp{int(round(tx.amount)):,}\n"
-                                f"🏦 <b>Akun:</b> {cand.account_name or (acc.name if acc else '-')}\n"
-                                f"📝 <b>Catatan:</b> {tx.note or '-'}\n"
-                                f"🆔 <b>Ref:</b> <code>{tx.id}</code>\n"
-                                f"💳 <b>Sisa Saldo:</b> {acc_balance_str}\n"
-                                f"───────────────────\n"
-                                f"<i>Tersimpan di Buku Besar dari Review Queue.</i>"
-                            ).replace(",", ".")
+                            card_receipt = receipt(self.engine, tx)
                             if self.outbound and message_id:
-                                self.outbound.edit_message_text(chat_id, message_id, card_receipt, reply_markup={"inline_keyboard": []})
+                                deliver_receipt(self.engine, self.outbound, chat_id, message_id, tx)
                                 self.outbound.answer_callback_query(cq_id, text="✅ Transaksi Disetujui & Disimpan")
                             return True, f"GMAIL_CONFIRMED:{tx.id}"
                         except Exception as e:
@@ -638,20 +678,11 @@ class FinanceTelegramIngressRouter:
                                 self.outbound.answer_callback_query(cq_id, text=f"⚠️ {e}", show_alert=True)
                             return True, f"CONFIRM_FAILED:{e}"
 
-                    ok, tx, status_msg = self.confirmation_handler.confirm_candidate(candidate_id)
+                    ok, tx, status_msg = self.confirmation_handler.confirm_candidate(candidate_id, receipt_target=(chat_id, message_id) if self.outbound and message_id else None)
                     if ok and tx:
-                        card_receipt = (
-                            f"✅ <b>Transaksi Berhasil Dicatat!</b>\n"
-                            f"───────────────────\n"
-                            f"💰 <b>Nominal:</b> Rp{int(round(tx.amount)):,}\n"
-                            f"📁 <b>Tipe:</b> {tx.direction}\n"
-                            f"📝 <b>Catatan:</b> {tx.note or '-'}\n"
-                            f"🆔 <b>Ref:</b> <code>{tx.id}</code>\n"
-                            f"───────────────────\n"
-                            f"<i>Tersimpan di Buku Besar SQLite & Terverifikasi Audit.</i>"
-                        ).replace(",", ".")
+                        card_receipt = receipt(self.engine, tx)
                         if self.outbound and message_id:
-                            self.outbound.edit_message_text(chat_id, message_id, card_receipt, reply_markup={"inline_keyboard": []})
+                            deliver_receipt(self.engine, self.outbound, chat_id, message_id, tx)
                             self.outbound.answer_callback_query(cq_id, text="✅ Transaksi Tersimpan")
                         return True, f"CONFIRMED:{tx.id}"
                     else:
@@ -712,30 +743,13 @@ class FinanceTelegramIngressRouter:
                         return True, f"GMAIL_ALREADY_{current_item.status}:{review_id}"
 
                     try:
-                        item, tx = self.engine.approve_review_item(review_id)
+                        item, tx = self.engine.approve_review_item(review_id, receipt_target=(chat_id, message_id) if self.outbound and message_id else None)
                         if tx.direction == "TRANSFER":
-                            card_receipt = (
-                                f"✅ <b>Transfer Berhasil Disetujui!</b>\n"
-                                f"───────────────────\n"
-                                f"💰 <b>Nominal:</b> Rp{int(round(tx.amount)):,}\n"
-                                f"🔄 <b>Tipe:</b> Transfer Antar Rekening / Pocket\n"
-                                f"📝 <b>Catatan:</b> {tx.note or '-'}\n"
-                                f"🆔 <b>Ref:</b> <code>{tx.id}</code>\n"
-                                f"───────────────────\n"
-                                f"<i>Tercatat di Buku Besar. Net Worth tidak berubah.</i>"
-                            ).replace(",", ".")
+                            card_receipt = receipt(self.engine, tx)
                         else:
-                            card_receipt = (
-                                f"✅ <b>Transaksi Gmail Berhasil Disetujui!</b>\n"
-                                f"───────────────────\n"
-                                f"💰 <b>Nominal:</b> Rp{int(round(tx.amount)):,}\n"
-                                f"📝 <b>Catatan:</b> {tx.note or '-'}\n"
-                                f"🆔 <b>Ref:</b> <code>{tx.id}</code>\n"
-                                f"───────────────────\n"
-                                f"<i>Tercatat di Buku Besar.</i>"
-                            ).replace(",", ".")
+                            card_receipt = receipt(self.engine, tx)
                         if self.outbound and message_id:
-                            self.outbound.edit_message_text(chat_id, message_id, card_receipt, reply_markup={"inline_keyboard": []})
+                            deliver_receipt(self.engine, self.outbound, chat_id, message_id, tx)
                             self.outbound.answer_callback_query(cq_id, text="✅ Transaksi Disetujui")
                         return True, f"GMAIL_CONFIRMED:{tx.id}"
                     except Exception as e:
@@ -801,7 +815,11 @@ class FinanceTelegramIngressRouter:
                         created_at=time.time(),
                         date=parsed.get("date"),
                         tx_type=str(parsed.get("tx_type") or "EXPENSE"),
-                        original_state=dict(parsed)
+                        original_state=dict(parsed),
+                        direction_confirmed=parsed.get("direction_known", True),
+                        destination_account_id=parsed.get("destination_account_id"),
+                        destination_account_name=parsed.get("destination_account_name"),
+                        credit_card_id=parsed.get("credit_card_id")
                     )
 
                     if cand.account_id and not cand.account_name:
@@ -813,12 +831,6 @@ class FinanceTelegramIngressRouter:
                             if acc.name.lower() == cand.account_name.lower():
                                 cand.account_id = acc.id
                                 break
-                    if not cand.account_id:
-                        accs = self.engine.list_accounts(active_only=True)
-                        if accs:
-                            cand.account_id = accs[0].id
-                            cand.account_name = accs[0].name
-
                     if cand.category_id and not cand.category_name:
                         cat = self.engine.get_category(cand.category_id)
                         if cat:

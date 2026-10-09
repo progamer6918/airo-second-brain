@@ -9,8 +9,10 @@ from .models import (
     OwnerSession, Asset, Liability,
     Subcategory, CategoryAlias, TransactionMetadata, CorrectionEvent,
     ReviewQueueItem, CreditCard, CreditCardStatement, CreditCardPayment,
-    LiabilityPayment, AssetValuation
+    LiabilityPayment, AssetValuation, CreditLineInstallment
 )
+
+from .temporal import financial_event, FIELDS, WIB
 
 class FinanceCoreEngine:
     def __init__(self, db: DatabaseManager):
@@ -32,7 +34,8 @@ class FinanceCoreEngine:
             account_class=row["account_class"] if "account_class" in keys else "LIQUID",
             dashboard_group=row["dashboard_group"] if "dashboard_group" in keys else "CASH",
             parent_account_id=row["parent_account_id"] if "parent_account_id" in keys else None,
-            aliases=row["aliases"] if "aliases" in keys else ""
+            aliases=row["aliases"] if "aliases" in keys else "",
+            reserve_target_id=row["reserve_target_id"] if "reserve_target_id" in keys else None
         )
 
     def _category_from_row(self, row) -> Category:
@@ -64,7 +67,10 @@ class FinanceCoreEngine:
             status=row["status"] if "status" in keys and row["status"] else "ACTIVE",
             voided_at=row["voided_at"] if "voided_at" in keys else None,
             void_reason=row["void_reason"] if "void_reason" in keys else None,
-            updated_at=row["updated_at"] if "updated_at" in keys else None
+            updated_at=row["updated_at"] if "updated_at" in keys else None,
+            **{k: row[k] for k in FIELDS if k in keys},
+            transfer_side=row["transfer_side"] if "transfer_side" in keys else None,
+            is_reserved=int(row["is_reserved"]) if "is_reserved" in keys and row["is_reserved"] else 0
         )
 
     def create_account(
@@ -76,7 +82,8 @@ class FinanceCoreEngine:
         account_class: str = "LIQUID",
         dashboard_group: str = "CASH",
         parent_account_id: Optional[str] = None,
-        aliases: str = ""
+        aliases: str = "",
+        reserve_target_id: Optional[str] = None
     ) -> Account:
         conn = self.db.get_connection()
         account_id = self._generate_id("acc")
@@ -85,10 +92,10 @@ class FinanceCoreEngine:
         with conn:
             conn.execute(
                 """INSERT INTO accounts 
-                   (id, name, type, balance, is_active, created_at, provider, account_class, dashboard_group, parent_account_id, aliases) 
-                   VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)""",
+                   (id, name, type, balance, is_active, created_at, provider, account_class, dashboard_group, parent_account_id, aliases, reserve_target_id) 
+                   VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)""",
                 (account_id, name, account_type.upper(), float(initial_balance), now_str,
-                 provider, account_class, dashboard_group, parent_account_id, aliases)
+                 provider, account_class, dashboard_group, parent_account_id, aliases, reserve_target_id)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -107,7 +114,8 @@ class FinanceCoreEngine:
             account_class=account_class,
             dashboard_group=dashboard_group,
             parent_account_id=parent_account_id,
-            aliases=aliases
+            aliases=aliases,
+            reserve_target_id=reserve_target_id
         )
 
     def update_account(
@@ -120,7 +128,8 @@ class FinanceCoreEngine:
         account_class: Optional[str] = None,
         dashboard_group: Optional[str] = None,
         parent_account_id: Optional[str] = None,
-        aliases: Optional[str] = None
+        aliases: Optional[str] = None,
+        reserve_target_id: Optional[str] = None
     ) -> Optional[Account]:
         conn = self.db.get_connection()
         cur = conn.execute("SELECT * FROM accounts WHERE id = ?", (account_id,))
@@ -139,14 +148,15 @@ class FinanceCoreEngine:
         new_group = dashboard_group if dashboard_group is not None else (row["dashboard_group"] if "dashboard_group" in keys else "CASH")
         new_parent = parent_account_id if parent_account_id is not None else (row["parent_account_id"] if "parent_account_id" in keys else None)
         new_aliases = aliases if aliases is not None else (row["aliases"] if "aliases" in keys else "")
+        new_reserve = reserve_target_id if reserve_target_id is not None else (row["reserve_target_id"] if "reserve_target_id" in keys else None)
 
         now_str = datetime.now(timezone.utc).isoformat()
         with conn:
             conn.execute(
                 """UPDATE accounts 
-                   SET name = ?, type = ?, is_active = ?, provider = ?, account_class = ?, dashboard_group = ?, parent_account_id = ?, aliases = ? 
+                   SET name = ?, type = ?, is_active = ?, provider = ?, account_class = ?, dashboard_group = ?, parent_account_id = ?, aliases = ?, reserve_target_id = ? 
                    WHERE id = ?""",
-                (new_name, new_type, new_active, new_provider, new_class, new_group, new_parent, new_aliases, account_id)
+                (new_name, new_type, new_active, new_provider, new_class, new_group, new_parent, new_aliases, new_reserve, account_id)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -165,7 +175,8 @@ class FinanceCoreEngine:
             account_class=new_class,
             dashboard_group=new_group,
             parent_account_id=new_parent,
-            aliases=new_aliases
+            aliases=new_aliases,
+            reserve_target_id=new_reserve
         )
 
     def list_accounts(self, active_only: bool = False) -> List[Account]:
@@ -308,6 +319,7 @@ class FinanceCoreEngine:
 
 
 
+    @financial_event
     def create_transaction(
         self,
         account_id: str,
@@ -348,7 +360,7 @@ class FinanceCoreEngine:
                 
         tx_id = self._generate_id("tx")
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
         now_str = datetime.now(timezone.utc).isoformat()
         
         with conn:
@@ -364,12 +376,21 @@ class FinanceCoreEngine:
                 
             conn.execute("UPDATE accounts SET balance = ? WHERE id = ?", (new_balance, account_id))
             
+            # Check if this account is linked to a credit card facility
+            cur_cc = conn.execute("SELECT id, current_balance FROM credit_cards WHERE account_id = ?", (account_id,)).fetchone()
+            cc_id = None
+            if cur_cc:
+                cc_id = cur_cc["id"]
+                if direction == "EXPENSE":
+                    new_cc_balance = float(cur_cc["current_balance"]) + amount
+                    conn.execute("UPDATE credit_cards SET current_balance = ?, updated_at = ? WHERE id = ?", (new_cc_balance, now_str, cc_id))
+
             # 2. Insert transaction
             conn.execute(
                 "INSERT INTO transactions "
-                "(id, date, account_id, category_id, subcategory_id, amount, direction, note, source, status, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?)",
-                (tx_id, tx_date, account_id, category_id, subcategory_id, amount, direction, note, source, now_str, now_str)
+                "(id, date, account_id, category_id, subcategory_id, amount, direction, note, source, status, credit_card_id, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?)",
+                (tx_id, tx_date, account_id, category_id, subcategory_id, amount, direction, note, source, cc_id, now_str, now_str)
             )
 
             if subcategory_id:
@@ -396,9 +417,11 @@ class FinanceCoreEngine:
             status='ACTIVE',
             voided_at=None,
             void_reason=None,
-            updated_at=now_str
+            updated_at=now_str,
+            credit_card_id=cc_id
         )
 
+    @financial_event
     def transfer_funds(
         self,
         source_account_id: str,
@@ -431,7 +454,7 @@ class FinanceCoreEngine:
         tx_out_id = self._generate_id("tx")
         tx_in_id = self._generate_id("tx")
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
         now_str = datetime.now(timezone.utc).isoformat()
 
         user_note = f" ({note})" if note else ""
@@ -450,18 +473,21 @@ class FinanceCoreEngine:
             # 3. Insert Outflow Transaction
             conn.execute(
                 "INSERT INTO transactions "
-                "(id, date, account_id, category_id, amount, direction, note, source, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "(id, date, account_id, category_id, amount, direction, note, source, created_at, transfer_side) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'OUT')",
                 (tx_out_id, tx_date, source_account_id, None, amount, "TRANSFER", out_note, source, now_str)
             )
 
             # 4. Insert Inflow Transaction
             conn.execute(
                 "INSERT INTO transactions "
-                "(id, date, account_id, category_id, amount, direction, note, source, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "(id, date, account_id, category_id, amount, direction, note, source, created_at, transfer_side) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'IN')",
                 (tx_in_id, tx_date, destination_account_id, None, amount, "TRANSFER", in_note, source, now_str)
             )
+
+            conn.execute("UPDATE transactions SET paired_transaction_id=? WHERE id=?", (tx_in_id, tx_out_id))
+            conn.execute("UPDATE transactions SET paired_transaction_id=? WHERE id=?", (tx_out_id, tx_in_id))
 
             # 5. Create Audit Logs
             aud_out = self._generate_id("aud")
@@ -484,7 +510,8 @@ class FinanceCoreEngine:
             direction="TRANSFER",
             note=out_note,
             source=source,
-            created_at=now_str
+            created_at=now_str,
+            transfer_side="OUT"
         )
         tx_in = Transaction(
             id=tx_in_id,
@@ -495,9 +522,29 @@ class FinanceCoreEngine:
             direction="TRANSFER",
             note=in_note,
             source=source,
-            created_at=now_str
+            created_at=now_str,
+            transfer_side="IN"
         )
         return tx_out, tx_in
+
+    def toggle_transaction_reserve(self, tx_id: str, is_reserved: Optional[bool] = None) -> Transaction:
+        conn = self.db.get_connection()
+        cur = conn.execute("SELECT * FROM transactions WHERE id = ?", (tx_id,))
+        row = cur.fetchone()
+        if not row:
+            raise ValueError(f"Transaction not found: {tx_id}")
+        current_val = bool(row["is_reserved"]) if "is_reserved" in row.keys() and row["is_reserved"] else False
+        new_val = int(not current_val) if is_reserved is None else (1 if is_reserved else 0)
+        now_str = datetime.now(timezone.utc).isoformat()
+        with conn:
+            conn.execute("UPDATE transactions SET is_reserved = ?, updated_at = ? WHERE id = ?", (new_val, now_str, tx_id))
+            audit_id = self._generate_id("aud")
+            conn.execute(
+                "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
+                (audit_id, "transactions", tx_id, f"TOGGLE_RESERVE_{new_val}", now_str)
+            )
+        cur = conn.execute("SELECT * FROM transactions WHERE id = ?", (tx_id,))
+        return self._transaction_from_row(cur.fetchone())
 
     def calculate_running_balances(self, account_id: Optional[str] = None) -> Dict[str, float]:
         """
@@ -1148,6 +1195,7 @@ class FinanceCoreEngine:
     # ----------------------------------------------------
     # Package A: Liability Registry CRUD
     # ----------------------------------------------------
+    @financial_event
     def create_liability(
         self,
         name: str,
@@ -1156,7 +1204,13 @@ class FinanceCoreEngine:
         remaining_amount: float,
         monthly_payment: float,
         due_day: int,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        lender_name: Optional[str] = None,
+        repayment_type: str = "INSTALLMENT",
+        maturity_date: Optional[str] = None,
+        interest_rate_annual: float = 0.0,
+        disbursement_account_id: Optional[str] = None,
+        disbursement_date: Optional[str] = None
     ) -> Liability:
         name = name.strip()
         if not name:
@@ -1173,20 +1227,34 @@ class FinanceCoreEngine:
         if not (1 <= due_day <= 31):
             raise ValueError("Due day must be between 1 and 31")
 
+        repayment_type = (repayment_type or "INSTALLMENT").upper().strip()
+        interest_rate = float(interest_rate_annual or 0.0)
+
         conn = self.db.get_connection()
         liab_id = self._generate_id("liab")
         now_str = datetime.now(timezone.utc).isoformat()
 
         with conn:
             conn.execute(
-                "INSERT INTO liabilities (id, name, type, original_amount, remaining_amount, monthly_payment, due_day, notes, is_active, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)",
-                (liab_id, name, liability_type, orig_val, rem_val, mon_val, due_day, notes, now_str, now_str)
+                "INSERT INTO liabilities (id, name, type, original_amount, remaining_amount, monthly_payment, due_day, notes, is_active, lender_name, repayment_type, maturity_date, interest_rate, interest_rate_annual, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)",
+                (liab_id, name, liability_type, orig_val, rem_val, mon_val, due_day, notes, lender_name, repayment_type, maturity_date, interest_rate, interest_rate, now_str, now_str)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
                 "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
                 (audit_id, "liabilities", liab_id, "CREATE", now_str)
+            )
+
+        if disbursement_account_id:
+            d_date = disbursement_date or datetime.now(WIB).date().isoformat()
+            self.create_transaction(
+                account_id=disbursement_account_id,
+                amount=orig_val,
+                direction="INCOME",
+                category_id="cat_loan_disbursement",
+                note=f"Pencairan pinjaman: {name} dari {lender_name or 'Kreditor'}",
+                tx_date=d_date
             )
 
         return Liability(
@@ -1200,7 +1268,11 @@ class FinanceCoreEngine:
             notes=notes,
             is_active=1,
             created_at=now_str,
-            updated_at=now_str
+            updated_at=now_str,
+            lender_name=lender_name,
+            repayment_type=repayment_type,
+            maturity_date=maturity_date,
+            interest_rate_annual=interest_rate
         )
 
     def update_liability(
@@ -1213,7 +1285,11 @@ class FinanceCoreEngine:
         monthly_payment: Optional[float] = None,
         due_day: Optional[int] = None,
         notes: Optional[str] = None,
-        is_active: Optional[int] = None
+        is_active: Optional[int] = None,
+        lender_name: Optional[str] = None,
+        repayment_type: Optional[str] = None,
+        maturity_date: Optional[str] = None,
+        interest_rate_annual: Optional[float] = None
     ) -> Optional[Liability]:
         conn = self.db.get_connection()
         cur = conn.execute("SELECT * FROM liabilities WHERE id = ?", (liability_id,))
@@ -1236,11 +1312,16 @@ class FinanceCoreEngine:
         new_notes = notes if notes is not None else row["notes"]
         new_active = int(is_active) if is_active is not None else int(row["is_active"])
 
+        new_lender = lender_name if lender_name is not None else (row["lender_name"] if "lender_name" in row.keys() else None)
+        new_repayment = repayment_type.upper().strip() if repayment_type is not None else (row["repayment_type"] if "repayment_type" in row.keys() and row["repayment_type"] else "INSTALLMENT")
+        new_maturity = maturity_date if maturity_date is not None else (row["maturity_date"] if "maturity_date" in row.keys() else None)
+        new_rate = float(interest_rate_annual) if interest_rate_annual is not None else float(row["interest_rate_annual"] if "interest_rate_annual" in row.keys() and row["interest_rate_annual"] is not None else (row["interest_rate"] if "interest_rate" in row.keys() and row["interest_rate"] is not None else 0.0))
+
         now_str = datetime.now(timezone.utc).isoformat()
         with conn:
             conn.execute(
-                "UPDATE liabilities SET name = ?, type = ?, original_amount = ?, remaining_amount = ?, monthly_payment = ?, due_day = ?, notes = ?, is_active = ?, updated_at = ? WHERE id = ?",
-                (new_name, new_type, new_orig, new_rem, new_mon, new_due, new_notes, new_active, now_str, liability_id)
+                "UPDATE liabilities SET name = ?, type = ?, original_amount = ?, remaining_amount = ?, monthly_payment = ?, due_day = ?, notes = ?, is_active = ?, lender_name = ?, repayment_type = ?, maturity_date = ?, interest_rate = ?, interest_rate_annual = ?, updated_at = ? WHERE id = ?",
+                (new_name, new_type, new_orig, new_rem, new_mon, new_due, new_notes, new_active, new_lender, new_repayment, new_maturity, new_rate, new_rate, now_str, liability_id)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -1259,7 +1340,11 @@ class FinanceCoreEngine:
             notes=new_notes,
             is_active=new_active,
             created_at=row["created_at"],
-            updated_at=now_str
+            updated_at=now_str,
+            lender_name=new_lender,
+            repayment_type=new_repayment,
+            maturity_date=new_maturity,
+            interest_rate_annual=new_rate
         )
 
     def get_liability(self, liability_id: str) -> Optional[Liability]:
@@ -1279,7 +1364,11 @@ class FinanceCoreEngine:
             notes=row["notes"],
             is_active=int(row["is_active"]),
             created_at=row["created_at"],
-            updated_at=row["updated_at"]
+            updated_at=row["updated_at"],
+            lender_name=row["lender_name"] if "lender_name" in row.keys() else None,
+            repayment_type=row["repayment_type"] if "repayment_type" in row.keys() and row["repayment_type"] else "INSTALLMENT",
+            maturity_date=row["maturity_date"] if "maturity_date" in row.keys() else None,
+            interest_rate_annual=float(row["interest_rate_annual"] if "interest_rate_annual" in row.keys() and row["interest_rate_annual"] is not None else (row["interest_rate"] if "interest_rate" in row.keys() and row["interest_rate"] is not None else 0.0))
         )
 
     def list_liabilities(self, active_only: bool = False) -> List[Liability]:
@@ -1301,7 +1390,11 @@ class FinanceCoreEngine:
                 notes=r["notes"],
                 is_active=int(r["is_active"]),
                 created_at=r["created_at"],
-                updated_at=r["updated_at"]
+                updated_at=r["updated_at"],
+                lender_name=r["lender_name"] if "lender_name" in r.keys() else None,
+                repayment_type=r["repayment_type"] if "repayment_type" in r.keys() and r["repayment_type"] else "INSTALLMENT",
+                maturity_date=r["maturity_date"] if "maturity_date" in r.keys() else None,
+                interest_rate_annual=float(r["interest_rate_annual"] if "interest_rate_annual" in r.keys() and r["interest_rate_annual"] is not None else (r["interest_rate"] if "interest_rate" in r.keys() and r["interest_rate"] is not None else 0.0))
             )
             for r in cur.fetchall()
         ]
@@ -1491,6 +1584,7 @@ class FinanceCoreEngine:
                FROM category_aliases a
                LEFT JOIN categories c ON a.category_id = c.id
                LEFT JOIN subcategories s ON a.subcategory_id = s.id
+               WHERE COALESCE(a.is_active,1)=1
                ORDER BY a.priority DESC, LENGTH(a.keyword) DESC"""
         )
         for r in cur.fetchall():
@@ -1631,6 +1725,10 @@ class FinanceCoreEngine:
         subcategory_id: Optional[str] = None,
         scope: str = "transaction"
     ) -> Transaction:
+        if tx_date:
+            existing = self.db.get_connection().execute("SELECT date,occurred_at FROM transactions WHERE id=?",(transaction_id,)).fetchone()
+            if existing and existing["occurred_at"] and existing["date"] != tx_date:
+                raise ValueError("Tanggal berubah: hapus atau koreksi jam kejadian dahulu melalui rekapan waktu")
         conn = self.db.get_connection()
         cur = conn.execute("SELECT * FROM transactions WHERE id = ?", (transaction_id,))
         old_tx = cur.fetchone()
@@ -1731,15 +1829,13 @@ class FinanceCoreEngine:
 
         # If scope == 'event' or transfer, find paired transfer
         if (scope == "event" or tx["direction"] == "TRANSFER") and tx["direction"] == "TRANSFER":
-            opp_cur = conn.execute(
-                """SELECT * FROM transactions 
-                   WHERE id != ? AND direction = 'TRANSFER' AND amount = ? AND date = ? 
-                     AND (status IS NULL OR status != 'VOID')
-                   ORDER BY ABS(strftime('%s', created_at) - strftime('%s', ?)) ASC
-                   LIMIT 1""",
-                (transaction_id, tx["amount"], tx["date"], tx["created_at"])
-            )
-            peer_row = opp_cur.fetchone()
+            paired = tx["paired_transaction_id"] if "paired_transaction_id" in keys else None
+            if paired:
+                peer_row = conn.execute("SELECT * FROM transactions WHERE id=? AND status!='VOID'",(paired,)).fetchone()
+            else:
+                peers = conn.execute("SELECT * FROM transactions WHERE id!=? AND direction='TRANSFER' AND amount=? AND date=? AND created_at=? AND account_id!=? AND status!='VOID'",(transaction_id,tx["amount"],tx["date"],tx["created_at"],tx["account_id"])).fetchall()
+                if len(peers)!=1:raise ValueError("Pasangan transfer tidak pasti; periksa sebelum membatalkan")
+                peer_row=peers[0]
             if peer_row:
                 target_txs.append(peer_row)
 
@@ -1952,7 +2048,15 @@ class FinanceCoreEngine:
             updated_at=r["updated_at"]
         )
 
-    def approve_review_item(self, item_id: str, override_data: Optional[Dict[str, Any]] = None) -> Tuple[ReviewQueueItem, Transaction]:
+    def approve_review_item(self, item_id: str, override_data: Optional[Dict[str, Any]] = None, *, receipt_target=None) -> Tuple[ReviewQueueItem, Transaction]:
+        with self.db.atomic():
+            result = self._approve_review_item(item_id, override_data)
+            if receipt_target:
+                from .gmail_reliability import queue_receipt
+                queue_receipt(self, *receipt_target, result[1])
+            return result
+
+    def _approve_review_item(self, item_id: str, override_data: Optional[Dict[str, Any]] = None) -> Tuple[ReviewQueueItem, Transaction]:
         import json
         item = self.get_review_queue_item(item_id)
         if not item:
@@ -1964,6 +2068,11 @@ class FinanceCoreEngine:
         if override_data:
             parsed.update(override_data)
             
+        generic_titles = ("transaksimu pakai blu berhasil", "internet transaction journal", "info transaksi masuk ke blu kamu")
+        if parsed.get("direction") not in ("TRANSFER", "CC_PAYMENT") and (parsed.get("merchant") or "").lower() in generic_titles:
+            explicit_note = override_data and override_data.get("note")
+            if not (explicit_note and explicit_note.lower() not in generic_titles and parsed.get("category_id")):
+                raise ValueError("Lengkapi tujuan belanja dan kategori melalui Catatan / Edit; judul email bukan tujuan transaksi")
         account_id = parsed["account_id"]
         amount = float(parsed["amount"])
         direction = parsed.get("direction", "EXPENSE")
@@ -1972,7 +2081,18 @@ class FinanceCoreEngine:
         subcategory_id = parsed.get("subcategory_id")
         tx_date = parsed.get("date")
         
-        if direction == "TRANSFER":
+        if not account_id or amount <= 0:
+            raise ValueError("Lengkapi akun dan nominal melalui Edit sebelum approve")
+        if parsed.get("direction_known") is False and not (override_data and override_data.get("direction")):
+            raise ValueError("Pilih jenis transaksi melalui Edit sebelum approve")
+        if direction == "CC_PAYMENT":
+            card_id = parsed.get("credit_card_id")
+            if not card_id:
+                raise ValueError("Pilih kartu kredit tujuan pembayaran melalui Edit")
+            payment = self.record_credit_card_payment(card_id=card_id,payment_date=tx_date or datetime.now(WIB).date().isoformat(),amount=amount,notes=note,account_id=account_id,temporal_context=parsed)
+            tx = self.get_transaction(payment.transaction_id)
+            self.db.get_connection().execute("UPDATE transactions SET credit_card_id=? WHERE id=?", (card_id,tx.id))
+        elif direction == "TRANSFER":
             dst_acc_id = None
             if override_data and override_data.get("destination_account_id"):
                 dst_acc_id = override_data["destination_account_id"]
@@ -1981,24 +2101,7 @@ class FinanceCoreEngine:
 
             conn = self.db.get_connection()
             if not dst_acc_id:
-                dst_name = (override_data.get("destination_account_name") if override_data else None) or parsed.get("destination_account_name") or "Internal transfer"
-                dst_row = conn.execute("SELECT id FROM accounts WHERE (name = ? OR name LIKE ?) AND id != ? LIMIT 1", (dst_name, f"%{dst_name}%", account_id)).fetchone()
-                if dst_row:
-                    dst_acc_id = dst_row["id"]
-                else:
-                    pocket_row = conn.execute("SELECT id FROM accounts WHERE (parent_account_id = ? OR type = 'POCKET' OR name LIKE '%saving%') AND id != ? LIMIT 1", (account_id, account_id)).fetchone()
-                    if pocket_row:
-                        dst_acc_id = pocket_row["id"]
-                    else:
-                        new_pocket = self.create_account(
-                            name="Internal transfer",
-                            account_type="POCKET",
-                            initial_balance=0.0,
-                            account_class="POCKET",
-                            dashboard_group="CASH",
-                            parent_account_id=account_id
-                        )
-                        dst_acc_id = new_pocket.id
+                raise ValueError("Pilih akun tujuan transfer melalui Edit sebelum approve")
 
             tx_out, tx_in = self.transfer_funds(
                 source_account_id=account_id,
@@ -2006,7 +2109,8 @@ class FinanceCoreEngine:
                 amount=amount,
                 note=note,
                 source="REVIEW_QUEUE",
-                tx_date=tx_date
+                tx_date=tx_date,
+                temporal_context=parsed
             )
             tx = tx_out
         else:
@@ -2018,7 +2122,8 @@ class FinanceCoreEngine:
                 subcategory_id=subcategory_id,
                 note=note,
                 source="REVIEW_QUEUE",
-                tx_date=tx_date
+                tx_date=tx_date,
+                temporal_context=parsed
             )
             self.record_transaction_metadata(
                 transaction_id=tx.id,
@@ -2028,9 +2133,16 @@ class FinanceCoreEngine:
                 confidence_score=item.confidence
             )
         
+        related_ids = [tx.id, tx_in.id] if direction == "TRANSFER" else [tx.id]
+        for related_id in related_ids:
+            from .temporal import write
+            write(self.db.get_connection(), "transactions", related_id, parsed, tx_date)
+
         # Learning system (Phase 7): If owner corrects or confirms merchant alias, persist to category_aliases
         if override_data:
-            kw = override_data.get("alias_keyword") or override_data.get("merchant") or parsed.get("note")
+            kw = override_data.get("alias_keyword") or override_data.get("merchant")
+            if kw and kw.lower().strip() in ("transaksimu pakai blu berhasil", "internet transaction journal"):
+                kw = None
             if kw and category_id:
                 try:
                     self.add_category_alias(
@@ -2162,7 +2274,11 @@ class FinanceCoreEngine:
         credit_limit: float,
         account_id: Optional[str] = None,
         billing_cycle_day: int = 1,
-        payment_due_day: int = 15
+        payment_due_day: int = 15,
+        credit_type: str = "CREDIT_CARD",
+        provider: Optional[str] = None,
+        billing_model: str = "STATEMENT_CYCLE",
+        icon: str = "credit-card"
     ) -> CreditCard:
         conn = self.db.get_connection()
         card_id = self._generate_id("cc")
@@ -2183,9 +2299,9 @@ class FinanceCoreEngine:
             account_id = cc_acc.id
         with conn:
             conn.execute(
-                """INSERT INTO credit_cards (id, account_id, name, bank_name, credit_limit, current_balance, billing_cycle_day, payment_due_day, is_active, created_at, updated_at)
-                   VALUES (?, ?, ?, ?, ?, 0.0, ?, ?, 1, ?, ?)""",
-                (card_id, account_id, clean_name, clean_bank, float(credit_limit), int(billing_cycle_day), int(payment_due_day), now_str, now_str)
+                """INSERT INTO credit_cards (id, account_id, name, bank_name, credit_limit, current_balance, billing_cycle_day, payment_due_day, is_active, credit_type, provider, billing_model, icon, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, 0.0, ?, ?, 1, ?, ?, ?, ?, ?, ?)""",
+                (card_id, account_id, clean_name, clean_bank, float(credit_limit), int(billing_cycle_day), int(payment_due_day), credit_type, provider, billing_model, icon, now_str, now_str)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -2203,7 +2319,11 @@ class FinanceCoreEngine:
             payment_due_day=int(payment_due_day),
             is_active=1,
             created_at=now_str,
-            updated_at=now_str
+            updated_at=now_str,
+            credit_type=credit_type,
+            provider=provider,
+            billing_model=billing_model,
+            icon=icon
         )
 
     def get_credit_card(self, card_id: str) -> Optional[CreditCard]:
@@ -2223,7 +2343,11 @@ class FinanceCoreEngine:
             payment_due_day=int(r["payment_due_day"]),
             is_active=int(r["is_active"]),
             created_at=r["created_at"],
-            updated_at=r["updated_at"]
+            updated_at=r["updated_at"],
+            credit_type=r["credit_type"] if "credit_type" in r.keys() else "CREDIT_CARD",
+            provider=r["provider"] if "provider" in r.keys() else None,
+            billing_model=r["billing_model"] if "billing_model" in r.keys() and r["billing_model"] else "STATEMENT_CYCLE",
+            icon=r["icon"] if "icon" in r.keys() and r["icon"] else "credit-card"
         )
 
     def list_credit_cards(self, active_only: bool = False) -> List[CreditCard]:
@@ -2245,7 +2369,11 @@ class FinanceCoreEngine:
                 payment_due_day=int(r["payment_due_day"]),
                 is_active=int(r["is_active"]),
                 created_at=r["created_at"],
-                updated_at=r["updated_at"]
+                updated_at=r["updated_at"],
+                credit_type=r["credit_type"] if "credit_type" in r.keys() else "CREDIT_CARD",
+                provider=r["provider"] if "provider" in r.keys() else None,
+                billing_model=r["billing_model"] if "billing_model" in r.keys() and r["billing_model"] else "STATEMENT_CYCLE",
+                icon=r["icon"] if "icon" in r.keys() and r["icon"] else "credit-card"
             )
             for r in cur.fetchall()
         ]
@@ -2259,7 +2387,11 @@ class FinanceCoreEngine:
         current_balance: Optional[float] = None,
         billing_cycle_day: Optional[int] = None,
         payment_due_day: Optional[int] = None,
-        is_active: Optional[int] = None
+        is_active: Optional[int] = None,
+        credit_type: Optional[str] = None,
+        provider: Optional[str] = None,
+        billing_model: Optional[str] = None,
+        icon: Optional[str] = None
     ) -> Optional[CreditCard]:
         card = self.get_credit_card(card_id)
         if not card:
@@ -2271,14 +2403,18 @@ class FinanceCoreEngine:
         new_cycle = int(billing_cycle_day) if billing_cycle_day is not None else card.billing_cycle_day
         new_due = int(payment_due_day) if payment_due_day is not None else card.payment_due_day
         new_active = int(is_active) if is_active is not None else card.is_active
+        new_type = credit_type if credit_type is not None else card.credit_type
+        new_prov = provider if provider is not None else card.provider
+        new_model = billing_model if billing_model is not None else card.billing_model
+        new_icon = icon if icon is not None else card.icon
         now_str = datetime.now(timezone.utc).isoformat()
         conn = self.db.get_connection()
         with conn:
             conn.execute(
                 """UPDATE credit_cards 
-                   SET name = ?, bank_name = ?, credit_limit = ?, current_balance = ?, billing_cycle_day = ?, payment_due_day = ?, is_active = ?, updated_at = ?
+                   SET name = ?, bank_name = ?, credit_limit = ?, current_balance = ?, billing_cycle_day = ?, payment_due_day = ?, is_active = ?, credit_type = ?, provider = ?, billing_model = ?, icon = ?, updated_at = ?
                    WHERE id = ?""",
-                (new_name, new_bank, new_limit, new_bal, new_cycle, new_due, new_active, now_str, card_id)
+                (new_name, new_bank, new_limit, new_bal, new_cycle, new_due, new_active, new_type, new_prov, new_model, new_icon, now_str, card_id)
             )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -2286,6 +2422,137 @@ class FinanceCoreEngine:
                 (audit_id, "credit_cards", card_id, "UPDATE", now_str)
             )
         return self.get_credit_card(card_id)
+
+    # ----------------------------------------------------
+    # Phase 3.2: Credit Line Installments (PayLater)
+    # ----------------------------------------------------
+    def create_credit_line_installment(
+        self,
+        card_id: str,
+        description: str,
+        original_amount: float,
+        monthly_installment: float,
+        tenor_months: int,
+        start_date: str,
+        next_due_date: str,
+        remaining_amount: Optional[float] = None,
+        remaining_tenor: Optional[int] = None,
+        interest_rate_annual: float = 0.0,
+        admin_fee: float = 0.0,
+        transaction_id: Optional[str] = None
+    ) -> CreditLineInstallment:
+        orig_val = float(original_amount)
+        mon_val = float(monthly_installment)
+        tenor = int(tenor_months)
+        rem_val = float(remaining_amount) if remaining_amount is not None else orig_val
+        rem_tenor = int(remaining_tenor) if remaining_tenor is not None else tenor
+        if orig_val <= 0 or mon_val <= 0 or tenor <= 0:
+            raise ValueError("Amounts and tenor must be greater than zero")
+
+        conn = self.db.get_connection()
+        inst_id = self._generate_id("cli")
+        now_str = datetime.now(timezone.utc).isoformat()
+
+        with conn:
+            conn.execute(
+                """INSERT INTO credit_line_installments 
+                   (id, card_id, transaction_id, description, original_amount, remaining_amount, monthly_installment, tenor_months, remaining_tenor, interest_rate_annual, admin_fee, start_date, next_due_date, status, created_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?)""",
+                (inst_id, card_id, transaction_id, description.strip(), orig_val, rem_val, mon_val, tenor, rem_tenor, float(interest_rate_annual), float(admin_fee), start_date, next_due_date, now_str, now_str)
+            )
+            audit_id = self._generate_id("aud")
+            conn.execute(
+                "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
+                (audit_id, "credit_line_installments", inst_id, "CREATE", now_str)
+            )
+
+        return CreditLineInstallment(
+            id=inst_id,
+            card_id=card_id,
+            description=description.strip(),
+            original_amount=orig_val,
+            remaining_amount=rem_val,
+            monthly_installment=mon_val,
+            tenor_months=tenor,
+            remaining_tenor=rem_tenor,
+            start_date=start_date,
+            next_due_date=next_due_date,
+            transaction_id=transaction_id,
+            interest_rate_annual=float(interest_rate_annual),
+            admin_fee=float(admin_fee),
+            status="ACTIVE",
+            created_at=now_str,
+            updated_at=now_str
+        )
+
+    def get_credit_line_installment(self, installment_id: str) -> Optional[CreditLineInstallment]:
+        conn = self.db.get_connection()
+        cur = conn.execute("SELECT * FROM credit_line_installments WHERE id = ?", (installment_id,))
+        r = cur.fetchone()
+        if not r:
+            return None
+        return CreditLineInstallment(
+            id=r["id"],
+            card_id=r["card_id"],
+            description=r["description"],
+            original_amount=float(r["original_amount"]),
+            remaining_amount=float(r["remaining_amount"]),
+            monthly_installment=float(r["monthly_installment"]),
+            tenor_months=int(r["tenor_months"]),
+            remaining_tenor=int(r["remaining_tenor"]),
+            start_date=r["start_date"],
+            next_due_date=r["next_due_date"],
+            transaction_id=r["transaction_id"],
+            interest_rate_annual=float(r["interest_rate_annual"] if "interest_rate_annual" in r.keys() and r["interest_rate_annual"] is not None else 0.0),
+            admin_fee=float(r["admin_fee"] if "admin_fee" in r.keys() and r["admin_fee"] is not None else 0.0),
+            status=r["status"],
+            created_at=r["created_at"],
+            updated_at=r["updated_at"]
+        )
+
+    def list_credit_line_installments(self, card_id: Optional[str] = None, status: Optional[str] = None) -> List[CreditLineInstallment]:
+        conn = self.db.get_connection()
+        query = "SELECT * FROM credit_line_installments WHERE 1=1"
+        params = []
+        if card_id:
+            query += " AND card_id = ?"
+            params.append(card_id)
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+        query += " ORDER BY next_due_date ASC"
+        cur = conn.execute(query, params)
+        return [
+            CreditLineInstallment(
+                id=r["id"],
+                card_id=r["card_id"],
+                description=r["description"],
+                original_amount=float(r["original_amount"]),
+                remaining_amount=float(r["remaining_amount"]),
+                monthly_installment=float(r["monthly_installment"]),
+                tenor_months=int(r["tenor_months"]),
+                remaining_tenor=int(r["remaining_tenor"]),
+                start_date=r["start_date"],
+                next_due_date=r["next_due_date"],
+                transaction_id=r["transaction_id"],
+                interest_rate_annual=float(r["interest_rate_annual"] if "interest_rate_annual" in r.keys() and r["interest_rate_annual"] is not None else 0.0),
+                admin_fee=float(r["admin_fee"] if "admin_fee" in r.keys() and r["admin_fee"] is not None else 0.0),
+                status=r["status"],
+                created_at=r["created_at"],
+                updated_at=r["updated_at"]
+            )
+            for r in cur.fetchall()
+        ]
+
+    def update_credit_line_installment_status(self, installment_id: str, status: str) -> Optional[CreditLineInstallment]:
+        conn = self.db.get_connection()
+        now_str = datetime.now(timezone.utc).isoformat()
+        with conn:
+            conn.execute(
+                "UPDATE credit_line_installments SET status = ?, updated_at = ? WHERE id = ?",
+                (status, now_str, installment_id)
+            )
+        return self.get_credit_line_installment(installment_id)
 
     def create_credit_card_statement(
         self,
@@ -2350,6 +2617,7 @@ class FinanceCoreEngine:
             for r in cur.fetchall()
         ]
 
+    @financial_event
     def record_credit_card_payment(
         self,
         card_id: str,
@@ -2452,6 +2720,7 @@ class FinanceCoreEngine:
                 payment_date=r["payment_date"],
                 amount=float(r["amount"]),
                 notes=r["notes"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2505,6 +2774,7 @@ class FinanceCoreEngine:
     # ====================================================
     # Phase 3.1: Liability Payments
     # ====================================================
+    @financial_event
     def record_liability_payment(
         self,
         liability_id: str,
@@ -2513,7 +2783,8 @@ class FinanceCoreEngine:
         principal_portion: float = 0.0,
         interest_portion: float = 0.0,
         transaction_id: Optional[str] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        source_account_id: Optional[str] = None
     ) -> LiabilityPayment:
         conn = self.db.get_connection()
         pmt_id = self._generate_id("lpay")
@@ -2522,19 +2793,38 @@ class FinanceCoreEngine:
         if amt <= 0:
             raise ValueError("Liability payment amount must be positive")
         princ = float(principal_portion) if principal_portion > 0 else amt
+        inte = float(interest_portion) if interest_portion > 0 else 0.0
+
+        liab = self.get_liability(liability_id)
+        liab_name = liab.name if liab else "Pinjaman"
+
+        # If source_account_id provided and transaction_id not provided, record transaction
+        tx_id = transaction_id
+        if source_account_id and not tx_id:
+            tx = self.create_transaction(
+                account_id=source_account_id,
+                amount=amt,
+                direction="EXPENSE",
+                category_id="cat_loan_interest" if princ == 0 else None,
+                note=f"Pembayaran hutang: {liab_name} (Pokok: {princ:,.0f}, Bunga: {inte:,.0f})" if notes is None else notes,
+                tx_date=payment_date
+            )
+            tx_id = tx.id
+
         with conn:
             conn.execute(
                 """INSERT INTO liability_payments (id, liability_id, payment_date, amount, principal_portion, interest_portion, transaction_id, notes, created_at)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (pmt_id, liability_id, payment_date, amt, float(principal_portion), float(interest_portion), transaction_id, notes, now_str)
+                (pmt_id, liability_id, payment_date, amt, princ, inte, tx_id, notes, now_str)
             )
             cur = conn.execute("SELECT remaining_amount FROM liabilities WHERE id = ?", (liability_id,))
             liab_row = cur.fetchone()
             if liab_row:
                 new_rem = max(0.0, float(liab_row["remaining_amount"]) - princ)
+                active_flag = 1 if new_rem > 0 else 0
                 conn.execute(
-                    "UPDATE liabilities SET remaining_amount = ?, updated_at = ? WHERE id = ?",
-                    (new_rem, now_str, liability_id)
+                    "UPDATE liabilities SET remaining_amount = ?, is_active = ?, updated_at = ? WHERE id = ?",
+                    (new_rem, active_flag, now_str, liability_id)
                 )
             audit_id = self._generate_id("aud")
             conn.execute(
@@ -2546,9 +2836,9 @@ class FinanceCoreEngine:
             liability_id=liability_id,
             payment_date=payment_date,
             amount=amt,
-            principal_portion=float(principal_portion),
-            interest_portion=float(interest_portion),
-            transaction_id=transaction_id,
+            principal_portion=princ,
+            interest_portion=inte,
+            transaction_id=tx_id,
             notes=notes,
             created_at=now_str
         )
@@ -2572,6 +2862,7 @@ class FinanceCoreEngine:
                 interest_portion=float(r["interest_portion"]),
                 transaction_id=r["transaction_id"],
                 notes=r["notes"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2580,6 +2871,7 @@ class FinanceCoreEngine:
     # ====================================================
     # Phase 3.1: Asset Valuations
     # ====================================================
+    @financial_event
     def record_asset_valuation(
         self,
         asset_id: str,
@@ -2656,6 +2948,7 @@ class FinanceCoreEngine:
                 valuation_date=r["valuation_date"],
                 value=float(r["value"]),
                 reason=r["reason"],
+                **{k: r[k] for k in FIELDS if k in r.keys()},
                 created_at=r["created_at"]
             )
             for r in cur.fetchall()
@@ -2701,6 +2994,7 @@ class FinanceCoreEngine:
             "note": note_txt
         }
 
+    @financial_event
     def record_asset_purchase(
         self,
         account_id: str,
@@ -2735,7 +3029,7 @@ class FinanceCoreEngine:
         tx_id = self._generate_id("tx")
         now_str = datetime.now(timezone.utc).isoformat()
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
 
         user_notes = notes or f"Pembelian Aset: {ast['name']}"
         new_acc_bal = float(acc["balance"]) - amount
@@ -2804,6 +3098,7 @@ class FinanceCoreEngine:
             "new_asset_value": new_ast_val
         }
 
+    @financial_event
     def record_credit_card_purchase(
         self,
         card_id: str,
@@ -2832,7 +3127,7 @@ class FinanceCoreEngine:
         tx_id = self._generate_id("tx")
         now_str = datetime.now(timezone.utc).isoformat()
         if not tx_date:
-            tx_date = date.today().isoformat()
+            tx_date = datetime.now(WIB).date().isoformat()
 
         new_card_bal = float(card["current_balance"]) + amount
         card_acc_id = card["account_id"] or card_id
@@ -2896,7 +3191,7 @@ class FinanceCoreEngine:
             raise ValueError("Mortgage payment amount must be positive")
 
         if not payment_date:
-            payment_date = date.today().isoformat()
+            payment_date = datetime.now(WIB).date().isoformat()
 
         conn = self.db.get_connection()
         cur_liab = conn.execute("SELECT * FROM liabilities WHERE id = ?", (liability_id,)).fetchone()
@@ -2979,6 +3274,105 @@ class FinanceCoreEngine:
             "monthly_payment": liab.monthly_payment,
             "payment_history_count": len(payments)
         }
+
+    @financial_event
+    def record_credit_card_purchase(
+        self,
+        card_id: str,
+        amount: float,
+        category_id: Optional[str] = None,
+        subcategory_id: Optional[str] = None,
+        note: Optional[str] = None,
+        tx_date: Optional[str] = None
+    ) -> Dict[str, Any]:
+        conn = self.db.get_connection()
+        cur = conn.execute("SELECT * FROM credit_cards WHERE id = ?", (card_id,))
+        card = cur.fetchone()
+        if not card:
+            raise ValueError(f"Credit card not found: {card_id}")
+            
+        if amount <= 0:
+            raise ValueError("Purchase amount must be positive")
+            
+        tx_id = self._generate_id("tx")
+        if not tx_date:
+            tx_date = datetime.now(WIB).date().isoformat()
+        now_str = datetime.now(timezone.utc).isoformat()
+        
+        tx_note = note if note else f"Transaksi {card['name']}"
+        if not tx_note.startswith(f"[{card['name']}]") and not tx_note.startswith("[Tokopedia Card]"):
+            tx_note = f"[{card['name']}] {tx_note}"
+            
+        with conn:
+            conn.execute(
+                """INSERT INTO transactions 
+                   (id, date, account_id, category_id, subcategory_id, amount, direction, note, source, status, credit_card_id, is_reserved, created_at, updated_at) 
+                   VALUES (?, ?, ?, ?, ?, ?, 'EXPENSE', ?, 'DASHBOARD_CC', 'ACTIVE', ?, 0, ?, ?)""",
+                (tx_id, tx_date, card["account_id"], category_id, subcategory_id, amount, tx_note, card_id, now_str, now_str)
+            )
+            
+            new_balance = float(card["current_balance"]) + amount
+            conn.execute(
+                "UPDATE credit_cards SET current_balance = ?, updated_at = ? WHERE id = ?",
+                (new_balance, now_str, card_id)
+            )
+            
+            audit_id = self._generate_id("aud")
+            conn.execute(
+                "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
+                (audit_id, "credit_cards", card_id, "PURCHASE", now_str)
+            )
+            
+        return {
+            "success": True,
+            "transaction_id": tx_id,
+            "card_id": card_id,
+            "amount": amount,
+            "current_balance": new_balance,
+            "date": tx_date
+        }
+
+    def correct_gold_lot(
+        self,
+        lot_id: str,
+        new_value: Optional[float] = None,
+        new_date: Optional[str] = None,
+        new_reason: Optional[str] = None,
+        correction_note: Optional[str] = None
+    ) -> Dict[str, Any]:
+        conn = self.db.get_connection()
+        cur = conn.execute("SELECT * FROM asset_valuation_history WHERE id = ?", (lot_id,))
+        lot = cur.fetchone()
+        if not lot:
+            raise ValueError(f"Lot / valuation record not found: {lot_id}")
+            
+        now_str = datetime.now(timezone.utc).isoformat()
+        val = float(new_value) if new_value is not None else float(lot["value"])
+        v_date = new_date if new_date is not None else lot["valuation_date"]
+        reason = new_reason if new_reason is not None else lot["reason"]
+        
+        if correction_note:
+            reason = f"{reason} (Koreksi: {correction_note})"
+            
+        with conn:
+            conn.execute(
+                "UPDATE asset_valuation_history SET value = ?, valuation_date = ?, reason = ? WHERE id = ?",
+                (val, v_date, reason, lot_id)
+            )
+            audit_id = self._generate_id("aud")
+            conn.execute(
+                "INSERT INTO audit_logs (id, entity, entity_id, action, created_at) VALUES (?, ?, ?, ?, ?)",
+                (audit_id, "asset_valuation_history", lot_id, "CORRECT_LOT", now_str)
+            )
+            
+        return {
+            "success": True,
+            "lot_id": lot_id,
+            "value": val,
+            "valuation_date": v_date,
+            "reason": reason
+        }
+
 
 
 

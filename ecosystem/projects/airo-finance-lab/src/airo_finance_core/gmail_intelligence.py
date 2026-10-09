@@ -14,6 +14,8 @@ import os
 import re
 import json
 import hashlib
+import time
+from . import gmail_reliability as reliability
 from datetime import datetime, date, timezone
 from typing import Dict, Any, Optional, Tuple, List
 from .engine import FinanceCoreEngine
@@ -40,6 +42,8 @@ class GmailIntelligenceService:
     def get_outbound(self) -> Tuple[Optional[Any], Optional[str]]:
         if self.outbound is not None and self.owner_chat_id is not None:
             return self.outbound, self.owner_chat_id
+        if os.environ.get("AIRO_FINANCE_OFFLINE_TEST") == "1":
+            return None, None
         try:
             from .telegram_ingress import load_telegram_credentials, TelegramOutboundAdapter
             token, chat_id = load_telegram_credentials()
@@ -76,7 +80,12 @@ class GmailIntelligenceService:
                 except Exception:
                     pass
 
-            self._gmail_service = build("gmail", "v1", credentials=creds, cache_discovery=False)
+            candidate_service = build("gmail", "v1", credentials=creds, cache_discovery=False)
+            candidate_service._http.timeout = 20
+            profile = candidate_service.users().getProfile(userId="me").execute()
+            if profile.get("emailAddress", "").lower() != "progamer6918@gmail.com":
+                raise RuntimeError("Gmail identity mismatch")
+            self._gmail_service = candidate_service
             return self._gmail_service
         except ImportError:
             raise RuntimeError("Google API client libraries (google-api-python-client, google-auth) not installed.")
@@ -162,7 +171,7 @@ class GmailIntelligenceService:
         combined = f"{send} {subj} {text}".lower()
 
         # 1. Detect Account Source
-        detected_account = "Blu"  # Default
+        detected_account = "Unknown Account"
         if any(b in combined for b in ["blu", "bca digital", "blubybcadigital"]):
             detected_account = "Blu"
         elif any(b in combined for b in ["bca utama", "m-bca", "klikbca", "mybca", "bca.co.id", "qris bca"]):
@@ -194,7 +203,13 @@ class GmailIntelligenceService:
         # 3. Extract Direction & Transaction Type
         direction = "EXPENSE"
         tx_type = "Pengeluaran"
-        if any(w in combined for w in ["antar blu", "antar-blu", "transfer antar blu", "bayar kartu kredit", "pembayaran tagihan cc", "transfer antar rekening", "internal transfer"]):
+        direction_known = any(w in combined for w in ["80777", "tagihan tokopedia card", "bayar tokopedia card", "pembayaran tokopedia card", "pembayaran tagihan cc", "bayar kartu kredit", "pembayaran kartu kredit", "pembayaran kredivo", "antar blu", "antar-blu", "transfer antar rekening", "internal transfer", "transfer masuk", "dana masuk", "penerimaan", "cashback", "gaji", "income", "transfer keluar", "pembayaran", "qris", "debit", "pembelian", "debet"])
+        if any(w in combined for w in ["80777", "tagihan tokopedia card", "bayar tokopedia card", "pembayaran tokopedia card", "pembayaran tagihan cc", "bayar kartu kredit", "pembayaran kartu kredit", "pembayaran kredivo"]):
+            direction = "CC_PAYMENT"
+            tx_type = "Pelunasan Kartu Kredit"
+            if "blu" in combined:
+                detected_account = "Blu Pocket CC"
+        elif any(w in combined for w in ["antar blu", "antar-blu", "transfer antar blu", "bayar kartu kredit", "pembayaran tagihan cc", "transfer antar rekening", "internal transfer"]):
             direction = "TRANSFER"
             if "antar blu" in combined or "antar-blu" in combined:
                 tx_type = "Antar blu"
@@ -209,8 +224,10 @@ class GmailIntelligenceService:
 
         # 4. Extract Date
         tx_date = date.today().isoformat()
+        date_known = False
         date_match = re.search(r'(\d{4}-\d{2}-\d{2})|(\d{2}[/-]\d{2}[/-]\d{4})', text)
         if date_match:
+            date_known = True
             raw_d = date_match.group(0)
             if "-" in raw_d and len(raw_d.split("-")[0]) == 4:
                 tx_date = raw_d
@@ -240,6 +257,7 @@ class GmailIntelligenceService:
                 m_str = text_date_match.group(2).lower()
                 d_year = text_date_match.group(3)
                 if m_str in month_map:
+                    date_known = True
                     tx_date = f"{d_year}-{month_map[m_str]}-{d_day}"
 
         # 5. Extract Merchant / Note
@@ -268,18 +286,23 @@ class GmailIntelligenceService:
         if not merchant:
             merchant = "Transaksi Keuangan"
 
+        from .gmail_details import facts
+        structured = facts(text)
         return {
             "account_name": detected_account,
             "account_source": detected_account,
             "amount": amount,
             "currency": "IDR",
             "date": tx_date,
+            "date_known": date_known,
             "direction": direction,
             "tx_type": tx_type,
+            "direction_known": direction_known,
             "destination": "Internal transfer / target pocket" if direction == "TRANSFER" else "",
             "note": merchant,
             "merchant": merchant,
-            "raw_text": text
+            "raw_text": "",
+            **structured
         }
 
     # ====================================================
@@ -328,6 +351,10 @@ class GmailIntelligenceService:
             cat = self.engine.find_category_by_keyword("listrik") or self.engine.find_category_by_keyword("tagihan")
             if cat:
                 return (cat.get("category_id"), cat.get("category_name") or "Tagihan & Utilitas", cat.get("subcategory_id"), cat.get("subcategory_name") or "Listrik & Air", 0.85)
+        elif any(w in lower_note for w in ["80777", "tokopedia card", "kartu kredit", "cc payment", "pembayaran tagihan cc", "kredivo"]):
+            cat = self.engine.find_category_by_keyword("tagihan")
+            if cat:
+                return (cat.get("category_id"), cat.get("category_name") or "Tagihan & Utilitas", cat.get("subcategory_id"), cat.get("subcategory_name") or "Tagihan Kartu Kredit", 0.95)
         elif any(w in lower_note for w in ["tokopedia", "shopee", "indomaret", "alfamart", "supermarket"]):
             cat = self.engine.find_category_by_keyword("belanja")
             if cat:
@@ -361,11 +388,6 @@ class GmailIntelligenceService:
             if row:
                 return True, f"Email message_id '{message_id}' already processed (Status: {row['status']})"
 
-        # 2. Check fingerprint in processed_emails (excluding rejected)
-        fp_row = conn.execute("SELECT message_id, status FROM processed_emails WHERE fingerprint = ? AND status != 'REJECTED'", (fingerprint,)).fetchone()
-        if fp_row:
-            return True, f"Duplicate transaction fingerprint '{fingerprint}' already exists in processed_emails"
-
         return False, "NOT_DUPLICATE"
 
     # ====================================================
@@ -378,7 +400,9 @@ class GmailIntelligenceService:
         sender: Optional[str] = None,
         message_id: Optional[str] = None,
         thread_id: Optional[str] = None,
-        auto_ingest: bool = False
+        auto_ingest: bool = False,
+        received_date: Optional[str] = None,
+        received_at: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Core Ingestion Pipeline:
@@ -390,6 +414,9 @@ class GmailIntelligenceService:
         6. Format Telegram notification card
         """
         parsed = self.parse_email(email_text, subject, sender)
+        if received_date and not parsed.get("date_known"):
+            parsed["date"] = received_date
+            parsed["date_inferred_from_email"] = True
         cat_id, cat_name, subcat_id, subcat_name, confidence = self.classify(parsed["note"], parsed["amount"])
 
         parsed["category_id"] = cat_id
@@ -404,6 +431,9 @@ class GmailIntelligenceService:
         # Calculate fingerprint
         fingerprint = self.calculate_fingerprint(parsed["account_name"], parsed["date"], parsed["amount"], parsed["note"])
         parsed["fingerprint"] = fingerprint
+        parsed["message_at"] = received_at
+        parsed["source_received_at"] = received_at
+        parsed["source_id"] = "gmail:" + parsed["message_id"]
 
         # Duplicate check
         is_dup, dup_reason = self.check_duplicate(message_id, fingerprint)
@@ -423,82 +453,59 @@ class GmailIntelligenceService:
             (parsed["account_name"], f"%{parsed['account_name']}%")
         ).fetchone()
         account_id = acc_row["id"] if acc_row else None
-        if not account_id:
-            fb = conn.execute("SELECT id, name FROM accounts WHERE is_active = 1 ORDER BY balance DESC LIMIT 1").fetchone()
-            account_id = fb["id"] if fb else None
-            parsed["account_name"] = fb["name"] if fb else "Unknown Account"
         parsed["account_id"] = account_id
-
-        # Enqueue Candidate into Review Queue (Zero direct writes)
-        q_item = self.engine.enqueue_review_item(
-            raw_text=email_text,
-            parsed_result=parsed,
-            issue_reason="Transaksi terdeteksi dari Gmail (Menunggu persetujuan Owner)",
-            confidence=confidence
-        )
-
-        # Record in processed_emails
-        with conn:
-            conn.execute(
-                """INSERT OR REPLACE INTO processed_emails 
-                   (message_id, thread_id, sender, subject, received_date, fingerprint, status, review_item_id, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, 'CANDIDATE_CREATED', ?, datetime('now'))""",
-                (parsed["message_id"], thread_id, sender or "Unknown", subject or "No Subject", parsed["date"], fingerprint, q_item.id)
-            )
-        conn.commit()
-
-        # Double check review_queue persistence before Telegram dispatch
-        persisted = conn.execute("SELECT id, status FROM review_queue WHERE id = ?", (q_item.id,)).fetchone()
-        if not persisted or persisted["status"] != "PENDING":
-            logger.error(f"Integrity check failed: review_item {q_item.id} not found in PENDING status in review_queue table.")
-
-        # Format Telegram card
-        telegram_card = self.format_telegram_review_card(parsed, q_item.id)
-
-        # Telegram delivery via Hermes Outbound
-        telegram_delivery = "NONE"
-        telegram_message_id = None
-        payload_verified = False
-
+        from .intake_service import IntakeService
+        from .intake_learning import suggest
+        learned=suggest(IntakeService(self.engine),parsed)
+        for field in ('category_id','category_name','subcategory_id','subcategory_name','suggested_rule'):
+            if field in learned:parsed[field]=learned[field]
+        reasons = []
+        if parsed.get("temporal_issue"): reasons.append("Ada beberapa waktu transaksi pada email; perlu diperiksa")
+        if parsed.get("date_inferred_from_email"): reasons.append("Tanggal mengikuti waktu email; periksa tanggal transaksi")
+        if not account_id: reasons.append("Akun belum diketahui; pilih akun sebelum approve")
+        if parsed["amount"] <= 0: reasons.append("Nominal belum valid")
+        if parsed.get("merchant", "").lower() in ("transaksimu pakai blu berhasil", "internet transaction journal", "info transaksi masuk ke blu kamu"):
+            reasons.append("Tujuan transaksi belum jelas; balas kartu dengan catatan atau pecahan")
+            parsed.update(category_id=None,category_name=None,subcategory_id=None,subcategory_name=None)
+        if not parsed.get("direction_known", False): reasons.append("Jenis transaksi belum jelas")
+        if parsed["direction"] == "TRANSFER" and not parsed.get("destination_account_id"):
+            reasons.append("Akun tujuan transfer perlu diperiksa")
+        fp_match = conn.execute("SELECT message_id FROM processed_emails WHERE fingerprint=? AND message_id!=?", (fingerprint,parsed["message_id"])).fetchone()
+        if fp_match: reasons.append("Kemungkinan duplikat transaksi; periksa sebelum approve")
+        # A ledger match is a warning, never proof that two different emails are identical.
+        if account_id and conn.execute("SELECT id FROM transactions WHERE account_id=? AND amount=? AND date=? AND status='ACTIVE' LIMIT 1", (account_id,parsed["amount"],parsed["date"])).fetchone():
+            reasons.append("Ada transaksi ledger dengan akun/nominal/tanggal sama; rekonsiliasi dahulu")
+        parsed["review_reasons"] = reasons
+        if reasons: confidence = min(confidence,0.49)
+        parsed["confidence"] = confidence
         outbound, owner_id = self.get_outbound()
-        if outbound and owner_id:
-            reply_markup = {
-                "inline_keyboard": [
-                    [
-                        {"text": "✅ Approve", "callback_data": f"gma:{q_item.id}"},
-                        {"text": "✏️ Edit", "callback_data": f"gmc:{q_item.id}"},
-                        {"text": "❌ Ignore", "callback_data": f"gmi:{q_item.id}"}
-                    ]
-                ]
-            }
-            try:
-                owner_ids = [x.strip() for x in str(owner_id).split(",") if x.strip()]
-                for oid in owner_ids:
-                    tg_res = outbound.send_message(
-                        chat_id=str(oid),
-                        text=telegram_card,
-                        reply_markup=reply_markup
-                    )
-                    if tg_res and (tg_res.get("ok") or tg_res.get("result")):
-                        telegram_delivery = "PASS"
-                        telegram_message_id = str(tg_res.get("result", {}).get("message_id", ""))
-                        payload_verified = True
-            except Exception:
-                pass
-
-        return {
-            "status": "QUEUED_FOR_REVIEW",
-            "action": "REVIEW_QUEUE",
-            "review_id": q_item.id,
-            "confidence": confidence,
-            "fingerprint": fingerprint,
-            "parsed": parsed,
-            "telegram_card": telegram_card,
-            "telegram_delivery": telegram_delivery,
-            "telegram_message_id": telegram_message_id,
-            "payload_verified": payload_verified,
-            "message": f"Kandidat transaksi Rp{parsed['amount']:,.0f} ({parsed['account_name']}) masuk Review Queue."
-        }
+        with self.db.atomic():
+            # Recheck under database write lock.
+            if conn.execute("SELECT 1 FROM processed_emails WHERE message_id=?",(parsed["message_id"],)).fetchone():
+                return {"status":"DUPLICATE_SKIPPED","action":"SKIPPED","parsed":parsed}
+            q_item = self.engine.enqueue_review_item(raw_text="Gmail reference: "+parsed["message_id"], parsed_result=parsed,
+                confidence=confidence, issue_reason="; ".join(reasons) or "Menunggu persetujuan Owner")
+            conn.execute("INSERT INTO processed_emails (message_id,thread_id,sender,subject,received_date,fingerprint,status,review_item_id) VALUES (?,?,?,?,?,?,?,?)",(parsed["message_id"],thread_id,sender or "Unknown",subject or "No Subject",parsed["date"],fingerprint,"CANDIDATE_CREATED",q_item.id))
+            rule=conn.execute("SELECT enabled,owner_approved FROM intake_rules WHERE id=?",(parsed.get('suggested_rule',''),)).fetchone()
+            if rule and rule['enabled'] and rule['owner_approved'] and not reasons and parsed.get('bank_reference') and parsed.get('occurred_at') and parsed.get('date_known') and parsed.get('direction_known') and parsed['direction'] in ('EXPENSE','INCOME'):
+                item,tx=self.engine.approve_review_item(q_item.id)
+                for oid in str(owner_id or '').split(','):
+                    if oid.strip():reliability.enqueue(self.db,'auto_receipt',q_item.id,oid.strip(),'sendMessage',{'chat_id':oid.strip(),'text':reliability.receipt(self.engine,tx),'parse_mode':'HTML'})
+                return {'status':'QUEUED_FOR_REVIEW','review_id':q_item.id,'parsed':parsed,'confidence':confidence,'auto_recorded':True}
+            telegram_card = self.format_telegram_review_card(parsed,q_item.id)
+            for oid in str(owner_id or "").split(","):
+                if oid.strip():
+                    reliability.enqueue(self.db,"candidate",q_item.id,oid.strip(),"sendMessage", {
+                        "chat_id":oid.strip(),"text":telegram_card,"parse_mode":"HTML",
+                        "reply_markup":{"inline_keyboard":[[{"text":"✅ Setujui","callback_data":f"gma:{q_item.id}"}], [{"text":"📝 Catatan / pecah","callback_data":f"gsp:{q_item.id}"}], [{"text":"🔗 Sudah tercatat","callback_data":f"gln:{q_item.id}"}], [{"text":"🚫 Bukan transaksi","callback_data":f"gin:{q_item.id}"}]]}})
+        # Network transport is outside the atomic SQLite transaction.
+        if not getattr(self,"defer_delivery",False): reliability.dispatch(self.db,outbound)
+        delivery = conn.execute("SELECT status,message_id FROM finance_outbox WHERE kind='candidate' AND ref=?",(q_item.id,)).fetchone()
+        return {"status":"QUEUED_FOR_REVIEW","action":"REVIEW_QUEUE","review_id":q_item.id,
+            "confidence":confidence,"fingerprint":fingerprint,"parsed":parsed,"telegram_card":telegram_card,
+            "telegram_delivery":"PASS" if delivery and delivery[0]=="SENT" else "PENDING",
+            "telegram_message_id":delivery[1] if delivery else None,
+            "payload_verified":bool(delivery and delivery[0]=="SENT")}
 
     # ====================================================
     # Phase 5: Telegram Notification Formatting
@@ -508,6 +515,8 @@ class GmailIntelligenceService:
         Formats single HTML review card per specification:
         Supports both Expense and Internal Transfer (Antar blu) format.
         """
+        import html
+        candidate = {k: html.escape(v) if isinstance(v,str) else v for k,v in candidate.items()}
         amt = candidate.get("amount", 0.0)
         acc = candidate.get("account_name", "Rekening")
         note = candidate.get("note", "Transaksi")
@@ -541,108 +550,123 @@ class GmailIntelligenceService:
                 f"<i>Pilih tindakan di bawah untuk memproses transaksi:</i>\n"
                 f"<code>ID: {review_id}</code>"
             )
+        if candidate.get("review_reasons"):
+            import html
+            card += "\n⚠️ " + html.escape("; ".join(candidate["review_reasons"]))
         return card
 
     # ====================================================
     # Phase 1 & 8: Inbox Scanning (Read-Only)
     # ====================================================
-    def scan_inbox(
-        self,
-        query: str = "newer_than:7d",
-        max_results: int = 20,
-        dry_run: bool = False
-    ) -> Dict[str, Any]:
-        """
-        Proactively scans Gmail inbox using read-only API calls.
-        Identifies financial emails and creates candidate transactions.
-        """
-        service = self.get_service()
-        limit = max(1, min(int(max_results), 50))
-
-        # 1. Search messages (Read-only list)
-        list_res = service.users().messages().list(userId="me", q=query, maxResults=limit).execute()
-        messages = list_res.get("messages", [])
-
-        scanned = 0
-        detected_financial = 0
-        candidates_created = 0
-        duplicates_skipped = 0
-        results = []
-
-        for m in messages:
-            scanned += 1
-            msg_id = m["id"]
-            thread_id = m.get("threadId")
-
-            # Check if already processed before fetching full message
-            conn = self.db.get_connection()
-            already = conn.execute("SELECT status FROM processed_emails WHERE message_id = ?", (msg_id,)).fetchone()
-            if already:
-                duplicates_skipped += 1
-                continue
-
-            # Fetch message metadata & snippet (Read-only get)
-            msg_data = service.users().messages().get(
-                userId="me",
-                id=msg_id,
-                format="metadata",
-                metadataHeaders=["From", "Subject", "Date"]
-            ).execute()
-
-            headers = {h["name"]: h["value"] for h in msg_data.get("payload", {}).get("headers", [])}
-            sender = headers.get("From", "")
-            subject = headers.get("Subject", "")
-            snippet = msg_data.get("snippet", "")
-
-            # Filter financial emails
-            is_fin, s_type = self.is_financial_email(sender, subject, snippet)
-            if not is_fin:
+    def scan_inbox(self, query=None, max_results=50, dry_run=False, job_key="routine", budget_seconds=220):
+        query = query or "newer_than:7d"
+        conn=self.db.get_connection()
+        with reliability.lock(self.db) as acquired:
+            if not acquired:
+                return {"status":"already_running","scanned":0,"processed":0,"pending_notifications":reliability.health(self.db)['pending_notifications']}
+            now=time.time();deadline=time.monotonic()+budget_seconds
+            saved=reliability.state(self.db,'job:'+job_key,{}) if not dry_run else {}
+            if not saved or saved.get('query')!=query or saved.get('complete'):
+                saved={'query':query,'api_query':('after:'+str(int(now)-7*86400) if query=='newer_than:7d' else query)+' before:'+str(int(now)+1),'page_token':None,'pending':[{'id':r[0]} for r in conn.execute('SELECT message_id FROM gmail_errors')], 'fetched':False,'complete':False,'started_at':now,'scanned_total':0,'created_total':0}
+            h=reliability.state(self.db,'health',{'monitor_started_at':now})
+            h.update(last_started_at=now,last_status='running')
+            if not dry_run:
+                with conn:reliability.put(self.db,'health',h)
+            result={'status':'completed','query':query,'scanned':0,'scanned_count':0,'detected_financial':0,'financial_detected':0,'candidates_created':0,'processed':0,'duplicates_skipped':0,'skipped':0,'errors':0,'dry_run':dry_run,'results':[],'items':[],'reconciliation':{'already_recorded':0,'new_candidates':0,'needs_review':0,'parse_failed':0}}
+            self.defer_delivery=True
+            stage='connect'
+            try:
+                service=self.get_service()
+                if hasattr(service,'_http'):service._http.timeout=20
+                while time.monotonic()<deadline:
+                    if not saved['pending']:
+                        if saved['fetched'] and not saved['page_token']:
+                            saved['complete']=True;break
+                        stage='list'
+                        args={'userId':'me','q':saved['api_query'],'maxResults':min(50,max(1,int(max_results)))}
+                        if saved['page_token']:args['pageToken']=saved['page_token']
+                        page=service.users().messages().list(**args).execute()
+                        saved['pending']=page.get('messages',[]);saved['page_token']=page.get('nextPageToken');saved['fetched']=True
+                        if not dry_run:
+                            with conn:reliability.put(self.db,'job:'+job_key,saved)
+                        if not saved['pending']:continue
+                    m=saved['pending'][0];mid=m['id'];result['scanned']+=1;saved['scanned_total']+=1
+                    row=conn.execute('SELECT status FROM processed_emails WHERE message_id=?',(mid,)).fetchone()
+                    if row:
+                        result['duplicates_skipped']+=1;result['reconciliation']['already_recorded']+=1
+                        if not dry_run:
+                            with conn:conn.execute('DELETE FROM gmail_errors WHERE message_id=?',(mid,))
+                    else:
+                        stage='fetch'
+                        try:
+                            msg=service.users().messages().get(userId='me',id=mid,format='full').execute()
+                            headers={v['name'].lower():v['value'] for v in msg.get('payload',{}).get('headers',[])}
+                            sender=headers.get('from','');subject=headers.get('subject','')
+                            from .gmail_details import body
+                            snippet=body(msg)
+                        except Exception as exc:
+                            status=getattr(getattr(exc,'resp',None),'status',None)
+                            if status!=404 and not isinstance(exc,(KeyError,TypeError,ValueError)):raise
+                            result['errors']+=1;result['reconciliation']['parse_failed']+=1
+                            saved['pending'].pop(0)
+                            if not dry_run:
+                                with conn:
+                                    reliability.error(self.db,mid,'fetch',exc)
+                                    reliability.put(self.db,'job:'+job_key,saved)
+                            continue
+                        stage='parse'
+                        from zoneinfo import ZoneInfo
+                        from email.utils import parsedate_to_datetime
+                        received=None;received_at=None
+                        try:
+                            dt=datetime.fromtimestamp(int(msg['internalDate'])/1000,timezone.utc) if msg.get('internalDate') else parsedate_to_datetime(headers.get('date',''))
+                            received=dt.astimezone(ZoneInfo('Asia/Jakarta')).date().isoformat();received_at=dt.astimezone(ZoneInfo('Asia/Jakarta')).isoformat()
+                        except (ValueError,TypeError,KeyError):pass
+                        try:
+                            is_fin,_=self.is_financial_email(sender,subject,snippet)
+                            if is_fin:
+                                result['detected_financial']+=1
+                                if dry_run:
+                                    parsed=self.parse_email(snippet,subject,sender)
+                                    account=conn.execute('SELECT id FROM accounts WHERE name=?',(parsed['account_name'],)).fetchone()
+                                    ambiguous=not account or parsed['amount']<=0 or not parsed.get('direction_known') or parsed['direction']=='TRANSFER'
+                                    fp=self.calculate_fingerprint(parsed['account_name'],parsed['date'],parsed['amount'],parsed['note'])
+                                    possible=conn.execute('SELECT 1 FROM processed_emails WHERE fingerprint=?',(fp,)).fetchone()
+                                    ledger=account and conn.execute("SELECT 1 FROM transactions WHERE account_id=? AND date=? AND amount=? AND status='ACTIVE'",(account[0],parsed['date'],parsed['amount'])).fetchone()
+                                    key='needs_review' if ambiguous or possible or ledger else 'new_candidates'
+                                    result['reconciliation'][key]+=1
+                                else:
+                                    stage='persist'
+                                    item=self.process_email(snippet,subject,sender,mid,m.get('threadId'),received_date=received,received_at=received_at)
+                                    if item['status']=='QUEUED_FOR_REVIEW':
+                                        result['candidates_created']+=1;saved['created_total']+=1
+                                        result['reconciliation']['needs_review' if item['parsed'].get('review_reasons') else 'new_candidates']+=1
+                                    else:result['duplicates_skipped']+=1
+                            elif not dry_run:
+                                with conn:conn.execute("INSERT OR IGNORE INTO processed_emails(message_id,thread_id,sender,subject,status) VALUES (?,?,?,?,'SKIPPED_NON_FINANCIAL')",(mid,m.get('threadId'),sender,subject))
+                            if not dry_run:
+                                with conn:conn.execute('DELETE FROM gmail_errors WHERE message_id=?',(mid,))
+                        except Exception as exc:
+                            result['errors']+=1;result['reconciliation']['parse_failed']+=1
+                            if not dry_run:
+                                with conn:reliability.error(self.db,mid,stage,exc)
+                    saved['pending'].pop(0)
+                    if not dry_run:
+                        with conn:reliability.put(self.db,'job:'+job_key,saved)
+                if not saved['complete'] or result['errors']:result['status']='partial'
+                result.update(scanned_count=result['scanned'],financial_detected=result['detected_financial'],processed=result['candidates_created'],skipped=result['duplicates_skipped'],complete=saved['complete'],scanned_total=saved['scanned_total'],created_total=saved['created_total'])
                 if not dry_run:
+                    h.update(last_finished_at=time.time(),last_status=result['status'],last_error=None)
+                    if saved['complete'] and not reliability.health(self.db)['email_errors']:h['last_success_at']=time.time()
                     with conn:
-                        conn.execute(
-                            """INSERT OR REPLACE INTO processed_emails 
-                               (message_id, thread_id, sender, subject, status, created_at)
-                               VALUES (?, ?, ?, ?, 'SKIPPED_NON_FINANCIAL', datetime('now'))""",
-                            (msg_id, thread_id, sender, subject)
-                        )
-                continue
-
-            detected_financial += 1
-
-            if dry_run:
-                parsed = self.parse_email(snippet, subject, sender)
-                results.append({
-                    "message_id": msg_id,
-                    "sender": sender,
-                    "subject": subject,
-                    "parsed": parsed,
-                    "action": "DRY_RUN_DETECTED"
-                })
-            else:
-                proc = self.process_email(
-                    email_text=snippet,
-                    subject=subject,
-                    sender=sender,
-                    message_id=msg_id,
-                    thread_id=thread_id
-                )
-                if proc["status"] == "QUEUED_FOR_REVIEW":
-                    candidates_created += 1
-                elif proc["status"] == "DUPLICATE_SKIPPED":
-                    duplicates_skipped += 1
-                results.append(proc)
-
-        return {
-            "query": query,
-            "scanned": scanned,
-            "scanned_count": scanned,
-            "detected_financial": detected_financial,
-            "financial_detected": detected_financial,
-            "candidates_created": candidates_created,
-            "processed": candidates_created,
-            "duplicates_skipped": duplicates_skipped,
-            "skipped": duplicates_skipped,
-            "dry_run": dry_run,
-            "results": results,
-            "items": results
-        }
+                        reliability.put(self.db,'health',h);reliability.put(self.db,'job:'+job_key,saved)
+                    outbound,owner=self.get_outbound();reliability.watchdog(self.db,outbound,owner,deliver=False)
+                result['pending_notifications']=reliability.health(self.db)['pending_notifications']
+                return result
+            except Exception as exc:
+                if not dry_run:
+                    h.update(last_finished_at=time.time(),last_status='failed',last_error={'stage':stage,'code':type(exc).__name__})
+                    with conn:reliability.put(self.db,'health',h);reliability.put(self.db,'job:'+job_key,saved)
+                    outbound,owner=self.get_outbound();reliability.watchdog(self.db,outbound,owner,deliver=False)
+                raise RuntimeError('Scan Gmail gagal pada tahap '+stage+' ('+type(exc).__name__+'); periksa status Finance Inbox.') from None
+            finally:self.defer_delivery=False

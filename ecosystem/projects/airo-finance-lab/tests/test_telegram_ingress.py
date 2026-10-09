@@ -132,35 +132,16 @@ class TestTelegramIngress(unittest.TestCase):
         tx_cnt_after = conn.execute("SELECT count(*) FROM transactions").fetchone()[0]
         self.assertEqual(tx_cnt_after, 0)
 
-    def test_05_transaction_staging_and_card(self):
-        update = {
-            "update_id": 103,
-            "message": {
-                "message_id": 5,
-                "chat": {"id": self.owner_id},
-                "from": {"id": self.owner_id},
-                "text": "makan 35k bca"
-            }
-        }
-        handled, reason = self.router.handle_update(update)
+    def test_05_complete_single_transaction_receipt(self):
+        handled,reason=self.router.handle_update({'message':{'message_id':5,'from':{'id':self.owner_id},'chat':{'id':self.owner_id},'text':'makan 35k bca'}})
         self.assertTrue(handled)
-        self.assertTrue(reason.startswith("STAGED_CARD_SENT:cand_"))
-
-        # Verify confirmation card dispatched via outbound client
-        last_call = self.mock_transport.calls[-1]
-        self.assertEqual(last_call["method"], "sendMessage")
-        self.assertIn("Konfirmasi Transaksi", last_call["payload"]["text"])
-        self.assertIn("Rp35.000", last_call["payload"]["text"])
-        
-        # Verify inline keyboard has short callback data
-        inline_kb = last_call["payload"]["reply_markup"]["inline_keyboard"][0]
-        self.assertTrue(any(btn["callback_data"].startswith("cfm:cand_") for btn in inline_kb))
-        self.assertTrue(any(btn["callback_data"].startswith("ccl:cand_") for btn in inline_kb))
-
-        # Verify ledger is not written yet
-        conn = self.db.get_connection()
-        tx_cnt = conn.execute("SELECT count(*) FROM transactions").fetchone()[0]
-        self.assertEqual(tx_cnt, 0)
+        self.assertEqual(reason,'BATCH_SINGLE_RECORDED')
+        payload=self.mock_transport.calls[-1]['payload']
+        self.assertIn('Rp35.000',payload['text'])
+        self.assertIn('saldo buku besar setelah transaksi',payload['text'])
+        self.assertEqual(self.engine.get_account(self.bca.id).balance,1465000)
+        self.router.handle_update({'message':{'message_id':5,'from':{'id':self.owner_id},'chat':{'id':self.owner_id},'text':'makan 35k bca'}})
+        self.assertEqual(self.db.get_connection().execute('SELECT count(*) FROM transactions').fetchone()[0],1)
 
     def test_06_confirmation_callback_flow(self):
         # 1. Stage candidate
@@ -237,23 +218,7 @@ class TestTelegramIngress(unittest.TestCase):
         }
         handled, reason = self.router.handle_update(update_msg)
         self.assertTrue(handled)
-        self.assertTrue(reason.startswith("STAGED_CARD_SENT:"))
-
-        cand_id = reason.split(":", 1)[1]
-
-        # Confirm transfer
-        update_cq = {
-            "update_id": 107,
-            "callback_query": {
-                "id": "cq_trf",
-                "from": {"id": self.owner_id},
-                "message": {"message_id": 16, "chat": {"id": self.owner_id}},
-                "data": f"cfm:{cand_id}"
-            }
-        }
-        handled_cq, reason_cq = self.router.handle_update(update_cq)
-        self.assertTrue(handled_cq)
-        self.assertTrue(reason_cq.startswith("CONFIRMED:"))
+        self.assertEqual(reason,'BATCH_SINGLE_RECORDED')
 
         # Check balances: BCA -200k (1.3M), Mandiri +200k (700k)
         conn = self.db.get_connection()

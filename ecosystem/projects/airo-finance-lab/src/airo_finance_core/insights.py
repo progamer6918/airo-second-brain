@@ -1,8 +1,9 @@
 import os
+import re
 import calendar
 import sqlite3
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from datetime import datetime, date, timedelta
 from .db import DatabaseManager
 from .models import NetWorthReport
@@ -128,6 +129,9 @@ class SafeToSpendReport:
     status: str  # 'SAFE' or 'DEFICIT'
     deficit_amount: float
     obligations: List[ObligationStatusItem]
+    dedicated_reserve: float = 0.0
+    uncovered_cc_debt: float = 0.0
+    cc_unpaid_total: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -138,6 +142,9 @@ class SafeToSpendReport:
         d["unpaid_obligations_total"] = self.unpaid_obligations_this_cycle
         d["safe_to_spend_amount"] = self.safe_to_spend
         d["daily_allowance"] = self.daily_safe_allowance
+        d["dedicated_reserve"] = self.dedicated_reserve
+        d["uncovered_cc_debt"] = self.uncovered_cc_debt
+        d["cc_unpaid_total"] = self.cc_unpaid_total
         return d
 
 @dataclass
@@ -219,7 +226,9 @@ class FinanceInsightsService:
                 COALESCE(SUM(amount), 0.0) as total_amount,
                 COUNT(*) as tx_count
             FROM transactions
-            WHERE substr(date, 1, 7) = ? AND (status IS NULL OR status != 'VOID')
+            WHERE substr(date, 1, 7) = ? 
+              AND (status IS NULL OR status != 'VOID')
+              AND (category_id IS NULL OR category_id != 'cat_loan_disbursement')
             GROUP BY direction
         """
         cur = conn.execute(query, (period_str,))
@@ -466,7 +475,11 @@ class FinanceInsightsService:
     # ----------------------------------------------------
     # E. Safe-to-Spend Model (Phase 2.2)
     # ----------------------------------------------------
-    def get_safe_to_spend_report(self, as_of: Optional[str] = None) -> SafeToSpendReport:
+    def get_safe_to_spend_report(
+        self,
+        as_of: Optional[Union[str, date]] = None,
+        as_of_date: Optional[Union[str, date]] = None
+    ) -> SafeToSpendReport:
         """
         Deterministic Safe-to-Spend Calculation (Level 3 Insight).
         Formula:
@@ -478,11 +491,15 @@ class FinanceInsightsService:
         conn = self.db.get_connection()
 
         # 1. Parse reference date
-        if as_of:
-            try:
-                ref_date = date.fromisoformat(as_of)
-            except Exception:
-                ref_date = date.today()
+        target_ref = as_of if as_of is not None else as_of_date
+        if target_ref is not None:
+            if isinstance(target_ref, date):
+                ref_date = target_ref
+            else:
+                try:
+                    ref_date = date.fromisoformat(str(target_ref))
+                except Exception:
+                    ref_date = date.today()
         else:
             ref_date = date.today()
         as_of_str = ref_date.isoformat()
@@ -542,11 +559,56 @@ class FinanceInsightsService:
         cycle_start_str = cycle_start.isoformat()
         next_payday_str = next_payday.isoformat()
 
-        # 4. Total liquid balance
-        account_overview = self.get_account_overview()
-        total_liquid = account_overview.total_liquid_balance
+        # 4. Total operational liquid balance vs dedicated debt reserve accounts
+        # Data-driven: accounts WHERE is_active = 1
+        # accounts with account_class == 'RESERVE' are DEDICATED RESERVES (strictly excluded from general operating cash)
+        acc_rows = conn.execute("SELECT id, name, balance, account_class, reserve_target_id FROM accounts WHERE is_active = 1").fetchall()
+        total_liquid = 0.0
+        card_reserves = {}
+        for ar in acc_rows:
+            aclass = (ar["account_class"] or "LIQUID").upper()
+            aname = (ar["name"] or "").lower()
+            abal = float(ar["balance"])
+            target_id = ar["reserve_target_id"]
+            if aclass == "RESERVE" or "pocket cc" in aname or "cadangan cc" in aname:
+                if target_id:
+                    card_reserves[target_id] = card_reserves.get(target_id, 0.0) + abal
+                else:
+                    # Fallback mapping by name for legacy Tokopedia card reserve pocket
+                    card_reserves["_legacy_pocket_cc"] = card_reserves.get("_legacy_pocket_cc", 0.0) + abal
+            else:
+                total_liquid += abal
 
-        # 5. Query active fixed obligations and determine payment status this cycle
+        # Calculate Uncovered CC Debt per card (Zero cross-subsidy, conservative floor at 0):
+        total_uncovered_cc_debt = 0.0
+        cc_unpaid_total = 0.0
+        try:
+            cards_cur = conn.execute("SELECT id, name, credit_limit, current_balance, billing_model FROM credit_cards WHERE is_active = 1")
+            for c_row in cards_cur.fetchall():
+                c_id = c_row["id"]
+                c_name = (c_row["name"] or "").lower()
+                
+                # Unpaid statements for this card
+                stmt_cur = conn.execute("SELECT COALESCE(SUM(unpaid_amount), 0.0) as s FROM credit_card_statements WHERE card_id = ? AND status != 'PAID'", (c_id,))
+                stmt_res = stmt_cur.fetchone()
+                c_unpaid = float(stmt_res["s"]) if stmt_res else 0.0
+                cc_unpaid_total += c_unpaid
+
+                # Dedicated reserve for this card
+                c_res = card_reserves.get(c_id, 0.0)
+                if c_res == 0.0 and ("tokopedia" in c_name or "bri" in c_name):
+                    c_res += card_reserves.get("_legacy_pocket_cc", 0.0)
+
+                # Shortage for this card
+                c_shortage = max(0.0, c_unpaid - c_res)
+                total_uncovered_cc_debt += c_shortage
+        except sqlite3.OperationalError:
+            pass
+
+        dedicated_reserve = sum(card_reserves.values())
+        uncovered_cc_debt = total_uncovered_cc_debt
+
+        # 5. Query active fixed obligations, debts, and installments
         obligation_items: List[ObligationStatusItem] = []
         try:
             cur = conn.execute("""
@@ -598,12 +660,96 @@ class FinanceInsightsService:
         except sqlite3.OperationalError:
             pass
 
+        # 5b. Liabilities (KPR & Hutang Perorangan) due this cycle
+        try:
+            liab_cur = conn.execute("""
+                SELECT id, name, type, original_amount, remaining_amount, monthly_payment, due_day, 
+                       lender_name, repayment_type, maturity_date
+                FROM liabilities
+                WHERE is_active = 1 AND remaining_amount > 0
+            """)
+            for lr in liab_cur.fetchall():
+                l_id = lr["id"]
+                l_name = lr["name"]
+                l_rem = float(lr["remaining_amount"])
+                l_mon = float(lr["monthly_payment"])
+                l_due_day = int(lr["due_day"])
+                l_repay = (lr["repayment_type"] if "repayment_type" in lr.keys() and lr["repayment_type"] else "INSTALLMENT").upper()
+                l_mat = lr["maturity_date"] if "maturity_date" in lr.keys() else None
+
+                sched_due = 0.0
+                if l_repay == "LUMP_SUM":
+                    if not l_mat or l_mat <= next_payday_str:
+                        sched_due = l_rem
+                else:
+                    sched_due = l_mon if l_mon > 0 else min(l_rem, 0.0)
+
+                if sched_due > 0:
+                    pmt_cur = conn.execute("""
+                        SELECT COALESCE(SUM(amount), 0.0) as paid_sum
+                        FROM liability_payments
+                        WHERE liability_id = ? AND payment_date >= ? AND payment_date <= ?
+                    """, (l_id, cycle_start_str, as_of_str))
+                    paid_row = pmt_cur.fetchone()
+                    paid_this_cycle = float(paid_row["paid_sum"]) if paid_row else 0.0
+
+                    unpaid_due = max(0.0, sched_due - paid_this_cycle)
+                    is_paid = unpaid_due <= 0.0
+                    obligation_items.append(
+                        ObligationStatusItem(
+                            obligation_id=l_id,
+                            name=f"Hutang: {l_name}",
+                            amount=sched_due,
+                            due_day=l_due_day,
+                            category_id=None,
+                            category_name="Hutang & Pinjaman",
+                            is_active=True,
+                            is_paid_this_cycle=is_paid,
+                            status="PAID" if is_paid else "UNPAID"
+                        )
+                    )
+        except sqlite3.OperationalError:
+            pass
+
+        # 5c. Credit Line Installments (PayLater per-transaction) due this cycle
+        try:
+            cli_cur = conn.execute("""
+                SELECT id, card_id, description, monthly_installment, next_due_date, remaining_amount
+                FROM credit_line_installments
+                WHERE status = 'ACTIVE' AND next_due_date <= ?
+            """, (next_payday_str,))
+            for cli in cli_cur.fetchall():
+                cli_id = cli["id"]
+                cli_desc = cli["description"]
+                cli_amt = float(cli["monthly_installment"])
+                due_day_calc = 1
+                try:
+                    due_day_calc = int(cli["next_due_date"].split("-")[2])
+                except Exception:
+                    pass
+                obligation_items.append(
+                    ObligationStatusItem(
+                        obligation_id=cli_id,
+                        name=f"Cicilan: {cli_desc}",
+                        amount=cli_amt,
+                        due_day=due_day_calc,
+                        category_id=None,
+                        category_name="Cicilan PayLater",
+                        is_active=True,
+                        is_paid_this_cycle=False,
+                        status="UNPAID"
+                    )
+                )
+        except sqlite3.OperationalError:
+            pass
+
         total_active_obligations = sum(o.amount for o in obligation_items)
         paid_obligations = sum(o.amount for o in obligation_items if o.is_paid_this_cycle)
         unpaid_obligations = sum(o.amount for o in obligation_items if not o.is_paid_this_cycle)
 
-        # 6. Calculate Safe-to-Spend
-        net_calc = total_liquid - unpaid_obligations - safety_floor
+        # 6. Calculate Safe-to-Spend / Free Cash
+        # Formula: Eligible Operating Cash - Uncovered CC Debt - Unpaid Commitments - Safety Floor
+        net_calc = total_liquid - uncovered_cc_debt - unpaid_obligations - safety_floor
         if net_calc >= 0:
             safe_to_spend = round(net_calc, 2)
             status = "SAFE"
@@ -617,7 +763,7 @@ class FinanceInsightsService:
         daily_safe_allowance = round(safe_to_spend / max(1, days_to_payday), 2)
 
         # 8. Payday Runway (Days)
-        unencumbered_liquid = max(0.0, total_liquid - unpaid_obligations)
+        unencumbered_liquid = max(0.0, total_liquid - uncovered_cc_debt - unpaid_obligations)
         thirty_days_ago = (ref_date - timedelta(days=30)).isoformat()
         burn_query = """
             SELECT COALESCE(SUM(amount), 0.0) as total_spent
@@ -651,7 +797,10 @@ class FinanceInsightsService:
             payday_runway_days=payday_runway_days,
             status=status,
             deficit_amount=deficit_amount,
-            obligations=obligation_items
+            obligations=obligation_items,
+            dedicated_reserve=round(dedicated_reserve, 2),
+            uncovered_cc_debt=round(uncovered_cc_debt, 2),
+            cc_unpaid_total=round(cc_unpaid_total, 2)
         )
 
     def get_full_insights_overview(self, year: Optional[int] = None, month: Optional[int] = None) -> Dict[str, Any]:
@@ -912,15 +1061,20 @@ class FinanceInsightsService:
         for r in rows:
             if "emas" in r["name"].lower() or "logam mulia" in r["name"].lower():
                 val = float(r["current_value"])
-                weight = float(r.get("weight_grams") or 50.0)
-                purchase_cost = float(r.get("purchase_cost") or 55000000.0)
-                avg_cost_per_gram = float(r.get("average_cost_per_gram") or (purchase_cost / weight if weight > 0 else 1100000.0))
-                market_price_per_gram = float(r.get("current_unit_price") or (val / weight if weight > 0 else 1500000.0))
+                weight = float(r.get("weight_grams") or 17.478)
+                purchase_cost = float(r.get("purchase_cost") or 48747258.0)
+                avg_cost_per_gram = float(r.get("average_cost_per_gram") or (purchase_cost / weight if weight > 0 else 2789000.0))
+                market_price_per_gram = float(r.get("current_unit_price") or (val / weight if weight > 0 else 2602000.0))
                 profit_loss = val - purchase_cost
                 profit_loss_pct = (profit_loss / purchase_cost * 100.0) if purchase_cost > 0 else 0.0
                 
-                v_cur = conn.execute("SELECT valuation_date, value, reason FROM asset_valuation_history WHERE asset_id = ? ORDER BY valuation_date ASC", (r["id"],))
+                v_cur = conn.execute("SELECT * FROM asset_valuation_history WHERE asset_id = ? ORDER BY valuation_date ASC", (r["id"],))
                 v_rows = [dict(vr) for vr in v_cur.fetchall()]
+                
+                last_reason = v_rows[-1]["reason"] or "" if v_rows else ""
+                last_date = v_rows[-1]["valuation_date"] if v_rows else (r.get("updated_at") or "")
+                source_match = re.search(r'\(([^)]+)\)', last_reason)
+                source_name = source_match.group(1) if source_match else "harga-emas.org"
                 
                 r["gold_details"] = {
                     "weight_grams": weight,
@@ -933,7 +1087,9 @@ class FinanceInsightsService:
                     "current_valuation": val,
                     "profit_loss": profit_loss,
                     "profit_loss_pct": round(profit_loss_pct, 1),
-                    "valuation_history": v_rows
+                    "valuation_history": v_rows,
+                    "source": source_name,
+                    "last_updated": last_date
                 }
                 gold_tracker = r["gold_details"]
 
@@ -961,7 +1117,7 @@ class FinanceInsightsService:
                 remaining_installments = max(0, total_tenor - paid_count)
                 next_installment_num = paid_count + 1 if remaining_installments > 0 else total_tenor
                 
-                h_cur = conn.execute("SELECT payment_date, amount, principal_portion, interest_portion, notes FROM liability_payments WHERE liability_id = ? ORDER BY payment_date DESC LIMIT 12", (r["id"],))
+                h_cur = conn.execute("SELECT * FROM liability_payments WHERE liability_id = ? ORDER BY payment_date DESC LIMIT 12", (r["id"],))
                 h_rows = [dict(hr) for hr in h_cur.fetchall()]
                 
                 r["mortgage_details"] = {
@@ -973,6 +1129,9 @@ class FinanceInsightsService:
                     "next_payment_month": "Oktober 2026",
                     "next_payment_due_day": r["due_day"],
                     "monthly_installment": float(r["monthly_payment"]),
+                    "budget_commitment": 1570000.0,
+                    "admin_fee": 27000.0,
+                    "remaining_debt": float(r["remaining_amount"]),
                     "recent_payments": h_rows
                 }
                 mortgage_tracker = r["mortgage_details"]
@@ -1050,16 +1209,33 @@ class FinanceInsightsService:
         total_limit = 0.0
         total_balance = 0.0
 
-        # Query payment reserve from Blu Pocket CC (or any reserve pocket)
-        reserve_cur = conn.execute("SELECT balance FROM accounts WHERE LOWER(name) LIKE '%pocket cc%' LIMIT 1")
-        reserve_row = reserve_cur.fetchone()
-        payment_reserve = float(reserve_row["balance"]) if reserve_row else 0.0
+        payment_reserve = 0.0
 
         for r in cur.fetchall():
+            card_id = r["id"]
             limit = float(r["credit_limit"])
             bal = float(r["current_balance"])
             total_limit += limit
             total_balance += bal
+
+            # Query payment reserve strictly linked to this card (no cross-card leakage)
+            if "tokopedia" in (r["name"] or "").lower() or "bri" in (r["name"] or "").lower():
+                card_reserve_cur = conn.execute("""
+                    SELECT COALESCE(SUM(balance), 0.0) as b 
+                    FROM accounts 
+                    WHERE is_active = 1 
+                      AND (reserve_target_id = ? OR (account_class = 'RESERVE' AND (LOWER(name) LIKE '%pocket cc%' OR LOWER(name) LIKE '%cadangan cc%')))
+                """, (card_id,))
+            else:
+                card_reserve_cur = conn.execute("""
+                    SELECT COALESCE(SUM(balance), 0.0) as b 
+                    FROM accounts 
+                    WHERE is_active = 1 
+                      AND reserve_target_id = ?
+                """, (card_id,))
+            card_reserve_row = card_reserve_cur.fetchone()
+            card_reserve = float(card_reserve_row["b"]) if card_reserve_row else 0.0
+            payment_reserve += card_reserve
 
             # Dynamic Billing Cycle calculation based on card billing_cycle_day (default 15)
             row_keys = r.keys() if hasattr(r, "keys") else []
@@ -1068,19 +1244,12 @@ class FinanceInsightsService:
             today = date.today()
 
             # Determine closed cycle boundary
-            # If today.day > cycle_day (e.g. today is 16th or later):
-            # Closed cycle is: (day+1 of last month) to (day of current month)
-            # Current unbilled cycle is: (day+1 of current month) to (day of next month)
-            # If today.day <= cycle_day:
-            # Closed cycle is: (day+1 of 2 months ago) to (day of last month)
-            # Current unbilled cycle is: (day+1 of last month) to (day of current month)
             if today.day > cycle_day:
                 c_end = date(today.year, today.month, cycle_day)
                 if today.month == 1:
                     c_start = date(today.year - 1, 12, cycle_day + 1)
                 else:
                     c_start = date(today.year, today.month - 1, cycle_day + 1)
-                # Next unbilled period
                 u_start = date(c_end.year, c_end.month, cycle_day + 1)
                 if c_end.month == 12:
                     u_end = date(c_end.year + 1, 1, cycle_day)
@@ -1123,21 +1292,27 @@ class FinanceInsightsService:
             ).fetchall()
 
             if card_stmts:
-                latest_stmt = dict(card_stmts[0])
-                stmt_bal = float(latest_stmt.get("unpaid_amount", latest_stmt.get("total_amount", 0.0)))
+                unpaid_stmts_list = [dict(s) for s in card_stmts if s["status"] != "PAID" and float(s["unpaid_amount"]) > 0]
+                primary_stmt = unpaid_stmts_list[0] if unpaid_stmts_list else dict(card_stmts[0])
+                
+                stmt_bal = sum(float(s["unpaid_amount"]) for s in card_stmts if s["status"] != "PAID")
+                if stmt_bal == 0 and primary_stmt.get("status") != "PAID":
+                    stmt_bal = float(primary_stmt.get("unpaid_amount", primary_stmt.get("total_amount", 0.0)))
+
+                prim_unpaid = float(primary_stmt.get("unpaid_amount", 0.0))
                 closed_stmt = {
-                    "id": latest_stmt.get("id"),
+                    "id": primary_stmt.get("id"),
                     "cycle_code": cycle_code,
-                    "statement_period": latest_stmt.get("statement_period", c_period_str),
-                    "period_start": latest_stmt.get("period_start", c_start.isoformat()),
-                    "period_end": latest_stmt.get("period_end", c_end.isoformat()),
-                    "statement_date": latest_stmt.get("statement_date", c_end.isoformat()),
-                    "due_date": latest_stmt.get("due_date", c_due.isoformat()),
-                    "total_amount": float(latest_stmt.get("total_amount", 0.0)),
-                    "unpaid_amount": stmt_bal,
-                    "pocket_ready": payment_reserve,
-                    "remaining": max(0.0, stmt_bal - payment_reserve),
-                    "status": "AMAN" if (stmt_bal == 0 or payment_reserve >= stmt_bal) else "PERLU_DIPERSIAPKAN"
+                    "statement_period": primary_stmt.get("statement_period", c_period_str),
+                    "period_start": primary_stmt.get("period_start", c_start.isoformat()),
+                    "period_end": primary_stmt.get("period_end", c_end.isoformat()),
+                    "statement_date": primary_stmt.get("statement_date", c_end.isoformat()),
+                    "due_date": primary_stmt.get("due_date", c_due.isoformat()),
+                    "total_amount": float(primary_stmt.get("total_amount", 0.0)),
+                    "unpaid_amount": prim_unpaid,
+                    "pocket_ready": card_reserve,
+                    "remaining": max(0.0, prim_unpaid - card_reserve),
+                    "status": "AMAN" if (prim_unpaid == 0 or card_reserve >= prim_unpaid) else "PERLU_DIPERSIAPKAN"
                 }
             else:
                 stmt_bal = min(bal, 351000.0) if bal > 0 else 0.0
@@ -1151,9 +1326,9 @@ class FinanceInsightsService:
                     "due_date": c_due.isoformat(),
                     "total_amount": stmt_bal,
                     "unpaid_amount": stmt_bal,
-                    "pocket_ready": payment_reserve,
-                    "remaining": max(0.0, stmt_bal - payment_reserve),
-                    "status": "AMAN" if (stmt_bal == 0 or payment_reserve >= stmt_bal) else "PERLU_DIPERSIAPKAN"
+                    "pocket_ready": card_reserve,
+                    "remaining": max(0.0, stmt_bal - card_reserve),
+                    "status": "AMAN" if (stmt_bal == 0 or card_reserve >= stmt_bal) else "PERLU_DIPERSIAPKAN"
                 }
 
             unbilled = max(0.0, bal - stmt_bal)
@@ -1163,23 +1338,40 @@ class FinanceInsightsService:
                 "period_end": u_end.isoformat(),
                 "unbilled_amount": unbilled,
                 "total_temporary": unbilled,
-                "not_prepared": max(0.0, unbilled - max(0.0, payment_reserve - stmt_bal)),
+                "not_prepared": max(0.0, unbilled - max(0.0, card_reserve - stmt_bal)),
                 "status": "Tracking",
                 "is_closed": False
             }
 
+            shortage = max(0.0, stmt_bal + unbilled - card_reserve)
+
             cards.append({
                 "id": r["id"],
+                "account_id": r["account_id"] if "account_id" in row_keys else None,
                 "name": r["name"],
                 "bank_name": r["bank_name"],
                 "credit_limit": round(limit, 2),
                 "current_balance": round(bal, 2),
-                "statement_balance": round(stmt_bal, 2),
-                "unbilled_transactions": round(unbilled, 2),
-                "payment_reserve": round(payment_reserve, 2),
+                "limit_used": round(bal, 2),
                 "available_credit": round(max(0.0, limit - bal), 2),
+                "available_limit": round(max(0.0, limit - bal), 2),
+                "statement_balance": round(stmt_bal, 2),
+                "unpaid_issued_statement": round(stmt_bal, 2),
+                "unbilled_transactions": round(unbilled, 2),
+                "unbilled": round(unbilled, 2),
+                "pending": 0.0,
+                "outstanding_installment": 0.0,
+                "payment_reserve": round(card_reserve, 2),
+                "reserve_balance": round(card_reserve, 2),
+                "reserve_allocated": round(card_reserve, 2),
+                "reserve_used": round(min(stmt_bal + unbilled, card_reserve), 2),
+                "shortage": round(shortage, 2),
                 "billing_cycle_day": cycle_day,
                 "payment_due_day": due_day,
+                "credit_type": r["credit_type"] if "credit_type" in row_keys and r["credit_type"] else "CREDIT_CARD",
+                "provider": r["provider"] if "provider" in row_keys else None,
+                "billing_model": r["billing_model"] if "billing_model" in row_keys and r["billing_model"] else "STATEMENT_CYCLE",
+                "icon": r["icon"] if "icon" in row_keys and r["icon"] else "credit-card",
                 "utilization_rate": round((bal / limit * 100.0), 1) if limit > 0 else 0.0,
                 "closed_statement": closed_stmt,
                 "current_period": current_period
