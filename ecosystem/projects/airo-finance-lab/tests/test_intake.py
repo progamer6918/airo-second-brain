@@ -268,6 +268,36 @@ class Intake(unittest.TestCase):
         self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
         self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],1)
 
+    def test_completed_recap_closes_without_pending_controls(self):
+        batch = self.draft()
+        self.s.commit(batch, "1", confirm_suggestions=True)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        before = self.balances()
+        router.intake.send_preview(batch, "1", message_id=44)
+        payload = [p for m,p in self.calls if m == "editMessageText"][-1]
+        self.assertIn("Pencatatan selesai", payload["text"])
+        self.assertIn("Tidak perlu membalas", payload["text"])
+        self.assertEqual(payload["reply_markup"]["inline_keyboard"], [])
+        self.assertEqual(before, self.balances())
+        result = router.handle_update({"callback_query": {"id": "old-later", "from": {"id": 1}, "data": "bi:later:" + batch, "message": {"message_id": 44, "chat": {"id": 1}}}})
+        self.assertEqual(result, (True, "BATCH_ALREADY_COMPLETED"))
+        self.assertEqual(self.s.conn.execute("SELECT mode FROM intake_context WHERE owner='1'").fetchone()[0], "DETAIL")
+        self.assertEqual(self.calls[-1][1]["text"], "Pencatatan sudah selesai; tidak ada draft menunggu.")
+        self.assertEqual(before, self.balances())
+
+    def test_partial_batch_keeps_pending_actions_and_completed_editor_is_explicit(self):
+        batch = self.draft()
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        router.intake.send_preview(batch, "1")
+        payload = [p for m,p in self.calls if m == "sendMessage"][-1]
+        self.assertTrue(any("Lanjut nanti" in b["text"] for row in payload["reply_markup"]["inline_keyboard"] for b in row))
+        self.s.commit(batch, "1", confirm_suggestions=True)
+        router.intake.send_preview(batch, "1", editing=True)
+        payload = [p for m,p in self.calls if m == "sendMessage"][-1]
+        self.assertIn("Koreksi catatan", payload["text"])
+        self.assertIn("nomor dan perubahan", payload["text"])
+        self.assertFalse(any("Lanjut nanti" in b["text"] for row in payload["reply_markup"]["inline_keyboard"] for b in row))
+
     def test_completed_context_does_not_capture_reported_model_question_or_chatter(self):
         batch = self.draft()
         self.s.commit(batch, "1", confirm_suggestions=True)

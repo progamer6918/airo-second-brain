@@ -26,6 +26,10 @@ class IntakeRouter:
                 self.s.conn.execute("DELETE FROM intake_context WHERE owner=? AND batch_id=?", (str(owner), batch))
             self.send_closed(owner, message_id, "↩️ Pencatatan sudah dibatalkan. Saldo buku besar sudah dipulihkan. Tidak ada transaksi yang menunggu disimpan dari kartu ini.")
             return
+        has_draft = any(r["status"] == "DRAFT" for r in rows)
+        if not has_draft and not editing:
+            self.send_closed(owner, message_id, "✅ Pencatatan selesai.\n\n" + self.s.preview(batch, page) + "\n\nTidak perlu membalas atau menekan tombol lagi.")
+            return
         ready = sum(
             r["status"] == "DRAFT" and not self.s.approval_issues(r["data"], r["id"])
             for r in rows
@@ -84,6 +88,10 @@ class IntakeRouter:
                 ],
                 [{"text": "🕒 Lanjut nanti", "callback_data": "bi:later:" + batch}],
             ]
+        if editing and not has_draft:
+            payload["reply_markup"]["inline_keyboard"] = payload["reply_markup"]["inline_keyboard"][:1]
+            preview = f"✏️ Koreksi catatan — {batch[:6]}\n\nTransaksi sudah tercatat. Untuk mengoreksi, balas dengan nomor dan perubahan, contoh: no. 1 nominalnya 25rb. Koreksi akan ditampilkan untuk disetujui sebelum disimpan.\n\n" + self.s.preview(batch, page)
+            payload["text"] = preview
         if editing and ready and len(rows)==1:
             payload["reply_markup"]["inline_keyboard"].insert(0,[{"text":f"✅ Simpan {ready} transaksi","callback_data":"bi:save:"+batch}])
         size = self.s.page_size(batch)
@@ -313,6 +321,11 @@ class IntakeRouter:
                         )
                 self.send_preview(batch, owner, msg.get("message_id"))
             elif action == "later":
+                if not any(r["status"] == "DRAFT" for r in self.s.rows(batch)):
+                    self.send_preview(batch, owner, msg.get("message_id"))
+                    if self.parent.outbound:
+                        self.parent.outbound.answer_callback_query(cq["id"], text="Pencatatan sudah selesai; tidak ada draft menunggu.")
+                    return True, "BATCH_ALREADY_COMPLETED"
                 with self.s.db.atomic():
                     self.s.conn.execute(
                         "UPDATE intake_context SET mode='PAUSED' WHERE owner=? AND batch_id=?",
