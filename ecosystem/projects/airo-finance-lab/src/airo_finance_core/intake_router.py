@@ -397,23 +397,35 @@ class IntakeRouter:
                         batch = self.s.from_review(owner, r[0])
                     except ValueError:
                         pass
+        from . import intake_parser as parser
+        numbered = re.search(r"\b(?:no\.?|nomor)\s*(\d+)\b", lower)
+        explicit_action = bool(numbered or re.search(
+            r"\b(?:semua\s+(?:tanggal|jam|akun)|(?:tanggal|jam|pukul)\s+(?:(?:jd|jadi|ke)\s+)?\d|pecah\s*:|sudah tercatat|bukan transaksi|sudah ganti|lanjut batch)\b", lower))
+        exact_action = lower in ("rekapan", "rekap", "lihat rekapan", "tampilkan rekapan", "status transaksi", "cek draft", "catat", "simpan", "catat sekarang", "oke simpan", "setuju simpan", "simpan yang siap") or lower.startswith("simpan yang siap kecuali ")
+        finance_question = bool(re.search(r"(?:butuh|perlu|kurang|minta).*?(?:konfirmasi|detail|informasi).*?(?:apa|lagi)|(?:konfirmasi|kurang|detail).*?apa.*?lagi|harus.*?(?:jawab|balas)", lower))
+        # Conversational questions must reach Hermes, even with a retained card
+        # context or a reply to an old receipt. A greeting/yes prefix is not consent.
+        general_question = bool(re.search(r"\b(?:model|tutor|tutorial|gimana|kenapa|siapa|kapan)\b|(?:apa|berapa).*\?|apa kabar|terima kasih|makasih", lower)) and not numbered and not re.search(r"\b(?:transaksi|finance|draft|rekapan)\b", lower)
+        if general_question and not finance_question and not explicit_action:
+            return None
+        purpose_answer = bool(re.search(r"\b(?:bayar|beli|makan|laundry|utk|untuk|dari|dr|sudah transfer|sudah ditransfer|alokasi)\b", lower) or parser.account_matches(self.s.engine, lower))
+        if not purpose_answer:
+            classification = parser.classify(self.s.engine, lower, "EXPENSE")
+            purpose_answer = bool(classification.get("category_name"))
+        if batch:
+            pending = any(x["status"] == "DRAFT" for x in self.s.rows(batch))
+            if not (explicit_action or exact_action or (pending and (purpose_answer or finance_question))):
+                return None
         if not batch:
             r = self.s.conn.execute(
                 "SELECT batch_id,mode FROM intake_context WHERE owner=?", (owner,)
             ).fetchone()
-            if r and any(x["status"] in ("DRAFT", "POSTED") for x in self.s.rows(r[0])) and (
-                re.search(
-                    r"\b(no\.?|nomor|semua|tanggal|jam|pukul|pecah|sudah tercatat|bukan transaksi|simpan|catat|sudah ganti|lanjut batch|iya|betul)\b",
-                    lower,
-                )
-                or (
-                    len(self.s.rows(r[0])) == 1
-                    and (r["mode"] != "PAUSED" or re.search(r"\b(?:bayar|beli|utk|untuk|dari|dr|sudah|rekapan)\b", lower))
-                    and amount(text) is None
-                    and len(text) < 150
-                )
-            ):
-                batch = r[0]
+            if r:
+                rows = self.s.rows(r[0])
+                pending = any(x["status"] == "DRAFT" for x in rows)
+                if ((pending and (explicit_action or exact_action or finance_question or (len(rows) == 1 and purpose_answer and amount(text) is None)))
+                    or (not pending and (numbered or exact_action))):
+                    batch = r[0]
         numbered = re.search(r"\b(?:no\.?|nomor)\s*(\d+)\b", lower)
         if not batch and numbered and self.parent.is_owner(sender):
             candidates = self.s.conn.execute("SELECT DISTINCT b.id FROM intake_batches b JOIN intake_items i ON i.batch_id=b.id WHERE b.owner=? AND i.status='DRAFT' AND i.number=? AND b.updated_at>? ORDER BY b.updated_at DESC", (owner,int(numbered[1]),time.time()-86400)).fetchall()

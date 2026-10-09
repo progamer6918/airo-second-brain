@@ -268,6 +268,41 @@ class Intake(unittest.TestCase):
         self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
         self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],1)
 
+    def test_completed_context_does_not_capture_reported_model_question_or_chatter(self):
+        batch = self.draft()
+        self.s.commit(batch, "1", confirm_suggestions=True)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        before = self.s.rows(batch)
+        for text in ["iya gimana, tutor detail yg benar la. btw lo model apa sih", "iya gimana", "makasih", "apa kabar", "itu untuk bayar laundry"]:
+            with self.subTest(text=text):
+                result = router.intake.handle({"message": {"message_id": 900, "from": {"id": 1}, "chat": {"id": 1}, "text": text}})
+                self.assertIsNone(result)
+        self.assertEqual(before, self.s.rows(batch))
+        self.assertEqual(self.calls, [])
+
+    def test_pending_context_allows_natural_notes_but_leaves_general_chat_to_hermes(self):
+        review = self.email_fixture("context-boundary")
+        batch = self.s.from_review("1", review.id)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        before = self.s.rows(batch)
+        for text in ["iya gimana, tutor detail yg benar la. btw lo model apa sih", "apa kabar", "iya gimana"]:
+            self.assertIsNone(router.intake.handle({"message": {"message_id": 901, "from": {"id": 1}, "chat": {"id": 1}, "text": text}}))
+        self.assertEqual(before, self.s.rows(batch))
+        self.assertEqual(self.calls, [])
+        result = router.intake.handle({"message": {"message_id": 902, "from": {"id": 1}, "chat": {"id": 1}, "text": "itu untuk makan malam"}})
+        self.assertTrue(result[0])
+        self.assertEqual(self.s.rows(batch)[0]["data"]["subcategory_name"], "Makan Malam")
+
+    def test_reply_to_old_receipt_does_not_capture_general_question(self):
+        batch = self.draft()
+        self.s.commit(batch, "1", confirm_suggestions=True)
+        with self.db.atomic():
+            self.s.conn.execute("INSERT OR REPLACE INTO intake_prompts VALUES ('1','44',?)", (batch,))
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        result = router.intake.handle({"message": {"message_id": 903, "from": {"id": 1}, "chat": {"id": 1}, "reply_to_message": {"message_id": 44}, "text": "lo model apa sih"}})
+        self.assertIsNone(result)
+        self.assertEqual(self.calls, [])
+
     def test_source_receipt_names_and_reads_gether_balance_before_payer(self):
         _, batch = self.funded_email()
         self.e.transfer_funds(self.accounts["Blu Gether"].id, self.accounts["Blu"].id, 50000, tx_date="2026-10-08")
