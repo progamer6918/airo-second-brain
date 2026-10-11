@@ -1,5 +1,18 @@
 # Infrastructure — Setup Teknis AIRO
 
+
+## Snapshot akses operasional saat ini (Owner-confirmed, 2026-10-11)
+
+- **PC utama:** Windows; WSL telah dihapus. **Jangan otomatis memberikan perintah `wsl`, mengasumsikan distro Linux lokal, atau memakai path home WSL lama pada PC ini.**
+- **Jalur SSH yang tersedia untuk Owner:** **Termius pada PC Windows** untuk masuk secara interaktif ke AIRO Tencent VPS. Bukti terminal Owner (2026-10-11): `whoami` menghasilkan `ubuntu`; `hostname` menghasilkan `VM-0-9-ubuntu`.
+- **Batas bukti:** output terminal tersebut membuktikan user dan hostname sesi shell, **bukan** secara mandiri fingerprint host, alamat IP publik, izin Codex Cloud, maupun status service Hermes. Sebelum deployment, verifikasi ulang target dan runtime live melalui akses yang sudah diautentikasi.
+- **Pemisahan executor:** Termius adalah terminal lokal terautentikasi milik Owner. **Codex Work Cloud tidak otomatis mewarisi koneksi/SSH key Termius.** Jika koneksi Codex Cloud ke VPS gagal dengan `Permission denied (publickey)`, jangan menyimpulkan VPS offline dan jangan memaksa WSL. Gunakan jalur eksekusi yang memang memiliki autentikasi (mis. satu batch perintah yang disiapkan executor dan dijalankan Owner lewat Termius), atau provision akses sementara terpisah secara aman bila disetujui.
+- **Keamanan:** repository ASB bersifat publik. Jangan commit kredensial Termius, private key, password, token, screenshot sensitif, `authorized_keys`, atau isi file environment.
+- **Batas scope:** status di atas menggambarkan **cara Owner mengakses VPS**, bukan bukti bahwa laptop lain sudah onboard, bahwa Codex memperoleh akses SSH, atau bahwa Hermes sedang sehat.
+
+**Dokumentasi WSL di bawah adalah catatan environment lama, bukan instruksi untuk kondisi PC utama pada 2026-10-11.** Komponen historis mungkin masih relevan untuk arsip atau lingkungan lain, tetapi harus dikonfirmasi dengan bukti runtime sebelum dipakai.
+
+
 ## Environment
 
 | Komponen | Detail |

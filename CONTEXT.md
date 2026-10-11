@@ -30,7 +30,7 @@ AIRO Finance (otomatisasi keuangan dengan Google Sheets) adalah **salah satu pro
 
 ## Infrastruktur & Tools
 
-→ Setup WSL, Hermes, systemd: [`systems/infrastructure.md`](systems/infrastructure.md)
+→ **Akses PC utama saat ini (Windows + Termius → VPS) dan WSL historis:** [`systems/infrastructure.md`](systems/infrastructure.md). Untuk pertanyaan remote/VPS/Hermes, baca *Snapshot akses operasional saat ini* sebelum memberi perintah; jangan mengasumsikan WSL masih terpasang.
 → Telegram sebagai primary interface: [`systems/interfaces.md`](systems/interfaces.md)
 → Tools yang dipakai (clasp, clip.exe, yt-dlp, dll.): [`systems/tools.md`](systems/tools.md)
 
