@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-06T22:02:34.2298337+07:00",
+  "requirements": [
+    {
+      "requirement": "Unique source/private state and rollback backup",
+      "proof": "Main ciphertext and mandatory supplements restored; final paper control snapshots186files; final native3927file authenticated restore and Git integrity/VPS SHA",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Native Windows SSH and relay",
+      "proof": "Pinned SSH/SCP; actual WinPS5 post-fix queue done/new3200x1080 capture;20.03second deadline probe",
+      "status": "PASS"
+    },
+    {
+      "requirement": "24/7 runtime/job disposition without duplicate consumers",
+      "proof": "VPS Earesmes and Plus active; Owner retired all unused identified jobs; old WSL units inactive/disabled; Telegram exact roundtrip",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Windows interface Obsidian",
+      "proof": "Registered native D executable launched; open configured vault on C and native BOOT read; no WSL reference in7settings;2074notes no links",
+      "status": "PASS"
+    },
+    {
+      "requirement": "WSL on-demand and normal use does not wake it",
+      "proof": "No running distro/VM through native operations and backup; old wake wrappers disabled; observed 22.8 minutes",
+      "status": "PASS"
+    },
+    {
+      "requirement": "Comparable RAM measurement",
+      "proof": "Same tracked application PIDs;3samples eachside;WSL267.27MiB->0;freeRAM+621.27MiB",
+      "status": "PASS"
+    },
+    {
+      "requirement": "GitHub scoped source/docs",
+      "proof": "DraftPR3 headb70e708 exact SHA readback;BOM preserved;bounded diff/secret/parser checks;main untouched",
+      "status": "PASS"
+    }
+  ],
+  "pr": "https://github.com/progamer6918/airo-second-brain/pull/3",
+  "owningSession": "ab3f74fb-0535-4ab4-8751-c68af186164a",
+  "worklogCloseout": "Closed with practical limits; same note verified in Windows vault",
+  "nonblockingLimits": [
+    "Actual reboot/logoff untested",
+    "Full actuator suite and full UI edit untested",
+    "Independent key escrow not performed; key stays PC by approval",
+    "Draft PR not merged; unrelated preexisting dirty legacy source stays preserved separately",
+    "Explicit Ubuntu Obsidian shortcut may start WSL when manually selected"
+  ],
+  "latestBackup": "native-20261006_215740.agcm",
+  "latestBackupSha": "1efdb6827acd6bb64066a9f2f31736b252a77c282c934e714bc62ec6d64985ca",
+  "oldDataDeleted": false,
+  "wslUnregistered": false
+}
