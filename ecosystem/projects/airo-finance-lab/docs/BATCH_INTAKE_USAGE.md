@@ -1,10 +1,13 @@
 # Batch intake and verified learning
 
-Send several transactions in one Telegram message, with a common date header when known. Actual amounts govern the ledger; budgets do not create transactions.
+Start every new manual Telegram transaction or batch with `@afl` (case-insensitive, at the beginning followed by whitespace). Example: `@afl blu bayar makan siang 12rb`. Unprefixed messages never start manual capture, even when their contents look like transactions. An explicit prefix starts a separate intake rather than changing an existing confirmation. Replies to known Finance cards, active confirmation answers, numbered corrections, Save and callback buttons do not require the prefix. An empty `@afl` displays usage without creating a draft. Gmail ingestion is unaffected.
+
+Send several transactions after one prefix, with a common date header when known. Actual amounts govern the ledger; budgets do not create transactions.
 
 Example (synthetic):
 
 ```text
+@afl
 tanggal 3 Oktober 2026
 blu bayar 12rb makan siang
 gether terima 203rb dari Partner untuk listrik

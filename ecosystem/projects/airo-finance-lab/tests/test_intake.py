@@ -268,6 +268,60 @@ class Intake(unittest.TestCase):
         self.assertEqual(self.e.get_account(self.accounts["Blu Gether"].id).balance,1000000)
         self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_funding_reconciliation WHERE status='PENDING'").fetchone()[0],1)
 
+    def test_new_manual_requires_afl_and_ordinary_finance_text_passes_through(self):
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        def say(text, mid=800):
+            return router.handle_update({"message": {"message_id": mid, "from": {"id": 1}, "chat": {"id": 1}, "text": text}})
+        for text in ["blu bayar makan siang 12rb", "aku bayar makan siang 12rb tadi", "@aflx blu bayar makan siang 12rb", "contoh @afl blu bayar 12rb makan siang"]:
+            self.assertEqual(say(text), (False, "PASSTHROUGH_TO_HERMES"))
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 0)
+        result = say("@afl blu bayar makan siang 12rb")
+        self.assertTrue(result[0])
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 1)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1)
+        self.assertEqual(self.balances()["Blu"], 988000)
+        say("@afl blu bayar makan siang 12rb")
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1)
+
+    def test_afl_starts_separate_draft_even_with_pending_context_and_reply(self):
+        review = self.email_fixture("afl-old-card")
+        old = self.s.from_review("1", review.id)
+        with self.db.atomic():
+            self.s.conn.execute("INSERT OR REPLACE INTO intake_prompts VALUES ('1','44',?)", (old,))
+        before = self.s.rows(old)
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        self.assertEqual(router.handle_update({"message": {"message_id": 799, "from": {"id": 1}, "chat": {"id": 1}, "text": "blu bayar makan siang 12rb"}}), (False, "PASSTHROUGH_TO_HERMES"))
+        self.assertEqual(self.s.rows(old), before)
+        self.assertEqual(self.calls, [])
+        result = router.handle_update({"message": {"message_id": 801, "from": {"id": 1}, "chat": {"id": 1}, "reply_to_message": {"message_id": 44}, "text": "  @AFL\nblu bayar 12rb makan siang\nblu bayar 22rb makan malam"}})
+        self.assertTrue(result[0])
+        self.assertEqual(self.s.rows(old), before)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 2)
+        new = self.s.conn.execute("SELECT id FROM intake_batches WHERE id!=?", (old,)).fetchone()[0]
+        self.assertEqual(len(self.s.rows(new)), 2)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+
+    def test_afl_usage_and_non_owner_do_not_create_financial_records(self):
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        self.assertEqual(router.handle_update({"message": {"message_id": 802, "from": {"id": 1}, "chat": {"id": 1}, "text": "@afl"}})[1], "AFL_USAGE")
+        self.assertEqual(router.handle_update({"message": {"message_id": 803, "from": {"id": 2}, "chat": {"id": 2}, "text": "@afl blu bayar makan siang 12rb"}})[1], "BLOCKED_NON_OWNER_WRITE")
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 0)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 0)
+
+    def test_unprefixed_card_reply_and_save_remain_valid_after_afl_gate(self):
+        review = self.email_fixture("afl-reply")
+        batch = self.s.from_review("1", review.id)
+        with self.db.atomic():
+            self.s.conn.execute("INSERT OR REPLACE INTO intake_prompts VALUES ('1','44',?)", (batch,))
+        router = FinanceTelegramIngressRouter(self.e, owner_chat_id="1", outbound=self.out)
+        result = router.handle_update({"message": {"message_id": 804, "from": {"id": 1}, "chat": {"id": 1}, "reply_to_message": {"message_id": 44}, "text": "itu untuk makan malam"}})
+        self.assertTrue(result[0])
+        self.assertEqual(self.s.rows(batch)[0]["data"]["subcategory_name"], "Makan Malam")
+        self.assertEqual(router.handle_update({"message": {"message_id": 805, "from": {"id": 1}, "chat": {"id": 1}, "text": "simpan"}})[1], "BATCH_COMMITTED")
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM intake_batches").fetchone()[0], 1)
+        self.assertEqual(self.s.conn.execute("SELECT COUNT(*) FROM transactions").fetchone()[0], 1)
+
     def test_completed_recap_closes_without_pending_controls(self):
         batch = self.draft()
         self.s.commit(batch, "1", confirm_suggestions=True)
@@ -568,7 +622,7 @@ class Intake(unittest.TestCase):
                         "message_id": 88,
                         "from": {"id": 1},
                         "chat": {"id": 1},
-                        "text": "Buat draft batch berikut tanggal 7 Oktober 2026\nJangan simpan sebelum persetujuan.\n1. Blu bayar 12rb makan siang",
+                        "text": "@afl Buat draft batch berikut tanggal 7 Oktober 2026\nJangan simpan sebelum persetujuan.\n1. Blu bayar 12rb makan siang",
                     }
                 }
             )
@@ -1054,7 +1108,7 @@ class Intake(unittest.TestCase):
                         "message_id": 1,
                         "from": {"id": 1},
                         "chat": {"id": 1},
-                        "text": "blu bayar 12rb makan siang\ngether bayar 22rb makan malam",
+                        "text": "@afl blu bayar 12rb makan siang\ngether bayar 22rb makan malam",
                     }
                 }
             )

@@ -216,8 +216,16 @@ class IntakeRouter:
         owner = str(msg.get("chat", {}).get("id", sender))
         data = (cq or {}).get("data", "")
         text = (msg.get("text") or "").strip()
+        prefix = re.match(r"^@afl(?=\s|$)", text, re.I) if not cq else None
+        manual_prefix = prefix is not None
+        if manual_prefix:
+            text = text[prefix.end():].strip()
+            if not text:
+                if self.parent.outbound:
+                    self.parent.outbound.send_message(owner, "Tulis transaksi setelah @afl, contoh: @afl blu bayar makan siang 12rb. Bisa juga satu daftar beberapa transaksi.")
+                return True, "AFL_USAGE"
         lower = text.lower()
-        if not cq and self.parent.confirmation_handler.get_edit_session(owner):
+        if not cq and not manual_prefix and self.parent.confirmation_handler.get_edit_session(owner):
             return None
         if cq:
             if data.startswith("gma:") and self.parent.is_owner(sender):
@@ -393,7 +401,7 @@ class IntakeRouter:
             return None
         reply_id = msg.get("reply_to_message", {}).get("message_id")
         batch = None
-        if reply_id:
+        if reply_id and not manual_prefix:
             r = self.s.conn.execute(
                 "SELECT batch_id FROM intake_prompts WHERE owner=? AND message_id=?",
                 (owner, str(reply_id)),
@@ -419,7 +427,7 @@ class IntakeRouter:
         # Conversational questions must reach Hermes, even with a retained card
         # context or a reply to an old receipt. A greeting/yes prefix is not consent.
         general_question = bool(re.search(r"\b(?:model|tutor|tutorial|gimana|kenapa|siapa|kapan)\b|(?:apa|berapa).*\?|apa kabar|terima kasih|makasih", lower)) and not numbered and not re.search(r"\b(?:transaksi|finance|draft|rekapan)\b", lower)
-        if general_question and not finance_question and not explicit_action:
+        if general_question and not manual_prefix and not finance_question and not explicit_action:
             return None
         purpose_answer = bool(re.search(r"\b(?:bayar|beli|makan|laundry|utk|untuk|dari|dr|sudah transfer|sudah ditransfer|alokasi)\b", lower) or parser.account_matches(self.s.engine, lower))
         if not purpose_answer:
@@ -429,7 +437,7 @@ class IntakeRouter:
             pending = any(x["status"] == "DRAFT" for x in self.s.rows(batch))
             if not (explicit_action or exact_action or (pending and (purpose_answer or finance_question))):
                 return None
-        if not batch:
+        if not batch and not manual_prefix:
             r = self.s.conn.execute(
                 "SELECT batch_id,mode FROM intake_context WHERE owner=?", (owner,)
             ).fetchone()
@@ -440,7 +448,7 @@ class IntakeRouter:
                     or (not pending and (numbered or exact_action))):
                     batch = r[0]
         numbered = re.search(r"\b(?:no\.?|nomor)\s*(\d+)\b", lower)
-        if not batch and numbered and self.parent.is_owner(sender):
+        if not batch and not manual_prefix and numbered and self.parent.is_owner(sender):
             candidates = self.s.conn.execute("SELECT DISTINCT b.id FROM intake_batches b JOIN intake_items i ON i.batch_id=b.id WHERE b.owner=? AND i.status='DRAFT' AND i.number=? AND b.updated_at>? ORDER BY b.updated_at DESC", (owner,int(numbered[1]),time.time()-86400)).fetchall()
             if len(candidates) == 1:
                 batch = candidates[0][0]
@@ -455,9 +463,7 @@ class IntakeRouter:
                     enqueue(self.s.db,"batch_selector",uid(),owner,"sendMessage",{"chat_id":owner,"text":"Ada beberapa draft dengan nomor itu. Pilih transaksi yang dimaksud; jawaban tidak dikirim ke chat umum.","reply_markup":{"inline_keyboard":choices}})
                 dispatch(self.s.db,self.parent.outbound)
                 return True,"BATCH_SELECTION_REQUIRED"
-        is_finance = amount(text) is not None and (
-            self.parent.is_finance_message(text) or len(text.splitlines()) > 1
-        )
+        is_finance = manual_prefix
         if not batch and not is_finance:
             return None
         if not self.parent.is_owner(sender):

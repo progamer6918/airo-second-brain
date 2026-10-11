@@ -1013,7 +1013,7 @@ class FinanceTelegramIngressRouter:
                 return True, "PENDING_REVIEW_CARD_SENT"
 
             # Check if this is a finance transaction input
-            if self.is_finance_message(text):
+            if re.match(r"^@afl(?=\s|$)", text.strip(), re.I) and self.is_finance_message(text):
                 # Enforce Owner Authorization Filter
                 if not self.is_owner(sender_id):
                     logger.warning(f"BLOCKED: Non-owner transaction attempt from {sender_id}")
