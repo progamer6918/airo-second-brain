@@ -66,6 +66,20 @@ All AIRO consumers, planning engines, and execution environments MUST obey the c
 
 - **Codex**: May plan, review and execute Owner-authorized tasks while preserving applicable ASB session, evidence, git and delivery safeguards. No implicit promotion/publication authority.
 
+## EARNSART — Low-Limit Codex & Revenue-First Workflow
+
+**Scope:** EARNSART only. **Authority:** Owner decision, 2026-10-13. Applies to new planning sessions, handoffs, and Codex work involving EARNSART; other AIRO projects keep their own rules.
+
+1. **Planning first, Codex only when necessary:** ChatGPT Planning handles market research, pricing, unit economics/BEP, package scope, offer copy, customer validation, product planning, progress review, and documentation via approved connected GitHub tools. Do not use Codex for work ChatGPT can complete reliably.
+2. **Validate demand before building:** Prioritize qualifying a paying buyer or concrete technical need. Never develop three low-ticket offers in parallel merely to create a catalog. The earlier broad V0 repository/feasibility audit is superseded and **NOT AUTHORIZED TO RUN** by default.
+3. **Strict Codex scope:** When a real technical blocker or explicitly approved implementation requires Codex, hand off **one product, one narrow objective, and the minimum relevant files**. Prefer reuse of proven assets/code. Avoid repository-wide audits, redundant analysis, re-scaffolding, unnecessary benchmarks, bulk tests, repeated prompts, or changes to unrelated code.
+4. **Economical execution without sacrificing correctness:** Prefer a lighter available mode/model for small tasks; reserve more expensive reasoning for genuinely complex technical issues. Group related checks into one bounded run when safe, but run necessary tests and quality/security checks for every actual code change. Never state token/cost savings as measured without usage data.
+5. **Compact receipts:** For straightforward Codex checks, request 10–15 concise lines covering checked scope, reusable assets, exact evidence, blockers, and one next step. Larger evidence only where safety/QA actually requires it. Avoid forcing the Owner to copy/paste repeated prompts.
+6. **Approval boundaries stay intact:** No unapproved coding, feature expansion, repo creation, merge, deployment, payment/API/subscription, live client-data processing, mass outreach, or social-account actions. Respect owner-approved PRD/limited implementation scope and existing private-source governance. Never send private contacts or client data to public ASB.
+7. **Current planning checkpoint:** Low-ticket sales experiment EXP-01 (three **test** offers, not published prices) is recorded in private `progamer6918/airo-dev-bridge` Issue #13. Target is to validate demand and cash income by 2026-10-31; no Codex V0 dispatch until separately justified and approved. Read the current private issue and canonical `progamer6918/earnsart-studio` project instructions before proposing execution.
+
+This scoped rule is a standing default across chat sessions; a later explicit Owner decision may revise it. The private EARNSART repository remains the implementation source of truth; this ASB rule sets **workflow/limit discipline**, not project implementation status.
+
 ## Council Mode
 
 ChatGPT / AIRO Sync may use the canonical Council Mode when the Owner explicitly invokes `council`, `council deep`, or `chair`.
