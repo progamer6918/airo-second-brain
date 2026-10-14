@@ -6,6 +6,15 @@
 
 This page is a retrieval index, not a synchronized single-date dashboard. Each topic keeps its own latest supplied period and provenance.
 
+
+> **Additional September source QA (2026-10-14; verified source facts, not generated runtime):**
+> - 2026 retail source `SSU.2026.xlsx`: Jan–Sep **97,908**, including Aug **12,413**, Sep **11,527**; **61 Sep dealer/POS subtotals** reconcile exactly to monthly `SSU.2026.09.xlsx`. Previous Jan–Jul total **73,968** also reconciles.
+> - `SINSEN_EVALPOLREG+MSPERKAB_SEP 2026.xlsx`: province Jan–Sep 2026 market **101,306 Honda / 122,865 total = 82.45%** vs 2025 **75,014 / 92,024 = 81.52%**, +**0.94 pp**. The same source's Jan–Jun 2026 agrees exactly with ASB older **65,031 / 79,042**.
+> - New 2026-09-12 dealer stock source: **5,835 units across 61 dealer/POS**, status Ready **4,122**, Soft Booking **874**, Unfill **626**, Intransit **213**. These are *source-validated snapshot aggregates*, not a promoted AWD status sheet.
+> - Tanjab Barat dealer-specific verified drilldown: [Tebing Aug–Sep channel/finco/product](SINSEN_TEBING_AUG_SEP_2026_DIAGNOSTICS_VERIFIED.tsv), [Tebing Sep-12 stock](DEALER_STOCK_2026-09-12_SINSEN_TEBING_VERIFIED.tsv).
+> - **Schema caution**: SSU master record structure shifts starting July for FLP/finco; monthly workbook column positions were used for August/September. **Geography caution**: POLREG per kecamatan in `9. Sept` still has only Jan–Aug; don't call that a September regional view.
+> - **Sync boundary**: full network retail/market/stock materialized TSVs, manifests, checksum registry, runtime indices, and `AWD_RUNTIME_STATUS.md` have **not** been regenerated or re-certified. Do not represent the older runtime `ALL_PASS` as a September validation.
+
 ## Market share — latest supplied market period
 **Period:** YTD Jan–Jun 2026. Comparable: YTD Jan–Jun 2025 derived directly from raw database rows, not from the workbook's conflicting `YTD 2025` summary label.
 
