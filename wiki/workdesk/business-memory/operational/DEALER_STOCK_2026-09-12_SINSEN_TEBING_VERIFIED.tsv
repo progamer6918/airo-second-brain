@@ -1,0 +1,2 @@
+dealer	as_of	stock_units	ready	soft_booking	unfill	aging_0_30	aging_31_60	aging_61_90	aging_91_120	aging_121_150	aging_over_150	stock_days_using_sep_retail	source	data_quality
+PT. SINAR SENTOSA MOTORA - TEBING	2026-09-12	54	49	4	1	40	7	2	0	2	3	13.97	Stok_per_no_mesin_dealer - 2026-09-12T102129.734.xls	Same-day snapshot during month; stock days computed using full Sep 116 units/30 days only as indicative retrospective run rate
