@@ -26,6 +26,16 @@
 - Tanjab Barat MS Cub High **23.89%** (54/226), Cub Mid **55.83%** (785/1406), AT High **61.11%** (1931/3160).
 - Polreg per-kecamatan as of the September-folder source remains Jan–Aug only, including 2026 Jan–Aug Tanjab Barat Honda **8,194**. Its regional total-market cached YTD value is **10,200**, versus **10,201** aggregated from the Sep market evaluation Jan–Aug source (1-unit discrepancy); investigate classification/source before a full geography refresh.
 
+## Targeted August–September sales diagnosis
+
+Validated against the separate monthly SSU workbooks (not a lead funnel; categories below are sales activity attribution):
+- Dealer Tebing retail Aug **132** and Sep **116**.
+- Walk-in/Buku Tamu **50 → 33** (−17 units); Canvassing **21 → 11** (−10); Flyering **39 → 44** (+5); Mobile App MD/Dealer **3 → 14** (+11). These categories count realized retail, NOT leads or conversion rates.
+- Unique FLP IDs with at least one sale **11 → 10**; top single FLP contributed **60/132 (45.45%)** in Aug and **50/116 (43.10%)** in Sep. This does not measure full active roster.
+- Customer geographic origin (aggregated kecamatan): Tebing Tinggi **87 → 83**; Senyerang **30 → 24**; other origin districts combined **15 → 9**. Source fields are buyer address areas; do NOT treat them as sales-territory allocation or exclusive dealer ring mapping.
+- In the current per-kecamatan POLREG file (data through Aug), Tebing Tinggi shows Honda **874** / market **1,133** (77.14% MS), Senyerang Honda **494** / market **630** (78.41% MS); both are below the Jan–Aug kabupaten average of ~80.3% but not Sep-ready.
+- Priority questions: what drove the walk-in/canvassing dip, why one fewer FLP achieved a sale, whether Senyerang coverage slipped, and why retail fell when Tanjab Barat Honda market improved Aug→Sep.
+
 ## Canonical synchronization boundary
 
 - This evidence verifies September source availability and **targeted** Tebing/Tanjab Barat aggregates. It does NOT assert a full network-wide Sep AWD runtime refresh.
