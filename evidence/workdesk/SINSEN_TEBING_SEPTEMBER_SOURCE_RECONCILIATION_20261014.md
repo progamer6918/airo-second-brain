@@ -36,6 +36,34 @@ Validated against the separate monthly SSU workbooks (not a lead funnel; categor
 - In the current per-kecamatan POLREG file (data through Aug), Tebing Tinggi shows Honda **874** / market **1,133** (77.14% MS), Senyerang Honda **494** / market **630** (78.41% MS); both are below the Jan–Aug kabupaten average of ~80.3% but not Sep-ready.
 - Priority questions: what drove the walk-in/canvassing dip, why one fewer FLP achieved a sale, whether Senyerang coverage slipped, and why retail fell when Tanjab Barat Honda market improved Aug→Sep.
 
+## Deep-audit addendum — 2026-10-14
+
+### September source audit and cross-source QA
+
+- SSU master `SSU.2026.xlsx` Jan–Sep 2026 totals **97,908** records, including Sep **11,527** across **61 dealer/POS names**. All 61 Sep dealer-name subtotals match the separate `SSU.2026.09.xlsx` source exactly (**zero mismatches**). Jan–Jul master total **73,968** matches the prior AWD July snapshot.
+- Current `SINSEN_EVALPOLREG+MSPERKAB_SEP 2026.xlsx` raw database yields province market Jan–Sep 2026 **101,306 Honda / 122,865 total**, compared to 2025 **75,014 Honda / 92,024 total**. Its historical Jan–Jun 2026 aggregate **65,031 / 79,042** matches the existing older ASB authority.
+- Schema drift: the SSU master has an additional field relative to early-month records beginning July; when deriving FLP IDs or financing by fixed ordinal index, **the June and July–September rows must not share one fixed column mapping**. August and September drilldowns here were re-extracted independently from the respective monthly files with validated header positions.
+- A dedicated Sep-12 stock file was found later than the old Aug-06 stock authority: Sinsen Tebing **54 units**, including Ready **49**, Soft Booking **4**, Unfill **1**. Aging: **40** (0–30), **7** (31–60), **2** (61–90), **0** (91–120), **2** (121–150), **3** (>150). Comparison with Aug-06 total **70** is cross-snapshot, not a trend in supply quality.
+- Retail September 116 units over 30 days implies *retrospective indicative* stock cover **13.97 days** using stock observed Sept 12; never treat as month-end cover.
+
+### Root-cause leads and evidence limits
+
+- Finco recorded and matching populated tenor: Aug **78/132 (59.1%)** to Sep **51/116 (44.0%)**, **−27** financed-retail records; missing both fields Aug **54** to Sep **65**. The blank category is **not proven cash** without dealer operational confirmation.
+- Finco among completed retail: **FIFASTRA 41→21 (−20)**, **ADMF 14→6 (−8)**, **SOF 18→21 (+3)**, **MUF 5→3 (−2)**. These are financed retail counts, not credit rejection/approval, SPK, or funnel rates.
+- Retail-source channels: Walk-in **50→33**, Canvassing **21→11**, Flyering **39→44**, Mobile App **3→14**, Facebook Message **10→6**. The first two channels account for a combined **−27** gross unit change; others offset a portion. These are **final retail** classifications.
+- Consumer kecamatan origin: Tebing Tinggi **87→83**, Senyerang **30→24**. These are buyer-address fields, **not dealer ring**.
+- Independently confirmed kecamatan-level POLREG Jan–Aug 2026 from top-level Tanjab Barat rows (not nested village labels): Tebing Tinggi Honda **874 / 1,133 market = 77.14%**; Senyerang **494 / 630 = 78.41%**. Both below kabupaten ~**80.33%** Jan–Aug. POLREG September fields are **zero / not ingested** despite September folder name.
+- BeAT family Aug **46** Sep **39** (−7), Scoopy **22→18** (−4), PCX **13→10** (−3), Vario **8→5** (−3), Revo **20→20** (flat), Stylo **6→9** (+3). Product family derived from type description only; do not infer official Honda segment mix without proper mapping.
+- Actual selling FLP IDs counted from monthly sales records **11→10**. Largest single anonymized FLP contribution **60→50**; total active workforce cannot be determined from the set of IDs with sales.
+- Benchmark peer dealer totals (not dealer territory MS): Bulan Motor Tungkal **288→302**, Bulan Motor Merlung **260→265**, POS Patria Tungkal **120→113**, TDM Merlung **151→151**, Tebing **132→116**. Dealer catchments and POS types are non-equivalent; peer movements are diagnostic only.
+
+### Public-safe structured references
+
+- `wiki/workdesk/business-memory/operational/SINSEN_TEBING_AUG_SEP_2026_DIAGNOSTICS_VERIFIED.tsv`
+- `wiki/workdesk/business-memory/operational/DEALER_STOCK_2026-09-12_SINSEN_TEBING_VERIFIED.tsv`
+
+**Priority validation in INR:** credit retail down (especially FIF/ADMF); walk-in and canvassing volume down; identify reason for financial conversion gap; validate stock-fit for BeAT, PCX, Vario EVO, Stylo, and Revo; test Tebing Tinggi/Senyerang field coverage. Ask for applications and approval/rejection funnel separately, plus active FLP roster and lost-sale log. No causality established by retail aggregate alone.
+
 ## Canonical synchronization boundary
 
 - This evidence verifies September source availability and **targeted** Tebing/Tanjab Barat aggregates. It does NOT assert a full network-wide Sep AWD runtime refresh.
