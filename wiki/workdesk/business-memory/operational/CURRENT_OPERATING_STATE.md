@@ -1,5 +1,9 @@
 # AIRO WorkDesk — Current Operating State from Latest Supplied Sources
 
+
+> **Source freshness correction — 2026-10-14:** Newer Drive sources are verified for September 2026. The network-wide AWD runtime and materialized historical tables below have NOT yet been refreshed. Do not present the Jul retail / Jun market snapshots below as the latest available source period. Targeted Sinsen Tebing retail Sep 2026 and Tanjab Barat market Sep 2026 are verified in [retail source](RETAIL_2026_YTD_SEP_SINSEN_TEBING_VERIFIED.tsv), [market source](MARKET_SHARE_YTD_SEP_2026_TANJAB_BARAT_SEGMENT_VERIFIED.tsv), and [reconciliation evidence](../../../evidence/workdesk/SINSEN_TEBING_SEPTEMBER_SOURCE_RECONCILIATION_20261014.md). Raw per-kecamatan POLREG workbook in the September folder only contains January–August; full territory September ingestion is pending. This notice is a source availability correction, NOT an AWD runtime certification.
+
+
 This page is a retrieval index, not a synchronized single-date dashboard. Each topic keeps its own latest supplied period and provenance.
 
 ## Market share — latest supplied market period
