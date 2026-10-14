@@ -1,0 +1,23 @@
+dimension	item	aug_2026	sep_2026	delta_units	source	data_quality
+retail	total	132	116	-16	SSU.2026.08.xlsx; SSU.2026.09.xlsx	verified monthly file row count
+financing	finco_populated_and_tenor_present	78	51	-27	SSU.2026.08.xlsx; SSU.2026.09.xlsx	not approval or application volume
+financing	finco_blank_and_tenor_blank	54	65	11	SSU.2026.08.xlsx; SSU.2026.09.xlsx	cannot label cash without confirmation
+finco	FIFASTRA	41	21	-20	SSU.2026.08.xlsx; SSU.2026.09.xlsx	completed retail only
+finco	SOF	18	21	3	SSU.2026.08.xlsx; SSU.2026.09.xlsx	completed retail only
+finco	ADMF	14	6	-8	SSU.2026.08.xlsx; SSU.2026.09.xlsx	completed retail only
+finco	MUF	5	3	-2	SSU.2026.08.xlsx; SSU.2026.09.xlsx	completed retail only
+sales_channel	Walk In/Buku Tamu	50	33	-17	SSU.2026.08.xlsx; SSU.2026.09.xlsx	retail attribution, not leads
+sales_channel	Canvassing	21	11	-10	SSU.2026.08.xlsx; SSU.2026.09.xlsx	retail attribution, not leads
+sales_channel	Flyering	39	44	5	SSU.2026.08.xlsx; SSU.2026.09.xlsx	retail attribution, not leads
+sales_channel	Mobile App MD/Dealer	3	14	11	SSU.2026.08.xlsx; SSU.2026.09.xlsx	retail attribution, not leads
+sales_channel	Facebook Comment/Message	10	6	-4	SSU.2026.08.xlsx; SSU.2026.09.xlsx	retail attribution, not leads
+flp	unique_flp_ids_with_sales	11	10	-1	SSU.2026.08.xlsx; SSU.2026.09.xlsx	not active payroll/roster count
+flp	largest_individual_flp_contribution_units	60	50	-10	SSU.2026.08.xlsx; SSU.2026.09.xlsx	deidentified individual aggregate
+model_family	BeAT	46	39	-7	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+model_family	Scoopy	22	18	-4	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+model_family	PCX	13	10	-3	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+model_family	Vario	8	5	-3	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+model_family	Revo	20	20	0	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+model_family	Stylo	6	9	3	SSU.2026.08.xlsx; SSU.2026.09.xlsx	model description family
+customer_kecamatan	Tebing Tinggi	87	83	-4	SSU.2026.08.xlsx; SSU.2026.09.xlsx	consumer address, not dealer ring
+customer_kecamatan	Senyerang	30	24	-6	SSU.2026.08.xlsx; SSU.2026.09.xlsx	consumer address, not dealer ring
