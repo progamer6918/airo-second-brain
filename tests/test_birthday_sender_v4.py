@@ -251,5 +251,48 @@ class SenderTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)['code'], 'DEDICATED_CREDENTIALS_MISSING')
 
 
+    def test_h1_then_day_have_independent_durable_keys(self):
+        self.dataset()
+        with mock.patch.object(m, 'verify_identity', return_value=('SYNTHETIC-ONLY', '123')), \
+             mock.patch.object(m, 'telegram_api', return_value={'message_id': 7, 'chat': {'id': 123}}) as api:
+            with mock.patch.object(m, 'current_day', return_value=date(2026, 10, 14)):
+                self.assertEqual(m.run(self.root, advance=True)['status'], 'SENT')
+                self.assertEqual(m.run(self.root, advance=True)['status'], 'ALREADY_SENT')
+            with mock.patch.object(m, 'current_day', return_value=date(2026, 10, 15)):
+                self.assertEqual(m.run(self.root)['status'], 'SENT')
+                self.assertEqual(m.run(self.root)['status'], 'ALREADY_SENT')
+        self.assertEqual(api.call_count, 2)
+        with sqlite3.connect(self.state / 'delivery.sqlite3') as conn:
+            self.assertEqual(set(r[0] for r in conn.execute('SELECT delivery_key FROM deliveries')),
+                             {'birthday-eve:2026-10-15', 'birthday:2026-10-15'})
+
+    def test_h1_message_has_preparation_text_and_unknown_year(self):
+        text = m.build_message([{'name': 'SYNTHETIC', 'day': 18, 'month': 10, 'year': None}], date(2026, 10, 18), advance=True)
+        self.assertIn('H-1', text); self.assertIn('18/10/2026', text)
+        self.assertIn('Siapkan desain ucapan', text); self.assertIn('tahun lahir belum pasti', text)
+
+    def test_h1_year_boundary_uses_tomorrow_age(self):
+        self.dataset([{'NAMA': 'SYNTHETIC', 'BIRTH_DAY': '1', 'BIRTH_MONTH': '1', 'BIRTH_YEAR': '2000', 'YEAR_KNOWN': '1', 'REVIEW_FLAGS': ''}])
+        with mock.patch.object(m, 'current_day', return_value=date(2026, 12, 31)), \
+             mock.patch.object(m, 'verify_identity', return_value=('SYNTHETIC-ONLY', '123')), \
+             mock.patch.object(m, 'telegram_api', return_value={'message_id': 7, 'chat': {'id': 123}}) as api:
+            self.assertEqual(m.run(self.root, advance=True)['status'], 'SENT')
+        text = api.call_args[0][2]['text']; self.assertIn('01/01/2027', text); self.assertIn('27 tahun', text)
+
+    def test_h1_leap_day_and_month_boundary(self):
+        self.dataset([{'NAMA': 'SYNTHETIC', 'BIRTH_DAY': '29', 'BIRTH_MONTH': '2', 'BIRTH_YEAR': '', 'YEAR_KNOWN': '0', 'REVIEW_FLAGS': ''}])
+        with mock.patch.object(m, 'current_day', return_value=date(2028, 2, 28)):
+            self.assertEqual(m.run(self.root, check=True, advance=True)['matches'], 1)
+        with mock.patch.object(m, 'current_day', return_value=date(2027, 2, 28)):
+            self.assertEqual(m.run(self.root, check=True, advance=True)['matches'], 0)
+
+    def test_cli_default_checks_both_day_and_eve_without_sends(self):
+        self.dataset()
+        result = subprocess.run(['python3', str(SCRIPT), '--private-root', str(self.root), '--check'], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(set(json.loads(result.stdout)['reminders']), {'day', 'eve'})
+        self.assertFalse(self.state.exists())
+
+
 if __name__ == '__main__':
     unittest.main()

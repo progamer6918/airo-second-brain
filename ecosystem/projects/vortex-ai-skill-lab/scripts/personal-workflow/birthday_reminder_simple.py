@@ -3,7 +3,7 @@
 import argparse
 from contextlib import closing, contextmanager
 import csv
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import fcntl
 import hashlib
 import io
@@ -95,9 +95,10 @@ def current_day(now=None):
     return (now or datetime.now(TIMEZONE)).astimezone(TIMEZONE).date()
 
 
-def build_message(matches, today):
-    lines = ['🎂 Reminder Ulang Tahun Hari Ini', f"Tanggal: {today.strftime('%d/%m/%Y')}",
-             '', 'Hari ini ada yang ulang tahun:', '']
+def build_message(matches, today, advance=False):
+    lines = [('🎨 Persiapan Ulang Tahun Besok (H-1)' if advance else '🎂 Reminder Ulang Tahun Hari Ini'),
+             f"Tanggal ulang tahun: {today.strftime('%d/%m/%Y')}" if advance else f"Tanggal: {today.strftime('%d/%m/%Y')}",
+             '', 'Besok ada yang ulang tahun:' if advance else 'Hari ini ada yang ulang tahun:', '']
     for index, person in enumerate(matches, 1):
         birth_text = f"{person['day']:02d}/{person['month']:02d}"
         age = 'tahun lahir belum pasti'
@@ -105,7 +106,7 @@ def build_message(matches, today):
             birth_text += f"/{person['year']}"
             age = f"{today.year - person['year']} tahun"
         lines += [f"{index}. {person['name']}", f'   Tanggal lahir: {birth_text}', f'   Usia: {age}', '']
-    lines.append('Jangan lupa follow up / kirim ucapan.')
+    lines.append('Siapkan desain ucapan untuk besok.' if advance else 'Jangan lupa follow up / kirim ucapan.')
     return '\n'.join(lines)
 
 
@@ -211,19 +212,19 @@ def send_once(state_root, delivery_key, text, recipient, send):
             return {'status': 'SENT', 'message_id': message_id}
 
 
-def run(root, check=False, smoke=False):
+def run(root, check=False, smoke=False, advance=False):
     root = Path(root)
     people, checksum = load_dataset(root)
-    today = current_day()
+    today = current_day() + timedelta(days=1 if advance else 0)
     matches = [p for p in people if (p['month'], p['day']) == (today.month, today.day)]
     if check:
         return {'status': 'CHECK_ONLY', 'eligible_rows': len(people), 'matches': len(matches), 'sends': 0}
     if not matches and not smoke:
         return {'status': 'NO_MATCH', 'sends': 0}
     token, recipient = verify_identity(root, checksum)
-    text = SMOKE_MESSAGE if smoke else build_message(matches, today)
+    text = SMOKE_MESSAGE if smoke else build_message(matches, today, advance=advance)
     # Dataset edits, restarts and clock overrides must not create another daily key.
-    key = 'smoke:recovery-v2' if smoke else f'birthday:{today.isoformat()}'
+    key = 'smoke:recovery-v2' if smoke else f"{'birthday-eve' if advance else 'birthday'}:{today.isoformat()}"
     return send_once(root / 'sender-state', key, text, recipient,
                      lambda message: telegram_api(token, 'sendMessage', {'chat_id': recipient, 'text': message}))
 
@@ -233,9 +234,15 @@ def main():
     parser.add_argument('--private-root', type=Path, required=True)
     parser.add_argument('--check', action='store_true', help='Validate private data; no credentials, network or send state')
     parser.add_argument('--smoke', action='store_true', help='One approved recovery smoke; independently durable key')
+    parser.add_argument('--reminder', choices=('all', 'day', 'eve'), default='all')
     args = parser.parse_args()
     try:
-        result = run(args.private_root, args.check, args.smoke)
+        if args.smoke or args.reminder != 'all':
+            result = run(args.private_root, args.check, args.smoke, advance=args.reminder == 'eve')
+        else:
+            results = {kind: run(args.private_root, args.check, advance=kind == 'eve') for kind in ('day', 'eve')}
+            uncertain = any(r['status'] == 'UNCERTAIN_REQUIRES_RECONCILIATION' for r in results.values())
+            result = {'status': 'UNCERTAIN_REQUIRES_RECONCILIATION' if uncertain else 'COMPLETE', 'reminders': results}
     except Exception as exc:
         code = str(exc) if isinstance(exc, RecoveryError) else 'LOCAL_VALIDATION_OR_STATE_ERROR'
         print(json.dumps({'status': 'ERROR', 'code': code}))

@@ -85,3 +85,7 @@ No actual reboot/power loss is induced. Preserve the V3 private source, CSV,
 quarantine, pointer and any future delivery state through rollback. Disable only a
 new birthday timer if subsequently activated; never stop EARNSART/Earesmes/Arfin,
 reset their sessions, modify their files, or rewrite shared Git history.
+
+## H-1 enhancement (2026-10-15)
+
+The deployed CLI defaults to both day and eve reminders at the existing 08:00 Jakarta timer. `--reminder day` or `--reminder eve` selects one kind; `--check` evaluates both without sending. Eve uses tomorrow calendar arithmetic and a separate `birthday-eve:YYYY-MM-DD` key for the target birthday. The `birthday:YYYY-MM-DD` key and stable smoke key remain backward compatible. Current source and active status are recorded in docs/validation/AIRO_BIRTHDAY_H1_REMINDER_20261015.md.
