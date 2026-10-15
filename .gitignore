@@ -122,3 +122,6 @@ ecosystem/projects/earnsai-pulse-trading-local-backups/jsonl_repair_backup_*/
 
 # ASB live workspace runtime placeholders/files
 ecosystem/projects/**/runtime
+
+# Private opt-in parallel deployment authorization and runtime state
+.airo-parallel/

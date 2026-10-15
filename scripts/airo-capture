@@ -27,7 +27,35 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Simulate write without appending to file.")
     parser.add_argument("--json", action="store_true", help="Output generated event in JSON format to stdout.")
     
+    parser.add_argument("--parallel-mode", choices=("candidate", "production"))
+    parser.add_argument("--objective-id")
+    parser.add_argument("--event-id")
+    if any(x == "--parallel-mode" or x.startswith("--parallel-mode=") for x in sys.argv[1:]):
+        parser.add_argument("--phase", choices=("PRE_EXECUTION", "POST_EXECUTION"))
+        parser.add_argument("--evidence")
+        for key in ("owner-request", "position", "progress", "blocker", "next-action"):
+            parser.add_argument("--" + key)
     args = parser.parse_args()
+
+    if args.parallel_mode:
+        explicit_project = any(x in ("--project", "-p") or x.startswith("--project=") for x in sys.argv[1:])
+        if not explicit_project or not args.session_id or not args.objective_id or not args.event_id or args.sensitive or args.dry_run:
+            print("Parallel capture requires explicit identities and a non-sensitive real event", file=sys.stderr)
+            return 1
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        sys.path.insert(0, os.path.join(repo_root, "scripts"))
+        from airo_parallel_session import main as parallel_main
+        parallel_args = ["--mode", args.parallel_mode, "event", "--session-id", args.session_id,
+                         "--project-id", args.project, "--objective-id", args.objective_id,
+                         "--event-id", args.event_id, "--event-type", args.event, "--summary", args.summary]
+        for key in ("phase", "evidence", "owner_request", "position", "progress", "blocker", "next_action", "consumer", "source"):
+            value = getattr(args, key, None)
+            if value is not None:
+                parallel_args.extend(["--" + key.replace("_", "-"), value])
+        return parallel_main(parallel_args, repo_root)
+    if args.objective_id or args.event_id:
+        print("Parallel identity fields require --parallel-mode; no legacy fallback", file=sys.stderr)
+        return 1
 
     session_id = args.session_id or os.environ.get("AIRO_SESSION_ID") or str(uuid.uuid4())
     
@@ -69,4 +97,4 @@ def main():
     sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

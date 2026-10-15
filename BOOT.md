@@ -218,6 +218,15 @@ Task status (`BERHASIL`, `BELUM_TERBUKTI`, `TERHAMBAT`, `GAGAL`) is computed ind
 
 ## Mandatory Session Workflow Guard
 
+### Explicitly approved parallel production exception
+
+After an exact Owner-approved deployment of `AIRO_PARALLEL_PRODUCTION_ISOLATION_V1`,
+independent registered objectives may use its explicit session/project/objective
+identities in the approved parallel checkout. The legacy EARNSART runtime, state,
+ledger, projections, worklogs and Git metadata remain untouched. A state-directory
+override or arbitrary clone is not approval. Unapproved/malformed parallel routing
+must fail closed and must never fall back to legacy capture.
+
 ### Session Boundary Invariant
 - Session boundary follows MAIN OWNER OBJECTIVE (`ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION`).
 - Same project + same main objective => `CONTINUE_EXISTING`.

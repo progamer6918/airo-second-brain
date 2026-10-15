@@ -809,6 +809,10 @@ def cmd_resume(args, repo_root):
 
 def main():
     repo_root = get_repo_root()
+    if len(sys.argv) > 1 and sys.argv[1] == "parallel":
+        sys.path.insert(0, os.path.join(repo_root, "scripts"))
+        from airo_parallel_session import main as parallel_main
+        return parallel_main(sys.argv[2:], repo_root)
     parser = argparse.ArgumentParser(description="AIRO Session Lifecycle Manager")
     subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
@@ -858,4 +862,4 @@ def main():
         sys.exit(cmd_resume(args, repo_root))
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -68,6 +68,14 @@ This exception does **NOT** apply to the LOCAL PC/WSL clipboard adapter, which r
 
 ## 5. Session Materiality & Isolation Contract
 
+An explicitly approved parallel deployment follows
+`AIRO_PARALLEL_PRODUCTION_ISOLATION_V1`: one objective per session, explicit owning
+identity, transactional append-only ledger, independently scoped projections and
+UUID closeout notes. It does not invoke legacy global daily or idle projection
+writers. The current synthetic isolation rule is unchanged and does not authorize
+production use. Existing legacy sessions need not be migrated or closed.
+
+
 1. **ONE OWNER OBJECTIVE = ONE PRODUCTION AIRO SESSION**: The lifetime of a production AIRO session maps 1-to-1 with a single main Owner objective.
 2. **Sub-Executions Do Not Create Sessions**: A new Antigravity prompt, WSL command, executor packet, retry, verifier, regression test, debugging step, or evidence check does NOT by itself create a production session.
 3. **Same Objective Continuation**: If `project_id` + main Owner objective remain unchanged, invocation MUST return `SESSION_ACTION=CONTINUE_EXISTING`. Record semantic events/checkpoints inside the owning session.

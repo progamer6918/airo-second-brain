@@ -129,6 +129,15 @@ When resolving active session identity, status, or lifecycle stage, all AIRO con
 
 ---
 
+## Approved parallel projection scope
+
+When explicitly approved and deployed under `AIRO_PARALLEL_PRODUCTION_ISOLATION_V1`,
+per-session views in that deployment do not update or reset the legacy global
+`state/active-session.md`. The multi-workspace conflict recovery below applies to
+unregistered/conflicting legacy sessions, not approved parallel identities. Any
+aggregate projection is a separately approved single-writer integration. Never
+close, migrate or reset an unrelated active EARNSART session for reconciliation.
+
 ## 4. Failure States & Automated Resolution
 
 | Failure Scenario | Manifestation | Root Cause | Deterministic Resolution |
