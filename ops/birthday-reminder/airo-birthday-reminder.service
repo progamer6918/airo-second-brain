@@ -1,0 +1,24 @@
+[Unit]
+Description=AIRO dedicated private birthday reminder
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+Environment=TZ=Asia/Jakarta
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/home/ubuntu/.config/airo-birthday-reminder/credentials.env
+WorkingDirectory=/home/ubuntu/.local/lib/airo-birthday-reminder
+ExecStart=/usr/bin/bash /home/ubuntu/.local/lib/airo-birthday-reminder/run_birthday_reminder --private-root /home/ubuntu/.local/share/airo-birthday-reminder
+UMask=0077
+TimeoutStartSec=90
+Restart=no
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/.local/share/airo-birthday-reminder/sender-state
+StandardOutput=journal
+StandardError=journal

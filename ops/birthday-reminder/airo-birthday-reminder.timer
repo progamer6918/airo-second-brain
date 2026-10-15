@@ -1,0 +1,12 @@
+[Unit]
+Description=AIRO birthdays daily at 08:00 Asia/Jakarta
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 Asia/Jakarta
+Persistent=true
+AccuracySec=1min
+RandomizedDelaySec=0
+Unit=airo-birthday-reminder.service
+
+[Install]
+WantedBy=timers.target

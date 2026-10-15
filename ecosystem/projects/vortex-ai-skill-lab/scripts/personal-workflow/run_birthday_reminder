@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-set -e
-
-cd /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/
-
-set -a
-source /home/egitaristorandas/earnsai-telegram-gateway/trading-research-lab/paper-trading/.env
-set +a
-
-export BIRTHDAY_CSV_PATH="/home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/ultah_sederhana.csv"
-
-python3 /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/birthday_reminder_simple.py >> /home/egitaristorandas/vortex-ai-skill-lab/scripts/personal-workflow/birthday_reminder.log 2>&1
+set -euo pipefail
+umask 077
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PRIVATE_ROOT="${BIRTHDAY_PRIVATE_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/airo-birthday-reminder}"
+# Credentials are injected only by the dedicated service/approved runtime.
+# No old PC paths, shell sourcing, personal CSV fallback, or response logging.
+exec /usr/bin/python3 "$SCRIPT_DIR/birthday_reminder_simple.py" --private-root "$PRIVATE_ROOT" "$@"
