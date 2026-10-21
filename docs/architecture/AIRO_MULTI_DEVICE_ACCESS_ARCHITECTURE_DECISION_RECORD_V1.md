@@ -155,6 +155,12 @@ The model remains strictly **hub-and-spoke**: canonical ASB is the central hub, 
 
 ---
 
+## Operational device evidence (21 Oktober 2026)
+
+Untuk menghindari penggabungan **laptop lama pribadi Owner** dengan **laptop Nurul** dalam sesi berikutnya, baca [AIRO Device Context — 21 Oktober 2026](./AIRO_DEVICE_CONTEXT_20261021.md) sebelum melakukan device handoff. Catatan ini adalah snapshot bukti koneksi/hardware yang terverifikasi, **bukan** device registry atau perubahan atas keputusan arsitektur dan tidak mengotorisasi migrasi.
+
+---
+
 ## 8. Validation & Compliance Criteria
 
 - **Zero Runtime Code Mutation**: This decision record introduces zero mutations to runtime scripts (`bin/airo-session`, `scripts/`).
