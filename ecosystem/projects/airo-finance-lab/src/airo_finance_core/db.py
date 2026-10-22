@@ -1,15 +1,27 @@
 import sqlite3
+import threading
 import os
 from typing import Optional
+from contextlib import contextmanager
+
+class AtomicConnection(sqlite3.Connection):
+    atomic_depth = 0
+    def commit(self):
+        if not self.atomic_depth: super().commit()
+    def __exit__(self, exc_type, exc, tb):
+        if self.atomic_depth: return False
+        return super().__exit__(exc_type, exc, tb)
+
 
 class DatabaseManager:
     def __init__(self, db_path: str = ':memory:'):
         self.db_path = db_path
+        self.lock = threading.RLock()
         self._conn: Optional[sqlite3.Connection] = None
 
     def get_connection(self) -> sqlite3.Connection:
         if self._conn is None:
-            self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self._conn = sqlite3.connect(self.db_path, check_same_thread=False, factory=AtomicConnection, timeout=30)
             self._conn.row_factory = sqlite3.Row
             self._conn.execute('PRAGMA foreign_keys = ON;')
             if self.db_path != ':memory:':
@@ -31,6 +43,7 @@ class DatabaseManager:
         self._ensure_column_exists(conn, "accounts", "dashboard_group", "TEXT NOT NULL DEFAULT 'CASH'")
         self._ensure_column_exists(conn, "accounts", "parent_account_id", "TEXT")
         self._ensure_column_exists(conn, "accounts", "aliases", "TEXT NOT NULL DEFAULT ''")
+        self._ensure_column_exists(conn, "accounts", "reserve_target_id", "TEXT DEFAULT NULL")
 
         self._ensure_column_exists(conn, "categories", "is_active", "INTEGER NOT NULL DEFAULT 1")
         self._ensure_column_exists(conn, "categories", "keywords", "TEXT NOT NULL DEFAULT ''")
@@ -38,8 +51,12 @@ class DatabaseManager:
         self._ensure_column_exists(conn, "categories", "domain", "TEXT NOT NULL DEFAULT 'PERSONAL'")
         self._ensure_column_exists(conn, "categories", "event_type", "TEXT NOT NULL DEFAULT 'REGULAR'")
 
+        self._ensure_column_exists(conn, "transactions", "paired_transaction_id", "TEXT")
         self._ensure_column_exists(conn, "transactions", "subcategory_id", "TEXT REFERENCES subcategories(id)")
         self._ensure_column_exists(conn, "transactions", "status", "TEXT NOT NULL DEFAULT 'ACTIVE'")
+        self._ensure_column_exists(conn, "transactions", "credit_card_id", "TEXT REFERENCES credit_cards(id)")
+        self._ensure_column_exists(conn, "transactions", "is_reserved", "INTEGER NOT NULL DEFAULT 0")
+        self._ensure_column_exists(conn, "transactions", "transfer_side", "TEXT DEFAULT NULL")
         self._ensure_column_exists(conn, "transactions", "voided_at", "TEXT")
         self._ensure_column_exists(conn, "transactions", "void_reason", "TEXT")
         self._ensure_column_exists(conn, "transactions", "updated_at", "TEXT")
@@ -49,7 +66,24 @@ class DatabaseManager:
         self._ensure_column_exists(conn, "assets", "purchase_cost", "REAL DEFAULT 0.0")
         self._ensure_column_exists(conn, "assets", "average_cost_per_gram", "REAL DEFAULT 0.0")
         self._ensure_column_exists(conn, "assets", "current_unit_price", "REAL DEFAULT 0.0")
+
+        self._ensure_column_exists(conn, "credit_cards", "credit_type", "TEXT NOT NULL DEFAULT 'CREDIT_CARD'")
+        self._ensure_column_exists(conn, "credit_cards", "provider", "TEXT DEFAULT NULL")
+        self._ensure_column_exists(conn, "credit_cards", "billing_model", "TEXT NOT NULL DEFAULT 'STATEMENT_CYCLE'")
+        self._ensure_column_exists(conn, "credit_cards", "icon", "TEXT DEFAULT 'credit-card'")
+
+        self._ensure_column_exists(conn, "liabilities", "lender_name", "TEXT DEFAULT NULL")
+        self._ensure_column_exists(conn, "liabilities", "repayment_type", "TEXT NOT NULL DEFAULT 'INSTALLMENT'")
+        self._ensure_column_exists(conn, "liabilities", "maturity_date", "TEXT DEFAULT NULL")
+        self._ensure_column_exists(conn, "liabilities", "interest_rate", "REAL DEFAULT 0.0")
+        self._ensure_column_exists(conn, "liabilities", "interest_rate_annual", "REAL DEFAULT 0.0")
         conn.commit()
+        from .gmail_reliability import init
+        init(self)
+        from .intake_store import init as init_intake
+        init_intake(self)
+        from .temporal import init as init_temporal
+        init_temporal(self)
 
     def _ensure_column_exists(self, conn: sqlite3.Connection, table: str, column: str, col_def: str) -> None:
         cur = conn.execute(f"PRAGMA table_info({table})")
@@ -57,6 +91,29 @@ class DatabaseManager:
         if column not in existing_cols:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_def}")
 
+
+    @contextmanager
+    def atomic(self):
+        with self.lock:
+            with self._atomic_unlocked() as conn:
+                yield conn
+
+    @contextmanager
+    def _atomic_unlocked(self):
+        conn = self.get_connection()
+        outer = conn.atomic_depth == 0
+        if outer:
+            conn.execute("BEGIN IMMEDIATE")
+        conn.atomic_depth += 1
+        try:
+            yield conn
+        except BaseException:
+            conn.atomic_depth -= 1
+            if outer: conn.rollback()
+            raise
+        else:
+            conn.atomic_depth -= 1
+            if outer: conn.commit()
 
     def close(self) -> None:
         if self._conn is not None:
