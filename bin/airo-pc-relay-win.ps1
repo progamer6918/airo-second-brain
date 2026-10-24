@@ -1,11 +1,64 @@
-﻿# bin/airo-pc-relay-win.ps1 — Native Windows PC Computer Use & Desktop Relay for AIRO Hermes
+﻿param([switch]$ValidateTransportOnly)
+
+# Windows-native transport. Does not start a Linux distribution.
+$AIRO_SSH_EXE = "$env:WINDIR\System32\OpenSSH\ssh.exe"
+$AIRO_SCP_EXE = "$env:WINDIR\System32\OpenSSH\scp.exe"
+function Invoke-AiroRemoteCommand([string]$RemoteCommand) {
+    $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($RemoteCommand.Replace("`r`n", "`n").Replace("`r", "`n")))
+    $remoteWrapper = "printf '%s' '$encodedCommand' | base64 -d | bash"
+    # Bound the entire SSH process, not just TCP connection establishment.
+    $nativeArgs = @('-i', $SSH_KEY, '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes', '-o', 'ConnectTimeout=8', "$VPS_USER@$VPS_HOST", $remoteWrapper)
+    if (@($nativeArgs | Where-Object { $_.Contains('"') -or $_.EndsWith('\') }).Count) { throw 'Unsupported native SSH argument' }
+    $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $startInfo.FileName = $AIRO_SSH_EXE
+    $startInfo.Arguments = (($nativeArgs | ForEach-Object { '"' + $_ + '"' }) -join ' ')
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.StandardOutputEncoding = [Text.Encoding]::UTF8
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $startInfo
+    try {
+        if (-not $process.Start()) { throw 'Native SSH did not start' }
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit(20000)) {
+            $process.Kill()
+            $process.WaitForExit(2000) | Out-Null
+            throw 'Native SSH exceeded 20 second deadline'
+        }
+        if (-not $stdout.Wait(2000) -or -not $stderr.Wait(2000)) { throw 'Native SSH output did not close' }
+        if ($process.ExitCode -ne 0) { throw "SSH remote command failed (exit $($process.ExitCode))" }
+        $outputText = $stdout.Result.TrimEnd([char[]]"`r`n")
+        if ($outputText) { return ($outputText -split "`r?`n") }
+    } finally {
+        $process.Dispose()
+    }
+}
+# bin/airo-pc-relay-win.ps1 — Native Windows PC Computer Use & Desktop Relay for AIRO Hermes
 # Architecture: Zero-dependency .NET / Win32 API Engine (PowerShell Host)
 $ErrorActionPreference = "Continue"
 
 $VPS_HOST = "43.157.241.228"
 $VPS_USER = "ubuntu"
-$SSH_KEY = "/home/egitaristorandas/.ssh/airo_tencent_vps.pem"
+$SSH_KEY = "$env:USERPROFILE\.ssh\airo_tencent_vps.pem"
 $POLL_INTERVAL = 1.5
+if ($ValidateTransportOnly) {
+    $identity = Invoke-AiroRemoteCommand 'cat /etc/machine-id'
+    if (($identity -join '').Trim() -ne 'fd410411419d40079742fdbc36dec028') { throw 'VPS identity mismatch' }
+    $probeReply = Invoke-AiroRemoteCommand "printf '%s\n' 'AIRO_NATIVE_TRANSPORT_OK'`r`nprintf '%s\n' 'MULTILINE_OK'"
+    if (($probeReply -join '|') -ne 'AIRO_NATIVE_TRANSPORT_OK|MULTILINE_OK') { throw 'SSH quoting/line preservation test failed' }
+    $probeDestination = Join-Path $env:TEMP ('airo relay scp probe '+[guid]::NewGuid().ToString()+'.txt')
+    & $AIRO_SCP_EXE -i $SSH_KEY -o BatchMode=yes -o StrictHostKeyChecking=yes "$($VPS_USER)@$($VPS_HOST):/etc/hostname" $probeDestination
+    if ($LASTEXITCODE -ne 0 -or (Get-Content -LiteralPath $probeDestination -Raw).Trim() -ne 'VM-0-9-ubuntu') { throw 'Native SCP spaced-path test failed' }
+    Write-Output 'NATIVE_MULTILINE_SSH=PASS; NATIVE_SCP_SPACED_PATH=PASS'
+    Write-Output 'NATIVE_SSH_IDENTITY=PASS'
+    return
+}
+$relayMutex = New-Object System.Threading.Mutex($false, 'Local\AIRO_PC_Relay')
+if (-not $relayMutex.WaitOne(0)) { Write-Output 'RELAY_ALREADY_RUNNING'; return }
 
 $BRAVE_PATH = "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 $CHROME_PATH = "C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -27,41 +80,20 @@ if (-not (Test-Path $SCREEN_DIR)) {
 # Write PID
 $PID | Out-File -FilePath $PID_FILE -Encoding ascii -Force
 
-# Load Telegram credentials for direct screenshot uploads
-if (-not (Test-Path $TG_ENV_FILE)) {
-    try {
-        $wslEnv = wsl.exe -e bash -c "cat ~/.config/airo/airo-hermes-telegram.env 2>/dev/null"
-        if ($wslEnv) {
-            $wslEnv | Out-File -FilePath $TG_ENV_FILE -Encoding utf8 -Force
-        }
-    } catch {}
-}
-
+# Credentials are supplied by the private Windows state file or process environment.
 $BOT_TOKEN = $env:AIRO_HERMES_TELEGRAM_BOT_TOKEN
 $OWNER_CHAT_ID = $env:OWNER_TELEGRAM_ID
-if (Test-Path $TG_ENV_FILE) {
-    Get-Content $TG_ENV_FILE | ForEach-Object {
+if (Test-Path -LiteralPath $TG_ENV_FILE) {
+    Get-Content -LiteralPath $TG_ENV_FILE | ForEach-Object {
         if ($_ -match '^\s*([^#=]+)=(.*)$') {
             $k = $matches[1].Trim()
             $v = $matches[2].Trim('"', "'", " ")
-            if ($k -eq "AIRO_HERMES_TELEGRAM_BOT_TOKEN" -and -not $BOT_TOKEN) { $BOT_TOKEN = $v }
-            if ($k -eq "OWNER_TELEGRAM_ID" -and -not $OWNER_CHAT_ID) { $OWNER_CHAT_ID = $v }
+            if ($k -eq 'AIRO_HERMES_TELEGRAM_BOT_TOKEN' -and -not $BOT_TOKEN) { $BOT_TOKEN = $v }
+            if ($k -eq 'OWNER_TELEGRAM_ID' -and -not $OWNER_CHAT_ID) { $OWNER_CHAT_ID = $v }
         }
     }
 }
-if (-not $BOT_TOKEN) {
-    try {
-        $secEnv = wsl.exe -e bash -c 'grep -E "^AIRO_HERMES_TELEGRAM_BOT_TOKEN=" ~/.config/airo/airo-hermes-telegram.env 2>/dev/null | cut -d= -f2-'
-        $BOT_TOKEN = ($secEnv -join "").Trim('"', "'", " ")
-    } catch {}
-}
-if (-not $OWNER_CHAT_ID) {
-    try {
-        $secChat = wsl.exe -e bash -c 'grep -E "^OWNER_TELEGRAM_ID=" ~/.config/airo/airo-hermes-telegram.env 2>/dev/null | cut -d= -f2-'
-        $OWNER_CHAT_ID = ($secChat -join "").Trim('"', "'", " ")
-    } catch {}
-}
-
+if (-not $BOT_TOKEN -or -not $OWNER_CHAT_ID) { throw 'Windows relay private credentials unavailable' }
 # Add .NET Assemblies
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -277,8 +309,11 @@ IN_PROG="`$HOME/.local/state/airo-second-brain/pc-action-bridge/queue/in_progres
 mkdir -p "`$PENDING" "`$IN_PROG"
 for f in `$PENDING/*.json; do
   [ -f "`$f" ] || continue
+  if grep -q '"target": *"laptop-lama"' "`$f" 2>/dev/null; then
+    continue
+  fi
   fname=`$(basename "`$f")
-  mv "`$f" "`$IN_PROG/`$fname"
+  mv "`$f" "`$IN_PROG/`$fname" || continue
   cat "`$IN_PROG/`$fname"
   break
 done
@@ -286,8 +321,8 @@ done
 
 while ($true) {
     try {
-        # Claim oldest task atomically via WSL SSH
-        $res = wsl.exe -e bash -c "ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 $VPS_USER@$VPS_HOST '$claimBashScript'" 2>$null
+        # Claim the next task through Windows-native SSH
+        $res = Invoke-AiroRemoteCommand $claimBashScript
         $jsonStr = ($res -join "`n").Trim()
 
         if ($jsonStr -and $jsonStr.StartsWith("{") -and $jsonStr.EndsWith("}")) {
@@ -318,7 +353,7 @@ while ($true) {
                     $isExpired = $true
                     Log-Message "⏳ TASK EXPIRED ($ageSec s old > 900s limit): $actionId. Skipping execution."
                     $expireCmd = "mkdir -p ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead && mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead/$actionId.json"
-                    wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $expireCmd 2>$null
+                    Invoke-AiroRemoteCommand $expireCmd | Out-Null
                     continue
                 }
             }
@@ -363,9 +398,9 @@ while ($true) {
                                 $leafName = Split-Path $targetPptx -Leaf
                                 $vpsPptxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
                                 Log-Message "📥 Syncing presentation from VPS: $vpsPptxPath -> $targetPptx"
-                                $wslDest = wsl.exe -e wslpath -u "$targetPptx"
+                                $nativeDestination = $targetPptx
                                 $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsPptxPath"
-                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                                & $AIRO_SCP_EXE -i $SSH_KEY -o BatchMode=yes -o StrictHostKeyChecking=yes "$scpRemote" "$nativeDestination"; if ($LASTEXITCODE -ne 0) { throw 'File transfer failed' }
                             }
                         }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "powerpnt.exe$appArgs" }
@@ -381,9 +416,9 @@ while ($true) {
                                 $leafName = Split-Path $targetXlsx -Leaf
                                 $vpsXlsxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
                                 Log-Message "📥 Syncing spreadsheet from VPS: $vpsXlsxPath -> $targetXlsx"
-                                $wslDest = wsl.exe -e wslpath -u "$targetXlsx"
+                                $nativeDestination = $targetXlsx
                                 $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsXlsxPath"
-                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                                & $AIRO_SCP_EXE -i $SSH_KEY -o BatchMode=yes -o StrictHostKeyChecking=yes "$scpRemote" "$nativeDestination"; if ($LASTEXITCODE -ne 0) { throw 'File transfer failed' }
                             }
                         }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "excel.exe$appArgs" }
@@ -399,9 +434,9 @@ while ($true) {
                                 $leafName = Split-Path $targetDocx -Leaf
                                 $vpsDocxPath = "~/.local/state/airo-second-brain/pc-action-bridge/files/$leafName"
                                 Log-Message "📥 Syncing document from VPS: $vpsDocxPath -> $targetDocx"
-                                $wslDest = wsl.exe -e wslpath -u "$targetDocx"
+                                $nativeDestination = $targetDocx
                                 $scpRemote = "$($VPS_USER)@$($VPS_HOST):$vpsDocxPath"
-                                wsl.exe -e scp -i $SSH_KEY -o StrictHostKeyChecking=no "$scpRemote" "$wslDest" 2>$null
+                                & $AIRO_SCP_EXE -i $SSH_KEY -o BatchMode=yes -o StrictHostKeyChecking=yes "$scpRemote" "$nativeDestination"; if ($LASTEXITCODE -ne 0) { throw 'File transfer failed' }
                             }
                         }
                         $appCmd = if (Test-Path $p) { "`"$p`"$appArgs" } else { "winword.exe$appArgs" }
@@ -602,7 +637,7 @@ while ($true) {
             }
 
             $doneCmd = "mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/done/$actionId.json"
-            wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $doneCmd 2>$null
+            Invoke-AiroRemoteCommand $doneCmd | Out-Null
             Log-Message "✅ TASK COMPLETED: $actionId"
             } catch {
                 $errMsg = $_.Exception.Message
@@ -612,7 +647,7 @@ while ($true) {
                     curl.exe -s "https://api.telegram.org/bot$BOT_TOKEN/sendMessage?chat_id=$OWNER_CHAT_ID&text=$alertText" | Out-Null
                 }
                 $failCmd = "mkdir -p ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead && mv ~/.local/state/airo-second-brain/pc-action-bridge/queue/in_progress/$actionId.json ~/.local/state/airo-second-brain/pc-action-bridge/queue/dead/$actionId.json"
-                wsl.exe -e ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=6 "$VPS_USER@$VPS_HOST" $failCmd 2>$null
+                Invoke-AiroRemoteCommand $failCmd | Out-Null
             }
         }
     } catch {

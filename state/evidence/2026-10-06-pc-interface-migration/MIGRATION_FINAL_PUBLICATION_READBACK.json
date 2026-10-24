@@ -1,0 +1,15 @@
+{
+  "head": "b70e708433b023a85c80224e4036946756c2edcd",
+  "proof": [
+    {
+      "path": "bin/airo-pc-relay-win.ps1",
+      "sha256_match": true,
+      "blob": "4762653cf1c1c0d2de38e284a5b362af5abe500d"
+    },
+    {
+      "path": "docs/operations/WINDOWS_INTERFACE_VPS_RUNTIME_MIGRATION.md",
+      "sha256_match": true,
+      "blob": "63cc6c2294a0cb58715a11636133c40648d69484"
+    }
+  ]
+}

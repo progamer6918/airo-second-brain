@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-06T21:53:22.1865355+07:00",
+  "nativeSshScp": "PASS",
+  "queue": {
+    "queue_phase": "done",
+    "screenshot_transmission_requested": false,
+    "vps_services": {
+      "airo-earesmes-worker.service": "active",
+      "airo-earesmes-gateway.service": "active",
+      "airo-hermes-alpha-worker.service": "active",
+      "airo-hermes-gateway.service": "active"
+    },
+    "worker_tick_age_seconds": 2.9
+  },
+  "screenshotEpoch": 1791298195,
+  "screenshotBytes": 328262,
+  "width": 3200,
+  "height": 1080,
+  "screenshotTransmitted": false,
+  "nativeObsidianStarted": true,
+  "obsidianProcessCount": 4,
+  "obsidianNativePath": "D:\\Program Files\\Obsidian\\Obsidian.exe",
+  "nativeVaultReadBytes": 15235,
+  "wslRunning": false,
+  "vmProcessPresent": false,
+  "fullUiEditTest": false,
+  "relaySourceSha": "5A6F9AD3B54E190CB1CF9945D2D49F4C4330B01C129311BB96DF0FD018122370",
+  "note": "Old Obsidian Ubuntu shortcut remains an explicit optional WSL launcher; use native Windows shortcut."
+}
