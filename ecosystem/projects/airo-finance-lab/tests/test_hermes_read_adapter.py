@@ -164,7 +164,11 @@ class TestHermesReadAdapter(unittest.TestCase):
             "delete_transaction",
             "create_account",
             "write_ledger",
-            "modify_budget"
+            "modify_budget",
+            "create_obligation",
+            "update_obligation",
+            "delete_obligation",
+            "set_finance_config"
         ]
         for method_name in forbidden_methods:
             self.assertFalse(
@@ -194,5 +198,289 @@ class TestHermesReadAdapter(unittest.TestCase):
 
         print("TEST_09_PERMISSION_BOUNDARY: PASS (READ PASS, WRITE BLOCKED, 0 mutations verified)")
 
+    # ==========================================
+    # 4. SAFE-TO-SPEND (PHASE 2.2) TESTS
+    # ==========================================
+    def test_10_safe_to_spend_factual_values(self):
+        # Configure test obligations and safety floor via engine
+        self.engine.create_fixed_obligation("Kost Bulanan", 1500000.0, due_day=15)
+        self.engine.create_fixed_obligation("Internet & Wifi", 350000.0, due_day=20)
+        self.engine.set_config("safety_floor", "1000000.0")
+        self.engine.set_config("payday_day", "25")
+
+        res = self.adapter.get_safe_to_spend_report(as_of="2026-09-10")
+        self.assertEqual(res["intent"], FinanceHermesReadAdapter.INTENT_SAFE_TO_SPEND)
+        self.assertEqual(res["status"], "SUCCESS")
+
+        data = res["data"]
+        # Required fields in prompt
+        required_fields = [
+            "liquid_balance",
+            "unpaid_obligations",
+            "safety_floor",
+            "safe_to_spend",
+            "payday_runway",
+            "daily_allowance"
+        ]
+        for field in required_fields:
+            self.assertIn(field, data, f"Missing required Safe-to-Spend field: {field}")
+
+        # Verify factual values match insights
+        raw_report = self.insights.get_safe_to_spend_report(as_of="2026-09-10")
+        self.assertEqual(data["liquid_balance"], raw_report.total_liquid_balance)
+        self.assertEqual(data["unpaid_obligations"], raw_report.unpaid_obligations_this_cycle)
+        self.assertEqual(data["safety_floor"], raw_report.safety_floor)
+        self.assertEqual(data["safe_to_spend"], raw_report.safe_to_spend)
+        self.assertEqual(data["payday_runway"], raw_report.payday_runway_days)
+        self.assertEqual(data["daily_allowance"], raw_report.daily_safe_allowance)
+
+        # Context string check
+        self.assertIn("Fakta Posisi Kas & Safe-to-Spend", res["context_for_hermes"])
+        self.assertIn(res["data"]["formatted_safe_to_spend"], res["context_for_hermes"])
+        print("TEST_10_SAFE_TO_SPEND_FACTUAL: PASS (All 6 core fields matched deterministic calculation)")
+
+    def test_11_query_mapping_safe_to_spend(self):
+        test_queries = [
+            "berapa uang aman saya",
+            "aman tidak sampai gajian",
+            "safe to spend",
+            "/safetospend",
+            "sisa uang aman",
+            "berapa sisa uang aman",
+            "apakah aman belanja sampai gajian"
+        ]
+        for q in test_queries:
+            intent = self.adapter.resolve_intent(q)
+            self.assertEqual(
+                intent,
+                FinanceHermesReadAdapter.INTENT_SAFE_TO_SPEND,
+                f"Query '{q}' should resolve to INTENT_SAFE_TO_SPEND"
+            )
+            res = self.adapter.handle_query(q)
+            self.assertEqual(res["intent"], FinanceHermesReadAdapter.INTENT_SAFE_TO_SPEND)
+            self.assertEqual(res["status"], "SUCCESS")
+            self.assertIn("safe_to_spend", res["data"])
+        print("TEST_11_QUERY_MAPPING_SAFE_TO_SPEND: PASS (7/7 queries mapped correctly)")
+
+    def test_12_telegram_card_formatting(self):
+        card = self.adapter.format_safe_to_spend_telegram_card(as_of="2026-09-10")
+        self.assertIn("🛡️ <b>Safe-to-Spend Report</b>", card)
+        self.assertIn("Saldo Kas Likuid:", card)
+        self.assertIn("Tagihan Siklus Ini:", card)
+        self.assertIn("Safety Floor:", card)
+        self.assertIn("Safe-to-Spend:", card)
+        self.assertIn("Jatah Harian:", card)
+        self.assertIn("Sisa Hari s.d. Gajian:", card)
+        self.assertIn("Payday Runway:", card)
+        self.assertIn("Kalkulasi deterministik Python murni", card)
+        self.assertNotIn("```", card)
+        print("TEST_12_TELEGRAM_CARD_FORMAT: PASS (Compliant HTML single card generated)")
+
+    def test_13_strict_permission_boundary_safe_to_spend(self):
+        # 1. Count records before running queries
+        tx_count_before = len(self.engine.list_transactions())
+        audit_count_before = len(self.engine.get_audit_logs())
+        bca_balance_before = self.engine.get_account(self.acc_bca.id).balance
+
+        # 2. Execute safe-to-spend queries multiple times
+        self.adapter.handle_query("berapa uang aman saya")
+        self.adapter.handle_query("aman tidak sampai gajian")
+        self.adapter.handle_query("safe to spend")
+        self.adapter.get_safe_to_spend_report()
+        self.adapter.format_safe_to_spend_telegram_card()
+
+        # 3. Verify ZERO mutations
+        tx_count_after = len(self.engine.list_transactions())
+        audit_count_after = len(self.engine.get_audit_logs())
+        bca_balance_after = self.engine.get_account(self.acc_bca.id).balance
+
+        self.assertEqual(tx_count_before, tx_count_after, "Zero transaction writes allowed")
+        self.assertEqual(audit_count_before, audit_count_after, "Zero audit mutations allowed")
+        self.assertEqual(bca_balance_before, bca_balance_after, "Account balances remained untouched")
+        print("TEST_13_SAFE_TO_SPEND_ZERO_WRITES: PASS (0 mutations across all Safe-to-Spend read paths)")
+
+    def test_14_telegram_ingress_safetospend_route(self):
+        from airo_finance_core.telegram_ingress import FinanceTelegramIngressRouter, TelegramOutboundAdapter
+
+        sent_messages = []
+        class MockOutbound(TelegramOutboundAdapter):
+            def __init__(self):
+                pass
+            def send_message(self, chat_id, text, reply_markup=None, parse_mode="HTML"):
+                sent_messages.append({"chat_id": chat_id, "text": text})
+                return {"ok": True}
+
+        mock_outbound = MockOutbound()
+        router = FinanceTelegramIngressRouter(self.engine, outbound=mock_outbound, owner_chat_id="12345678")
+
+        # Case 1: Owner triggers /safetospend
+        update = {
+            "update_id": 101,
+            "message": {
+                "message_id": 1,
+                "chat": {"id": 12345678},
+                "from": {"id": 12345678},
+                "text": "/safetospend"
+            }
+        }
+        handled, reason = router.handle_update(update)
+        self.assertTrue(handled)
+        self.assertEqual(reason, "SAFE_TO_SPEND_CARD_SENT")
+        self.assertEqual(len(sent_messages), 1)
+        self.assertIn("Safe-to-Spend Report", sent_messages[0]["text"])
+
+        # Case 2: Non-owner triggers /safetospend
+        non_owner_update = {
+            "update_id": 102,
+            "message": {
+                "message_id": 2,
+                "chat": {"id": 99999999},
+                "from": {"id": 99999999},
+                "text": "/safetospend"
+            }
+        }
+        handled, reason = router.handle_update(non_owner_update)
+        self.assertTrue(handled)
+        self.assertEqual(reason, "BLOCKED_NON_OWNER_READ")
+        self.assertIn("Akses Ditolak", sent_messages[-1]["text"])
+        print("TEST_14_TELEGRAM_INGRESS_SAFETOSPEND: PASS (Authorized owner gets card, non-owner blocked)")
+
+    # ==========================================
+    # 5. WEEKLY RECAP (PHASE 2.3) TESTS
+    # ==========================================
+    def test_15_weekly_recap_factual_values(self):
+        res = self.adapter.get_weekly_recap_report(as_of="2026-09-07")
+        self.assertEqual(res["intent"], FinanceHermesReadAdapter.INTENT_WEEKLY_RECAP)
+        self.assertEqual(res["status"], "SUCCESS")
+
+        data = res["data"]
+        raw = self.insights.get_weekly_recap_report(as_of="2026-09-07")
+
+        # Factual value exact match
+        self.assertEqual(data["total_expense"], raw.total_expense)
+        self.assertEqual(data["total_income"], raw.total_income)
+        self.assertEqual(data["net_cashflow"], raw.net_cashflow)
+        self.assertEqual(data["daily_burn_rate"], raw.daily_burn_rate)
+        self.assertEqual(data["top_category_name"], raw.top_category_name)
+        self.assertEqual(data["total_liquid_balance"], raw.total_liquid_balance)
+        self.assertEqual(data["safe_to_spend"], raw.safe_to_spend)
+
+        # Context string check (Facts only, zero moralizing)
+        self.assertIn("Fakta Rekap Finansial Mingguan", res["context_for_hermes"])
+        self.assertIn(data["formatted_total_expense"], res["context_for_hermes"])
+        self.assertIn(data["formatted_daily_burn_rate"], res["context_for_hermes"])
+        print("TEST_15_WEEKLY_RECAP_FACTUAL: PASS (100% numerical match with raw insights report)")
+
+    def test_16_query_mapping_weekly_recap(self):
+        test_queries = [
+            "rekap minggu ini",
+            "evaluasi mingguan",
+            "pengeluaran 7 hari terakhir",
+            "/rekap",
+            "/weekly",
+            "weekly recap",
+            "pengeluaran minggu ini"
+        ]
+        for q in test_queries:
+            intent = self.adapter.resolve_intent(q)
+            self.assertEqual(
+                intent,
+                FinanceHermesReadAdapter.INTENT_WEEKLY_RECAP,
+                f"Query '{q}' should resolve to INTENT_WEEKLY_RECAP"
+            )
+            res = self.adapter.handle_query(q)
+            self.assertEqual(res["intent"], FinanceHermesReadAdapter.INTENT_WEEKLY_RECAP)
+            self.assertEqual(res["status"], "SUCCESS")
+            self.assertIn("total_expense", res["data"])
+            self.assertIn("daily_burn_rate", res["data"])
+        print("TEST_16_QUERY_MAPPING_WEEKLY: PASS (7/7 queries mapped correctly to INTENT_WEEKLY_RECAP)")
+
+    def test_17_weekly_recap_telegram_card_formatting(self):
+        card = self.adapter.format_weekly_recap_telegram_card(as_of="2026-09-07")
+        self.assertIn("📊 <b>Weekly Finance Recap</b>", card)
+        self.assertIn("Total Belanja:", card)
+        self.assertIn("Pemasukan:", card)
+        self.assertIn("Net Cashflow:", card)
+        self.assertIn("Rata-rata Harian:", card)
+        self.assertIn("Kategori Terbesar:", card)
+        self.assertIn("Transaksi Terbesar:", card)
+        self.assertIn("Saldo Kas Likuid:", card)
+        self.assertIn("Safe-to-Spend:", card)
+        self.assertIn("Kalkulasi deterministik Python murni", card)
+        self.assertNotIn("```", card)
+        print("TEST_17_WEEKLY_TELEGRAM_CARD: PASS (Structured single HTML card with all required metrics)")
+
+    def test_18_strict_zero_writes_weekly_recap(self):
+        # 1. Count records before
+        tx_before = len(self.engine.list_transactions())
+        audit_before = len(self.engine.get_audit_logs())
+        bca_bal_before = self.engine.get_account(self.acc_bca.id).balance
+
+        # 2. Execute multiple weekly recap read paths
+        self.adapter.handle_query("rekap minggu ini")
+        self.adapter.handle_query("evaluasi mingguan")
+        self.adapter.handle_query("pengeluaran 7 hari terakhir")
+        self.adapter.get_weekly_recap_report()
+        self.adapter.format_weekly_recap_telegram_card()
+
+        # 3. Verify zero mutations
+        tx_after = len(self.engine.list_transactions())
+        audit_after = len(self.engine.get_audit_logs())
+        bca_bal_after = self.engine.get_account(self.acc_bca.id).balance
+
+        self.assertEqual(tx_before, tx_after, "Zero transaction writes allowed")
+        self.assertEqual(audit_before, audit_after, "Zero audit mutations allowed")
+        self.assertEqual(bca_bal_before, bca_bal_after, "Account balances remained untouched")
+        print("TEST_18_WEEKLY_ZERO_WRITES: PASS (0 mutations across all Weekly Recap read paths)")
+
+    def test_19_telegram_ingress_weekly_recap_route(self):
+        from airo_finance_core.telegram_ingress import FinanceTelegramIngressRouter, TelegramOutboundAdapter
+
+        sent_messages = []
+        class MockOutbound(TelegramOutboundAdapter):
+            def __init__(self):
+                pass
+            def send_message(self, chat_id, text, reply_markup=None, parse_mode="HTML"):
+                sent_messages.append({"chat_id": chat_id, "text": text})
+                return {"ok": True}
+
+        mock_outbound = MockOutbound()
+        router = FinanceTelegramIngressRouter(self.engine, outbound=mock_outbound, owner_chat_id="12345678")
+
+        # Case 1: Owner triggers /rekap
+        update = {
+            "update_id": 201,
+            "message": {
+                "message_id": 10,
+                "chat": {"id": 12345678},
+                "from": {"id": 12345678},
+                "text": "/rekap"
+            }
+        }
+        handled, reason = router.handle_update(update)
+        self.assertTrue(handled)
+        self.assertEqual(reason, "WEEKLY_RECAP_CARD_SENT")
+        self.assertEqual(len(sent_messages), 1)
+        self.assertIn("Weekly Finance Recap", sent_messages[0]["text"])
+
+        # Case 2: Non-owner triggers /weekly
+        non_owner_update = {
+            "update_id": 202,
+            "message": {
+                "message_id": 11,
+                "chat": {"id": 99999999},
+                "from": {"id": 99999999},
+                "text": "/weekly"
+            }
+        }
+        handled, reason = router.handle_update(non_owner_update)
+        self.assertTrue(handled)
+        self.assertEqual(reason, "BLOCKED_NON_OWNER_READ")
+        self.assertIn("Akses Ditolak", sent_messages[-1]["text"])
+        print("TEST_19_TELEGRAM_INGRESS_WEEKLY: PASS (Owner /rekap card delivered, non-owner blocked)")
+
+
 if __name__ == "__main__":
     unittest.main()
+
+

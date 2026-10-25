@@ -16,6 +16,7 @@ class Account:
     dashboard_group: str = 'CASH'
     parent_account_id: Optional[str] = None
     aliases: str = ""
+    reserve_target_id: Optional[str] = None
 
 @dataclass
 class Category:
@@ -44,7 +45,18 @@ class Transaction:
     voided_at: Optional[str] = None
     void_reason: Optional[str] = None
     updated_at: Optional[str] = None
+    occurred_at: Optional[str] = None
+    time_precision: str = "DATE"
+    time_accuracy: str = "UNKNOWN"
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
     running_balance: Optional[float] = None
+    transfer_side: Optional[str] = None
+    is_reserved: int = 0
+    credit_card_id: Optional[str] = None
 
 @dataclass
 class Budget:
@@ -150,6 +162,10 @@ class Liability:
     is_active: int = 1
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+    lender_name: Optional[str] = None
+    repayment_type: str = "INSTALLMENT"
+    maturity_date: Optional[str] = None
+    interest_rate_annual: float = 0.0
 
 @dataclass
 class NetWorthReport:
@@ -238,6 +254,29 @@ class CreditCard:
     is_active: int = 1
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+    credit_type: str = "CREDIT_CARD"
+    provider: Optional[str] = None
+    billing_model: str = "STATEMENT_CYCLE"
+    icon: str = "credit-card"
+
+@dataclass
+class CreditLineInstallment:
+    id: str
+    card_id: str
+    description: str
+    original_amount: float
+    remaining_amount: float
+    monthly_installment: float
+    tenor_months: int
+    remaining_tenor: int
+    start_date: str
+    next_due_date: str
+    transaction_id: Optional[str] = None
+    interest_rate_annual: float = 0.0
+    admin_fee: float = 0.0
+    status: str = "ACTIVE"
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
 @dataclass
 class CreditCardStatement:
@@ -264,6 +303,15 @@ class CreditCardPayment:
     notes: Optional[str] = None
     created_at: Optional[str] = None
 
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
+
 @dataclass
 class LiabilityPayment:
     id: str
@@ -276,6 +324,15 @@ class LiabilityPayment:
     notes: Optional[str] = None
     created_at: Optional[str] = None
 
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
+
 @dataclass
 class AssetValuation:
     id: str
@@ -284,6 +341,14 @@ class AssetValuation:
     value: float
     reason: Optional[str] = None
     created_at: Optional[str] = None
+    occurred_at: Optional[str] = None
+    time_precision: Optional[str] = None
+    time_accuracy: Optional[str] = None
+    time_source: Optional[str] = None
+    message_at: Optional[str] = None
+    source_sent_at: Optional[str] = None
+    source_received_at: Optional[str] = None
+    source_id: Optional[str] = None
 
 
 
@@ -297,5 +362,3 @@ def __getattr__(name: str):
         }
         return mapping[name]
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
-
-

@@ -3,15 +3,19 @@ import sys
 import json
 import csv
 import io
+import uuid
 from datetime import datetime, date, timezone
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
+from dataclasses import asdict
 
 # Ensure finance core package is discoverable
 CORE_SRC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
 if CORE_SRC not in sys.path:
     sys.path.insert(0, CORE_SRC)
 
+from airo_finance_core import temporal
+from airo_finance_core.gmail_reliability import health as gmail_health, receipt as finance_receipt
 from airo_finance_core import DatabaseManager, FinanceCoreEngine, FinanceInsightsService, GmailIntelligenceService
 
 DEFAULT_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data/airo_finance.db"))
@@ -56,6 +60,19 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         return None
 
     def _send_json(self, data, status=200, set_cookies=None):
+        def enrich(value):
+            if isinstance(value, dict):
+                ident = value.get("id")
+                if ident:
+                    for table in temporal.EVENTS:
+                        row = self.engine.db.get_connection().execute(f"SELECT * FROM {table} WHERE id=?", (ident,)).fetchone()
+                        if row:
+                            value.update({k: row[k] for k in temporal.FIELDS})
+                            break
+                for item in list(value.values()): enrich(item)
+            elif isinstance(value, list):
+                for item in value: enrich(item)
+        enrich(data)
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -92,16 +109,145 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         if content_length <= 0:
             return {}
         raw_body = self.rfile.read(content_length)
-        return json.loads(raw_body.decode("utf-8"))
+        payload = json.loads(raw_body.decode("utf-8"))
+        temporal.CONTEXT.set(temporal.web_context(payload))
+        return payload
+
+    def _handle_credit_line_detail(self, card_ident: str):
+        conn = self.engine.db.get_connection()
+        if card_ident in ("tokopedia-card", "tokped"):
+            card_cur = conn.execute("SELECT * FROM credit_cards WHERE LOWER(name) LIKE '%tokopedia%' OR LOWER(bank_name) = 'bri' LIMIT 1")
+        else:
+            card_cur = conn.execute("SELECT * FROM credit_cards WHERE id = ?", (card_ident,))
+        card_row = card_cur.fetchone()
+        if not card_row:
+            self._send_json({"success": False, "error": f"Credit line '{card_ident}' not found"}, status=404)
+            return
+        card_base = dict(card_row)
+        card_id = card_base["id"]
+        
+        svc = FinanceInsightsService(self.engine.db)
+        cc_summary = svc.get_credit_card_summary()
+        card_metrics = next((c for c in cc_summary.get("cards", []) if c["id"] == card_id), card_base)
+        
+        stmt_cur = conn.execute("SELECT * FROM credit_card_statements WHERE card_id = ? ORDER BY due_date DESC", (card_id,))
+        statements = [dict(s) for s in stmt_cur.fetchall()]
+        
+        is_tokped = "tokopedia" in (card_base.get("name") or "").lower() or "bri" in (card_base.get("bank_name") or "").lower()
+        if is_tokped:
+            tx_cur = conn.execute(
+                """SELECT * FROM transactions 
+                   WHERE (credit_card_id = ? OR (LOWER(note) LIKE '%[tokopedia card]%' AND account_id != 'acc_d44e516a4110'))
+                     AND account_id != 'acc_d44e516a4110'
+                     AND (direction NOT IN ('TRANSFER', 'CC_PAYMENT'))
+                     AND LOWER(note) NOT LIKE '%pembayaran tagihan%'
+                     AND (status IS NULL OR status != 'VOID') 
+                   ORDER BY date DESC, created_at DESC LIMIT 100""",
+                (card_id,)
+            )
+        else:
+            tx_cur = conn.execute(
+                """SELECT * FROM transactions 
+                   WHERE credit_card_id = ?
+                     AND account_id != 'acc_d44e516a4110'
+                     AND (direction NOT IN ('TRANSFER', 'CC_PAYMENT'))
+                     AND LOWER(note) NOT LIKE '%pembayaran tagihan%'
+                     AND (status IS NULL OR status != 'VOID') 
+                   ORDER BY date DESC, created_at DESC LIMIT 100""",
+                (card_id,)
+            )
+        transactions = [dict(t) for t in tx_cur.fetchall()]
+        
+        unpaid_matches = [s for s in statements if s.get("status") != "PAID" and float(s.get("unpaid_amount", 0)) > 0]
+        primary_stmt = unpaid_matches[0] if unpaid_matches else (statements[0] if statements else None)
+        
+        stmts_with_amount = [s for s in statements if float(s.get("total_amount", 0)) > 0]
+        stmt_date = stmts_with_amount[0].get("statement_date", "1970-01-01") if stmts_with_amount else (primary_stmt.get("statement_date", "1970-01-01") if primary_stmt else "1970-01-01")
+        
+        if is_tokped:
+            unbilled_cur = conn.execute(
+                """SELECT COALESCE(SUM(amount), 0.0) as unbilled_total FROM transactions 
+                   WHERE (credit_card_id = ? OR (LOWER(note) LIKE '%[tokopedia card]%' AND account_id != 'acc_d44e516a4110'))
+                     AND account_id != 'acc_d44e516a4110'
+                     AND (direction NOT IN ('TRANSFER', 'CC_PAYMENT'))
+                     AND LOWER(note) NOT LIKE '%pembayaran tagihan%'
+                     AND (status IS NULL OR status != 'VOID')
+                     AND date > ?""",
+                (card_id, stmt_date)
+            )
+        else:
+            unbilled_cur = conn.execute(
+                """SELECT COALESCE(SUM(amount), 0.0) as unbilled_total FROM transactions 
+                   WHERE credit_card_id = ?
+                     AND account_id != 'acc_d44e516a4110'
+                     AND (direction NOT IN ('TRANSFER', 'CC_PAYMENT'))
+                     AND LOWER(note) NOT LIKE '%pembayaran tagihan%'
+                     AND (status IS NULL OR status != 'VOID')
+                     AND date > ?""",
+                (card_id, stmt_date)
+            )
+        unbilled_amount = float(unbilled_cur.fetchone()["unbilled_total"])
+        
+        unpaid_statement_total = sum(float(s.get("unpaid_amount", 0.0)) for s in statements if s.get("status") != "PAID")
+        dynamic_limit_used = round(unpaid_statement_total + unbilled_amount, 2)
+        
+        card_metrics["unbilled"] = unbilled_amount
+        card_metrics["unbilled_transactions"] = unbilled_amount
+        card_metrics["limit_used"] = dynamic_limit_used
+        card_metrics["current_balance"] = dynamic_limit_used
+        card_metrics["available_limit"] = max(0.0, float(card_base["credit_limit"]) - dynamic_limit_used)
+        card_metrics["shortage"] = max(0.0, dynamic_limit_used - float(card_metrics.get("reserve_balance", 0.0)))
+        
+        cat_cur = conn.execute("SELECT id, name FROM categories")
+        cat_map = {r["id"]: r["name"] for r in cat_cur.fetchall()}
+        for t in transactions:
+            t["category_name"] = cat_map.get(t.get("category_id"), "Umum")
+            t["is_reserved"] = bool(t.get("is_reserved", 0))
+
+        inst_cur = conn.execute("SELECT * FROM credit_line_installments WHERE card_id = ? ORDER BY next_due_date ASC", (card_id,))
+        installments = [dict(i) for i in inst_cur.fetchall()]
+
+        pmt_cur = conn.execute("SELECT * FROM credit_card_payments WHERE card_id = ? ORDER BY payment_date DESC, created_at DESC LIMIT 20", (card_id,))
+        payments = [dict(p) for p in pmt_cur.fetchall()]
+            
+        self._send_json({
+            "success": True,
+            "card": card_metrics,
+            "statements": statements,
+            "transactions": transactions,
+            "payments": payments,
+            "installments": installments
+        })
 
     # ====================================================
     # GET Handlers
     # ====================================================
     def do_GET(self):
+        with self.engine.db.lock:
+            self._do_GET()
+
+    def _do_GET(self):
         parsed = urlparse(self.path)
         qs = parse_qs(parsed.query)
 
-        if parsed.path == "/" or parsed.path == "/dashboard":
+        if parsed.path == "/api/time/domains":
+            c=self.engine.db.get_connection()
+            events=[]
+            for table in temporal.EVENTS:
+                for row in c.execute(f"SELECT * FROM {table}"):
+                    if table=="transactions" and row["status"]=="VOID": continue
+                    events.append(dict(row,entity=table,summary=temporal.summary(c,table,row)))
+            self._send_json({"success": True,"events": events})
+            return
+        elif parsed.path == "/api/time/proposals":
+            rows = self.engine.db.get_connection().execute("SELECT * FROM temporal_proposals ORDER BY created_at DESC").fetchall()
+            self._send_json({"success": True, "proposals": [dict(r) for r in rows]})
+            return
+        elif parsed.path.startswith("/api/time/proposals/"):
+            try: self._send_json({"success": True, "proposal": temporal.get_preview(self.engine.db, parsed.path.rsplit("/", 1)[1])})
+            except ValueError as e: self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+        elif parsed.path == "/" or parsed.path == "/dashboard":
             tpl_path = os.path.join(os.path.dirname(__file__), "templates/dashboard.html")
             with open(tpl_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -132,13 +278,13 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"authenticated": False, "session": None})
             return
 
-        elif parsed.path == "/api/overview":
+        elif parsed.path in ("/api/overview", "/api/dashboard"):
             conn = self.engine.db.get_connection()
             svc = FinanceInsightsService(self.engine.db)
             
             # Accounts
             accounts = [
-                {"id": a.id, "name": a.name, "type": a.type, "balance": a.balance, "is_active": a.is_active}
+                {"id": a.id, "name": a.name, "type": a.type, "balance": a.balance, "parent_account_id": a.parent_account_id, "is_active": a.is_active, "account_class": a.account_class, "reserve_target_id": a.reserve_target_id}
                 for a in self.engine.list_accounts(active_only=False)
             ]
             total_balance = sum(a["balance"] for a in accounts if a["is_active"] == 1)
@@ -206,6 +352,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 "subcategories": subcategories,
                 "obligations": obligations,
                 "credit_cards": credit_cards,
+                "credit_lines": credit_cards,
                 "aliases": aliases,
                 "transactions": transactions,
                 "transactions_complete": True,
@@ -214,6 +361,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 "net_worth": net_worth,
                 "assets": assets,
                 "liabilities": liabilities,
+                "debts": liabilities,
                 "config": configs
             })
             return
@@ -221,7 +369,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/api/accounts":
             active_only = qs.get("active_only", ["0"])[0] in ("1", "true", "True")
             accounts = [
-                {"id": a.id, "name": a.name, "type": a.type, "balance": a.balance, "is_active": a.is_active}
+                {"id": a.id, "name": a.name, "type": a.type, "balance": a.balance, "parent_account_id": a.parent_account_id, "is_active": a.is_active, "account_class": a.account_class, "reserve_target_id": a.reserve_target_id}
                 for a in self.engine.list_accounts(active_only=active_only)
             ]
             self._send_json({"accounts": accounts})
@@ -265,12 +413,12 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"review_queue": items})
             return
 
-        elif parsed.path == "/api/credit-cards":
+        elif parsed.path in ("/api/credit-cards", "/api/credit-lines"):
             svc = FinanceInsightsService(self.engine.db)
             self._send_json(svc.get_credit_card_summary())
             return
 
-        elif parsed.path == "/api/credit-cards/statements":
+        elif parsed.path in ("/api/credit-cards/statements", "/api/credit-lines/statements"):
             card_id = qs.get("card_id", [None])[0]
             stmts = [
                 {"id": s.id, "card_id": s.card_id, "statement_period": s.statement_period, "statement_date": s.statement_date, "due_date": s.due_date, "total_amount": s.total_amount, "minimum_payment": s.minimum_payment, "unpaid_amount": s.unpaid_amount, "status": s.status, "created_at": s.created_at, "updated_at": s.updated_at}
@@ -279,7 +427,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"statements": stmts})
             return
 
-        elif parsed.path == "/api/credit-cards/payments":
+        elif parsed.path in ("/api/credit-cards/payments", "/api/credit-lines/payments"):
             card_id = qs.get("card_id", [None])[0]
             pmts = [
                 {"id": p.id, "card_id": p.card_id, "statement_id": p.statement_id, "transaction_id": p.transaction_id, "payment_date": p.payment_date, "amount": p.amount, "notes": p.notes, "created_at": p.created_at}
@@ -293,9 +441,48 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_json(svc.get_assets_summary())
             return
 
-        elif parsed.path == "/api/liabilities":
+        elif parsed.path in ("/api/liabilities", "/api/debts"):
+            liabs = self.engine.list_liabilities()
+            liab_list = []
+            for l in liabs:
+                payments = self.engine.list_liability_payments(liability_id=l.id)
+                liab_dict = {
+                    "id": l.id,
+                    "name": l.name,
+                    "type": l.type,
+                    "original_amount": l.original_amount,
+                    "remaining_amount": l.remaining_amount,
+                    "monthly_payment": l.monthly_payment,
+                    "due_day": l.due_day,
+                    "notes": l.notes,
+                    "is_active": l.is_active,
+                    "lender_name": l.lender_name,
+                    "repayment_type": l.repayment_type,
+                    "maturity_date": l.maturity_date,
+                    "interest_rate_annual": l.interest_rate_annual,
+                    "created_at": l.created_at,
+                    "payments_count": len(payments),
+                    "payments": [
+                        {
+                            "id": p.id,
+                            "payment_date": p.payment_date,
+                            "amount": p.amount,
+                            "principal_portion": p.principal_portion,
+                            "interest_portion": p.interest_portion,
+                            "transaction_id": p.transaction_id,
+                            "notes": p.notes
+                        }
+                        for p in payments
+                    ]
+                }
+                liab_list.append(liab_dict)
             svc = FinanceInsightsService(self.engine.db)
-            self._send_json(svc.get_liabilities_summary())
+            self._send_json({
+                "success": True, 
+                "debts": liab_list, 
+                "liabilities": liab_list,
+                "summary": svc.get_liabilities_summary()
+            })
             return
 
         elif parsed.path == "/api/obligations":
@@ -333,14 +520,14 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             cat_map = {r["id"]: r["name"] for r in cat_cur.fetchall()}
 
             cur = conn.execute(
-                "SELECT id, date, account_id, category_id, amount, direction, note, source, created_at "
+                "SELECT * "
                 "FROM transactions ORDER BY date DESC, created_at DESC"
             )
             rows = cur.fetchall()
 
             output = io.StringIO()
             writer = csv.writer(output)
-            writer.writerow(["id", "date", "direction", "amount", "account", "category", "note", "source", "created_at"])
+            writer.writerow(["id", "date", "direction", "amount", "account", "category", "note", "source", "created_at"] + list(temporal.FIELDS))
             for r in rows:
                 writer.writerow([
                     r["id"],
@@ -352,7 +539,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     r["note"] or "",
                     r["source"] or "",
                     r["created_at"] or ""
-                ])
+                ] + [r[k] for k in temporal.FIELDS])
             self._send_csv(output.getvalue(), "airo_finance_export.csv")
             return
 
@@ -413,6 +600,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"error": "Insights endpoint not found"}, status=404)
                 return
 
+        elif parsed.path == "/api/gmail/status":
+            self._send_json({"success": True, "status": gmail_health(self.engine.db)})
+            return
+
         elif parsed.path == "/api/gmail/review-queue":
             status = qs.get("status", ["PENDING"])[0]
             items = [
@@ -430,9 +621,32 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_json({"review_queue": items})
             return
 
-        elif parsed.path == "/api/gmail/inbox":
-            inbox_data = self.engine.get_finance_inbox()
-            self._send_json({"success": True, "inbox": inbox_data})
+        elif parsed.path in ("/api/credit-cards/tokopedia-card/detail", "/api/credit-lines/tokopedia-card/detail"):
+            self._handle_credit_line_detail("tokopedia-card")
+            return
+
+        elif (parsed.path.startswith("/api/credit-cards/") or parsed.path.startswith("/api/credit-lines/")) and parsed.path.endswith("/detail"):
+            parts = parsed.path.strip("/").split("/")
+            card_id = parts[2] if len(parts) >= 3 else "tokopedia-card"
+            self._handle_credit_line_detail(card_id)
+            return
+
+        elif (parsed.path.startswith("/api/credit-lines/") or parsed.path.startswith("/api/credit-cards/")) and parsed.path.endswith("/installments"):
+            parts = parsed.path.strip("/").split("/")
+            card_id = parts[2]
+            insts = self.engine.list_credit_line_installments(card_id=card_id)
+            self._send_json({"success": True, "installments": [asdict(i) for i in insts]})
+            return
+
+        elif parsed.path == "/api/assets/gold/lots":
+            conn = self.engine.db.get_connection()
+            cur = conn.execute(
+                "SELECT * "
+                "FROM asset_valuation_history WHERE asset_id = (SELECT id FROM assets WHERE LOWER(name) LIKE '%emas%' OR LOWER(name) LIKE '%logam mulia%' LIMIT 1) "
+                "ORDER BY valuation_date DESC, created_at DESC"
+            )
+            lots = [dict(r) for r in cur.fetchall()]
+            self._send_json({"success": True, "lots": lots})
             return
 
         else:
@@ -442,9 +656,24 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
     # POST Handlers
     # ====================================================
     def do_POST(self):
+        with self.engine.db.lock, temporal.context({}):
+            self._do_POST()
+
+    def _do_POST(self):
         parsed = urlparse(self.path)
 
-        if parsed.path == "/api/auth/login":
+        if parsed.path in ("/api/time/preview", "/api/time/apply"):
+            try:
+                payload = self._read_json_body()
+                if parsed.path.endswith("preview"):
+                    result = temporal.preview(self.engine.db, payload.get("changes", []), payload.get("label", "Koreksi waktu"))
+                else:
+                    if payload.get("confirm") is not True: raise ValueError("Setujui rekapan waktu sebelum menerapkan")
+                    result = temporal.apply(self.engine.db, payload["proposal_id"], payload.get("groups"))
+                self._send_json({"success": True, "proposal": result})
+            except (ValueError, KeyError) as e: self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+        elif parsed.path == "/api/auth/login":
             try:
                 payload = self._read_json_body()
                 device_name = payload.get("device_name", "Owner Browser").strip() or "Owner Browser"
@@ -495,7 +724,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     category_id=category_id,
                     subcategory_id=subcategory_id,
                     note=note,
-                    source="DASHBOARD"
+                    source="DASHBOARD",
+                    tx_date=payload.get("date")
                 )
                 self._send_json({
                     "success": True,
@@ -728,16 +958,20 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
 
-        elif parsed.path == "/api/credit-cards":
+        elif parsed.path in ("/api/credit-cards", "/api/credit-lines"):
             try:
                 payload = self._read_json_body()
                 card = self.engine.create_credit_card(
                     name=payload["name"],
-                    bank_name=payload["bank_name"],
+                    bank_name=payload.get("bank_name") or payload.get("provider", "General"),
                     credit_limit=float(payload["credit_limit"]),
                     account_id=payload.get("account_id"),
                     billing_cycle_day=int(payload.get("billing_cycle_day", 1)),
-                    payment_due_day=int(payload.get("payment_due_day", 15))
+                    payment_due_day=int(payload.get("payment_due_day", 15)),
+                    credit_type=payload.get("credit_type", "CREDIT_CARD"),
+                    provider=payload.get("provider") or payload.get("bank_name"),
+                    billing_model=payload.get("billing_model", "STATEMENT_CYCLE"),
+                    icon=payload.get("icon", "credit-card")
                 )
                 self._send_json({
                     "success": True,
@@ -749,9 +983,112 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                         "current_balance": card.current_balance,
                         "billing_cycle_day": card.billing_cycle_day,
                         "payment_due_day": card.payment_due_day,
-                        "is_active": card.is_active
+                        "is_active": card.is_active,
+                        "credit_type": card.credit_type,
+                        "provider": card.provider,
+                        "billing_model": card.billing_model,
+                        "icon": card.icon
                     }
                 })
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path in ("/api/debts", "/api/liabilities"):
+            try:
+                payload = self._read_json_body()
+                orig_amt = float(payload.get("original_amount") or payload.get("amount", 0.0))
+                rem_amt = float(payload.get("remaining_amount", orig_amt))
+                mon_pmt = float(payload.get("monthly_payment", 0.0))
+                due_day = int(payload.get("due_day", 1))
+                liab = self.engine.create_liability(
+                    name=payload["name"],
+                    liability_type=payload.get("type", "PERSONAL_LOAN"),
+                    original_amount=orig_amt,
+                    remaining_amount=rem_amt,
+                    monthly_payment=mon_pmt,
+                    due_day=due_day,
+                    notes=payload.get("notes"),
+                    lender_name=payload.get("lender_name"),
+                    repayment_type=payload.get("repayment_type", "INSTALLMENT"),
+                    maturity_date=payload.get("maturity_date"),
+                    interest_rate_annual=float(payload.get("interest_rate_annual", 0.0)),
+                    disbursement_account_id=payload.get("disbursement_account_id"),
+                    disbursement_date=payload.get("disbursement_date") or payload.get("date")
+                )
+                self._send_json({
+                    "success": True,
+                    "debt": {
+                        "id": liab.id,
+                        "name": liab.name,
+                        "type": liab.type,
+                        "original_amount": liab.original_amount,
+                        "remaining_amount": liab.remaining_amount,
+                        "monthly_payment": liab.monthly_payment,
+                        "due_day": liab.due_day,
+                        "lender_name": liab.lender_name,
+                        "repayment_type": liab.repayment_type,
+                        "maturity_date": liab.maturity_date,
+                        "interest_rate_annual": liab.interest_rate_annual
+                    }
+                })
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif (parsed.path.startswith("/api/debts/") or parsed.path.startswith("/api/liabilities/")) and parsed.path.endswith("/pay"):
+            try:
+                parts = parsed.path.strip("/").split("/")
+                debt_id = parts[2]
+                payload = self._read_json_body()
+                amt = float(payload.get("amount", 0.0))
+                pmt_date = payload.get("payment_date", datetime.now(temporal.WIB).date().isoformat())
+                src_acc = payload.get("source_account_id")
+                princ = float(payload.get("principal_portion", 0.0))
+                inte = float(payload.get("interest_portion", 0.0))
+                notes = payload.get("notes")
+
+                pmt = self.engine.record_liability_payment(
+                    liability_id=debt_id,
+                    payment_date=pmt_date,
+                    amount=amt,
+                    principal_portion=princ,
+                    interest_portion=inte,
+                    source_account_id=src_acc,
+                    notes=notes
+                )
+                updated_liab = self.engine.get_liability(debt_id)
+                self._send_json({
+                    "success": True,
+                    "payment_id": pmt.id,
+                    "amount": pmt.amount,
+                    "remaining_amount": updated_liab.remaining_amount if updated_liab else 0.0,
+                    "is_active": updated_liab.is_active if updated_liab else 0
+                })
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif (parsed.path.startswith("/api/credit-lines/") or parsed.path.startswith("/api/credit-cards/")) and parsed.path.endswith("/installments"):
+            try:
+                payload = self._read_json_body()
+                parts = parsed.path.strip("/").split("/")
+                card_id = parts[2] if len(parts) >= 3 else payload.get("card_id")
+                inst = self.engine.create_credit_line_installment(
+                    card_id=card_id,
+                    description=payload["description"],
+                    original_amount=float(payload["original_amount"]),
+                    monthly_installment=float(payload["monthly_installment"]),
+                    tenor_months=int(payload["tenor_months"]),
+                    start_date=payload.get("start_date", datetime.now(temporal.WIB).date().isoformat()),
+                    next_due_date=payload["next_due_date"],
+                    remaining_amount=float(payload.get("remaining_amount", payload["original_amount"])),
+                    remaining_tenor=int(payload.get("remaining_tenor", payload["tenor_months"])),
+                    interest_rate_annual=float(payload.get("interest_rate_annual", 0.0)),
+                    admin_fee=float(payload.get("admin_fee", 0.0)),
+                    transaction_id=payload.get("transaction_id")
+                )
+                self._send_json({"success": True, "installment": asdict(inst)})
             except Exception as e:
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
@@ -930,8 +1267,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/api/assets/gold/update-price":
             try:
                 payload = self._read_json_body()
-                price = float(payload.get("price_per_gram", 1500000.0))
-                weight = float(payload.get("weight_grams", 50.0))
+                price = float(payload.get("price_per_gram", 2602000.0))
+                weight = float(payload.get("weight_grams", 17.478))
                 reason = payload.get("reason", f"Update harga emas harian Rp {price:,.0f}/g")
                 new_val = price * weight
                 
@@ -939,11 +1276,237 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 cur = conn.execute("SELECT id FROM assets WHERE name LIKE '%Emas%' OR name LIKE '%Logam Mulia%' LIMIT 1")
                 row = cur.fetchone()
                 if row:
-                    self.engine.update_asset(row["id"], current_value=new_val, notes=f"Emas Antam: {weight}g @ Rp {price:,.0f}/g (valuasi Rp {new_val:,.0f})")
-                    self.engine.record_asset_valuation(row["id"], date.today().isoformat(), new_val, reason)
+                    with self.engine.db.atomic():
+                        self.engine.update_asset(row["id"], current_value=new_val, notes=f"Emas Antam: {weight}g @ Rp {price:,.0f}/g (valuasi Rp {new_val:,.0f})")
+                        self.engine.record_asset_valuation(row["id"], payload.get("valuation_date") or payload.get("date") or datetime.now(temporal.WIB).date().isoformat(), value=new_val, unit_price=price, reason=reason)
                     self._send_json({"success": True, "asset_id": row["id"], "valuation": new_val, "price_per_gram": price})
                 else:
                     self._send_json({"success": False, "error": "Gold asset not found"}, status=404)
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path == "/api/assets/gold/correct-lot":
+            try:
+                payload = self._read_json_body()
+                lot_id = payload.get("lot_id")
+                new_val = float(payload["value"]) if "value" in payload and payload["value"] is not None else None
+                new_date = payload.get("valuation_date")
+                new_reason = payload.get("reason")
+                note = payload.get("correction_note")
+                res = self.engine.correct_gold_lot(
+                    lot_id=lot_id,
+                    new_value=new_val,
+                    new_date=new_date,
+                    new_reason=new_reason,
+                    correction_note=note
+                )
+                self._send_json(res)
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path in ("/api/credit-cards/tokopedia-card/update-statement", "/api/credit-lines/tokopedia-card/update-statement") or ((parsed.path.startswith("/api/credit-cards/") or parsed.path.startswith("/api/credit-lines/")) and parsed.path.endswith("/update-statement")):
+            try:
+                payload = self._read_json_body()
+                statement_id = payload.get("statement_id")
+                total_amount = float(payload.get("total_amount", 0.0))
+                due_date = payload.get("due_date", "").strip()
+                statement_date = payload.get("statement_date", "").strip()
+                statement_period = payload.get("statement_period", "").strip()
+                status_val = payload.get("status", "ISSUED").strip().upper()
+                
+                unpaid_amount = payload.get("unpaid_amount")
+                if unpaid_amount is not None:
+                    unpaid_amount = float(unpaid_amount)
+                else:
+                    unpaid_amount = 0.0 if status_val == "PAID" else total_amount
+
+                conn = self.engine.db.get_connection()
+                with conn:
+                    req_card_id = payload.get("card_id")
+                    parts = parsed.path.strip("/").split("/")
+                    if not req_card_id and len(parts) >= 3 and parts[2] not in ("tokopedia-card", "tokped"):
+                        req_card_id = parts[2]
+
+                    if req_card_id:
+                        card_cur = conn.execute("SELECT id, name, bank_name FROM credit_cards WHERE id = ?", (req_card_id,))
+                    else:
+                        card_cur = conn.execute("SELECT id, name, bank_name FROM credit_cards WHERE LOWER(name) LIKE '%tokopedia%' OR LOWER(bank_name) = 'bri' LIMIT 1")
+                    card_row = card_cur.fetchone()
+                    if not card_row:
+                        raise ValueError(f"Credit line '{req_card_id or 'Tokopedia'}' not found")
+                    card_id = card_row["id"]
+                    is_tokped = "tokopedia" in (card_row["name"] or "").lower() or "bri" in (card_row["bank_name"] or "").lower()
+
+                    stmt = None
+                    if statement_id and statement_id not in ("new", "stmt_new", ""):
+                        stmt_cur = conn.execute("SELECT * FROM credit_card_statements WHERE id = ?", (statement_id,))
+                        stmt = stmt_cur.fetchone()
+
+                    if stmt:
+                        final_due = due_date or stmt["due_date"]
+                        final_stmt_date = statement_date or stmt["statement_date"]
+                        final_period = statement_period or stmt["statement_period"]
+                        conn.execute(
+                            """UPDATE credit_card_statements 
+                               SET total_amount = ?, unpaid_amount = ?, due_date = ?, statement_date = ?, statement_period = ?, status = ?, updated_at = datetime('now') 
+                               WHERE id = ?""",
+                            (total_amount, unpaid_amount, final_due, final_stmt_date, final_period, status_val, stmt["id"])
+                        )
+                        saved_id = stmt["id"]
+                    else:
+                        saved_id = f"stmt_{card_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}"
+                        final_due = due_date or datetime.now(temporal.WIB).date().isoformat()
+                        final_stmt_date = statement_date or datetime.now(temporal.WIB).date().isoformat()
+                        final_period = statement_period or "Tagihan Baru"
+                        conn.execute(
+                            """INSERT INTO credit_card_statements 
+                               (id, card_id, statement_period, statement_date, due_date, total_amount, minimum_payment, unpaid_amount, status, created_at, updated_at) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))""",
+                            (saved_id, card_id, final_period, final_stmt_date, final_due, total_amount, round(total_amount * 0.1, 2), unpaid_amount, status_val)
+                        )
+
+                    # Dynamic CC current_balance recalculation across all statements
+                    unpaid_cur = conn.execute(
+                        "SELECT COALESCE(SUM(unpaid_amount), 0.0) as s FROM credit_card_statements WHERE card_id = ? AND status != 'PAID'",
+                        (card_id,)
+                    )
+                    unpaid_total = float(unpaid_cur.fetchone()["s"])
+
+                    stmts_with_amount = conn.execute(
+                        "SELECT statement_date FROM credit_card_statements WHERE card_id = ? AND total_amount > 0 ORDER BY statement_date DESC LIMIT 1",
+                        (card_id,)
+                    ).fetchone()
+                    ref_stmt_date = stmts_with_amount["statement_date"] if stmts_with_amount else "1970-01-01"
+
+                    if is_tokped:
+                        unbilled_cur = conn.execute(
+                            """SELECT COALESCE(SUM(amount), 0.0) as unbilled_total FROM transactions 
+                               WHERE (credit_card_id = ? OR (LOWER(note) LIKE '%[tokopedia card]%' AND account_id != 'acc_d44e516a4110')) 
+                               AND date > ? AND direction != 'TRANSFER' AND (status IS NULL OR status != 'VOID')""",
+                            (card_id, ref_stmt_date)
+                        )
+                    else:
+                        unbilled_cur = conn.execute(
+                            """SELECT COALESCE(SUM(amount), 0.0) as unbilled_total FROM transactions 
+                               WHERE credit_card_id = ?
+                               AND date > ? AND direction != 'TRANSFER' AND (status IS NULL OR status != 'VOID')""",
+                            (card_id, ref_stmt_date)
+                        )
+                    unbilled_amount = float(unbilled_cur.fetchone()["unbilled_total"])
+                    new_current_balance = round(unpaid_total + unbilled_amount, 2)
+
+                    conn.execute(
+                        "UPDATE credit_cards SET current_balance = ?, updated_at = datetime('now') WHERE id = ?",
+                        (new_current_balance, card_id)
+                    )
+
+                self._send_json({
+                    "success": True,
+                    "statement_id": saved_id,
+                    "total_amount": total_amount,
+                    "unpaid_amount": unpaid_amount,
+                    "due_date": final_due,
+                    "statement_period": final_period,
+                    "card_balance": new_current_balance
+                })
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path in ("/api/credit-cards/tokopedia-card/pay-statement", "/api/credit-lines/tokopedia-card/pay-statement") or ((parsed.path.startswith("/api/credit-cards/") or parsed.path.startswith("/api/credit-lines/")) and parsed.path.endswith("/pay-statement")):
+            try:
+                payload = self._read_json_body()
+                amount = float(payload.get("amount", 0.0))
+                if amount <= 0:
+                    raise ValueError("Jumlah pembayaran harus lebih dari 0")
+                source_account_id = payload.get("source_account_id")
+                payment_date = payload.get("payment_date", datetime.now(temporal.WIB).date().isoformat())
+                note = payload.get("note", "Pembayaran Tagihan Kredit").strip()
+                statement_id = payload.get("statement_id")
+                
+                parts = parsed.path.strip("/").split("/")
+                req_card_id = payload.get("card_id")
+                if not req_card_id and len(parts) >= 3 and parts[2] not in ("tokopedia-card", "tokped"):
+                    req_card_id = parts[2]
+
+                conn = self.engine.db.get_connection()
+                with conn:
+                    if statement_id:
+                        stmt_cur = conn.execute("SELECT id, card_id, unpaid_amount FROM credit_card_statements WHERE id = ?", (statement_id,))
+                    elif req_card_id:
+                        stmt_cur = conn.execute("SELECT id, card_id, unpaid_amount FROM credit_card_statements WHERE card_id = ? AND status != 'PAID' ORDER BY due_date ASC LIMIT 1", (req_card_id,))
+                    else:
+                        stmt_cur = conn.execute("SELECT id, card_id, unpaid_amount FROM credit_card_statements WHERE status != 'PAID' ORDER BY due_date ASC LIMIT 1")
+                    stmt = stmt_cur.fetchone()
+                    if not stmt:
+                        raise ValueError("Tidak ada tagihan kartu kredit yang belum lunas")
+                    
+                    unpaid = float(stmt["unpaid_amount"])
+                    if amount > unpaid:
+                        raise ValueError(f"Nominal pembayaran Rp{amount:,.0f} melebihi sisa tagihan Rp{unpaid:,.0f}")
+                    
+                    new_unpaid = max(0.0, unpaid - amount)
+                self.engine.record_credit_card_payment(
+                    card_id=stmt["card_id"], payment_date=payment_date, amount=amount,
+                    statement_id=stmt["id"], notes=note, account_id=source_account_id
+                )
+                self._send_json({"success": True, "paid_amount": amount, "statement_id": stmt["id"], "new_unpaid": new_unpaid})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif (
+            parsed.path == "/api/credit-cards/tokopedia-card/toggle-reserve"
+            or (parsed.path.startswith("/api/credit-lines/") and parsed.path.endswith("/toggle-reserve"))
+            or parsed.path == "/api/credit-lines/toggle-reserve"
+        ):
+            try:
+                payload = self._read_json_body()
+                tx_id = payload.get("transaction_id") or payload.get("id")
+                if not tx_id:
+                    self._send_json({"success": False, "error": "transaction_id is required"}, status=400)
+                    return
+                is_reserved = payload.get("is_reserved")
+                tx = self.engine.toggle_transaction_reserve(tx_id=tx_id, is_reserved=is_reserved)
+                self._send_json({
+                    "success": True,
+                    "transaction": {
+                        "id": tx.id,
+                        "is_reserved": tx.is_reserved
+                    }
+                })
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path == "/api/credit-cards/purchase":
+            try:
+                payload = self._read_json_body()
+                card_id = payload.get("card_id")
+                if not card_id:
+                    conn = self.engine.db.get_connection()
+                    cur = conn.execute("SELECT id FROM credit_cards WHERE LOWER(name) LIKE '%tokopedia%' LIMIT 1")
+                    r = cur.fetchone()
+                    card_id = r["id"] if r else None
+                if not card_id:
+                    self._send_json({"success": False, "error": "card_id is required"}, status=400)
+                    return
+                amount = float(payload.get("amount", 0.0))
+                category_id = payload.get("category_id")
+                subcategory_id = payload.get("subcategory_id")
+                note = payload.get("note")
+                tx_date = payload.get("date") or payload.get("tx_date")
+                res = self.engine.record_credit_card_purchase(
+                    card_id=card_id,
+                    amount=amount,
+                    category_id=category_id,
+                    subcategory_id=subcategory_id,
+                    note=note,
+                    tx_date=tx_date
+                )
+                self._send_json(res)
             except Exception as e:
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
@@ -996,6 +1559,68 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
 
+        elif parsed.path == "/api/transactions/batch-void":
+            try:
+                payload = self._read_json_body()
+                tx_ids = payload.get("ids", [])
+                if not tx_ids or not isinstance(tx_ids, list):
+                    self._send_json({"success": False, "error": "Transaction IDs list is required"}, status=400)
+                    return
+                reason = payload.get("reason", "Batch void by owner")
+                scope = payload.get("scope", "transaction")
+                voided = []
+                for tx_id in tx_ids:
+                    try:
+                        r = self.engine.void_transaction(transaction_id=str(tx_id), reason=reason, scope=scope)
+                        voided.extend(r.get("voided_ids", [str(tx_id)]))
+                    except Exception as e:
+                        sys.stderr.write(f"Failed to void tx {tx_id}: {e}\n")
+                self._send_json({"success": True, "voided_ids": voided, "count": len(voided)})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path == "/api/gmail/scan":
+            try:
+                payload = self._read_json_body() or {}
+                query = payload.get("query")
+                max_results = int(payload.get("max_results", 50))
+                dry_run = bool(payload.get("dry_run", False))
+                service = GmailIntelligenceService(self.engine)
+                result = service.scan_inbox(query=query, max_results=max_results, dry_run=dry_run)
+                self._send_json({"success": True, "result": result})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=500)
+            return
+
+        elif parsed.path == "/api/gmail/review-queue/approve":
+            try:
+                payload = self._read_json_body()
+                item_id = payload.get("item_id")
+                override_data = payload.get("override_data")
+                if not item_id:
+                    self._send_json({"success": False, "error": "item_id is required"}, status=400)
+                    return
+                item, tx = self.engine.approve_review_item(item_id=item_id, override_data=override_data)
+                self._send_json({"success": True, "transaction_id": tx.id if tx else None, "receipt": finance_receipt(self.engine, tx) if tx else None})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
+        elif parsed.path == "/api/gmail/review-queue/ignore":
+            try:
+                payload = self._read_json_body()
+                item_id = payload.get("item_id")
+                reason = payload.get("reason", "Ignored by owner")
+                if not item_id:
+                    self._send_json({"success": False, "error": "item_id is required"}, status=400)
+                    return
+                item = self.engine.ignore_review_item(item_id=item_id, reason=reason)
+                self._send_json({"success": True, "item_id": item.id if item else None, "status": "IGNORED"})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=400)
+            return
+
         else:
             self._send_json({"error": "Not Found"}, status=404)
 
@@ -1003,6 +1628,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
     # PUT Handlers
     # ====================================================
     def do_PUT(self):
+        with self.engine.db.lock, temporal.context({}):
+            self._do_PUT()
+
+    def _do_PUT(self):
         parsed = urlparse(self.path)
 
         if parsed.path == "/api/accounts":
@@ -1093,10 +1722,17 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
 
-        elif parsed.path == "/api/liabilities":
+        elif (
+            parsed.path in ("/api/liabilities", "/api/debts")
+            or parsed.path.startswith("/api/liabilities/")
+            or parsed.path.startswith("/api/debts/")
+        ):
             try:
                 payload = self._read_json_body()
+                path_parts = parsed.path.strip("/").split("/")
                 liab_id = payload.get("id")
+                if not liab_id and len(path_parts) >= 3:
+                    liab_id = path_parts[2]
                 if not liab_id:
                     self._send_json({"success": False, "error": "Liability ID is required"}, status=400)
                     return
@@ -1109,7 +1745,11 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     monthly_payment=payload.get("monthly_payment"),
                     due_day=payload.get("due_day"),
                     notes=payload.get("notes"),
-                    is_active=payload.get("is_active")
+                    is_active=payload.get("is_active"),
+                    lender_name=payload.get("lender_name"),
+                    repayment_type=payload.get("repayment_type"),
+                    maturity_date=payload.get("maturity_date"),
+                    interest_rate_annual=payload.get("interest_rate_annual")
                 )
                 if not liab:
                     self._send_json({"success": False, "error": "Liability not found"}, status=404)
@@ -1125,7 +1765,11 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                         "monthly_payment": liab.monthly_payment,
                         "due_day": liab.due_day,
                         "notes": liab.notes,
-                        "is_active": liab.is_active
+                        "is_active": liab.is_active,
+                        "lender_name": liab.lender_name,
+                        "repayment_type": liab.repayment_type,
+                        "maturity_date": liab.maturity_date,
+                        "interest_rate_annual": liab.interest_rate_annual
                     }
                 })
             except Exception as e:
@@ -1218,12 +1862,19 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
 
-        elif parsed.path == "/api/credit-cards":
+        elif (
+            parsed.path in ("/api/credit-cards", "/api/credit-lines")
+            or parsed.path.startswith("/api/credit-cards/")
+            or parsed.path.startswith("/api/credit-lines/")
+        ):
             try:
                 payload = self._read_json_body()
+                path_parts = parsed.path.strip("/").split("/")
                 card_id = payload.get("id")
+                if not card_id and len(path_parts) >= 3:
+                    card_id = path_parts[2]
                 if not card_id:
-                    self._send_json({"success": False, "error": "Credit Card ID is required"}, status=400)
+                    self._send_json({"success": False, "error": "Credit Card / Credit Line ID is required"}, status=400)
                     return
                 card = self.engine.update_credit_card(
                     card_id=card_id,
@@ -1233,10 +1884,14 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                     current_balance=float(payload["current_balance"]) if "current_balance" in payload and payload["current_balance"] is not None else None,
                     billing_cycle_day=int(payload["billing_cycle_day"]) if "billing_cycle_day" in payload and payload["billing_cycle_day"] is not None else None,
                     payment_due_day=int(payload["payment_due_day"]) if "payment_due_day" in payload and payload["payment_due_day"] is not None else None,
-                    is_active=int(payload["is_active"]) if "is_active" in payload and payload["is_active"] is not None else None
+                    is_active=int(payload["is_active"]) if "is_active" in payload and payload["is_active"] is not None else None,
+                    credit_type=payload.get("credit_type"),
+                    provider=payload.get("provider"),
+                    billing_model=payload.get("billing_model"),
+                    icon=payload.get("icon")
                 )
                 if not card:
-                    self._send_json({"success": False, "error": "Credit card not found"}, status=404)
+                    self._send_json({"success": False, "error": "Credit card / line not found"}, status=404)
                     return
                 self._send_json({
                     "success": True,
@@ -1248,53 +1903,17 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                         "current_balance": card.current_balance,
                         "billing_cycle_day": card.billing_cycle_day,
                         "payment_due_day": card.payment_due_day,
-                        "is_active": card.is_active
+                        "is_active": card.is_active,
+                        "credit_type": card.credit_type,
+                        "provider": card.provider,
+                        "billing_model": card.billing_model,
+                        "icon": card.icon
                     }
                 })
             except Exception as e:
                 self._send_json({"success": False, "error": str(e)}, status=400)
             return
 
-        elif parsed.path == "/api/gmail/scan":
-            try:
-                payload = self._read_json_body() or {}
-                query = payload.get("query")
-                max_results = int(payload.get("max_results", 20))
-                dry_run = bool(payload.get("dry_run", False))
-                service = GmailIntelligenceService(self.engine)
-                result = service.scan_inbox(query=query, max_results=max_results, dry_run=dry_run)
-                self._send_json({"success": True, "result": result})
-            except Exception as e:
-                self._send_json({"success": False, "error": str(e)}, status=500)
-            return
-
-        elif parsed.path == "/api/gmail/review-queue/approve":
-            try:
-                payload = self._read_json_body()
-                item_id = payload.get("item_id")
-                override_data = payload.get("override_data")
-                if not item_id:
-                    self._send_json({"success": False, "error": "item_id is required"}, status=400)
-                    return
-                tx = self.engine.approve_review_item(item_id=item_id, override_data=override_data)
-                self._send_json({"success": True, "transaction_id": tx.id if tx else None})
-            except Exception as e:
-                self._send_json({"success": False, "error": str(e)}, status=400)
-            return
-
-        elif parsed.path == "/api/gmail/review-queue/ignore":
-            try:
-                payload = self._read_json_body()
-                item_id = payload.get("item_id")
-                reason = payload.get("reason", "Ignored by owner")
-                if not item_id:
-                    self._send_json({"success": False, "error": "item_id is required"}, status=400)
-                    return
-                item = self.engine.ignore_review_item(item_id=item_id, reason=reason)
-                self._send_json({"success": True, "item_id": item.id if item else None, "status": "IGNORED"})
-            except Exception as e:
-                self._send_json({"success": False, "error": str(e)}, status=400)
-            return
 
         else:
             self._send_json({"error": "Not Found"}, status=404)
