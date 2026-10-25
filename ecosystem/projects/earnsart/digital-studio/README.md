@@ -1,26 +1,33 @@
-# EARNSART Digital Studio — Public ASB Registry
+# earnsart digital studio — public ASB registry
 
 - **Project ID:** `earnsart-digital-studio`
 - **Parent namespace:** `ecosystem/projects/earnsart/`
-- **Project status:** `ACTIVE_PLANNING` (website NOT PUBLISHED)
-- **Source-code visibility:** `PRIVATE`
-- **Project role:** Design and digital studio planning within the AIRO ecosystem
+- **Project status (25 October 2026):** `ACTIVE_LIVE` — public studio website published
+- **Public studio website:** https://earnsart.pages.dev
+- **Public portfolio/demo website:** https://cx-photo-studio.pages.dev
+- **Source-code visibility:** `PRIVATE` — implementation and commercial information stay outside public ASB
+- **Project role:** Digital studio and website services; ASB is a public-safe status/coordination registry only
 - **Documentation classification:** `PUBLIC_SAFE_METADATA_ONLY`
 
 ## Scope and routing
 
-This directory is the **public project registry entry**, not the application source repository. EARNSART Digital Studio's implementation, unpublished design assets, internal business plans and client-sensitive data belong to a **separate private EARNSART development repository**. Publishing a website, if later approved, does **not** require making that GitHub repository public.
+This document records **publicly observable websites and safe project status**, not source code, customer records, release manifests, access configuration or deployment permissions. Both public websites have separately deployed Cloudflare Pages sites. Their underlying source belongs to the same private project repository; ASB does not mirror it.
 
-The first concept demo is **KARYA RUANG**, a fictional interior/furniture concept study whose development/QA status is **QA ACCEPTED / NOT PUBLISHED**. This registry does not distribute its source or unpublished creative assets.
+The official studio website was already published by 22 October 2026; the public portfolio/demo website was published by 24 October 2026. This updates the earlier `ACTIVE_PLANNING / NOT PUBLISHED` wording. These dates are historic status observations, **not** a promise that deployments are permanent or a new publication authorization.
 
-Private project instructions, QA evidence, implementation work orders and approvals must be accessed through the owner-authorized private coordination channels. An entry in this public directory does **not** authorize autonomous code execution, deployment, a release, or a change to ASB source/governance.
+The **KARYA RUANG** concept is fictional and must not be presented as a completed paid customer job. No private asset, source, draft commercial plan, lead, customer record or credential is published by this registry.
 
-## Historical EARNSART records
+## Operating boundaries
 
-The sibling `../README.md`, `../CURRENT.md`, `../gta6-pilot/` and `../notion-export/` are the **existing FROZEN gaming/anime/creator project history**. Their content and freeze status are unchanged. This digital studio is a **distinct workstream under the same EARNSART namespace**, not a resumption or rewrite of the legacy creator records.
+- Owner retains final approval for repo merges, production deployments or rollbacks, prices, customer outreach, account changes, and new costs.
+- Project agents must read the current private project's operating rules and latest decisions; a separate AI chat does not automatically inherit those files.
+- ChatGPT coordinates planning and review; AGY operates the main Windows PC for approved desktop work; Codex handles scoped coding/testing. VPS, remote M1, and AIRO Finance/Hermes are separate and **not authorized by this registry**.
+- No Cloudflare write, deployment, rollback, credential access, paid service or new integration is authorized by a public status update.
 
-## Security and next steps
+## Historical context
 
-- The ASB repository is **PUBLIC**. Do not add credentials, private plans, unpublished site source/assets or personal/customer data here.
-- Changes to the private EARNSART studio source follow its own `AGENTS.md`, scoped approved tasks, feature branches, and review gates.
-- This file is a **registry/architecture marker only**. Physical workspace migration, renaming an existing private repository, altering the project's default branch, and publishing a site all require separate verification and implementation evidence.
+The sibling `../README.md`, `../CURRENT.md`, `../gta6-pilot/` and `../notion-export/` retain the older frozen gaming/anime/creator workstream unchanged. This digital studio is a separate workstream under the existing namespace.
+
+## Security
+
+ASB is **PUBLIC**. Store only safe registry/status metadata here; keep implementation, private documents, internal business data and customer information in their authorized private locations. The canonical private project and current production release records have precedence over this public summary.
