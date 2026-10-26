@@ -1,0 +1,7 @@
+{
+  "deadlineSeconds": 20,
+  "observedElapsedSeconds": 20.03,
+  "hungSshDeadline": "PASS",
+  "pinnedTransport": "PASS",
+  "wslInvoked": false
+}
